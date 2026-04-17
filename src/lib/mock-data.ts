@@ -1,4 +1,5 @@
 import type { Restaurant, RestaurantDetail, Review, ReviewIntelligence } from "@/lib/types";
+import { processReviews } from "@/lib/review-processor";
 
 const restaurants: Restaurant[] = [
   {
@@ -716,9 +717,36 @@ export function getRestaurantDetail(slug: string): RestaurantDetail | null {
   // Pick nearby restaurants (exclude self, take 4)
   const nearby = restaurants.filter((r) => r.slug !== slug).slice(0, 4);
 
+  // Derive review intelligence from actual review text
+  const reviewIntelligence = processReviews(detail.reviews) ?? detail.reviewIntelligence;
+
   return {
     ...base,
     ...detail,
+    reviewIntelligence,
     nearby,
+  };
+}
+
+export function getCardReviewData(slug: string): {
+  reviewSnippet?: string;
+  topDimensionLabel?: string;
+  topDimensionPercent?: number;
+} | null {
+  const detail = getRestaurantDetail(slug);
+  if (!detail) return null;
+
+  const intelligence = detail.reviewIntelligence;
+  if (!intelligence) return null;
+
+  const topMention = intelligence.topMentions[0];
+  const topDimension = intelligence.dimensions.reduce<
+    (typeof intelligence.dimensions)[number] | null
+  >((best, d) => (!best || d.percent > best.percent ? d : best), null);
+
+  return {
+    reviewSnippet: topMention?.phrase,
+    topDimensionLabel: topDimension?.label,
+    topDimensionPercent: topDimension?.percent,
   };
 }
