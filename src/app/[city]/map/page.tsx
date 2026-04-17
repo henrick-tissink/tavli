@@ -1,13 +1,15 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Search, X } from "lucide-react";
+import { Search, X, SlidersHorizontal } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
 import { getRestaurants } from "@/lib/mock-data";
+import { useFilters } from "@/lib/filter-context";
+import { FilterSheet } from "@/components/filter-sheet";
 import { MapContainer } from "@/components/map-container";
 import { createPinElement } from "@/components/map-pin";
 import { MapCarousel } from "@/components/map-carousel";
@@ -23,37 +25,55 @@ export default function MapPage({
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
-  const restaurants = getRestaurants();
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const { applyFilters, activeFilterCount } = useFilters();
+  const allRestaurants = getRestaurants();
+  const restaurants = useMemo(
+    () => applyFilters(allRestaurants),
+    [applyFilters, allRestaurants],
+  );
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
 
   const handleMapReady = useCallback(
     (map: mapboxgl.Map) => {
       setMapInstance(map);
+    },
+    [],
+  );
 
-      restaurants.forEach((restaurant) => {
-        if (restaurant.lat == null || restaurant.lng == null) return;
+  // Plot / re-plot markers whenever the filtered restaurants change
+  useMemo(() => {
+    if (!mapInstance) return;
 
-        const isClosed = restaurant.status === "closed";
-        const el = createPinElement({
-          rating: restaurant.rating,
-          unavailable: isClosed,
-        });
+    // Remove previous markers
+    for (const m of markersRef.current) m.remove();
+    markersRef.current = [];
 
-        const marker = new mapboxgl.Marker({ element: el })
-          .setLngLat([restaurant.lng, restaurant.lat])
-          .addTo(map);
+    restaurants.forEach((restaurant) => {
+      if (restaurant.lat == null || restaurant.lng == null) return;
 
-        marker.getElement().addEventListener("click", () => {
-          setSelectedId(restaurant.id);
-          map.flyTo({
-            center: [restaurant.lng!, restaurant.lat!],
-            zoom: 15,
-            duration: 800,
-          });
+      const isClosed = restaurant.status === "closed";
+      const el = createPinElement({
+        rating: restaurant.rating,
+        unavailable: isClosed,
+      });
+
+      const marker = new mapboxgl.Marker({ element: el })
+        .setLngLat([restaurant.lng, restaurant.lat])
+        .addTo(mapInstance);
+
+      marker.getElement().addEventListener("click", () => {
+        setSelectedId(restaurant.id);
+        mapInstance.flyTo({
+          center: [restaurant.lng!, restaurant.lat!],
+          zoom: 15,
+          duration: 800,
         });
       });
-    },
-    [restaurants],
-  );
+
+      markersRef.current.push(marker);
+    });
+  }, [restaurants, mapInstance]);
 
   function handleSelectFromCarousel(restaurant: Restaurant) {
     setSelectedId(restaurant.id);
@@ -86,9 +106,15 @@ export default function MapPage({
           <span className="text-text-muted text-sm flex-1">Search restaurants...</span>
           <button
             type="button"
-            className="px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
+            className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
+            onClick={() => setFilterSheetOpen(true)}
           >
             Filters
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -166,9 +192,15 @@ export default function MapPage({
             <span className="text-text-muted text-sm flex-1">Search restaurants...</span>
             <button
               type="button"
-              className="px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
+              className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
+              onClick={() => setFilterSheetOpen(true)}
             >
               Filters
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
             <button
               type="button"
@@ -194,6 +226,12 @@ export default function MapPage({
           />
         </div>
       </div>
+
+      <FilterSheet
+        open={filterSheetOpen}
+        onClose={() => setFilterSheetOpen(false)}
+        resultCount={restaurants.length}
+      />
     </div>
   );
 }

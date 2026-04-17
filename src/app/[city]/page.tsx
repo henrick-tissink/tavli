@@ -1,14 +1,16 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FilterPillBar } from "@/components/filter-pill-bar";
+import { FilterSheet } from "@/components/filter-sheet";
 import { ContextBanner } from "@/components/context-banner";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { RestaurantCard } from "@/components/restaurant-card";
+import { useFilters } from "@/lib/filter-context";
 import {
+  getRestaurants,
   getTrendingRestaurants,
-  getOpenNowRestaurants,
   getNewRestaurants,
 } from "@/lib/mock-data";
 
@@ -32,20 +34,60 @@ export default function DiscoverFeedPage({
 }) {
   const { city } = use(params);
   const router = useRouter();
-  const [activePills, setActivePills] = useState<string[]>(["All"]);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } =
+    useFilters();
 
   const displayCity = formatCityName(city);
-  const openNowRestaurants = getOpenNowRestaurants();
-  const trendingRestaurants = getTrendingRestaurants();
-  const newRestaurants = getNewRestaurants();
+  const allRestaurants = getRestaurants();
+  const filteredRestaurants = useMemo(
+    () => applyFilters(allRestaurants),
+    [applyFilters, allRestaurants],
+  );
 
-  const firstChunk = openNowRestaurants.slice(0, 8);
-  const restChunk = openNowRestaurants.slice(8);
+  const trendingRestaurants = useMemo(
+    () => applyFilters(getTrendingRestaurants()),
+    [applyFilters],
+  );
+  const newRestaurants = useMemo(
+    () => applyFilters(getNewRestaurants()),
+    [applyFilters],
+  );
+  const openFiltered = useMemo(
+    () => filteredRestaurants.filter((r) => r.status === "open"),
+    [filteredRestaurants],
+  );
+
+  const firstChunk = openFiltered.slice(0, 8);
+  const restChunk = openFiltered.slice(8);
+
+  // Derive active pills from filter state
+  const activePills = useMemo(() => {
+    const pills: string[] = [];
+    if (activeFilterCount === 0) pills.push("All");
+    if (filters.openNow) pills.push("Open Now");
+    if (filters.cuisines.length > 0) pills.push("Cuisine");
+    if (filters.priceRange.length > 0) pills.push("Price");
+    if (
+      filters.neighborhoods.length > 0 ||
+      filters.minRating > 0 ||
+      filters.venueTypes.length > 0 ||
+      filters.collections.length > 0
+    )
+      pills.push("More");
+    return pills;
+  }, [filters, activeFilterCount]);
 
   function handlePillToggle(pill: string) {
-    setActivePills((prev) =>
-      prev.includes(pill) ? prev.filter((p) => p !== pill) : [...prev, pill],
-    );
+    if (pill === "All") {
+      resetFilters();
+    } else if (pill === "Open Now") {
+      setFilter("openNow", !filters.openNow);
+    }
+  }
+
+  function handleDropdownOpen(_pill: string) {
+    setFilterSheetOpen(true);
   }
 
   return (
@@ -53,30 +95,38 @@ export default function DiscoverFeedPage({
       <FilterPillBar
         activePills={activePills}
         onPillToggle={handlePillToggle}
-        onDropdownOpen={(pill) => console.log("Dropdown open:", pill)}
+        onDropdownOpen={handleDropdownOpen}
       />
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
         <ContextBanner
           greeting={`Good evening, ${displayCity}`}
-          subtext={`${openNowRestaurants.length} places available tonight`}
+          subtext={`${filteredRestaurants.length} places available tonight`}
         />
 
-        <div className="mt-8">
-          <HorizontalSection
-            title={`Popular in ${displayCity}`}
-            restaurants={trendingRestaurants}
-            onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
-            onSlotSelect={(_id, _slot) => {
-              const target = trendingRestaurants.find((r) => r.id === _id);
-              if (target) router.push(`/${city}/${target.slug}`);
-            }}
-          />
-        </div>
+        {trendingRestaurants.length > 0 && (
+          <div className="mt-8">
+            <HorizontalSection
+              title={`Popular in ${displayCity}`}
+              restaurants={trendingRestaurants}
+              onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+              onSlotSelect={(_id, _slot) => {
+                const target = trendingRestaurants.find((r) => r.id === _id);
+                if (target) router.push(`/${city}/${target.slug}`);
+              }}
+            />
+          </div>
+        )}
 
         <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
           Available Tonight
         </h2>
+
+        {firstChunk.length === 0 && (
+          <p className="text-text-secondary text-sm py-8 text-center">
+            No restaurants match your current filters.
+          </p>
+        )}
 
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
           {firstChunk.map((restaurant) => (
@@ -93,17 +143,19 @@ export default function DiscoverFeedPage({
 
         {restChunk.length > 0 && (
           <>
-            <div className="mt-8">
-              <HorizontalSection
-                title="New on Tavli"
-                restaurants={newRestaurants}
-                onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
-                onSlotSelect={(_id, _slot) => {
-                  const target = newRestaurants.find((r) => r.id === _id);
-                  if (target) router.push(`/${city}/${target.slug}`);
-                }}
-              />
-            </div>
+            {newRestaurants.length > 0 && (
+              <div className="mt-8">
+                <HorizontalSection
+                  title="New on Tavli"
+                  restaurants={newRestaurants}
+                  onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+                  onSlotSelect={(_id, _slot) => {
+                    const target = newRestaurants.find((r) => r.id === _id);
+                    if (target) router.push(`/${city}/${target.slug}`);
+                  }}
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5 mt-4">
               {restChunk.map((restaurant) => (
@@ -122,6 +174,12 @@ export default function DiscoverFeedPage({
 
         <div className="h-8" />
       </div>
+
+      <FilterSheet
+        open={filterSheetOpen}
+        onClose={() => setFilterSheetOpen(false)}
+        resultCount={filteredRestaurants.length}
+      />
     </>
   );
 }
