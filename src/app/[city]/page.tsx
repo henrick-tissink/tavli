@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FilterPillBar } from "@/components/filter-pill-bar";
 import { ContextBanner } from "@/components/context-banner";
 import { HorizontalSection } from "@/components/horizontal-section";
@@ -30,6 +31,7 @@ export default function DiscoverFeedPage({
   params: Promise<{ city: string }>;
 }) {
   const { city } = use(params);
+  const router = useRouter();
   const [activePills, setActivePills] = useState<string[]>(["All"]);
 
   const displayCity = formatCityName(city);
@@ -64,8 +66,11 @@ export default function DiscoverFeedPage({
           <HorizontalSection
             title={`Popular in ${displayCity}`}
             restaurants={trendingRestaurants}
-            onCardClick={(r) => console.log("Card clicked:", r.id)}
-            onSlotSelect={(id, slot) => console.log("Slot selected:", id, slot)}
+            onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+            onSlotSelect={(_id, _slot) => {
+              const target = trendingRestaurants.find((r) => r.id === _id);
+              if (target) router.push(`/${city}/${target.slug}`);
+            }}
           />
         </div>
 
@@ -78,9 +83,9 @@ export default function DiscoverFeedPage({
             <RestaurantCard
               key={restaurant.id}
               restaurant={restaurant}
-              onClick={(r) => console.log("Card clicked:", r.id)}
-              onSlotSelect={(id, slot) =>
-                console.log("Slot selected:", id, slot)
+              onClick={(r) => router.push(`/${city}/${r.slug}`)}
+              onSlotSelect={(_id, _slot) =>
+                router.push(`/${city}/${restaurant.slug}`)
               }
             />
           ))}
@@ -92,10 +97,11 @@ export default function DiscoverFeedPage({
               <HorizontalSection
                 title="New on Tavli"
                 restaurants={newRestaurants}
-                onCardClick={(r) => console.log("Card clicked:", r.id)}
-                onSlotSelect={(id, slot) =>
-                  console.log("Slot selected:", id, slot)
-                }
+                onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+                onSlotSelect={(_id, _slot) => {
+                  const target = newRestaurants.find((r) => r.id === _id);
+                  if (target) router.push(`/${city}/${target.slug}`);
+                }}
               />
             </div>
 
@@ -104,9 +110,9 @@ export default function DiscoverFeedPage({
                 <RestaurantCard
                   key={restaurant.id}
                   restaurant={restaurant}
-                  onClick={(r) => console.log("Card clicked:", r.id)}
-                  onSlotSelect={(id, slot) =>
-                    console.log("Slot selected:", id, slot)
+                  onClick={(r) => router.push(`/${city}/${r.slug}`)}
+                  onSlotSelect={(_id, _slot) =>
+                    router.push(`/${city}/${restaurant.slug}`)
                   }
                 />
               ))}

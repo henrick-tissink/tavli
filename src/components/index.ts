@@ -13,3 +13,8 @@ export { ContextBanner } from "./context-banner";
 export { FilterPillBar } from "./filter-pill-bar";
 export { HorizontalSection } from "./horizontal-section";
 export { MapFab } from "./map-fab";
+export { PhotoGallery } from "./photo-gallery";
+export { SentimentBar } from "./sentiment-bar";
+export { ReviewIntelligenceSection } from "./review-intelligence";
+export { ReviewCard } from "./review-card";
+export { ReservationSheet } from "./reservation-sheet";
