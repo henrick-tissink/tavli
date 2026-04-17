@@ -24,9 +24,11 @@ describe("RatingBadge", () => {
     expect(el).toHaveClass("bg-black/45", "text-white");
   });
 
-  it("renders formatted vote count", () => {
+  it("renders formatted vote count using browser locale", () => {
     render(<RatingBadge rating={4.5} voteCount={1234} />);
-    expect(screen.getByText("(1.234)")).toBeInTheDocument();
+    // Uses default locale (en-US in Node.js test environment)
+    const formatted = (1234).toLocaleString();
+    expect(screen.getByText(`(${formatted})`)).toBeInTheDocument();
   });
 
   it("does not render vote count when not provided", () => {

@@ -51,7 +51,7 @@ describe("RestaurantCard", () => {
 
   it("renders open status", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
-    expect(screen.getByText("Open")).toBeInTheDocument();
+    expect(screen.getByText("Open now")).toBeInTheDocument();
   });
 
   it("renders time slots limited to 4 visible with More arrow", () => {
@@ -112,5 +112,39 @@ describe("RestaurantCard", () => {
     render(<RestaurantCard restaurant={baseRestaurant} saved={false} onSave={onSave} onSlotSelect={jest.fn()} />);
     await userEvent.click(screen.getByLabelText("Save La Mama"));
     expect(onSave).toHaveBeenCalledWith("r1");
+  });
+
+  it("has role=button and is keyboard accessible", () => {
+    const { container } = render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    const card = container.firstChild as HTMLElement;
+    expect(card).toHaveAttribute("role", "button");
+    expect(card).toHaveAttribute("tabindex", "0");
+  });
+
+  it("time slot click does not propagate to card onClick", async () => {
+    const onClick = jest.fn();
+    const onSlotSelect = jest.fn();
+    render(
+      <RestaurantCard
+        restaurant={baseRestaurant}
+        onClick={onClick}
+        onSlotSelect={onSlotSelect}
+      />
+    );
+    await userEvent.click(screen.getByText("19:00"));
+    expect(onSlotSelect).toHaveBeenCalledWith("r1", "19:00");
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("uses text-[17px] for card title", () => {
+    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    const title = screen.getByText("La Mama");
+    expect(title).toHaveClass("text-[17px]");
+  });
+
+  it("uses text-xs for cuisine/zone row", () => {
+    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    const row = screen.getByText(/Romanian · \$\$ · Old Town/);
+    expect(row).toHaveClass("text-xs");
   });
 });

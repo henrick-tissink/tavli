@@ -35,7 +35,20 @@ describe("Pill", () => {
     expect(screen.getByLabelText("Remove Italian filter")).toBeInTheDocument();
   });
 
-  it("calls onToggle when clicked", async () => {
+  it("renders as a single button when not dismissible", () => {
+    const { container } = render(<Pill label="Italian" />);
+    expect(container.firstChild?.nodeName).toBe("BUTTON");
+  });
+
+  it("renders as a div container with two buttons when dismissible and active", () => {
+    const { container } = render(<Pill label="Italian" active dismissible />);
+    const root = container.firstChild as HTMLElement;
+    expect(root.nodeName).toBe("DIV");
+    const buttons = root.querySelectorAll("button");
+    expect(buttons.length).toBe(2);
+  });
+
+  it("calls onToggle when label area clicked", async () => {
     const user = userEvent.setup();
     const handleToggle = jest.fn();
     render(<Pill label="Italian" onToggle={handleToggle} />);

@@ -18,7 +18,7 @@ export function RatingBadge({
 }: RatingBadgeProps) {
   const formattedCount =
     voteCount !== undefined
-      ? `(${voteCount.toLocaleString("ro-RO")})`
+      ? `(${voteCount.toLocaleString()})`
       : null;
 
   return (

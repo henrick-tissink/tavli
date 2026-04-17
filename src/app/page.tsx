@@ -59,7 +59,7 @@ export default function Home() {
     <div className="min-h-screen bg-surface-bg">
       <div className="max-w-[var(--container-content)] mx-auto p-6 flex flex-col gap-12">
         <header>
-          <h1 className="text-3xl font-extrabold text-text-primary">
+          <h1 className="text-[28px] desktop:text-[36px] font-extrabold text-text-primary">
             Tavli Component Showcase
           </h1>
           <p className="mt-1 text-text-secondary">
@@ -69,7 +69,7 @@ export default function Home() {
 
         {/* ── Buttons ─────────────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Buttons</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Buttons</h2>
           <div className="flex flex-wrap items-center gap-3">
             <Button variant="primary">Primary</Button>
             <Button variant="secondary">Secondary</Button>
@@ -85,7 +85,7 @@ export default function Home() {
 
         {/* ── Pills ───────────────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Pills</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Pills</h2>
           <div className="flex flex-wrap items-center gap-2">
             <Pill label="All" active />
             <Pill label="Open Now" icon="🟢" />
@@ -98,7 +98,7 @@ export default function Home() {
 
         {/* ── Avatars ─────────────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Avatars</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Avatars</h2>
           <div className="flex items-end gap-4">
             <div className="flex flex-col items-center gap-1">
               <Avatar name="Alice" size="sm" />
@@ -125,7 +125,7 @@ export default function Home() {
 
         {/* ── Rating Badges ───────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Rating Badges</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Rating Badges</h2>
           <div className="flex flex-wrap items-center gap-4">
             <RatingBadge rating={4.7} />
             <RatingBadge rating={4.2} voteCount={1243} />
@@ -137,7 +137,7 @@ export default function Home() {
 
         {/* ── Status Badges ───────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Status Badges</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Status Badges</h2>
           <div className="flex flex-wrap items-center gap-6">
             <StatusBadge status="open" closesAt="23:00" variant="full" />
             <StatusBadge status="closed" opensAt="11:00" variant="full" />
@@ -148,7 +148,7 @@ export default function Home() {
 
         {/* ── Time Slot Pills ─────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Time Slot Pills</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Time Slot Pills</h2>
           <div className="flex flex-col gap-6">
             <div>
               <p className="text-sm text-text-secondary mb-2">Normal</p>
@@ -174,7 +174,7 @@ export default function Home() {
 
         {/* ── Bottom Sheet ────────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">Bottom Sheet</h2>
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">Bottom Sheet</h2>
           <div>
             <Button variant="secondary" onClick={() => setSheetOpen(true)}>
               Open Bottom Sheet
@@ -204,10 +204,10 @@ export default function Home() {
 
         {/* ── Restaurant Cards ────────────────────── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-text-primary">
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
             Restaurant Cards
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-6">
             <RestaurantCard restaurant={restaurantWithPhoto} />
             <RestaurantCard restaurant={restaurantClosed} />
           </div>

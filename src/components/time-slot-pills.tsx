@@ -2,7 +2,7 @@ interface TimeSlotPillsProps {
   slots: string[];
   selected?: string;
   maxVisible?: number;
-  onSelect: (slot: string) => void;
+  onSelect?: (slot: string) => void;
   onMore?: () => void;
 }
 
@@ -37,7 +37,7 @@ export function TimeSlotPills({
         <button
           key={slot}
           type="button"
-          onClick={() => onSelect(slot)}
+          onClick={() => onSelect?.(slot)}
           className={[
             "rounded-lg px-3 py-1.5 text-xs font-semibold",
             slot === selected

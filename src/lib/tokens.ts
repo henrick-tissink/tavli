@@ -1,3 +1,10 @@
+/**
+ * Canonical reference for programmatic token access.
+ * Components that need token values in JS (not just CSS classes) should import from here.
+ * Used by the time-aware system and map theming which need to reference colors programmatically.
+ * The CSS custom properties in globals.css are the source of truth for Tailwind classes;
+ * these values must be kept in sync.
+ */
 export const colors = {
   brandPrimary: "#F97316",
   brandPrimarySoft: "#FFF7ED",

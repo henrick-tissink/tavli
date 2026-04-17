@@ -62,4 +62,27 @@ describe("BottomSheet", () => {
     await user.click(screen.getByTestId("sheet-backdrop"));
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it("has role=dialog and aria-modal=true", () => {
+    render(
+      <BottomSheet open onClose={jest.fn()} title="Test">
+        <p>Content</p>
+      </BottomSheet>
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+  });
+
+  it("has aria-labelledby pointing to title", () => {
+    render(
+      <BottomSheet open onClose={jest.fn()} title="My Title">
+        <p>Content</p>
+      </BottomSheet>
+    );
+    const dialog = screen.getByRole("dialog");
+    const labelledBy = dialog.getAttribute("aria-labelledby");
+    expect(labelledBy).toBeTruthy();
+    const title = document.getElementById(labelledBy!);
+    expect(title).toHaveTextContent("My Title");
+  });
 });

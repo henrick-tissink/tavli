@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react";
 import { StatusBadge } from "../status-badge";
 
 describe("StatusBadge", () => {
-  it("renders 'Open' for open status (full)", () => {
+  it("renders 'Open now' for open status (full)", () => {
     render(<StatusBadge status="open" />);
-    expect(screen.getByText("Open")).toBeInTheDocument();
+    expect(screen.getByText("Open now")).toBeInTheDocument();
   });
 
   it("shows closing time when provided", () => {

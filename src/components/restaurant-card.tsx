@@ -31,9 +31,16 @@ export function RestaurantCard({
 
   return (
     <div
-      role="article"
+      role="button"
+      tabIndex={0}
       className="overflow-hidden rounded-card bg-surface-white shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer transition-all"
       onClick={() => onClick?.(restaurant)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.(restaurant);
+        }
+      }}
     >
       {/* Photo section */}
       <div className={`relative aspect-[16/10] ${isClosed ? "opacity-60" : ""}`}>
@@ -91,40 +98,43 @@ export function RestaurantCard({
       <div className="p-3 flex flex-col gap-1.5">
         {/* Row 1: Name + inline rating */}
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-text-primary truncate text-base">
+          <h3 className="font-bold text-text-primary truncate text-[17px]">
             {restaurant.name}
           </h3>
           <RatingBadge rating={restaurant.rating} variant="inline" />
         </div>
 
         {/* Row 2: Cuisine · Price · Zone */}
-        <p className="text-sm text-text-secondary truncate">
+        <p className="text-xs text-text-secondary truncate">
           {restaurant.cuisine} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
           {restaurant.zone}
         </p>
 
         {/* Row 3: Review intelligence or fallback */}
         {hasReviewIntelligence ? (
-          <p className="text-sm text-text-secondary truncate">
+          <p className="text-xs text-text-secondary truncate">
             🔥 &ldquo;{restaurant.reviewSnippet}&rdquo; · {restaurant.topDimensionPercent}%
             loved the {restaurant.topDimensionLabel}
           </p>
         ) : (
           restaurant.voteCount > 0 && (
-            <p className="text-sm text-text-muted">
+            <p className="text-xs text-text-muted">
               {restaurant.voteCount} reviews
             </p>
           )
         )}
 
         {/* Row 4: Time slots */}
-        <TimeSlotPills
-          slots={restaurant.availableSlots}
-          maxVisible={4}
-          onSelect={(slot) => {
-            onSlotSelect?.(restaurant.id, slot);
-          }}
-        />
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <div onClick={(e) => e.stopPropagation()}>
+          <TimeSlotPills
+            slots={restaurant.availableSlots}
+            maxVisible={4}
+            onSelect={(slot) => {
+              onSlotSelect?.(restaurant.id, slot);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

@@ -26,7 +26,7 @@ export function StatusBadge({
         ].join(" ")}
       >
         {dot}
-        {isOpen ? "Open" : "Closed"}
+        {isOpen ? "Open now" : "Closed"}
       </span>
     );
   }
@@ -36,7 +36,7 @@ export function StatusBadge({
       className={`inline-flex items-center gap-1.5 text-sm font-semibold ${isOpen ? "text-success" : "text-error"}`}
     >
       {dot}
-      <span>{isOpen ? "Open" : "Closed"}</span>
+      <span>{isOpen ? "Open now" : "Closed"}</span>
       {isOpen && closesAt && <span>· Closes at {closesAt}</span>}
       {!isOpen && opensAt && <span>· Opens at {opensAt}</span>}
     </span>
