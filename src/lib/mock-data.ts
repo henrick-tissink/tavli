@@ -1,4 +1,4 @@
-import type { Restaurant } from "@/lib/types";
+import type { Restaurant, RestaurantDetail, Review, ReviewIntelligence } from "@/lib/types";
 
 const restaurants: Restaurant[] = [
   {
@@ -393,4 +393,292 @@ export function getNewRestaurants(): Restaurant[] {
 
 export function getOpenNowRestaurants(): Restaurant[] {
   return restaurants.filter((r) => r.status === "open");
+}
+
+const defaultIntelligence: ReviewIntelligence = {
+  dimensions: [
+    { label: "Food", icon: "🍽️", percent: 92, mentionCount: 187 },
+    { label: "Service", icon: "🤝", percent: 88, mentionCount: 154 },
+    { label: "Atmosphere", icon: "✨", percent: 85, mentionCount: 132 },
+    { label: "Value", icon: "💰", percent: 79, mentionCount: 98 },
+  ],
+  topMentions: [
+    { phrase: "fresh ingredients", count: 47 },
+    { phrase: "friendly staff", count: 38 },
+    { phrase: "cozy atmosphere", count: 31 },
+    { phrase: "great wine list", count: 24 },
+    { phrase: "generous portions", count: 19 },
+  ],
+  bestFor: ["Date night", "Business lunch", "Group dining", "Special occasion"],
+};
+
+function makeReviews(restaurantName: string): Review[] {
+  return [
+    {
+      id: "r1",
+      authorName: "Maria Popescu",
+      rating: 5,
+      date: "2026-04-10",
+      reservationDate: "2026-04-08",
+      guestCount: 2,
+      text: `Absolutely incredible experience at ${restaurantName}. The food was outstanding and the service was impeccable. We will definitely be coming back!`,
+      helpfulCount: 12,
+      restaurantReply: {
+        text: "Thank you so much, Maria! We're thrilled you enjoyed your evening with us. Looking forward to welcoming you back!",
+        authorName: "Alexandru",
+        authorTitle: "Manager",
+        date: "2026-04-11",
+      },
+    },
+    {
+      id: "r2",
+      authorName: "Ion Dumitrescu",
+      rating: 4,
+      date: "2026-04-05",
+      reservationDate: "2026-04-03",
+      guestCount: 4,
+      text: "Great food and nice ambiance. The wait was a bit long but the quality made up for it. The wine recommendation was spot on.",
+      helpfulCount: 8,
+    },
+    {
+      id: "r3",
+      authorName: "Elena Stanescu",
+      rating: 5,
+      date: "2026-03-28",
+      reservationDate: "2026-03-26",
+      guestCount: 2,
+      text: "Perfect date night spot. Every dish was beautifully presented and delicious. The staff made us feel very welcome.",
+      helpfulCount: 15,
+    },
+    {
+      id: "r4",
+      authorName: "Andrei Vasile",
+      rating: 3,
+      date: "2026-03-20",
+      reservationDate: "2026-03-18",
+      guestCount: 6,
+      text: "Food was good but nothing extraordinary for the price. Service was slow for our large group. Desserts were the highlight.",
+      helpfulCount: 3,
+      restaurantReply: {
+        text: "Thank you for your feedback, Andrei. We apologize for the slow service with your larger party. We're working on improving our group dining experience.",
+        authorName: "Alexandru",
+        authorTitle: "Manager",
+        date: "2026-03-21",
+      },
+    },
+    {
+      id: "r5",
+      authorName: "Diana Moldovan",
+      rating: 5,
+      date: "2026-03-15",
+      reservationDate: "2026-03-14",
+      guestCount: 3,
+      text: "",
+      helpfulCount: 1,
+    },
+    {
+      id: "r6",
+      authorName: "Cristian Radu",
+      rating: 4,
+      date: "2026-03-10",
+      reservationDate: "2026-03-08",
+      guestCount: 2,
+      text: "Solid choice for a nice dinner out. The appetizers were fantastic, mains were good. Would recommend the tasting menu.",
+      helpfulCount: 6,
+    },
+    {
+      id: "r7",
+      authorName: "Ioana Popa",
+      rating: 4,
+      date: "2026-03-01",
+      reservationDate: "2026-02-28",
+      guestCount: 2,
+      text: "Lovely evening. The seasonal menu was creative and well-executed. Cocktails were excellent too.",
+      helpfulCount: 9,
+    },
+    {
+      id: "r8",
+      authorName: "Mihai Ionescu",
+      rating: 5,
+      date: "2026-02-20",
+      reservationDate: "2026-02-18",
+      guestCount: 4,
+      text: "Celebrated our anniversary here and it was perfect. The chef's special was outstanding. Attentive service without being intrusive.",
+      helpfulCount: 11,
+      restaurantReply: {
+        text: "Happy anniversary, Mihai! It was our pleasure to be part of your celebration. Hope to see you again soon!",
+        authorName: "Maria",
+        authorTitle: "Head Chef",
+        date: "2026-02-21",
+      },
+    },
+  ];
+}
+
+const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>> = {
+  "casa-veche": {
+    description: "A beloved Romanian restaurant in the heart of Centru Vechi, serving traditional dishes with a modern twist. Known for our grandmother's sarmale recipe and an extensive selection of Romanian wines.",
+    photos: [
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&h=600&fit=crop",
+    ],
+    schedule: [
+      { days: "Mon–Fri", hours: "12:00 – 23:00" },
+      { days: "Sat–Sun", hours: "11:00 – 23:30" },
+    ],
+    address: "Str. Lipscani 45, Centru Vechi, București",
+    lat: 44.4323,
+    lng: 26.0966,
+    tags: ["Romanian", "Traditional", "Wine bar", "Terrace"],
+    reviewIntelligence: {
+      dimensions: [
+        { label: "Food", icon: "🍽️", percent: 94, mentionCount: 201 },
+        { label: "Service", icon: "🤝", percent: 87, mentionCount: 165 },
+        { label: "Atmosphere", icon: "✨", percent: 91, mentionCount: 148 },
+        { label: "Value", icon: "💰", percent: 82, mentionCount: 112 },
+      ],
+      topMentions: [
+        { phrase: "sarmale", count: 58 },
+        { phrase: "Romanian wine", count: 42 },
+        { phrase: "cozy terrace", count: 35 },
+        { phrase: "friendly staff", count: 29 },
+        { phrase: "traditional recipes", count: 22 },
+      ],
+      bestFor: ["Traditional cuisine", "Date night", "Tourist must-visit", "Wine tasting"],
+    },
+    reviews: makeReviews("Casa Veche"),
+    nearby: [],
+    websiteUrl: "https://casaveche.ro",
+    menuPdfUrl: "https://casaveche.ro/menu.pdf",
+  },
+  "sakura-sushi": {
+    description: "Premium Japanese dining featuring the freshest fish flown in weekly from Tsukiji Market. Our omakase experience has been praised as the best in Bucharest.",
+    photos: [
+      "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1540648639573-8c848de23f0a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=800&h=600&fit=crop",
+    ],
+    schedule: [
+      { days: "Tue–Sun", hours: "12:00 – 22:30" },
+      { days: "Mon", hours: "Closed" },
+    ],
+    address: "Bd. Primăverii 12, Dorobanți, București",
+    lat: 44.4567,
+    lng: 26.0812,
+    tags: ["Japanese", "Sushi", "Omakase", "Premium"],
+    reviewIntelligence: {
+      dimensions: [
+        { label: "Food", icon: "🍽️", percent: 96, mentionCount: 312 },
+        { label: "Service", icon: "🤝", percent: 91, mentionCount: 245 },
+        { label: "Atmosphere", icon: "✨", percent: 88, mentionCount: 198 },
+        { label: "Value", icon: "💰", percent: 72, mentionCount: 156 },
+      ],
+      topMentions: [
+        { phrase: "fresh fish", count: 89 },
+        { phrase: "omakase", count: 67 },
+        { phrase: "beautiful presentation", count: 51 },
+        { phrase: "sake selection", count: 38 },
+        { phrase: "worth the price", count: 28 },
+      ],
+      bestFor: ["Special occasion", "Sushi lovers", "Omakase experience", "Business dinner"],
+    },
+    reviews: makeReviews("Sakura Sushi"),
+    nearby: [],
+    websiteUrl: "https://sakurasushi.ro",
+  },
+  "trattoria-roma": {
+    description: "Authentic Italian trattoria bringing the flavors of Rome to Bucharest. Handmade pasta daily, wood-fired pizzas, and a curated selection of Italian wines from small producers.",
+    photos: [
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1481931098730-318b6f776db0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=800&h=600&fit=crop",
+    ],
+    schedule: [
+      { days: "Mon–Thu", hours: "12:00 – 23:00" },
+      { days: "Fri–Sat", hours: "12:00 – 23:30" },
+      { days: "Sun", hours: "12:00 – 22:00" },
+    ],
+    address: "Str. Nordului 7, Herăstrău, București",
+    lat: 44.4789,
+    lng: 26.0734,
+    tags: ["Italian", "Pasta", "Pizza", "Wine", "Terrace"],
+    reviewIntelligence: {
+      dimensions: [
+        { label: "Food", icon: "🍽️", percent: 90, mentionCount: 178 },
+        { label: "Service", icon: "🤝", percent: 85, mentionCount: 142 },
+        { label: "Atmosphere", icon: "✨", percent: 91, mentionCount: 156 },
+        { label: "Value", icon: "💰", percent: 78, mentionCount: 89 },
+      ],
+      topMentions: [
+        { phrase: "fresh pasta", count: 52 },
+        { phrase: "wood-fired pizza", count: 41 },
+        { phrase: "Italian wines", count: 33 },
+        { phrase: "romantic setting", count: 27 },
+        { phrase: "tiramisu", count: 21 },
+      ],
+      bestFor: ["Date night", "Italian food lovers", "Family dinner"],
+    },
+    reviews: makeReviews("Trattoria Roma"),
+    nearby: [],
+    websiteUrl: "https://trattoriaroma.ro",
+    menuPdfUrl: "https://trattoriaroma.ro/menu.pdf",
+  },
+  "le-bistrot": {
+    description: "An exquisite French fine dining destination in the Aviatorilor district. Chef-driven seasonal menus with artful presentation and impeccable service. Michelin-recommended.",
+    photos: [
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600&fit=crop",
+    ],
+    schedule: [
+      { days: "Tue–Sat", hours: "18:00 – 23:00" },
+      { days: "Sun–Mon", hours: "Closed" },
+    ],
+    address: "Bd. Aviatorilor 28, Aviatorilor, București",
+    lat: 44.4612,
+    lng: 26.0845,
+    tags: ["French", "Fine dining", "Tasting menu", "Wine pairing"],
+    reviewIntelligence: {
+      dimensions: [
+        { label: "Food", icon: "🍽️", percent: 97, mentionCount: 289 },
+        { label: "Service", icon: "🤝", percent: 97, mentionCount: 276 },
+        { label: "Atmosphere", icon: "✨", percent: 95, mentionCount: 254 },
+        { label: "Value", icon: "💰", percent: 68, mentionCount: 198 },
+      ],
+      topMentions: [
+        { phrase: "tasting menu", count: 95 },
+        { phrase: "exceptional service", count: 78 },
+        { phrase: "wine pairing", count: 64 },
+        { phrase: "artistic presentation", count: 52 },
+        { phrase: "special occasion", count: 41 },
+      ],
+      bestFor: ["Special occasion", "Fine dining", "Anniversary", "Business dinner"],
+    },
+    reviews: makeReviews("Le Bistrot"),
+    nearby: [],
+    websiteUrl: "https://lebistrot.ro",
+  },
+};
+
+export function getRestaurantDetail(slug: string): RestaurantDetail | null {
+  const base = restaurants.find((r) => r.slug === slug);
+  if (!base) return null;
+
+  const detail = restaurantDetails[slug];
+  if (!detail) return null;
+
+  // Pick nearby restaurants (exclude self, take 4)
+  const nearby = restaurants.filter((r) => r.slug !== slug).slice(0, 4);
+
+  return {
+    ...base,
+    ...detail,
+    nearby,
+  };
 }

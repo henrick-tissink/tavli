@@ -26,3 +26,46 @@ export const PRICE_LABELS: Record<number, string> = {
   3: "$$$",
   4: "$$$$",
 };
+
+export interface Review {
+  id: string;
+  authorName: string;
+  rating: number;
+  date: string;
+  reservationDate: string;
+  guestCount: number;
+  text: string;
+  helpfulCount: number;
+  restaurantReply?: {
+    text: string;
+    authorName: string;
+    authorTitle: string;
+    date: string;
+  };
+}
+
+export interface ReviewIntelligence {
+  dimensions: {
+    label: string;
+    icon: string;
+    percent: number;
+    mentionCount: number;
+  }[];
+  topMentions: { phrase: string; count: number }[];
+  bestFor: string[];
+}
+
+export interface RestaurantDetail extends Restaurant {
+  description: string;
+  photos: string[];
+  schedule: { days: string; hours: string }[];
+  address: string;
+  lat: number;
+  lng: number;
+  tags: string[];
+  reviewIntelligence: ReviewIntelligence | null;
+  reviews: Review[];
+  nearby: Restaurant[];
+  websiteUrl?: string;
+  menuPdfUrl?: string;
+}
