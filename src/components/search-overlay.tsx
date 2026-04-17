@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
-import { getRestaurants } from "@/lib/mock-data";
+import { getRestaurants, getRestaurantDetail } from "@/lib/mock-data";
+import { processReviews } from "@/lib/review-processor";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
 
@@ -85,15 +86,47 @@ export function SearchOverlay({
 
   const restaurants = useMemo(() => getRestaurants(), []);
 
+  // Pre-compute top mention phrases per restaurant for search matching
+  const mentionIndex = useMemo(() => {
+    const index = new Map<string, string[]>();
+    for (const r of restaurants) {
+      const detail = getRestaurantDetail(r.slug);
+      if (!detail) continue;
+      const intel = processReviews(detail.reviews);
+      if (intel) {
+        index.set(r.id, intel.topMentions.map((m) => m.phrase.toLowerCase()));
+      }
+    }
+    return index;
+  }, [restaurants]);
+
   const hasQuery = query.length >= 2;
 
   const matchedRestaurants = useMemo(() => {
     if (!hasQuery) return [];
     const q = query.toLowerCase();
-    return restaurants
-      .filter((r) => r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q))
-      .slice(0, 5);
-  }, [query, hasQuery, restaurants]);
+    const seen = new Set<string>();
+    const results: (Restaurant & { mentionMatch?: boolean })[] = [];
+
+    // First: name/cuisine matches
+    for (const r of restaurants) {
+      if (r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q)) {
+        seen.add(r.id);
+        results.push(r);
+      }
+    }
+
+    // Second: mention matches
+    for (const r of restaurants) {
+      if (seen.has(r.id)) continue;
+      const phrases = mentionIndex.get(r.id);
+      if (phrases?.some((p) => p.includes(q))) {
+        results.push(Object.assign({}, r, { mentionMatch: true }));
+      }
+    }
+
+    return results.slice(0, 5);
+  }, [query, hasQuery, restaurants, mentionIndex]);
 
   const matchedCuisines = useMemo(() => {
     if (!hasQuery) return [];
@@ -264,6 +297,9 @@ export function SearchOverlay({
                             <p className="text-xs text-text-secondary">
                               {r.rating} · {r.cuisine} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
                             </p>
+                            {"mentionMatch" in r && (r as Record<string, unknown>).mentionMatch && (
+                              <p className="text-xs text-brand-primary mt-0.5">Mentioned in reviews</p>
+                            )}
                           </div>
                         </button>
                       ))}
