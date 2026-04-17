@@ -9,6 +9,8 @@ interface HorizontalSectionProps {
   onSeeAll?: () => void;
   onCardClick?: (restaurant: Restaurant) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
+  isSaved?: (id: string) => boolean;
+  onSave?: (id: string) => void;
 }
 
 export function HorizontalSection({
@@ -17,6 +19,8 @@ export function HorizontalSection({
   onSeeAll,
   onCardClick,
   onSlotSelect,
+  isSaved,
+  onSave,
 }: HorizontalSectionProps) {
   return (
     <section>
@@ -42,6 +46,8 @@ export function HorizontalSection({
           >
             <RestaurantCard
               restaurant={restaurant}
+              saved={isSaved?.(restaurant.id)}
+              onSave={onSave ? () => onSave(restaurant.id) : undefined}
               onClick={onCardClick}
               onSlotSelect={onSlotSelect}
             />

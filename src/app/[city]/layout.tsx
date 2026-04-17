@@ -8,6 +8,8 @@ import { MapFab } from "@/components/map-fab";
 import { SearchOverlay } from "@/components/search-overlay";
 import { FilterProvider, useFilters } from "@/lib/filter-context";
 import { TimeContextProvider } from "@/lib/time-context";
+import { AuthProvider } from "@/lib/auth-context";
+import { SavedProvider } from "@/lib/saved-context";
 
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
@@ -36,7 +38,13 @@ function CityShell({
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const { setFilter } = useFilters();
-  const activeTab = pathname.includes("/map") ? "map" : "discover";
+  const activeTab = pathname.includes("/map")
+    ? "map"
+    : pathname.includes("/saved")
+      ? "saved"
+      : pathname.includes("/profile")
+        ? "profile"
+        : "discover";
 
   return (
     <>
@@ -56,7 +64,8 @@ function CityShell({
           if (tab === "discover") router.push(`/${city}`);
           else if (tab === "map") router.push(`/${city}/map`);
           else if (tab === "search") setSearchOpen(true);
-          else console.log("Tab:", tab);
+          else if (tab === "saved") router.push(`/${city}/saved`);
+          else if (tab === "profile") router.push(`/${city}/profile`);
         }}
       />
       <MapFab onClick={() => router.push(`/${city}/map`)} />
@@ -88,12 +97,16 @@ export default function CityLayout({
   const displayCity = formatCityName(city);
 
   return (
-    <FilterProvider>
-      <TimeContextProvider>
-        <CityShell city={city} displayCity={displayCity}>
-          {children}
-        </CityShell>
-      </TimeContextProvider>
-    </FilterProvider>
+    <AuthProvider>
+      <SavedProvider>
+        <FilterProvider>
+          <TimeContextProvider>
+            <CityShell city={city} displayCity={displayCity}>
+              {children}
+            </CityShell>
+          </TimeContextProvider>
+        </FilterProvider>
+      </SavedProvider>
+    </AuthProvider>
   );
 }

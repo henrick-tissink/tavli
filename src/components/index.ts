@@ -23,3 +23,4 @@ export { createPinElement } from "./map-pin";
 export { MapCarousel } from "./map-carousel";
 export { FilterSheet } from "./filter-sheet";
 export { SearchOverlay } from "./search-overlay";
+export { AuthSheet } from "./auth-sheet";

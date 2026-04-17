@@ -15,6 +15,7 @@ import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
 import { ReservationSheet } from "@/components/reservation-sheet";
 import { HorizontalSection } from "@/components/horizontal-section";
+import { useSaved } from "@/lib/saved-context";
 
 export default function RestaurantDetailPage({
   params,
@@ -24,6 +25,7 @@ export default function RestaurantDetailPage({
   const { city, slug } = use(params);
   const router = useRouter();
   const restaurant = getRestaurantDetail(slug);
+  const { isSaved, toggleSave, addBooking } = useSaved();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preSelectedSlot, setPreSelectedSlot] = useState<string | undefined>(
@@ -95,6 +97,8 @@ export default function RestaurantDetailPage({
         photos={restaurant.photos}
         restaurantName={restaurant.name}
         onBack={() => router.back()}
+        saved={isSaved(restaurant.id)}
+        onSave={() => toggleSave(restaurant.id)}
       />
 
       {/* Desktop two-column layout wrapper */}
@@ -329,6 +333,8 @@ export default function RestaurantDetailPage({
             <HorizontalSection
               title="Nearby"
               restaurants={restaurant.nearby}
+              isSaved={isSaved}
+              onSave={toggleSave}
               onCardClick={handleCardClick}
               onSlotSelect={handleSlotSelect}
             />
@@ -363,6 +369,17 @@ export default function RestaurantDetailPage({
         rating={restaurant.rating}
         availableSlots={restaurant.availableSlots}
         preSelectedSlot={preSelectedSlot}
+        onBookingConfirmed={(data) => {
+          addBooking({
+            id: crypto.randomUUID(),
+            restaurantId: restaurant.id,
+            restaurantName: data.restaurantName,
+            date: data.date,
+            time: data.time,
+            guests: data.guests,
+            reviewed: false,
+          });
+        }}
       />
     </>
   );

@@ -9,6 +9,7 @@ import { HorizontalSection } from "@/components/horizontal-section";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
+import { useSaved } from "@/lib/saved-context";
 import {
   getRestaurants,
   getTrendingRestaurants,
@@ -39,6 +40,7 @@ export default function DiscoverFeedPage({
   const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } =
     useFilters();
   const timeContext = useTimeContext();
+  const { isSaved, toggleSave } = useSaved();
 
   const displayCity = formatCityName(city);
   const allRestaurants = getRestaurants();
@@ -112,6 +114,8 @@ export default function DiscoverFeedPage({
             <HorizontalSection
               title={`Popular in ${displayCity}`}
               restaurants={trendingRestaurants}
+              isSaved={isSaved}
+              onSave={toggleSave}
               onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
               onSlotSelect={(_id, _slot) => {
                 const target = trendingRestaurants.find((r) => r.id === _id);
@@ -136,6 +140,8 @@ export default function DiscoverFeedPage({
             <RestaurantCard
               key={restaurant.id}
               restaurant={restaurant}
+              saved={isSaved(restaurant.id)}
+              onSave={() => toggleSave(restaurant.id)}
               onClick={(r) => router.push(`/${city}/${r.slug}`)}
               onSlotSelect={(_id, _slot) =>
                 router.push(`/${city}/${restaurant.slug}`)
@@ -151,6 +157,8 @@ export default function DiscoverFeedPage({
                 <HorizontalSection
                   title="New on Tavli"
                   restaurants={newRestaurants}
+                  isSaved={isSaved}
+                  onSave={toggleSave}
                   onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
                   onSlotSelect={(_id, _slot) => {
                     const target = newRestaurants.find((r) => r.id === _id);
@@ -165,6 +173,8 @@ export default function DiscoverFeedPage({
                 <RestaurantCard
                   key={restaurant.id}
                   restaurant={restaurant}
+                  saved={isSaved(restaurant.id)}
+                  onSave={() => toggleSave(restaurant.id)}
                   onClick={(r) => router.push(`/${city}/${r.slug}`)}
                   onSlotSelect={(_id, _slot) =>
                     router.push(`/${city}/${restaurant.slug}`)

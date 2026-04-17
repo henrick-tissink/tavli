@@ -16,6 +16,12 @@ interface ReservationSheetProps {
   availableSlots: string[];
   zones?: string[];
   preSelectedSlot?: string;
+  onBookingConfirmed?: (data: {
+    restaurantName: string;
+    date: string;
+    time: string;
+    guests: number;
+  }) => void;
 }
 
 type DateOption = "today" | "tomorrow" | "pick";
@@ -28,6 +34,7 @@ export function ReservationSheet({
   availableSlots,
   zones,
   preSelectedSlot,
+  onBookingConfirmed,
 }: ReservationSheetProps) {
   const [step, setStep] = useState<"selecting" | "confirmed">("selecting");
   const [guests, setGuests] = useState(2);
@@ -50,7 +57,15 @@ export function ReservationSheet({
   const canConfirm = name.trim().length > 0 && phone.trim().length > 0;
 
   const handleConfirm = () => {
-    if (canConfirm) setStep("confirmed");
+    if (canConfirm) {
+      onBookingConfirmed?.({
+        restaurantName,
+        date: dateLabels[dateOption],
+        time: selectedSlot ?? "",
+        guests,
+      });
+      setStep("confirmed");
+    }
   };
 
   if (step === "confirmed") {
