@@ -105,8 +105,9 @@ export function SearchOverlay({
   const matchedRestaurants = useMemo(() => {
     if (!hasQuery) return [];
     const q = query.toLowerCase();
+    type ResultItem = Restaurant & { mentionMatch?: boolean };
     const seen = new Set<string>();
-    const results: (Restaurant & { mentionMatch?: boolean })[] = [];
+    const results: ResultItem[] = [];
 
     // First: name/cuisine matches
     for (const r of restaurants) {
@@ -297,7 +298,7 @@ export function SearchOverlay({
                             <p className="text-xs text-text-secondary">
                               {r.rating} · {r.cuisine} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
                             </p>
-                            {"mentionMatch" in r && (r as Record<string, unknown>).mentionMatch && (
+                            {r.mentionMatch && (
                               <p className="text-xs text-brand-primary mt-0.5">Mentioned in reviews</p>
                             )}
                           </div>
