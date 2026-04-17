@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { TopNav } from "@/components/top-nav";
 import { TabBar } from "@/components/tab-bar";
 import { MapFab } from "@/components/map-fab";
@@ -26,7 +27,9 @@ export default function CityLayout({
   params: Promise<{ city: string }>;
 }) {
   const { city } = use(params);
-  const [activeTab, setActiveTab] = useState("discover");
+  const router = useRouter();
+  const pathname = usePathname();
+  const activeTab = pathname.includes("/map") ? "map" : "discover";
   const displayCity = formatCityName(city);
 
   return (
@@ -41,8 +44,15 @@ export default function CityLayout({
 
       <main className="pb-20 desktop:pb-0 desktop:pt-16">{children}</main>
 
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-      <MapFab onClick={() => console.log("Map FAB clicked")} />
+      <TabBar
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          if (tab === "discover") router.push(`/${city}`);
+          else if (tab === "map") router.push(`/${city}/map`);
+          else console.log("Tab:", tab);
+        }}
+      />
+      <MapFab onClick={() => router.push(`/${city}/map`)} />
     </>
   );
 }
