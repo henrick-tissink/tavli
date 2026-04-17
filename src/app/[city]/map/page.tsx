@@ -9,6 +9,7 @@ import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
 import { getRestaurants } from "@/lib/mock-data";
 import { useFilters } from "@/lib/filter-context";
+import { useTimeContext } from "@/lib/time-context";
 import { FilterSheet } from "@/components/filter-sheet";
 import { MapContainer } from "@/components/map-container";
 import { createPinElement } from "@/components/map-pin";
@@ -27,6 +28,12 @@ export default function MapPage({
   const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { applyFilters, activeFilterCount } = useFilters();
+  const timeContext = useTimeContext();
+  const isNightMode =
+    timeContext.active.includes("evening") || timeContext.active.includes("late");
+  const mapStyle = isNightMode
+    ? "mapbox://styles/mapbox/dark-v11"
+    : "mapbox://styles/mapbox/light-v11";
   const allRestaurants = getRestaurants();
   const restaurants = useMemo(
     () => applyFilters(allRestaurants),
@@ -183,6 +190,7 @@ export default function MapPage({
           zoom={13}
           onMapReady={handleMapReady}
           className="w-full h-full"
+          style={mapStyle}
         />
 
         {/* Mobile floating search bar + close */}

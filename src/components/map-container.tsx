@@ -10,6 +10,7 @@ interface MapContainerProps {
   onMapReady?: (map: mapboxgl.Map) => void;
   className?: string;
   children?: ReactNode;
+  style?: string;
 }
 
 export function MapContainer({
@@ -18,6 +19,7 @@ export function MapContainer({
   onMapReady,
   className,
   children,
+  style: mapStyle = "mapbox://styles/mapbox/light-v11",
 }: MapContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -35,7 +37,7 @@ export function MapContainer({
     try {
       const map = new mapboxgl.Map({
         container: containerRef.current,
-        style: "mapbox://styles/mapbox/light-v11",
+        style: mapStyle,
         center,
         zoom,
       });
