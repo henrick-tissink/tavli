@@ -18,6 +18,8 @@ export interface Restaurant {
   topDimensionLabel?: string;
   topDimensionPercent?: number;
   distance?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export const PRICE_LABELS: Record<number, string> = {
@@ -55,13 +57,13 @@ export interface ReviewIntelligence {
   bestFor: string[];
 }
 
-export interface RestaurantDetail extends Restaurant {
+export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
+  lat: number;
+  lng: number;
   description: string;
   photos: string[];
   schedule: { days: string; hours: string }[];
   address: string;
-  lat: number;
-  lng: number;
   tags: string[];
   reviewIntelligence: ReviewIntelligence | null;
   reviews: Review[];

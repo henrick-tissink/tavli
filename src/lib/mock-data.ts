@@ -20,6 +20,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 94,
     distance: "0.3 km",
+    lat: 44.4323,
+    lng: 26.0966,
   },
   {
     id: "2",
@@ -40,6 +42,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "quality",
     topDimensionPercent: 96,
     distance: "1.2 km",
+    lat: 44.4567,
+    lng: 26.0812,
   },
   {
     id: "3",
@@ -60,6 +64,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "ambiance",
     topDimensionPercent: 91,
     distance: "2.1 km",
+    lat: 44.4789,
+    lng: 26.0734,
   },
   {
     id: "4",
@@ -77,6 +83,8 @@ const restaurants: Restaurant[] = [
     closesAt: "22:00",
     availableSlots: ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"],
     distance: "0.8 km",
+    lat: 44.4412,
+    lng: 26.1198,
   },
   {
     id: "5",
@@ -97,6 +105,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "service",
     topDimensionPercent: 97,
     distance: "3.4 km",
+    lat: 44.4612,
+    lng: 26.0845,
   },
   {
     id: "6",
@@ -114,6 +124,8 @@ const restaurants: Restaurant[] = [
     closesAt: "21:30",
     availableSlots: ["19:00", "19:30"],
     distance: "1.5 km",
+    lat: 44.4389,
+    lng: 26.0953,
   },
   {
     id: "7",
@@ -134,6 +146,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 89,
     distance: "1.8 km",
+    lat: 44.4501,
+    lng: 26.0901,
   },
   {
     id: "8",
@@ -151,6 +165,8 @@ const restaurants: Restaurant[] = [
     opensAt: "17:00",
     availableSlots: [],
     distance: "0.5 km",
+    lat: 44.4345,
+    lng: 26.1045,
   },
   {
     id: "9",
@@ -171,6 +187,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 85,
     distance: "4.2 km",
+    lat: 44.4856,
+    lng: 26.0778,
   },
   {
     id: "10",
@@ -191,6 +209,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 92,
     distance: "0.4 km",
+    lat: 44.4298,
+    lng: 26.1001,
   },
   {
     id: "11",
@@ -208,6 +228,8 @@ const restaurants: Restaurant[] = [
     closesAt: "23:00",
     availableSlots: ["18:30", "19:00", "19:30", "20:00"],
     distance: "2.5 km",
+    lat: 44.4134,
+    lng: 26.1087,
   },
   {
     id: "12",
@@ -228,6 +250,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "ambiance",
     topDimensionPercent: 95,
     distance: "3.0 km",
+    lat: 44.4678,
+    lng: 26.0723,
   },
   {
     id: "13",
@@ -245,6 +269,8 @@ const restaurants: Restaurant[] = [
     closesAt: "21:00",
     availableSlots: ["18:00", "18:30"],
     distance: "5.1 km",
+    lat: 44.4189,
+    lng: 26.0678,
   },
   {
     id: "14",
@@ -265,6 +291,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "ambiance",
     topDimensionPercent: 90,
     distance: "0.6 km",
+    lat: 44.4312,
+    lng: 26.0989,
   },
   {
     id: "15",
@@ -285,6 +313,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 88,
     distance: "1.3 km",
+    lat: 44.4534,
+    lng: 26.0856,
   },
   {
     id: "16",
@@ -302,6 +332,8 @@ const restaurants: Restaurant[] = [
     opensAt: "17:30",
     availableSlots: [],
     distance: "0.9 km",
+    lat: 44.4423,
+    lng: 26.1156,
   },
   {
     id: "17",
@@ -319,6 +351,8 @@ const restaurants: Restaurant[] = [
     closesAt: "22:30",
     availableSlots: ["19:00", "20:00", "21:00"],
     distance: "2.3 km",
+    lat: 44.4756,
+    lng: 26.0812,
   },
   {
     id: "18",
@@ -339,6 +373,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 95,
     distance: "1.0 km",
+    lat: 44.4367,
+    lng: 26.0978,
   },
   {
     id: "19",
@@ -359,6 +395,8 @@ const restaurants: Restaurant[] = [
     topDimensionLabel: "food",
     topDimensionPercent: 93,
     distance: "3.2 km",
+    lat: 44.4623,
+    lng: 26.0789,
   },
   {
     id: "20",
@@ -376,6 +414,8 @@ const restaurants: Restaurant[] = [
     closesAt: "21:30",
     availableSlots: ["18:00", "19:00", "20:00"],
     distance: "6.0 km",
+    lat: 44.4234,
+    lng: 26.1312,
   },
 ];
 
@@ -515,7 +555,7 @@ function makeReviews(restaurantName: string): Review[] {
   ];
 }
 
-const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>> = {
+const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant> & { lat: number; lng: number }> = {
   "casa-veche": {
     description: "A beloved Romanian restaurant in the heart of Centru Vechi, serving traditional dishes with a modern twist. Known for our grandmother's sarmale recipe and an extensive selection of Romanian wines.",
     photos: [

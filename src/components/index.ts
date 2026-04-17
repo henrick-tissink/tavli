@@ -18,3 +18,6 @@ export { SentimentBar } from "./sentiment-bar";
 export { ReviewIntelligenceSection } from "./review-intelligence";
 export { ReviewCard } from "./review-card";
 export { ReservationSheet } from "./reservation-sheet";
+export { MapContainer } from "./map-container";
+export { createPinElement } from "./map-pin";
+export { MapCarousel } from "./map-carousel";
