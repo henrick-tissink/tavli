@@ -8,6 +8,7 @@ import { ContextBanner } from "@/components/context-banner";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { useFilters } from "@/lib/filter-context";
+import { useTimeContext } from "@/lib/time-context";
 import {
   getRestaurants,
   getTrendingRestaurants,
@@ -37,6 +38,7 @@ export default function DiscoverFeedPage({
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } =
     useFilters();
+  const timeContext = useTimeContext();
 
   const displayCity = formatCityName(city);
   const allRestaurants = getRestaurants();
@@ -96,12 +98,13 @@ export default function DiscoverFeedPage({
         activePills={activePills}
         onPillToggle={handlePillToggle}
         onDropdownOpen={handleDropdownOpen}
+        injectedPills={timeContext.injectedPills}
       />
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
         <ContextBanner
-          greeting={`Good evening, ${displayCity}`}
-          subtext={`${filteredRestaurants.length} places available tonight`}
+          greeting={timeContext.greeting.replace("{city}", displayCity)}
+          subtext={timeContext.subtextTemplate.replace("{N}", String(filteredRestaurants.length))}
         />
 
         {trendingRestaurants.length > 0 && (

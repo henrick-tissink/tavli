@@ -15,16 +15,42 @@ interface FilterPillBarProps {
   activePills: string[];
   onPillToggle: (pill: string) => void;
   onDropdownOpen: (pill: string) => void;
+  injectedPills?: { label: string; icon: string }[];
 }
 
 export function FilterPillBar({
   activePills,
   onPillToggle,
   onDropdownOpen,
+  injectedPills,
 }: FilterPillBarProps) {
+  // Split default pills: "All" first, then the rest
+  const allPill = DEFAULT_PILLS[0]; // "All"
+  const restPills = DEFAULT_PILLS.slice(1); // "Open Now", "Cuisine", etc.
+
   return (
     <div className="sticky top-0 z-10 overflow-x-auto flex gap-2 py-3 bg-surface-bg hide-scrollbar">
-      {DEFAULT_PILLS.map((pill) => (
+      {/* "All" pill */}
+      <Pill
+        key={allPill.label}
+        label={allPill.label}
+        active={activePills.includes(allPill.label)}
+        hasDropdown={allPill.hasDropdown}
+        onToggle={() => onPillToggle(allPill.label)}
+      />
+
+      {/* Time-injected pills */}
+      {injectedPills?.map((pill) => (
+        <Pill
+          key={`injected-${pill.label}`}
+          label={pill.label}
+          icon={pill.icon}
+          onToggle={() => onPillToggle(pill.label)}
+        />
+      ))}
+
+      {/* Remaining default pills */}
+      {restPills.map((pill) => (
         <Pill
           key={pill.label}
           label={pill.label}

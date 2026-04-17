@@ -7,6 +7,7 @@ import { TabBar } from "@/components/tab-bar";
 import { MapFab } from "@/components/map-fab";
 import { SearchOverlay } from "@/components/search-overlay";
 import { FilterProvider, useFilters } from "@/lib/filter-context";
+import { TimeContextProvider } from "@/lib/time-context";
 
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
@@ -88,9 +89,11 @@ export default function CityLayout({
 
   return (
     <FilterProvider>
-      <CityShell city={city} displayCity={displayCity}>
-        {children}
-      </CityShell>
+      <TimeContextProvider>
+        <CityShell city={city} displayCity={displayCity}>
+          {children}
+        </CityShell>
+      </TimeContextProvider>
     </FilterProvider>
   );
 }
