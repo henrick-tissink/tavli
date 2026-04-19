@@ -2,6 +2,7 @@
 
 import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MapPin, ExternalLink, FileText, Globe } from "lucide-react";
 import { getRestaurantDetail } from "@/lib/mock-data";
 import { PRICE_LABELS } from "@/lib/types";
@@ -78,7 +79,7 @@ export default function RestaurantDetailPage({
     : restaurant.description;
 
   const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`;
-  const menuHref = `https://www.google.com/search?q=${encodeURIComponent(`${restaurant.name} ${restaurant.city} menu`)}`;
+  const menuHref = `/${city}/${slug}/menu`;
   const websiteHref = `https://www.google.com/search?q=${encodeURIComponent(`${restaurant.name} ${restaurant.city} restaurant`)}`;
 
   const handleCardClick = (r: { slug: string }) => {
@@ -237,14 +238,12 @@ export default function RestaurantDetailPage({
             {(restaurant.menuPdfUrl || restaurant.websiteUrl) && (
               <section className="mt-8 flex items-center gap-4">
                 {restaurant.menuPdfUrl && (
-                  <a
+                  <Link
                     href={menuHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
                   >
                     <FileText size={16} /> View Menu
-                  </a>
+                  </Link>
                 )}
                 {restaurant.websiteUrl && (
                   <a
@@ -298,14 +297,12 @@ export default function RestaurantDetailPage({
           {(restaurant.menuPdfUrl || restaurant.websiteUrl) && (
             <section className="mt-8 flex items-center gap-4">
               {restaurant.menuPdfUrl && (
-                <a
+                <Link
                   href={menuHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
                 >
                   <FileText size={16} /> View Menu
-                </a>
+                </Link>
               )}
               {restaurant.websiteUrl && (
                 <a

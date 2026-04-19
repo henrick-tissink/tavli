@@ -1,0 +1,105 @@
+"use client";
+
+import Image from "next/image";
+import { Star } from "lucide-react";
+import type { MenuItem, MenuDietaryTag } from "@/lib/types";
+
+interface TagStyle {
+  label: string;
+  icon?: string;
+  className: string;
+}
+
+const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
+  popular: {
+    label: "Popular",
+    icon: "🔥",
+    className: "bg-brand-primary-soft text-brand-primary-dark",
+  },
+  vegan: {
+    label: "VG",
+    className: "bg-emerald-50 text-emerald-800",
+  },
+  vegetarian: {
+    label: "V",
+    className: "bg-emerald-50 text-emerald-800",
+  },
+  "gluten-free": {
+    label: "GF",
+    className: "bg-amber-50 text-amber-800",
+  },
+  spicy: {
+    label: "Spicy",
+    icon: "🌶",
+    className: "bg-red-50 text-red-700",
+  },
+};
+
+interface Props {
+  item: MenuItem;
+  currency: string;
+}
+
+export function MenuItemCard({ item, currency }: Props) {
+  const isChefPick = item.tags?.includes("chef-pick");
+  // Filter tags: drop chef-pick (shown as star), drop vegetarian if also vegan
+  const isVegan = item.tags?.includes("vegan");
+  const visibleTags = (item.tags ?? []).filter((t) => {
+    if (t === "chef-pick") return false;
+    if (t === "vegetarian" && isVegan) return false;
+    return true;
+  });
+
+  return (
+    <article className="flex gap-4 py-4">
+      {item.photoUrl && (
+        <div className="relative w-24 h-24 desktop:w-28 desktop:h-28 flex-shrink-0 rounded-card overflow-hidden bg-surface-bg">
+          <Image
+            src={item.photoUrl}
+            alt={item.name}
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 112px, 96px"
+          />
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-bold text-text-primary text-[15px] desktop:text-base leading-snug">
+            {isChefPick && (
+              <Star
+                size={14}
+                className="inline-block mr-1 -mt-0.5 fill-yellow-400 text-yellow-400"
+                aria-label="Chef's pick"
+              />
+            )}
+            {item.name}
+          </h3>
+          <span className="font-bold text-brand-primary whitespace-nowrap text-[15px] desktop:text-base">
+            {item.price} {currency}
+          </span>
+        </div>
+        <p className="text-sm text-text-secondary mt-1 leading-relaxed">
+          {item.description}
+        </p>
+        {visibleTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {visibleTags.map((tag) => {
+              const cfg = TAG_STYLES[tag as Exclude<MenuDietaryTag, "chef-pick">];
+              if (!cfg) return null;
+              return (
+                <span
+                  key={tag}
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${cfg.className}`}
+                >
+                  {cfg.icon && <span aria-hidden="true">{cfg.icon}</span>}
+                  {cfg.label}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}

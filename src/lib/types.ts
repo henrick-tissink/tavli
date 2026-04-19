@@ -57,6 +57,36 @@ export interface ReviewIntelligence {
   bestFor: string[];
 }
 
+export type MenuDietaryTag =
+  | "vegetarian"
+  | "vegan"
+  | "gluten-free"
+  | "spicy"
+  | "chef-pick"
+  | "popular";
+
+export interface MenuItem {
+  id: string;
+  sectionId: string;
+  name: string;
+  description: string;
+  price: number;
+  photoUrl?: string;
+  tags?: MenuDietaryTag[];
+}
+
+export interface MenuSection {
+  id: string;
+  name: string;
+}
+
+export interface Menu {
+  restaurantId: string;
+  currency: "lei" | "TRY" | "EUR";
+  sections: MenuSection[];
+  items: MenuItem[];
+}
+
 export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   lat: number;
   lng: number;
