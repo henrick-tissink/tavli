@@ -387,7 +387,7 @@ const restaurants: Restaurant[] = [
     city: "București",
     rating: 4.6,
     voteCount: 198,
-    photoUrl: "https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=600&h=400&fit=crop",
+    photoUrl: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=600&h=400&fit=crop",
     photoCount: 33,
     status: "open",
     closesAt: "23:00",
@@ -562,7 +562,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     photos: [
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1530554764233-e79e16c91d08?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&h=600&fit=crop",
     ],
@@ -672,7 +672,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     description: "An exquisite French fine dining destination in the Aviatorilor district. Chef-driven seasonal menus with artful presentation and impeccable service. Michelin-recommended.",
     photos: [
       "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600&fit=crop",

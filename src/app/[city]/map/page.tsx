@@ -136,13 +136,20 @@ export default function MapPage({
           {restaurants.map((restaurant) => {
             const isSelected = restaurant.id === selectedId;
             return (
-              <button
-                type="button"
+              <div
+                role="button"
+                tabIndex={0}
                 key={restaurant.id}
-                className={`w-full text-left flex gap-3 p-3 border-b border-border hover:bg-surface-bg transition-colors ${
+                className={`w-full text-left flex gap-3 p-3 border-b border-border hover:bg-surface-bg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${
                   isSelected ? "bg-brand-primary-soft" : ""
                 }`}
                 onClick={() => handleSelectFromList(restaurant)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelectFromList(restaurant);
+                  }
+                }}
               >
                 <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
                   {restaurant.photoUrl ? (
@@ -172,12 +179,12 @@ export default function MapPage({
                   <TimeSlotPills
                     slots={restaurant.availableSlots}
                     maxVisible={3}
-                    onSelect={(slot) =>
+                    onSelect={() =>
                       router.push(`/${city}/${restaurant.slug}`)
                     }
                   />
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

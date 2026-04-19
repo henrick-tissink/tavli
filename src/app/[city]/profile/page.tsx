@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, ChevronRight, Bell, Globe, HelpCircle, Shield, FileText } from "lucide-react";
+import { LogOut, ChevronRight, Bell, Globe, HelpCircle, Shield, FileText, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
@@ -41,7 +41,7 @@ export default function ProfilePage({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div className="w-16 h-16 rounded-full bg-surface-bg flex items-center justify-center mb-4">
-          <span className="text-2xl text-text-muted">?</span>
+          <User size={28} className="text-text-muted" />
         </div>
         <h1 className="text-xl font-bold text-text-primary">Your profile</h1>
         <p className="text-sm text-text-secondary mt-2 text-center">
