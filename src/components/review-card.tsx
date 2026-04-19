@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Review } from "@/lib/types";
 import { Avatar } from "./avatar";
 
@@ -22,6 +25,14 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
+  const [helped, setHelped] = useState(false);
+  const count = review.helpfulCount + (helped ? 1 : 0);
+
+  const handleHelpful = () => {
+    setHelped((prev) => !prev);
+    onHelpful?.(review.id);
+  };
+
   return (
     <div className="py-4">
       {/* Header */}
@@ -51,10 +62,15 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
       {/* Helpful button */}
       <button
         type="button"
-        onClick={() => onHelpful?.(review.id)}
-        className="mt-2 text-xs bg-surface-bg rounded-lg px-3 py-1 hover:bg-gray-200 transition-colors"
+        onClick={handleHelpful}
+        aria-pressed={helped}
+        className={`mt-2 text-xs rounded-lg px-3 py-1 transition-colors ${
+          helped
+            ? "bg-brand-primary-soft text-brand-primary-dark"
+            : "bg-surface-bg hover:bg-gray-200"
+        }`}
       >
-        👍 Helpful ({review.helpfulCount})
+        👍 Helpful ({count})
       </button>
 
       {/* Restaurant reply */}

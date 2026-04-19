@@ -50,10 +50,10 @@ function CityShell({
     <>
       <TopNav
         currentCity={displayCity}
-        onCityChange={(c) => console.log("City changed:", c)}
+        onCityChange={() => {}}
         onSearchFocus={() => setSearchOpen(true)}
-        onSavedClick={() => console.log("Saved clicked")}
-        onProfileClick={() => console.log("Profile clicked")}
+        onSavedClick={() => router.push(`/${city}/saved`)}
+        onProfileClick={() => router.push(`/${city}/profile`)}
       />
 
       <main className="pb-20 desktop:pb-0 desktop:pt-16">{children}</main>

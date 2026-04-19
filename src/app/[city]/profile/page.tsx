@@ -1,8 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
-import { LogOut, ChevronRight, Bell, Globe, HelpCircle, Shield, FileText, User } from "lucide-react";
+import { LogOut, Bell, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
@@ -29,8 +28,7 @@ export default function ProfilePage({
   params: Promise<{ city: string }>;
 }) {
   const { city } = use(params);
-  const router = useRouter();
-  const { auth, logout, updateUser } = useAuth();
+  const { auth, logout } = useAuth();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState("EN");
   const [notifications, setNotifications] = useState(true);
@@ -137,25 +135,6 @@ export default function ProfilePage({
             />
           </button>
         </div>
-      </section>
-
-      {/* Links */}
-      <section className="mt-8 space-y-1">
-        {[
-          { label: "Help & Support", icon: <HelpCircle size={18} /> },
-          { label: "Privacy Policy", icon: <Shield size={18} /> },
-          { label: "Terms of Service", icon: <FileText size={18} /> },
-        ].map((link) => (
-          <button
-            key={link.label}
-            type="button"
-            className="w-full flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-surface-bg transition-colors"
-          >
-            <span className="text-text-muted">{link.icon}</span>
-            <span className="text-sm text-text-primary flex-1 text-left">{link.label}</span>
-            <ChevronRight size={16} className="text-text-muted" />
-          </button>
-        ))}
       </section>
 
       {/* Log Out */}

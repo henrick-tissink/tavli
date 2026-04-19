@@ -78,6 +78,8 @@ export default function RestaurantDetailPage({
     : restaurant.description;
 
   const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`;
+  const menuHref = `https://www.google.com/search?q=${encodeURIComponent(`${restaurant.name} ${restaurant.city} menu`)}`;
+  const websiteHref = `https://www.google.com/search?q=${encodeURIComponent(`${restaurant.name} ${restaurant.city} restaurant`)}`;
 
   const handleCardClick = (r: { slug: string }) => {
     router.push(`/${city}/${r.slug}`);
@@ -175,18 +177,10 @@ export default function RestaurantDetailPage({
                 <span className="text-xs text-text-muted">Most recent</span>
               </div>
               <div className="divide-y divide-border">
-                {restaurant.reviews.slice(0, 5).map((review) => (
+                {restaurant.reviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}
               </div>
-              {restaurant.reviews.length > 5 && (
-                <button
-                  type="button"
-                  className="mt-2 text-sm font-semibold text-brand-primary"
-                >
-                  Show all {restaurant.reviews.length} reviews
-                </button>
-              )}
             </section>
           </div>
 
@@ -244,7 +238,7 @@ export default function RestaurantDetailPage({
               <section className="mt-8 flex items-center gap-4">
                 {restaurant.menuPdfUrl && (
                   <a
-                    href={restaurant.menuPdfUrl}
+                    href={menuHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
@@ -254,7 +248,7 @@ export default function RestaurantDetailPage({
                 )}
                 {restaurant.websiteUrl && (
                   <a
-                    href={restaurant.websiteUrl}
+                    href={websiteHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
@@ -305,7 +299,7 @@ export default function RestaurantDetailPage({
             <section className="mt-8 flex items-center gap-4">
               {restaurant.menuPdfUrl && (
                 <a
-                  href={restaurant.menuPdfUrl}
+                  href={menuHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
@@ -315,7 +309,7 @@ export default function RestaurantDetailPage({
               )}
               {restaurant.websiteUrl && (
                 <a
-                  href={restaurant.websiteUrl}
+                  href={websiteHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"

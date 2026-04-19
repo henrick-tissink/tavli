@@ -69,6 +69,37 @@ export function ReservationSheet({
   };
 
   if (step === "confirmed") {
+    const bookingDate = new Date();
+    if (dateOption === "tomorrow") bookingDate.setDate(bookingDate.getDate() + 1);
+    const [hh = "19", mm = "00"] = (selectedSlot ?? "19:00").split(":");
+    bookingDate.setHours(Number(hh), Number(mm), 0, 0);
+    const endDate = new Date(bookingDate.getTime() + 2 * 60 * 60 * 1000);
+    const fmt = (d: Date) =>
+      d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const calHref =
+      `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encodeURIComponent(`Reservation at ${restaurantName}`)}` +
+      `&dates=${fmt(bookingDate)}/${fmt(endDate)}` +
+      `&details=${encodeURIComponent(`${guests} guests${selectedZone ? ` · ${selectedZone}` : ""} · Booked via Tavli`)}`;
+
+    const handleShare = async () => {
+      const shareData = {
+        title: `Reservation at ${restaurantName}`,
+        text: `I booked ${restaurantName} for ${dateLabels[dateOption]} at ${selectedSlot} — ${guests} guests. Join me?`,
+        url: typeof window !== "undefined" ? window.location.href : "",
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+          alert("Invite copied to clipboard!");
+        }
+      } catch {
+        // user cancelled or share failed — no-op
+      }
+    };
+
     return (
       <BottomSheet open={open} onClose={onClose} title="Reservation">
         <div className="flex flex-col items-center py-6">
@@ -85,10 +116,17 @@ export function ReservationSheet({
             Confirmation sent to +40 {phone}
           </p>
           <div className="flex gap-3 mt-6 w-full">
-            <Button variant="secondary" fullWidth>
-              Add to Calendar
-            </Button>
-            <Button variant="secondary" fullWidth>
+            <a
+              href={calHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1"
+            >
+              <Button variant="secondary" fullWidth>
+                Add to Calendar
+              </Button>
+            </a>
+            <Button variant="secondary" fullWidth onClick={handleShare}>
               Share with Friends
             </Button>
           </div>

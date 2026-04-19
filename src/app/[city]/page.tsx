@@ -42,6 +42,7 @@ export default function DiscoverFeedPage({
   const timeContext = useTimeContext();
   const { isSaved, toggleSave } = useSaved();
 
+  const [activeInjectedPills, setActiveInjectedPills] = useState<string[]>([]);
   const displayCity = formatCityName(city);
   const allRestaurants = getRestaurants();
   const filteredRestaurants = useMemo(
@@ -67,8 +68,8 @@ export default function DiscoverFeedPage({
 
   // Derive active pills from filter state
   const activePills = useMemo(() => {
-    const pills: string[] = [];
-    if (activeFilterCount === 0) pills.push("All");
+    const pills: string[] = [...activeInjectedPills];
+    if (activeFilterCount === 0 && activeInjectedPills.length === 0) pills.push("All");
     if (filters.openNow) pills.push("Open Now");
     if (filters.cuisines.length > 0) pills.push("Cuisine");
     if (filters.priceRange.length > 0) pills.push("Price");
@@ -80,13 +81,23 @@ export default function DiscoverFeedPage({
     )
       pills.push("More");
     return pills;
-  }, [filters, activeFilterCount]);
+  }, [filters, activeFilterCount, activeInjectedPills]);
+
+  const injectedLabels = useMemo(
+    () => new Set((timeContext.injectedPills ?? []).map((p) => p.label)),
+    [timeContext.injectedPills],
+  );
 
   function handlePillToggle(pill: string) {
     if (pill === "All") {
       resetFilters();
+      setActiveInjectedPills([]);
     } else if (pill === "Open Now") {
       setFilter("openNow", !filters.openNow);
+    } else if (injectedLabels.has(pill)) {
+      setActiveInjectedPills((prev) =>
+        prev.includes(pill) ? prev.filter((p) => p !== pill) : [...prev, pill],
+      );
     }
   }
 

@@ -46,6 +46,7 @@ export function FilterPillBar({
             key={`injected-${pill.label}`}
             label={pill.label}
             icon={pill.icon}
+            active={activePills.includes(pill.label)}
             onToggle={() => onPillToggle(pill.label)}
           />
         ))}
