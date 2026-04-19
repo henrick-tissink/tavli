@@ -29,42 +29,44 @@ export function FilterPillBar({
   const restPills = DEFAULT_PILLS.slice(1); // "Open Now", "Cuisine", etc.
 
   return (
-    <div className="sticky top-0 z-10 overflow-x-auto flex gap-2 py-3 bg-surface-bg hide-scrollbar">
-      {/* "All" pill */}
-      <Pill
-        key={allPill.label}
-        label={allPill.label}
-        active={activePills.includes(allPill.label)}
-        hasDropdown={allPill.hasDropdown}
-        onToggle={() => onPillToggle(allPill.label)}
-      />
-
-      {/* Time-injected pills */}
-      {injectedPills?.map((pill) => (
+    <div className="sticky top-0 z-10 bg-surface-bg py-3">
+      <div className="max-w-[var(--container-content)] mx-auto px-4 desktop:px-6 flex gap-2 overflow-x-auto hide-scrollbar">
+        {/* "All" pill */}
         <Pill
-          key={`injected-${pill.label}`}
-          label={pill.label}
-          icon={pill.icon}
-          onToggle={() => onPillToggle(pill.label)}
+          key={allPill.label}
+          label={allPill.label}
+          active={activePills.includes(allPill.label)}
+          hasDropdown={allPill.hasDropdown}
+          onToggle={() => onPillToggle(allPill.label)}
         />
-      ))}
 
-      {/* Remaining default pills */}
-      {restPills.map((pill) => (
-        <Pill
-          key={pill.label}
-          label={pill.label}
-          active={activePills.includes(pill.label)}
-          hasDropdown={pill.hasDropdown}
-          onToggle={() => {
-            if (pill.hasDropdown) {
-              onDropdownOpen(pill.label);
-            } else {
-              onPillToggle(pill.label);
-            }
-          }}
-        />
-      ))}
+        {/* Time-injected pills */}
+        {injectedPills?.map((pill) => (
+          <Pill
+            key={`injected-${pill.label}`}
+            label={pill.label}
+            icon={pill.icon}
+            onToggle={() => onPillToggle(pill.label)}
+          />
+        ))}
+
+        {/* Remaining default pills */}
+        {restPills.map((pill) => (
+          <Pill
+            key={pill.label}
+            label={pill.label}
+            active={activePills.includes(pill.label)}
+            hasDropdown={pill.hasDropdown}
+            onToggle={() => {
+              if (pill.hasDropdown) {
+                onDropdownOpen(pill.label);
+              } else {
+                onPillToggle(pill.label);
+              }
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
