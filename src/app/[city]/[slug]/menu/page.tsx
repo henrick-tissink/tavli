@@ -2,7 +2,10 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { getRestaurantDetail } from "@/lib/mock-data";
+import {
+  getRestaurantBySlug,
+  getRestaurantDetail,
+} from "@/lib/mock-data";
 import { getMenu } from "@/lib/menu-data";
 import { MenuViewer } from "@/components/menu-viewer";
 import { Button } from "@/components/button";
@@ -15,7 +18,8 @@ export default function RestaurantMenuPage({
   const { city, slug } = use(params);
   const router = useRouter();
 
-  const restaurant = getRestaurantDetail(slug);
+  const restaurant = getRestaurantBySlug(slug);
+  const detail = getRestaurantDetail(slug);
   const menu = restaurant ? getMenu(slug) : null;
 
   if (!restaurant) {
@@ -40,7 +44,7 @@ export default function RestaurantMenuPage({
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
         <h1 className="text-xl font-bold text-text-primary">Menu coming soon</h1>
         <p className="text-sm text-text-secondary mt-2 max-w-sm">
-          {restaurant.name} hasn&apos;t shared their full menu with us yet. Our team is working with them to get it added.
+          {restaurant.name} hasn&apos;t shared their full menu with us yet.
         </p>
         <div className="mt-6">
           <Button onClick={() => router.push(`/${city}/${slug}`)}>
@@ -51,10 +55,14 @@ export default function RestaurantMenuPage({
     );
   }
 
+  const heroPhoto =
+    detail?.photos?.[0] ?? restaurant.photoUrl ?? undefined;
+
   return (
     <MenuViewer
       restaurant={restaurant}
       menu={menu}
+      heroPhoto={heroPhoto}
       onBack={() => router.push(`/${city}/${slug}`)}
     />
   );

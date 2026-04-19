@@ -78,6 +78,7 @@ export interface MenuItem {
 export interface MenuSection {
   id: string;
   name: string;
+  intro?: string;
 }
 
 export interface Menu {
@@ -85,6 +86,7 @@ export interface Menu {
   currency: "lei" | "TRY" | "EUR";
   sections: MenuSection[];
   items: MenuItem[];
+  heroNote?: string;
 }
 
 export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {

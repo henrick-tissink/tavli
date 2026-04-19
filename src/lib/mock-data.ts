@@ -707,6 +707,10 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
   },
 };
 
+export function getRestaurantBySlug(slug: string): Restaurant | null {
+  return restaurants.find((r) => r.slug === slug) ?? null;
+}
+
 export function getRestaurantDetail(slug: string): RestaurantDetail | null {
   const base = restaurants.find((r) => r.slug === slug);
   if (!base) return null;

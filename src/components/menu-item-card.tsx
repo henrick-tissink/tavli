@@ -42,7 +42,6 @@ interface Props {
 
 export function MenuItemCard({ item, currency }: Props) {
   const isChefPick = item.tags?.includes("chef-pick");
-  // Filter tags: drop chef-pick (shown as star), drop vegetarian if also vegan
   const isVegan = item.tags?.includes("vegan");
   const visibleTags = (item.tags ?? []).filter((t) => {
     if (t === "chef-pick") return false;
@@ -51,7 +50,10 @@ export function MenuItemCard({ item, currency }: Props) {
   });
 
   return (
-    <article className="flex gap-4 py-4">
+    <article
+      id={`item-${item.id}`}
+      className="flex gap-4 py-5 scroll-mt-32"
+    >
       {item.photoUrl && (
         <div className="relative w-24 h-24 desktop:w-28 desktop:h-28 flex-shrink-0 rounded-card overflow-hidden bg-surface-bg">
           <Image
@@ -64,8 +66,9 @@ export function MenuItemCard({ item, currency }: Props) {
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-bold text-text-primary text-[15px] desktop:text-base leading-snug">
+        {/* Title line with dotted leader + price */}
+        <div className="flex items-baseline gap-2">
+          <h3 className="font-bold text-text-primary text-[15.5px] desktop:text-[17px] leading-tight">
             {isChefPick && (
               <Star
                 size={14}
@@ -75,11 +78,15 @@ export function MenuItemCard({ item, currency }: Props) {
             )}
             {item.name}
           </h3>
-          <span className="font-bold text-brand-primary whitespace-nowrap text-[15px] desktop:text-base">
+          <span
+            aria-hidden="true"
+            className="flex-1 self-end mb-1.5 border-b border-dotted border-text-muted/40 min-w-4"
+          />
+          <span className="font-bold text-brand-primary whitespace-nowrap text-[15.5px] desktop:text-[17px]">
             {item.price} {currency}
           </span>
         </div>
-        <p className="text-sm text-text-secondary mt-1 leading-relaxed">
+        <p className="italic text-sm text-text-secondary mt-1.5 leading-relaxed">
           {item.description}
         </p>
         {visibleTags.length > 0 && (
