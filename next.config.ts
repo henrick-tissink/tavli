@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-// Supabase Storage host: derive from env var if set, else a placeholder
-// that matches the shape of a Supabase public URL so the pattern
-// validates at build time.
 const supabaseHost = (() => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) return "*.supabase.co";
@@ -14,22 +11,16 @@ const supabaseHost = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // Allow photo uploads through server actions up to 12 MB (app-level limit
+  // is 10 MB per file; the extra headroom covers multipart encoding).
+  experimental: {
+    serverActions: { bodySizeLimit: "12mb" },
+  },
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: supabaseHost,
-      },
-      // Local supabase dev
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "54321",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: supabaseHost },
+      { protocol: "http", hostname: "127.0.0.1", port: "54321" },
     ],
   },
 };

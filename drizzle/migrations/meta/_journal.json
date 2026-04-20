@@ -22,6 +22,13 @@
       "when": 1776690176506,
       "tag": "0002_storage_bucket",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776714221968,
+      "tag": "0003_fix_digest_schema",
+      "breakpoints": true
     }
   ]
 }

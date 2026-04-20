@@ -3,8 +3,12 @@
 import Image from "next/image";
 import { useCallback, useState, useTransition } from "react";
 import { Upload, Trash2, Star } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/db/client";
-import { PHOTO_BUCKET, resolvePhotoUrl } from "@/lib/storage";
+import { resolvePhotoUrl } from "@/lib/storage";
+import {
+  uploadRestaurantPhoto,
+  setPhotoHero,
+  deletePhoto,
+} from "@/app/api/photos/actions";
 
 export interface PhotoRow {
   id: string;
@@ -27,9 +31,7 @@ export function PhotoUploader({
   const [photos, setPhotos] = useState<PhotoRow[]>(initialPhotos);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_, startTransition] = useTransition();
-
-  const hasHero = photos.some((p) => p.kind === "hero");
+  const [, startTransition] = useTransition();
 
   const onFilesSelected = useCallback(
     async (files: FileList | null) => {
@@ -37,7 +39,6 @@ export function PhotoUploader({
       setError(null);
       setUploading(true);
 
-      const supabase = createSupabaseBrowserClient();
       const toUpload = Array.from(files).slice(0, maxPhotos - photos.length);
 
       for (const file of toUpload) {
@@ -49,93 +50,60 @@ export function PhotoUploader({
           setError(`${file.name} is over 10 MB.`);
           continue;
         }
-        const ext = file.name.split(".").pop() ?? "jpg";
-        const path = `${restaurantId}/${crypto.randomUUID()}.${ext}`;
 
-        const { error: uploadErr } = await supabase.storage
-          .from(PHOTO_BUCKET)
-          .upload(path, file, { contentType: file.type, upsert: false });
+        const fd = new FormData();
+        fd.append("restaurantId", restaurantId);
+        fd.append("kind", "gallery");
+        fd.append("file", file);
 
-        if (uploadErr) {
-          setError(`${file.name}: ${uploadErr.message}`);
+        const result = await uploadRestaurantPhoto(fd);
+        if (!result.ok || !result.photo) {
+          setError(`${file.name}: ${result.error ?? "upload failed"}`);
           continue;
         }
-
-        const shouldBeHero = !hasHero && photos.length === 0 && toUpload[0] === file;
-        const maxSort = photos.reduce((m, p) => Math.max(m, p.sortOrder), -1);
-
-        const { data: inserted, error: insertErr } = await supabase
-          .from("restaurant_photos")
-          .insert({
-            restaurant_id: restaurantId,
-            storage_path: path,
-            kind: shouldBeHero ? "hero" : "gallery",
-            sort_order: maxSort + 1,
-          })
-          .select("id, storage_path, kind, sort_order")
-          .single();
-
-        if (insertErr || !inserted) {
-          setError(`${file.name}: ${insertErr?.message ?? "could not record"}`);
-          continue;
-        }
-
-        setPhotos((prev) => [
-          ...prev,
-          {
-            id: inserted.id,
-            storagePath: inserted.storage_path,
-            kind: inserted.kind,
-            sortOrder: inserted.sort_order,
-          },
-        ]);
+        setPhotos((prev) => [...prev, result.photo!]);
       }
 
       setUploading(false);
     },
-    [photos, restaurantId, maxPhotos, hasHero],
+    [photos, restaurantId, maxPhotos],
   );
 
-  const deletePhoto = useCallback(
-    async (photo: PhotoRow) => {
+  const handleDelete = useCallback(
+    (photo: PhotoRow) => {
       if (!confirm("Remove this photo?")) return;
-      const supabase = createSupabaseBrowserClient();
       startTransition(async () => {
-        await supabase.storage.from(PHOTO_BUCKET).remove([photo.storagePath]);
-        await supabase.from("restaurant_photos").delete().eq("id", photo.id);
-        setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+        const result = await deletePhoto(photo.id);
+        if (!result.ok) {
+          setError(result.error ?? "Could not delete.");
+        } else {
+          setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+        }
       });
     },
     [],
   );
 
-  const setHero = useCallback(
-    async (photo: PhotoRow) => {
-      const supabase = createSupabaseBrowserClient();
+  const handleSetHero = useCallback(
+    (photo: PhotoRow) => {
       startTransition(async () => {
-        const currentHero = photos.find((p) => p.kind === "hero");
-        if (currentHero) {
-          await supabase
-            .from("restaurant_photos")
-            .update({ kind: "gallery" })
-            .eq("id", currentHero.id);
+        const result = await setPhotoHero(photo.id);
+        if (!result.ok) {
+          setError(result.error ?? "Could not set hero.");
+        } else {
+          setPhotos((prev) =>
+            prev.map((p) =>
+              p.id === photo.id
+                ? { ...p, kind: "hero" }
+                : p.kind === "hero"
+                  ? { ...p, kind: "gallery" }
+                  : p,
+            ),
+          );
         }
-        await supabase
-          .from("restaurant_photos")
-          .update({ kind: "hero" })
-          .eq("id", photo.id);
-        setPhotos((prev) =>
-          prev.map((p) =>
-            p.id === photo.id
-              ? { ...p, kind: "hero" }
-              : p.kind === "hero"
-                ? { ...p, kind: "gallery" }
-                : p,
-          ),
-        );
       });
     },
-    [photos],
+    [],
   );
 
   return (
@@ -160,8 +128,8 @@ export function PhotoUploader({
           {uploading ? "Uploading…" : "Add photos"}
         </p>
         <p className="text-xs text-text-muted mt-1">
-          JPEG / PNG / WebP / AVIF, up to 10 MB each.{" "}
-          {photos.length}/{maxPhotos} used.
+          JPEG / PNG / WebP / AVIF, up to 10 MB each. {photos.length}/
+          {maxPhotos} used.
         </p>
       </label>
 
@@ -199,7 +167,7 @@ export function PhotoUploader({
                   {!isHero && (
                     <button
                       type="button"
-                      onClick={() => setHero(photo)}
+                      onClick={() => handleSetHero(photo)}
                       aria-label="Set as hero"
                       className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70"
                     >
@@ -208,7 +176,7 @@ export function PhotoUploader({
                   )}
                   <button
                     type="button"
-                    onClick={() => deletePhoto(photo)}
+                    onClick={() => handleDelete(photo)}
                     aria-label="Delete photo"
                     className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-600"
                   >
