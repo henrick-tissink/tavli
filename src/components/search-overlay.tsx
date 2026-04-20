@@ -2,13 +2,12 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
-import { getRestaurants, getRestaurantDetail } from "@/lib/repos/restaurants-repo";
-import { processReviews } from "@/lib/review-processor";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
 
 interface SearchOverlayProps {
   open: boolean;
+  restaurants: Restaurant[];
   onClose: () => void;
   onSelectRestaurant: (restaurant: Restaurant) => void;
   onSelectCuisine?: (cuisine: string) => void;
@@ -59,6 +58,7 @@ function clearRecent() {
 
 export function SearchOverlay({
   open,
+  restaurants,
   onClose,
   onSelectRestaurant,
   onSelectCuisine,
@@ -67,7 +67,6 @@ export function SearchOverlay({
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load recent searches when opened
   useEffect(() => {
     if (open) {
       setRecentSearches(getRecent());
@@ -75,7 +74,6 @@ export function SearchOverlay({
     }
   }, [open]);
 
-  // Auto-focus input on open
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => {
@@ -84,50 +82,19 @@ export function SearchOverlay({
     }
   }, [open]);
 
-  const restaurants = useMemo(() => getRestaurants(), []);
-
-  // Pre-compute top mention phrases per restaurant for search matching
-  const mentionIndex = useMemo(() => {
-    const index = new Map<string, string[]>();
-    for (const r of restaurants) {
-      const detail = getRestaurantDetail(r.slug);
-      if (!detail) continue;
-      const intel = processReviews(detail.reviews);
-      if (intel) {
-        index.set(r.id, intel.topMentions.map((m) => m.phrase.toLowerCase()));
-      }
-    }
-    return index;
-  }, [restaurants]);
-
   const hasQuery = query.length >= 2;
 
   const matchedRestaurants = useMemo(() => {
     if (!hasQuery) return [];
     const q = query.toLowerCase();
-    type ResultItem = Restaurant & { mentionMatch?: boolean };
-    const seen = new Set<string>();
-    const results: ResultItem[] = [];
-
-    // First: name/cuisine matches
-    for (const r of restaurants) {
-      if (r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q)) {
-        seen.add(r.id);
-        results.push(r);
-      }
-    }
-
-    // Second: mention matches
-    for (const r of restaurants) {
-      if (seen.has(r.id)) continue;
-      const phrases = mentionIndex.get(r.id);
-      if (phrases?.some((p) => p.includes(q))) {
-        results.push(Object.assign({}, r, { mentionMatch: true }));
-      }
-    }
-
-    return results.slice(0, 5);
-  }, [query, hasQuery, restaurants, mentionIndex]);
+    return restaurants
+      .filter(
+        (r) =>
+          r.name.toLowerCase().includes(q) ||
+          r.cuisine.toLowerCase().includes(q),
+      )
+      .slice(0, 5);
+  }, [query, hasQuery, restaurants]);
 
   const matchedCuisines = useMemo(() => {
     if (!hasQuery) return [];
@@ -298,9 +265,6 @@ export function SearchOverlay({
                             <p className="text-xs text-text-secondary">
                               {r.rating} · {r.cuisine} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
                             </p>
-                            {r.mentionMatch && (
-                              <p className="text-xs text-brand-primary mt-0.5">Mentioned in reviews</p>
-                            )}
                           </div>
                         </button>
                       ))}

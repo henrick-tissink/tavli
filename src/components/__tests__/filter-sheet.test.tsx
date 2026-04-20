@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FilterSheet } from "../filter-sheet";
 import { FilterProvider, useFilters } from "@/lib/filter-context";
+import { getRestaurants } from "@/lib/mock-data";
 
 // Helper to read context state
 let latestCtx: ReturnType<typeof useFilters>;
@@ -12,10 +13,16 @@ function CtxSpy() {
 
 function renderSheet(props: { open?: boolean; onClose?: () => void; resultCount?: number } = {}) {
   const onClose = props.onClose ?? jest.fn();
+  const restaurants = getRestaurants();
   const result = render(
     <FilterProvider>
       <CtxSpy />
-      <FilterSheet open={props.open ?? true} onClose={onClose} resultCount={props.resultCount ?? 10} />
+      <FilterSheet
+        open={props.open ?? true}
+        onClose={onClose}
+        resultCount={props.resultCount ?? 10}
+        restaurants={restaurants}
+      />
     </FilterProvider>,
   );
   return { ...result, onClose };

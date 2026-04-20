@@ -4,13 +4,14 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { Pill } from "@/components/pill";
 import { Button } from "@/components/button";
 import { useFilters } from "@/lib/filter-context";
-import { getRestaurants } from "@/lib/repos/restaurants-repo";
+import type { Restaurant } from "@/lib/types";
 import { useMemo } from "react";
 
 interface FilterSheetProps {
   open: boolean;
   onClose: () => void;
   resultCount: number;
+  restaurants?: Restaurant[];
 }
 
 const PRICE_OPTIONS = [
@@ -40,18 +41,23 @@ const COLLECTIONS = [
   "Terrace",
 ];
 
-export function FilterSheet({ open, onClose, resultCount }: FilterSheetProps) {
+export function FilterSheet({
+  open,
+  onClose,
+  resultCount,
+  restaurants = [],
+}: FilterSheetProps) {
   const { filters, toggleArrayFilter, setFilter, resetFilters, activeFilterCount } = useFilters();
 
   const cuisines = useMemo(() => {
-    const all = getRestaurants().map((r) => r.cuisine);
+    const all = restaurants.map((r) => r.cuisine);
     return [...new Set(all)].sort();
-  }, []);
+  }, [restaurants]);
 
   const neighborhoods = useMemo(() => {
-    const all = getRestaurants().map((r) => r.zone);
+    const all = restaurants.map((r) => r.zone);
     return [...new Set(all)].sort();
-  }, []);
+  }, [restaurants]);
 
   return (
     <BottomSheet open={open} onClose={onClose}>

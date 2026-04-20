@@ -1,69 +1,293 @@
 /**
- * Single entry point for reading restaurant data in consumer code paths.
+ * Consumer data access — async, gated by NEXT_PUBLIC_USE_DB.
  *
- * Today this delegates to the static mock data in src/lib/mock-data.ts
- * so nothing about the consumer app changes. When USE_DB=true and the
- * consumer pages have been refactored to server components (Phase 2 M3.5),
- * implementations here will switch to querying Supabase. Callers import
- * from this module, not from mock-data, so the swap is a one-file change.
+ * USE_DB=false (default): delegates to the static mock data so the demo
+ * works without Supabase.
+ * USE_DB=true: queries Supabase via the anonymous client. RLS restricts
+ * visibility to status='live' restaurants + their children.
  *
- * Keep function signatures synchronous until that refactor — consumer
- * components are currently client components and can't await in render.
+ * Callers are server components in consumer routes; they await these
+ * functions and pass the result to client sub-components as props.
  */
 
-import type { Restaurant, RestaurantDetail, Menu } from "@/lib/types";
+import type {
+  Restaurant,
+  RestaurantDetail,
+  Menu,
+  MenuItem,
+  MenuSection,
+  Review,
+  ReviewIntelligence,
+} from "@/lib/types";
 import * as mock from "@/lib/mock-data";
 import * as menuMock from "@/lib/menu-data";
+import { supabaseAnon } from "@/lib/db/anon";
+import { resolvePhotoUrl } from "@/lib/storage";
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
-function warnDbNotImplemented(op: string): never {
-  throw new Error(
-    `[restaurants-repo] ${op}: USE_DB=true but live DB reads require the M3.5 async-refactor (consumer pages → server components). Keep USE_DB=false for now.`,
-  );
+function dbActive(): boolean {
+  return USE_DB && supabaseAnon() !== null;
 }
 
-export function getRestaurants(): Restaurant[] {
-  if (USE_DB) warnDbNotImplemented("getRestaurants");
-  return mock.getRestaurants();
+// ── live DB helpers ─────────────────────────────────────────────────────
+
+async function fetchHeroPhoto(restaurantId: string): Promise<string | null> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurant_photos")
+    .select("storage_path")
+    .eq("restaurant_id", restaurantId)
+    .eq("kind", "hero")
+    .maybeSingle();
+  return resolvePhotoUrl(data?.storage_path ?? null);
 }
 
-export function getTrendingRestaurants(): Restaurant[] {
-  if (USE_DB) warnDbNotImplemented("getTrendingRestaurants");
-  return mock.getTrendingRestaurants();
+async function fetchAllPhotos(restaurantId: string): Promise<string[]> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurant_photos")
+    .select("storage_path, sort_order, kind")
+    .eq("restaurant_id", restaurantId)
+    .order("sort_order");
+  return (data ?? [])
+    .map((p) => resolvePhotoUrl(p.storage_path))
+    .filter((u): u is string => !!u);
 }
 
-export function getNewRestaurants(): Restaurant[] {
-  if (USE_DB) warnDbNotImplemented("getNewRestaurants");
-  return mock.getNewRestaurants();
+async function restaurantFromRow(row: Record<string, unknown>): Promise<Restaurant> {
+  const id = row.id as string;
+  const heroUrl = await fetchHeroPhoto(id);
+  return {
+    id,
+    slug: row.slug as string,
+    name: row.name as string,
+    cuisine: row.cuisine as string,
+    priceLevel: Math.max(1, Math.min(4, Number(row.price_level ?? 2))) as 1 | 2 | 3 | 4,
+    zone: (row.zone as string) ?? "",
+    city: "București",
+    rating: Number(row.rating ?? 0),
+    voteCount: Number(row.vote_count ?? 0),
+    photoUrl: heroUrl,
+    photoCount: Number(row.photo_count ?? 0),
+    status: row.status === "live" ? "open" : "closed",
+    availableSlots: [],
+    distance: undefined,
+    lat: row.lat != null ? Number(row.lat) : undefined,
+    lng: row.lng != null ? Number(row.lng) : undefined,
+  };
 }
 
-export function getOpenNowRestaurants(): Restaurant[] {
-  if (USE_DB) warnDbNotImplemented("getOpenNowRestaurants");
-  return mock.getOpenNowRestaurants();
+async function dbGetRestaurants(): Promise<Restaurant[]> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurants")
+    .select(
+      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+    )
+    .eq("status", "live")
+    .order("rating", { ascending: false });
+  return Promise.all((data ?? []).map((r) => restaurantFromRow(r)));
 }
 
-export function getRestaurantBySlug(slug: string): Restaurant | null {
-  if (USE_DB) warnDbNotImplemented("getRestaurantBySlug");
-  return mock.getRestaurantBySlug(slug);
+async function dbGetRestaurantBySlug(slug: string): Promise<Restaurant | null> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurants")
+    .select(
+      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+    )
+    .eq("slug", slug)
+    .eq("status", "live")
+    .maybeSingle();
+  if (!data) return null;
+  return restaurantFromRow(data);
 }
 
-export function getRestaurantDetail(slug: string): RestaurantDetail | null {
-  if (USE_DB) warnDbNotImplemented("getRestaurantDetail");
-  return mock.getRestaurantDetail(slug);
+async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | null> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurants")
+    .select(
+      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule",
+    )
+    .eq("slug", slug)
+    .eq("status", "live")
+    .maybeSingle();
+  if (!data) return null;
+
+  const [base, photos, nearby] = await Promise.all([
+    restaurantFromRow(data),
+    fetchAllPhotos(data.id),
+    sb
+      .from("restaurants")
+      .select(
+        "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+      )
+      .eq("status", "live")
+      .neq("id", data.id)
+      .limit(4)
+      .then(({ data }) => Promise.all((data ?? []).map((r) => restaurantFromRow(r)))),
+  ]);
+
+  const emptyIntelligence: ReviewIntelligence | null = null;
+  const reviews: Review[] = [];
+
+  return {
+    ...base,
+    lat: Number(data.lat ?? 0),
+    lng: Number(data.lng ?? 0),
+    description: (data.description as string) ?? "",
+    photos,
+    schedule: (data.schedule as { days: string; hours: string }[]) ?? [],
+    address: (data.address as string) ?? "",
+    tags: (data.tags as string[]) ?? [],
+    reviewIntelligence: emptyIntelligence,
+    reviews,
+    nearby,
+    websiteUrl: (data.website_url as string) ?? undefined,
+    menuPdfUrl: undefined,
+  };
 }
 
-export function getCardReviewData(slug: string) {
-  if (USE_DB) warnDbNotImplemented("getCardReviewData");
-  return mock.getCardReviewData(slug);
+async function dbGetMenu(slug: string): Promise<Menu | null> {
+  const sb = supabaseAnon()!;
+  const { data: r } = await sb
+    .from("restaurants")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "live")
+    .maybeSingle();
+  if (!r) return null;
+
+  const [{ data: menuRow }, { data: sectionsRaw }, { data: itemsRaw }] =
+    await Promise.all([
+      sb
+        .from("menus")
+        .select("currency, hero_note")
+        .eq("restaurant_id", r.id)
+        .maybeSingle(),
+      sb
+        .from("menu_sections")
+        .select("id, name, intro, sort_order")
+        .eq("restaurant_id", r.id)
+        .order("sort_order"),
+      sb
+        .from("menu_items")
+        .select(
+          "id, section_id, name, description, price_cents, dietary_tags, is_chef_pick, photo_storage_path, sort_order, is_available",
+        )
+        .eq("restaurant_id", r.id)
+        .eq("is_available", true)
+        .order("sort_order"),
+    ]);
+
+  if (!menuRow || !sectionsRaw || sectionsRaw.length === 0) return null;
+
+  const sections: MenuSection[] = sectionsRaw.map((s) => ({
+    id: s.id,
+    name: s.name,
+    intro: s.intro ?? undefined,
+  }));
+
+  const items: MenuItem[] = (itemsRaw ?? []).map((i) => ({
+    id: i.id,
+    sectionId: i.section_id,
+    name: i.name,
+    description: i.description ?? "",
+    price: Math.round(i.price_cents / 100),
+    photoUrl: resolvePhotoUrl(i.photo_storage_path) ?? undefined,
+    tags: toTagsPublic(i.dietary_tags ?? [], i.is_chef_pick),
+  }));
+
+  return {
+    restaurantId: r.id,
+    currency: (menuRow.currency as Menu["currency"]) ?? "lei",
+    sections,
+    items,
+    heroNote: (menuRow.hero_note as string) ?? undefined,
+  };
 }
 
-export function getMenu(slug: string): Menu | null {
-  if (USE_DB) warnDbNotImplemented("getMenu");
-  return menuMock.getMenu(slug);
+function toTagsPublic(
+  tags: string[],
+  isChefPick: boolean,
+): import("@/lib/types").MenuDietaryTag[] {
+  const mapped = tags.map((t) =>
+    t === "gluten_free" ? "gluten-free" : t === "chef_pick" ? "chef-pick" : t,
+  ) as import("@/lib/types").MenuDietaryTag[];
+  if (isChefPick && !mapped.includes("chef-pick")) mapped.push("chef-pick");
+  return mapped;
 }
 
-export function hasMenu(slug: string): boolean {
-  if (USE_DB) warnDbNotImplemented("hasMenu");
-  return menuMock.hasMenu(slug);
+// ── public API ──────────────────────────────────────────────────────────
+
+export async function getRestaurants(): Promise<Restaurant[]> {
+  if (dbActive()) return dbGetRestaurants();
+  return Promise.resolve(mock.getRestaurants());
+}
+
+export async function getTrendingRestaurants(): Promise<Restaurant[]> {
+  if (dbActive()) {
+    const all = await dbGetRestaurants();
+    return all
+      .slice()
+      .sort((a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0))
+      .slice(0, 8);
+  }
+  return Promise.resolve(mock.getTrendingRestaurants());
+}
+
+export async function getNewRestaurants(): Promise<Restaurant[]> {
+  if (dbActive()) {
+    const all = await dbGetRestaurants();
+    return all.slice(-4);
+  }
+  return Promise.resolve(mock.getNewRestaurants());
+}
+
+export async function getOpenNowRestaurants(): Promise<Restaurant[]> {
+  if (dbActive()) {
+    // Simplified for Phase 2 — availability is checked per-booking, not live.
+    return dbGetRestaurants();
+  }
+  return Promise.resolve(mock.getOpenNowRestaurants());
+}
+
+export async function getRestaurantBySlug(
+  slug: string,
+): Promise<Restaurant | null> {
+  if (dbActive()) return dbGetRestaurantBySlug(slug);
+  return Promise.resolve(mock.getRestaurantBySlug(slug));
+}
+
+export async function getRestaurantDetail(
+  slug: string,
+): Promise<RestaurantDetail | null> {
+  if (dbActive()) return dbGetRestaurantDetail(slug);
+  return Promise.resolve(mock.getRestaurantDetail(slug));
+}
+
+export async function getCardReviewData(slug: string) {
+  if (dbActive()) {
+    return {
+      reviewSnippet: undefined,
+      topDimensionLabel: undefined,
+      topDimensionPercent: undefined,
+    };
+  }
+  return Promise.resolve(mock.getCardReviewData(slug));
+}
+
+export async function getMenu(slug: string): Promise<Menu | null> {
+  if (dbActive()) return dbGetMenu(slug);
+  return Promise.resolve(menuMock.getMenu(slug));
+}
+
+export async function hasMenu(slug: string): Promise<boolean> {
+  if (dbActive()) {
+    const m = await dbGetMenu(slug);
+    return m !== null;
+  }
+  return Promise.resolve(menuMock.hasMenu(slug));
 }

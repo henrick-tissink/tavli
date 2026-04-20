@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchOverlay } from "../search-overlay";
+import { getRestaurants } from "@/lib/mock-data";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -20,6 +21,7 @@ beforeEach(() => {
 
 const defaultProps = {
   open: true,
+  restaurants: getRestaurants(),
   onClose: jest.fn(),
   onSelectRestaurant: jest.fn(),
   onSelectCuisine: jest.fn(),
