@@ -1,5 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+// Mock server-action module to avoid loading Resend (pulls in postal-mime
+// which needs TextEncoder — not available in jsdom by default).
+jest.mock("@/app/api/reservations/actions", () => ({
+  createReservation: jest.fn(async () => ({
+    ok: true,
+    mode: "mock",
+    reservationId: "mock-test",
+  })),
+}));
+
 import { ReservationSheet } from "../reservation-sheet";
 
 describe("ReservationSheet", () => {

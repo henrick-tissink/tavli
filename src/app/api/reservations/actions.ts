@@ -1,0 +1,153 @@
+"use server";
+
+import { randomBytes } from "node:crypto";
+import { createSupabaseAdminClient } from "@/lib/db/admin";
+import { sendEmail } from "@/lib/email/resend";
+import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
+
+function appOrigin(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000")
+  );
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export interface CreateReservationInput {
+  restaurantId: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  partySize: number;
+  zone?: string;
+  guestName: string;
+  guestPhone: string;
+  guestEmail?: string;
+  notes?: string;
+}
+
+export interface CreateReservationResult {
+  ok: boolean;
+  mode: "db" | "mock";
+  reservationId?: string;
+  confirmationToken?: string;
+  cancelUrl?: string;
+  error?: string;
+  errorCode?: "SLOT_FULL" | "NO_AVAILABILITY" | "OTHER";
+}
+
+/**
+ * Insert a reservation when Supabase is configured AND the restaurantId is
+ * a real UUID. Otherwise return mode:"mock" so the existing client-side
+ * booking UX still confirms the user's selection (backed only by
+ * localStorage from SavedContext). This lets Phase-2 M12 ship without
+ * requiring the consumer-page DB cutover (M3.5).
+ */
+export async function createReservation(
+  input: CreateReservationInput,
+): Promise<CreateReservationResult> {
+  if (!input.guestName?.trim() || !input.guestPhone?.trim()) {
+    return { ok: false, mode: "db", error: "Name and phone are required." };
+  }
+  if (!input.date || !input.time || input.partySize < 1) {
+    return { ok: false, mode: "db", error: "Incomplete reservation details." };
+  }
+
+  const supabaseConfigured =
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const isRealUuid = UUID_RE.test(input.restaurantId);
+
+  if (!supabaseConfigured || !isRealUuid) {
+    return {
+      ok: true,
+      mode: "mock",
+      reservationId: `mock-${Date.now()}`,
+    };
+  }
+
+  const admin = createSupabaseAdminClient();
+  const confirmationToken = randomBytes(24)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+  const { data, error } = await admin
+    .from("reservations")
+    .insert({
+      restaurant_id: input.restaurantId,
+      guest_name: input.guestName.trim(),
+      guest_phone: input.guestPhone.trim(),
+      guest_email: input.guestEmail?.trim() || null,
+      party_size: input.partySize,
+      reservation_date: input.date,
+      reservation_time: `${input.time}:00`,
+      zone: input.zone?.trim() || null,
+      notes: input.notes?.trim() || null,
+      status: "confirmed",
+      confirmation_token: confirmationToken,
+    })
+    .select("id, restaurant_id")
+    .single();
+
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("Slot is full") || error.code === "TV002") {
+      return {
+        ok: false,
+        mode: "db",
+        error: "That time is fully booked. Try a neighbouring slot.",
+        errorCode: "SLOT_FULL",
+      };
+    }
+    if (
+      msg.includes("No availability configured") ||
+      error.code === "TV001"
+    ) {
+      return {
+        ok: false,
+        mode: "db",
+        error: "This restaurant isn't taking bookings for that time.",
+        errorCode: "NO_AVAILABILITY",
+      };
+    }
+    return { ok: false, mode: "db", error: msg || "Could not book.", errorCode: "OTHER" };
+  }
+
+  // Resolve restaurant details for the email.
+  const { data: restaurant } = await admin
+    .from("restaurants")
+    .select("name, address")
+    .eq("id", data.restaurant_id)
+    .maybeSingle();
+
+  const cancelUrl = `${appOrigin()}/reservations/${confirmationToken}`;
+
+  if (input.guestEmail) {
+    await sendEmail({
+      to: input.guestEmail,
+      subject: `Booked at ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`,
+      react: ReservationConfirmationEmail({
+        restaurantName: restaurant?.name ?? "Your restaurant",
+        restaurantAddress: restaurant?.address ?? undefined,
+        reservationDate: input.date,
+        reservationTime: input.time,
+        partySize: input.partySize,
+        guestName: input.guestName.trim(),
+        zone: input.zone,
+        cancelUrl,
+      }),
+    });
+  }
+
+  return {
+    ok: true,
+    mode: "db",
+    reservationId: data.id,
+    confirmationToken,
+    cancelUrl,
+  };
+}

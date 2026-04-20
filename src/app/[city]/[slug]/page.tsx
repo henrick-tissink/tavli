@@ -356,13 +356,14 @@ export default function RestaurantDetailPage({
           setSheetOpen(false);
           setPreSelectedSlot(undefined);
         }}
+        restaurantId={restaurant.id}
         restaurantName={restaurant.name}
         rating={restaurant.rating}
         availableSlots={restaurant.availableSlots}
         preSelectedSlot={preSelectedSlot}
         onBookingConfirmed={(data) => {
           addBooking({
-            id: crypto.randomUUID(),
+            id: data.reservationId ?? crypto.randomUUID(),
             restaurantId: restaurant.id,
             restaurantName: data.restaurantName,
             date: data.date,

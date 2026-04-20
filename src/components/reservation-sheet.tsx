@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { CheckCircle } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import { RatingBadge } from "./rating-badge";
 import { TimeSlotPills } from "./time-slot-pills";
 import { Pill } from "./pill";
 import { Button } from "./button";
+import { createReservation } from "@/app/api/reservations/actions";
 
 interface ReservationSheetProps {
   open: boolean;
   onClose: () => void;
+  restaurantId?: string;
   restaurantName: string;
   rating: number;
   availableSlots: string[];
@@ -21,6 +23,7 @@ interface ReservationSheetProps {
     date: string;
     time: string;
     guests: number;
+    reservationId?: string;
   }) => void;
 }
 
@@ -29,6 +32,7 @@ type DateOption = "today" | "tomorrow" | "pick";
 export function ReservationSheet({
   open,
   onClose,
+  restaurantId,
   restaurantName,
   rating,
   availableSlots,
@@ -47,6 +51,9 @@ export function ReservationSheet({
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [reservationMode, setReservationMode] = useState<"db" | "mock" | null>(null);
+  const [pending, startTransition] = useTransition();
 
   const dateLabels: Record<DateOption, string> = {
     today: "Today",
@@ -57,15 +64,41 @@ export function ReservationSheet({
   const canConfirm = name.trim().length > 0 && phone.trim().length > 0;
 
   const handleConfirm = () => {
-    if (canConfirm) {
+    if (!canConfirm || !selectedSlot) return;
+    setSubmitError(null);
+
+    const bookingDate = new Date();
+    if (dateOption === "tomorrow") bookingDate.setDate(bookingDate.getDate() + 1);
+    const dateStr = bookingDate.toISOString().slice(0, 10);
+
+    startTransition(async () => {
+      const result = await createReservation({
+        restaurantId: restaurantId ?? "",
+        date: dateStr,
+        time: selectedSlot,
+        partySize: guests,
+        zone: selectedZone ?? undefined,
+        guestName: name,
+        guestPhone: phone,
+        guestEmail: email || undefined,
+        notes: notes || undefined,
+      });
+
+      if (!result.ok) {
+        setSubmitError(result.error ?? "Booking failed.");
+        return;
+      }
+
+      setReservationMode(result.mode);
       onBookingConfirmed?.({
         restaurantName,
         date: dateLabels[dateOption],
-        time: selectedSlot ?? "",
+        time: selectedSlot,
         guests,
+        reservationId: result.reservationId,
       });
       setStep("confirmed");
-    }
+    });
   };
 
   if (step === "confirmed") {
@@ -113,7 +146,11 @@ export function ReservationSheet({
             {selectedZone && <p>{selectedZone}</p>}
           </div>
           <p className="text-xs text-text-muted text-center mt-3">
-            Confirmation sent to +40 {phone}
+            {reservationMode === "db" && email
+              ? `Confirmation sent to ${email}`
+              : reservationMode === "db"
+                ? "Reservation saved."
+                : "Saved locally (demo mode — set up Supabase to persist reservations)."}
           </p>
           <div className="flex gap-3 mt-6 w-full">
             <a
@@ -283,12 +320,21 @@ export function ReservationSheet({
               🔒 Your details are shared only with this restaurant
             </p>
 
+            {submitError && (
+              <p
+                className="text-sm text-error bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+                role="alert"
+              >
+                {submitError}
+              </p>
+            )}
+
             <Button
               fullWidth
-              disabled={!canConfirm}
+              disabled={!canConfirm || pending}
               onClick={handleConfirm}
             >
-              Confirm reservation
+              {pending ? "Booking…" : "Confirm reservation"}
             </Button>
           </>
         )}
