@@ -14,7 +14,7 @@ import {
   getRestaurants,
   getTrendingRestaurants,
   getNewRestaurants,
-} from "@/lib/mock-data";
+} from "@/lib/repos/restaurants-repo";
 
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",

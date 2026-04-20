@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   getRestaurantBySlug,
   getRestaurantDetail,
-} from "@/lib/mock-data";
-import { getMenu } from "@/lib/menu-data";
+} from "@/lib/repos/restaurants-repo";
+import { getMenu } from "@/lib/repos/restaurants-repo";
 import { MenuViewer } from "@/components/menu-viewer";
 import { Button } from "@/components/button";
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Heart, Plus, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useSaved } from "@/lib/saved-context";
-import { getRestaurants } from "@/lib/mock-data";
+import { getRestaurants } from "@/lib/repos/restaurants-repo";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { AuthSheet } from "@/components/auth-sheet";
 import { Button } from "@/components/button";

@@ -4,7 +4,7 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { Pill } from "@/components/pill";
 import { Button } from "@/components/button";
 import { useFilters } from "@/lib/filter-context";
-import { getRestaurants } from "@/lib/mock-data";
+import { getRestaurants } from "@/lib/repos/restaurants-repo";
 import { useMemo } from "react";
 
 interface FilterSheetProps {

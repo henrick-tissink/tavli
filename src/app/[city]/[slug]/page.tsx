@@ -4,7 +4,7 @@ import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, ExternalLink, FileText, Globe } from "lucide-react";
-import { getRestaurantDetail } from "@/lib/mock-data";
+import { getRestaurantDetail } from "@/lib/repos/restaurants-repo";
 import { PRICE_LABELS } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { RatingBadge } from "@/components/rating-badge";

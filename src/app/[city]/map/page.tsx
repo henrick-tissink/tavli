@@ -7,7 +7,7 @@ import { Search, X, SlidersHorizontal } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
-import { getRestaurants } from "@/lib/mock-data";
+import { getRestaurants } from "@/lib/repos/restaurants-repo";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
 import { FilterSheet } from "@/components/filter-sheet";

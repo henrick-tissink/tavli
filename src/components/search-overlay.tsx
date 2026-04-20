@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
-import { getRestaurants, getRestaurantDetail } from "@/lib/mock-data";
+import { getRestaurants, getRestaurantDetail } from "@/lib/repos/restaurants-repo";
 import { processReviews } from "@/lib/review-processor";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
