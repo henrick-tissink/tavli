@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   BookOpen,
   Calendar,
+  CalendarCog,
   Eye,
   LogOut,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const NAV = [
   { href: "/partner/hours", label: "Hours", icon: Clock, exact: false },
   { href: "/partner/photos", label: "Photos", icon: ImageIcon, exact: false },
   { href: "/partner/menu", label: "Menu", icon: BookOpen, exact: false },
+  { href: "/partner/availability", label: "Availability", icon: CalendarCog, exact: false },
   { href: "/partner/reservations", label: "Reservations", icon: Calendar, exact: false },
   { href: "/partner/preview", label: "Preview", icon: Eye, exact: false },
 ];
