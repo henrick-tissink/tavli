@@ -1,13 +1,41 @@
-import { ComingSoon } from "@/components/partner/ComingSoon";
+import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { PartnerProfileForm } from "@/components/partner/PartnerProfileForm";
 
 export const dynamic = "force-dynamic";
 
-export default function PartnerProfilePage() {
+export default async function PartnerProfilePage() {
+  const session = await getCurrentSession();
+  const supabase = await createSupabaseServerClient();
+
+  const { data: restaurant } = await supabase
+    .from("restaurants")
+    .select("name, cuisine, address, zone, phone, hero_note, website_url")
+    .eq("owner_user_id", session!.userId)
+    .maybeSingle();
+
   return (
-    <ComingSoon
-      title="Profile"
-      milestone="M9"
-      description="Edit name, cuisine, address, phone, website, and the one-line hero note that shows on your menu page."
-    />
+    <div className="px-8 py-8">
+      <header className="mb-6">
+        <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
+          Profile
+        </h1>
+        <p className="text-sm text-text-secondary mt-1">
+          How your restaurant is presented to diners.
+        </p>
+      </header>
+
+      <PartnerProfileForm
+        initialValues={{
+          name: restaurant?.name,
+          cuisine: restaurant?.cuisine,
+          address: restaurant?.address,
+          zone: restaurant?.zone,
+          phone: restaurant?.phone,
+          heroNote: restaurant?.hero_note,
+          websiteUrl: restaurant?.website_url,
+        }}
+      />
+    </div>
   );
 }
