@@ -38,6 +38,7 @@
 
   /* Font */
   --font-sans: var(--font-inter, "Inter"), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-fraunces, "Fraunces"), ui-serif, Georgia, "Times New Roman", serif;
 
   /* Breakpoints */
   --breakpoint-tablet: 768px;

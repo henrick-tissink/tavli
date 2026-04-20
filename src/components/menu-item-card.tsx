@@ -38,9 +38,10 @@ const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
 interface Props {
   item: MenuItem;
   currency: string;
+  onOpen?: (item: MenuItem) => void;
 }
 
-export function MenuItemCard({ item, currency }: Props) {
+export function MenuItemCard({ item, currency, onOpen }: Props) {
   const isChefPick = item.tags?.includes("chef-pick");
   const isVegan = item.tags?.includes("vegan");
   const visibleTags = (item.tags ?? []).filter((t) => {
@@ -49,11 +50,8 @@ export function MenuItemCard({ item, currency }: Props) {
     return true;
   });
 
-  return (
-    <article
-      id={`item-${item.id}`}
-      className="flex gap-4 py-5 scroll-mt-32"
-    >
+  const content = (
+    <>
       {item.photoUrl && (
         <div className="relative w-24 h-24 desktop:w-28 desktop:h-28 flex-shrink-0 rounded-card overflow-hidden bg-surface-bg">
           <Image
@@ -68,7 +66,7 @@ export function MenuItemCard({ item, currency }: Props) {
       <div className="flex-1 min-w-0">
         {/* Title line with dotted leader + price */}
         <div className="flex items-baseline gap-2">
-          <h3 className="font-bold text-text-primary text-[15.5px] desktop:text-[17px] leading-tight">
+          <h3 className="font-display font-bold text-text-primary text-[16px] desktop:text-[18px] leading-tight">
             {isChefPick && (
               <Star
                 size={14}
@@ -107,6 +105,25 @@ export function MenuItemCard({ item, currency }: Props) {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (onOpen) {
+    return (
+      <button
+        type="button"
+        id={`item-${item.id}`}
+        onClick={() => onOpen(item)}
+        className="flex gap-4 py-5 scroll-mt-32 w-full text-left hover:bg-surface-bg/60 transition-colors -mx-2 px-2 rounded-lg"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <article id={`item-${item.id}`} className="flex gap-4 py-5 scroll-mt-32">
+      {content}
     </article>
   );
 }

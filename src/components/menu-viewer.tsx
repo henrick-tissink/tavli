@@ -1,11 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Star } from "lucide-react";
-import type { Menu, Restaurant } from "@/lib/types";
+import type { Menu, MenuItem, Restaurant } from "@/lib/types";
 import { PRICE_LABELS } from "@/lib/types";
 import { MenuItemCard } from "./menu-item-card";
+import { MenuItemDetailSheet } from "./menu-item-detail-sheet";
+import {
+  DietaryFilterRow,
+  type DietaryFilter,
+} from "./dietary-filter-row";
 
 interface Props {
   restaurant: Restaurant;
@@ -14,6 +19,11 @@ interface Props {
   onBack: () => void;
 }
 
+// Sections that should be excluded when computing the "mains" price range
+// for the hero (desserts, drinks/wine sections across cuisines).
+const NON_MAINS_PATTERN =
+  /dessert|dolci|tatli|dezerti|postres|deserturi|drink|bevande|bebidas|bauturi|icecekler|pica|vin|sake|icecek/i;
+
 export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
   const sectionsRef = useRef<Record<string, HTMLElement | null>>({});
   const [activeSectionId, setActiveSectionId] = useState<string>(
@@ -21,40 +31,73 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
   );
   const programmaticScrollRef = useRef(false);
 
-  const itemsBySection = useMemo(() => {
-    const grouped = new Map<string, typeof menu.items>();
+  const [activeFilters, setActiveFilters] = useState<Set<DietaryFilter>>(
+    new Set(),
+  );
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
+
+  const toggleFilter = useCallback((filter: DietaryFilter) => {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(filter)) next.delete(filter);
+      else next.add(filter);
+      return next;
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => setActiveFilters(new Set()), []);
+
+  // Apply active dietary filters to items. Items must match ALL active filters.
+  const filteredItemsBySection = useMemo(() => {
+    const grouped = new Map<string, MenuItem[]>();
     for (const s of menu.sections) {
-      grouped.set(
-        s.id,
-        menu.items.filter((i) => i.sectionId === s.id),
-      );
+      const sectionItems = menu.items.filter((i) => i.sectionId === s.id);
+      const filtered =
+        activeFilters.size === 0
+          ? sectionItems
+          : sectionItems.filter((i) => {
+              for (const f of activeFilters) {
+                if (!i.tags?.includes(f)) return false;
+              }
+              return true;
+            });
+      grouped.set(s.id, filtered);
     }
     return grouped;
-  }, [menu]);
+  }, [menu, activeFilters]);
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const s of menu.sections) {
-      map.set(s.id, itemsBySection.get(s.id)?.length ?? 0);
-    }
-    return map;
-  }, [menu, itemsBySection]);
+  const visibleSections = useMemo(
+    () =>
+      menu.sections.filter(
+        (s) => (filteredItemsBySection.get(s.id)?.length ?? 0) > 0,
+      ),
+    [menu.sections, filteredItemsBySection],
+  );
+
+  const totalFilteredCount = useMemo(
+    () =>
+      Array.from(filteredItemsBySection.values()).reduce(
+        (acc, arr) => acc + arr.length,
+        0,
+      ),
+    [filteredItemsBySection],
+  );
 
   const chefPicks = useMemo(
     () => menu.items.filter((i) => i.tags?.includes("chef-pick")),
     [menu],
   );
 
-  // Compute a mains-section price range for the hero
+  // Compute a mains-section price range for the hero by excluding
+  // dessert/drinks sections across every cuisine's naming convention.
   const heroPriceRange = useMemo(() => {
-    const mainsKeywords = /main|principale|plat|secondi|kebap|rostilj|grill|curri|biryani|peking|bbq|burger|pizza/i;
-    const mainsSectionIds = menu.sections
-      .filter((s) => mainsKeywords.test(s.id) || mainsKeywords.test(s.name))
-      .map((s) => s.id);
-    const mainsItems =
-      mainsSectionIds.length > 0
-        ? menu.items.filter((i) => mainsSectionIds.includes(i.sectionId))
-        : menu.items;
+    const mainsItems = menu.items.filter((i) => {
+      const section = menu.sections.find((s) => s.id === i.sectionId);
+      if (!section) return false;
+      if (NON_MAINS_PATTERN.test(section.id)) return false;
+      if (NON_MAINS_PATTERN.test(section.name)) return false;
+      return true;
+    });
     if (mainsItems.length === 0) return null;
     const prices = mainsItems.map((i) => i.price);
     return { min: Math.min(...prices), max: Math.max(...prices) };
@@ -66,7 +109,6 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         if (programmaticScrollRef.current) return;
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length === 0) return;
-        // Pick the topmost visible section (smallest top offset >= 0)
         const topmost = visible.reduce((a, b) =>
           a.boundingClientRect.top < b.boundingClientRect.top ? a : b,
         );
@@ -74,12 +116,12 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
       },
       { rootMargin: "-80px 0px -70% 0px" },
     );
-    for (const section of menu.sections) {
+    for (const section of visibleSections) {
       const el = sectionsRef.current[section.id];
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, [menu.sections]);
+  }, [visibleSections]);
 
   const handleJumpSection = (id: string) => {
     const el = sectionsRef.current[id];
@@ -105,6 +147,19 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
   };
 
   const hero = heroPhoto ?? restaurant.photoUrl ?? null;
+
+  // Derive detail sheet context
+  const detailContext = useMemo(() => {
+    if (!detailItem) return { section: null, siblings: [] as MenuItem[] };
+    const section =
+      menu.sections.find((s) => s.id === detailItem.sectionId) ?? null;
+    const siblings = menu.items
+      .filter(
+        (i) => i.sectionId === detailItem.sectionId && i.id !== detailItem.id,
+      )
+      .slice(0, 3);
+    return { section, siblings };
+  }, [detailItem, menu]);
 
   return (
     <div className="pb-16">
@@ -134,7 +189,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
             <p className="text-xs desktop:text-sm uppercase tracking-[0.2em] opacity-80">
               {restaurant.cuisine} · Menu
             </p>
-            <h1 className="text-[34px] desktop:text-[56px] font-extrabold mt-1 leading-[1.05]">
+            <h1 className="font-display text-[36px] desktop:text-[60px] font-bold mt-1 leading-[1.02]">
               {restaurant.name}
             </h1>
             {menu.heroNote && (
@@ -142,7 +197,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                 {menu.heroNote}
               </p>
             )}
-            <div className="flex items-center gap-3 mt-3 text-sm">
+            <div className="flex items-center gap-3 mt-3 text-sm flex-wrap">
               <span className="inline-flex items-center gap-1 font-bold bg-white/95 text-text-primary rounded-pill px-2.5 py-0.5">
                 {restaurant.rating.toFixed(1)}
                 <Star size={12} className="fill-brand-primary text-brand-primary" />
@@ -152,7 +207,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                 <>
                   <span className="opacity-60">·</span>
                   <span className="opacity-90">
-                    Mains {heroPriceRange.min}–{heroPriceRange.max} {menu.currency}
+                    Dishes {heroPriceRange.min}–{heroPriceRange.max} {menu.currency}
                   </span>
                 </>
               )}
@@ -168,7 +223,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <div className="bg-surface-white border-b border-border">
           <div className="max-w-[var(--container-content)] mx-auto px-4 desktop:px-6 py-6 desktop:py-8">
             <div className="flex items-baseline justify-between mb-3">
-              <h2 className="text-lg desktop:text-xl font-bold text-text-primary inline-flex items-center gap-2">
+              <h2 className="font-display text-xl desktop:text-2xl font-bold text-text-primary inline-flex items-center gap-2">
                 <Star
                   size={18}
                   className="fill-yellow-400 text-yellow-400"
@@ -184,7 +239,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => handleJumpItem(item.id)}
+                  onClick={() => setDetailItem(item)}
                   className="group flex-shrink-0 w-56 desktop:w-64 text-left rounded-card overflow-hidden bg-surface-bg hover:shadow-card-hover hover:-translate-y-0.5 transition-all"
                 >
                   <div className="relative aspect-[4/3] bg-surface-bg">
@@ -205,7 +260,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                     )}
                   </div>
                   <div className="p-3">
-                    <h3 className="font-bold text-sm text-text-primary truncate">
+                    <h3 className="font-display font-bold text-[15px] text-text-primary truncate">
                       {item.name}
                     </h3>
                     <p className="text-xs text-text-secondary line-clamp-2 mt-0.5 leading-snug">
@@ -227,67 +282,102 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         </div>
       )}
 
-      {/* Sticky section nav */}
+      {/* Sticky nav: section pills + dietary filter row */}
       <div className="sticky top-0 z-10 bg-surface-bg border-b border-border">
-        <div className="max-w-[var(--container-content)] mx-auto px-4 desktop:px-6 flex gap-2 overflow-x-auto hide-scrollbar py-3">
-          {menu.sections.map((section) => {
-            const isActive = activeSectionId === section.id;
-            return (
-              <button
-                key={section.id}
-                type="button"
-                onClick={() => handleJumpSection(section.id)}
-                className={`flex-shrink-0 rounded-pill px-4 py-1.5 text-sm font-semibold transition-colors ${
-                  isActive
-                    ? "bg-brand-primary text-white"
-                    : "bg-surface-white text-text-secondary hover:bg-surface-bg"
-                }`}
-              >
-                {section.name}{" "}
-                <span className={isActive ? "opacity-80" : "opacity-60"}>
-                  ({counts.get(section.id)})
-                </span>
-              </button>
-            );
-          })}
+        <div className="max-w-[var(--container-content)] mx-auto px-4 desktop:px-6">
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pt-3">
+            {visibleSections.map((section) => {
+              const isActive = activeSectionId === section.id;
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  onClick={() => handleJumpSection(section.id)}
+                  className={`flex-shrink-0 rounded-pill px-4 py-1.5 text-sm font-semibold transition-colors ${
+                    isActive
+                      ? "bg-brand-primary text-white"
+                      : "bg-surface-white text-text-secondary hover:bg-surface-bg"
+                  }`}
+                >
+                  {section.name}{" "}
+                  <span className={isActive ? "opacity-80" : "opacity-60"}>
+                    ({filteredItemsBySection.get(section.id)?.length ?? 0})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="py-2.5">
+            <DietaryFilterRow
+              activeFilters={activeFilters}
+              onToggle={toggleFilter}
+              onClear={clearFilters}
+            />
+          </div>
         </div>
       </div>
 
       {/* Sections */}
       <div className="max-w-[var(--container-content)] mx-auto px-4 desktop:px-6">
-        {menu.sections.map((section) => {
-          const items = itemsBySection.get(section.id) ?? [];
-          return (
-            <section
-              key={section.id}
-              id={section.id}
-              ref={(el) => {
-                sectionsRef.current[section.id] = el;
-              }}
-              className="pt-10 desktop:pt-14 scroll-mt-24"
+        {totalFilteredCount === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-text-secondary">
+              No dishes match your current filters.
+            </p>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="mt-3 text-brand-primary font-semibold text-sm"
             >
-              <h2 className="text-[26px] desktop:text-[32px] font-bold text-text-primary leading-tight">
-                {section.name}
-              </h2>
-              {section.intro && (
-                <p className="italic text-sm desktop:text-[15px] text-text-secondary mt-1.5 max-w-3xl leading-relaxed">
-                  {section.intro}
-                </p>
-              )}
-              <div className="h-px bg-border mt-4" />
-              <div className="divide-y divide-border desktop:grid desktop:grid-cols-2 desktop:gap-x-10 desktop:divide-y-0">
-                {items.map((item) => (
-                  <MenuItemCard
-                    key={item.id}
-                    item={item}
-                    currency={menu.currency}
-                  />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          visibleSections.map((section) => {
+            const items = filteredItemsBySection.get(section.id) ?? [];
+            return (
+              <section
+                key={section.id}
+                id={section.id}
+                ref={(el) => {
+                  sectionsRef.current[section.id] = el;
+                }}
+                className="pt-10 desktop:pt-14 scroll-mt-24"
+              >
+                <h2 className="font-display text-[28px] desktop:text-[34px] font-bold text-text-primary leading-tight">
+                  {section.name}
+                </h2>
+                {section.intro && (
+                  <p className="italic text-sm desktop:text-[15px] text-text-secondary mt-1.5 max-w-3xl leading-relaxed">
+                    {section.intro}
+                  </p>
+                )}
+                <div className="h-px bg-border mt-4" />
+                <div className="divide-y divide-border desktop:grid desktop:grid-cols-2 desktop:gap-x-10 desktop:divide-y-0">
+                  {items.map((item) => (
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      currency={menu.currency}
+                      onOpen={() => setDetailItem(item)}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })
+        )}
       </div>
+
+      <MenuItemDetailSheet
+        open={detailItem !== null}
+        onClose={() => setDetailItem(null)}
+        item={detailItem}
+        section={detailContext.section}
+        moreFromSection={detailContext.siblings}
+        currency={menu.currency}
+        onSelectItem={(next) => setDetailItem(next)}
+      />
     </div>
   );
 }
