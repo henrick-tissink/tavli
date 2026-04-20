@@ -42,3 +42,12 @@ export async function signInPartner(
 
   redirect("/partner");
 }
+
+export async function signOutPartner(): Promise<void> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    redirect("/partner/sign-in");
+  }
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/partner/sign-in");
+}
