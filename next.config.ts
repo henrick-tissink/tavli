@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "12mb" },
   },
   images: {
+    // Next.js 16 blocks image optimization of private IPs (127.0.0.1, 10.*,
+    // etc.) by default — needed for local Supabase Storage in dev.
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: supabaseHost },
