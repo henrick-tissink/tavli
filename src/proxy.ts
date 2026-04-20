@@ -14,7 +14,7 @@ import { createServerClient } from "@supabase/ssr";
  * middleware short-circuits to allow everything through so the consumer
  * app doesn't break while M1 foundations are still being wired.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
