@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
+import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
 
 function appOrigin(): string {
   return (
@@ -117,15 +118,16 @@ export async function createReservation(
     return { ok: false, mode: "db", error: msg || "Could not book.", errorCode: "OTHER" };
   }
 
-  // Resolve restaurant details for the email.
+  // Resolve restaurant details for the emails.
   const { data: restaurant } = await admin
     .from("restaurants")
-    .select("name, address")
+    .select("name, address, email")
     .eq("id", data.restaurant_id)
     .maybeSingle();
 
   const cancelUrl = `${appOrigin()}/reservations/${confirmationToken}`;
 
+  // Consumer confirmation.
   if (input.guestEmail) {
     await sendEmail({
       to: input.guestEmail,
@@ -139,6 +141,25 @@ export async function createReservation(
         guestName: input.guestName.trim(),
         zone: input.zone,
         cancelUrl,
+      }),
+    });
+  }
+
+  // Partner alert.
+  if (restaurant?.email) {
+    await sendEmail({
+      to: restaurant.email,
+      subject: `New booking — ${restaurant.name} · ${input.date} ${input.time}`,
+      react: PartnerBookingAlertEmail({
+        restaurantName: restaurant.name,
+        reservationDate: input.date,
+        reservationTime: input.time,
+        partySize: input.partySize,
+        guestName: input.guestName.trim(),
+        guestPhone: input.guestPhone.trim(),
+        guestEmail: input.guestEmail,
+        zone: input.zone,
+        notes: input.notes,
       }),
     });
   }
