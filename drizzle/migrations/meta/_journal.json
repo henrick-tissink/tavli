@@ -15,6 +15,13 @@
       "when": 1776670713119,
       "tag": "0001_rls_and_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776690176506,
+      "tag": "0002_storage_bucket",
+      "breakpoints": true
     }
   ]
 }

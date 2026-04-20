@@ -1,0 +1,44 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/db/server";
+
+export interface PartnerSignInResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function signInPartner(
+  _prev: PartnerSignInResult | undefined,
+  formData: FormData,
+): Promise<PartnerSignInResult> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    return { ok: false, error: "Supabase isn't configured yet." };
+  }
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email || !password) {
+    return { ok: false, error: "Email and password are required." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.user) {
+    return { ok: false, error: error?.message ?? "Sign in failed." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "restaurant_owner" && profile?.role !== "admin") {
+    await supabase.auth.signOut();
+    return { ok: false, error: "This account isn't a partner account." };
+  }
+
+  redirect("/partner");
+}

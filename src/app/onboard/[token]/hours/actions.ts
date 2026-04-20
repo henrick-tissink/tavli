@@ -49,7 +49,5 @@ export async function saveHours(
   await mergeDraftPayload({ hours });
   await advanceStep("photos");
 
-  // Photos is M7 — for now, bounce to the partner dashboard as a
-  // "you're almost there" placeholder.
-  redirect(`/onboard/${token}/photos-stub`);
+  redirect(`/onboard/${token}/photos`);
 }
