@@ -19,7 +19,7 @@ export default async function AdminInvitationsPage() {
   ]);
 
   return (
-    <div className="px-8 py-8 max-w-6xl">
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-6xl">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
           Invitations
@@ -48,8 +48,8 @@ export default async function AdminInvitationsPage() {
           </div>
         )}
 
-        <div className="bg-surface-white rounded-card border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-surface-white rounded-card border border-border overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
                 <th className="px-4 py-3 font-semibold text-text-secondary">Email</th>

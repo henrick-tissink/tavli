@@ -15,7 +15,7 @@ export default async function PartnerProfilePage() {
     .maybeSingle();
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
           Profile

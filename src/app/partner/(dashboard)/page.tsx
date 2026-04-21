@@ -32,7 +32,7 @@ export default async function PartnerDashboardPage({
 
   if (!restaurant) {
     return (
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">No restaurant yet</p>
           <p className="text-sm text-text-secondary mt-2">
@@ -126,7 +126,7 @@ export default async function PartnerDashboardPage({
   const greeting = HELLO_BY_HOUR(new Date().getHours());
 
   return (
-    <div className="px-8 py-8 max-w-5xl">
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-5xl">
       <header className="mb-8">
         <p className="text-sm text-text-muted">{greeting},</p>
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight mt-1">

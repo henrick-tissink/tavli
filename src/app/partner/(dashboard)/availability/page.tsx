@@ -19,7 +19,7 @@ export default async function PartnerAvailabilityPage() {
 
   if (!restaurant) {
     return (
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">No restaurant linked.</p>
         </div>
@@ -43,7 +43,7 @@ export default async function PartnerAvailabilityPage() {
   }));
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
           Availability

@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <div className="px-8 py-8 max-w-6xl">
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-6xl">
       <header className="mb-8">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
           Dashboard

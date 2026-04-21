@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition } from "react";
 import { resendInvitation, revokeInvitation } from "@/app/admin/(gated)/invitations/actions";
+import { toast } from "@/components/toast";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-800",
@@ -22,7 +23,6 @@ export interface InvitationRowProps {
 
 export function InvitationRow(invitation: InvitationRowProps) {
   const [pending, start] = useTransition();
-  const [notice, setNotice] = useState<string | null>(null);
 
   const expires = new Date(invitation.expiresAt);
   const expired = expires < new Date();
@@ -32,18 +32,17 @@ export function InvitationRow(invitation: InvitationRowProps) {
     start(async () => {
       const result = await resendInvitation(invitation.id);
       if (!result.ok) {
-        setNotice(`Failed: ${result.error}`);
+        toast.error(`Failed to resend: ${result.error}`);
       } else if (result.devMode && result.url) {
         try {
           await navigator.clipboard.writeText(result.url);
-          setNotice("New link copied (dev mode — email not sent).");
+          toast.success("New link copied (dev mode — email not sent).");
         } catch {
-          setNotice(`Dev mode link: ${result.url}`);
+          toast.success(`Dev mode link: ${result.url}`);
         }
       } else {
-        setNotice("New email sent.");
+        toast.success("New invitation email sent.");
       }
-      window.setTimeout(() => setNotice(null), 4000);
     });
   };
 
@@ -51,6 +50,7 @@ export function InvitationRow(invitation: InvitationRowProps) {
     if (!confirm(`Revoke invitation to ${invitation.email}?`)) return;
     start(async () => {
       await revokeInvitation(invitation.id);
+      toast.success("Invitation revoked.");
     });
   };
 
@@ -58,9 +58,6 @@ export function InvitationRow(invitation: InvitationRowProps) {
     <tr className="hover:bg-surface-bg/50 transition-colors">
       <td className="px-4 py-3">
         <p className="font-semibold text-text-primary">{invitation.email}</p>
-        {notice && (
-          <p className="text-xs text-brand-primary mt-0.5">{notice}</p>
-        )}
       </td>
       <td className="px-4 py-3 text-text-secondary">
         {invitation.proposedName ?? "—"}

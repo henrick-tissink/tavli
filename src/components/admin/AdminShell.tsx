@@ -8,7 +8,7 @@ interface Props {
 
 export function AdminShell({ userEmail, children }: Props) {
   return (
-    <div className="min-h-screen flex bg-surface-bg">
+    <div className="min-h-screen desktop:flex bg-surface-bg">
       <AdminSidebar userEmail={userEmail} />
       <main className="flex-1 min-w-0">{children}</main>
     </div>

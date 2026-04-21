@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/button";
+import { toast } from "@/components/toast";
 import {
   createInvitation,
   type CreateInvitationResult,
@@ -23,7 +24,7 @@ export function InvitationForm({ cities }: { cities: City[] }) {
 
   useEffect(() => {
     if (state?.ok && !state.devMode) {
-      // Email sent — form resets automatically (useActionState).
+      toast.success("Invitation email sent.");
     }
   }, [state]);
 
@@ -31,6 +32,7 @@ export function InvitationForm({ cities }: { cities: City[] }) {
     if (!state?.invitationUrl) return;
     navigator.clipboard.writeText(state.invitationUrl);
     setCopied(true);
+    toast.success("Link copied.");
     window.setTimeout(() => setCopied(false), 2000);
   };
 

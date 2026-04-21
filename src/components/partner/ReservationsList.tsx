@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CalendarCheck } from "lucide-react";
+import { toast } from "@/components/toast";
 import {
   updateReservationStatus,
   type NewStatus,
@@ -20,6 +22,9 @@ export interface ReservationRow {
   status: "confirmed" | "cancelled" | "seated" | "completed" | "no_show";
   createdAt: string;
 }
+
+const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const STATUS_STYLE: Record<ReservationRow["status"], string> = {
   confirmed: "bg-emerald-50 text-emerald-800",
@@ -51,26 +56,26 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
   );
   const [pending, start] = useTransition();
-  const [noticeId, setNoticeId] = useState<{ id: string; text: string } | null>(null);
 
   const handleChange = (id: string, nextStatus: NewStatus) => {
-    const verb =
-      nextStatus === "cancelled"
-        ? "cancel"
-        : nextStatus === "no_show"
-          ? "mark as no-show"
-          : nextStatus === "seated"
-            ? "mark seated"
-            : "complete";
-    if (nextStatus === "cancelled" && !confirm(`Cancel this reservation?`)) return;
+    if (nextStatus === "cancelled" && !confirm("Cancel this reservation?")) return;
 
     start(async () => {
       const result = await updateReservationStatus(id, nextStatus);
       if (!result.ok) {
-        setNoticeId({ id, text: result.error ?? "Failed." });
-      } else {
-        router.refresh();
+        toast.error(result.error ?? "Could not update reservation.");
+        return;
       }
+      const label =
+        nextStatus === "cancelled"
+          ? "Reservation cancelled."
+          : nextStatus === "no_show"
+            ? "Marked as no-show."
+            : nextStatus === "seated"
+              ? "Marked seated."
+              : "Marked complete.";
+      toast.success(label);
+      router.refresh();
     });
   };
 
@@ -98,17 +103,23 @@ export function ReservationsList({ today, upcoming, past }: Props) {
 
       {rows.length === 0 ? (
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="text-sm text-text-secondary">
+          <CalendarCheck size={28} className="mx-auto text-text-muted mb-3" />
+          <p className="font-semibold text-text-primary">
             {tab === "today"
-              ? "No bookings today."
+              ? "No bookings today"
               : tab === "upcoming"
-                ? "No upcoming bookings."
-                : "No past bookings yet."}
+                ? "No upcoming bookings"
+                : "No past bookings yet"}
+          </p>
+          <p className="text-sm text-text-secondary mt-2 max-w-sm mx-auto">
+            {tab === "past"
+              ? "Completed and cancelled bookings show up here after their date."
+              : "Diners who book through your public page will appear here right away."}
           </p>
         </div>
       ) : (
-        <div className="bg-surface-white rounded-card border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-surface-white rounded-card border border-border overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
                 <th className="px-4 py-3 font-semibold text-text-secondary">When</th>
@@ -124,11 +135,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
             <tbody className="divide-y divide-border">
               {rows.map((r) => {
                 const d = new Date(`${r.reservationDate}T12:00:00`);
-                const dateLabel = d.toLocaleDateString("en-GB", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                });
+                const dateLabel = `${WEEKDAYS_SHORT[d.getDay()]} ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
                 const showActions =
                   r.status === "confirmed" || r.status === "seated";
                 return (
@@ -165,11 +172,6 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                       >
                         {STATUS_LABEL[r.status]}
                       </span>
-                      {noticeId?.id === r.id && (
-                        <p className="text-xs text-error mt-1">
-                          {noticeId.text}
-                        </p>
-                      )}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {showActions ? (

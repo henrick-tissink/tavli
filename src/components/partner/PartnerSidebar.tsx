@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   User,
@@ -12,6 +13,8 @@ import {
   CalendarCog,
   Eye,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { signOutPartner } from "@/app/partner/sign-in/actions";
 
@@ -26,17 +29,32 @@ const NAV = [
   { href: "/partner/preview", label: "Preview", icon: Eye, exact: false },
 ];
 
-export function PartnerSidebar({
-  restaurantName,
-  userEmail,
-}: {
+interface Props {
   restaurantName: string | null;
   userEmail: string | null;
-}) {
-  const pathname = usePathname();
+}
 
-  return (
-    <aside className="w-60 shrink-0 h-screen sticky top-0 bg-surface-white border-r border-border flex flex-col">
+export function PartnerSidebar({ restaurantName, userEmail }: Props) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  const navContent = (
+    <>
       <div className="px-5 py-6">
         <Link
           href="/partner"
@@ -53,7 +71,7 @@ export function PartnerSidebar({
           </p>
         )}
       </div>
-      <nav className="flex-1 px-3">
+      <nav className="flex-1 px-3 overflow-y-auto">
         <ul className="space-y-1">
           {NAV.map((item) => {
             const active = item.exact
@@ -92,6 +110,54 @@ export function PartnerSidebar({
           </button>
         </form>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <aside className="hidden desktop:flex w-60 shrink-0 h-screen sticky top-0 bg-surface-white border-r border-border flex-col">
+        {navContent}
+      </aside>
+
+      <header className="desktop:hidden sticky top-0 z-30 flex items-center justify-between bg-surface-white border-b border-border px-4 h-14">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open navigation"
+          className="p-2 -ml-2 rounded-lg hover:bg-surface-bg text-text-secondary"
+        >
+          <Menu size={20} />
+        </button>
+        <Link
+          href="/partner"
+          className="font-display text-xl font-bold text-brand-primary tracking-tight"
+        >
+          Tavli
+        </Link>
+        <span className="w-10" aria-hidden />
+      </header>
+
+      {open && (
+        <div className="desktop:hidden fixed inset-0 z-50 flex">
+          <button
+            type="button"
+            aria-label="Close navigation"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-black/40"
+          />
+          <aside className="relative w-72 max-w-[85vw] h-full bg-surface-white border-r border-border flex flex-col animate-slide-in-left">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close navigation"
+              className="absolute top-3 right-3 p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
+            >
+              <X size={18} />
+            </button>
+            {navContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

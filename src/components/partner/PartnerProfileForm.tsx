@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { Button } from "@/components/button";
+import { toast } from "@/components/toast";
 import {
   savePartnerProfile,
   type SaveProfileResult,
@@ -30,6 +31,10 @@ export function PartnerProfileForm({ initialValues }: Props) {
     SaveProfileResult | undefined,
     FormData
   >(savePartnerProfile, undefined);
+
+  useEffect(() => {
+    if (state?.ok) toast.success("Profile saved.");
+  }, [state]);
 
   return (
     <form action={action} className="space-y-5 max-w-2xl">
@@ -78,7 +83,6 @@ export function PartnerProfileForm({ initialValues }: Props) {
       </div>
 
       {state?.error && <p className="text-sm text-error" role="alert">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-emerald-700">Saved.</p>}
 
       <div className="pt-2">
         <Button disabled={pending} type="submit">
