@@ -11,6 +11,7 @@ const supabaseHost = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // Allow photo uploads through server actions up to 12 MB (app-level limit
   // is 10 MB per file; the extra headroom covers multipart encoding).
   experimental: {

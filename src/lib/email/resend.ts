@@ -34,7 +34,7 @@ export interface SendEmailResult {
 
 export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
   const c = client();
-  const from = process.env.EMAIL_FROM ?? "Tavli <hello@tavli.app>";
+  const from = process.env.EMAIL_FROM ?? "Tavli <hello@tavli.ro>";
 
   if (!c) {
     console.log(

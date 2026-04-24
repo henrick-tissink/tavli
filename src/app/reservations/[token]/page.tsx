@@ -150,8 +150,8 @@ function Blank({ title, body }: { title: string; body: string }) {
       <p className="text-sm text-text-secondary mt-3 leading-relaxed">{body}</p>
       <p className="text-xs text-text-muted mt-6">
         Contact:{" "}
-        <a href="mailto:hello@tavli.app" className="text-brand-primary">
-          hello@tavli.app
+        <a href="mailto:hello@tavli.ro" className="text-brand-primary">
+          hello@tavli.ro
         </a>
       </p>
     </>
