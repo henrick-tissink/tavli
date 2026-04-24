@@ -146,13 +146,19 @@ const TimeContext = createContext<TimeContextValue | null>(null);
 
 const MOCK_TEMPERATURE = 22;
 
+// Neutral, render-safe initial value so SSR (UTC) and first client paint match.
+// useEffect below replaces it with the real time-aware context after mount.
+const NEUTRAL_CTX: TimeContextValue = {
+  active: [],
+  greeting: "Discover {city}",
+  subtextTemplate: "{N} places to explore",
+  injectedPills: [],
+};
+
 export function TimeContextProvider({ children }: { children: ReactNode }) {
-  const [ctx, setCtx] = useState<TimeContextValue>(() =>
-    computeTimeContext(new Date(), MOCK_TEMPERATURE),
-  );
+  const [ctx, setCtx] = useState<TimeContextValue>(NEUTRAL_CTX);
 
   useEffect(() => {
-    // Recompute immediately on mount (covers SSR→client hydration)
     setCtx(computeTimeContext(new Date(), MOCK_TEMPERATURE));
 
     const interval = setInterval(() => {
