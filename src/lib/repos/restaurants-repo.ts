@@ -23,6 +23,7 @@ import * as mock from "@/lib/mock-data";
 import * as menuMock from "@/lib/menu-data";
 import { supabaseAnon } from "@/lib/db/anon";
 import { resolvePhotoUrl } from "@/lib/storage";
+import type { AvailabilitySlot } from "@/lib/seo/restaurant-jsonld";
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
@@ -290,4 +291,112 @@ export async function hasMenu(slug: string): Promise<boolean> {
     return m !== null;
   }
   return Promise.resolve(menuMock.hasMenu(slug));
+}
+
+export interface RestaurantSeoData {
+  phone: string | null;
+  countryCode: string;
+  availability: AvailabilitySlot[];
+  hasMenu: boolean;
+}
+
+/**
+ * Fields needed to build SEO metadata + JSON-LD that aren't in
+ * `RestaurantDetail`: phone (from `restaurants.phone`), country code
+ * (from `cities.country_code`), structured opening hours (from
+ * `restaurant_availability`), and whether a menu exists.
+ *
+ * In mock mode, returns sensible Romanian defaults so dev pages still
+ * render valid (if sparse) structured data.
+ */
+export async function getRestaurantSeoData(
+  slug: string,
+): Promise<RestaurantSeoData> {
+  if (dbActive()) {
+    const sb = supabaseAnon()!;
+    const { data: r } = await sb
+      .from("restaurants")
+      .select("id, phone, cities!inner(country_code)")
+      .eq("slug", slug)
+      .eq("status", "live")
+      .maybeSingle();
+
+    if (!r) {
+      return {
+        phone: null,
+        countryCode: "RO",
+        availability: [],
+        hasMenu: false,
+      };
+    }
+
+    const restaurantId = (r as { id: string }).id;
+    const [{ data: avail }, hasMenuResult] = await Promise.all([
+      sb
+        .from("restaurant_availability")
+        .select("day_of_week, slot_start, slot_end")
+        .eq("restaurant_id", restaurantId)
+        .order("day_of_week")
+        .order("slot_start"),
+      hasMenu(slug),
+    ]);
+
+    // Supabase types `!inner` joins as array-or-object depending on cardinality;
+    // accept either shape and pick the first city.
+    const citiesField = (r as unknown as { cities: { country_code: string } | { country_code: string }[] }).cities;
+    const city = Array.isArray(citiesField) ? citiesField[0] : citiesField;
+    return {
+      phone: (r as unknown as { phone: string | null }).phone,
+      countryCode: city?.country_code ?? "RO",
+      availability: (avail ?? []).map((row: Record<string, unknown>) => ({
+        dayOfWeek: Number(row.day_of_week),
+        slotStart: row.slot_start as string,
+        slotEnd: row.slot_end as string,
+      })),
+      hasMenu: hasMenuResult,
+    };
+  }
+
+  return {
+    phone: null,
+    countryCode: "RO",
+    availability: [],
+    hasMenu: menuMock.hasMenu(slug),
+  };
+}
+
+export interface SitemapEntry {
+  citySlug: string;
+  slug: string;
+  updatedAt: Date;
+}
+
+/**
+ * All live restaurants paired with their URL city slug and last-modified
+ * timestamp — the shape `app/sitemap.ts` needs to enumerate detail pages.
+ */
+export async function getSitemapRestaurants(): Promise<SitemapEntry[]> {
+  if (dbActive()) {
+    const sb = supabaseAnon()!;
+    const { data } = await sb
+      .from("restaurants")
+      .select("slug, updated_at, cities!inner(slug)")
+      .eq("status", "live");
+    return (data ?? []).map((r: Record<string, unknown>) => {
+      const citiesField = r.cities as { slug: string } | { slug: string }[];
+      const city = Array.isArray(citiesField) ? citiesField[0] : citiesField;
+      return {
+        citySlug: city.slug,
+        slug: r.slug as string,
+        updatedAt: new Date((r.updated_at as string) ?? Date.now()),
+      };
+    });
+  }
+  // Mock mode: every demo restaurant lives under /bucuresti.
+  const now = new Date();
+  return mock.getRestaurants().map((r) => ({
+    citySlug: "bucuresti",
+    slug: r.slug,
+    updatedAt: now,
+  }));
 }

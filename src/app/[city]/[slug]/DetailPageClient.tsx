@@ -17,6 +17,7 @@ import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
 import { ReservationSheet } from "@/components/reservation-sheet";
 import { HorizontalSection } from "@/components/horizontal-section";
+import { GoogleMapEmbed } from "@/components/google-map-embed";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -189,11 +190,18 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             <section className="mt-8">
               <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
+              <div className="mt-3">
+                <GoogleMapEmbed
+                  lat={restaurant.lat}
+                  lng={restaurant.lng}
+                  name={restaurant.name}
+                />
+              </div>
               <a
                 href={directionsHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-2"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
               >
                 Get Directions <ExternalLink size={14} />
               </a>
@@ -234,11 +242,18 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           <section className="mt-8">
             <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
             <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
+            <div className="mt-3">
+              <GoogleMapEmbed
+                lat={restaurant.lat}
+                lng={restaurant.lng}
+                name={restaurant.name}
+              />
+            </div>
             <a
               href={directionsHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-2"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
             >
               Get Directions <ExternalLink size={14} />
             </a>
