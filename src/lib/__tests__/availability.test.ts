@@ -1,4 +1,5 @@
-import { computeSlots } from "@/lib/availability";
+import { computeSlots, hoursToAvailabilityRows } from "@/lib/availability";
+import type { DayHours } from "@/lib/onboarding";
 
 describe("computeSlots", () => {
   test("single window 18:00-23:00 emits 10 slots every 30 min", () => {
@@ -101,5 +102,57 @@ describe("computeSlots", () => {
         { slotStart: "18:00", slotEnd: "18:00" },
       ]),
     ).toEqual([]);
+  });
+});
+
+function dh(
+  dayOfWeek: number,
+  openAt: string,
+  closeAt: string,
+  isOpen: boolean = true,
+): DayHours {
+  return { dayOfWeek, isOpen, openAt, closeAt };
+}
+
+describe("hoursToAvailabilityRows", () => {
+  test("emits one row per open day with default capacity 30", () => {
+    const hours: DayHours[] = [
+      dh(1, "12:00", "23:00"),
+      dh(2, "12:00", "23:00"),
+    ];
+    expect(hoursToAvailabilityRows("rest-1", hours)).toEqual([
+      { restaurant_id: "rest-1", day_of_week: 1, slot_start: "12:00", slot_end: "23:00", capacity: 30 },
+      { restaurant_id: "rest-1", day_of_week: 2, slot_start: "12:00", slot_end: "23:00", capacity: 30 },
+    ]);
+  });
+
+  test("skips closed days entirely", () => {
+    const hours: DayHours[] = [
+      dh(1, "12:00", "23:00"),
+      dh(2, "00:00", "00:00", false),
+      dh(3, "12:00", "23:00"),
+    ];
+    const rows = hoursToAvailabilityRows("rest-1", hours);
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.day_of_week)).toEqual([1, 3]);
+  });
+
+  test("custom default capacity is honoured", () => {
+    const hours: DayHours[] = [dh(1, "12:00", "23:00")];
+    const rows = hoursToAvailabilityRows("rest-1", hours, 50);
+    expect(rows[0].capacity).toBe(50);
+  });
+
+  test("empty input → empty output", () => {
+    expect(hoursToAvailabilityRows("rest-1", [])).toEqual([]);
+  });
+
+  test("HH:MM input is preserved verbatim into slot_start / slot_end", () => {
+    // Postgres `time` column accepts HH:MM directly; no need to add seconds.
+    const rows = hoursToAvailabilityRows("rest-1", [dh(5, "11:30", "23:45")]);
+    expect(rows[0]).toMatchObject({
+      slot_start: "11:30",
+      slot_end: "23:45",
+    });
   });
 });

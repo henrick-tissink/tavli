@@ -8,6 +8,7 @@ import {
   mergeDraftPayload,
   type DayHours,
 } from "@/lib/onboarding";
+import { hoursToAvailabilityRows } from "@/lib/availability";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -35,16 +36,37 @@ export async function saveHours(
     return { ok: false, error: "At least one day must be open." };
   }
 
-  // Store the display schedule on the restaurant; keep rich hours in the draft
-  // payload so the partner dashboard can re-edit later.
-  const schedule = hoursToSchedule(hours);
+  // Look up the restaurant once so we can both update the display schedule
+  // and project hours into structured availability rows.
+  const { data: restaurant } = await supabase
+    .from("restaurants")
+    .select("id")
+    .eq("owner_user_id", user.id)
+    .maybeSingle();
+  if (!restaurant) {
+    return { ok: false, error: "No restaurant linked to this account." };
+  }
 
-  const { error } = await supabase
+  const schedule = hoursToSchedule(hours);
+  const { error: scheduleError } = await supabase
     .from("restaurants")
     .update({ schedule, updated_at: new Date().toISOString() })
-    .eq("owner_user_id", user.id);
+    .eq("id", restaurant.id);
+  if (scheduleError) return { ok: false, error: scheduleError.message };
 
-  if (error) return { ok: false, error: error.message };
+  // Reset and rewrite this restaurant's availability rows from the new hours.
+  // Closed days produce no rows; open days produce one row at default capacity.
+  await supabase
+    .from("restaurant_availability")
+    .delete()
+    .eq("restaurant_id", restaurant.id);
+  const rows = hoursToAvailabilityRows(restaurant.id, hours);
+  if (rows.length > 0) {
+    const { error: availError } = await supabase
+      .from("restaurant_availability")
+      .insert(rows);
+    if (availError) return { ok: false, error: availError.message };
+  }
 
   await mergeDraftPayload({ hours });
   await advanceStep("photos");

@@ -1,19 +1,32 @@
 /**
- * Slot-time generation from `restaurant_availability` rows.
+ * Slot-time generation and hours→availability projection.
  *
- * Each availability row is a per-day window with a start and end time.
- * `computeSlots` turns those windows into a flat list of bookable
+ * `computeSlots` turns availability windows into a flat list of bookable
  * "HH:MM" times every `intervalMin` minutes, deduped and sorted.
  *
- * Pure function — no DB, no clock, no timezone awareness. The caller
- * decides which day-of-week to pull rows for and what timezone to
- * resolve "today" in.
+ * `hoursToAvailabilityRows` projects the partner-edited DayHours[] (one
+ * entry per weekday with isOpen + openAt + closeAt) into the row shape
+ * the `restaurant_availability` table accepts. Closed days are skipped.
+ *
+ * Pure functions — no DB, no clock, no timezone awareness.
  */
+
+import type { DayHours } from "@/lib/onboarding";
 
 export interface AvailabilityWindow {
   slotStart: string; // "HH:MM" or "HH:MM:SS"
   slotEnd: string;
 }
+
+export interface AvailabilityRowInsert {
+  restaurant_id: string;
+  day_of_week: number; // 0=Sun..6=Sat
+  slot_start: string; // "HH:MM"
+  slot_end: string;
+  capacity: number;
+}
+
+const DEFAULT_CAPACITY = 30;
 
 const DEFAULT_INTERVAL_MIN = 30;
 
@@ -44,4 +57,30 @@ function formatTime(min: number): string {
   const hh = Math.floor(min / 60).toString().padStart(2, "0");
   const mm = (min % 60).toString().padStart(2, "0");
   return `${hh}:${mm}`;
+}
+
+/**
+ * Project the partner-edited weekly hours into rows ready for insertion
+ * into `restaurant_availability`. Closed days are skipped. One row per
+ * open day at the supplied default capacity (30 unless overridden).
+ *
+ * Re-saving hours is intended to overwrite the day's availability rows;
+ * partners who want fine-grained per-slot capacity should use
+ * `/partner/availability` instead — that flow can re-introduce custom
+ * rows after a hours-save.
+ */
+export function hoursToAvailabilityRows(
+  restaurantId: string,
+  hours: DayHours[],
+  defaultCapacity: number = DEFAULT_CAPACITY,
+): AvailabilityRowInsert[] {
+  return hours
+    .filter((h) => h.isOpen)
+    .map((h) => ({
+      restaurant_id: restaurantId,
+      day_of_week: h.dayOfWeek,
+      slot_start: h.openAt,
+      slot_end: h.closeAt,
+      capacity: defaultCapacity,
+    }));
 }
