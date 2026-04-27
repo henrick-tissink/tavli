@@ -24,6 +24,7 @@ import * as menuMock from "@/lib/menu-data";
 import { supabaseAnon } from "@/lib/db/anon";
 import { resolvePhotoUrl } from "@/lib/storage";
 import type { AvailabilitySlot } from "@/lib/seo/restaurant-jsonld";
+import { computeSlots } from "@/lib/availability";
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
@@ -42,6 +43,32 @@ async function fetchHeroPhoto(restaurantId: string): Promise<string | null> {
     .eq("kind", "hero")
     .maybeSingle();
   return resolvePhotoUrl(data?.storage_path ?? null);
+}
+
+/**
+ * Today's bookable slot times for a restaurant, as "HH:MM" strings.
+ * Looks up `restaurant_availability` rows for today's day-of-week
+ * (server timezone), then turns each window into a list of every-30-min
+ * slots via `computeSlots`. Returns an empty array if the partner
+ * hasn't configured availability for today.
+ *
+ * Capacity is NOT subtracted in this v1 — a slot listed here may still
+ * be at capacity at booking time. Future spec.
+ */
+async function fetchTodaySlots(restaurantId: string): Promise<string[]> {
+  const sb = supabaseAnon()!;
+  const dayOfWeek = new Date().getDay(); // 0=Sun..6=Sat — matches schema convention
+  const { data } = await sb
+    .from("restaurant_availability")
+    .select("slot_start, slot_end")
+    .eq("restaurant_id", restaurantId)
+    .eq("day_of_week", dayOfWeek);
+  return computeSlots(
+    (data ?? []).map((r: Record<string, unknown>) => ({
+      slotStart: r.slot_start as string,
+      slotEnd: r.slot_end as string,
+    })),
+  );
 }
 
 async function fetchAllPhotos(restaurantId: string): Promise<string[]> {
@@ -117,7 +144,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby] = await Promise.all([
+  const [base, photos, nearby, slots] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -129,6 +156,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .neq("id", data.id)
       .limit(4)
       .then(({ data }) => Promise.all((data ?? []).map((r) => restaurantFromRow(r)))),
+    fetchTodaySlots(data.id as string),
   ]);
 
   const emptyIntelligence: ReviewIntelligence | null = null;
@@ -136,6 +164,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
 
   return {
     ...base,
+    availableSlots: slots,
     lat: Number(data.lat ?? 0),
     lng: Number(data.lng ?? 0),
     description: (data.description as string) ?? "",
