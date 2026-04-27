@@ -20,6 +20,9 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Tavli — Find Your Table",
   description: "Discover and book restaurants in Romania and Turkey",
+  verification: {
+    google: "qv3pydAGHoDHw7x-3LSbJRM99HuuBxD5HCVpvMROJmE",
+  },
 };
 
 export default function RootLayout({
