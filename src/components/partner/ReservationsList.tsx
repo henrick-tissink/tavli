@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarCheck } from "lucide-react";
 import { toast } from "@/components/toast";
+import { CancelReservationSheet } from "@/components/partner/CancelReservationSheet";
 import {
   updateReservationStatus,
   type NewStatus,
@@ -56,10 +57,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
   );
   const [pending, start] = useTransition();
+  const [sheetReservation, setSheetReservation] = useState<ReservationRow | null>(
+    null,
+  );
 
-  const handleChange = (id: string, nextStatus: NewStatus) => {
-    if (nextStatus === "cancelled" && !confirm("Cancel this reservation?")) return;
-
+  const handleStatusChange = (id: string, nextStatus: NewStatus) => {
     start(async () => {
       const result = await updateReservationStatus(id, nextStatus);
       if (!result.ok) {
@@ -67,13 +69,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
         return;
       }
       const label =
-        nextStatus === "cancelled"
-          ? "Reservation cancelled."
-          : nextStatus === "no_show"
-            ? "Marked as no-show."
-            : nextStatus === "seated"
-              ? "Marked seated."
-              : "Marked complete.";
+        nextStatus === "no_show"
+          ? "Marked as no-show."
+          : nextStatus === "seated"
+            ? "Marked seated."
+            : "Marked complete.";
       toast.success(label);
       router.refresh();
     });
@@ -136,8 +136,6 @@ export function ReservationsList({ today, upcoming, past }: Props) {
               {rows.map((r) => {
                 const d = new Date(`${r.reservationDate}T12:00:00`);
                 const dateLabel = `${WEEKDAYS_SHORT[d.getDay()]} ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
-                const showActions =
-                  r.status === "confirmed" || r.status === "seated";
                 return (
                   <tr key={r.id} className="hover:bg-surface-bg/50 align-top">
                     <td className="px-4 py-3">
@@ -174,31 +172,19 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
-                      {showActions ? (
+                      {r.status === "confirmed" ? (
                         <>
-                          {r.status === "confirmed" && (
-                            <button
-                              type="button"
-                              onClick={() => handleChange(r.id, "seated")}
-                              disabled={pending}
-                              className="text-brand-primary text-xs font-semibold hover:underline mr-3"
-                            >
-                              Mark seated
-                            </button>
-                          )}
-                          {r.status === "seated" && (
-                            <button
-                              type="button"
-                              onClick={() => handleChange(r.id, "completed")}
-                              disabled={pending}
-                              className="text-brand-primary text-xs font-semibold hover:underline mr-3"
-                            >
-                              Complete
-                            </button>
-                          )}
                           <button
                             type="button"
-                            onClick={() => handleChange(r.id, "no_show")}
+                            onClick={() => handleStatusChange(r.id, "seated")}
+                            disabled={pending}
+                            className="text-brand-primary text-xs font-semibold hover:underline mr-3"
+                          >
+                            Mark seated
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(r.id, "no_show")}
                             disabled={pending}
                             className="text-amber-700 text-xs font-semibold hover:underline mr-3"
                           >
@@ -206,11 +192,30 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleChange(r.id, "cancelled")}
+                            onClick={() => setSheetReservation(r)}
                             disabled={pending}
                             className="text-error text-xs font-semibold hover:underline"
                           >
                             Cancel
+                          </button>
+                        </>
+                      ) : r.status === "seated" ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(r.id, "completed")}
+                            disabled={pending}
+                            className="text-brand-primary text-xs font-semibold hover:underline mr-3"
+                          >
+                            Complete
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(r.id, "no_show")}
+                            disabled={pending}
+                            className="text-amber-700 text-xs font-semibold hover:underline"
+                          >
+                            No-show
                           </button>
                         </>
                       ) : (
@@ -223,6 +228,20 @@ export function ReservationsList({ today, upcoming, past }: Props) {
             </tbody>
           </table>
         </div>
+      )}
+
+      {sheetReservation && (
+        <CancelReservationSheet
+          open={true}
+          onClose={() => setSheetReservation(null)}
+          reservation={{
+            id: sheetReservation.id,
+            guestName: sheetReservation.guestName,
+            reservationDate: sheetReservation.reservationDate,
+            reservationTime: sheetReservation.reservationTime.slice(0, 5),
+            partySize: sheetReservation.partySize,
+          }}
+        />
       )}
     </div>
   );
