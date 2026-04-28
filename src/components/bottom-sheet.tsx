@@ -76,7 +76,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-60">
       {/* Backdrop */}
       <div
         data-testid="sheet-backdrop"
@@ -93,8 +93,9 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
         tabIndex={-1}
         className={[
           "absolute bg-surface-white shadow-modal overflow-y-auto",
-          // Mobile: bottom sheet
-          "bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl",
+          // Mobile: bottom sheet — pad bottom past the iOS home indicator so
+          // sticky action buttons inside the sheet remain tappable.
+          "bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl pb-[env(safe-area-inset-bottom)]",
           // Desktop: centered modal
           "desktop:bottom-auto desktop:left-1/2 desktop:top-1/2 desktop:-translate-x-1/2 desktop:-translate-y-1/2 desktop:right-auto desktop:w-[520px] desktop:rounded-2xl desktop:max-h-[80vh]",
         ].join(" ")}

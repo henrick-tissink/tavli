@@ -24,7 +24,7 @@ const makeRestaurant = (overrides: Partial<Restaurant> = {}): Restaurant => ({
   id: "1",
   slug: "test",
   name: "Test Restaurant",
-  cuisine: "Italian",
+  cuisines: ["Italian"],
   priceLevel: 2,
   zone: "Centru Vechi",
   city: "București",
@@ -121,8 +121,8 @@ describe("FilterContext", () => {
       act(() => { getCtx().toggleArrayFilter("cuisines", "italian"); });
 
       const restaurants = [
-        makeRestaurant({ id: "1", cuisine: "Italian" }),
-        makeRestaurant({ id: "2", cuisine: "French" }),
+        makeRestaurant({ id: "1", cuisines: ["Italian"] }),
+        makeRestaurant({ id: "2", cuisines: ["French"] }),
       ];
       const result = getCtx().applyFilters(restaurants);
       expect(result).toHaveLength(1);
@@ -160,8 +160,8 @@ describe("FilterContext", () => {
       act(() => { getCtx().setFilter("searchQuery", "sushi"); });
 
       const restaurants = [
-        makeRestaurant({ id: "1", name: "Sakura Sushi", cuisine: "Japanese" }),
-        makeRestaurant({ id: "2", name: "Casa Veche", cuisine: "Romanian" }),
+        makeRestaurant({ id: "1", name: "Sakura Sushi", cuisines: ["Japanese"] }),
+        makeRestaurant({ id: "2", name: "Casa Veche", cuisines: ["Romanian"] }),
       ];
       const result = getCtx().applyFilters(restaurants);
       expect(result).toHaveLength(1);
@@ -176,9 +176,9 @@ describe("FilterContext", () => {
       });
 
       const restaurants = [
-        makeRestaurant({ id: "1", status: "open", cuisine: "Italian" }),
-        makeRestaurant({ id: "2", status: "open", cuisine: "French" }),
-        makeRestaurant({ id: "3", status: "closed", cuisine: "Italian" }),
+        makeRestaurant({ id: "1", status: "open", cuisines: ["Italian"] }),
+        makeRestaurant({ id: "2", status: "open", cuisines: ["French"] }),
+        makeRestaurant({ id: "3", status: "closed", cuisines: ["Italian"] }),
       ];
       const result = getCtx().applyFilters(restaurants);
       expect(result).toHaveLength(1);

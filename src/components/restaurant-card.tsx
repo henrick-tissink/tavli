@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { RatingBadge } from "@/components/rating-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -106,7 +106,7 @@ export function RestaurantCard({
 
         {/* Row 2: Cuisine · Price · Zone */}
         <p className="text-xs text-text-secondary truncate">
-          {restaurant.cuisine} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+          {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
           {restaurant.zone}
         </p>
 

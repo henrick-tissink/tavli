@@ -6,7 +6,7 @@ function makeDetail(overrides: Partial<RestaurantDetail> = {}): RestaurantDetail
     id: "r1",
     slug: "casa-veche",
     name: "Casa Veche",
-    cuisine: "Romanian",
+    cuisines: ["Romanian"],
     priceLevel: 2,
     zone: "Centru Vechi",
     city: "București",

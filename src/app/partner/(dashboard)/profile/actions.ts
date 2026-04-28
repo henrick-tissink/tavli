@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { geocode } from "@/lib/geocoding";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -18,7 +19,10 @@ export async function savePartnerProfile(
 
   const profile = {
     name: String(formData.get("name") ?? "").trim(),
-    cuisine: String(formData.get("cuisine") ?? "").trim(),
+    cuisines: formData
+      .getAll("cuisines")
+      .map((v) => String(v).trim())
+      .filter(Boolean),
     address: String(formData.get("address") ?? "").trim(),
     zone: String(formData.get("zone") ?? "").trim(),
     phone: String(formData.get("phone") ?? "").trim(),
@@ -27,14 +31,14 @@ export async function savePartnerProfile(
   };
 
   if (!profile.name) return { ok: false, error: "Restaurant name is required." };
-  if (!profile.cuisine) return { ok: false, error: "Cuisine is required." };
+  if (profile.cuisines.length === 0) return { ok: false, error: "Pick at least one cuisine." };
   if (!profile.address) return { ok: false, error: "Address is required." };
 
   const { error } = await supabase
     .from("restaurants")
     .update({
       name: profile.name,
-      cuisine: profile.cuisine,
+      cuisines: profile.cuisines,
       address: profile.address,
       zone: profile.zone || null,
       phone: profile.phone || null,
@@ -45,6 +49,14 @@ export async function savePartnerProfile(
     .eq("owner_user_id", user.id);
 
   if (error) return { ok: false, error: error.message };
+
+  const coords = await geocode(profile.address);
+  if (coords) {
+    await supabase
+      .from("restaurants")
+      .update({ lat: coords.lat, lng: coords.lng })
+      .eq("owner_user_id", user.id);
+  }
 
   revalidatePath("/partner");
   revalidatePath("/partner/profile");

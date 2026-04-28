@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/button";
+import { PasswordInput } from "@/components/password-input";
 import {
   createAccount,
   type CreateAccountResult,
@@ -60,14 +61,12 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
         <label className="block text-sm font-medium" htmlFor="password">
           Password
         </label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           minLength={8}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
         <p className="text-xs text-text-muted">At least 8 characters.</p>
       </div>

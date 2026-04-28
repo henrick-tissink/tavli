@@ -105,7 +105,7 @@ export function FeedPageClient({
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
         <ContextBanner
-          greeting={timeContext.greeting.replace("{city}", displayCity)}
+          greeting={timeContext.greeting}
           subtext={timeContext.subtextTemplate.replace(
             "{N}",
             String(filteredRestaurants.length),

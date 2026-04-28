@@ -90,7 +90,11 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
       if (filters.cuisines.length > 0) {
         result = result.filter((r) =>
-          filters.cuisines.some((c) => r.cuisine.toLowerCase() === c.toLowerCase()),
+          filters.cuisines.some((c) =>
+            r.cuisines.some(
+              (rc) => rc.toLowerCase() === c.toLowerCase(),
+            ),
+          ),
         );
       }
 
@@ -111,7 +115,9 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       if (filters.searchQuery.length > 0) {
         const q = filters.searchQuery.toLowerCase();
         result = result.filter(
-          (r) => r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q),
+          (r) =>
+            r.name.toLowerCase().includes(q) ||
+            r.cuisines.some((c) => c.toLowerCase().includes(q)),
         );
       }
 

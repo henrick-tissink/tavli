@@ -10,7 +10,7 @@ function makeDetail(overrides: Partial<RestaurantDetail> = {}): RestaurantDetail
     id: "r1",
     slug: "casa-veche",
     name: "Casa Veche",
-    cuisine: "Romanian",
+    cuisines: ["Romanian"],
     priceLevel: 2,
     zone: "Centru Vechi",
     city: "București",
@@ -78,7 +78,7 @@ describe("buildRestaurantJsonLd", () => {
     });
     expect(ld.name).toBe("Casa Veche");
     expect(ld.url).toBe("https://tavli.ro/bucuresti/casa-veche");
-    expect(ld.servesCuisine).toBe("Romanian");
+    expect(ld.servesCuisine).toEqual(["Romanian"]);
     expect(ld.priceRange).toBe("$$");
     expect(ld.image).toEqual([
       "https://images.example.com/hero.jpg",

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Search, X } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
 import { FilterSheet } from "@/components/filter-sheet";
@@ -170,7 +170,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                     {restaurant.name}
                   </h3>
                   <p className="text-xs text-text-secondary truncate">
-                    {restaurant.cuisine} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+                    {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
                     {restaurant.zone}
                   </p>
                   <RatingBadge rating={restaurant.rating} variant="inline" />

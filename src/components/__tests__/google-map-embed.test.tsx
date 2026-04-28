@@ -48,4 +48,20 @@ describe("GoogleMapEmbed", () => {
     );
     expect(container.querySelector("iframe")).toBeNull();
   });
+
+  test("renders nothing when lat or lng is null (not yet geocoded)", () => {
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY = "real-key-abc";
+    {
+      const { container } = render(
+        <GoogleMapEmbed lat={null} lng={26} name="X" />,
+      );
+      expect(container.querySelector("iframe")).toBeNull();
+    }
+    {
+      const { container } = render(
+        <GoogleMapEmbed lat={44} lng={null} name="X" />,
+      );
+      expect(container.querySelector("iframe")).toBeNull();
+    }
+  });
 });

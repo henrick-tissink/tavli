@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Star } from "lucide-react";
 import type { Menu, MenuItem, Restaurant } from "@/lib/types";
-import { PRICE_LABELS } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { MenuItemCard } from "./menu-item-card";
 import { MenuItemDetailSheet } from "./menu-item-detail-sheet";
 import {
@@ -187,7 +187,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <div className="absolute bottom-0 left-0 right-0 p-4 desktop:p-8">
           <div className="max-w-[var(--container-content)] mx-auto text-white">
             <p className="text-xs desktop:text-sm uppercase tracking-[0.2em] opacity-80">
-              {restaurant.cuisine} · Menu
+              {formatCuisines(restaurant.cuisines)} · Menu
             </p>
             <h1 className="font-display text-[36px] desktop:text-[60px] font-bold mt-1 leading-[1.02]">
               {restaurant.name}

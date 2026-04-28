@@ -24,7 +24,7 @@ export default async function AdminRestaurantsPage() {
   const { data: restaurants, error } = await supabase
     .from("restaurants")
     .select(
-      "id, slug, name, cuisine, status, created_at, city_id, cities(name)",
+      "id, slug, name, cuisines, status, created_at, city_id, cities(name)",
     )
     .order("created_at", { ascending: false });
 
@@ -70,7 +70,11 @@ export default async function AdminRestaurantsPage() {
                   <td className="px-4 py-3 font-semibold text-text-primary">
                     {r.name}
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{r.cuisine}</td>
+                  <td className="px-4 py-3 text-text-secondary">
+                    {Array.isArray(r.cuisines) && r.cuisines.length > 0
+                      ? r.cuisines.join(" · ")
+                      : "—"}
+                  </td>
                   <td className="px-4 py-3 text-text-secondary">{cityName ?? "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge

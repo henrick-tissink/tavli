@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -91,7 +91,7 @@ export function SearchOverlay({
       .filter(
         (r) =>
           r.name.toLowerCase().includes(q) ||
-          r.cuisine.toLowerCase().includes(q),
+          r.cuisines.some((c) => c.toLowerCase().includes(q)),
       )
       .slice(0, 5);
   }, [query, hasQuery, restaurants]);
@@ -99,13 +99,12 @@ export function SearchOverlay({
   const matchedCuisines = useMemo(() => {
     if (!hasQuery) return [];
     const q = query.toLowerCase();
-    const allMatching = restaurants.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q),
-    );
     const cuisineCounts = new Map<string, number>();
-    for (const r of allMatching) {
-      if (r.cuisine.toLowerCase().includes(q)) {
-        cuisineCounts.set(r.cuisine, (cuisineCounts.get(r.cuisine) ?? 0) + 1);
+    for (const r of restaurants) {
+      for (const c of r.cuisines) {
+        if (c.toLowerCase().includes(q)) {
+          cuisineCounts.set(c, (cuisineCounts.get(c) ?? 0) + 1);
+        }
       }
     }
     return Array.from(cuisineCounts.entries()).map(([cuisine, count]) => ({ cuisine, count }));
@@ -263,7 +262,7 @@ export function SearchOverlay({
                           <div>
                             <p className="text-sm font-semibold text-text-primary">{r.name}</p>
                             <p className="text-xs text-text-secondary">
-                              {r.rating} · {r.cuisine} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
+                              {r.rating} · {formatCuisines(r.cuisines)} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
                             </p>
                           </div>
                         </button>

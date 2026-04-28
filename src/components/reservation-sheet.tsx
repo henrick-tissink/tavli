@@ -55,6 +55,20 @@ export function ReservationSheet({
   const [reservationMode, setReservationMode] = useState<"db" | "mock" | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // Sheet stays mounted across open/close cycles. On every transition to
+  // open, re-sync state from props so a fresh tap from the detail page's
+  // "Available tonight" pills lands on the right slot, and reopens don't
+  // drop the user back into a stale "confirmed" view.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setSelectedSlot(preSelectedSlot ?? null);
+      setStep("selecting");
+      setSubmitError(null);
+    }
+  }
+
   const dateLabels: Record<DateOption, string> = {
     today: "Today",
     tomorrow: "Tomorrow",

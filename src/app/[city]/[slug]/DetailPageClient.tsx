@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import type { RefObject } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, ExternalLink, FileText, Globe } from "lucide-react";
-import { PRICE_LABELS } from "@/lib/types";
+import { MapPin, ExternalLink, FileText } from "lucide-react";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import type { RestaurantDetail } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { RatingBadge } from "@/components/rating-badge";
@@ -62,9 +62,11 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
     ? restaurant.description.slice(0, 200) + "..."
     : restaurant.description;
 
-  const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`;
+  const hasCoords = restaurant.lat != null && restaurant.lng != null;
+  const directionsHref = hasCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`
+    : null;
   const menuHref = `/${city}/${slug}/menu`;
-  const websiteHref = `https://www.google.com/search?q=${encodeURIComponent(`${restaurant.name} ${restaurant.city} restaurant`)}`;
 
   const handleCardClick = (r: { slug: string }) => {
     router.push(`/${city}/${r.slug}`);
@@ -100,6 +102,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 slots={restaurant.availableSlots}
                 maxVisible={6}
                 onSelect={(slot) => openSheet(slot)}
+                onMore={() => openSheet()}
               />
             </div>
 
@@ -172,6 +175,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 slots={restaurant.availableSlots}
                 maxVisible={6}
                 onSelect={(slot) => openSheet(slot)}
+                onMore={() => openSheet()}
               />
             </div>
 
@@ -190,21 +194,25 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             <section className="mt-8">
               <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
-              <div className="mt-3">
-                <GoogleMapEmbed
-                  lat={restaurant.lat}
-                  lng={restaurant.lng}
-                  name={restaurant.name}
-                />
-              </div>
-              <a
-                href={directionsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
-              >
-                Get Directions <ExternalLink size={14} />
-              </a>
+              {hasCoords && (
+                <div className="mt-3">
+                  <GoogleMapEmbed
+                    lat={restaurant.lat}
+                    lng={restaurant.lng}
+                    name={restaurant.name}
+                  />
+                </div>
+              )}
+              {directionsHref && (
+                <a
+                  href={directionsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
+                >
+                  Get Directions <ExternalLink size={14} />
+                </a>
+              )}
             </section>
 
             <section className="mt-8 flex items-center gap-4">
@@ -214,14 +222,6 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               >
                 <FileText size={16} /> View Menu
               </Link>
-              <a
-                href={websiteHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
-              >
-                <Globe size={16} /> Website
-              </a>
             </section>
           </div>
         </div>
@@ -242,21 +242,25 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           <section className="mt-8">
             <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
             <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
-            <div className="mt-3">
-              <GoogleMapEmbed
-                lat={restaurant.lat}
-                lng={restaurant.lng}
-                name={restaurant.name}
-              />
-            </div>
-            <a
-              href={directionsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
-            >
-              Get Directions <ExternalLink size={14} />
-            </a>
+            {hasCoords && (
+              <div className="mt-3">
+                <GoogleMapEmbed
+                  lat={restaurant.lat}
+                  lng={restaurant.lng}
+                  name={restaurant.name}
+                />
+              </div>
+            )}
+            {directionsHref && (
+              <a
+                href={directionsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
+              >
+                Get Directions <ExternalLink size={14} />
+              </a>
+            )}
           </section>
 
           <section className="mt-8 flex items-center gap-4">
@@ -266,14 +270,6 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             >
               <FileText size={16} /> View Menu
             </Link>
-            <a
-              href={websiteHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
-            >
-              <Globe size={16} /> Website
-            </a>
           </section>
         </div>
 
@@ -350,7 +346,7 @@ function InfoBlock({
         <RatingBadge rating={restaurant.rating} voteCount={restaurant.voteCount} />
       </div>
       <p className="text-sm text-text-secondary mt-1">
-        {restaurant.cuisine} · {PRICE_LABELS[restaurant.priceLevel]}
+        {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]}
         {restaurant.distance && ` · ${restaurant.distance}`}
       </p>
       <p className="text-sm text-text-secondary mt-1 flex items-center gap-1">

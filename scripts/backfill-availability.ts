@@ -27,7 +27,26 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { hoursToAvailabilityRows } from "../src/lib/availability";
-import { DEFAULT_HOURS, type DayHours } from "../src/lib/onboarding";
+
+// DayHours + DEFAULT_HOURS are inlined here so this script doesn't pull
+// `@/lib/onboarding` (which is `import "server-only"` and can't run
+// outside the Next bundler).
+interface DayHours {
+  dayOfWeek: number;
+  isOpen: boolean;
+  openAt: string;
+  closeAt: string;
+}
+
+const DEFAULT_HOURS: DayHours[] = [
+  { dayOfWeek: 1, isOpen: true, openAt: "12:00", closeAt: "23:00" },
+  { dayOfWeek: 2, isOpen: true, openAt: "12:00", closeAt: "23:00" },
+  { dayOfWeek: 3, isOpen: true, openAt: "12:00", closeAt: "23:00" },
+  { dayOfWeek: 4, isOpen: true, openAt: "12:00", closeAt: "23:00" },
+  { dayOfWeek: 5, isOpen: true, openAt: "12:00", closeAt: "23:30" },
+  { dayOfWeek: 6, isOpen: true, openAt: "11:00", closeAt: "23:30" },
+  { dayOfWeek: 0, isOpen: true, openAt: "11:00", closeAt: "23:00" },
+];
 
 async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -56,6 +56,26 @@ describe("ReservationSheet", () => {
     expect(confirmBtn).toBeDisabled();
   });
 
+  it("preselected slot is selected when sheet opens", () => {
+    render(<ReservationSheet {...defaultProps} preSelectedSlot="19:30" />);
+    const slot = screen.getByRole("button", { name: "19:30" });
+    expect(slot).toHaveClass("bg-brand-primary");
+    expect(slot).not.toHaveClass("bg-brand-primary-soft");
+  });
+
+  it("preselected slot updates when reopening with a different slot", () => {
+    const { rerender } = render(
+      <ReservationSheet {...defaultProps} open={false} preSelectedSlot="19:00" />,
+    );
+    rerender(
+      <ReservationSheet {...defaultProps} open={true} preSelectedSlot="20:30" />,
+    );
+    expect(screen.getByRole("button", { name: "20:30" })).toHaveClass("bg-brand-primary");
+    expect(screen.getByRole("button", { name: "19:00" })).not.toHaveClass(
+      "bg-brand-primary",
+    );
+  });
+
   it("shows confirmation after submit", async () => {
     const user = userEvent.setup();
     render(<ReservationSheet {...defaultProps} />);

@@ -73,6 +73,29 @@ describe("BottomSheet", () => {
     expect(dialog).toHaveAttribute("aria-modal", "true");
   });
 
+  it("renders above tab bar / map FAB (z-index higher than 50)", () => {
+    // The TabBar and MapFab use z-50. The sheet must render above them so
+    // its sticky bottom action button is reachable.
+    render(
+      <BottomSheet open onClose={jest.fn()}>
+        <p>Content</p>
+      </BottomSheet>,
+    );
+    // The outermost container that holds backdrop + panel is what controls layering.
+    const outer = screen.getByTestId("sheet-backdrop").parentElement!;
+    expect(outer.className).toMatch(/z-\[60\]|z-60/);
+  });
+
+  it("panel has bottom padding for the iOS home indicator + sticky button", () => {
+    render(
+      <BottomSheet open onClose={jest.fn()}>
+        <p>Content</p>
+      </BottomSheet>,
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.className).toMatch(/safe-area-inset-bottom|safe-area/);
+  });
+
   it("has aria-labelledby pointing to title", () => {
     render(
       <BottomSheet open onClose={jest.fn()} title="My Title">

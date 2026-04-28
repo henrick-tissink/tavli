@@ -1,6 +1,6 @@
 interface GoogleMapEmbedProps {
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   name: string;
   className?: string;
 }
@@ -12,6 +12,7 @@ const PLACEHOLDER_VALUES = new Set([
 ]);
 
 export function GoogleMapEmbed({ lat, lng, name, className }: GoogleMapEmbedProps) {
+  if (lat == null || lng == null) return null;
   const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
   if (!key || PLACEHOLDER_VALUES.has(key)) return null;
 

@@ -7,7 +7,7 @@ const mockRestaurant: Restaurant = {
   id: "1",
   slug: "test-restaurant",
   name: "Test Restaurant",
-  cuisine: "Italian",
+  cuisines: ["Italian"],
   priceLevel: 2,
   zone: "Centru",
   city: "București",

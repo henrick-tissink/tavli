@@ -16,7 +16,7 @@ const baseRestaurant: Restaurant = {
   id: "r1",
   slug: "la-mama",
   name: "La Mama",
-  cuisine: "Romanian",
+  cuisines: ["Romanian"],
   priceLevel: 2,
   zone: "Old Town",
   city: "Bucharest",

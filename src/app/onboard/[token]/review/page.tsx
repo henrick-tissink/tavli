@@ -7,6 +7,7 @@ import { getOnboardingState } from "@/lib/onboarding";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { PublishButton } from "@/components/onboarding/PublishButton";
 import { resolvePhotoUrl } from "@/lib/storage";
+import { formatCuisines } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function OnboardingReviewPage({
   const supabase = await createSupabaseServerClient();
   const { data: restaurant } = await supabase
     .from("restaurants")
-    .select("name, cuisine, zone, address, hero_note, schedule, cities(name)")
+    .select("name, cuisines, zone, address, hero_note, schedule, cities(name)")
     .eq("id", state.restaurantId)
     .maybeSingle();
 
@@ -38,6 +39,11 @@ export default async function OnboardingReviewPage({
   const cityName = Array.isArray(restaurant?.cities)
     ? restaurant?.cities[0]?.name
     : (restaurant?.cities as unknown as { name: string } | null)?.name;
+  const cuisinesLabel = formatCuisines(
+    Array.isArray(restaurant?.cuisines)
+      ? (restaurant.cuisines as string[])
+      : [],
+  );
 
   return (
     <OnboardingShell currentStepIndex={5} token={token}>
@@ -70,7 +76,7 @@ export default async function OnboardingReviewPage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 text-white">
             <p className="text-xs uppercase tracking-[0.2em] opacity-80">
-              {restaurant?.cuisine} · Menu
+              {cuisinesLabel} · Menu
             </p>
             <h2 className="font-display text-3xl font-bold mt-1 leading-tight">
               {restaurant?.name}
@@ -88,7 +94,7 @@ export default async function OnboardingReviewPage({
               4.5
               <Star size={12} className="fill-brand-primary text-brand-primary" />
             </span>
-            <span className="text-text-muted">{restaurant?.cuisine}</span>
+            <span className="text-text-muted">{cuisinesLabel}</span>
             {restaurant?.zone && (
               <>
                 <span className="text-text-muted">·</span>

@@ -50,7 +50,7 @@ export function FilterSheet({
   const { filters, toggleArrayFilter, setFilter, resetFilters, activeFilterCount } = useFilters();
 
   const cuisines = useMemo(() => {
-    const all = restaurants.map((r) => r.cuisine);
+    const all = restaurants.flatMap((r) => r.cuisines);
     return [...new Set(all)].sort();
   }, [restaurants]);
 

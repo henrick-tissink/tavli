@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/button";
+import { Pill } from "@/components/pill";
 import {
   saveProfile,
   type SaveProfileResult,
@@ -11,7 +12,7 @@ interface Props {
   token: string;
   initialValues: {
     name?: string;
-    cuisine?: string;
+    cuisines?: string[];
     address?: string;
     zone?: string;
     phone?: string;
@@ -46,40 +47,45 @@ export function ProfileForm({ token, initialValues }: Props) {
     SaveProfileResult | undefined,
     FormData
   >(action, undefined);
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>(
+    initialValues.cuisines ?? [],
+  );
+
+  const toggleCuisine = (c: string) =>
+    setSelectedCuisines((prev) =>
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
+    );
 
   return (
     <form action={dispatch} className="space-y-5">
       <Field label="Restaurant name" name="name" required defaultValue={initialValues.name} placeholder="Casa Veche" />
 
-      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className="block text-sm font-medium" htmlFor="cuisine">
-            Cuisine <span className="text-error">*</span>
-          </label>
-          <select
-            id="cuisine"
-            name="cuisine"
-            required
-            defaultValue={initialValues.cuisine ?? ""}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm bg-surface-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          >
-            <option value="" disabled>
-              Select cuisine…
-            </option>
-            {CUISINES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">
+          Cuisines <span className="text-error">*</span>
+        </label>
+        <p className="text-xs text-text-muted">Pick one or more.</p>
+        <div className="flex flex-wrap gap-2">
+          {CUISINES.map((c) => (
+            <Pill
+              key={c}
+              label={c}
+              active={selectedCuisines.includes(c)}
+              onToggle={() => toggleCuisine(c)}
+            />
+          ))}
         </div>
-        <Field
-          label="Zone / neighbourhood"
-          name="zone"
-          placeholder="Centru Vechi"
-          defaultValue={initialValues.zone}
-        />
+        {selectedCuisines.map((c) => (
+          <input key={c} type="hidden" name="cuisines" value={c} />
+        ))}
       </div>
+
+      <Field
+        label="Zone / neighbourhood"
+        name="zone"
+        placeholder="Centru Vechi"
+        defaultValue={initialValues.zone}
+      />
 
       <Field
         label="Full address"

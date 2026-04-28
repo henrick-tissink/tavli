@@ -40,6 +40,15 @@ function Inner({
         ? "profile"
         : "discover";
 
+  // FAB shown only on list/discovery routes — not on map (already there) or
+  // detail/menu pages (collides with sticky Book a Table CTA).
+  const KNOWN_TABS = new Set(["map", "saved", "profile"]);
+  const segments = pathname.split("/").filter(Boolean);
+  const hasRestaurantSlug =
+    segments.length >= 2 && !KNOWN_TABS.has(segments[1]);
+  const isMapPage = activeTab === "map";
+  const showMapFab = !hasRestaurantSlug && !isMapPage;
+
   return (
     <>
       <TopNav
@@ -60,7 +69,7 @@ function Inner({
           else if (tab === "profile") router.push(`/${city}/profile`);
         }}
       />
-      <MapFab onClick={() => router.push(`/${city}/map`)} />
+      {showMapFab && <MapFab onClick={() => router.push(`/${city}/map`)} />}
       <SearchOverlay
         open={searchOpen}
         restaurants={restaurants}

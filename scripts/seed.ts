@@ -97,7 +97,7 @@ async function main() {
       .values({
         slug: r.slug,
         name: r.name,
-        cuisine: r.cuisine,
+        cuisines: r.cuisines,
         cityId: bucurestiId,
         zone: r.zone,
         priceLevel: r.priceLevel,
@@ -120,7 +120,7 @@ async function main() {
         target: [restaurants.cityId, restaurants.slug],
         set: {
           name: sql`excluded.name`,
-          cuisine: sql`excluded.cuisine`,
+          cuisines: sql`excluded.cuisines`,
           zone: sql`excluded.zone`,
           priceLevel: sql`excluded.price_level`,
           lat: sql`excluded.lat`,

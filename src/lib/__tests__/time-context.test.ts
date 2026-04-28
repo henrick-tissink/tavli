@@ -18,7 +18,7 @@ describe("computeTimeContext", () => {
     expect(ctx.active).toContain("morning");
     expect(ctx.active).toContain("brunch");
     expect(ctx.active).toContain("weekend");
-    expect(ctx.greeting).toBe("Brunch time in {city}");
+    expect(ctx.greeting).toBe("Brunch time");
   });
 
   it("Tuesday 12pm → lunch active", () => {
@@ -74,41 +74,47 @@ describe("computeTimeContext", () => {
   });
 
   it("default greeting for edge cases (e.g. hour 7 on weekday, no temp)", () => {
-    // hour 7 → morning active, should get morning greeting
     const d = new Date(2026, 3, 13, 7, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Good morning, {city}");
+    expect(ctx.greeting).toBe("Good morning");
   });
 
-  it("returns default greeting when no time context matches", () => {
-    // This is hard to trigger since late covers 0-5 and morning covers 6-10, etc.
-    // But we can verify the fallback by checking the code path conceptually.
-    // Actually hour 6 is morning, and hour 5 is late, so there is no gap.
-    // Let's just verify evening greeting
+  it("evening greeting", () => {
     const d = new Date(2026, 3, 16, 19, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Good evening, {city}");
+    expect(ctx.greeting).toBe("Good evening");
   });
 
   it("lunch greeting on weekday at noon", () => {
     const d = new Date(2026, 3, 14, 12, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Lunchtime in {city}");
+    expect(ctx.greeting).toBe("Lunchtime");
     expect(ctx.subtextTemplate).toBe("{N} places with quick service");
   });
 
-  it("late greeting at 2am", () => {
+  it("late greeting at 2am — no city interpolation", () => {
     const d = new Date(2026, 3, 14, 2, 0);
     const ctx = computeTimeContext(d);
     expect(ctx.active).toContain("late");
-    expect(ctx.greeting).toBe("Still hungry, {city}?");
+    expect(ctx.greeting).toBe("Still hungry?");
   });
 
   it("afternoon greeting at 3pm", () => {
     const d = new Date(2026, 3, 16, 15, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Afternoon in {city}");
+    expect(ctx.greeting).toBe("Afternoon");
     expect(ctx.subtextTemplate).toBe("{N} cafes near you");
+  });
+
+  it("greetings never contain {city} interpolation token or city names", () => {
+    // Sweep across hours to catch every greeting branch
+    for (let hour = 0; hour < 24; hour++) {
+      const d = new Date(2026, 3, 13, hour, 0);
+      const ctx = computeTimeContext(d, 22);
+      expect(ctx.greeting).not.toContain("{city}");
+      expect(ctx.greeting).not.toContain("București");
+      expect(ctx.greeting).not.toContain("Bucuresti");
+    }
   });
 
   it("weekend+evening produces Cocktails pill on Friday night", () => {

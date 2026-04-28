@@ -72,8 +72,7 @@ export default async function OnboardingLandingPage({
               We&apos;ve saved this invitation for{" "}
               <strong>{result.invitation.email}</strong>
               {result.invitation.cityName ? ` in ${result.invitation.cityName}` : ""}
-              . Set up your profile, hours, photos, and menu in about 10
-              minutes.
+              . Set up your profile, hours, photos, and menu in a few minutes.
             </p>
             <div className="mt-8">
               <Link href={`/onboard/${token}/account`}>

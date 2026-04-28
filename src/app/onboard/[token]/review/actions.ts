@@ -20,15 +20,17 @@ export async function publishRestaurant(
 
   const { data: restaurant } = await supabase
     .from("restaurants")
-    .select("id, name, cuisine, address, schedule")
+    .select("id, name, cuisines, address, schedule")
     .eq("owner_user_id", user.id)
     .maybeSingle();
 
   if (!restaurant) return { ok: false, error: "No restaurant found for your account." };
-  if (!restaurant.name || !restaurant.cuisine || !restaurant.address) {
+  const hasCuisines =
+    Array.isArray(restaurant.cuisines) && restaurant.cuisines.length > 0;
+  if (!restaurant.name || !hasCuisines || !restaurant.address) {
     return {
       ok: false,
-      error: "Profile isn't complete. Go back and fill in name, cuisine, and address.",
+      error: "Profile isn't complete. Go back and fill in name, cuisines, and address.",
     };
   }
   if (!Array.isArray(restaurant.schedule) || restaurant.schedule.length === 0) {

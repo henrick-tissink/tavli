@@ -117,7 +117,7 @@ export const restaurants = pgTable("restaurants", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: varchar("slug", { length: 120 }).notNull(),
   name: text("name").notNull(),
-  cuisine: varchar("cuisine", { length: 64 }).notNull(),
+  cuisines: text("cuisines").array().notNull().default([]).$type<string[]>(),
   cityId: uuid("city_id")
     .notNull()
     .references(() => cities.id, { onDelete: "restrict" }),

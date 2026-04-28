@@ -34,8 +34,17 @@ interface Props {
   item: EditableItem;
 }
 
+function parsePrice(input: string): number {
+  if (input.trim() === "") return 0;
+  const n = Number(input.replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
 export function ItemDialog({ open, onClose, onSaved, item }: Props) {
   const [state, setState] = useState<EditableItem>(item);
+  const [priceInput, setPriceInput] = useState<string>(
+    item.priceLei > 0 ? String(item.priceLei) : "",
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
@@ -52,7 +61,11 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
 
   const handleSave = () => {
     start(async () => {
-      const result = await saveItem(state as SaveItemPayload);
+      const payload: SaveItemPayload = {
+        ...state,
+        priceLei: parsePrice(priceInput),
+      };
+      const result = await saveItem(payload);
       if (!result.ok) {
         setError(result.error ?? "Failed to save.");
       } else {
@@ -123,16 +136,11 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
               </label>
               <input
                 id="item-price"
-                type="number"
-                min={0}
-                step={0.5}
-                value={state.priceLei}
-                onChange={(e) =>
-                  setState((s) => ({
-                    ...s,
-                    priceLei: parseFloat(e.target.value) || 0,
-                  }))
-                }
+                type="text"
+                inputMode="decimal"
+                value={priceInput}
+                onChange={(e) => setPriceInput(e.target.value)}
+                placeholder="0"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>

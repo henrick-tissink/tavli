@@ -57,12 +57,18 @@ export function buildRestaurantJsonLd(
       addressLocality: detail.city,
       addressCountry: countryCode,
     },
-    servesCuisine: detail.cuisine,
+    servesCuisine: detail.cuisines,
     priceRange: "$".repeat(detail.priceLevel),
     acceptsReservations: true,
   };
 
-  if (detail.lat !== 0 || detail.lng !== 0) {
+  // Treat null AND historic 0,0 sentinels as "not geocoded" — pre-backfill
+  // rows still have 0,0 from the old repo coercion.
+  if (
+    detail.lat != null &&
+    detail.lng != null &&
+    !(detail.lat === 0 && detail.lng === 0)
+  ) {
     ld.geo = {
       "@type": "GeoCoordinates",
       latitude: detail.lat,

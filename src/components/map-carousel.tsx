@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { RatingBadge } from "@/components/rating-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 
@@ -79,7 +79,7 @@ export function MapCarousel({
                   {restaurant.name}
                 </h3>
                 <p className="text-xs text-text-secondary truncate">
-                  {restaurant.cuisine} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+                  {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
                   {restaurant.zone}
                 </p>
                 <RatingBadge rating={restaurant.rating} variant="inline" />

@@ -22,7 +22,7 @@ const restaurant: Restaurant = {
   id: "1",
   slug: "x",
   name: "Test Place",
-  cuisine: "Italian",
+  cuisines: ["Italian"],
   priceLevel: 2,
   zone: "Center",
   city: "București",

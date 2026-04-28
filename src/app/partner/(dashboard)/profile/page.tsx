@@ -10,7 +10,7 @@ export default async function PartnerProfilePage() {
 
   const { data: restaurant } = await supabase
     .from("restaurants")
-    .select("name, cuisine, address, zone, phone, hero_note, website_url")
+    .select("name, cuisines, address, zone, phone, hero_note, website_url")
     .eq("owner_user_id", session!.userId)
     .maybeSingle();
 
@@ -28,7 +28,9 @@ export default async function PartnerProfilePage() {
       <PartnerProfileForm
         initialValues={{
           name: restaurant?.name,
-          cuisine: restaurant?.cuisine,
+          cuisines: Array.isArray(restaurant?.cuisines)
+            ? (restaurant.cuisines as string[])
+            : [],
           address: restaurant?.address,
           zone: restaurant?.zone,
           phone: restaurant?.phone,

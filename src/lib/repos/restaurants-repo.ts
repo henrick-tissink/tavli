@@ -90,7 +90,9 @@ async function restaurantFromRow(row: Record<string, unknown>): Promise<Restaura
     id,
     slug: row.slug as string,
     name: row.name as string,
-    cuisine: row.cuisine as string,
+    cuisines: Array.isArray(row.cuisines)
+      ? (row.cuisines as string[]).filter((c) => typeof c === "string" && c.length > 0)
+      : [],
     priceLevel: Math.max(1, Math.min(4, Number(row.price_level ?? 2))) as 1 | 2 | 3 | 4,
     zone: (row.zone as string) ?? "",
     city: "București",
@@ -111,7 +113,7 @@ async function dbGetRestaurants(): Promise<Restaurant[]> {
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
     )
     .eq("status", "live")
     .order("rating", { ascending: false });
@@ -123,7 +125,7 @@ async function dbGetRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
     )
     .eq("slug", slug)
     .eq("status", "live")
@@ -137,7 +139,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule",
     )
     .eq("slug", slug)
     .eq("status", "live")
@@ -150,7 +152,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     sb
       .from("restaurants")
       .select(
-        "id, slug, name, cuisine, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
+        "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng",
       )
       .eq("status", "live")
       .neq("id", data.id)
@@ -165,8 +167,8 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   return {
     ...base,
     availableSlots: slots,
-    lat: Number(data.lat ?? 0),
-    lng: Number(data.lng ?? 0),
+    lat: data.lat != null ? Number(data.lat) : null,
+    lng: data.lng != null ? Number(data.lng) : null,
     description: (data.description as string) ?? "",
     photos,
     schedule: (data.schedule as { days: string; hours: string }[]) ?? [],

@@ -25,7 +25,7 @@ export default async function PartnerDashboardPage({
   const { data: restaurant } = await supabase
     .from("restaurants")
     .select(
-      "id, name, status, hero_note, cuisine, schedule",
+      "id, name, status, hero_note, cuisines, schedule",
     )
     .eq("owner_user_id", session!.userId)
     .maybeSingle();
@@ -80,9 +80,10 @@ export default async function PartnerDashboardPage({
       label: "Profile complete",
       done:
         !!restaurant.name &&
-        !!restaurant.cuisine &&
+        Array.isArray(restaurant.cuisines) &&
+        restaurant.cuisines.length > 0 &&
         restaurant.name !== "New Restaurant",
-      hint: "Name, cuisine, address, one-line story",
+      hint: "Name, cuisines, address, one-line story",
       href: "/partner/profile",
     },
     {

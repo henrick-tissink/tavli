@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isUuid = (s: unknown): s is string => typeof s === "string" && UUID_RE.test(s);
+
 async function ownerRestaurantId(): Promise<string | null> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -112,6 +116,13 @@ export interface SaveItemPayload {
 }
 
 export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
+  if (!isUuid(payload.sectionId)) {
+    return { ok: false, error: "Pick a section before saving." };
+  }
+  if (payload.id !== undefined && !isUuid(payload.id)) {
+    return { ok: false, error: "Invalid dish reference. Try refreshing." };
+  }
+
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "No restaurant." };
   if (!payload.name.trim()) return { ok: false, error: "Name is required." };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { RestaurantDetail } from "@/lib/types";
+import { formatCuisines } from "@/lib/types";
 import { getSiteUrl } from "@/lib/site-url";
 
 const MAX_DESCRIPTION_LENGTH = 160;
@@ -16,14 +17,14 @@ function metaDescription(detail: RestaurantDetail): string {
   if (detail.description && detail.description.trim().length > 0) {
     return truncateAtWordBoundary(detail.description.trim(), MAX_DESCRIPTION_LENGTH);
   }
-  return `${detail.cuisine} restaurant in ${detail.city}. Book a table on Tavli.`;
+  return `${formatCuisines(detail.cuisines)} restaurant in ${detail.city}. Book a table on Tavli.`;
 }
 
 export function buildRestaurantMetadata(
   detail: RestaurantDetail,
   citySlug: string,
 ): Metadata {
-  const title = `${detail.name} — ${detail.cuisine} in ${detail.city} | Tavli`;
+  const title = `${detail.name} — ${formatCuisines(detail.cuisines)} in ${detail.city} | Tavli`;
   const description = metaDescription(detail);
   const url = `${getSiteUrl()}/${citySlug}/${detail.slug}`;
   const images = detail.photoUrl ? [{ url: detail.photoUrl }] : undefined;

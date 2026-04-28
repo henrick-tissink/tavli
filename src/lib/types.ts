@@ -2,7 +2,7 @@ export interface Restaurant {
   id: string;
   slug: string;
   name: string;
-  cuisine: string;
+  cuisines: string[];
   priceLevel: 1 | 2 | 3 | 4;
   zone: string;
   city: string;
@@ -28,6 +28,15 @@ export const PRICE_LABELS: Record<number, string> = {
   3: "$$$",
   4: "$$$$",
 };
+
+/**
+ * Display-format a list of cuisines. Empty arrays fall back to a generic
+ * label so the UI doesn't render a stray middle-dot.
+ */
+export function formatCuisines(cuisines: string[]): string {
+  if (!cuisines || cuisines.length === 0) return "Restaurant";
+  return cuisines.join(" · ");
+}
 
 export interface Review {
   id: string;
@@ -90,8 +99,8 @@ export interface Menu {
 }
 
 export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   description: string;
   photos: string[];
   schedule: { days: string; hours: string }[];
