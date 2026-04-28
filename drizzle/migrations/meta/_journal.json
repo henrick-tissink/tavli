@@ -36,6 +36,13 @@
       "when": 1776715746268,
       "tag": "0004_photos_bucket_public",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777979285000,
+      "tag": "0005_cuisines_array",
+      "breakpoints": true
     }
   ]
 }
