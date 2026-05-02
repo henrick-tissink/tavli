@@ -289,6 +289,9 @@ export const reservations = pgTable("reservations", {
   cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
   cancelledReason: text("cancelled_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  postVisitEmailSentAt: timestamp("post_visit_email_sent_at", {
+    withTimezone: true,
+  }),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -314,3 +317,28 @@ export const draftRestaurants = pgTable("draft_restaurants", {
   payload: jsonb("payload").notNull().default({}),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// ─── reviews ────────────────────────────────────────────────────────────
+// Verified-reservation reviews: each row is anchored to a real reservation
+// via a UNIQUE FK, so a reservation can produce at most one review and the
+// review carries cryptographic provenance through the confirmation token
+// flow. Aggregate rating + vote_count on `restaurants` are kept current by
+// a Postgres AFTER-INSERT trigger (see migration 0006).
+export const reviews = pgTable("reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reservationId: uuid("reservation_id")
+    .notNull()
+    .unique()
+    .references(() => reservations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  rating: smallint("rating").notNull(),
+  comment: text("comment"),
+  firstName: text("first_name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+}, (t) => [
+  index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt),
+]);

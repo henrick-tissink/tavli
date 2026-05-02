@@ -43,6 +43,13 @@
       "when": 1777979285000,
       "tag": "0005_cuisines_array",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777748641001,
+      "tag": "0006_reviews",
+      "breakpoints": true
     }
   ]
 }
