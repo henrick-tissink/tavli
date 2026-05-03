@@ -21,28 +21,34 @@ CREATE TABLE "reviews" (
 CREATE INDEX "reviews_restaurant_created_idx"
   ON "reviews" ("restaurant_id", "created_at" DESC);
 
-CREATE OR REPLACE FUNCTION "fn_reviews_after_insert"() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION reviews_recompute_aggregate() RETURNS TRIGGER AS $$
 DECLARE
+  v_rid   UUID;
   v_avg   NUMERIC(2,1);
   v_count INTEGER;
 BEGIN
+  v_rid := COALESCE(NEW."restaurant_id", OLD."restaurant_id");
+
+  -- Serialize concurrent recomputes per-restaurant to avoid race window.
+  PERFORM 1 FROM "restaurants" WHERE id = v_rid FOR UPDATE;
+
   SELECT ROUND(AVG(rating)::numeric, 1), COUNT(*)
     INTO v_avg, v_count
     FROM "reviews"
-    WHERE "restaurant_id" = NEW."restaurant_id";
+    WHERE "restaurant_id" = v_rid;
 
   UPDATE "restaurants"
     SET "rating"      = v_avg,
         "vote_count"  = v_count,
         "updated_at"  = NOW()
-    WHERE "id" = NEW."restaurant_id";
-  RETURN NEW;
+    WHERE "id" = v_rid;
+  RETURN COALESCE(NEW, OLD);
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "trg_reviews_after_insert"
-  AFTER INSERT ON "reviews"
-  FOR EACH ROW EXECUTE FUNCTION "fn_reviews_after_insert"();
+CREATE TRIGGER reviews_recompute_aggregate_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON "reviews"
+  FOR EACH ROW EXECUTE FUNCTION reviews_recompute_aggregate();
 
 ALTER TABLE "reviews" ENABLE ROW LEVEL SECURITY;
 

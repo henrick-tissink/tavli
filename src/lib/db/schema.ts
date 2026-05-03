@@ -340,5 +340,5 @@ export const reviews = pgTable("reviews", {
     .notNull()
     .defaultNow(),
 }, (t) => [
-  index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt),
+  index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
 ]);
