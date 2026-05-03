@@ -31,7 +31,7 @@ export function PostVisitReviewEmail({
   return (
     <Html>
       <Head />
-      <Preview>How was {restaurantName}? One tap to rate.</Preview>
+      <Preview>One tap rates anonymously — first name only.</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
@@ -49,7 +49,7 @@ export function PostVisitReviewEmail({
                 href={`${reviewBaseUrl}?rating=${n}`}
                 style={star}
               >
-                {"★".repeat(n)}
+                {n} ★
               </Link>
             ))}
           </Section>
