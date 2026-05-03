@@ -81,9 +81,8 @@ describe("POST /api/cron/post-visit-emails", () => {
 
     const updateEq = jest.fn().mockResolvedValue({ data: null, error: null });
     const update = jest.fn(() => ({ eq: updateEq }));
-    const select = jest.fn().mockResolvedValue({ data: candidates, error: null });
 
-    let chain: Record<string, jest.Mock> = {};
+    const chain: Record<string, jest.Mock> = {};
     chain.select = jest.fn(() => chain);
     chain.eq = jest.fn(() => chain);
     chain.is = jest.fn(() => chain);

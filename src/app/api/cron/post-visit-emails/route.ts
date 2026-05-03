@@ -94,6 +94,11 @@ export async function POST(req: Request): Promise<Response> {
         .update({ post_visit_email_sent_at: new Date().toISOString() })
         .eq("id", r.id);
       sent += 1;
+    } else {
+      console.error("[post-visit-cron] send failed", {
+        id: r.id,
+        error: result.error,
+      });
     }
   }
 
