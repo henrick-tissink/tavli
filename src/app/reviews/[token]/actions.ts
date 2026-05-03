@@ -35,7 +35,7 @@ export async function submitReviewByToken(
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
-    return { ok: false, error: "Platform not configured." };
+    return { ok: false, error: "Platform not configured.", errorCode: "OTHER" };
   }
 
   const admin = createSupabaseAdminClient();
@@ -76,7 +76,8 @@ export async function submitReviewByToken(
         errorCode: "ALREADY_REVIEWED",
       };
     }
-    return { ok: false, error: error.message ?? "Could not save review.", errorCode: "OTHER" };
+    console.error("[submitReviewByToken] insert failed", error);
+    return { ok: false, error: "Could not save review.", errorCode: "OTHER" };
   }
 
   return { ok: true };
