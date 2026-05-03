@@ -32,6 +32,7 @@ export function mapRowToReview(row: RawReviewRow): Review {
     reservationDate: resv?.reservation_date ?? row.created_at.slice(0, 10),
     guestCount: resv?.party_size ?? 0,
     text: row.comment ?? "",
+    // Phase 1: no helpful_count column; UI button is decorative until Phase 2.
     helpfulCount: 0,
   };
 }
@@ -50,5 +51,6 @@ export async function getReviewsForRestaurant(
     .eq("restaurant_id", restaurantId)
     .order("created_at", { ascending: false })
     .limit(limit);
+  // Supabase can't statically resolve nested-FK cardinality; cast through unknown.
   return (data ?? []).map((r) => mapRowToReview(r as unknown as RawReviewRow));
 }
