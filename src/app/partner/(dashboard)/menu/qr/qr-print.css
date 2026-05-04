@@ -1,0 +1,24 @@
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+  .qr-print-area,
+  .qr-print-area * {
+    visibility: visible;
+  }
+  .qr-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .menu-qr-card {
+    break-inside: avoid;
+  }
+}
