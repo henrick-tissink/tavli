@@ -1696,3 +1696,25 @@ git commit -m "docs(reviews): deployment note for Coolify cron"
 **Open verification gaps (acceptable):**
 - The 0006 trigger is verified by hand in Supabase Studio (Task 1, Step 3) rather than by automated test, because the codebase has no DB-integration test harness today. Adding one is a separate infra project.
 - Time-zone handling for the 4h post-visit cutoff is approximate (+02:00 hardcode); ~1h DST drift is acceptable since the threshold is already coarse.
+
+---
+
+## Deployment notes (run by Henrick after merge)
+
+1. **Set `CRON_SECRET`** in the Coolify environment for `tavli`. Generate with `openssl rand -hex 32`.
+2. **Confirm `RESEND_API_KEY` is set** in Coolify before flipping the cron on. Without it, `sendEmail` runs in dev-mode (console.log only) and the cron will mark reservations as `post_visit_email_sent_at = NOW()` without actually delivering anything — silent loss.
+3. **Add the scheduled task in Coolify**:
+   - Coolify → Application → "Scheduled Tasks" → New
+   - Name: `post-visit-reviews`
+   - Schedule: `0 * * * *` (top of every hour)
+   - Command: `curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://tavli.ro/api/cron/post-visit-emails`
+4. **Verify the first run** in the application logs — expect a JSON line like `{"ok":true,"considered":N,"sent":M}`. Send failures appear as `[post-visit-cron] send failed { id, error }` console errors.
+5. **Apply migration `0006_reviews`** to the production DB. Per project convention, this is `psql -f drizzle/migrations/0006_reviews.sql` against the Supabase production connection string, then reconcile `__drizzle_migrations` and `_journal.json` (the snapshot is already committed). Mirror the bookkeeping pattern from `0005_cuisines_array`.
+6. **Smoke-test end-to-end** before announcing to the trial cohort:
+   - Manually `UPDATE reservations SET reservation_date = CURRENT_DATE - 1, reservation_time = '12:00', post_visit_email_sent_at = NULL WHERE id = '<a real reservation with guest_email>';`
+   - Trigger the cron once: `curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://tavli.ro/api/cron/post-visit-emails`
+   - Confirm the email lands in the test inbox.
+   - Click a star rating → confirm the page loads and pre-selects the rating.
+   - Submit → confirm the success state and that `restaurants.rating` / `vote_count` updated for that restaurant.
+
+**Onboarding policy reminder (Task 10):** before launch, make sure the trial-cohort restaurants are walked through the no-deletion policy verbally as well — the in-page disclosure on the publish step is the legal anchor, but a human conversation removes surprise when the first 1★ review arrives. The wedge of this product is that reviews are durable; that only works if owners knew that going in.
