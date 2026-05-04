@@ -28,7 +28,7 @@ export function MenuPageClient({
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
         <h1 className="text-xl font-bold text-text-primary">Menu coming soon</h1>
         <p className="text-sm text-text-secondary mt-2 max-w-sm">
-          {restaurant.name} hasn&apos;t shared their full menu with us yet.
+          Please ask your server for a printed copy.
         </p>
         <div className="mt-6">
           <Link href={`/${city}/${slug}`}>

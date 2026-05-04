@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getMenu, getRestaurantDetail } from "@/lib/repos/restaurants-repo";
-import { MenuViewer } from "@/components/menu-viewer";
-import { formatCuisines, PRICE_LABELS } from "@/lib/types";
+import {
+  getMenu,
+  getRestaurantBySlug,
+  getRestaurantDetail,
+} from "@/lib/repos/restaurants-repo";
+import { MenuPageClient } from "./MenuPageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -17,59 +20,45 @@ export default async function DinerMenuPage({
   params: Promise<{ city: string; slug: string }>;
 }) {
   const { city, slug } = await params;
-  const [detail, menu] = await Promise.all([
+
+  const [restaurant, detail, menu] = await Promise.all([
+    getRestaurantBySlug(slug),
     getRestaurantDetail(slug),
     getMenu(slug),
   ]);
 
-  if (!detail) notFound();
+  if (!restaurant) notFound();
 
-  const hasMenu = !!menu && menu.sections.length > 0 && menu.items.length > 0;
+  const heroPhoto = detail?.photos?.[0] ?? restaurant.photoUrl ?? undefined;
 
   return (
-    <div className="min-h-screen bg-surface-bg px-4 py-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-surface-bg">
+      <div className="px-4 pt-4">
         <span
           data-testid="tavli-wordmark"
           className="font-display text-xl font-bold text-brand-primary tracking-tight"
         >
           Tavli
         </span>
-
-        <header className="mt-8 text-center">
-          <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-            {detail.name}
-          </h1>
-          <p className="text-sm text-text-muted mt-2">
-            {formatCuisines(detail.cuisines)} · {PRICE_LABELS[detail.priceLevel]}
-          </p>
-        </header>
-
-        <div className="mt-8">
-          {hasMenu ? (
-            <MenuViewer menu={menu!} />
-          ) : (
-            <div className="rounded-card border border-border bg-surface-white p-8 text-center">
-              <p className="font-display text-xl font-bold text-text-primary">
-                Menu coming soon
-              </p>
-              <p className="text-sm text-text-secondary mt-2">
-                Please ask your server for a printed copy.
-              </p>
-            </div>
-          )}
-        </div>
-
-        <footer className="mt-12 text-center text-xs text-text-muted">
-          powered by{" "}
-          <Link
-            href={`/${city}/${slug}`}
-            className="text-brand-primary hover:underline"
-          >
-            tavli.ro
-          </Link>
-        </footer>
       </div>
+
+      <MenuPageClient
+        city={city}
+        slug={slug}
+        restaurant={restaurant}
+        menu={menu}
+        heroPhoto={heroPhoto}
+      />
+
+      <footer className="py-8 text-center text-xs text-text-muted">
+        powered by{" "}
+        <Link
+          href={`/${city}/${slug}`}
+          className="text-brand-primary hover:underline"
+        >
+          tavli.ro
+        </Link>
+      </footer>
     </div>
   );
 }
