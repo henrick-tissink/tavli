@@ -25,6 +25,8 @@ import { supabaseAnon } from "@/lib/db/anon";
 import { resolvePhotoUrl } from "@/lib/storage";
 import type { AvailabilitySlot } from "@/lib/seo/restaurant-jsonld";
 import { computeSlots } from "@/lib/availability";
+import { getReviewsForRestaurant } from "@/lib/repos/reviews-repo";
+import { processReviews } from "@/lib/review-processor";
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
@@ -161,8 +163,8 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     fetchTodaySlots(data.id as string),
   ]);
 
-  const emptyIntelligence: ReviewIntelligence | null = null;
-  const reviews: Review[] = [];
+  const reviews = await getReviewsForRestaurant(data.id as string, 20);
+  const reviewIntelligence = processReviews(reviews);
 
   return {
     ...base,
@@ -174,7 +176,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     schedule: (data.schedule as { days: string; hours: string }[]) ?? [],
     address: (data.address as string) ?? "",
     tags: (data.tags as string[]) ?? [],
-    reviewIntelligence: emptyIntelligence,
+    reviewIntelligence,
     reviews,
     nearby,
     websiteUrl: (data.website_url as string) ?? undefined,
