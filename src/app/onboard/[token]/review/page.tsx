@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { getOnboardingState } from "@/lib/onboarding";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { PublishButton } from "@/components/onboarding/PublishButton";
+import { ReviewPolicyDisclosure } from "@/components/onboarding/review-policy-disclosure";
 import { resolvePhotoUrl } from "@/lib/storage";
 import { formatCuisines } from "@/lib/types";
 
@@ -125,6 +126,8 @@ export default async function OnboardingReviewPage({
           )}
         </div>
       </div>
+
+      <ReviewPolicyDisclosure />
 
       <div className="mt-8">
         <PublishButton />
