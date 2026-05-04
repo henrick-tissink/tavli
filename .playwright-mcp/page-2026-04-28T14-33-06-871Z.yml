@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Tavli
+        - button "Select city" [ref=e7]:
+          - generic [ref=e8]: București
+          - img [ref=e9]
+      - generic [ref=e12]:
+        - img [ref=e13]
+        - textbox "Search restaurants, cuisines..." [ref=e16] [cursor=pointer]
+      - generic [ref=e17]:
+        - button "Saved restaurants" [ref=e18]:
+          - img [ref=e19]
+        - button "Profile" [ref=e21]:
+          - img [ref=e22]
+  - main [ref=e25]:
+    - generic [ref=e26]:
+      - heading "Restaurant not found" [level=1] [ref=e27]
+      - link "Go back" [ref=e28] [cursor=pointer]:
+        - /url: /bucuresti
+  - alert [ref=e29]

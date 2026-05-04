@@ -5,15 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
 import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
-
-function appOrigin(): string {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000")
-  );
-}
+import { appOrigin } from "@/lib/app-origin";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

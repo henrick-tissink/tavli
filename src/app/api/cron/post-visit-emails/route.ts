@@ -2,20 +2,12 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { PostVisitReviewEmail } from "@/emails/PostVisitReviewEmail";
+import { appOrigin } from "@/lib/app-origin";
 
 export const dynamic = "force-dynamic";
 
 const POST_VISIT_DELAY_MS = 4 * 3600_000; // 4 hours
 const MAX_AGE_DAYS = 14;
-
-function appOrigin(): string {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000")
-  );
-}
 
 export async function POST(req: Request): Promise<Response> {
   const auth = req.headers.get("authorization");

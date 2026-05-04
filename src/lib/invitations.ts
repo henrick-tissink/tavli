@@ -8,6 +8,7 @@
 
 import "server-only";
 import { randomBytes, createHash } from "node:crypto";
+import { appOrigin } from "@/lib/app-origin";
 
 export const INVITATION_TTL_DAYS = 14;
 
@@ -26,12 +27,7 @@ export function hashInvitationToken(raw: string): string {
 }
 
 export function invitationUrl(rawToken: string): string {
-  const origin =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
-  return `${origin}/onboard/${rawToken}`;
+  return `${appOrigin()}/onboard/${rawToken}`;
 }
 
 export function invitationExpiresAt(): Date {

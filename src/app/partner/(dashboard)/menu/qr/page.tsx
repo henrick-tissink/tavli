@@ -1,15 +1,17 @@
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
+import { appOrigin } from "@/lib/app-origin";
 import { MenuQrPreview } from "./MenuQrPreview";
 
 export const dynamic = "force-dynamic";
 
-function appOrigin(): string {
+function MissingState({ message }: { message: string }) {
   return (
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000")
+    <div className="px-4 py-6 desktop:px-8 desktop:py-8">
+      <div className="bg-surface-white rounded-card border border-border p-10 text-center">
+        <p className="font-semibold text-text-primary">{message}</p>
+      </div>
+    </div>
   );
 }
 
@@ -24,21 +26,19 @@ export default async function PartnerMenuQrPage() {
     .maybeSingle();
 
   if (!row) {
-    return (
-      <div className="px-4 py-6 desktop:px-8 desktop:py-8">
-        <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="font-semibold text-text-primary">
-            No restaurant linked to this account.
-          </p>
-        </div>
-      </div>
-    );
+    return <MissingState message="No restaurant linked to this account." />;
   }
 
   const cityField = row.cities as { slug: string } | { slug: string }[] | null;
   const citySlug = Array.isArray(cityField)
     ? cityField[0]?.slug ?? ""
     : cityField?.slug ?? "";
+
+  if (!citySlug) {
+    return (
+      <MissingState message="Your restaurant isn't linked to a city yet — contact support so we can fix that before you print." />
+    );
+  }
 
   const menuUrl = `${appOrigin()}/${citySlug}/${row.slug}/menu`;
 
