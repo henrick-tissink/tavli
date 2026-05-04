@@ -16,8 +16,6 @@ import type {
   Menu,
   MenuItem,
   MenuSection,
-  Review,
-  ReviewIntelligence,
 } from "@/lib/types";
 import * as mock from "@/lib/mock-data";
 import * as menuMock from "@/lib/menu-data";
