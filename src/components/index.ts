@@ -1,7 +1,7 @@
 export { Button } from "./button";
 export { Pill } from "./pill";
 export { Avatar } from "./avatar";
-export { RatingBadge } from "./rating-badge";
+export { RatingChip } from "./rating-chip";
 export { StatusBadge } from "./status-badge";
 export { TimeSlotPills } from "./time-slot-pills";
 export { BottomSheet } from "./bottom-sheet";
