@@ -6,6 +6,7 @@ import { ArrowLeft, Star } from "lucide-react";
 import type { Menu, MenuItem, Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { MenuItemCard } from "./menu-item-card";
+import { RatingChip } from "./rating-chip";
 import { MenuItemDetailSheet } from "./menu-item-detail-sheet";
 import {
   DietaryFilterRow,
@@ -198,10 +199,11 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
               </p>
             )}
             <div className="flex items-center gap-3 mt-3 text-sm flex-wrap">
-              <span className="inline-flex items-center gap-1 font-bold bg-white/95 text-text-primary rounded-pill px-2.5 py-0.5">
-                {restaurant.rating.toFixed(1)}
-                <Star size={12} className="fill-brand-primary text-brand-primary" />
-              </span>
+              <RatingChip
+                rating={restaurant.rating}
+                voteCount={restaurant.voteCount}
+                className="inline-flex items-center gap-1 font-bold bg-white/95 text-text-primary rounded-pill px-2.5 py-0.5"
+              />
               <span className="opacity-90">{PRICE_LABELS[restaurant.priceLevel]}</span>
               {heroPriceRange && (
                 <>

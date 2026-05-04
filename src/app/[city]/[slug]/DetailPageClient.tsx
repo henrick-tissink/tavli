@@ -8,7 +8,7 @@ import { MapPin, ExternalLink, FileText } from "lucide-react";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import type { RestaurantDetail } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { RatingBadge } from "@/components/rating-badge";
+import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/button";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -296,7 +296,11 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               {restaurant.name}
             </p>
           </div>
-          <RatingBadge rating={restaurant.rating} />
+          <RatingChip
+            rating={restaurant.rating}
+            voteCount={restaurant.voteCount}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
+          />
           <Button onClick={() => openSheet()}>Book a Table</Button>
         </div>
       )}
@@ -310,6 +314,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         restaurantId={restaurant.id}
         restaurantName={restaurant.name}
         rating={restaurant.rating}
+        voteCount={restaurant.voteCount}
         availableSlots={restaurant.availableSlots}
         preSelectedSlot={preSelectedSlot}
         onBookingConfirmed={(data) => {
@@ -343,7 +348,11 @@ function InfoBlock({
         <h1 className="text-[28px] font-extrabold text-text-primary leading-tight">
           {restaurant.name}
         </h1>
-        <RatingBadge rating={restaurant.rating} voteCount={restaurant.voteCount} />
+        <RatingChip
+          rating={restaurant.rating}
+          voteCount={restaurant.voteCount}
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
+        />
       </div>
       <p className="text-sm text-text-secondary mt-1">
         {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]}

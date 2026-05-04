@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
-import { RatingBadge } from "@/components/rating-badge";
+import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 
@@ -61,7 +61,11 @@ export function RestaurantCard({
 
         {/* Top-left badges */}
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
-          <RatingBadge rating={restaurant.rating} variant="overlay" />
+          <RatingChip
+              rating={restaurant.rating}
+              voteCount={restaurant.voteCount}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-black/45 backdrop-blur-sm text-white"
+            />
           <StatusBadge
             status={restaurant.status}
             closesAt={restaurant.closesAt}
@@ -101,7 +105,11 @@ export function RestaurantCard({
           <h3 className="font-bold text-text-primary truncate text-[17px]">
             {restaurant.name}
           </h3>
-          <RatingBadge rating={restaurant.rating} variant="inline" />
+          <RatingChip
+            rating={restaurant.rating}
+            voteCount={restaurant.voteCount}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
+          />
         </div>
 
         {/* Row 2: Cuisine · Price · Zone */}

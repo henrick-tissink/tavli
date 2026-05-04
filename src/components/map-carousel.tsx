@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
-import { RatingBadge } from "@/components/rating-badge";
+import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 
 interface MapCarouselProps {
@@ -82,7 +82,10 @@ export function MapCarousel({
                   {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
                   {restaurant.zone}
                 </p>
-                <RatingBadge rating={restaurant.rating} variant="inline" />
+                <RatingChip
+                  rating={restaurant.rating}
+                  voteCount={restaurant.voteCount}
+                />
                 <TimeSlotPills
                   slots={restaurant.availableSlots}
                   maxVisible={3}

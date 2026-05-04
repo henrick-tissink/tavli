@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { CheckCircle } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
-import { RatingBadge } from "./rating-badge";
+import { RatingChip } from "./rating-chip";
 import { TimeSlotPills } from "./time-slot-pills";
 import { Pill } from "./pill";
 import { Button } from "./button";
@@ -15,6 +15,7 @@ interface ReservationSheetProps {
   restaurantId?: string;
   restaurantName: string;
   rating: number;
+  voteCount?: number;
   availableSlots: string[];
   zones?: string[];
   preSelectedSlot?: string;
@@ -35,6 +36,7 @@ export function ReservationSheet({
   restaurantId,
   restaurantName,
   rating,
+  voteCount = 0,
   availableSlots,
   zones,
   preSelectedSlot,
@@ -197,7 +199,7 @@ export function ReservationSheet({
         {/* Restaurant name + rating */}
         <div className="flex items-center gap-2">
           <span className="font-bold text-text-primary">{restaurantName}</span>
-          <RatingBadge rating={rating} />
+          <RatingChip rating={rating} voteCount={voteCount} />
         </div>
 
         {/* Guest selector */}
