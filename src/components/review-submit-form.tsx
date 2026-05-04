@@ -38,7 +38,11 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
 
   if (done) {
     return (
-      <div className="rounded-card bg-brand-primary-soft p-6 text-center">
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-card bg-brand-primary-soft p-6 text-center"
+      >
         <p className="font-display text-xl font-bold text-brand-primary-dark">
           Thanks — your review is in.
         </p>
@@ -64,11 +68,11 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
                 value={n}
                 checked={rating === n}
                 onChange={() => setRating(n)}
-                className="sr-only"
+                className="sr-only peer"
               />
               <span
-                className={`text-3xl ${
-                  n <= rating ? "text-brand-primary" : "text-gray-300"
+                className={`text-3xl rounded peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-primary ${
+                  n <= rating ? "text-brand-primary" : "text-text-muted"
                 }`}
               >
                 ★
@@ -86,21 +90,23 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
           maxLength={MAX_COMMENT}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
+          aria-describedby="review-comment-count"
           className="mt-2 block w-full rounded-lg border border-border p-3 text-sm"
           placeholder="What stood out?"
         />
-        <span className="text-xs text-text-muted">
+        <span id="review-comment-count" className="text-xs text-text-muted">
           {comment.length}/{MAX_COMMENT}
         </span>
       </label>
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error" role="alert">
           {error}
         </p>
       )}
       <button
         type="submit"
         disabled={submitting}
+        aria-busy={submitting}
         className="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg disabled:opacity-50"
       >
         {submitting ? "Submitting…" : "Submit review"}
