@@ -88,22 +88,23 @@ Create `src/components/__tests__/menu-qr-card.test.tsx`:
 import { render, screen } from "@testing-library/react";
 import { MenuQrCard } from "@/components/menu-qr-card";
 
-const appendMock = jest.fn();
-const ctorMock = jest.fn();
+// Auto-mock: jest replaces the module with a jest.fn() automatically.
+// We then drive the constructor's behaviour per test via mockImplementation.
+// Avoids the variable-hoist gotcha you'd hit with a factory function that
+// closes over names not prefixed with `mock`.
+jest.mock("qr-code-styling");
 
-jest.mock("qr-code-styling", () => {
-  return jest.fn().mockImplementation((opts: unknown) => {
-    ctorMock(opts);
-    return { append: appendMock };
-  });
+import QRCodeStyling from "qr-code-styling";
+const MockedCtor = QRCodeStyling as unknown as jest.Mock;
+const mockAppend = jest.fn();
+
+beforeEach(() => {
+  MockedCtor.mockReset();
+  mockAppend.mockReset();
+  MockedCtor.mockImplementation(() => ({ append: mockAppend }));
 });
 
 describe("MenuQrCard", () => {
-  beforeEach(() => {
-    appendMock.mockReset();
-    ctorMock.mockReset();
-  });
-
   test("renders restaurant name, decorative mark, caption, and credit", () => {
     render(
       <MenuQrCard
@@ -124,8 +125,8 @@ describe("MenuQrCard", () => {
         menuUrl="https://tavli.ro/bucuresti/trattoria-roma/menu"
       />,
     );
-    expect(ctorMock).toHaveBeenCalledTimes(1);
-    const opts = ctorMock.mock.calls[0][0];
+    expect(MockedCtor).toHaveBeenCalledTimes(1);
+    const opts = MockedCtor.mock.calls[0][0];
     expect(opts.data).toBe("https://tavli.ro/bucuresti/trattoria-roma/menu");
     expect(opts.dotsOptions).toEqual({ type: "dots", color: "#F97316" });
     expect(opts.cornersSquareOptions).toEqual({
@@ -134,7 +135,7 @@ describe("MenuQrCard", () => {
     });
     expect(opts.backgroundOptions).toEqual({ color: "#FEF0DC" });
     expect(opts.qrOptions).toEqual({ errorCorrectionLevel: "H" });
-    expect(appendMock).toHaveBeenCalledTimes(1);
+    expect(mockAppend).toHaveBeenCalledTimes(1);
   });
 
   test("size='single' uses the larger 280px QR", () => {
@@ -145,7 +146,7 @@ describe("MenuQrCard", () => {
         size="single"
       />,
     );
-    const opts = ctorMock.mock.calls[0][0];
+    const opts = MockedCtor.mock.calls[0][0];
     expect(opts.width).toBe(280);
     expect(opts.height).toBe(280);
     const root = screen.getByTestId("menu-qr-card");
@@ -160,7 +161,7 @@ describe("MenuQrCard", () => {
         size="tile"
       />,
     );
-    const opts = ctorMock.mock.calls[0][0];
+    const opts = MockedCtor.mock.calls[0][0];
     expect(opts.width).toBe(140);
     expect(opts.height).toBe(140);
     const root = screen.getByTestId("menu-qr-card");
