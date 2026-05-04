@@ -4,6 +4,7 @@ import {
   MenuEditor,
   type MenuSectionData,
 } from "@/components/partner/MenuEditor";
+import { PrintQrButton } from "./PrintQrButton";
 
 export const dynamic = "force-dynamic";
 
@@ -64,14 +65,17 @@ export default async function PartnerMenuPage() {
 
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
-      <header className="mb-6">
-        <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Menu
-        </h1>
-        <p className="text-sm text-text-secondary mt-1">
-          Sections, dishes, prices, dietary tags, chef&apos;s picks. Changes
-          show on your public page immediately.
-        </p>
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
+            Menu
+          </h1>
+          <p className="text-sm text-text-secondary mt-1">
+            Sections, dishes, prices, dietary tags, chef&apos;s picks. Changes
+            show on your public page immediately.
+          </p>
+        </div>
+        <PrintQrButton menuItemCount={(itemsRaw ?? []).length} />
       </header>
 
       <MenuEditor sections={sections} />
