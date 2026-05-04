@@ -40,6 +40,7 @@ yarn-error.log*
 
 # project-specific
 .superpowers/
+.playwright-mcp/
 ialoc-*.png
 
 # typescript
