@@ -27,7 +27,7 @@ function buildAdminMock(opts: {
     data: reservation,
     error: reservation ? null : { message: "not found" },
   });
-  const reservationsChain = {
+  const reservationsChain: Record<string, jest.Mock> = {
     select: jest.fn(() => reservationsChain),
     eq: jest.fn(() => reservationsChain),
     maybeSingle: single,
