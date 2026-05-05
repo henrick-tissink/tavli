@@ -290,7 +290,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
       </div>
 
       {showStickyCta && (
-        <div className="fixed bottom-16 desktop:bottom-0 left-0 right-0 z-40 bg-surface-white border-t border-border p-3 flex items-center gap-3">
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface-white border-t border-border p-3 flex items-center gap-3 desktop:hidden">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-text-primary truncate">
               {restaurant.name}
