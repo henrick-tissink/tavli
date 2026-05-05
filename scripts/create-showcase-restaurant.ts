@@ -1,0 +1,303 @@
+/**
+ * Idempotent: creates (or replaces) the showcase restaurant Tavli uses to
+ * demo the platform to prospective partners. Re-running drops the existing
+ * showcase + cascading menu/availability and re-creates from this file's
+ * single source of truth.
+ *
+ * Photos are intentionally NOT seeded here — those will be AI-generated and
+ * uploaded via the partner UI / a follow-up script.
+ */
+import { config } from "dotenv";
+config({ path: ".env.prod" });
+import { createClient } from "@supabase/supabase-js";
+
+const OWNER_EMAIL = process.env.SHOWCASE_OWNER_EMAIL ?? "hltissink+claude-tavli-qa@gmail.com";
+const CITY_SLUG = "bucuresti";
+const SLUG = "atelier-floreasca";
+
+interface ItemSpec {
+  name: string;
+  description: string;
+  priceLei: number;
+  dietaryTags?: Array<"vegetarian" | "vegan" | "gluten_free" | "spicy" | "chef_pick" | "popular">;
+  isChefPick?: boolean;
+}
+
+interface SectionSpec {
+  name: string;
+  intro?: string;
+  items: ItemSpec[];
+}
+
+const SECTIONS: SectionSpec[] = [
+  {
+    name: "Începuturi",
+    intro: "Provocări mici pentru deschiderea mesei. De împărțit, de durat.",
+    items: [
+      {
+        name: "Pâine de casă cu unt afumat și sare de Praid",
+        description:
+          "Pâine cu maia naturală fermentată 36h, unt bătut cu lemn de fag, sare grunjoasă din Salina Praid.",
+        priceLei: 22,
+        dietaryTags: ["vegetarian"],
+      },
+      {
+        name: "Burrată de Andria, sfeclă coaptă și pesto de leuștean",
+        description:
+          "Burrată proaspătă din Puglia, sfeclă neagră coaptă în sare, pesto de leuștean, ulei de in cernut la rece.",
+        priceLei: 48,
+        dietaryTags: ["vegetarian", "gluten_free", "chef_pick"],
+        isChefPick: true,
+      },
+      {
+        name: "Tartar de vită cu gălbenuș confit și pâine prăjită",
+        description:
+          "Vită Black Angus tăiată cu cuțitul, gălbenuș confit 60°C, capere fritura, pâine prăjită cu unt brun.",
+        priceLei: 62,
+        dietaryTags: ["popular"],
+      },
+      {
+        name: "Ciuperci sălbatice pe mămăligă moale",
+        description:
+          "Hribi, gălbiori și mâzgălici sotați cu cimbru și usturoi negru, mămăligă cu unt și brânză de burduf, mărar.",
+        priceLei: 42,
+        dietaryTags: ["vegetarian", "gluten_free"],
+      },
+    ],
+  },
+  {
+    name: "Felul Principal",
+    intro: "Carne lentă, pește prins în săptămâna asta, și două opțiuni vegetariene fără compromis.",
+    items: [
+      {
+        name: "Tochitură de porc Mangalița, mămăligă și ou ochi",
+        description:
+          "Mangaliță din Banat gătită lent 6h, mămăligă cu telemea de oaie, ou ochi de la Pădureni, murături de casă.",
+        priceLei: 92,
+        dietaryTags: ["chef_pick", "popular"],
+        isChefPick: true,
+      },
+      {
+        name: "Sarmale aristocratice cu mămăligă și smântână",
+        description:
+          "Sarmale în foi de viță, carne de porc și vițel, gătite în vin alb și boia dulce, mămăligă pripită, smântână de la Cluj.",
+        priceLei: 78,
+        dietaryTags: ["popular"],
+      },
+      {
+        name: "File de biban de Crișana cu legume de sezon",
+        description:
+          "Biban prins în Crișana, glasat cu unt brun și migdale, mazăre proaspătă, sparanghel verde, ulei de pătrunjel.",
+        priceLei: 124,
+        dietaryTags: ["gluten_free"],
+      },
+      {
+        name: "Risotto cu hribi și parmigiano 36 luni",
+        description:
+          "Carnaroli cu fond de hribi uscați la munte, parmigiano reggiano 36 luni, ulei de trufe albe Alba.",
+        priceLei: 76,
+        dietaryTags: ["vegetarian", "gluten_free"],
+      },
+      {
+        name: "Coastă de vită afumată 14 ore",
+        description:
+          "Coastă afumată cu lemn de cireș, glasaj de vin roșu și miere de mănăstire, cartofi confit în grăsime de rață.",
+        priceLei: 138,
+        dietaryTags: ["chef_pick"],
+        isChefPick: true,
+      },
+    ],
+  },
+  {
+    name: "Deserturi",
+    intro: "Trei finaluri: clasic românesc, clasic european, și o ușoară surpriză.",
+    items: [
+      {
+        name: "Papanași cu dulceață de afine și smântână",
+        description:
+          "Papanași prăjiți la comandă, dulceață de afine de munte fiartă în casă, smântână grasă din Bucovina, mentă proaspătă.",
+        priceLei: 32,
+        dietaryTags: ["chef_pick", "popular"],
+        isChefPick: true,
+      },
+      {
+        name: "Tartă de mere cu crustă de migdale și înghețată de scorțișoară",
+        description:
+          "Mere golden românești coapte cu zahăr brun, crustă moale de migdale, înghețată de scorțișoară bătută în casă.",
+        priceLei: 28,
+        dietaryTags: ["vegetarian"],
+      },
+      {
+        name: "Crème brûlée de lavandă",
+        description:
+          "Cremă onctuoasă cu lavandă proaspătă, crustă de zahăr brun caramelizată la momentul servirii.",
+        priceLei: 26,
+        dietaryTags: ["vegetarian", "gluten_free"],
+      },
+    ],
+  },
+  {
+    name: "Băuturi Selecte",
+    intro: "Vin natural, ape lente, și o cafea pe care o cumpărăm singuri.",
+    items: [
+      {
+        name: "Fetească Neagră 2021 — Crama Bauer (sticlă)",
+        description:
+          "Dealu Mare. Fructe de pădure, condimente blânde și o notă delicată de fum. Pereche bună cu Mangalița și coasta de vită.",
+        priceLei: 145,
+      },
+      {
+        name: "Limonadă de soc cu mentă și pepene",
+        description:
+          "Soc proaspăt cules din pădurile Transilvaniei, mentă crispă, pepene roșu, gheață sferică.",
+        priceLei: 22,
+        dietaryTags: ["vegan", "gluten_free"],
+      },
+      {
+        name: "Cafea de specialitate — Origini Comeliu",
+        description:
+          "Arabica de la o singură fermă din Yirgacheffe, prăjită săptămânal de prăjitorul Origini din București.",
+        priceLei: 18,
+        dietaryTags: ["vegan", "gluten_free"],
+      },
+    ],
+  },
+];
+
+const AVAILABILITY = [
+  { dayOfWeek: 2, slotStart: "12:00:00", slotEnd: "23:00:00", capacity: 38 }, // Tue
+  { dayOfWeek: 3, slotStart: "12:00:00", slotEnd: "23:00:00", capacity: 38 }, // Wed
+  { dayOfWeek: 4, slotStart: "12:00:00", slotEnd: "23:00:00", capacity: 38 }, // Thu
+  { dayOfWeek: 5, slotStart: "12:00:00", slotEnd: "23:30:00", capacity: 38 }, // Fri
+  { dayOfWeek: 6, slotStart: "12:00:00", slotEnd: "23:30:00", capacity: 38 }, // Sat
+  { dayOfWeek: 0, slotStart: "11:00:00", slotEnd: "22:00:00", capacity: 38 }, // Sun
+  // Mon (1) closed: no row.
+];
+
+const SCHEDULE = [
+  { days: "Mar–Sâm", hours: "12:00 – 23:00" },
+  { days: "Duminică", hours: "11:00 – 22:00" },
+  { days: "Luni", hours: "Închis" },
+];
+
+async function main() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const admin = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  // 1. resolve owner + city
+  const { data: owner } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("email", OWNER_EMAIL)
+    .maybeSingle();
+  if (!owner) throw new Error(`owner profile not found: ${OWNER_EMAIL}`);
+
+  const { data: city } = await admin
+    .from("cities")
+    .select("id")
+    .eq("slug", CITY_SLUG)
+    .maybeSingle();
+  if (!city) throw new Error(`city not found: ${CITY_SLUG}`);
+
+  // 2. drop existing showcase (cascades menu/sections/items/availability/photos)
+  await admin
+    .from("restaurants")
+    .delete()
+    .eq("slug", SLUG)
+    .eq("city_id", city.id);
+
+  // 3. insert restaurant
+  const { data: rest, error: restErr } = await admin
+    .from("restaurants")
+    .insert({
+      slug: SLUG,
+      name: "Atelier Floreasca",
+      cuisines: ["Romanian", "European"],
+      city_id: city.id,
+      zone: "Floreasca",
+      price_level: 3,
+      lat: 44.4575,
+      lng: 26.1015,
+      description:
+        "Bucătărie românească contemporană într-un atelier intim de 38 de locuri din inima Floreascăi. Meniu de sezon construit săptămânal cu producători locali, listă scurtă de vinuri naturale, lemn ars și cupru pe rețete vechi.",
+      hero_note: "Ferma în farfurie. Pădurea în pahar.",
+      address: "Strada Glinka 9, Floreasca, București",
+      phone: "+40 21 234 5678",
+      email: "hltissink+atelier-floreasca@gmail.com",
+      tags: ["seasonal", "wine-list", "intimate", "natural-wine"],
+      schedule: SCHEDULE,
+      status: "live",
+      owner_user_id: owner.id,
+    })
+    .select("id")
+    .single();
+  if (restErr || !rest) throw restErr ?? new Error("restaurant insert returned nothing");
+
+  // 4. menu (one row per restaurant)
+  const { error: menuErr } = await admin.from("menus").insert({
+    restaurant_id: rest.id,
+    currency: "lei",
+    hero_note:
+      "Meniul se schimbă cu sezonul. Întrebați-l pe ospătar despre ce a venit săptămâna asta de la fermieri.",
+  });
+  if (menuErr) throw menuErr;
+
+  // 5. sections + items
+  for (let s = 0; s < SECTIONS.length; s++) {
+    const section = SECTIONS[s];
+    const { data: sectionRow, error: sErr } = await admin
+      .from("menu_sections")
+      .insert({
+        restaurant_id: rest.id,
+        name: section.name,
+        intro: section.intro ?? null,
+        sort_order: s,
+      })
+      .select("id")
+      .single();
+    if (sErr || !sectionRow) throw sErr ?? new Error("section insert returned nothing");
+
+    const itemRows = section.items.map((it, idx) => ({
+      restaurant_id: rest.id,
+      section_id: sectionRow.id,
+      name: it.name,
+      description: it.description,
+      price_cents: it.priceLei * 100,
+      currency: "lei",
+      dietary_tags: it.dietaryTags ?? [],
+      is_chef_pick: it.isChefPick ?? false,
+      is_available: true,
+      sort_order: idx,
+    }));
+    const { error: iErr } = await admin.from("menu_items").insert(itemRows);
+    if (iErr) throw iErr;
+
+    console.log(`✓ section "${section.name}" — ${section.items.length} items`);
+  }
+
+  // 6. availability
+  const availRows = AVAILABILITY.map((a) => ({
+    restaurant_id: rest.id,
+    day_of_week: a.dayOfWeek,
+    slot_start: a.slotStart,
+    slot_end: a.slotEnd,
+    capacity: a.capacity,
+  }));
+  const { error: aErr } = await admin.from("restaurant_availability").insert(availRows);
+  if (aErr) throw aErr;
+  console.log(`✓ availability — ${availRows.length} rows`);
+
+  console.log("\n— Showcase live —");
+  console.log(`  discovery:   https://tavli.ro/${CITY_SLUG}`);
+  console.log(`  detail:      https://tavli.ro/${CITY_SLUG}/${SLUG}`);
+  console.log(`  diner menu:  https://tavli.ro/${CITY_SLUG}/${SLUG}/menu`);
+  console.log(`  partner UI:  log in as ${OWNER_EMAIL}\n`);
+}
+
+main().catch((err) => {
+  console.error("create-showcase-restaurant failed:", err);
+  process.exit(1);
+});
