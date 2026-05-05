@@ -18,7 +18,7 @@ function formatCityName(slug: string): string {
   );
 }
 
-export default async function CityLayout({
+export default async function CityShellLayout({
   children,
   params,
 }: {
