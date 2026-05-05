@@ -153,24 +153,36 @@ async function generateImage(prompt: string, aspectRatio: AspectRatio): Promise<
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) throw new Error("REPLICATE_API_TOKEN missing");
 
-  // Kick off prediction (Prefer: wait keeps it synchronous up to 60s)
-  const startRes = await fetch(`https://api.replicate.com/v1/models/${MODEL}/predictions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      Prefer: "wait=60",
-    },
-    body: JSON.stringify({
-      input: {
-        prompt,
-        aspect_ratio: aspectRatio,
-        output_format: "webp",
-        output_quality: 90,
-        safety_tolerance: 2,
+  // Kick off prediction (Prefer: wait keeps it synchronous up to 60s).
+  // Free-tier accounts are throttled to 1 burst / 6 per minute, so 429 is
+  // expected — retry with the server-supplied retry_after.
+  let startRes: Response;
+  let attempt = 0;
+  while (true) {
+    startRes = await fetch(`https://api.replicate.com/v1/models/${MODEL}/predictions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Prefer: "wait=60",
       },
-    }),
-  });
+      body: JSON.stringify({
+        input: {
+          prompt,
+          aspect_ratio: aspectRatio,
+          output_format: "webp",
+          output_quality: 90,
+          safety_tolerance: 2,
+        },
+      }),
+    });
+    if (startRes.status !== 429 || attempt >= 8) break;
+    const body = (await startRes.json().catch(() => ({}))) as { retry_after?: number };
+    const waitS = (body.retry_after ?? 12) + 1;
+    process.stdout.write(`(429, retry in ${waitS}s) `);
+    await new Promise((r) => setTimeout(r, waitS * 1000));
+    attempt++;
+  }
 
   if (!startRes.ok) {
     throw new Error(`Replicate ${startRes.status}: ${await startRes.text()}`);
@@ -243,12 +255,36 @@ async function main() {
     .maybeSingle();
   if (!restaurant) throw new Error(`restaurant not found: ${CITY_SLUG}/${SLUG}`);
 
-  // ── restaurant photos ──
-  console.log(`generating ${RESTAURANT_PHOTOS.length} restaurant photos…`);
-  await supabase.from("restaurant_photos").delete().eq("restaurant_id", restaurant.id);
+  const force = process.argv.includes("--force");
 
-  let sortOrder = 0;
-  for (const spec of RESTAURANT_PHOTOS) {
+  // ── restaurant photos ──
+  // Skip ones already in DB (gap-fill mode); --force regenerates all.
+  const { data: existingPhotos } = await supabase
+    .from("restaurant_photos")
+    .select("storage_path, sort_order")
+    .eq("restaurant_id", restaurant.id);
+  const existingPaths = new Set((existingPhotos ?? []).map((p) => p.storage_path));
+  const maxSortOrder = (existingPhotos ?? []).reduce(
+    (acc, p) => Math.max(acc, p.sort_order),
+    -1,
+  );
+
+  const restaurantToDo = force
+    ? RESTAURANT_PHOTOS
+    : RESTAURANT_PHOTOS.filter((s) => !existingPaths.has(`${SLUG}/${s.filename}`));
+
+  if (force) {
+    await supabase.from("restaurant_photos").delete().eq("restaurant_id", restaurant.id);
+  }
+
+  console.log(
+    `restaurant photos: ${restaurantToDo.length} to generate, ${
+      RESTAURANT_PHOTOS.length - restaurantToDo.length
+    } already present${force ? " (--force)" : ""}`,
+  );
+
+  let sortOrder = force ? 0 : maxSortOrder + 1;
+  for (const spec of restaurantToDo) {
     const path = `${SLUG}/${spec.filename}`;
     process.stdout.write(`  · ${spec.filename} (${spec.kind})… `);
     const bytes = await generateImage(spec.prompt, spec.aspectRatio);
@@ -263,19 +299,22 @@ async function main() {
     });
     if (error) throw error;
     console.log(`✓ (${(bytes.length / 1024).toFixed(0)}kb)`);
-    // Bump restaurants.photo_count denormalized counter implicitly via trigger — if no
-    // trigger, we'll update at the end.
   }
 
   // ── menu items ──
   const { data: items } = await supabase
     .from("menu_items")
-    .select("id, name")
+    .select("id, name, photo_storage_path")
     .eq("restaurant_id", restaurant.id);
   if (!items) throw new Error("no menu items found");
 
-  console.log(`\ngenerating ${items.length} menu item photos…`);
-  for (const item of items) {
+  const itemsToDo = force ? items : items.filter((i) => !i.photo_storage_path);
+  console.log(
+    `\nmenu item photos: ${itemsToDo.length} to generate, ${
+      items.length - itemsToDo.length
+    } already present${force ? " (--force)" : ""}`,
+  );
+  for (const item of itemsToDo) {
     const spec = MENU_ITEM_PROMPTS[item.name];
     if (!spec) {
       console.log(`  · ${item.name} — SKIPPED (no prompt mapped)`);
