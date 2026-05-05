@@ -215,6 +215,7 @@ async function dbGetMenu(slug: string): Promise<Menu | null> {
     ]);
 
   if (!menuRow || !sectionsRaw || sectionsRaw.length === 0) return null;
+  if (!itemsRaw || itemsRaw.length === 0) return null;
 
   const sections: MenuSection[] = sectionsRaw.map((s) => ({
     id: s.id,
@@ -222,7 +223,7 @@ async function dbGetMenu(slug: string): Promise<Menu | null> {
     intro: s.intro ?? undefined,
   }));
 
-  const items: MenuItem[] = (itemsRaw ?? []).map((i) => ({
+  const items: MenuItem[] = itemsRaw.map((i) => ({
     id: i.id,
     sectionId: i.section_id,
     name: i.name,
