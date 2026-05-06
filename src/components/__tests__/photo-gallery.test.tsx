@@ -43,9 +43,9 @@ describe("PhotoGallery", () => {
         onShare={onShare}
       />
     );
-    expect(screen.getByLabelText("Go back")).toBeInTheDocument();
-    expect(screen.getByLabelText("Save")).toBeInTheDocument();
-    expect(screen.getByLabelText("Share")).toBeInTheDocument();
+    expect(screen.getByLabelText("Înapoi")).toBeInTheDocument();
+    expect(screen.getByLabelText("Salvează")).toBeInTheDocument();
+    expect(screen.getByLabelText("Trimite")).toBeInTheDocument();
   });
 
   it("shows fallback when photos array is empty", () => {

@@ -39,13 +39,13 @@ export default async function RestaurantDetailPage({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <h1 className="text-xl font-bold text-text-primary">
-          Restaurant not found
+          Restaurantul nu a fost găsit
         </h1>
         <Link
           href={`/${city}`}
           className="mt-4 text-brand-primary font-semibold text-sm"
         >
-          Go back
+          Înapoi
         </Link>
       </div>
     );

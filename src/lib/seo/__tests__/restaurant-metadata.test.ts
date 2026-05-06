@@ -46,7 +46,7 @@ describe("buildRestaurantMetadata", () => {
 
   test("title follows the per-restaurant pattern", () => {
     const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
-    expect(m.title).toBe("Casa Veche — Romanian in București | Tavli");
+    expect(m.title).toBe("Casa Veche — Romanian în București | Tavli");
   });
 
   test("description is taken from the restaurant description", () => {
@@ -70,7 +70,7 @@ describe("buildRestaurantMetadata", () => {
 
   test("falls back to a tagline when description is empty", () => {
     const m = buildRestaurantMetadata(makeDetail({ description: "" }), "bucuresti");
-    expect(m.description).toBe("Romanian restaurant in București. Book a table on Tavli.");
+    expect(m.description).toBe("Restaurant Romanian în București. Rezervă o masă pe Tavli.");
   });
 
   test("canonical URL is absolute and uses citySlug", () => {
@@ -81,7 +81,7 @@ describe("buildRestaurantMetadata", () => {
   test("openGraph carries url, title, description, and hero image", () => {
     const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
     expect(m.openGraph?.url).toBe("https://tavli.ro/bucuresti/casa-veche");
-    expect(m.openGraph?.title).toBe("Casa Veche — Romanian in București | Tavli");
+    expect(m.openGraph?.title).toBe("Casa Veche — Romanian în București | Tavli");
     expect(m.openGraph?.images).toEqual([
       { url: "https://images.example.com/hero.jpg" },
     ]);
@@ -99,6 +99,6 @@ describe("buildRestaurantMetadata", () => {
     const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
     const twitter = m.twitter as { card: string; title: string };
     expect(twitter.card).toBe("summary_large_image");
-    expect(twitter.title).toBe("Casa Veche — Romanian in București | Tavli");
+    expect(twitter.title).toBe("Casa Veche — Romanian în București | Tavli");
   });
 });

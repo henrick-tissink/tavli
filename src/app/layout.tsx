@@ -18,8 +18,8 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Tavli — Find Your Table",
-  description: "Discover and book restaurants in Romania and Turkey",
+  title: "Tavli — Găsește-ți masa",
+  description: "Descoperă și rezervă restaurante din România",
   verification: {
     google: "qv3pydAGHoDHw7x-3LSbJRM99HuuBxD5HCVpvMROJmE",
   },
@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="ro" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="font-sans">
         {children}
         <Toaster />
