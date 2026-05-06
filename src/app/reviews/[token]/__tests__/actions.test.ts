@@ -83,13 +83,15 @@ describe("submitReviewByToken", () => {
     expect(r.errorCode).toBe("INELIGIBLE");
   });
 
-  test("inserts a review with first-name only", async () => {
+  test("inserts a review with first-name only and snapshots booking context", async () => {
     const { reviewsChain } = buildAdminMock({
       reservation: {
         id: "res-1",
         restaurant_id: "rest-1",
         guest_name: "Ana Pop",
         status: "confirmed",
+        party_size: 2,
+        reservation_date: "2026-04-29",
       },
     });
     const r = await submitReviewByToken("tok", {
@@ -103,6 +105,8 @@ describe("submitReviewByToken", () => {
       rating: 4,
       comment: "Lovely",
       first_name: "Ana",
+      party_size: 2,
+      reservation_date: "2026-04-29",
     });
   });
 

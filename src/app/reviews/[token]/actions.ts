@@ -42,7 +42,9 @@ export async function submitReviewByToken(
 
   const { data: resv } = await admin
     .from("reservations")
-    .select("id, restaurant_id, guest_name, status")
+    .select(
+      "id, restaurant_id, guest_name, status, party_size, reservation_date",
+    )
     .eq("confirmation_token", token)
     .maybeSingle();
 
@@ -65,6 +67,8 @@ export async function submitReviewByToken(
       rating: input.rating,
       comment: comment || null,
       first_name: firstNameFrom(resv.guest_name),
+      party_size: resv.party_size,
+      reservation_date: resv.reservation_date,
     })
     .select("id");
 

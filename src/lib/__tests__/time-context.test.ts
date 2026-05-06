@@ -1,4 +1,4 @@
-import { computeTimeContext } from "../time-context";
+import { computeTimeContext, fillSubtext } from "../time-context";
 
 describe("computeTimeContext", () => {
   it("Monday 8am → morning active", () => {
@@ -89,7 +89,7 @@ describe("computeTimeContext", () => {
     const d = new Date(2026, 3, 14, 12, 0);
     const ctx = computeTimeContext(d);
     expect(ctx.greeting).toBe("E ora prânzului");
-    expect(ctx.subtextTemplate).toBe("{N} locuri cu servire rapidă");
+    expect(ctx.subtextTemplate).toBe("{N} {P:loc|locuri} cu servire rapidă");
   });
 
   it("late greeting at 2am — no city interpolation", () => {
@@ -103,7 +103,7 @@ describe("computeTimeContext", () => {
     const d = new Date(2026, 3, 16, 15, 0);
     const ctx = computeTimeContext(d);
     expect(ctx.greeting).toBe("Bună ziua");
-    expect(ctx.subtextTemplate).toBe("{N} cafenele lângă tine");
+    expect(ctx.subtextTemplate).toBe("{N} {P:cafenea|cafenele} lângă tine");
   });
 
   it("greetings never contain {city} interpolation token or city names", () => {
@@ -124,5 +124,44 @@ describe("computeTimeContext", () => {
     // evening pill (Cină) should come first, then Cocktailuri if room
     expect(labels).toContain("Cină");
     expect(labels).toContain("Cocktailuri");
+  });
+});
+
+describe("fillSubtext", () => {
+  it("uses singular form when n=1", () => {
+    expect(fillSubtext("{N} {P:loc|locuri} de explorat", 1)).toBe(
+      "1 loc de explorat",
+    );
+  });
+
+  it("uses plural form when n>1", () => {
+    expect(fillSubtext("{N} {P:loc|locuri} de explorat", 5)).toBe(
+      "5 locuri de explorat",
+    );
+  });
+
+  it("uses plural form when n=0", () => {
+    expect(fillSubtext("{N} {P:loc|locuri} de explorat", 0)).toBe(
+      "0 locuri de explorat",
+    );
+  });
+
+  it("handles multi-word singular/plural pairs", () => {
+    expect(
+      fillSubtext("{N} {P:loc disponibil|locuri disponibile} diseară", 1),
+    ).toBe("1 loc disponibil diseară");
+    expect(
+      fillSubtext("{N} {P:loc disponibil|locuri disponibile} diseară", 3),
+    ).toBe("3 locuri disponibile diseară");
+  });
+
+  it("handles multiple {P:...} tokens in one template", () => {
+    expect(
+      fillSubtext("{N} {P:cafenea|cafenele} {P:deschisă|deschise}", 1),
+    ).toBe("1 cafenea deschisă");
+  });
+
+  it("template without tokens passes through with {N} substituted", () => {
+    expect(fillSubtext("{N} explored", 7)).toBe("7 explored");
   });
 });

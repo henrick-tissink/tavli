@@ -14,7 +14,7 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 import { useFilters } from "@/lib/filter-context";
-import { useTimeContext } from "@/lib/time-context";
+import { useTimeContext, fillSubtext } from "@/lib/time-context";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -111,9 +111,9 @@ export function FeedPageClient({
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
         <ContextBanner
           greeting={timeContext.greeting}
-          subtext={timeContext.subtextTemplate.replace(
-            "{N}",
-            String(filteredRestaurants.length),
+          subtext={fillSubtext(
+            timeContext.subtextTemplate,
+            filteredRestaurants.length,
           )}
         />
 

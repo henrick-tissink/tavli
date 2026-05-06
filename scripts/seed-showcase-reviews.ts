@@ -131,6 +131,8 @@ async function main() {
       rating: r.rating,
       comment: r.comment,
       first_name: r.firstName,
+      party_size: r.partySize,
+      reservation_date: dateStr,
     });
     if (revErr) throw revErr;
 

@@ -14,23 +14,18 @@ interface RawReviewRow {
   comment: string | null;
   first_name: string;
   created_at: string;
-  reservations:
-    | { reservation_date: string; party_size: number }
-    | { reservation_date: string; party_size: number }[]
-    | null;
+  party_size: number;
+  reservation_date: string;
 }
 
 export function mapRowToReview(row: RawReviewRow): Review {
-  const resv = Array.isArray(row.reservations)
-    ? row.reservations[0]
-    : row.reservations;
   return {
     id: row.id,
     authorName: row.first_name,
     rating: row.rating,
     date: row.created_at.slice(0, 10),
-    reservationDate: resv?.reservation_date ?? row.created_at.slice(0, 10),
-    guestCount: resv?.party_size ?? 0,
+    reservationDate: row.reservation_date,
+    guestCount: row.party_size,
     text: row.comment ?? "",
     // Phase 1: no helpful_count column; UI button is decorative until Phase 2.
     helpfulCount: 0,
@@ -46,11 +41,10 @@ export async function getReviewsForRestaurant(
   const { data } = await sb
     .from("reviews")
     .select(
-      "id, rating, comment, first_name, created_at, reservations(reservation_date, party_size)",
+      "id, rating, comment, first_name, created_at, party_size, reservation_date",
     )
     .eq("restaurant_id", restaurantId)
     .order("created_at", { ascending: false })
     .limit(limit);
-  // Supabase can't statically resolve nested-FK cardinality; cast through unknown.
-  return (data ?? []).map((r) => mapRowToReview(r as unknown as RawReviewRow));
+  return (data ?? []).map((r) => mapRowToReview(r as RawReviewRow));
 }

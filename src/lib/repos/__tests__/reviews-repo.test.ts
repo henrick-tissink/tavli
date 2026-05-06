@@ -22,10 +22,8 @@ describe("mapRowToReview", () => {
       comment: "Lovely",
       first_name: "Ana",
       created_at: "2026-04-30T10:00:00Z",
-      reservations: {
-        reservation_date: "2026-04-29",
-        party_size: 2,
-      },
+      party_size: 2,
+      reservation_date: "2026-04-29",
     });
     expect(r).toEqual({
       id: "rev-1",
@@ -45,7 +43,8 @@ describe("mapRowToReview", () => {
       comment: null,
       first_name: "Bogdan",
       created_at: "2026-04-30T10:00:00Z",
-      reservations: { reservation_date: "2026-04-29", party_size: 4 },
+      party_size: 4,
+      reservation_date: "2026-04-29",
     });
     expect(r.text).toBe("");
   });

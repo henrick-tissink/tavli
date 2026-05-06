@@ -32,29 +32,40 @@ const GREETING_PRIORITY: TimeContextId[] = [
 const GREETING_MAP: Record<string, { greeting: string; subtextTemplate: string }> = {
   morning: {
     greeting: "Bună dimineața",
-    subtextTemplate: "{N} cafenele și locuri pentru brunch deschise în apropiere",
+    subtextTemplate: "{N} {P:loc|locuri} pentru cafea sau brunch lângă tine",
   },
   brunch: {
     greeting: "E timpul de brunch",
-    subtextTemplate: "{N} locuri pentru brunch cu mese libere",
+    subtextTemplate: "{N} {P:loc|locuri} pentru brunch cu mese libere",
   },
   lunch: {
     greeting: "E ora prânzului",
-    subtextTemplate: "{N} locuri cu servire rapidă",
+    subtextTemplate: "{N} {P:loc|locuri} cu servire rapidă",
   },
   afternoon: {
     greeting: "Bună ziua",
-    subtextTemplate: "{N} cafenele lângă tine",
+    subtextTemplate: "{N} {P:cafenea|cafenele} lângă tine",
   },
   evening: {
     greeting: "Bună seara",
-    subtextTemplate: "{N} locuri disponibile diseară",
+    subtextTemplate: "{N} {P:loc disponibil|locuri disponibile} diseară",
   },
   late: {
     greeting: "Tot mai e poftă?",
-    subtextTemplate: "{N} locuri deschise până târziu lângă tine",
+    subtextTemplate: "{N} {P:loc deschis|locuri deschise} până târziu lângă tine",
   },
 };
+
+// Romanian agrees in singular vs plural with no special handling for 0/many,
+// so the rule is simply N === 1 → singular, otherwise plural.
+export function fillSubtext(template: string, n: number): string {
+  const isSingular = n === 1;
+  return template
+    .replace(/\{P:([^|]+)\|([^}]+)\}/g, (_m, sing, plur) =>
+      isSingular ? sing : plur,
+    )
+    .replace(/\{N\}/g, String(n));
+}
 
 const PILL_MAP: Record<string, { label: string; icon: string }> = {
   morning: { label: "Mic dejun", icon: "☕" },
@@ -112,7 +123,7 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
 
   // Determine greeting using priority
   let greeting = "Descoperă";
-  let subtextTemplate = "{N} locuri de explorat";
+  let subtextTemplate = "{N} {P:loc|locuri} de explorat";
 
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
@@ -151,7 +162,7 @@ const MOCK_TEMPERATURE = 22;
 const NEUTRAL_CTX: TimeContextValue = {
   active: [],
   greeting: "Descoperă",
-  subtextTemplate: "{N} locuri de explorat",
+  subtextTemplate: "{N} {P:loc|locuri} de explorat",
   injectedPills: [],
 };
 

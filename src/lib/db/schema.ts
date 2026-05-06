@@ -336,6 +336,12 @@ export const reviews = pgTable("reviews", {
   rating: smallint("rating").notNull(),
   comment: text("comment"),
   firstName: text("first_name").notNull(),
+  // Booking context snapshotted at review-create time. The reservations row
+  // is owner-only by RLS, so the diner-facing review card can't reach it
+  // through a join. Snapshotting keeps reviews self-describing and avoids
+  // exposing other reservation columns (guest_name, phone, email) to anon.
+  partySize: smallint("party_size").notNull(),
+  reservationDate: date("reservation_date").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
