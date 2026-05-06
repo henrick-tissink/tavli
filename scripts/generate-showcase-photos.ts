@@ -95,7 +95,7 @@ const MENU_ITEM_PROMPTS: Record<string, { aspectRatio: AspectRatio; description:
     description:
       "slow-braised Mangalitsa pork stew in a small enamel pot with deep mahogany sauce, alongside a mound of yellow polenta with sheep cheese, sunny-side-up egg with bright orange yolk on top, small dish of pickled vegetables",
   },
-  "Sarmale aristocratice cu mămăligă și smântână": {
+  "Sarmalele casei cu mămăligă și smântână": {
     aspectRatio: "3:2",
     description:
       "three Romanian sarmale rolls wrapped in vine leaves glistening with rich tomato sauce, on a hand-thrown ceramic plate alongside a quenelle of sour cream and a mound of yellow polenta, fresh dill garnish",

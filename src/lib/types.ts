@@ -102,6 +102,7 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   lat: number | null;
   lng: number | null;
   description: string;
+  heroNote?: string;
   photos: string[];
   schedule: { days: string; hours: string }[];
   address: string;
@@ -109,6 +110,7 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   reviewIntelligence: ReviewIntelligence | null;
   reviews: Review[];
   nearby: Restaurant[];
+  chefPicks: MenuItem[];
   websiteUrl?: string;
   menuPdfUrl?: string;
 }

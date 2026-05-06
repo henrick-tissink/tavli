@@ -592,6 +592,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     },
     reviews: makeReviews("Casa Veche"),
     nearby: [],
+    chefPicks: [],
     websiteUrl: "https://casaveche.ro",
     menuPdfUrl: "https://casaveche.ro/menu.pdf",
   },
@@ -629,6 +630,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     },
     reviews: makeReviews("Sakura Sushi"),
     nearby: [],
+    chefPicks: [],
     websiteUrl: "https://sakurasushi.ro",
   },
   "trattoria-roma": {
@@ -665,6 +667,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     },
     reviews: makeReviews("Trattoria Roma"),
     nearby: [],
+    chefPicks: [],
     websiteUrl: "https://trattoriaroma.ro",
     menuPdfUrl: "https://trattoriaroma.ro/menu.pdf",
   },
@@ -703,6 +706,7 @@ const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant>
     },
     reviews: makeReviews("Le Bistrot"),
     nearby: [],
+    chefPicks: [],
     websiteUrl: "https://lebistrot.ro",
   },
 };

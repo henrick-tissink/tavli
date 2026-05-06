@@ -36,8 +36,7 @@ describe("TimeSlotPills", () => {
 
   it("shows empty state message", () => {
     render(<TimeSlotPills slots={[]} onSelect={jest.fn()} />);
-    expect(screen.getByText("No tables tonight")).toBeInTheDocument();
-    expect(screen.getByText("Try another date")).toBeInTheDocument();
+    expect(screen.getByText(/Rezervă pentru altă zi/)).toBeInTheDocument();
   });
 
   it("calls onMore when More button clicked", async () => {

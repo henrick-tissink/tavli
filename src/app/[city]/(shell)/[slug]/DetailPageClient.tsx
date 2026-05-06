@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import type { RefObject } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, ExternalLink, FileText } from "lucide-react";
+import Image from "next/image";
+import { MapPin, ExternalLink, FileText, Star } from "lucide-react";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
-import type { RestaurantDetail } from "@/lib/types";
+import type { RestaurantDetail, MenuItem } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
@@ -87,6 +88,18 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         onSave={() => toggleSave(restaurant.id)}
       />
 
+      {restaurant.heroNote && (
+        <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-8 desktop:pt-10">
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="text-text-muted text-xs tracking-[0.2em] uppercase">· · ·</p>
+            <p className="font-display italic text-text-primary text-xl desktop:text-2xl leading-relaxed mt-3">
+              {restaurant.heroNote}
+            </p>
+            <p className="text-text-muted text-xs tracking-[0.2em] uppercase mt-3">· · ·</p>
+          </div>
+        </div>
+      )}
+
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto">
         <div className="desktop:flex desktop:gap-8">
           <div className="desktop:w-[55%]">
@@ -96,7 +109,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             <div className="desktop:hidden mt-6">
               <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Available tonight
+                Disponibil astăzi
               </h3>
               <TimeSlotPills
                 slots={restaurant.availableSlots}
@@ -138,6 +151,28 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               </div>
             </section>
 
+            {restaurant.chefPicks.length > 0 && (
+              <section className="mt-8">
+                <div className="flex items-baseline justify-between mb-4">
+                  <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary inline-flex items-center gap-2">
+                    <Star size={18} className="fill-yellow-400 text-yellow-400" />
+                    Recomandările bucătarului
+                  </h3>
+                  <Link
+                    href={menuHref}
+                    className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap"
+                  >
+                    Vezi meniul →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
+                  {restaurant.chefPicks.map((item) => (
+                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} />
+                  ))}
+                </div>
+              </section>
+            )}
+
             {restaurant.reviewIntelligence && (
               <section className="mt-8">
                 <ReviewIntelligenceSection
@@ -169,7 +204,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             <div className="mt-6">
               <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Available tonight
+                Disponibil astăzi
               </h3>
               <TimeSlotPills
                 slots={restaurant.availableSlots}
@@ -178,6 +213,13 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 onMore={() => openSheet()}
               />
             </div>
+
+            <Link
+              href={menuHref}
+              className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-button bg-brand-primary-soft text-brand-primary-dark font-bold text-sm hover:bg-brand-primary-soft/80 transition-colors"
+            >
+              <FileText size={16} /> Vezi meniul ({restaurant.chefPicks.length > 0 ? `${restaurant.chefPicks.length} recomandări` : "complet"})
+            </Link>
 
             <section className="mt-8">
               <h3 className="text-[20px] font-bold text-text-primary">Hours</h3>
@@ -215,18 +257,19 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               )}
             </section>
 
-            <section className="mt-8 flex items-center gap-4">
-              <Link
-                href={menuHref}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
-              >
-                <FileText size={16} /> View Menu
-              </Link>
-            </section>
           </div>
         </div>
 
         <div className="desktop:hidden">
+          <section className="mt-8">
+            <Link
+              href={menuHref}
+              className="inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-button bg-brand-primary-soft text-brand-primary-dark font-bold text-sm hover:bg-brand-primary-soft/80 transition-colors"
+            >
+              <FileText size={16} /> Vezi meniul ({restaurant.chefPicks.length > 0 ? `${restaurant.chefPicks.length} recomandări` : "complet"})
+            </Link>
+          </section>
+
           <section className="mt-8">
             <h3 className="text-[20px] font-bold text-text-primary">Hours</h3>
             <div className="mt-3 space-y-1">
@@ -263,14 +306,6 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             )}
           </section>
 
-          <section className="mt-8 flex items-center gap-4">
-            <Link
-              href={menuHref}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary"
-            >
-              <FileText size={16} /> View Menu
-            </Link>
-          </section>
         </div>
 
         {restaurant.nearby.length > 0 && (
@@ -376,5 +411,41 @@ function InfoBlock({
         </Button>
       </div>
     </div>
+  );
+}
+
+function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) {
+  return (
+    <Link
+      href={menuHref}
+      className="group flex flex-col rounded-card overflow-hidden bg-surface-white border border-border hover:shadow-card-hover hover:-translate-y-0.5 transition-all"
+    >
+      {item.photoUrl ? (
+        <div className="relative aspect-[4/3] bg-surface-bg overflow-hidden">
+          <Image
+            src={item.photoUrl}
+            alt={item.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(min-width: 768px) 25vw, 100vw"
+          />
+        </div>
+      ) : (
+        <div className="aspect-[4/3] bg-surface-bg flex items-center justify-center">
+          <Star size={24} className="text-text-muted" />
+        </div>
+      )}
+      <div className="p-3 flex-1 flex flex-col">
+        <h4 className="font-display font-bold text-base text-text-primary leading-tight line-clamp-2">
+          {item.name}
+        </h4>
+        {item.description && (
+          <p className="text-xs text-text-secondary mt-1 line-clamp-2">
+            {item.description}
+          </p>
+        )}
+        <p className="text-sm font-bold text-brand-primary mt-2">{item.price} lei</p>
+      </div>
+    </Link>
   );
 }

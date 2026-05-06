@@ -15,14 +15,13 @@ export function TimeSlotPills({
 }: TimeSlotPillsProps) {
   if (slots.length === 0) {
     return (
-      <div className="text-center py-4">
-        <p className="text-text-muted text-sm">No tables tonight</p>
+      <div className="text-center py-3">
         <button
           type="button"
-          className="text-brand-primary text-sm font-semibold mt-1"
+          className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1"
           onClick={onMore}
         >
-          Try another date
+          Rezervă pentru altă zi →
         </button>
       </div>
     );

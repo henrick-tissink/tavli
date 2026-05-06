@@ -31,7 +31,7 @@ interface SectionSpec {
 
 const SECTIONS: SectionSpec[] = [
   {
-    name: "Începuturi",
+    name: "Aperitive",
     intro: "Aperitive de sezon, de împărțit la masă, fără grabă.",
     items: [
       {
@@ -72,15 +72,15 @@ const SECTIONS: SectionSpec[] = [
       {
         name: "Tochitură de porc Mangalița, mămăligă și ou ochi",
         description:
-          "Mangaliță din Banat gătită lent, 6 ore. Mămăligă cu telemea de oaie, ou de țară și murături de casă.",
+          "Mangaliță din Banat gătită lent, 6 ore. Mămăligă cu telemea de oaie, ou prăjit și murături de casă.",
         priceLei: 92,
         dietaryTags: ["chef_pick", "popular"],
         isChefPick: true,
       },
       {
-        name: "Sarmale aristocratice cu mămăligă și smântână",
+        name: "Sarmalele casei cu mămăligă și smântână",
         description:
-          "Sarmale în foi de viță, cu carne de porc și vițel, gătite în vin alb cu boia dulce. Mămăligă pripită, smântână grasă de țară.",
+          "Sarmale în foi de viță, cu carne de porc și vițel, gătite în vin alb cu boia dulce. Mămăligă cremoasă, smântână grasă.",
         priceLei: 78,
         dietaryTags: ["popular"],
       },
@@ -130,7 +130,7 @@ const SECTIONS: SectionSpec[] = [
       {
         name: "Crème brûlée cu lavandă",
         description:
-          "Cremă fină cu lavandă proaspătă. Crustă de zahăr brun caramelizată la masă, în fața voastră.",
+          "Cremă fină cu lavandă proaspătă. Crustă de zahăr brun caramelizată la masă.",
         priceLei: 26,
         dietaryTags: ["vegetarian", "gluten_free"],
       },
@@ -222,7 +222,7 @@ async function main() {
       lat: 44.4575,
       lng: 26.1015,
       description:
-        "Bucătărie românească contemporană într-un atelier intim cu 38 de locuri, în inima Floreascăi. Schimbăm meniul săptămânal, după producătorii cu care lucrăm. O listă scurtă de vinuri naturale și rețete vechi gătite cu mâini noi.",
+        "Bucătărie românească contemporană într-un atelier intim cu 38 de locuri, în inima Floreascăi. Schimbăm meniul săptămânal, după producătorii cu care lucrăm. O listă scurtă de vinuri naturale și rețete vechi reinterpretate.",
       hero_note: "De la fermă, în farfurie. Din pădure, în pahar.",
       address: "Strada Glinka 9, Floreasca, București",
       phone: "+40 21 234 5678",

@@ -230,10 +230,10 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                   size={18}
                   className="fill-yellow-400 text-yellow-400"
                 />
-                Chef&apos;s Picks
+                Recomandările bucătarului
               </h2>
               <span className="text-xs text-text-muted">
-                {chefPicks.length} signature dishes
+                {chefPicks.length} {chefPicks.length === 1 ? "recomandare" : "recomandări"}
               </span>
             </div>
             <div className="flex gap-4 overflow-x-auto hide-scrollbar -mx-4 desktop:-mx-6 px-4 desktop:px-6 pb-1">

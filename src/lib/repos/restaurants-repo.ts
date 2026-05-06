@@ -117,7 +117,17 @@ async function dbGetRestaurants(): Promise<Restaurant[]> {
     )
     .eq("status", "live")
     .order("rating", { ascending: false });
-  return Promise.all((data ?? []).map((r) => restaurantFromRow(r)));
+  // Parallel-fetch today's slots so discovery cards show real availability
+  // instead of always saying "no tables tonight".
+  return Promise.all(
+    (data ?? []).map(async (r) => {
+      const [base, slots] = await Promise.all([
+        restaurantFromRow(r),
+        fetchTodaySlots(r.id as string),
+      ]);
+      return { ...base, availableSlots: slots };
+    }),
+  );
 }
 
 async function dbGetRestaurantBySlug(slug: string): Promise<Restaurant | null> {
@@ -146,7 +156,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -159,6 +169,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .limit(4)
       .then(({ data }) => Promise.all((data ?? []).map((r) => restaurantFromRow(r)))),
     fetchTodaySlots(data.id as string),
+    fetchChefPicks(data.id as string),
   ]);
 
   const reviews = await getReviewsForRestaurant(data.id as string, 20);
@@ -170,6 +181,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     lat: data.lat != null ? Number(data.lat) : null,
     lng: data.lng != null ? Number(data.lng) : null,
     description: (data.description as string) ?? "",
+    heroNote: (data.hero_note as string) ?? undefined,
     photos,
     schedule: (data.schedule as { days: string; hours: string }[]) ?? [],
     address: (data.address as string) ?? "",
@@ -177,9 +189,33 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     reviewIntelligence,
     reviews,
     nearby,
+    chefPicks,
     websiteUrl: (data.website_url as string) ?? undefined,
     menuPdfUrl: undefined,
   };
+}
+
+async function fetchChefPicks(restaurantId: string): Promise<MenuItem[]> {
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("menu_items")
+    .select(
+      "id, section_id, name, description, price_cents, dietary_tags, is_chef_pick, photo_storage_path, sort_order",
+    )
+    .eq("restaurant_id", restaurantId)
+    .eq("is_chef_pick", true)
+    .eq("is_available", true)
+    .order("sort_order")
+    .limit(4);
+  return (data ?? []).map((i) => ({
+    id: i.id,
+    sectionId: i.section_id,
+    name: i.name,
+    description: i.description ?? "",
+    price: Math.round(i.price_cents / 100),
+    photoUrl: resolvePhotoUrl(i.photo_storage_path) ?? undefined,
+    tags: toTagsPublic(i.dietary_tags ?? [], i.is_chef_pick),
+  }));
 }
 
 async function dbGetMenu(slug: string): Promise<Menu | null> {

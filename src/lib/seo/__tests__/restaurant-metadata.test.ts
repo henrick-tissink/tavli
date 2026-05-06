@@ -27,6 +27,7 @@ function makeDetail(overrides: Partial<RestaurantDetail> = {}): RestaurantDetail
     reviewIntelligence: null,
     reviews: [],
     nearby: [],
+    chefPicks: [],
   };
   return { ...base, ...overrides };
 }
