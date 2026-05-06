@@ -48,14 +48,14 @@ describe("HorizontalSection", () => {
         onSeeAll={jest.fn()}
       />
     );
-    expect(screen.getByText(/See all/)).toBeInTheDocument();
+    expect(screen.getByText(/Vezi tot/)).toBeInTheDocument();
   });
 
   it("does not show 'See all' when onSeeAll not provided", () => {
     render(
       <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
     );
-    expect(screen.queryByText(/See all/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Vezi tot/)).not.toBeInTheDocument();
   });
 
   it("calls onSeeAll when clicked", async () => {
@@ -68,7 +68,7 @@ describe("HorizontalSection", () => {
         onSeeAll={handleSeeAll}
       />
     );
-    await user.click(screen.getByText(/See all/));
+    await user.click(screen.getByText(/Vezi tot/));
     expect(handleSeeAll).toHaveBeenCalledTimes(1);
   });
 

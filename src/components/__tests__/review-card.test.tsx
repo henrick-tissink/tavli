@@ -63,7 +63,7 @@ describe("ReviewCard", () => {
 
   it("renders helpful count", () => {
     render(<ReviewCard review={reviewWithReply} />);
-    expect(screen.getByText(/Helpful \(8\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Util \(8\)/)).toBeInTheDocument();
   });
 
   it("renders reply when present", () => {

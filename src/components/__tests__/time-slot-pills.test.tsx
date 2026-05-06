@@ -17,7 +17,7 @@ describe("TimeSlotPills", () => {
     expect(screen.getByText("18:30")).toBeInTheDocument();
     expect(screen.getByText("19:00")).toBeInTheDocument();
     expect(screen.queryByText("19:30")).not.toBeInTheDocument();
-    expect(screen.getByText(/More/)).toBeInTheDocument();
+    expect(screen.getByText(/Mai multe/)).toBeInTheDocument();
   });
 
   it("highlights selected slot", () => {
@@ -50,7 +50,7 @@ describe("TimeSlotPills", () => {
         onMore={handleMore}
       />
     );
-    await user.click(screen.getByText(/More/));
+    await user.click(screen.getByText(/Mai multe/));
     expect(handleMore).toHaveBeenCalledTimes(1);
   });
 });

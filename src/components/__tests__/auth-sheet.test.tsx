@@ -22,33 +22,33 @@ function renderSheet(props: Partial<React.ComponentProps<typeof AuthSheet>> = {}
 describe("AuthSheet", () => {
   it("renders phone input initially", () => {
     renderSheet();
-    expect(screen.getByLabelText("Phone number")).toBeInTheDocument();
-    expect(screen.getByText("Continue")).toBeInTheDocument();
+    expect(screen.getByLabelText("Număr de telefon")).toBeInTheDocument();
+    expect(screen.getByText("Continuă")).toBeInTheDocument();
   });
 
   it("Continue is disabled with short phone number", () => {
     renderSheet();
-    const btn = screen.getByText("Continue").closest("button");
+    const btn = screen.getByText("Continuă").closest("button");
     expect(btn).toBeDisabled();
   });
 
   it("advances to OTP step after valid phone + Continue", () => {
     renderSheet();
-    const input = screen.getByLabelText("Phone number");
+    const input = screen.getByLabelText("Număr de telefon");
     fireEvent.change(input, { target: { value: "712345678" } });
-    fireEvent.click(screen.getByText("Continue"));
-    expect(screen.getByLabelText("Verification code")).toBeInTheDocument();
-    expect(screen.getByText("Verify")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Continuă"));
+    expect(screen.getByLabelText("Cod de verificare")).toBeInTheDocument();
+    expect(screen.getByText("Verifică")).toBeInTheDocument();
   });
 
   it("calls login and onAuthenticated on verify", () => {
     const { onAuthenticated, onClose } = renderSheet();
-    const phoneInput = screen.getByLabelText("Phone number");
+    const phoneInput = screen.getByLabelText("Număr de telefon");
     fireEvent.change(phoneInput, { target: { value: "712345678" } });
-    fireEvent.click(screen.getByText("Continue"));
-    const otpInput = screen.getByLabelText("Verification code");
+    fireEvent.click(screen.getByText("Continuă"));
+    const otpInput = screen.getByLabelText("Cod de verificare");
     fireEvent.change(otpInput, { target: { value: "123456" } });
-    fireEvent.click(screen.getByText("Verify"));
+    fireEvent.click(screen.getByText("Verifică"));
     expect(onAuthenticated).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
   });

@@ -31,12 +31,12 @@ function renderSheet(props: { open?: boolean; onClose?: () => void; resultCount?
 describe("FilterSheet", () => {
   it("renders all section headings", () => {
     renderSheet();
-    expect(screen.getByText("Cuisine")).toBeInTheDocument();
-    expect(screen.getByText("Price")).toBeInTheDocument();
-    expect(screen.getByText("Neighborhood")).toBeInTheDocument();
-    expect(screen.getByText("Minimum rating")).toBeInTheDocument();
-    expect(screen.getByText("Type")).toBeInTheDocument();
-    expect(screen.getByText("Collection")).toBeInTheDocument();
+    expect(screen.getByText("Bucătărie")).toBeInTheDocument();
+    expect(screen.getByText("Preț")).toBeInTheDocument();
+    expect(screen.getByText("Cartier")).toBeInTheDocument();
+    expect(screen.getByText("Rating minim")).toBeInTheDocument();
+    expect(screen.getByText("Tip")).toBeInTheDocument();
+    expect(screen.getByText("Colecție")).toBeInTheDocument();
   });
 
   it("renders cuisine pills from mock data", () => {
@@ -48,24 +48,24 @@ describe("FilterSheet", () => {
 
   it("renders price options", () => {
     renderSheet();
-    expect(screen.getByText("$ Affordable")).toBeInTheDocument();
-    expect(screen.getByText("$$ Moderate")).toBeInTheDocument();
+    expect(screen.getByText("$ Accesibil")).toBeInTheDocument();
+    expect(screen.getByText("$$ Moderat")).toBeInTheDocument();
     expect(screen.getByText("$$$ Premium")).toBeInTheDocument();
-    expect(screen.getByText("$$$$ Exclusive")).toBeInTheDocument();
+    expect(screen.getByText("$$$$ Exclusivist")).toBeInTheDocument();
   });
 
   it("renders venue type pills", () => {
     renderSheet();
     expect(screen.getByText("Restaurant")).toBeInTheDocument();
-    expect(screen.getByText("Cafe")).toBeInTheDocument();
+    expect(screen.getByText("Cafenea")).toBeInTheDocument();
     expect(screen.getByText("Pizzerie")).toBeInTheDocument();
   });
 
   it("renders collection pills", () => {
     renderSheet();
-    expect(screen.getByText("Recommended")).toBeInTheDocument();
+    expect(screen.getByText("Recomandate")).toBeInTheDocument();
     expect(screen.getByText("Fine Dining")).toBeInTheDocument();
-    expect(screen.getByText("Dog Friendly")).toBeInTheDocument();
+    expect(screen.getByText("Pet friendly")).toBeInTheDocument();
   });
 
   it("toggling a cuisine pill updates filters", async () => {
@@ -84,7 +84,7 @@ describe("FilterSheet", () => {
 
   it("does not show Reset when no filters active", () => {
     renderSheet();
-    expect(screen.queryByText("Reset")).not.toBeInTheDocument();
+    expect(screen.queryByText("Resetează")).not.toBeInTheDocument();
   });
 
   it("shows Reset when filters are active and clicking it clears filters", async () => {
@@ -92,25 +92,25 @@ describe("FilterSheet", () => {
     renderSheet();
     // Activate a filter first
     await user.click(screen.getByText("Italian"));
-    expect(screen.getByText("Reset")).toBeInTheDocument();
-    await user.click(screen.getByText("Reset"));
+    expect(screen.getByText("Resetează")).toBeInTheDocument();
+    await user.click(screen.getByText("Resetează"));
     expect(latestCtx.filters.cuisines).toEqual([]);
   });
 
   it("shows result count in button", () => {
     renderSheet({ resultCount: 15 });
-    expect(screen.getByText("Show 15 results")).toBeInTheDocument();
+    expect(screen.getByText("Arată 15 rezultate")).toBeInTheDocument();
   });
 
   it("shows 'No results' when resultCount is 0", () => {
     renderSheet({ resultCount: 0 });
-    expect(screen.getByText("No results")).toBeInTheDocument();
+    expect(screen.getByText("Niciun rezultat")).toBeInTheDocument();
   });
 
   it("calls onClose when show results button clicked", async () => {
     const user = userEvent.setup();
     const { onClose } = renderSheet({ resultCount: 5 });
-    await user.click(screen.getByText("Show 5 results"));
+    await user.click(screen.getByText("Arată 5 rezultate"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

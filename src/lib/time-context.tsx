@@ -31,40 +31,40 @@ const GREETING_PRIORITY: TimeContextId[] = [
 
 const GREETING_MAP: Record<string, { greeting: string; subtextTemplate: string }> = {
   morning: {
-    greeting: "Good morning",
-    subtextTemplate: "{N} cafes and brunch spots open nearby",
+    greeting: "Bună dimineața",
+    subtextTemplate: "{N} cafenele și locuri pentru brunch deschise în apropiere",
   },
   brunch: {
-    greeting: "Brunch time",
-    subtextTemplate: "{N} brunch spots with tables available",
+    greeting: "E timpul de brunch",
+    subtextTemplate: "{N} locuri pentru brunch cu mese libere",
   },
   lunch: {
-    greeting: "Lunchtime",
-    subtextTemplate: "{N} places with quick service",
+    greeting: "E ora prânzului",
+    subtextTemplate: "{N} locuri cu servire rapidă",
   },
   afternoon: {
-    greeting: "Afternoon",
-    subtextTemplate: "{N} cafes near you",
+    greeting: "Bună ziua",
+    subtextTemplate: "{N} cafenele lângă tine",
   },
   evening: {
-    greeting: "Good evening",
-    subtextTemplate: "{N} places available tonight",
+    greeting: "Bună seara",
+    subtextTemplate: "{N} locuri disponibile diseară",
   },
   late: {
-    greeting: "Still hungry?",
-    subtextTemplate: "{N} places open late near you",
+    greeting: "Tot mai e poftă?",
+    subtextTemplate: "{N} locuri deschise până târziu lângă tine",
   },
 };
 
 const PILL_MAP: Record<string, { label: string; icon: string }> = {
-  morning: { label: "Breakfast", icon: "☕" },
+  morning: { label: "Mic dejun", icon: "☕" },
   brunch: { label: "Brunch", icon: "🥂" },
-  lunch: { label: "Quick Lunch", icon: "🍽" },
-  afternoon: { label: "Coffee", icon: "☕" },
-  evening: { label: "Dinner", icon: "🍷" },
-  late: { label: "Open Late", icon: "🌙" },
-  terrace: { label: "Terrace", icon: "☀️" },
-  "weekend+evening": { label: "Cocktails", icon: "🍸" },
+  lunch: { label: "Prânz rapid", icon: "🍽" },
+  afternoon: { label: "Cafea", icon: "☕" },
+  evening: { label: "Cină", icon: "🍷" },
+  late: { label: "Deschis până târziu", icon: "🌙" },
+  terrace: { label: "Terasă", icon: "☀️" },
+  "weekend+evening": { label: "Cocktailuri", icon: "🍸" },
 };
 
 const PILL_PRIORITY = [
@@ -111,8 +111,8 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
   if ((day === 5 && hour >= 17) || day === 6 || day === 0) active.push("weekend");
 
   // Determine greeting using priority
-  let greeting = "Discover";
-  let subtextTemplate = "{N} places to explore";
+  let greeting = "Descoperă";
+  let subtextTemplate = "{N} locuri de explorat";
 
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
@@ -150,8 +150,8 @@ const MOCK_TEMPERATURE = 22;
 // useEffect below replaces it with the real time-aware context after mount.
 const NEUTRAL_CTX: TimeContextValue = {
   active: [],
-  greeting: "Discover",
-  subtextTemplate: "{N} places to explore",
+  greeting: "Descoperă",
+  subtextTemplate: "{N} locuri de explorat",
   injectedPills: [],
 };
 

@@ -42,6 +42,6 @@ describe("ReviewIntelligenceSection", () => {
 
   it("renders total review count", () => {
     render(<ReviewIntelligenceSection intelligence={intelligence} totalReviews={312} />);
-    expect(screen.getByText("Based on 312 reviews")).toBeInTheDocument();
+    expect(screen.getByText("Pe baza a 312 recenzii")).toBeInTheDocument();
   });
 });

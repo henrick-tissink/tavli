@@ -4,11 +4,11 @@ import { Home, Map, Search, Heart, User } from "lucide-react";
 import type { ReactNode } from "react";
 
 const TABS: { id: string; label: string; icon: ReactNode }[] = [
-  { id: "discover", label: "Discover", icon: <Home size={20} /> },
-  { id: "map", label: "Map", icon: <Map size={20} /> },
-  { id: "search", label: "Search", icon: <Search size={20} /> },
-  { id: "saved", label: "Saved", icon: <Heart size={20} /> },
-  { id: "profile", label: "Profile", icon: <User size={20} /> },
+  { id: "discover", label: "Descoperă", icon: <Home size={20} /> },
+  { id: "map", label: "Hartă", icon: <Map size={20} /> },
+  { id: "search", label: "Caută", icon: <Search size={20} /> },
+  { id: "saved", label: "Salvate", icon: <Heart size={20} /> },
+  { id: "profile", label: "Profil", icon: <User size={20} /> },
 ];
 
 interface TabBarProps {

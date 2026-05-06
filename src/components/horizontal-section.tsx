@@ -34,7 +34,7 @@ export function HorizontalSection({
             onClick={onSeeAll}
             className="text-brand-primary text-sm font-semibold"
           >
-            See all &rarr;
+            Vezi tot &rarr;
           </button>
         )}
       </div>

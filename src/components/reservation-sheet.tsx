@@ -72,9 +72,9 @@ export function ReservationSheet({
   }
 
   const dateLabels: Record<DateOption, string> = {
-    today: "Today",
-    tomorrow: "Tomorrow",
-    pick: "Pick date",
+    today: "Astăzi",
+    tomorrow: "Mâine",
+    pick: "Alege data",
   };
 
   const canConfirm = name.trim().length > 0 && phone.trim().length > 0;
@@ -101,7 +101,7 @@ export function ReservationSheet({
       });
 
       if (!result.ok) {
-        setSubmitError(result.error ?? "Booking failed.");
+        setSubmitError(result.error ?? "Rezervarea nu a putut fi trimisă.");
         return;
       }
 
@@ -127,14 +127,14 @@ export function ReservationSheet({
       d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const calHref =
       `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-      `&text=${encodeURIComponent(`Reservation at ${restaurantName}`)}` +
+      `&text=${encodeURIComponent(`Rezervare la ${restaurantName}`)}` +
       `&dates=${fmt(bookingDate)}/${fmt(endDate)}` +
-      `&details=${encodeURIComponent(`${guests} guests${selectedZone ? ` · ${selectedZone}` : ""} · Booked via Tavli`)}`;
+      `&details=${encodeURIComponent(`${guests} ${guests === 1 ? "persoană" : "persoane"}${selectedZone ? ` · ${selectedZone}` : ""} · Rezervat prin Tavli`)}`;
 
     const handleShare = async () => {
       const shareData = {
-        title: `Reservation at ${restaurantName}`,
-        text: `I booked ${restaurantName} for ${dateLabels[dateOption]} at ${selectedSlot} — ${guests} guests. Join me?`,
+        title: `Rezervare la ${restaurantName}`,
+        text: `Am rezervat la ${restaurantName} pentru ${dateLabels[dateOption]} la ${selectedSlot} — ${guests} ${guests === 1 ? "persoană" : "persoane"}. Vii și tu?`,
         url: typeof window !== "undefined" ? window.location.href : "",
       };
       try {
@@ -142,7 +142,7 @@ export function ReservationSheet({
           await navigator.share(shareData);
         } else if (navigator.clipboard) {
           await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-          alert("Invite copied to clipboard!");
+          alert("Invitație copiată în clipboard!");
         }
       } catch {
         // user cancelled or share failed — no-op
@@ -150,23 +150,23 @@ export function ReservationSheet({
     };
 
     return (
-      <BottomSheet open={open} onClose={onClose} title="Reservation">
+      <BottomSheet open={open} onClose={onClose} title="Rezervare">
         <div className="flex flex-col items-center py-6">
           <CheckCircle size={48} className="text-success" />
-          <h3 className="text-xl font-bold text-center mt-4">You&apos;re booked!</h3>
+          <h3 className="text-xl font-bold text-center mt-4">Rezervarea ta este confirmată!</h3>
           <div className="text-sm text-text-secondary text-center mt-3 space-y-1">
             <p>{restaurantName}</p>
             <p>{dateLabels[dateOption]}</p>
             <p>{selectedSlot}</p>
-            <p>{guests} guests</p>
+            <p>{guests} {guests === 1 ? "persoană" : "persoane"}</p>
             {selectedZone && <p>{selectedZone}</p>}
           </div>
           <p className="text-xs text-text-muted text-center mt-3">
             {reservationMode === "db" && email
-              ? `Confirmation sent to ${email}`
+              ? `Confirmare trimisă la ${email}`
               : reservationMode === "db"
-                ? "Reservation saved."
-                : "Saved locally (demo mode — set up Supabase to persist reservations)."}
+                ? "Rezervarea a fost salvată."
+                : "Salvată local (mod demo — configurează Supabase pentru a persista rezervările)."}
           </p>
           <div className="flex gap-3 mt-6 w-full">
             <a
@@ -176,16 +176,16 @@ export function ReservationSheet({
               className="flex-1"
             >
               <Button variant="secondary" fullWidth>
-                Add to Calendar
+                Adaugă în calendar
               </Button>
             </a>
             <Button variant="secondary" fullWidth onClick={handleShare}>
-              Share with Friends
+              Trimite prietenilor
             </Button>
           </div>
           <div className="mt-3 w-full">
             <Button variant="primary" fullWidth onClick={onClose}>
-              Done
+              Gata
             </Button>
           </div>
         </div>
@@ -194,7 +194,7 @@ export function ReservationSheet({
   }
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Reserve a table">
+    <BottomSheet open={open} onClose={onClose} title="Rezervă o masă">
       <div className="space-y-5">
         {/* Restaurant name + rating */}
         <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export function ReservationSheet({
 
         {/* Guest selector */}
         <div>
-          <p className="text-sm font-medium text-text-primary mb-2">Guests</p>
+          <p className="text-sm font-medium text-text-primary mb-2">Persoane</p>
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <button
@@ -245,7 +245,7 @@ export function ReservationSheet({
                 const val = parseInt(e.target.value, 10);
                 if (val >= 7) setGuests(val);
               }}
-              placeholder="Number of guests"
+              placeholder="Număr de persoane"
               className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           )}
@@ -253,7 +253,7 @@ export function ReservationSheet({
 
         {/* Date pills */}
         <div>
-          <p className="text-sm font-medium text-text-primary mb-2">Date</p>
+          <p className="text-sm font-medium text-text-primary mb-2">Data</p>
           <div className="flex items-center gap-2">
             {(["today", "tomorrow", "pick"] as DateOption[]).map((opt) => (
               <Pill
@@ -268,7 +268,7 @@ export function ReservationSheet({
 
         {/* Time slots */}
         <div>
-          <p className="text-sm font-medium text-text-primary mb-2">Time</p>
+          <p className="text-sm font-medium text-text-primary mb-2">Ora</p>
           <TimeSlotPills
             slots={availableSlots}
             selected={selectedSlot ?? undefined}
@@ -283,7 +283,7 @@ export function ReservationSheet({
             {/* Zone selector */}
             {zones && zones.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-text-primary mb-2">Seating</p>
+                <p className="text-sm font-medium text-text-primary mb-2">Loc</p>
                 <div className="flex items-center gap-2">
                   {zones.map((zone) => (
                     <Pill
@@ -303,7 +303,7 @@ export function ReservationSheet({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Numele tău"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <div className="flex items-center gap-2">
@@ -312,7 +312,7 @@ export function ReservationSheet({
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone number"
+                  placeholder="Număr de telefon"
                   className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 />
               </div>
@@ -320,20 +320,20 @@ export function ReservationSheet({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email (optional)"
+                placeholder="Email (opțional)"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Birthday, allergies..."
+                placeholder="Aniversare, alergii…"
                 rows={2}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
               />
             </div>
 
             <p className="text-xs text-text-muted">
-              🔒 Your details are shared only with this restaurant
+              🔒 Datele tale sunt împărtășite doar cu acest restaurant
             </p>
 
             {submitError && (
@@ -350,7 +350,7 @@ export function ReservationSheet({
               disabled={!canConfirm || pending}
               onClick={handleConfirm}
             >
-              {pending ? "Booking…" : "Confirm reservation"}
+              {pending ? "Se rezervă…" : "Confirmă rezervarea"}
             </Button>
           </>
         )}

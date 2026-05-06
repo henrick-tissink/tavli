@@ -53,7 +53,7 @@ export function TimeSlotPills({
           onClick={onMore}
           className="rounded-lg px-3 py-1.5 text-xs font-semibold text-brand-primary"
         >
-          More →
+          Mai multe →
         </button>
       )}
     </div>

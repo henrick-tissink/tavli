@@ -15,30 +15,30 @@ interface FilterSheetProps {
 }
 
 const PRICE_OPTIONS = [
-  { value: 1, label: "$ Affordable" },
-  { value: 2, label: "$$ Moderate" },
+  { value: 1, label: "$ Accesibil" },
+  { value: 2, label: "$$ Moderat" },
   { value: 3, label: "$$$ Premium" },
-  { value: 4, label: "$$$$ Exclusive" },
+  { value: 4, label: "$$$$ Exclusivist" },
 ];
 
 const RATING_OPTIONS = [
-  { value: 0, label: "Any" },
+  { value: 0, label: "Oricare" },
   { value: 3, label: "3+" },
   { value: 4, label: "4+" },
   { value: 4.5, label: "4.5+" },
   { value: 5, label: "5" },
 ];
 
-const VENUE_TYPES = ["Restaurant", "Cafe", "Bar", "Cocktail Bar", "Pub", "Lounge", "Pizzerie"];
+const VENUE_TYPES = ["Restaurant", "Cafenea", "Bar", "Cocktail Bar", "Pub", "Lounge", "Pizzerie"];
 
 const COLLECTIONS = [
-  "Recommended",
+  "Recomandate",
   "Fine Dining",
-  "Dog Friendly",
-  "Child Friendly",
+  "Pet friendly",
+  "Pentru copii",
   "Romantic",
   "Business",
-  "Terrace",
+  "Terasă",
 ];
 
 export function FilterSheet({
@@ -63,21 +63,21 @@ export function FilterSheet({
     <BottomSheet open={open} onClose={onClose}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-text-primary">Filters</h2>
+        <h2 className="text-lg font-bold text-text-primary">Filtre</h2>
         {activeFilterCount > 0 && (
           <button
             type="button"
             onClick={resetFilters}
             className="text-sm font-semibold text-brand-primary"
           >
-            Reset
+            Resetează
           </button>
         )}
       </div>
 
       {/* Cuisine */}
       <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Cuisine</h3>
+        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Bucătărie</h3>
         <div className="flex flex-wrap gap-2">
           {cuisines.map((cuisine) => (
             <Pill
@@ -92,7 +92,7 @@ export function FilterSheet({
 
       {/* Price */}
       <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Price</h3>
+        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Preț</h3>
         <div className="grid grid-cols-2 gap-2">
           {PRICE_OPTIONS.map(({ value, label }) => (
             <button
@@ -115,7 +115,7 @@ export function FilterSheet({
       {/* Neighborhood */}
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Neighborhood
+          Cartier
         </h3>
         <div className="flex flex-wrap gap-2">
           {neighborhoods.map((zone) => (
@@ -132,7 +132,7 @@ export function FilterSheet({
       {/* Rating */}
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Minimum rating
+          Rating minim
         </h3>
         <div className="flex flex-wrap gap-2">
           {RATING_OPTIONS.map(({ value, label }) => (
@@ -148,7 +148,7 @@ export function FilterSheet({
 
       {/* Type */}
       <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Type</h3>
+        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Tip</h3>
         <div className="flex flex-wrap gap-2">
           {VENUE_TYPES.map((type) => (
             <Pill
@@ -164,7 +164,7 @@ export function FilterSheet({
       {/* Collection */}
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Collection
+          Colecție
         </h3>
         <div className="flex flex-wrap gap-2">
           {COLLECTIONS.map((collection) => (
@@ -181,7 +181,7 @@ export function FilterSheet({
       {/* Sticky bottom button */}
       <div className="sticky bottom-0 bg-surface-white pt-3 pb-1">
         <Button fullWidth onClick={onClose} disabled={resultCount === 0}>
-          {resultCount === 0 ? "No results" : `Show ${resultCount} results`}
+          {resultCount === 0 ? "Niciun rezultat" : `Arată ${resultCount} ${resultCount === 1 ? "rezultat" : "rezultate"}`}
         </Button>
       </div>
     </BottomSheet>

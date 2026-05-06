@@ -6,28 +6,27 @@ describe("FilterPillBar", () => {
   it("renders default pills", () => {
     render(
       <FilterPillBar
-        activePills={["All"]}
+        activePills={["Toate"]}
         onPillToggle={jest.fn()}
         onDropdownOpen={jest.fn()}
       />
     );
-    expect(screen.getByText("All")).toBeInTheDocument();
-    expect(screen.getByText("Open Now")).toBeInTheDocument();
-    expect(screen.getByText("Cuisine")).toBeInTheDocument();
-    expect(screen.getByText("Price")).toBeInTheDocument();
-    expect(screen.getByText("Distance")).toBeInTheDocument();
-    expect(screen.getByText("More")).toBeInTheDocument();
+    expect(screen.getByText("Toate")).toBeInTheDocument();
+    expect(screen.getByText("Deschis acum")).toBeInTheDocument();
+    expect(screen.getByText("Bucătărie")).toBeInTheDocument();
+    expect(screen.getByText("Preț")).toBeInTheDocument();
+    expect(screen.getByText("Distanță")).toBeInTheDocument();
+    expect(screen.getByText("Mai multe")).toBeInTheDocument();
   });
 
-  it("All pill is active", () => {
+  it("Toate pill is active", () => {
     const { container } = render(
       <FilterPillBar
-        activePills={["All"]}
+        activePills={["Toate"]}
         onPillToggle={jest.fn()}
         onDropdownOpen={jest.fn()}
       />
     );
-    // The first button/pill should be active (bg-brand-primary)
     const allPill = container.querySelector("button");
     expect(allPill).toHaveClass("bg-brand-primary");
   });
@@ -37,13 +36,13 @@ describe("FilterPillBar", () => {
     const handleToggle = jest.fn();
     render(
       <FilterPillBar
-        activePills={["All"]}
+        activePills={["Toate"]}
         onPillToggle={handleToggle}
         onDropdownOpen={jest.fn()}
       />
     );
-    await user.click(screen.getByText("Open Now"));
-    expect(handleToggle).toHaveBeenCalledWith("Open Now");
+    await user.click(screen.getByText("Deschis acum"));
+    expect(handleToggle).toHaveBeenCalledWith("Deschis acum");
   });
 
   it("clicking dropdown pill calls onDropdownOpen", async () => {
@@ -51,12 +50,12 @@ describe("FilterPillBar", () => {
     const handleDropdown = jest.fn();
     render(
       <FilterPillBar
-        activePills={["All"]}
+        activePills={["Toate"]}
         onPillToggle={jest.fn()}
         onDropdownOpen={handleDropdown}
       />
     );
-    await user.click(screen.getByText("Cuisine"));
-    expect(handleDropdown).toHaveBeenCalledWith("Cuisine");
+    await user.click(screen.getByText("Bucătărie"));
+    expect(handleDropdown).toHaveBeenCalledWith("Bucătărie");
   });
 });

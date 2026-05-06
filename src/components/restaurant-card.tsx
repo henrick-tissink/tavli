@@ -77,7 +77,7 @@ export function RestaurantCard({
         {/* Save button top-right */}
         <button
           type="button"
-          aria-label={`Save ${restaurant.name}`}
+          aria-label={`Salvează ${restaurant.name}`}
           className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/35 backdrop-blur-sm flex items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
@@ -122,12 +122,12 @@ export function RestaurantCard({
         {hasReviewIntelligence ? (
           <p className="text-xs text-text-secondary truncate">
             🔥 &ldquo;{restaurant.reviewSnippet}&rdquo; · {restaurant.topDimensionPercent}%
-            loved the {restaurant.topDimensionLabel}
+            au adorat {restaurant.topDimensionLabel}
           </p>
         ) : (
           restaurant.voteCount > 0 && (
             <p className="text-xs text-text-muted">
-              {restaurant.voteCount} reviews
+              {restaurant.voteCount} {restaurant.voteCount === 1 ? "recenzie" : "recenzii"}
             </p>
           )
         )}

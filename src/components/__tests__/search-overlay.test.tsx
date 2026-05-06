@@ -35,50 +35,50 @@ describe("SearchOverlay", () => {
 
   it("renders empty state sections", () => {
     render(<SearchOverlay {...defaultProps} />);
-    expect(screen.getByText("Trending in București")).toBeInTheDocument();
-    expect(screen.getByText("Quick categories")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Search restaurants, cuisines...")).toBeInTheDocument();
+    expect(screen.getByText("Tendințe în București")).toBeInTheDocument();
+    expect(screen.getByText("Categorii rapide")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Caută restaurante, bucătării…")).toBeInTheDocument();
   });
 
   it("renders trending items", () => {
     render(<SearchOverlay {...defaultProps} />);
-    expect(screen.getByText("Korean BBQ")).toBeInTheDocument();
-    expect(screen.getByText("Rooftop bars")).toBeInTheDocument();
-    expect(screen.getByText("Sunday brunch")).toBeInTheDocument();
-    expect(screen.getByText("New openings")).toBeInTheDocument();
+    expect(screen.getByText("BBQ coreean")).toBeInTheDocument();
+    expect(screen.getByText("Rooftop")).toBeInTheDocument();
+    expect(screen.getByText("Brunch de duminică")).toBeInTheDocument();
+    expect(screen.getByText("Noi deschideri")).toBeInTheDocument();
   });
 
   it("renders quick category pills", () => {
     render(<SearchOverlay {...defaultProps} />);
     expect(screen.getByText("Pizza")).toBeInTheDocument();
-    expect(screen.getByText("Japanese")).toBeInTheDocument();
-    expect(screen.getByText("Burger")).toBeInTheDocument();
-    expect(screen.getByText("Seafood")).toBeInTheDocument();
+    expect(screen.getByText("Japoneză")).toBeInTheDocument();
+    expect(screen.getByText("Burgeri")).toBeInTheDocument();
+    expect(screen.getByText("Pește")).toBeInTheDocument();
   });
 
   it("renders restaurant results for a query", async () => {
     const user = userEvent.setup();
     render(<SearchOverlay {...defaultProps} />);
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...");
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Sakura");
     expect(screen.getByText("Sakura Sushi")).toBeInTheDocument();
-    expect(screen.getByText("Restaurants")).toBeInTheDocument();
+    expect(screen.getByText("Restaurante")).toBeInTheDocument();
   });
 
   it("renders cuisine results for a query", async () => {
     const user = userEvent.setup();
     render(<SearchOverlay {...defaultProps} />);
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...");
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
-    expect(screen.getByText("Cuisines")).toBeInTheDocument();
-    expect(screen.getByText(/Italian \(\d+ places?\)/)).toBeInTheDocument();
+    expect(screen.getByText("Bucătării")).toBeInTheDocument();
+    expect(screen.getByText(/Italian \(\d+ locuri?\)/)).toBeInTheDocument();
   });
 
   it("calls onSelectRestaurant when a restaurant is clicked", async () => {
     const user = userEvent.setup();
     const onSelectRestaurant = jest.fn();
     render(<SearchOverlay {...defaultProps} onSelectRestaurant={onSelectRestaurant} />);
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...");
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Sakura");
     await user.click(screen.getByText("Sakura Sushi"));
     expect(onSelectRestaurant).toHaveBeenCalledTimes(1);
@@ -91,9 +91,9 @@ describe("SearchOverlay", () => {
     const user = userEvent.setup();
     const onSelectCuisine = jest.fn();
     render(<SearchOverlay {...defaultProps} onSelectCuisine={onSelectCuisine} />);
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...");
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
-    await user.click(screen.getByText(/Italian \(\d+ places?\)/));
+    await user.click(screen.getByText(/Italian \(\d+ locuri?\)/));
     expect(onSelectCuisine).toHaveBeenCalledTimes(1);
     expect(onSelectCuisine).toHaveBeenCalledWith("Italian");
   });
@@ -101,16 +101,16 @@ describe("SearchOverlay", () => {
   it("shows no results message", async () => {
     const user = userEvent.setup();
     render(<SearchOverlay {...defaultProps} />);
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...");
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "xyznotfound");
-    expect(screen.getByText(/No restaurants found for 'xyznotfound'/)).toBeInTheDocument();
+    expect(screen.getByText(/Niciun restaurant găsit pentru 'xyznotfound'/)).toBeInTheDocument();
   });
 
   it("calls onClose when back button clicked", async () => {
     const user = userEvent.setup();
     const onClose = jest.fn();
     render(<SearchOverlay {...defaultProps} onClose={onClose} />);
-    await user.click(screen.getByLabelText("Back"));
+    await user.click(screen.getByLabelText("Înapoi"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -119,7 +119,7 @@ describe("SearchOverlay", () => {
     render(<SearchOverlay {...defaultProps} />);
     await user.click(screen.getByText("Pizza"));
     // Pizza should now be in the input and trigger results
-    const input = screen.getByPlaceholderText("Search restaurants, cuisines...") as HTMLInputElement;
+    const input = screen.getByPlaceholderText("Caută restaurante, bucătării…") as HTMLInputElement;
     expect(input.value).toBe("Pizza");
   });
 });

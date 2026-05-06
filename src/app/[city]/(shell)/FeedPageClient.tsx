@@ -63,17 +63,17 @@ export function FeedPageClient({
 
   const activePills = useMemo(() => {
     const pills: string[] = [...activeInjectedPills];
-    if (activeFilterCount === 0 && activeInjectedPills.length === 0) pills.push("All");
-    if (filters.openNow) pills.push("Open Now");
-    if (filters.cuisines.length > 0) pills.push("Cuisine");
-    if (filters.priceRange.length > 0) pills.push("Price");
+    if (activeFilterCount === 0 && activeInjectedPills.length === 0) pills.push("Toate");
+    if (filters.openNow) pills.push("Deschis acum");
+    if (filters.cuisines.length > 0) pills.push("Bucătărie");
+    if (filters.priceRange.length > 0) pills.push("Preț");
     if (
       filters.neighborhoods.length > 0 ||
       filters.minRating > 0 ||
       filters.venueTypes.length > 0 ||
       filters.collections.length > 0
     )
-      pills.push("More");
+      pills.push("Mai multe");
     return pills;
   }, [filters, activeFilterCount, activeInjectedPills]);
 
@@ -83,10 +83,10 @@ export function FeedPageClient({
   );
 
   function handlePillToggle(pill: string) {
-    if (pill === "All") {
+    if (pill === "Toate") {
       resetFilters();
       setActiveInjectedPills([]);
-    } else if (pill === "Open Now") {
+    } else if (pill === "Deschis acum") {
       setFilter("openNow", !filters.openNow);
     } else if (injectedLabels.has(pill)) {
       setActiveInjectedPills((prev) =>
@@ -134,7 +134,7 @@ export function FeedPageClient({
             {trendingRestaurants.length > 0 && (
               <div className="mt-8">
                 <HorizontalSection
-                  title={`Popular in ${displayCity}`}
+                  title={`Populare în ${displayCity}`}
                   restaurants={trendingRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
@@ -148,12 +148,12 @@ export function FeedPageClient({
             )}
 
             <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
-              Available Tonight
+              Disponibile astăzi
             </h2>
 
             {firstChunk.length === 0 && (
               <p className="text-text-secondary text-sm py-8 text-center">
-                No restaurants match your current filters.
+                Niciun restaurant nu se potrivește cu filtrele alese.
               </p>
             )}
 
@@ -179,7 +179,7 @@ export function FeedPageClient({
             {newRestaurants.length > 0 && (
               <div className="mt-8">
                 <HorizontalSection
-                  title="New on Tavli"
+                  title="Noi pe Tavli"
                   restaurants={newRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}

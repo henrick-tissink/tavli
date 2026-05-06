@@ -15,17 +15,17 @@ interface SearchOverlayProps {
 
 const STORAGE_KEY = "tavli-recent-searches";
 
-const TRENDING = ["Korean BBQ", "Rooftop bars", "Sunday brunch", "New openings"];
+const TRENDING = ["BBQ coreean", "Rooftop", "Brunch de duminică", "Noi deschideri"];
 
 const QUICK_CATEGORIES = [
   { emoji: "\ud83c\udf55", label: "Pizza" },
-  { emoji: "\ud83c\udf63", label: "Japanese" },
-  { emoji: "\ud83e\udd69", label: "Steak" },
+  { emoji: "\ud83c\udf63", label: "Japonez\u0103" },
+  { emoji: "\ud83e\udd69", label: "Friptur\u0103" },
   { emoji: "\ud83e\udd57", label: "Vegan" },
-  { emoji: "\u2615", label: "Coffee" },
-  { emoji: "\ud83c\udf78", label: "Cocktails" },
-  { emoji: "\ud83c\udf54", label: "Burger" },
-  { emoji: "\ud83d\udc1f", label: "Seafood" },
+  { emoji: "\u2615", label: "Cafea" },
+  { emoji: "\ud83c\udf78", label: "Cocktailuri" },
+  { emoji: "\ud83c\udf54", label: "Burgeri" },
+  { emoji: "\ud83d\udc1f", label: "Pe\u0219te" },
 ];
 
 function getRecent(): string[] {
@@ -145,7 +145,7 @@ export function SearchOverlay({
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
           type="button"
-          aria-label="Back"
+          aria-label="Înapoi"
           onClick={onClose}
           className="p-1 text-text-primary"
         >
@@ -156,7 +156,7 @@ export function SearchOverlay({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search restaurants, cuisines..."
+          placeholder="Caută restaurante, bucătării…"
           className="flex-1 text-lg border-none bg-transparent outline-none text-text-primary placeholder:text-text-muted"
         />
       </div>
@@ -170,14 +170,14 @@ export function SearchOverlay({
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-                    Recent searches
+                    Căutări recente
                   </h3>
                   <button
                     type="button"
                     onClick={handleClearRecent}
                     className="text-xs font-semibold text-brand-primary"
                   >
-                    Clear all
+                    Șterge tot
                   </button>
                 </div>
                 <div className="space-y-2">
@@ -199,7 +199,7 @@ export function SearchOverlay({
             {/* Trending */}
             <div className="mb-6">
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                Trending in București
+                Tendințe în București
               </h3>
               <div className="space-y-2">
                 {TRENDING.map((term) => (
@@ -219,7 +219,7 @@ export function SearchOverlay({
             {/* Quick categories */}
             <div>
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                Quick categories
+                Categorii rapide
               </h3>
               <div className="grid grid-cols-4 gap-2">
                 {QUICK_CATEGORIES.map(({ emoji, label }) => (
@@ -241,7 +241,7 @@ export function SearchOverlay({
           <>
             {matchedRestaurants.length === 0 && matchedCuisines.length === 0 ? (
               <p className="text-text-secondary text-sm py-8 text-center">
-                No restaurants found for &apos;{query}&apos;
+                Niciun restaurant găsit pentru &apos;{query}&apos;
               </p>
             ) : (
               <>
@@ -249,7 +249,7 @@ export function SearchOverlay({
                 {matchedRestaurants.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                      Restaurants
+                      Restaurante
                     </h3>
                     <div className="space-y-1">
                       {matchedRestaurants.map((r) => (
@@ -275,7 +275,7 @@ export function SearchOverlay({
                 {matchedCuisines.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                      Cuisines
+                      Bucătării
                     </h3>
                     <div className="space-y-1">
                       {matchedCuisines.map(({ cuisine, count }) => (
@@ -286,7 +286,7 @@ export function SearchOverlay({
                           className="flex items-center w-full text-left py-3 border-b border-border last:border-b-0"
                         >
                           <span className="text-sm text-text-primary">
-                            {cuisine} ({count} {count === 1 ? "place" : "places"})
+                            {cuisine} ({count} {count === 1 ? "loc" : "locuri"})
                           </span>
                         </button>
                       ))}

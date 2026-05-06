@@ -26,7 +26,7 @@ export function StatusBadge({
         ].join(" ")}
       >
         {dot}
-        {isOpen ? "Open now" : "Closed"}
+        {isOpen ? "Deschis acum" : "Închis"}
       </span>
     );
   }
@@ -36,9 +36,9 @@ export function StatusBadge({
       className={`inline-flex items-center gap-1.5 text-sm font-semibold ${isOpen ? "text-success" : "text-error"}`}
     >
       {dot}
-      <span>{isOpen ? "Open now" : "Closed"}</span>
-      {isOpen && closesAt && <span>· Closes at {closesAt}</span>}
-      {!isOpen && opensAt && <span>· Opens at {opensAt}</span>}
+      <span>{isOpen ? "Deschis acum" : "Închis"}</span>
+      {isOpen && closesAt && <span>· Se închide la {closesAt}</span>}
+      {!isOpen && opensAt && <span>· Se deschide la {opensAt}</span>}
     </span>
   );
 }

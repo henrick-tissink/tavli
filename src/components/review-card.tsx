@@ -49,7 +49,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
 
       {/* Booking context */}
       <p className="text-xs text-text-muted mt-1">
-        Booked: {review.reservationDate} &middot; {review.guestCount} guests
+        Rezervat: {review.reservationDate} &middot; {review.guestCount} {review.guestCount === 1 ? "persoană" : "persoane"}
       </p>
 
       {/* Review text */}
@@ -70,7 +70,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
             : "bg-surface-bg hover:bg-gray-200"
         }`}
       >
-        👍 Helpful ({count})
+        👍 Util ({count})
       </button>
 
       {/* Restaurant reply */}
@@ -79,7 +79,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
           <div className="flex items-center gap-2">
             <span>🏪</span>
             <span className="font-bold text-xs text-text-primary">
-              Restaurant reply
+              Răspuns restaurant
             </span>
           </div>
           <p className="text-sm text-text-primary mt-1">

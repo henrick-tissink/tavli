@@ -43,11 +43,11 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
   };
 
   return (
-    <BottomSheet open={open} onClose={handleClose} title="Sign in">
+    <BottomSheet open={open} onClose={handleClose} title="Conectează-te">
       {step === "phone" && (
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">
-            Enter your phone number to continue
+            Introdu numărul de telefon pentru a continua
           </p>
           <div className="flex items-center gap-2">
             <span className="text-sm text-text-secondary font-medium">+40</span>
@@ -55,13 +55,13 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone number"
-              aria-label="Phone number"
+              placeholder="Număr de telefon"
+              aria-label="Număr de telefon"
               className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
           <Button fullWidth disabled={!phoneValid} onClick={handleContinue}>
-            Continue
+            Continuă
           </Button>
         </div>
       )}
@@ -69,7 +69,7 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
       {step === "otp" && (
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">
-            Enter the 6-digit code sent to +40 {phone}
+            Introdu codul de 6 cifre trimis la +40 {phone}
           </p>
           <input
             type="text"
@@ -78,11 +78,11 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
             placeholder="000000"
-            aria-label="Verification code"
+            aria-label="Cod de verificare"
             className="w-full rounded-lg border border-border px-3 py-2 text-sm text-center tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
           <Button fullWidth disabled={otp.length !== 6} onClick={handleVerify}>
-            Verify
+            Verifică
           </Button>
         </div>
       )}

@@ -34,7 +34,7 @@ export function TopNav({
             <input
               type="text"
               readOnly
-              placeholder="Search restaurants, cuisines..."
+              placeholder="Caută restaurante, bucătării…"
               className="w-full pl-9 pr-4 py-2 rounded-button border border-border bg-surface-bg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-primary cursor-pointer"
               onFocus={onSearchFocus}
             />
@@ -45,7 +45,7 @@ export function TopNav({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Saved restaurants"
+            aria-label="Restaurante salvate"
             className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
             onClick={onSavedClick}
           >
@@ -53,7 +53,7 @@ export function TopNav({
           </button>
           <button
             type="button"
-            aria-label="Profile"
+            aria-label="Profil"
             className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
             onClick={onProfileClick}
           >

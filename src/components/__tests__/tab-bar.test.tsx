@@ -5,22 +5,22 @@ import { TabBar } from "../tab-bar";
 describe("TabBar", () => {
   it("renders 5 tabs", () => {
     render(<TabBar activeTab="discover" onTabChange={jest.fn()} />);
-    expect(screen.getByLabelText("Discover")).toBeInTheDocument();
-    expect(screen.getByLabelText("Map")).toBeInTheDocument();
-    expect(screen.getByLabelText("Search")).toBeInTheDocument();
-    expect(screen.getByLabelText("Saved")).toBeInTheDocument();
-    expect(screen.getByLabelText("Profile")).toBeInTheDocument();
+    expect(screen.getByLabelText("Descoperă")).toBeInTheDocument();
+    expect(screen.getByLabelText("Hartă")).toBeInTheDocument();
+    expect(screen.getByLabelText("Caută")).toBeInTheDocument();
+    expect(screen.getByLabelText("Salvate")).toBeInTheDocument();
+    expect(screen.getByLabelText("Profil")).toBeInTheDocument();
   });
 
   it("highlights active tab", () => {
     render(<TabBar activeTab="discover" onTabChange={jest.fn()} />);
-    const discoverBtn = screen.getByLabelText("Discover");
+    const discoverBtn = screen.getByLabelText("Descoperă");
     expect(discoverBtn).toHaveClass("text-brand-primary");
   });
 
   it("inactive tabs have muted color", () => {
     render(<TabBar activeTab="discover" onTabChange={jest.fn()} />);
-    const mapBtn = screen.getByLabelText("Map");
+    const mapBtn = screen.getByLabelText("Hartă");
     expect(mapBtn).toHaveClass("text-text-muted");
   });
 
@@ -28,7 +28,7 @@ describe("TabBar", () => {
     const user = userEvent.setup();
     const handleChange = jest.fn();
     render(<TabBar activeTab="discover" onTabChange={handleChange} />);
-    await user.click(screen.getByLabelText("Map"));
+    await user.click(screen.getByLabelText("Hartă"));
     expect(handleChange).toHaveBeenCalledWith("map");
   });
 

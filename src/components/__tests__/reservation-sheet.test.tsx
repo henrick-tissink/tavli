@@ -44,15 +44,15 @@ describe("ReservationSheet", () => {
     const user = userEvent.setup();
     render(<ReservationSheet {...defaultProps} />);
     await user.click(screen.getByText("19:00"));
-    expect(screen.getByPlaceholderText("Your name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Phone number")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Numele tău")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Număr de telefon")).toBeInTheDocument();
   });
 
   it("confirm button is disabled without name and phone", async () => {
     const user = userEvent.setup();
     render(<ReservationSheet {...defaultProps} />);
     await user.click(screen.getByText("19:00"));
-    const confirmBtn = screen.getByRole("button", { name: /confirm/i });
+    const confirmBtn = screen.getByRole("button", { name: /confirmă/i });
     expect(confirmBtn).toBeDisabled();
   });
 
@@ -82,12 +82,12 @@ describe("ReservationSheet", () => {
     // Select a slot
     await user.click(screen.getByText("19:00"));
     // Fill in name and phone
-    await user.type(screen.getByPlaceholderText("Your name"), "Maria");
-    await user.type(screen.getByPlaceholderText("Phone number"), "712345678");
+    await user.type(screen.getByPlaceholderText("Numele tău"), "Maria");
+    await user.type(screen.getByPlaceholderText("Număr de telefon"), "712345678");
     // Click confirm
-    const confirmBtn = screen.getByRole("button", { name: /confirm/i });
+    const confirmBtn = screen.getByRole("button", { name: /confirmă/i });
     await user.click(confirmBtn);
     // Should show confirmed state
-    expect(screen.getByText("You're booked!")).toBeInTheDocument();
+    expect(screen.getByText("Rezervarea ta este confirmată!")).toBeInTheDocument();
   });
 });

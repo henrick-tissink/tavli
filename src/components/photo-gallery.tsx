@@ -44,7 +44,7 @@ export function PhotoGallery({
           {onBack && (
             <button
               type="button"
-              aria-label="Go back"
+              aria-label="Înapoi"
               onClick={onBack}
               className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
             >
@@ -55,7 +55,7 @@ export function PhotoGallery({
             {onSave && (
               <button
                 type="button"
-                aria-label="Save"
+                aria-label="Salvează"
                 onClick={onSave}
                 className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
               >

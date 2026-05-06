@@ -51,7 +51,7 @@ describe("RestaurantCard", () => {
 
   it("renders open status", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
-    expect(screen.getByText("Open now")).toBeInTheDocument();
+    expect(screen.getByText("Deschis acum")).toBeInTheDocument();
   });
 
   it("renders time slots limited to 4 visible with More arrow", () => {
@@ -61,7 +61,7 @@ describe("RestaurantCard", () => {
     expect(screen.getByText("20:00")).toBeInTheDocument();
     expect(screen.getByText("20:30")).toBeInTheDocument();
     expect(screen.queryByText("21:00")).not.toBeInTheDocument();
-    expect(screen.getByText("More →")).toBeInTheDocument();
+    expect(screen.getByText("Mai multe →")).toBeInTheDocument();
   });
 
   it("renders review snippet with fire emoji and dimension percentage", () => {
@@ -69,7 +69,7 @@ describe("RestaurantCard", () => {
     expect(
       screen.getByText(/Best sarmale in town/)
     ).toBeInTheDocument();
-    expect(screen.getByText(/95% loved the atmosphere/)).toBeInTheDocument();
+    expect(screen.getByText(/95% au adorat atmosphere/)).toBeInTheDocument();
   });
 
   it("renders photo count", () => {
@@ -88,12 +88,12 @@ describe("RestaurantCard", () => {
   it("renders Closed badge when status is closed", () => {
     const closed = { ...baseRestaurant, status: "closed" as const, opensAt: "12:00" };
     render(<RestaurantCard restaurant={closed} onSlotSelect={jest.fn()} />);
-    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.getByText("Închis")).toBeInTheDocument();
   });
 
   it("renders save button with aria-label Save {name}", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
-    expect(screen.getByLabelText("Save La Mama")).toBeInTheDocument();
+    expect(screen.getByLabelText("Salvează La Mama")).toBeInTheDocument();
   });
 
   it("shows voteCount reviews fallback when no review snippet", () => {
@@ -104,13 +104,13 @@ describe("RestaurantCard", () => {
       topDimensionLabel: undefined,
     };
     render(<RestaurantCard restaurant={noSnippet} onSlotSelect={jest.fn()} />);
-    expect(screen.getByText("312 reviews")).toBeInTheDocument();
+    expect(screen.getByText("312 recenzii")).toBeInTheDocument();
   });
 
   it("calls onSave when save button clicked", async () => {
     const onSave = jest.fn();
     render(<RestaurantCard restaurant={baseRestaurant} saved={false} onSave={onSave} onSlotSelect={jest.fn()} />);
-    await userEvent.click(screen.getByLabelText("Save La Mama"));
+    await userEvent.click(screen.getByLabelText("Salvează La Mama"));
     expect(onSave).toHaveBeenCalledWith("r1");
   });
 

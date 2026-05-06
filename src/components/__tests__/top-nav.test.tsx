@@ -19,21 +19,21 @@ describe("TopNav", () => {
   it("renders the search input", () => {
     render(<TopNav {...defaultProps} />);
     expect(
-      screen.getByPlaceholderText("Search restaurants, cuisines...")
+      screen.getByPlaceholderText("Caută restaurante, bucătării…")
     ).toBeInTheDocument();
   });
 
   it("renders saved and profile icon buttons", () => {
     render(<TopNav {...defaultProps} />);
-    expect(screen.getByLabelText("Saved restaurants")).toBeInTheDocument();
-    expect(screen.getByLabelText("Profile")).toBeInTheDocument();
+    expect(screen.getByLabelText("Restaurante salvate")).toBeInTheDocument();
+    expect(screen.getByLabelText("Profil")).toBeInTheDocument();
   });
 
   it("calls onSavedClick when heart button clicked", async () => {
     const user = userEvent.setup();
     const onSavedClick = jest.fn();
     render(<TopNav {...defaultProps} onSavedClick={onSavedClick} />);
-    await user.click(screen.getByLabelText("Saved restaurants"));
+    await user.click(screen.getByLabelText("Restaurante salvate"));
     expect(onSavedClick).toHaveBeenCalledTimes(1);
   });
 
@@ -41,7 +41,7 @@ describe("TopNav", () => {
     const user = userEvent.setup();
     const onProfileClick = jest.fn();
     render(<TopNav {...defaultProps} onProfileClick={onProfileClick} />);
-    await user.click(screen.getByLabelText("Profile"));
+    await user.click(screen.getByLabelText("Profil"));
     expect(onProfileClick).toHaveBeenCalledTimes(1);
   });
 

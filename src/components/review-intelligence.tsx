@@ -14,7 +14,7 @@ export function ReviewIntelligenceSection({
   return (
     <div>
       <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-        What people love
+        Ce le place oamenilor
       </h3>
 
       <div className="mt-3 space-y-2">
@@ -30,12 +30,12 @@ export function ReviewIntelligenceSection({
       </div>
 
       <p className="text-xs text-text-muted mt-2">
-        Based on {totalReviews.toLocaleString()} reviews
+        Pe baza a {totalReviews.toLocaleString()} {totalReviews === 1 ? "recenzie" : "recenzii"}
       </p>
 
       <hr className="border-border my-4" />
 
-      <h4 className="text-base font-bold text-text-primary mt-4">Top mentions</h4>
+      <h4 className="text-base font-bold text-text-primary mt-4">Cele mai menționate</h4>
       <ul className="mt-2 space-y-1">
         {intelligence.topMentions.map((mention, i) => (
           <li key={mention.phrase} className="text-sm text-text-primary">
@@ -48,7 +48,7 @@ export function ReviewIntelligenceSection({
       <hr className="border-border my-4" />
 
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-bold text-text-primary">Best for</span>
+        <span className="text-sm font-bold text-text-primary">Bun pentru</span>
         {intelligence.bestFor.map((tag) => (
           <Pill key={tag} label={tag} />
         ))}

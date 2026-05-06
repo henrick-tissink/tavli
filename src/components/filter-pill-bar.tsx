@@ -3,12 +3,12 @@
 import { Pill } from "@/components/pill";
 
 const DEFAULT_PILLS = [
-  { label: "All", hasDropdown: false },
-  { label: "Open Now", hasDropdown: false },
-  { label: "Cuisine", hasDropdown: true },
-  { label: "Price", hasDropdown: true },
-  { label: "Distance", hasDropdown: true },
-  { label: "More", hasDropdown: true },
+  { label: "Toate", hasDropdown: false },
+  { label: "Deschis acum", hasDropdown: false },
+  { label: "Bucătărie", hasDropdown: true },
+  { label: "Preț", hasDropdown: true },
+  { label: "Distanță", hasDropdown: true },
+  { label: "Mai multe", hasDropdown: true },
 ];
 
 interface FilterPillBarProps {

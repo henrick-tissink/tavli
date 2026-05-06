@@ -2,24 +2,24 @@ import { render, screen } from "@testing-library/react";
 import { StatusBadge } from "../status-badge";
 
 describe("StatusBadge", () => {
-  it("renders 'Open now' for open status (full)", () => {
+  it("renders 'Deschis acum' for open status (full)", () => {
     render(<StatusBadge status="open" />);
-    expect(screen.getByText("Open now")).toBeInTheDocument();
+    expect(screen.getByText("Deschis acum")).toBeInTheDocument();
   });
 
   it("shows closing time when provided", () => {
     render(<StatusBadge status="open" closesAt="22:00" />);
-    expect(screen.getByText(/Closes at 22:00/)).toBeInTheDocument();
+    expect(screen.getByText(/Se închide la 22:00/)).toBeInTheDocument();
   });
 
-  it("renders 'Closed' for closed status", () => {
+  it("renders 'Închis' for closed status", () => {
     render(<StatusBadge status="closed" />);
-    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.getByText("Închis")).toBeInTheDocument();
   });
 
   it("shows opening time when provided", () => {
     render(<StatusBadge status="closed" opensAt="11:00" />);
-    expect(screen.getByText(/Opens at 11:00/)).toBeInTheDocument();
+    expect(screen.getByText(/Se deschide la 11:00/)).toBeInTheDocument();
   });
 
   it("uses green color for open", () => {
@@ -36,7 +36,7 @@ describe("StatusBadge", () => {
 
   it("compact variant does not show time", () => {
     render(<StatusBadge status="open" closesAt="22:00" variant="compact" />);
-    expect(screen.queryByText(/Closes at/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Se închide la/)).not.toBeInTheDocument();
   });
 
   it("compact open has correct classes", () => {

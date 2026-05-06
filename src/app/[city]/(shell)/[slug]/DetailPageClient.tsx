@@ -121,7 +121,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             <section className="mt-6">
               <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                About
+                Despre
               </h3>
               <p className="text-sm text-text-secondary mt-2 leading-relaxed">
                 {displayDescription}
@@ -131,7 +131,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     onClick={() => setExpanded(true)}
                     className="text-brand-primary font-semibold ml-1"
                   >
-                    Read more
+                    Citește mai mult
                   </button>
                 )}
                 {expanded && restaurant.description.length > 200 && (
@@ -140,7 +140,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     onClick={() => setExpanded(false)}
                     className="text-brand-primary font-semibold ml-1"
                   >
-                    Show less
+                    Arată mai puțin
                   </button>
                 )}
               </p>
@@ -186,9 +186,9 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               <section className="mt-8">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                    Reviews
+                    Recenzii
                   </h3>
-                  <span className="text-xs text-text-muted">Most recent</span>
+                  <span className="text-xs text-text-muted">Cele mai recente</span>
                 </div>
                 <div className="divide-y divide-border">
                   {restaurant.reviews.map((review) => (
@@ -222,7 +222,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </Link>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Hours</h3>
+              <h3 className="text-[20px] font-bold text-text-primary">Program</h3>
               <div className="mt-3 space-y-1">
                 {restaurant.schedule.map((entry) => (
                   <div key={entry.days} className="flex justify-between text-sm">
@@ -234,7 +234,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </section>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
+              <h3 className="text-[20px] font-bold text-text-primary">Locație</h3>
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
               {hasCoords && (
                 <div className="mt-3">
@@ -252,7 +252,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
                 >
-                  Get Directions <ExternalLink size={14} />
+                  Indicații rutiere <ExternalLink size={14} />
                 </a>
               )}
             </section>
@@ -301,7 +301,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
               >
-                Get Directions <ExternalLink size={14} />
+                Indicații rutiere <ExternalLink size={14} />
               </a>
             )}
           </section>
@@ -311,7 +311,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         {restaurant.nearby.length > 0 && (
           <section className="mt-8">
             <HorizontalSection
-              title="Nearby"
+              title="În apropiere"
               restaurants={restaurant.nearby}
               isSaved={isSaved}
               onSave={toggleSave}
@@ -336,7 +336,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             voteCount={restaurant.voteCount}
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
           />
-          <Button onClick={() => openSheet()}>Book a Table</Button>
+          <Button onClick={() => openSheet()}>Rezervă o masă</Button>
         </div>
       )}
 
@@ -407,7 +407,7 @@ function InfoBlock({
       </div>
       <div ref={ctaRef} className="mt-4">
         <Button fullWidth onClick={onBook}>
-          Book a Table
+          Rezervă o masă
         </Button>
       </div>
     </div>

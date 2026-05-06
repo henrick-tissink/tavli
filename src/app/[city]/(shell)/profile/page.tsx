@@ -30,7 +30,7 @@ export default function ProfilePage({
   const { city } = use(params);
   const { auth, logout } = useAuth();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState("EN");
+  const [selectedLang, setSelectedLang] = useState("RO");
   const [notifications, setNotifications] = useState(true);
 
   const displayCity = formatCityName(city);
@@ -41,12 +41,12 @@ export default function ProfilePage({
         <div className="w-16 h-16 rounded-full bg-surface-bg flex items-center justify-center mb-4">
           <User size={28} className="text-text-muted" />
         </div>
-        <h1 className="text-xl font-bold text-text-primary">Your profile</h1>
+        <h1 className="text-xl font-bold text-text-primary">Profilul tău</h1>
         <p className="text-sm text-text-secondary mt-2 text-center">
-          Sign in to manage your account and preferences.
+          Conectează-te pentru a-ți gestiona contul și preferințele.
         </p>
         <div className="mt-6">
-          <Button onClick={() => setAuthSheetOpen(true)}>Sign in</Button>
+          <Button onClick={() => setAuthSheetOpen(true)}>Conectează-te</Button>
         </div>
         <AuthSheet
           open={authSheetOpen}
@@ -58,7 +58,7 @@ export default function ProfilePage({
   }
 
   const user = auth.user!;
-  const displayName = user.name || "Tavli User";
+  const displayName = user.name || "Utilizator Tavli";
 
   const handleLogout = () => {
     logout();
@@ -78,7 +78,7 @@ export default function ProfilePage({
           )}
           <p className="text-sm text-text-secondary">+40 {user.phone}</p>
           <p className="text-xs text-text-muted mt-0.5">
-            Member since {user.memberSince}
+            Membru din {user.memberSince}
           </p>
         </div>
       </div>
@@ -86,12 +86,12 @@ export default function ProfilePage({
       {/* Settings */}
       <section className="space-y-5">
         <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-          Settings
+          Setări
         </h2>
 
         {/* City */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-text-primary">City</span>
+          <span className="text-sm font-medium text-text-primary">Oraș</span>
           <CitySelector
             currentCity={displayCity}
             onSelect={(c) => console.log("City selected:", c)}
@@ -100,7 +100,7 @@ export default function ProfilePage({
 
         {/* Language */}
         <div>
-          <span className="text-sm font-medium text-text-primary block mb-2">Language</span>
+          <span className="text-sm font-medium text-text-primary block mb-2">Limbă</span>
           <div className="flex items-center gap-2">
             {["RO", "TR", "EN"].map((lang) => (
               <Pill
@@ -117,7 +117,7 @@ export default function ProfilePage({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell size={18} className="text-text-secondary" />
-            <span className="text-sm font-medium text-text-primary">Notifications</span>
+            <span className="text-sm font-medium text-text-primary">Notificări</span>
           </div>
           <button
             type="button"
@@ -142,7 +142,7 @@ export default function ProfilePage({
         <Button variant="ghost" fullWidth onClick={handleLogout}>
           <span className="flex items-center gap-2 justify-center">
             <LogOut size={16} />
-            Log Out
+            Deconectează-te
           </span>
         </Button>
       </div>

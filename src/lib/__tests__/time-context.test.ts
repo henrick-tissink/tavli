@@ -18,7 +18,7 @@ describe("computeTimeContext", () => {
     expect(ctx.active).toContain("morning");
     expect(ctx.active).toContain("brunch");
     expect(ctx.active).toContain("weekend");
-    expect(ctx.greeting).toBe("Brunch time");
+    expect(ctx.greeting).toBe("E timpul de brunch");
   });
 
   it("Tuesday 12pm → lunch active", () => {
@@ -76,34 +76,34 @@ describe("computeTimeContext", () => {
   it("default greeting for edge cases (e.g. hour 7 on weekday, no temp)", () => {
     const d = new Date(2026, 3, 13, 7, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Good morning");
+    expect(ctx.greeting).toBe("Bună dimineața");
   });
 
   it("evening greeting", () => {
     const d = new Date(2026, 3, 16, 19, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Good evening");
+    expect(ctx.greeting).toBe("Bună seara");
   });
 
   it("lunch greeting on weekday at noon", () => {
     const d = new Date(2026, 3, 14, 12, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Lunchtime");
-    expect(ctx.subtextTemplate).toBe("{N} places with quick service");
+    expect(ctx.greeting).toBe("E ora prânzului");
+    expect(ctx.subtextTemplate).toBe("{N} locuri cu servire rapidă");
   });
 
   it("late greeting at 2am — no city interpolation", () => {
     const d = new Date(2026, 3, 14, 2, 0);
     const ctx = computeTimeContext(d);
     expect(ctx.active).toContain("late");
-    expect(ctx.greeting).toBe("Still hungry?");
+    expect(ctx.greeting).toBe("Tot mai e poftă?");
   });
 
   it("afternoon greeting at 3pm", () => {
     const d = new Date(2026, 3, 16, 15, 0);
     const ctx = computeTimeContext(d);
-    expect(ctx.greeting).toBe("Afternoon");
-    expect(ctx.subtextTemplate).toBe("{N} cafes near you");
+    expect(ctx.greeting).toBe("Bună ziua");
+    expect(ctx.subtextTemplate).toBe("{N} cafenele lângă tine");
   });
 
   it("greetings never contain {city} interpolation token or city names", () => {
@@ -121,8 +121,8 @@ describe("computeTimeContext", () => {
     const fri19 = new Date(2026, 3, 17, 19, 0);
     const ctx = computeTimeContext(fri19);
     const labels = ctx.injectedPills.map((p) => p.label);
-    // evening pill (Dinner) should come first, then Cocktails if room
-    expect(labels).toContain("Dinner");
-    expect(labels).toContain("Cocktails");
+    // evening pill (Cină) should come first, then Cocktailuri if room
+    expect(labels).toContain("Cină");
+    expect(labels).toContain("Cocktailuri");
   });
 });
