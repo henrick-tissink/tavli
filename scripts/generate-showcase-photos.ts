@@ -100,7 +100,7 @@ const MENU_ITEM_PROMPTS: Record<string, { aspectRatio: AspectRatio; description:
     description:
       "three Romanian sarmale rolls wrapped in vine leaves glistening with rich tomato sauce, on a hand-thrown ceramic plate alongside a quenelle of sour cream and a mound of yellow polenta, fresh dill garnish",
   },
-  "File de biban de Crișana cu legume de sezon": {
+  "File de biban-de-mare cu legume de sezon": {
     aspectRatio: "3:2",
     description:
       "pan-seared sea bass fillet with crispy golden skin glazed with brown butter and toasted almonds, beside vivid green peas and three fresh asparagus spears, drizzle of bright green parsley oil",
@@ -125,7 +125,7 @@ const MENU_ITEM_PROMPTS: Record<string, { aspectRatio: AspectRatio; description:
     description:
       "rustic apple tart with golden almond crust, one wedge sliced showing layered caramelized apples, scoop of cinnamon ice cream beginning to melt against the warm crust, dusting of icing sugar",
   },
-  "Crème brûlée de lavandă": {
+  "Crème brûlée cu lavandă": {
     aspectRatio: "3:2",
     description:
       "crème brûlée in a small white ramekin with a crisp caramelized brown-sugar crust just cracked open, faint purple lavender hue in the cream beneath, fresh lavender sprig garnish",
@@ -140,7 +140,7 @@ const MENU_ITEM_PROMPTS: Record<string, { aspectRatio: AspectRatio; description:
     description:
       "tall glass of cloudy pale-yellow elderflower lemonade with a perfectly clear sphere of ice, fresh mint sprig and a small wedge of bright red watermelon on the rim, condensation on the glass",
   },
-  "Cafea de specialitate — Origini Comeliu": {
+  "Espresso de specialitate — Origo": {
     aspectRatio: "3:2",
     description:
       "single espresso shot in a small white ceramic cup with a perfect crema swirling on top, ceramic saucer with a single dark chocolate square, soft window light, intimate restaurant scene behind blurred",

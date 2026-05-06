@@ -32,19 +32,19 @@ interface SectionSpec {
 const SECTIONS: SectionSpec[] = [
   {
     name: "Începuturi",
-    intro: "Provocări mici pentru deschiderea mesei. De împărțit, de durat.",
+    intro: "Aperitive de sezon, de împărțit la masă, fără grabă.",
     items: [
       {
         name: "Pâine de casă cu unt afumat și sare de Praid",
         description:
-          "Pâine cu maia naturală fermentată 36h, unt bătut cu lemn de fag, sare grunjoasă din Salina Praid.",
+          "Pâine cu maia naturală, fermentată 36 de ore. Unt afumat cu lemn de fag și sare grunjoasă de Praid.",
         priceLei: 22,
         dietaryTags: ["vegetarian"],
       },
       {
         name: "Burrată de Andria, sfeclă coaptă și pesto de leuștean",
         description:
-          "Burrată proaspătă din Puglia, sfeclă neagră coaptă în sare, pesto de leuștean, ulei de in cernut la rece.",
+          "Burrată din Puglia, sfeclă roșie coaptă în crustă de sare, pesto de leuștean și ulei de in presat la rece.",
         priceLei: 48,
         dietaryTags: ["vegetarian", "gluten_free", "chef_pick"],
         isChefPick: true,
@@ -52,27 +52,27 @@ const SECTIONS: SectionSpec[] = [
       {
         name: "Tartar de vită cu gălbenuș confit și pâine prăjită",
         description:
-          "Vită Black Angus tăiată cu cuțitul, gălbenuș confit 60°C, capere fritura, pâine prăjită cu unt brun.",
+          "Vită Black Angus tăiată cu cuțitul, gălbenuș confit la 60 °C, capere prăjite, pâine prăjită în unt brun.",
         priceLei: 62,
         dietaryTags: ["popular"],
       },
       {
         name: "Ciuperci sălbatice pe mămăligă moale",
         description:
-          "Hribi, gălbiori și mâzgălici sotați cu cimbru și usturoi negru, mămăligă cu unt și brânză de burduf, mărar.",
+          "Hribi, gălbiori și zbârciogi sotați cu cimbru și usturoi negru. Mămăligă cu unt și brânză de burduf, mărar proaspăt.",
         priceLei: 42,
         dietaryTags: ["vegetarian", "gluten_free"],
       },
     ],
   },
   {
-    name: "Felul Principal",
-    intro: "Carne lentă, pește prins în săptămâna asta, și două opțiuni vegetariene fără compromis.",
+    name: "Feluri principale",
+    intro: "Carne gătită lent, pește prins săptămâna asta și două feluri vegetariene fără compromis.",
     items: [
       {
         name: "Tochitură de porc Mangalița, mămăligă și ou ochi",
         description:
-          "Mangaliță din Banat gătită lent 6h, mămăligă cu telemea de oaie, ou ochi de la Pădureni, murături de casă.",
+          "Mangaliță din Banat gătită lent, 6 ore. Mămăligă cu telemea de oaie, ou de țară și murături de casă.",
         priceLei: 92,
         dietaryTags: ["chef_pick", "popular"],
         isChefPick: true,
@@ -80,28 +80,28 @@ const SECTIONS: SectionSpec[] = [
       {
         name: "Sarmale aristocratice cu mămăligă și smântână",
         description:
-          "Sarmale în foi de viță, carne de porc și vițel, gătite în vin alb și boia dulce, mămăligă pripită, smântână de la Cluj.",
+          "Sarmale în foi de viță, cu carne de porc și vițel, gătite în vin alb cu boia dulce. Mămăligă pripită, smântână grasă de țară.",
         priceLei: 78,
         dietaryTags: ["popular"],
       },
       {
-        name: "File de biban de Crișana cu legume de sezon",
+        name: "File de biban-de-mare cu legume de sezon",
         description:
-          "Biban prins în Crișana, glasat cu unt brun și migdale, mazăre proaspătă, sparanghel verde, ulei de pătrunjel.",
+          "Biban-de-mare glasat cu unt brun și migdale prăjite. Mazăre proaspătă, sparanghel verde, ulei de pătrunjel.",
         priceLei: 124,
         dietaryTags: ["gluten_free"],
       },
       {
         name: "Risotto cu hribi și parmigiano 36 luni",
         description:
-          "Carnaroli cu fond de hribi uscați la munte, parmigiano reggiano 36 luni, ulei de trufe albe Alba.",
+          "Carnaroli cu fond preparat din hribi uscați. Parmigiano reggiano de 36 de luni, ulei de trufe albe.",
         priceLei: 76,
         dietaryTags: ["vegetarian", "gluten_free"],
       },
       {
         name: "Coastă de vită afumată 14 ore",
         description:
-          "Coastă afumată cu lemn de cireș, glasaj de vin roșu și miere de mănăstire, cartofi confit în grăsime de rață.",
+          "Coastă afumată cu lemn de cireș, glasaj de vin roșu și miere de mănăstire. Cartofi confitați în grăsime de rață.",
         priceLei: 138,
         dietaryTags: ["chef_pick"],
         isChefPick: true,
@@ -110,12 +110,12 @@ const SECTIONS: SectionSpec[] = [
   },
   {
     name: "Deserturi",
-    intro: "Trei finaluri: clasic românesc, clasic european, și o ușoară surpriză.",
+    intro: "Trei feluri pentru sfârșit de masă: un clasic românesc, un clasic european și o mică surpriză.",
     items: [
       {
         name: "Papanași cu dulceață de afine și smântână",
         description:
-          "Papanași prăjiți la comandă, dulceață de afine de munte fiartă în casă, smântână grasă din Bucovina, mentă proaspătă.",
+          "Papanași prăjiți la comandă. Dulceață de afine de munte, fiartă în casă. Smântână grasă din Bucovina, mentă proaspătă.",
         priceLei: 32,
         dietaryTags: ["chef_pick", "popular"],
         isChefPick: true,
@@ -123,14 +123,14 @@ const SECTIONS: SectionSpec[] = [
       {
         name: "Tartă de mere cu crustă de migdale și înghețată de scorțișoară",
         description:
-          "Mere golden românești coapte cu zahăr brun, crustă moale de migdale, înghețată de scorțișoară bătută în casă.",
+          "Mere golden românești coapte cu zahăr brun, crustă fragedă de migdale, înghețată de scorțișoară făcută în casă.",
         priceLei: 28,
         dietaryTags: ["vegetarian"],
       },
       {
-        name: "Crème brûlée de lavandă",
+        name: "Crème brûlée cu lavandă",
         description:
-          "Cremă onctuoasă cu lavandă proaspătă, crustă de zahăr brun caramelizată la momentul servirii.",
+          "Cremă fină cu lavandă proaspătă. Crustă de zahăr brun caramelizată la masă, în fața voastră.",
         priceLei: 26,
         dietaryTags: ["vegetarian", "gluten_free"],
       },
@@ -138,25 +138,25 @@ const SECTIONS: SectionSpec[] = [
   },
   {
     name: "Băuturi Selecte",
-    intro: "Vin natural, ape lente, și o cafea pe care o cumpărăm singuri.",
+    intro: "Vinuri naturale, apă plată și un espresso ales cu grijă.",
     items: [
       {
         name: "Fetească Neagră 2021 — Crama Bauer (sticlă)",
         description:
-          "Dealu Mare. Fructe de pădure, condimente blânde și o notă delicată de fum. Pereche bună cu Mangalița și coasta de vită.",
+          "Dealu Mare. Fructe de pădure, condimente blânde, o notă delicată de fum. Se potrivește cu Mangalița și coasta de vită.",
         priceLei: 145,
       },
       {
         name: "Limonadă de soc cu mentă și pepene",
         description:
-          "Soc proaspăt cules din pădurile Transilvaniei, mentă crispă, pepene roșu, gheață sferică.",
+          "Soc proaspăt din pădurile Transilvaniei, mentă proaspătă, pepene roșu și o sferă de gheață.",
         priceLei: 22,
         dietaryTags: ["vegan", "gluten_free"],
       },
       {
-        name: "Cafea de specialitate — Origini Comeliu",
+        name: "Espresso de specialitate — Origo",
         description:
-          "Arabica de la o singură fermă din Yirgacheffe, prăjită săptămânal de prăjitorul Origini din București.",
+          "Arabica de pe o singură fermă din Yirgacheffe, Etiopia. Prăjită săptămânal la Origo, București.",
         priceLei: 18,
         dietaryTags: ["vegan", "gluten_free"],
       },
@@ -175,7 +175,7 @@ const AVAILABILITY = [
 ];
 
 const SCHEDULE = [
-  { days: "Mar–Sâm", hours: "12:00 – 23:00" },
+  { days: "Marți – Sâmbătă", hours: "12:00 – 23:00" },
   { days: "Duminică", hours: "11:00 – 22:00" },
   { days: "Luni", hours: "Închis" },
 ];
@@ -222,12 +222,12 @@ async function main() {
       lat: 44.4575,
       lng: 26.1015,
       description:
-        "Bucătărie românească contemporană într-un atelier intim de 38 de locuri din inima Floreascăi. Meniu de sezon construit săptămânal cu producători locali, listă scurtă de vinuri naturale, lemn ars și cupru pe rețete vechi.",
-      hero_note: "Ferma în farfurie. Pădurea în pahar.",
+        "Bucătărie românească contemporană într-un atelier intim cu 38 de locuri, în inima Floreascăi. Schimbăm meniul săptămânal, după producătorii cu care lucrăm. O listă scurtă de vinuri naturale și rețete vechi gătite cu mâini noi.",
+      hero_note: "De la fermă, în farfurie. Din pădure, în pahar.",
       address: "Strada Glinka 9, Floreasca, București",
       phone: "+40 21 234 5678",
       email: "hltissink+atelier-floreasca@gmail.com",
-      tags: ["seasonal", "wine-list", "intimate", "natural-wine"],
+      tags: ["sezon", "vinuri naturale", "intim", "atelier"],
       schedule: SCHEDULE,
       status: "live",
       owner_user_id: owner.id,
@@ -241,7 +241,7 @@ async function main() {
     restaurant_id: rest.id,
     currency: "lei",
     hero_note:
-      "Meniul se schimbă cu sezonul. Întrebați-l pe ospătar despre ce a venit săptămâna asta de la fermieri.",
+      "Meniul urmează sezonul. Întrebați chelnerul ce ne-au trimis fermierii săptămâna asta.",
   });
   if (menuErr) throw menuErr;
 
