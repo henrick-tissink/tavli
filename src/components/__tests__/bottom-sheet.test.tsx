@@ -36,7 +36,7 @@ describe("BottomSheet", () => {
         <p>Content</p>
       </BottomSheet>
     );
-    expect(screen.getByLabelText("Close")).toBeInTheDocument();
+    expect(screen.getByLabelText("Închide")).toBeInTheDocument();
   });
 
   it("close button calls onClose", async () => {
@@ -47,7 +47,7 @@ describe("BottomSheet", () => {
         <p>Content</p>
       </BottomSheet>
     );
-    await user.click(screen.getByLabelText("Close"));
+    await user.click(screen.getByLabelText("Închide"));
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 

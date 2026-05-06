@@ -35,8 +35,12 @@ describe("FilterSheet", () => {
     expect(screen.getByText("Preț")).toBeInTheDocument();
     expect(screen.getByText("Cartier")).toBeInTheDocument();
     expect(screen.getByText("Rating minim")).toBeInTheDocument();
-    expect(screen.getByText("Tip")).toBeInTheDocument();
-    expect(screen.getByText("Colecție")).toBeInTheDocument();
+  });
+
+  it("does not render the unwired Tip / Colecție sections", () => {
+    renderSheet();
+    expect(screen.queryByText("Tip")).not.toBeInTheDocument();
+    expect(screen.queryByText("Colecție")).not.toBeInTheDocument();
   });
 
   it("renders cuisine pills from mock data", () => {
@@ -52,20 +56,6 @@ describe("FilterSheet", () => {
     expect(screen.getByText("$$ Moderat")).toBeInTheDocument();
     expect(screen.getByText("$$$ Premium")).toBeInTheDocument();
     expect(screen.getByText("$$$$ Exclusivist")).toBeInTheDocument();
-  });
-
-  it("renders venue type pills", () => {
-    renderSheet();
-    expect(screen.getByText("Restaurant")).toBeInTheDocument();
-    expect(screen.getByText("Cafenea")).toBeInTheDocument();
-    expect(screen.getByText("Pizzerie")).toBeInTheDocument();
-  });
-
-  it("renders collection pills", () => {
-    renderSheet();
-    expect(screen.getByText("Recomandate")).toBeInTheDocument();
-    expect(screen.getByText("Fine Dining")).toBeInTheDocument();
-    expect(screen.getByText("Pet friendly")).toBeInTheDocument();
   });
 
   it("toggling a cuisine pill updates filters", async () => {

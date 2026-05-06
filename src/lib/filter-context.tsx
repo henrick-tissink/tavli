@@ -9,8 +9,6 @@ export interface FilterState {
   priceRange: number[];
   neighborhoods: string[];
   minRating: number; // 0=any, 3, 4, 4.5, 5
-  venueTypes: string[];
-  collections: string[];
   searchQuery: string;
 }
 
@@ -20,8 +18,6 @@ const DEFAULT_FILTERS: FilterState = {
   priceRange: [],
   neighborhoods: [],
   minRating: 0,
-  venueTypes: [],
-  collections: [],
   searchQuery: "",
 };
 
@@ -29,7 +25,7 @@ interface FilterContextValue {
   filters: FilterState;
   setFilter: (key: keyof FilterState, value: any) => void;
   toggleArrayFilter: (
-    key: "cuisines" | "priceRange" | "neighborhoods" | "venueTypes" | "collections",
+    key: "cuisines" | "priceRange" | "neighborhoods",
     value: string | number,
   ) => void;
   resetFilters: () => void;
@@ -48,7 +44,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const toggleArrayFilter = useCallback(
     (
-      key: "cuisines" | "priceRange" | "neighborhoods" | "venueTypes" | "collections",
+      key: "cuisines" | "priceRange" | "neighborhoods",
       value: string | number,
     ) => {
       setFilters((prev) => {
@@ -74,8 +70,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     count += filters.priceRange.length;
     count += filters.neighborhoods.length;
     if (filters.minRating > 0) count++;
-    count += filters.venueTypes.length;
-    count += filters.collections.length;
     if (filters.searchQuery.length > 0) count++;
     return count;
   }, [filters]);

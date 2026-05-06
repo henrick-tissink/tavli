@@ -29,18 +29,6 @@ const RATING_OPTIONS = [
   { value: 5, label: "5" },
 ];
 
-const VENUE_TYPES = ["Restaurant", "Cafenea", "Bar", "Cocktail Bar", "Pub", "Lounge", "Pizzerie"];
-
-const COLLECTIONS = [
-  "Recomandate",
-  "Fine Dining",
-  "Pet friendly",
-  "Pentru copii",
-  "Romantic",
-  "Business",
-  "Terasă",
-];
-
 export function FilterSheet({
   open,
   onClose,
@@ -141,38 +129,6 @@ export function FilterSheet({
               label={label}
               active={filters.minRating === value}
               onToggle={() => setFilter("minRating", value)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Type */}
-      <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Tip</h3>
-        <div className="flex flex-wrap gap-2">
-          {VENUE_TYPES.map((type) => (
-            <Pill
-              key={type}
-              label={type}
-              active={filters.venueTypes.includes(type)}
-              onToggle={() => toggleArrayFilter("venueTypes", type)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Collection */}
-      <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Colecție
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {COLLECTIONS.map((collection) => (
-            <Pill
-              key={collection}
-              label={collection}
-              active={filters.collections.includes(collection)}
-              onToggle={() => toggleArrayFilter("collections", collection)}
             />
           ))}
         </div>

@@ -46,8 +46,6 @@ describe("FilterContext", () => {
     expect(filters.priceRange).toEqual([]);
     expect(filters.neighborhoods).toEqual([]);
     expect(filters.minRating).toBe(0);
-    expect(filters.venueTypes).toEqual([]);
-    expect(filters.collections).toEqual([]);
     expect(filters.searchQuery).toBe("");
   });
 

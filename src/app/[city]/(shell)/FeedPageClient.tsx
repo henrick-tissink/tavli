@@ -67,12 +67,7 @@ export function FeedPageClient({
     if (filters.openNow) pills.push("Deschis acum");
     if (filters.cuisines.length > 0) pills.push("Bucătărie");
     if (filters.priceRange.length > 0) pills.push("Preț");
-    if (
-      filters.neighborhoods.length > 0 ||
-      filters.minRating > 0 ||
-      filters.venueTypes.length > 0 ||
-      filters.collections.length > 0
-    )
+    if (filters.neighborhoods.length > 0 || filters.minRating > 0)
       pills.push("Mai multe");
     return pills;
   }, [filters, activeFilterCount, activeInjectedPills]);
@@ -117,7 +112,26 @@ export function FeedPageClient({
           )}
         />
 
-        {filteredRestaurants.length === 1 ? (
+        {filteredRestaurants.length === 0 ? (
+          <div className="mt-12 flex flex-col items-center text-center">
+            <div className="text-4xl mb-3" aria-hidden>🔍</div>
+            <h2 className="text-lg font-bold text-text-primary">
+              Niciun restaurant nu se potrivește
+            </h2>
+            <p className="text-sm text-text-secondary mt-2 max-w-sm">
+              Încearcă să relaxezi filtrele active pentru a vedea mai multe locuri.
+            </p>
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-4 rounded-button px-4 py-2 bg-brand-primary text-white text-sm font-semibold"
+              >
+                Resetează filtrele
+              </button>
+            )}
+          </div>
+        ) : filteredRestaurants.length === 1 ? (
           <div className="mt-8">
             <RestaurantSpotlight
               restaurant={filteredRestaurants[0]}
@@ -147,30 +161,27 @@ export function FeedPageClient({
               </div>
             )}
 
-            <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
-              Disponibile astăzi
-            </h2>
-
-            {firstChunk.length === 0 && (
-              <p className="text-text-secondary text-sm py-8 text-center">
-                Niciun restaurant nu se potrivește cu filtrele alese.
-              </p>
+            {firstChunk.length > 0 && (
+              <>
+                <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
+                  Disponibile astăzi
+                </h2>
+                <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
+                  {firstChunk.map((restaurant) => (
+                    <RestaurantCard
+                      key={restaurant.id}
+                      restaurant={restaurant}
+                      saved={isSaved(restaurant.id)}
+                      onSave={() => toggleSave(restaurant.id)}
+                      onClick={(r) => router.push(`/${city}/${r.slug}`)}
+                      onSlotSelect={() =>
+                        router.push(`/${city}/${restaurant.slug}`)
+                      }
+                    />
+                  ))}
+                </div>
+              </>
             )}
-
-            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
-              {firstChunk.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant.id}
-                  restaurant={restaurant}
-                  saved={isSaved(restaurant.id)}
-                  onSave={() => toggleSave(restaurant.id)}
-                  onClick={(r) => router.push(`/${city}/${r.slug}`)}
-                  onSlotSelect={() =>
-                    router.push(`/${city}/${restaurant.slug}`)
-                  }
-                />
-              ))}
-            </div>
           </>
         )}
 

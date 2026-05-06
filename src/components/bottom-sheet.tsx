@@ -114,7 +114,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
           )}
           <button
             type="button"
-            aria-label="Close"
+            aria-label="Închide"
             onClick={onClose}
             className="p-1 rounded-full hover:bg-surface-bg text-text-secondary"
           >
