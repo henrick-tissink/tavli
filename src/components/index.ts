@@ -19,7 +19,7 @@ export { ReviewIntelligenceSection } from "./review-intelligence";
 export { ReviewCard } from "./review-card";
 export { ReservationSheet } from "./reservation-sheet";
 export { MapContainer } from "./map-container";
-export { createPinElement } from "./map-pin";
+export { MapPin } from "./map-pin";
 export { MapCarousel } from "./map-carousel";
 export { FilterSheet } from "./filter-sheet";
 export { SearchOverlay } from "./search-overlay";

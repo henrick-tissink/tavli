@@ -1,83 +1,72 @@
 "use client";
 
-import { useRef, useEffect, type ReactNode } from "react";
-import { MapPin } from "lucide-react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import { type ReactNode } from "react";
+import { MapPin as MapPinIcon } from "lucide-react";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
 
-const PLACEHOLDER_TOKEN = "pk.placeholder_token_replace_with_real";
+const MAP_ID = "tavli-map";
+const PLACEHOLDER_VALUES = new Set([
+  "",
+  "your-google-maps-embed-key",
+  "REPLACE_ME",
+]);
 
 interface MapContainerProps {
+  /** [longitude, latitude] — kept Mapbox-style for backward compat with callers. */
   center: [number, number];
   zoom: number;
-  onMapReady?: (map: mapboxgl.Map) => void;
   className?: string;
   children?: ReactNode;
-  style?: string;
+  /** Color scheme — Google supports `light` / `dark` via mapId or styles. */
+  colorScheme?: "light" | "dark";
 }
 
 export function MapContainer({
   center,
   zoom,
-  onMapReady,
   className,
   children,
-  style: mapStyle = "mapbox://styles/mapbox/light-v11",
+  colorScheme = "light",
 }: MapContainerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  const hasValidToken = !!token && token !== PLACEHOLDER_TOKEN;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
+  const hasValidKey = !!apiKey && !PLACEHOLDER_VALUES.has(apiKey);
 
-  useEffect(() => {
-    if (!hasValidToken) return;
-    if (!containerRef.current || mapRef.current) return;
-
-    mapboxgl.accessToken = token ?? "";
-
-    try {
-      const map = new mapboxgl.Map({
-        container: containerRef.current,
-        style: mapStyle,
-        center,
-        zoom,
-      });
-
-      mapRef.current = map;
-
-      map.on("load", () => {
-        onMapReady?.(map);
-      });
-    } catch (err) {
-      console.error("Failed to initialize Mapbox map:", err);
-    }
-
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <div className={className} style={{ position: "relative" }}>
-      <div ref={containerRef} data-testid="map-container" className="w-full h-full" />
-      {!hasValidToken && (
+  if (!hasValidKey) {
+    return (
+      <div className={className} style={{ position: "relative" }}>
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-surface-bg p-8 text-center pointer-events-none">
-          <MapPin className="text-text-muted mb-3" size={40} />
+          <MapPinIcon className="text-text-muted mb-3" size={40} />
           <h3 className="font-bold text-text-primary mb-1">Map preview unavailable</h3>
           <p className="text-sm text-text-secondary max-w-sm">
             Set{" "}
             <code className="text-xs bg-surface-white px-1 rounded">
-              NEXT_PUBLIC_MAPBOX_TOKEN
+              NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY
             </code>{" "}
-            in{" "}
-            <code className="text-xs bg-surface-white px-1 rounded">.env.local</code>{" "}
             to enable the live map.
           </p>
         </div>
-      )}
-      {children}
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div className={className} style={{ position: "relative" }}>
+      <APIProvider apiKey={apiKey}>
+        <Map
+          mapId={MAP_ID}
+          defaultCenter={{ lat: center[1], lng: center[0] }}
+          defaultZoom={zoom}
+          colorScheme={colorScheme.toUpperCase() as "LIGHT" | "DARK"}
+          gestureHandling="greedy"
+          disableDefaultUI={false}
+          clickableIcons={false}
+          data-testid="map-container"
+          style={{ width: "100%", height: "100%" }}
+        >
+          {children}
+        </Map>
+      </APIProvider>
     </div>
   );
 }

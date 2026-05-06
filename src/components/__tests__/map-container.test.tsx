@@ -1,29 +1,33 @@
 import { render, screen } from "@testing-library/react";
 import { MapContainer } from "../map-container";
 
-// Mock mapbox-gl
-jest.mock("mapbox-gl", () => {
-  const mockMap = {
-    on: jest.fn(),
-    remove: jest.fn(),
-  };
-  return {
-    __esModule: true,
-    default: {
-      accessToken: "",
-      Map: jest.fn(() => mockMap),
-    },
-  };
-});
+// Mock @vis.gl/react-google-maps so the component renders synchronously in jsdom
+jest.mock("@vis.gl/react-google-maps", () => ({
+  __esModule: true,
+  APIProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Map: ({
+    children,
+    ...rest
+  }: { children?: React.ReactNode } & Record<string, unknown>) => (
+    <div data-testid="map-container" {...rest}>
+      {children}
+    </div>
+  ),
+}));
 
-// Mock the CSS import
-jest.mock("mapbox-gl/dist/mapbox-gl.css", () => ({}));
+const ORIGINAL_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
 
 describe("MapContainer", () => {
-  it("renders a map container div", () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY = "test-key";
+  });
+  afterAll(() => {
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY = ORIGINAL_KEY;
+  });
+
+  it("renders a map container div when key is set", () => {
     render(<MapContainer center={[26.1025, 44.4268]} zoom={13} />);
-    const div = screen.getByTestId("map-container");
-    expect(div).toBeInTheDocument();
+    expect(screen.getByTestId("map-container")).toBeInTheDocument();
   });
 
   it("applies custom className", () => {
@@ -34,12 +38,18 @@ describe("MapContainer", () => {
     expect(wrapper.className).toContain("h-screen");
   });
 
-  it("renders children", () => {
+  it("renders children inside the map", () => {
     render(
       <MapContainer center={[26.1025, 44.4268]} zoom={13}>
         <div data-testid="child-el">overlay</div>
       </MapContainer>,
     );
     expect(screen.getByTestId("child-el")).toBeInTheDocument();
+  });
+
+  it("shows fallback when no API key is set", () => {
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY = "";
+    render(<MapContainer center={[26.1025, 44.4268]} zoom={13} />);
+    expect(screen.getByText(/Map preview unavailable/i)).toBeInTheDocument();
   });
 });

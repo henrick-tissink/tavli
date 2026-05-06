@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search, X } from "lucide-react";
-import mapboxgl from "mapbox-gl";
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
 import { FilterSheet } from "@/components/filter-sheet";
 import { MapContainer } from "@/components/map-container";
-import { createPinElement } from "@/components/map-pin";
+import { MapPin } from "@/components/map-pin";
 import { MapCarousel } from "@/components/map-carousel";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -24,83 +24,15 @@ interface Props {
 export function MapPageClient({ city, allRestaurants }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { applyFilters, activeFilterCount } = useFilters();
   const timeContext = useTimeContext();
   const isNightMode =
     timeContext.active.includes("evening") || timeContext.active.includes("late");
-  const mapStyle = isNightMode
-    ? "mapbox://styles/mapbox/dark-v11"
-    : "mapbox://styles/mapbox/light-v11";
   const restaurants = useMemo(
     () => applyFilters(allRestaurants),
     [applyFilters, allRestaurants],
   );
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-
-  const handleMapReady = useCallback(
-    (map: mapboxgl.Map) => {
-      setMapInstance(map);
-    },
-    [],
-  );
-
-  // Plot / re-plot markers whenever the filtered restaurants change
-  useMemo(() => {
-    if (!mapInstance) return;
-
-    // Remove previous markers
-    for (const m of markersRef.current) m.remove();
-    markersRef.current = [];
-
-    restaurants.forEach((restaurant) => {
-      if (restaurant.lat == null || restaurant.lng == null) return;
-
-      const isClosed = restaurant.status === "closed";
-      const el = createPinElement({
-        rating: restaurant.rating,
-        unavailable: isClosed,
-      });
-
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([restaurant.lng, restaurant.lat])
-        .addTo(mapInstance);
-
-      marker.getElement().addEventListener("click", () => {
-        setSelectedId(restaurant.id);
-        mapInstance.flyTo({
-          center: [restaurant.lng!, restaurant.lat!],
-          zoom: 15,
-          duration: 800,
-        });
-      });
-
-      markersRef.current.push(marker);
-    });
-  }, [restaurants, mapInstance]);
-
-  function handleSelectFromCarousel(restaurant: Restaurant) {
-    setSelectedId(restaurant.id);
-    if (mapInstance && restaurant.lat != null && restaurant.lng != null) {
-      mapInstance.flyTo({
-        center: [restaurant.lng, restaurant.lat],
-        zoom: 15,
-        duration: 800,
-      });
-    }
-  }
-
-  function handleSelectFromList(restaurant: Restaurant) {
-    setSelectedId(restaurant.id);
-    if (mapInstance && restaurant.lat != null && restaurant.lng != null) {
-      mapInstance.flyTo({
-        center: [restaurant.lng, restaurant.lat],
-        zoom: 15,
-        duration: 800,
-      });
-    }
-  }
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col desktop:flex-row">
@@ -141,11 +73,11 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                 className={`w-full text-left flex gap-3 p-3 border-b border-border hover:bg-surface-bg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${
                   isSelected ? "bg-brand-primary-soft" : ""
                 }`}
-                onClick={() => handleSelectFromList(restaurant)}
+                onClick={() => setSelectedId(restaurant.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handleSelectFromList(restaurant);
+                    setSelectedId(restaurant.id);
                   }
                 }}
               >
@@ -196,10 +128,15 @@ export function MapPageClient({ city, allRestaurants }: Props) {
         <MapContainer
           center={[26.1025, 44.4268]}
           zoom={13}
-          onMapReady={handleMapReady}
           className="w-full h-full"
-          style={mapStyle}
-        />
+          colorScheme={isNightMode ? "dark" : "light"}
+        >
+          <MapMarkers
+            restaurants={restaurants}
+            selectedId={selectedId}
+            onSelect={(id) => setSelectedId(id)}
+          />
+        </MapContainer>
 
         {/* Mobile floating search bar + close */}
         <div className="absolute top-[env(safe-area-inset-top,0px)] left-0 right-0 p-3 desktop:hidden z-10">
@@ -234,7 +171,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
           <MapCarousel
             restaurants={restaurants}
             selectedId={selectedId}
-            onSelect={handleSelectFromCarousel}
+            onSelect={(r) => setSelectedId(r.id)}
             onSlotSelect={(id) => {
               const r = restaurants.find((r) => r.id === id);
               if (r) router.push(`/${city}/${r.slug}`);
@@ -250,5 +187,53 @@ export function MapPageClient({ city, allRestaurants }: Props) {
         restaurants={allRestaurants}
       />
     </div>
+  );
+}
+
+/**
+ * Renders the markers + handles imperative panning to the selected restaurant.
+ * Must live INSIDE <Map> so that useMap() returns a real map instance.
+ */
+function MapMarkers({
+  restaurants,
+  selectedId,
+  onSelect,
+}: {
+  restaurants: Restaurant[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const map = useMap();
+
+  // Pan + zoom to selected restaurant
+  useEffect(() => {
+    if (!map || !selectedId) return;
+    const target = restaurants.find((r) => r.id === selectedId);
+    if (!target || target.lat == null || target.lng == null) return;
+    map.panTo({ lat: target.lat, lng: target.lng });
+    map.setZoom(15);
+  }, [map, selectedId, restaurants]);
+
+  return (
+    <>
+      {restaurants.map((restaurant) => {
+        if (restaurant.lat == null || restaurant.lng == null) return null;
+        const isClosed = restaurant.status === "closed";
+        const isSelected = restaurant.id === selectedId;
+        return (
+          <AdvancedMarker
+            key={restaurant.id}
+            position={{ lat: restaurant.lat, lng: restaurant.lng }}
+            onClick={() => onSelect(restaurant.id)}
+          >
+            <MapPin
+              rating={restaurant.rating}
+              unavailable={isClosed}
+              selected={isSelected}
+            />
+          </AdvancedMarker>
+        );
+      })}
+    </>
   );
 }
