@@ -9,7 +9,6 @@ const CITIES = [
   { name: "Timișoara", active: false },
   { name: "Brașov", active: false },
   { name: "Iași", active: false },
-  { name: "Istanbul", active: false },
 ];
 
 interface CitySelectorProps {
@@ -35,7 +34,7 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
     <div ref={ref} className="relative">
       <button
         type="button"
-        aria-label="Select city"
+        aria-label="Alege orașul"
         className="flex items-center gap-1 text-sm font-semibold text-text-primary"
         onClick={() => setOpen((prev) => !prev)}
       >
@@ -62,7 +61,7 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
                 ) : (
                   <div className="w-full px-4 py-2 text-sm text-text-muted flex items-center justify-between">
                     <span>{city.name}</span>
-                    <span className="text-xs">Coming soon</span>
+                    <span className="text-xs">În curând</span>
                   </div>
                 )}
               </li>

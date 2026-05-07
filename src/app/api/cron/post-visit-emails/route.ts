@@ -72,7 +72,7 @@ export async function POST(req: Request): Promise<Response> {
 
     const result = await sendEmail({
       to: r.guest_email!,
-      subject: `How was ${restaurantName}?`,
+      subject: `Cum a fost la ${restaurantName}?`,
       react: PostVisitReviewEmail({
         restaurantName,
         guestName: r.guest_name,

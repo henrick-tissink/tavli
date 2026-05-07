@@ -84,12 +84,12 @@ describe("MenuViewer", () => {
     const onBack = jest.fn();
     const user = userEvent.setup();
     render(<MenuViewer restaurant={restaurant} menu={menu} onBack={onBack} />);
-    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.click(screen.getByRole("button", { name: "Înapoi" }));
     expect(onBack).toHaveBeenCalled();
   });
 
   it("shows item count in header", () => {
     render(<MenuViewer restaurant={restaurant} menu={menu} onBack={jest.fn()} />);
-    expect(screen.getByText(/3 items/)).toBeInTheDocument();
+    expect(screen.getByText(/3 feluri/)).toBeInTheDocument();
   });
 });

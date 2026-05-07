@@ -35,7 +35,7 @@ describe("PartnerCancelledEmail", () => {
 
   test("greets the guest by first name and names the restaurant", () => {
     const { container } = renderEmail("overbooked");
-    expect(container.textContent).toContain("Hi Maria");
+    expect(container.textContent).toContain("Salut, Maria");
     expect(container.textContent).toContain("Casa Veche");
   });
 
@@ -43,8 +43,8 @@ describe("PartnerCancelledEmail", () => {
     const { container } = renderEmail("overbooked");
     expect(container.textContent).toContain("19:30");
     expect(container.textContent).toContain("4"); // party size
-    // Date is rendered with a long weekday/month — assert weekday from May 1, 2026 = Friday
-    expect(container.textContent).toMatch(/Friday|May/);
+    // Date is rendered with ro-RO locale — May 1, 2026 = vineri / mai
+    expect(container.textContent).toMatch(/vineri|mai/);
   });
 
   test.each(Object.keys(CANCEL_REASONS) as CancelReasonKey[])(

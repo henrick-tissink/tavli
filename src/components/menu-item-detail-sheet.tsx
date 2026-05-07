@@ -27,11 +27,11 @@ const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
     className: "bg-emerald-50 text-emerald-800",
   },
   "gluten-free": {
-    label: "GF",
+    label: "FG",
     className: "bg-amber-50 text-amber-800",
   },
   spicy: {
-    label: "Spicy",
+    label: "Picant",
     icon: "🌶",
     className: "bg-red-50 text-red-700",
   },
@@ -97,7 +97,7 @@ export function MenuItemDetailSheet({
             <Star
               size={22}
               className="inline-block mr-2 -mt-1 fill-yellow-400 text-yellow-400"
-              aria-label="Chef's pick"
+              aria-label="Recomandarea bucătarului"
             />
           )}
           {item.name}
@@ -135,9 +135,9 @@ export function MenuItemDetailSheet({
         {/* Chef's note pullquote */}
         {isChefPick && (
           <blockquote className="mt-5 border-l-4 border-brand-primary pl-4 py-2 text-sm text-text-primary leading-relaxed">
-            <p className="font-semibold text-text-primary mb-0.5">Chef&apos;s note</p>
+            <p className="font-semibold text-text-primary mb-0.5">Nota bucătarului</p>
             <p className="italic text-text-secondary">
-              A signature dish — selected by the chef for what the kitchen does best.
+              Un fel de semnătură — ales de bucătar pentru ceea ce face bucătăria cel mai bine.
             </p>
           </blockquote>
         )}
@@ -147,7 +147,7 @@ export function MenuItemDetailSheet({
           <div className="mt-7">
             <div className="h-px bg-border" />
             <h3 className="font-display text-[20px] desktop:text-[22px] font-bold text-text-primary mt-5 mb-3">
-              More from {section.name}
+              Mai mult din {section.name}
             </h3>
             <div className="flex gap-3 overflow-x-auto hide-scrollbar -mx-5 px-5 desktop:mx-0 desktop:px-0 desktop:overflow-visible desktop:grid desktop:grid-cols-3 desktop:gap-4">
               {moreFromSection.map((sibling) => (

@@ -16,8 +16,8 @@ interface DietaryFilterRowProps {
 const FILTERS: { value: DietaryFilter; label: string; icon: string }[] = [
   { value: "vegan", label: "Vegan", icon: "🌱" },
   { value: "vegetarian", label: "Vegetarian", icon: "🥗" },
-  { value: "gluten-free", label: "Gluten-free", icon: "🌾" },
-  { value: "spicy", label: "Spicy", icon: "🌶" },
+  { value: "gluten-free", label: "Fără gluten", icon: "🌾" },
+  { value: "spicy", label: "Picant", icon: "🌶" },
 ];
 
 export function DietaryFilterRow({
@@ -54,7 +54,7 @@ export function DietaryFilterRow({
           onClick={onClear}
           className="text-xs font-semibold text-text-secondary underline-offset-2 hover:underline whitespace-nowrap"
         >
-          Clear
+          Șterge
         </button>
       )}
     </div>

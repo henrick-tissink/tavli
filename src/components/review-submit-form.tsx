@@ -22,7 +22,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (rating < 1) {
-      setError("Pick a star first.");
+      setError("Alege întâi o stea.");
       return;
     }
     setSubmitting(true);
@@ -32,7 +32,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     if (r.ok) {
       setDone(true);
     } else {
-      setError(r.error ?? "Could not save review.");
+      setError(r.error ?? "Recenzia nu a putut fi salvată.");
     }
   }
 
@@ -44,10 +44,10 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
         className="rounded-card bg-brand-primary-soft p-6 text-center"
       >
         <p className="font-display text-xl font-bold text-brand-primary-dark">
-          Thanks — your review is in.
+          Mulțumim — recenzia ta e salvată.
         </p>
         <p className="text-sm text-text-secondary mt-2">
-          Verified diners help everyone choose better.
+          Diners verificați îi ajută pe ceilalți să aleagă mai bine.
         </p>
       </div>
     );
@@ -57,7 +57,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     <form onSubmit={onSubmit} className="space-y-4">
       <fieldset>
         <legend className="text-sm font-semibold text-text-primary mb-2">
-          Your rating
+          Nota ta
         </legend>
         <div className="flex items-center gap-1" role="radiogroup">
           {[1, 2, 3, 4, 5].map((n) => (
@@ -83,7 +83,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
       </fieldset>
       <label className="block">
         <span className="text-sm font-semibold text-text-primary">
-          Comment <span className="text-text-muted font-normal">(optional)</span>
+          Comentariu <span className="text-text-muted font-normal">(opțional)</span>
         </span>
         <textarea
           value={comment}
@@ -92,7 +92,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
           rows={4}
           aria-describedby="review-comment-count"
           className="mt-2 block w-full rounded-lg border border-border p-3 text-sm"
-          placeholder="What stood out?"
+          placeholder="Ce te-a impresionat?"
         />
         <span id="review-comment-count" className="text-xs text-text-muted">
           {comment.length}/{MAX_COMMENT}
@@ -109,7 +109,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
         aria-busy={submitting}
         className="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg disabled:opacity-50"
       >
-        {submitting ? "Submitting…" : "Submit review"}
+        {submitting ? "Se trimite…" : "Trimite recenzia"}
       </button>
     </form>
   );

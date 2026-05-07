@@ -68,7 +68,7 @@ export function Toaster() {
           <button
             type="button"
             onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
-            aria-label="Dismiss"
+            aria-label="Închide"
             className="text-text-muted hover:text-text-primary"
           >
             <X size={14} />

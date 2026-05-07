@@ -123,7 +123,7 @@ export async function createReservation(
   if (input.guestEmail) {
     await sendEmail({
       to: input.guestEmail,
-      subject: `Booked at ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`,
+      subject: `Rezervare la ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`,
       react: ReservationConfirmationEmail({
         restaurantName: restaurant?.name ?? "Your restaurant",
         restaurantAddress: restaurant?.address ?? undefined,
@@ -141,7 +141,7 @@ export async function createReservation(
   if (restaurant?.email) {
     await sendEmail({
       to: restaurant.email,
-      subject: `New booking — ${restaurant.name} · ${input.date} ${input.time}`,
+      subject: `Rezervare nouă — ${restaurant.name} · ${input.date} ${input.time}`,
       react: PartnerBookingAlertEmail({
         restaurantName: restaurant.name,
         reservationDate: input.date,

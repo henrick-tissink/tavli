@@ -129,7 +129,7 @@ export async function cancelReservation(
 
     const result = await sendEmail({
       to: reservation.guest_email,
-      subject: `Reservation cancelled at ${restaurant.name}`,
+      subject: `Rezervare anulată la ${restaurant.name}`,
       replyTo: restaurant.email ?? undefined,
       react: PartnerCancelledEmail({
         restaurantName: restaurant.name,

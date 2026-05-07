@@ -15,8 +15,8 @@ describe("DietaryFilterRow", () => {
     expect(buttons.length).toBe(4);
     expect(buttons[0]).toHaveTextContent("Vegan");
     expect(buttons[1]).toHaveTextContent("Vegetarian");
-    expect(buttons[2]).toHaveTextContent("Gluten-free");
-    expect(buttons[3]).toHaveTextContent("Spicy");
+    expect(buttons[2]).toHaveTextContent("Fără gluten");
+    expect(buttons[3]).toHaveTextContent("Picant");
   });
 
   it("renders active filters with active styling", () => {
@@ -31,7 +31,7 @@ describe("DietaryFilterRow", () => {
     expect(veganPill).toHaveClass("bg-brand-primary-soft");
     expect(veganPill).toHaveClass("text-brand-primary-dark");
 
-    const spicyPill = screen.getByText("Spicy").closest("button");
+    const spicyPill = screen.getByText("Picant").closest("button");
     expect(spicyPill).toHaveClass("bg-surface-white");
     expect(spicyPill).toHaveClass("text-text-secondary");
   });
@@ -46,10 +46,10 @@ describe("DietaryFilterRow", () => {
         onClear={jest.fn()}
       />
     );
-    await user.click(screen.getByText("Gluten-free"));
+    await user.click(screen.getByText("Fără gluten"));
     expect(handleToggle).toHaveBeenCalledWith("gluten-free");
 
-    await user.click(screen.getByText("Spicy"));
+    await user.click(screen.getByText("Picant"));
     expect(handleToggle).toHaveBeenCalledWith("spicy");
   });
 
@@ -61,7 +61,7 @@ describe("DietaryFilterRow", () => {
         onClear={jest.fn()}
       />
     );
-    expect(screen.queryByText("Clear")).not.toBeInTheDocument();
+    expect(screen.queryByText("Șterge")).not.toBeInTheDocument();
   });
 
   it("renders Clear button when at least one filter is active", () => {
@@ -72,7 +72,7 @@ describe("DietaryFilterRow", () => {
         onClear={jest.fn()}
       />
     );
-    expect(screen.getByText("Clear")).toBeInTheDocument();
+    expect(screen.getByText("Șterge")).toBeInTheDocument();
   });
 
   it("clicking Clear calls onClear", async () => {
@@ -85,7 +85,7 @@ describe("DietaryFilterRow", () => {
         onClear={handleClear}
       />
     );
-    await user.click(screen.getByText("Clear"));
+    await user.click(screen.getByText("Șterge"));
     expect(handleClear).toHaveBeenCalledTimes(1);
   });
 });

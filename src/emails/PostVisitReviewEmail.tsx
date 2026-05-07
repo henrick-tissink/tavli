@@ -19,7 +19,7 @@ interface Props {
 
 function firstNameOf(fullName: string): string {
   const t = fullName.trim();
-  if (!t) return "there";
+  if (!t) return "salut";
   return t.split(/\s+/)[0];
 }
 
@@ -31,16 +31,16 @@ export function PostVisitReviewEmail({
   return (
     <Html>
       <Head />
-      <Preview>One tap rates anonymously — first name only.</Preview>
+      <Preview>O atingere lasă o notă anonimă — doar cu prenumele.</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            How was {restaurantName}?
+            Cum a fost la {restaurantName}?
           </Heading>
           <Text style={lede}>
-            Hi {firstNameOf(guestName)} — one tap is all we need. Your rating
-            stays anonymous (first name only) and helps the next diner.
+            Salut, {firstNameOf(guestName)} — o atingere e tot ce avem nevoie.
+            Nota ta rămâne anonimă (doar prenumele) și ajută următorul diner.
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -54,12 +54,12 @@ export function PostVisitReviewEmail({
             ))}
           </Section>
           <Text style={textMuted}>
-            Tap a star above. You&apos;ll land on a page where you can add a
-            comment if you want — or just submit and you&apos;re done.
+            Apasă pe o stea de mai sus. Vei ajunge pe o pagină unde poți adăuga
+            un comentariu dacă vrei — sau doar trimiți și gata.
           </Text>
           <Hr style={hr} />
           <Text style={footer}>
-            Tavli — reservations across Romania and Turkey.
+            Tavli — rezervări în România.
           </Text>
         </Container>
       </Body>

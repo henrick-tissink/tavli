@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Plus, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { useSaved } from "@/lib/saved-context";
 import { RestaurantCard } from "@/components/restaurant-card";
@@ -14,52 +14,18 @@ interface Props {
 
 export function SavedPageClient({ city, allRestaurants }: Props) {
   const router = useRouter();
-  const { savedIds, lists, bookings, toggleSave, isSaved, createList } =
-    useSaved();
+  const { savedIds, bookings, toggleSave, isSaved } = useSaved();
 
   const savedRestaurants = useMemo(
     () => allRestaurants.filter((r) => savedIds.includes(r.id)),
     [allRestaurants, savedIds],
   );
 
-  const handleNewList = () => {
-    const name = prompt("Nume listă:");
-    if (name?.trim()) createList(name.trim());
-  };
-
   return (
     <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
       <section>
         <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary mb-4">
-          Listele mele
-        </h2>
-        <div className="grid grid-cols-2 tablet:grid-cols-3 gap-3">
-          {lists.map((list) => (
-            <div
-              key={list.id}
-              className="rounded-card bg-surface-bg p-4 flex flex-col items-center gap-1"
-            >
-              <Heart size={20} className="text-brand-primary" />
-              <span className="text-sm font-semibold text-text-primary">{list.name}</span>
-              <span className="text-xs text-text-muted">
-                {list.restaurantIds.length} {list.restaurantIds.length === 1 ? "loc" : "locuri"}
-              </span>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleNewList}
-            className="rounded-card border-2 border-dashed border-border p-4 flex flex-col items-center gap-1 text-text-muted hover:border-brand-primary hover:text-brand-primary transition-colors"
-          >
-            <Plus size={20} />
-            <span className="text-sm font-semibold">Listă nouă</span>
-          </button>
-        </div>
-      </section>
-
-      <section className="mt-8">
-        <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary mb-4">
-          Toate cele salvate
+          Locurile tale salvate
         </h2>
         {savedRestaurants.length === 0 ? (
           <p className="text-sm text-text-secondary py-4 text-center">

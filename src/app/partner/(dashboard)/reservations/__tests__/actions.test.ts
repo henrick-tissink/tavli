@@ -192,7 +192,7 @@ describe("cancelReservation", () => {
     const args = (sendEmail as jest.Mock).mock.calls[0][0];
     expect(args.to).toBe("maria@example.com");
     expect(args.replyTo).toBe("host@casaveche.ro");
-    expect(args.subject).toMatch(/cancel/i);
+    expect(args.subject).toMatch(/anulat/i);
   });
 
   test("skips email when guest_email is null", async () => {

@@ -79,8 +79,8 @@ describe("MenuItemDetailSheet", () => {
     );
     expect(screen.getByText("Popular")).toBeInTheDocument();
     expect(screen.getByText("V")).toBeInTheDocument();
-    expect(screen.getByText("GF")).toBeInTheDocument();
-    expect(screen.getByText("Spicy")).toBeInTheDocument();
+    expect(screen.getByText("FG")).toBeInTheDocument();
+    expect(screen.getByText("Picant")).toBeInTheDocument();
   });
 
   it("shows VG but hides V when item is vegan and vegetarian", () => {
@@ -109,14 +109,14 @@ describe("MenuItemDetailSheet", () => {
         currency="lei"
       />,
     );
-    expect(screen.getByText("Chef's note")).toBeInTheDocument();
+    expect(screen.getByText("Nota bucătarului")).toBeInTheDocument();
     expect(
       screen.getByText(
-        /signature dish — selected by the chef for what the kitchen does best/i,
+        /Un fel de semnătură — ales de bucătar pentru ceea ce face bucătăria cel mai bine/i,
       ),
     ).toBeInTheDocument();
     // Star prefix beside the name
-    expect(screen.getByLabelText("Chef's pick")).toBeInTheDocument();
+    expect(screen.getByLabelText("Recomandarea bucătarului")).toBeInTheDocument();
   });
 
   it("does NOT render chef's-note pullquote when item has no chef-pick tag", () => {
@@ -130,7 +130,7 @@ describe("MenuItemDetailSheet", () => {
         currency="lei"
       />,
     );
-    expect(screen.queryByText("Chef's note")).not.toBeInTheDocument();
+    expect(screen.queryByText("Nota bucătarului")).not.toBeInTheDocument();
   });
 
   it("renders 'More from {section.name}' heading when moreFromSection is non-empty", () => {
@@ -144,7 +144,7 @@ describe("MenuItemDetailSheet", () => {
         currency="lei"
       />,
     );
-    expect(screen.getByText("More from Primi")).toBeInTheDocument();
+    expect(screen.getByText("Mai mult din Primi")).toBeInTheDocument();
     expect(screen.getByText("Cacio e Pepe")).toBeInTheDocument();
     expect(screen.getByText("Amatriciana")).toBeInTheDocument();
   });

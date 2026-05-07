@@ -47,7 +47,7 @@ async function loadReservation(token: string): Promise<Result> {
 
   return {
     kind: "valid",
-    restaurantName: restaurantName ?? "the restaurant",
+    restaurantName: restaurantName ?? "restaurantul",
     date: data.reservation_date,
     time: data.reservation_time,
     partySize: data.party_size,
@@ -75,13 +75,13 @@ export default async function ReservationCancelPage({
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Reservation
+          Rezervare
         </p>
 
         {result.kind === "valid" && (
           <>
             <h1 className="font-display text-[28px] font-bold text-text-primary leading-tight mt-6">
-              Cancel reservation?
+              Anulezi rezervarea?
             </h1>
             <div className="mt-5 rounded-lg bg-surface-bg p-4 text-sm">
               <p className="font-semibold text-text-primary">
@@ -89,19 +89,20 @@ export default async function ReservationCancelPage({
               </p>
               <p className="text-text-secondary mt-1">
                 {new Date(`${result.date}T12:00:00`).toLocaleDateString(
-                  "en-GB",
+                  "ro-RO",
                   { weekday: "long", day: "numeric", month: "long" },
                 )}{" "}
-                · {result.time.slice(0, 5)} · {result.partySize} guests
+                · {result.time.slice(0, 5)} · {result.partySize}{" "}
+                {result.partySize === 1 ? "persoană" : "persoane"}
               </p>
               <p className="text-text-secondary">{result.guestName}</p>
               {result.zone && (
-                <p className="text-text-muted text-xs mt-1">Zone: {result.zone}</p>
+                <p className="text-text-muted text-xs mt-1">Loc: {result.zone}</p>
               )}
             </div>
             <p className="text-sm text-text-secondary mt-4 leading-relaxed">
-              Cancelling frees up the slot for someone else. You&apos;ll get a
-              confirmation email.
+              Anularea eliberează masa pentru altcineva. Vei primi un email de
+              confirmare.
             </p>
             <div className="mt-5">
               <ReservationCancelForm
@@ -114,26 +115,26 @@ export default async function ReservationCancelPage({
 
         {result.kind === "already_cancelled" && (
           <Blank
-            title="Already cancelled"
-            body="This reservation has already been cancelled. Nothing more to do here."
+            title="Deja anulată"
+            body="Această rezervare a fost deja anulată. Nu mai e nimic de făcut aici."
           />
         )}
         {result.kind === "completed" && (
           <Blank
-            title="Can't cancel now"
-            body="This reservation has already passed. We hope it went well."
+            title="Nu mai poate fi anulată"
+            body="Această rezervare a trecut deja. Sperăm că a fost o seară frumoasă."
           />
         )}
         {result.kind === "not_found" && (
           <Blank
-            title="Reservation not found"
-            body="This cancellation link wasn't recognised. It may have been mistyped — try copying it from your email again."
+            title="Rezervarea nu a fost găsită"
+            body="Linkul de anulare nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email."
           />
         )}
         {result.kind === "config_missing" && (
           <Blank
-            title="Platform not configured"
-            body="Tavli is still setting up. Please try again later or contact support."
+            title="Platformă neconfigurată"
+            body="Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul."
           />
         )}
       </div>

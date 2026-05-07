@@ -180,7 +180,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <button
           type="button"
           onClick={onBack}
-          aria-label="Back"
+          aria-label="Înapoi"
           className="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/35 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50"
         >
           <ArrowLeft size={20} />
@@ -188,7 +188,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <div className="absolute bottom-0 left-0 right-0 p-4 desktop:p-8">
           <div className="max-w-[var(--container-content)] mx-auto text-white">
             <p className="text-xs desktop:text-sm uppercase tracking-[0.2em] opacity-80">
-              {formatCuisines(restaurant.cuisines)} · Menu
+              {formatCuisines(restaurant.cuisines)} · Meniu
             </p>
             <h1 className="font-display text-[36px] desktop:text-[60px] font-bold mt-1 leading-[1.02]">
               {restaurant.name}
@@ -209,12 +209,14 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                 <>
                   <span className="opacity-60">·</span>
                   <span className="opacity-90">
-                    Dishes {heroPriceRange.min}–{heroPriceRange.max} {menu.currency}
+                    Feluri {heroPriceRange.min}–{heroPriceRange.max} {menu.currency}
                   </span>
                 </>
               )}
               <span className="opacity-60">·</span>
-              <span className="opacity-90">{menu.items.length} items</span>
+              <span className="opacity-90">
+                {menu.items.length} {menu.items.length === 1 ? "fel" : "feluri"}
+              </span>
             </div>
           </div>
         </div>
@@ -273,7 +275,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                         {item.price} {menu.currency}
                       </span>
                       <span className="text-[11px] text-text-muted group-hover:text-brand-primary transition-colors">
-                        View →
+                        Vezi →
                       </span>
                     </div>
                   </div>
@@ -324,14 +326,14 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         {totalFilteredCount === 0 ? (
           <div className="py-20 text-center">
             <p className="text-text-secondary">
-              No dishes match your current filters.
+              Niciun fel nu se potrivește cu filtrele alese.
             </p>
             <button
               type="button"
               onClick={clearFilters}
               className="mt-3 text-brand-primary font-semibold text-sm"
             >
-              Clear filters
+              Șterge filtrele
             </button>
           </div>
         ) : (

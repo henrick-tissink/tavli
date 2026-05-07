@@ -23,7 +23,7 @@ describe("ReviewSubmitForm", () => {
     fireEvent.change(screen.getByRole("textbox"), {
       target: { value: "Great food" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
+    fireEvent.click(screen.getByRole("button", { name: /trimite/i }));
     await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
     expect(submit).toHaveBeenCalledWith("tok", {
       rating: 3,
@@ -33,14 +33,14 @@ describe("ReviewSubmitForm", () => {
 
   test("renders success state after ok response", async () => {
     render(<ReviewSubmitForm token="tok" initialRating={5} />);
-    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
-    await screen.findByText(/thanks/i);
+    fireEvent.click(screen.getByRole("button", { name: /trimite/i }));
+    await screen.findByText(/Mulțumim/i);
   });
 
   test("renders inline error from action", async () => {
-    submit.mockResolvedValueOnce({ ok: false, error: "Already reviewed." });
+    submit.mockResolvedValueOnce({ ok: false, error: "Recenzie deja trimisă." });
     render(<ReviewSubmitForm token="tok" initialRating={5} />);
-    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
-    await screen.findByText(/already reviewed/i);
+    fireEvent.click(screen.getByRole("button", { name: /trimite/i }));
+    await screen.findByText(/Recenzie deja trimisă/i);
   });
 });

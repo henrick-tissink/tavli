@@ -35,8 +35,8 @@ describe("MenuItemCard", () => {
         currency="lei"
       />,
     );
-    expect(screen.getByLabelText("Chef's pick")).toBeInTheDocument();
-    expect(screen.queryByText("Chef's pick", { selector: "span" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Recomandarea bucătarului")).toBeInTheDocument();
+    expect(screen.queryByText("Recomandarea bucătarului", { selector: "span" })).not.toBeInTheDocument();
   });
 
   it("shows VG but hides V when item is vegan and vegetarian", () => {
@@ -57,7 +57,7 @@ describe("MenuItemCard", () => {
         currency="lei"
       />,
     );
-    expect(screen.getByText("Spicy")).toBeInTheDocument();
+    expect(screen.getByText("Picant")).toBeInTheDocument();
   });
 
   it("omits description tags row when no tags", () => {

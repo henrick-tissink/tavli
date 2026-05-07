@@ -44,8 +44,8 @@ async function loadContext(token: string): Promise<Loaded> {
     | { name: string }[]
     | null;
   const restaurantName = Array.isArray(restaurantField)
-    ? restaurantField[0]?.name ?? "the restaurant"
-    : restaurantField?.name ?? "the restaurant";
+    ? restaurantField[0]?.name ?? "restaurantul"
+    : restaurantField?.name ?? "restaurantul";
 
   return {
     kind: "ready",
@@ -82,21 +82,21 @@ export default async function ReviewSubmitPage({
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Review
+          Recenzie
         </p>
 
         {ctx.kind === "ready" && (
           <>
             <h1 className="font-display text-[28px] font-bold text-text-primary leading-tight mt-6">
-              How was {ctx.restaurantName}?
+              Cum a fost la {ctx.restaurantName}?
             </h1>
             <p className="text-sm text-text-secondary mt-2">
-              Visited on{" "}
+              Ai vizitat pe{" "}
               {new Date(`${ctx.reservationDate}T12:00:00`).toLocaleDateString(
-                "en-GB",
+                "ro-RO",
                 { weekday: "long", day: "numeric", month: "long" },
               )}
-              . Your review is anonymous — only your first name is shown.
+              . Recenzia ta este anonimă — se afișează doar prenumele.
             </p>
             <div className="mt-6">
               <ReviewSubmitForm token={token} initialRating={initialRating} />
@@ -105,26 +105,26 @@ export default async function ReviewSubmitPage({
         )}
         {ctx.kind === "already_reviewed" && (
           <Blank
-            title="Already reviewed"
-            body="You've already left a review for this reservation. Thanks again!"
+            title="Recenzie deja lăsată"
+            body="Ai lăsat deja o recenzie pentru această rezervare. Mulțumim încă o dată!"
           />
         )}
         {ctx.kind === "ineligible" && (
           <Blank
-            title="Can't review this one"
-            body="This reservation was cancelled or marked as no-show, so it isn't eligible for a review."
+            title="Nu poți recenza această rezervare"
+            body="Această rezervare a fost anulată sau marcată ca neonorată, deci nu este eligibilă pentru o recenzie."
           />
         )}
         {ctx.kind === "not_found" && (
           <Blank
-            title="Link not recognised"
-            body="This review link wasn't recognised. It may have been mistyped — try copying it from your email again."
+            title="Link nerecunoscut"
+            body="Acest link de recenzie nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email."
           />
         )}
         {ctx.kind === "config_missing" && (
           <Blank
-            title="Platform not configured"
-            body="Tavli is still setting up. Please try again later or contact support."
+            title="Platformă neconfigurată"
+            body="Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul."
           />
         )}
       </div>

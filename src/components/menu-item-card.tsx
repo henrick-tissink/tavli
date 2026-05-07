@@ -25,11 +25,11 @@ const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
     className: "bg-emerald-50 text-emerald-800",
   },
   "gluten-free": {
-    label: "GF",
+    label: "FG",
     className: "bg-amber-50 text-amber-800",
   },
   spicy: {
-    label: "Spicy",
+    label: "Picant",
     icon: "🌶",
     className: "bg-red-50 text-red-700",
   },
@@ -71,7 +71,7 @@ export function MenuItemCard({ item, currency, onOpen }: Props) {
               <Star
                 size={14}
                 className="inline-block mr-1 -mt-0.5 fill-yellow-400 text-yellow-400"
-                aria-label="Chef's pick"
+                aria-label="Recomandarea bucătarului"
               />
             )}
             {item.name}

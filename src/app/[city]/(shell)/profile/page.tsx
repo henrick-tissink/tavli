@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, Bell, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
@@ -16,6 +17,16 @@ const CITY_DISPLAY_NAMES: Record<string, string> = {
   iasi: "Iași",
 };
 
+const CITY_NAME_TO_SLUG: Record<string, string> = {
+  București: "bucuresti",
+  Cluj: "cluj",
+  Timișoara: "timisoara",
+  Brașov: "brasov",
+  Iași: "iasi",
+};
+
+const NOTIFICATIONS_STORAGE_KEY = "tavli-notifications-enabled";
+
 function formatCityName(slug: string): string {
   return CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
 }
@@ -26,9 +37,38 @@ export default function ProfilePage({
   params: Promise<{ city: string }>;
 }) {
   const { city } = use(params);
+  const router = useRouter();
   const { auth, signOut } = useAuth();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [notifications, setNotifications] = useState(true);
+
+  // Hydrate notification preference from localStorage on mount.
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+      if (stored !== null) setNotifications(stored === "true");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleNotifications = () => {
+    setNotifications((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const handleCityChange = (cityName: string) => {
+    const slug = CITY_NAME_TO_SLUG[cityName];
+    if (!slug || slug === city) return;
+    router.push(`/${slug}/profile`);
+  };
 
   const displayCity = formatCityName(city);
 
@@ -95,10 +135,7 @@ export default function ProfilePage({
         {/* City */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-text-primary">Oraș</span>
-          <CitySelector
-            currentCity={displayCity}
-            onSelect={(c) => console.log("City selected:", c)}
-          />
+          <CitySelector currentCity={displayCity} onSelect={handleCityChange} />
         </div>
 
         {/* Notifications */}
@@ -111,7 +148,8 @@ export default function ProfilePage({
             type="button"
             role="switch"
             aria-checked={notifications}
-            onClick={() => setNotifications(!notifications)}
+            aria-label="Notificări"
+            onClick={toggleNotifications}
             className={`w-11 h-6 rounded-full relative transition-colors ${
               notifications ? "bg-brand-primary" : "bg-gray-300"
             }`}

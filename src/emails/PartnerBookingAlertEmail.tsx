@@ -34,23 +34,24 @@ export function PartnerBookingAlertEmail({
   notes,
 }: Props) {
   const pretty = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "en-GB",
+    "ro-RO",
     { weekday: "short", day: "numeric", month: "short" },
   );
+  const coversLabel = partySize === 1 ? "persoană" : "persoane";
 
   return (
     <Html>
       <Head />
-      <Preview>{`New booking at ${restaurantName} — ${pretty} ${reservationTime} · ${partySize} covers`}</Preview>
+      <Preview>{`Rezervare nouă la ${restaurantName} — ${pretty} ${reservationTime} · ${partySize} ${coversLabel}`}</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            New booking — {restaurantName}
+            Rezervare nouă — {restaurantName}
           </Heading>
           <Section style={card}>
             <Text style={{ ...cardLine, fontSize: "17px", fontWeight: 700 }}>
-              {pretty} · {reservationTime} · {partySize} covers
+              {pretty} · {reservationTime} · {partySize} {coversLabel}
             </Text>
             <Hr style={thin} />
             <Text style={cardLine}>
@@ -58,15 +59,15 @@ export function PartnerBookingAlertEmail({
             </Text>
             <Text style={cardLine}>{guestPhone}</Text>
             {guestEmail && <Text style={cardLineMuted}>{guestEmail}</Text>}
-            {zone && <Text style={cardLineMuted}>Zone: {zone}</Text>}
-            {notes && <Text style={cardLineMuted}>Notes: {notes}</Text>}
+            {zone && <Text style={cardLineMuted}>Loc: {zone}</Text>}
+            {notes && <Text style={cardLineMuted}>Note: {notes}</Text>}
           </Section>
           <Text style={text}>
-            Manage this booking in your partner dashboard (cancel / mark
-            seated / mark no-show).
+            Gestionează rezervarea în panoul tău partener (anulare / marcare
+            „așezat” / marcare „neonorat”).
           </Text>
           <Hr style={hr} />
-          <Text style={footer}>Tavli — partner alerts.</Text>
+          <Text style={footer}>Tavli — alerte partener.</Text>
         </Container>
       </Body>
     </Html>

@@ -40,13 +40,13 @@ export function MapPageClient({ city, allRestaurants }: Props) {
       <div className="hidden desktop:flex flex-col w-[400px] bg-surface-white border-r border-border overflow-y-auto">
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Search size={18} className="text-text-muted" />
-          <span className="text-text-muted text-sm flex-1">Search restaurants...</span>
+          <span className="text-text-muted text-sm flex-1">Caută restaurante…</span>
           <button
             type="button"
             className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
             onClick={() => setFilterSheetOpen(true)}
           >
-            Filters
+            Filtre
             {activeFilterCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilterCount}
@@ -55,7 +55,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
           </button>
           <button
             type="button"
-            aria-label="Close map"
+            aria-label="Închide harta"
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
             onClick={() => router.back()}
           >
@@ -142,7 +142,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
         <div className="absolute top-[env(safe-area-inset-top,0px)] left-0 right-0 p-3 desktop:hidden z-10">
           <div className="bg-surface-white rounded-xl shadow-floating p-2.5 flex items-center gap-2">
             <Search size={18} className="text-text-muted flex-shrink-0" />
-            <span className="text-text-muted text-sm flex-1">Search restaurants...</span>
+            <span className="text-text-muted text-sm flex-1">Caută restaurante…</span>
             <button
               type="button"
               className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
@@ -157,7 +157,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             </button>
             <button
               type="button"
-              aria-label="Close map"
+              aria-label="Închide harta"
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
               onClick={() => router.back()}
             >

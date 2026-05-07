@@ -34,28 +34,29 @@ export function PartnerCancelledEmail({
   guestMessage,
 }: Props) {
   const prettyDate = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "en-GB",
+    "ro-RO",
     { weekday: "long", day: "numeric", month: "long" },
   );
+  const guestsLabel = partySize === 1 ? "persoană" : "persoane";
   const rebookUrl = `${getSiteUrl()}/${restaurantCitySlug}/${restaurantSlug}`;
 
   return (
     <Html>
       <Head />
       <Preview>
-        Reservation cancelled at {restaurantName} — {prettyDate} at {reservationTime}
+        Rezervare anulată la {restaurantName} — {prettyDate} la {reservationTime}
       </Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            Reservation cancelled.
+            Rezervare anulată.
           </Heading>
           <Text style={lede}>
-            Hi {guestName} — unfortunately your reservation at{" "}
-            <strong>{restaurantName}</strong> for <strong>{prettyDate}</strong>{" "}
-            at <strong>{reservationTime}</strong> (party of {partySize}) has
-            been cancelled.
+            Salut, {guestName} — din păcate, rezervarea ta la{" "}
+            <strong>{restaurantName}</strong> pentru <strong>{prettyDate}</strong>{" "}
+            la <strong>{reservationTime}</strong> ({partySize} {guestsLabel}) a
+            fost anulată.
           </Text>
           <Section style={card}>
             <Text style={cardLine}>
@@ -63,16 +64,16 @@ export function PartnerCancelledEmail({
             </Text>
           </Section>
           <Text style={text}>
-            We&apos;re sorry for the inconvenience. You&apos;re welcome to
-            rebook anytime.
+            Ne pare rău pentru inconvenient. Te invităm să rezervi din nou
+            oricând.
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             <Button href={rebookUrl} style={cta}>
-              Find another time
+              Caută alt moment
             </Button>
           </Section>
           <Hr style={hr} />
-          <Text style={footer}>Tavli — reservations across Romania and Turkey.</Text>
+          <Text style={footer}>Tavli — rezervări în România.</Text>
         </Container>
       </Body>
     </Html>

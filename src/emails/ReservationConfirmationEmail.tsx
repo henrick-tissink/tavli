@@ -33,34 +33,35 @@ export function ReservationConfirmationEmail({
   cancelUrl,
 }: Props) {
   const prettyDate = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "en-GB",
+    "ro-RO",
     { weekday: "long", day: "numeric", month: "long" },
   );
+  const guestsLabel = partySize === 1 ? "persoană" : "persoane";
 
   return (
     <Html>
       <Head />
       <Preview>
-        Table booked at {restaurantName} — {prettyDate} at {reservationTime}
+        Masă rezervată la {restaurantName} — {prettyDate} la {reservationTime}
       </Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            You&apos;re booked.
+            Rezervarea ta este confirmată.
           </Heading>
           <Text style={lede}>
-            Hi {guestName} — here are your reservation details.
+            Salut, {guestName} — iată detaliile rezervării.
           </Text>
           <Section style={card}>
             <Heading as="h2" style={h2}>
               {restaurantName}
             </Heading>
             <Text style={cardLine}>
-              <strong>{prettyDate}</strong> at <strong>{reservationTime}</strong>
+              <strong>{prettyDate}</strong> la <strong>{reservationTime}</strong>
             </Text>
             <Text style={cardLine}>
-              Party of {partySize}
+              {partySize} {guestsLabel}
               {zone ? ` · ${zone}` : ""}
             </Text>
             {restaurantAddress && (
@@ -68,16 +69,16 @@ export function ReservationConfirmationEmail({
             )}
           </Section>
           <Text style={text}>
-            Please arrive a few minutes early and let the host know you
-            reserved through Tavli.
+            Te rugăm să ajungi cu câteva minute mai devreme și să-i spui gazdei
+            că ai rezervat prin Tavli.
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             <Button href={cancelUrl} style={cancelButton}>
-              Cancel or modify
+              Anulează sau modifică
             </Button>
           </Section>
           <Hr style={hr} />
-          <Text style={footer}>Tavli — reservations across Romania and Turkey.</Text>
+          <Text style={footer}>Tavli — rezervări în România.</Text>
         </Container>
       </Body>
     </Html>

@@ -33,30 +33,30 @@ describe("CityShell — MapFab visibility", () => {
   it("renders MapFab on the feed", () => {
     mockPathname = "/bucuresti";
     render(<CityShell {...baseProps} />);
-    expect(screen.queryByLabelText("Open map")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Deschide harta")).toBeInTheDocument();
   });
 
   it("renders MapFab on saved", () => {
     mockPathname = "/bucuresti/saved";
     render(<CityShell {...baseProps} />);
-    expect(screen.queryByLabelText("Open map")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Deschide harta")).toBeInTheDocument();
   });
 
   it("hides MapFab on a restaurant detail page", () => {
     mockPathname = "/bucuresti/casa-veche";
     render(<CityShell {...baseProps} />);
-    expect(screen.queryByLabelText("Open map")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Deschide harta")).not.toBeInTheDocument();
   });
 
   it("hides MapFab on a restaurant menu page", () => {
     mockPathname = "/bucuresti/casa-veche/menu";
     render(<CityShell {...baseProps} />);
-    expect(screen.queryByLabelText("Open map")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Deschide harta")).not.toBeInTheDocument();
   });
 
   it("hides MapFab on the map page (already there)", () => {
     mockPathname = "/bucuresti/map";
     render(<CityShell {...baseProps} />);
-    expect(screen.queryByLabelText("Open map")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Deschide harta")).not.toBeInTheDocument();
   });
 });

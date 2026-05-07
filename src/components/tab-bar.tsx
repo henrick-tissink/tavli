@@ -19,7 +19,7 @@ interface TabBarProps {
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   return (
     <nav
-      aria-label="Main navigation"
+      aria-label="Navigare principală"
       className="fixed bottom-0 left-0 right-0 bg-surface-white border-t border-border h-16 pb-[env(safe-area-inset-bottom)] desktop:hidden z-50"
     >
       <div className="flex items-center justify-around h-full">

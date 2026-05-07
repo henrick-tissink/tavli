@@ -35,6 +35,6 @@ describe("TabBar", () => {
   it("has accessible labels", () => {
     render(<TabBar activeTab="discover" onTabChange={jest.fn()} />);
     const nav = screen.getByRole("navigation");
-    expect(nav).toHaveAttribute("aria-label", "Main navigation");
+    expect(nav).toHaveAttribute("aria-label", "Navigare principală");
   });
 });
