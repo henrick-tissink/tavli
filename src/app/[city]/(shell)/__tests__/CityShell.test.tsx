@@ -8,6 +8,20 @@ jest.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
 }));
 
+jest.mock("@/lib/db/client", () => ({
+  createSupabaseBrowserClient: () => ({
+    auth: {
+      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      }),
+      signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+    },
+  }),
+}));
+
 const baseProps = {
   city: "bucuresti",
   displayCity: "București",

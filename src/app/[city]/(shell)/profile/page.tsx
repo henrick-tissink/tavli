@@ -5,7 +5,6 @@ import { LogOut, Bell, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
-import { Pill } from "@/components/pill";
 import { CitySelector } from "@/components/city-selector";
 import { AuthSheet } from "@/components/auth-sheet";
 
@@ -15,7 +14,6 @@ const CITY_DISPLAY_NAMES: Record<string, string> = {
   timisoara: "Timișoara",
   brasov: "Brașov",
   iasi: "Iași",
-  istanbul: "Istanbul",
 };
 
 function formatCityName(slug: string): string {
@@ -28,12 +26,17 @@ export default function ProfilePage({
   params: Promise<{ city: string }>;
 }) {
   const { city } = use(params);
-  const { auth, logout } = useAuth();
+  const { auth, signOut } = useAuth();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState("RO");
   const [notifications, setNotifications] = useState(true);
 
   const displayCity = formatCityName(city);
+
+  if (auth.loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4" />
+    );
+  }
 
   if (!auth.isAuthenticated) {
     return (
@@ -42,7 +45,7 @@ export default function ProfilePage({
           <User size={28} className="text-text-muted" />
         </div>
         <h1 className="text-xl font-bold text-text-primary">Profilul tău</h1>
-        <p className="text-sm text-text-secondary mt-2 text-center">
+        <p className="text-sm text-text-secondary mt-2 text-center max-w-xs">
           Conectează-te pentru a-ți gestiona contul și preferințele.
         </p>
         <div className="mt-6">
@@ -51,18 +54,17 @@ export default function ProfilePage({
         <AuthSheet
           open={authSheetOpen}
           onClose={() => setAuthSheetOpen(false)}
-          onAuthenticated={() => {}}
         />
       </div>
     );
   }
 
   const user = auth.user!;
-  const displayName = user.name || "Utilizator Tavli";
-
-  const handleLogout = () => {
-    logout();
-  };
+  const email = user.email ?? "";
+  const displayName = email.split("@")[0] || "Utilizator Tavli";
+  const memberSince = user.created_at
+    ? new Date(user.created_at).toISOString().slice(0, 10)
+    : null;
 
   return (
     <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
@@ -73,13 +75,14 @@ export default function ProfilePage({
           <h1 className="text-xl font-bold text-text-primary truncate">
             {displayName}
           </h1>
-          {user.email && (
-            <p className="text-sm text-text-secondary truncate">{user.email}</p>
+          {email && (
+            <p className="text-sm text-text-secondary truncate">{email}</p>
           )}
-          <p className="text-sm text-text-secondary">+40 {user.phone}</p>
-          <p className="text-xs text-text-muted mt-0.5">
-            Membru din {user.memberSince}
-          </p>
+          {memberSince && (
+            <p className="text-xs text-text-muted mt-0.5">
+              Membru din {memberSince}
+            </p>
+          )}
         </div>
       </div>
 
@@ -96,21 +99,6 @@ export default function ProfilePage({
             currentCity={displayCity}
             onSelect={(c) => console.log("City selected:", c)}
           />
-        </div>
-
-        {/* Language */}
-        <div>
-          <span className="text-sm font-medium text-text-primary block mb-2">Limbă</span>
-          <div className="flex items-center gap-2">
-            {["RO", "TR", "EN"].map((lang) => (
-              <Pill
-                key={lang}
-                label={lang}
-                active={selectedLang === lang}
-                onToggle={() => setSelectedLang(lang)}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Notifications */}
@@ -137,9 +125,9 @@ export default function ProfilePage({
         </div>
       </section>
 
-      {/* Log Out */}
+      {/* Sign Out */}
       <div className="mt-8">
-        <Button variant="ghost" fullWidth onClick={handleLogout}>
+        <Button variant="ghost" fullWidth onClick={() => signOut()}>
           <span className="flex items-center gap-2 justify-center">
             <LogOut size={16} />
             Deconectează-te

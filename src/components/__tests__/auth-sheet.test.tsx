@@ -1,6 +1,26 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { AuthSheet } from "../auth-sheet";
-import { AuthProvider } from "@/lib/auth-context";
+
+const mockSignIn = jest.fn();
+const mockSignUp = jest.fn();
+const mockSignOut = jest.fn();
+const mockUseAuth = jest.fn();
+
+jest.mock("@/lib/auth-context", () => ({
+  useAuth: () => mockUseAuth(),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockSignIn.mockResolvedValue({});
+  mockSignUp.mockResolvedValue({});
+  mockUseAuth.mockReturnValue({
+    auth: { user: null, isAuthenticated: false, loading: false },
+    signIn: mockSignIn,
+    signUp: mockSignUp,
+    signOut: mockSignOut,
+  });
+});
 
 function renderSheet(props: Partial<React.ComponentProps<typeof AuthSheet>> = {}) {
   const defaultProps = {
@@ -10,46 +30,108 @@ function renderSheet(props: Partial<React.ComponentProps<typeof AuthSheet>> = {}
     ...props,
   };
   return {
-    ...render(
-      <AuthProvider>
-        <AuthSheet {...defaultProps} />
-      </AuthProvider>,
-    ),
+    ...render(<AuthSheet {...defaultProps} />),
     ...defaultProps,
   };
 }
 
 describe("AuthSheet", () => {
-  it("renders phone input initially", () => {
+  it("opens in sign-in mode by default", () => {
     renderSheet();
-    expect(screen.getByLabelText("Număr de telefon")).toBeInTheDocument();
-    expect(screen.getByText("Continuă")).toBeInTheDocument();
+    expect(screen.getAllByText("Conectează-te")[0]).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Parolă")).toBeInTheDocument();
   });
 
-  it("Continue is disabled with short phone number", () => {
+  it("submit is disabled until email and password are valid", () => {
     renderSheet();
-    const btn = screen.getByText("Continuă").closest("button");
-    expect(btn).toBeDisabled();
+    const button = screen.getByRole("button", { name: "Conectează-te" });
+    expect(button).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "ana@test.com" },
+    });
+    expect(button).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    expect(button).toBeEnabled();
   });
 
-  it("advances to OTP step after valid phone + Continue", () => {
+  it("toggles between sign-in and sign-up modes", () => {
     renderSheet();
-    const input = screen.getByLabelText("Număr de telefon");
-    fireEvent.change(input, { target: { value: "712345678" } });
-    fireEvent.click(screen.getByText("Continuă"));
-    expect(screen.getByLabelText("Cod de verificare")).toBeInTheDocument();
-    expect(screen.getByText("Verifică")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
+    expect(screen.getAllByText("Creează cont").length).toBeGreaterThanOrEqual(1);
+    fireEvent.click(screen.getByText("Ai deja cont? Conectează-te"));
+    expect(screen.getAllByText("Conectează-te").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("calls login and onAuthenticated on verify", () => {
-    const { onAuthenticated, onClose } = renderSheet();
-    const phoneInput = screen.getByLabelText("Număr de telefon");
-    fireEvent.change(phoneInput, { target: { value: "712345678" } });
-    fireEvent.click(screen.getByText("Continuă"));
-    const otpInput = screen.getByLabelText("Cod de verificare");
-    fireEvent.change(otpInput, { target: { value: "123456" } });
-    fireEvent.click(screen.getByText("Verifică"));
+  it("calls signIn with the entered credentials and closes on success", async () => {
+    const onClose = jest.fn();
+    const onAuthenticated = jest.fn();
+    renderSheet({ onClose, onAuthenticated });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "ana@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Conectează-te" }));
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith("ana@test.com", "secret123");
+    });
     expect(onAuthenticated).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it("shows the error message when sign-in fails", async () => {
+    mockSignIn.mockResolvedValueOnce({ error: "Invalid login credentials" });
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "ana@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "wrong123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Conectează-te" }));
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid login credentials",
+      );
+    });
+  });
+
+  it("shows the confirmation panel when sign-up requires email confirmation", async () => {
+    mockSignUp.mockResolvedValueOnce({ needsConfirmation: true });
+    renderSheet();
+    fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "new@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Creează cont" }));
+    await waitFor(() => {
+      expect(screen.getByText(/Ți-am trimis un email/)).toBeInTheDocument();
+    });
+    expect(screen.getByText("new@test.com")).toBeInTheDocument();
+  });
+
+  it("calls signUp directly when in sign-up mode", async () => {
+    mockSignUp.mockResolvedValueOnce({});
+    const onAuthenticated = jest.fn();
+    renderSheet({ onAuthenticated });
+    fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "new@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Creează cont" }));
+    await waitFor(() => {
+      expect(mockSignUp).toHaveBeenCalledWith("new@test.com", "secret123");
+    });
+    expect(onAuthenticated).toHaveBeenCalled();
   });
 });

@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Plus, Calendar } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { useAuth } from "@/lib/auth-context";
 import { useSaved } from "@/lib/saved-context";
 import { RestaurantCard } from "@/components/restaurant-card";
-import { AuthSheet } from "@/components/auth-sheet";
-import { Button } from "@/components/button";
 
 interface Props {
   city: string;
@@ -17,35 +14,13 @@ interface Props {
 
 export function SavedPageClient({ city, allRestaurants }: Props) {
   const router = useRouter();
-  const { auth } = useAuth();
   const { savedIds, lists, bookings, toggleSave, isSaved, createList } =
     useSaved();
-  const [authSheetOpen, setAuthSheetOpen] = useState(false);
 
   const savedRestaurants = useMemo(
     () => allRestaurants.filter((r) => savedIds.includes(r.id)),
     [allRestaurants, savedIds],
   );
-
-  if (!auth.isAuthenticated) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <Heart size={48} className="text-text-muted mb-4" />
-        <h1 className="text-xl font-bold text-text-primary">Locurile tale salvate</h1>
-        <p className="text-sm text-text-secondary mt-2 text-center">
-          Conectează-te pentru a salva restaurante și a-ți urmări rezervările.
-        </p>
-        <div className="mt-6">
-          <Button onClick={() => setAuthSheetOpen(true)}>Conectează-te</Button>
-        </div>
-        <AuthSheet
-          open={authSheetOpen}
-          onClose={() => setAuthSheetOpen(false)}
-          onAuthenticated={() => {}}
-        />
-      </div>
-    );
-  }
 
   const handleNewList = () => {
     const name = prompt("Nume listă:");
