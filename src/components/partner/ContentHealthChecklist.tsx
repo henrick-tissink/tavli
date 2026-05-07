@@ -16,10 +16,10 @@ export function ContentHealthChecklist({ items }: { items: ChecklistItem[] }) {
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div>
           <h2 className="font-display text-lg font-bold text-text-primary">
-            Content health
+            Stare conținut
           </h2>
           <p className="text-xs text-text-muted mt-0.5">
-            {doneCount}/{items.length} complete
+            {doneCount}/{items.length} finalizate
           </p>
         </div>
         <div className="w-32">

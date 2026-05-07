@@ -15,7 +15,7 @@ export async function savePartnerProfile(
 ): Promise<SaveProfileResult> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const profile = {
     name: String(formData.get("name") ?? "").trim(),
@@ -30,9 +30,9 @@ export async function savePartnerProfile(
     websiteUrl: String(formData.get("websiteUrl") ?? "").trim(),
   };
 
-  if (!profile.name) return { ok: false, error: "Restaurant name is required." };
-  if (profile.cuisines.length === 0) return { ok: false, error: "Pick at least one cuisine." };
-  if (!profile.address) return { ok: false, error: "Address is required." };
+  if (!profile.name) return { ok: false, error: "Numele restaurantului este obligatoriu." };
+  if (profile.cuisines.length === 0) return { ok: false, error: "Alege cel puțin o bucătărie." };
+  if (!profile.address) return { ok: false, error: "Adresa este obligatorie." };
 
   const { error } = await supabase
     .from("restaurants")

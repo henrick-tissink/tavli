@@ -29,10 +29,10 @@ export interface Ok {
 export async function createSection(formData: FormData): Promise<Ok> {
   const name = String(formData.get("name") ?? "").trim();
   const intro = String(formData.get("intro") ?? "").trim();
-  if (!name) return { ok: false, error: "Section name is required." };
+  if (!name) return { ok: false, error: "Numele secțiunii este obligatoriu." };
 
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const supabase = await createSupabaseServerClient();
   const { data: existing } = await supabase
@@ -68,10 +68,10 @@ export async function updateSection(
 ): Promise<Ok> {
   const name = String(formData.get("name") ?? "").trim();
   const intro = String(formData.get("intro") ?? "").trim();
-  if (!name) return { ok: false, error: "Section name is required." };
+  if (!name) return { ok: false, error: "Numele secțiunii este obligatoriu." };
 
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -87,7 +87,7 @@ export async function updateSection(
 
 export async function deleteSection(sectionId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -117,16 +117,16 @@ export interface SaveItemPayload {
 
 export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
   if (!isUuid(payload.sectionId)) {
-    return { ok: false, error: "Pick a section before saving." };
+    return { ok: false, error: "Alege o secțiune înainte de a salva." };
   }
   if (payload.id !== undefined && !isUuid(payload.id)) {
-    return { ok: false, error: "Invalid dish reference. Try refreshing." };
+    return { ok: false, error: "Referință invalidă pentru fel. Reîncarcă pagina." };
   }
 
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
-  if (!payload.name.trim()) return { ok: false, error: "Name is required." };
-  if (payload.priceLei < 0) return { ok: false, error: "Price must be ≥ 0." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (!payload.name.trim()) return { ok: false, error: "Numele este obligatoriu." };
+  if (payload.priceLei < 0) return { ok: false, error: "Prețul trebuie să fie ≥ 0." };
 
   const supabase = await createSupabaseServerClient();
 
@@ -177,7 +177,7 @@ export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
 
 export async function deleteItem(itemId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase

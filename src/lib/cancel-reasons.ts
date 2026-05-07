@@ -9,25 +9,25 @@
  */
 export const CANCEL_REASONS = {
   restaurant_closed: {
-    partnerLabel: "Restaurant unexpectedly closed",
-    guestMessage: "The restaurant is unexpectedly closed today.",
+    partnerLabel: "Restaurant închis neașteptat",
+    guestMessage: "Restaurantul este închis astăzi în mod neașteptat.",
   },
   overbooked: {
-    partnerLabel: "Overbooked — no table available",
+    partnerLabel: "Suprarezervare — nu mai sunt mese",
     guestMessage:
-      "The restaurant is fully booked at this time and couldn't accommodate your reservation.",
+      "Restaurantul este complet rezervat la acea oră și nu a putut onora rezervarea ta.",
   },
   kitchen_issue: {
-    partnerLabel: "Kitchen issue / equipment failure",
-    guestMessage: "The restaurant has had an unexpected kitchen issue.",
+    partnerLabel: "Problemă în bucătărie / defecțiune",
+    guestMessage: "Restaurantul a avut o problemă neașteptată în bucătărie.",
   },
   private_event: {
-    partnerLabel: "Booked for a private event",
-    guestMessage: "The restaurant has been booked for a private event.",
+    partnerLabel: "Rezervat pentru un eveniment privat",
+    guestMessage: "Restaurantul a fost rezervat pentru un eveniment privat.",
   },
   other: {
-    partnerLabel: "Other",
-    guestMessage: "The restaurant had to cancel this reservation.",
+    partnerLabel: "Altul",
+    guestMessage: "Restaurantul a fost nevoit să anuleze această rezervare.",
   },
 } as const;
 

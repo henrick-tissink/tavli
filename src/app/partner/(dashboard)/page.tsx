@@ -11,7 +11,13 @@ import {
 export const dynamic = "force-dynamic";
 
 const HELLO_BY_HOUR = (h: number) =>
-  h < 5 ? "Late night" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  h < 5
+    ? "Bună noaptea"
+    : h < 12
+      ? "Bună dimineața"
+      : h < 18
+        ? "Bună ziua"
+        : "Bună seara";
 
 export default async function PartnerDashboardPage({
   searchParams,
@@ -34,10 +40,10 @@ export default async function PartnerDashboardPage({
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="font-semibold text-text-primary">No restaurant yet</p>
+          <p className="font-semibold text-text-primary">Niciun restaurant încă</p>
           <p className="text-sm text-text-secondary mt-2">
-            Your partner account isn&apos;t linked to a restaurant. Contact the
-            Tavli team.
+            Contul tău de partener nu este asociat unui restaurant.
+            Contactează echipa Tavli.
           </p>
         </div>
       </div>
@@ -77,49 +83,49 @@ export default async function PartnerDashboardPage({
 
   const checklist: ChecklistItem[] = [
     {
-      label: "Profile complete",
+      label: "Profil complet",
       done:
         !!restaurant.name &&
         Array.isArray(restaurant.cuisines) &&
         restaurant.cuisines.length > 0 &&
         restaurant.name !== "New Restaurant",
-      hint: "Name, cuisines, address, one-line story",
+      hint: "Nume, bucătării, adresă, descriere scurtă",
       href: "/partner/profile",
     },
     {
-      label: "Hero photo uploaded",
+      label: "Fotografie principală încărcată",
       done: (heroCount ?? 0) > 0,
-      hint: "The first shot diners see",
+      hint: "Prima imagine pe care o văd clienții",
       href: "/partner/photos",
     },
     {
-      label: "At least 3 gallery photos",
+      label: "Cel puțin 3 fotografii în galerie",
       done: (galleryCount ?? 0) >= 3,
-      hint: "Interior, signature dishes, atmosphere",
+      hint: "Interior, feluri de semnătură, atmosferă",
       href: "/partner/photos",
     },
     {
-      label: "Hero note set",
+      label: "Notă pe meniu setată",
       done: !!restaurant.hero_note,
-      hint: "One-line restaurant voice on the menu page",
+      hint: "Vocea restaurantului pe pagina de meniu",
       href: "/partner/profile",
     },
     {
-      label: "Menu has at least 6 items",
+      label: "Meniul are cel puțin 6 feluri",
       done: (menuItemsData?.length ?? 0) >= 6,
-      hint: `Currently ${menuSectionsData?.length ?? 0} sections, ${menuItemsData?.length ?? 0} items`,
+      hint: `În prezent ${menuSectionsData?.length ?? 0} secțiuni, ${menuItemsData?.length ?? 0} ${(menuItemsData?.length ?? 0) === 1 ? "fel" : "feluri"}`,
       href: "/partner/menu",
     },
     {
-      label: "Hours configured",
+      label: "Program configurat",
       done: Array.isArray(restaurant.schedule) && restaurant.schedule.length > 0,
-      hint: "Your weekly opening times",
+      hint: "Programul tău săptămânal",
       href: "/partner/hours",
     },
     {
-      label: "Availability (reservations) set",
+      label: "Disponibilitate (rezervări) setată",
       done: (availabilityCount ?? 0) > 0,
-      hint: "How many covers per slot",
+      hint: "Câți clienți pe interval",
       href: "/partner/reservations",
     },
   ];
@@ -134,7 +140,7 @@ export default async function PartnerDashboardPage({
           {restaurant.name}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Status:{" "}
+          Stare:{" "}
           <span
             className={`inline-flex items-center gap-1 font-semibold ${
               restaurant.status === "live"
@@ -152,11 +158,11 @@ export default async function PartnerDashboardPage({
           <PartyPopper size={20} className="text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-emerald-900">
-              You&apos;re live on Tavli.
+              Ești live pe Tavli.
             </p>
             <p className="text-sm text-emerald-800 mt-1">
-              {restaurant.name} is discoverable by diners right now. Copy your
-              consumer page URL to share it.
+              {restaurant.name} poate fi descoperit chiar acum de către
+              clienți. Copiază URL-ul paginii publice pentru a-l împărtăși.
             </p>
           </div>
         </div>
@@ -164,25 +170,25 @@ export default async function PartnerDashboardPage({
 
       <section className="grid grid-cols-1 tablet:grid-cols-3 gap-4 mb-10">
         <StatCard
-          label="Views this week"
+          label="Vizualizări săptămâna asta"
           value="—"
           icon={Eye}
           tone="muted"
-          hint="Live when telemetry ships"
+          hint="Disponibil odată cu telemetria"
         />
         <StatCard
-          label="Saves"
+          label="Salvări"
           value="—"
           icon={Heart}
           tone="muted"
-          hint="Diners who bookmarked you"
+          hint="Clienți care te-au salvat"
         />
         <StatCard
-          label="Reservations"
+          label="Rezervări"
           value="—"
           icon={CalendarClock}
           tone="muted"
-          hint="Real bookings arrive in M12"
+          hint="Vezi rezervările reale în secțiunea Rezervări"
         />
       </section>
 
@@ -194,10 +200,10 @@ export default async function PartnerDashboardPage({
           className="bg-surface-white rounded-card border border-border p-5 hover:shadow-card-hover transition-shadow"
         >
           <h3 className="font-display text-lg font-bold text-text-primary">
-            View your public page
+            Vezi pagina ta publică
           </h3>
           <p className="text-sm text-text-secondary mt-1">
-            See what diners see when they find you.
+            Vezi ce văd clienții când te găsesc.
           </p>
         </Link>
         <Link
@@ -205,10 +211,10 @@ export default async function PartnerDashboardPage({
           className="bg-surface-white rounded-card border border-border p-5 hover:shadow-card-hover transition-shadow"
         >
           <h3 className="font-display text-lg font-bold text-text-primary">
-            Manage menu
+            Administrează meniul
           </h3>
           <p className="text-sm text-text-secondary mt-1">
-            Add sections, dishes, prices, photos, dietary tags.
+            Adaugă secțiuni, feluri, prețuri, fotografii, etichete dietetice.
           </p>
         </Link>
       </section>

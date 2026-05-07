@@ -31,7 +31,7 @@ export function PartnerSignInForm() {
       </div>
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="password">
-          Password
+          Parolă
         </label>
         <PasswordInput
           id="password"
@@ -46,10 +46,10 @@ export function PartnerSignInForm() {
         </p>
       )}
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Se conectează…" : "Conectează-te"}
       </Button>
       <p className="text-xs text-text-muted text-center">
-        Not a partner yet? You need an invitation from the Tavli team.
+        Încă nu ești partener? Ai nevoie de o invitație de la echipa Tavli.
       </p>
     </form>
   );

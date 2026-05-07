@@ -24,17 +24,17 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6 print:hidden">
         <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-          Print QR
+          Tipărește QR
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Stick the printed code on your tables. Diners scan it to see your
-          menu — no booking, no friction.
+          Lipește codul tipărit pe mesele tale. Clienții îl scanează pentru
+          a vedea meniul — fără rezervare, fără bătaie de cap.
         </p>
       </header>
 
       <fieldset
         role="radiogroup"
-        aria-label="Layout"
+        aria-label="Aspect"
         className="mb-6 flex gap-4 print:hidden"
       >
         <label className="cursor-pointer flex items-center gap-2">
@@ -46,7 +46,7 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
             onChange={() => setMode("single")}
             className="accent-brand-primary"
           />
-          <span className="text-sm">Single card</span>
+          <span className="text-sm">Card individual</span>
         </label>
         <label className="cursor-pointer flex items-center gap-2">
           <input
@@ -57,7 +57,7 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
             onChange={() => setMode("sheet")}
             className="accent-brand-primary"
           />
-          <span className="text-sm">Sticker sheet (×12)</span>
+          <span className="text-sm">Coală cu stickere (×12)</span>
         </label>
       </fieldset>
 
@@ -88,7 +88,7 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
           onClick={() => window.print()}
           className="bg-brand-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-brand-primary-dark"
         >
-          Print
+          Tipărește
         </button>
       </div>
     </div>

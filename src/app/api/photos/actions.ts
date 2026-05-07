@@ -33,7 +33,7 @@ export async function uploadRestaurantPhoto(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const restaurantId = String(formData.get("restaurantId") ?? "");
   const kindIn = String(formData.get("kind") ?? "gallery");
@@ -44,13 +44,13 @@ export async function uploadRestaurantPhoto(
     : "gallery";
   const file = formData.get("file") as File | null;
 
-  if (!restaurantId) return { ok: false, error: "Missing restaurant id." };
-  if (!file) return { ok: false, error: "No file attached." };
+  if (!restaurantId) return { ok: false, error: "Lipsește id-ul restaurantului." };
+  if (!file) return { ok: false, error: "Niciun fișier atașat." };
   if (!file.type.startsWith("image/")) {
-    return { ok: false, error: `${file.name} isn't an image.` };
+    return { ok: false, error: `${file.name} nu este o imagine.` };
   }
   if (file.size > 10 * 1024 * 1024) {
-    return { ok: false, error: `${file.name} is over 10 MB.` };
+    return { ok: false, error: `${file.name} depășește 10 MB.` };
   }
 
   const admin = createSupabaseAdminClient();
@@ -62,7 +62,7 @@ export async function uploadRestaurantPhoto(
     .eq("id", restaurantId)
     .maybeSingle();
   if (!restaurant || restaurant.owner_user_id !== user.id) {
-    return { ok: false, error: "Not your restaurant." };
+    return { ok: false, error: "Nu este restaurantul tău." };
   }
 
   // Enforce per-restaurant photo cap.
@@ -71,7 +71,7 @@ export async function uploadRestaurantPhoto(
     .select("id", { count: "exact", head: true })
     .eq("restaurant_id", restaurantId);
   if ((count ?? 0) >= 50) {
-    return { ok: false, error: "Photo limit reached (50 per restaurant)." };
+    return { ok: false, error: "Limita de fotografii a fost atinsă (50 per restaurant)." };
   }
 
   // Upload to Storage.
@@ -114,7 +114,7 @@ export async function uploadRestaurantPhoto(
   if (insertErr || !inserted) {
     // Clean up the uploaded blob.
     await admin.storage.from(PHOTO_BUCKET).remove([storagePath]);
-    return { ok: false, error: insertErr?.message ?? "Could not record photo." };
+    return { ok: false, error: insertErr?.message ?? "Fotografia nu a putut fi înregistrată." };
   }
 
   revalidatePath("/partner");
@@ -136,7 +136,7 @@ export async function setPhotoHero(photoId: string): Promise<UploadResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const admin = createSupabaseAdminClient();
 
@@ -145,7 +145,7 @@ export async function setPhotoHero(photoId: string): Promise<UploadResult> {
     .select("restaurant_id")
     .eq("id", photoId)
     .maybeSingle();
-  if (!photo) return { ok: false, error: "Photo not found." };
+  if (!photo) return { ok: false, error: "Fotografia nu a fost găsită." };
 
   const { data: restaurant } = await admin
     .from("restaurants")
@@ -153,7 +153,7 @@ export async function setPhotoHero(photoId: string): Promise<UploadResult> {
     .eq("id", photo.restaurant_id)
     .maybeSingle();
   if (!restaurant || restaurant.owner_user_id !== user.id) {
-    return { ok: false, error: "Not your photo." };
+    return { ok: false, error: "Nu este fotografia ta." };
   }
 
   await admin
@@ -177,7 +177,7 @@ export async function deletePhoto(photoId: string): Promise<UploadResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const admin = createSupabaseAdminClient();
 
@@ -186,7 +186,7 @@ export async function deletePhoto(photoId: string): Promise<UploadResult> {
     .select("id, storage_path, restaurant_id")
     .eq("id", photoId)
     .maybeSingle();
-  if (!photo) return { ok: false, error: "Photo not found." };
+  if (!photo) return { ok: false, error: "Fotografia nu a fost găsită." };
 
   const { data: restaurant } = await admin
     .from("restaurants")
@@ -194,7 +194,7 @@ export async function deletePhoto(photoId: string): Promise<UploadResult> {
     .eq("id", photo.restaurant_id)
     .maybeSingle();
   if (!restaurant || restaurant.owner_user_id !== user.id) {
-    return { ok: false, error: "Not your photo." };
+    return { ok: false, error: "Nu este fotografia ta." };
   }
 
   await admin.storage.from(PHOTO_BUCKET).remove([photo.storage_path]);

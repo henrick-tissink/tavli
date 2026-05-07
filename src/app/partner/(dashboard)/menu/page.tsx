@@ -23,7 +23,7 @@ export default async function PartnerMenuPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            No restaurant linked to this account.
+            Niciun restaurant asociat acestui cont.
           </p>
         </div>
       </div>
@@ -68,11 +68,11 @@ export default async function PartnerMenuPage() {
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-            Menu
+            Meniu
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Sections, dishes, prices, dietary tags, chef&apos;s picks. Changes
-            show on your public page immediately.
+            Secțiuni, feluri, prețuri, etichete dietetice, recomandările
+            bucătarului. Modificările apar imediat pe pagina ta publică.
           </p>
         </div>
         <PrintQrButton menuItemCount={(itemsRaw ?? []).length} />

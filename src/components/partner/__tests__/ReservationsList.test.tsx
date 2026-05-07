@@ -35,7 +35,7 @@ function row(overrides: Partial<ReservationRow>): ReservationRow {
 }
 
 describe("ReservationsList", () => {
-  test("confirmed row shows Mark seated, No-show, Cancel — no Complete", () => {
+  test("confirmed row shows Așază la masă, Neprezentat, Anulează — no Finalizează", () => {
     render(
       <ReservationsList
         today={[row({ id: "r1", status: "confirmed" })]}
@@ -45,13 +45,13 @@ describe("ReservationsList", () => {
     );
     const tr = screen.getByText("Maria").closest("tr")!;
     const scope = within(tr);
-    expect(scope.getByRole("button", { name: /mark seated/i })).toBeInTheDocument();
-    expect(scope.getByRole("button", { name: /no-show/i })).toBeInTheDocument();
-    expect(scope.getByRole("button", { name: /^cancel$/i })).toBeInTheDocument();
-    expect(scope.queryByRole("button", { name: /^complete$/i })).toBeNull();
+    expect(scope.getByRole("button", { name: /așază la masă/i })).toBeInTheDocument();
+    expect(scope.getByRole("button", { name: /^neprezentat$/i })).toBeInTheDocument();
+    expect(scope.getByRole("button", { name: /^anulează$/i })).toBeInTheDocument();
+    expect(scope.queryByRole("button", { name: /^finalizează$/i })).toBeNull();
   });
 
-  test("seated row shows Complete + No-show but NOT Cancel", () => {
+  test("seated row shows Finalizează + Neprezentat but NOT Anulează", () => {
     render(
       <ReservationsList
         today={[row({ id: "r2", status: "seated" })]}
@@ -61,9 +61,9 @@ describe("ReservationsList", () => {
     );
     const tr = screen.getByText("Maria").closest("tr")!;
     const scope = within(tr);
-    expect(scope.getByRole("button", { name: /^complete$/i })).toBeInTheDocument();
-    expect(scope.getByRole("button", { name: /no-show/i })).toBeInTheDocument();
-    expect(scope.queryByRole("button", { name: /^cancel$/i })).toBeNull();
+    expect(scope.getByRole("button", { name: /^finalizează$/i })).toBeInTheDocument();
+    expect(scope.getByRole("button", { name: /^neprezentat$/i })).toBeInTheDocument();
+    expect(scope.queryByRole("button", { name: /^anulează$/i })).toBeNull();
   });
 
   test("cancelled / completed / no_show rows show no actions", () => {
@@ -79,7 +79,7 @@ describe("ReservationsList", () => {
       />,
     );
     // Default tab is "today" when no today/upcoming rows; switch to past.
-    fireEvent.click(screen.getByRole("button", { name: /^past/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^trecute/i }));
     for (const name of ["A", "B", "C"]) {
       const tr = screen.getByText(name).closest("tr")!;
       const scope = within(tr);
@@ -95,12 +95,12 @@ describe("ReservationsList", () => {
         past={[]}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /^cancel$/i }));
-    // Sheet opens as a dialog with the "Cancel reservation" title.
+    fireEvent.click(screen.getByRole("button", { name: /^anulează$/i }));
+    // Sheet opens as a dialog with the "Anulează rezervarea" title.
     const sheet = screen.getByRole("dialog");
-    expect(within(sheet).getByRole("heading", { name: /cancel reservation/i })).toBeInTheDocument();
+    expect(within(sheet).getByRole("heading", { name: /anulează rezervarea/i })).toBeInTheDocument();
     // And shows the chosen reservation's guest name + party size in the summary.
     expect(within(sheet).getByText("Maria")).toBeInTheDocument();
-    expect(within(sheet).getByText(/party of 4/i)).toBeInTheDocument();
+    expect(within(sheet).getByText(/grup de 4/i)).toBeInTheDocument();
   });
 });

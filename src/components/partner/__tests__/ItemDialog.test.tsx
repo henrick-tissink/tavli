@@ -30,7 +30,7 @@ describe("ItemDialog price input", () => {
     render(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     expect(input.getAttribute("inputmode")).toBe("decimal");
   });
 
@@ -38,7 +38,7 @@ describe("ItemDialog price input", () => {
     render(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     expect(input.value).toBe("");
   });
 
@@ -47,7 +47,7 @@ describe("ItemDialog price input", () => {
     render(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.type(input, "15");
     expect(input.value).toBe("15");
   });
@@ -62,9 +62,9 @@ describe("ItemDialog price input", () => {
         item={blankItem({ name: "Mestechetura", priceLei: 12 })}
       />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.clear(input);
-    await user.click(screen.getByRole("button", { name: /add dish|save changes/i }));
+    await user.click(screen.getByRole("button", { name: /adaugă fel|salvează modificările/i }));
     expect(saveItem).toHaveBeenCalledWith(expect.objectContaining({ priceLei: 0 }));
   });
 
@@ -78,9 +78,9 @@ describe("ItemDialog price input", () => {
         item={blankItem({ name: "Soup" })}
       />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.type(input, "1.5");
-    await user.click(screen.getByRole("button", { name: /add dish/i }));
+    await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
     expect(saveItem).toHaveBeenCalledWith(expect.objectContaining({ priceLei: 1.5 }));
   });
 
@@ -94,9 +94,9 @@ describe("ItemDialog price input", () => {
         item={blankItem({ name: "Soup" })}
       />,
     );
-    const input = screen.getByLabelText("Price (lei)") as HTMLInputElement;
+    const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.type(input, "1,5");
-    await user.click(screen.getByRole("button", { name: /add dish/i }));
+    await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
     expect(saveItem).toHaveBeenCalledWith(expect.objectContaining({ priceLei: 1.5 }));
   });
 });

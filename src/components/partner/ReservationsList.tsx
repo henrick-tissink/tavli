@@ -24,8 +24,8 @@ export interface ReservationRow {
   createdAt: string;
 }
 
-const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const WEEKDAYS_SHORT = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
+const MONTHS_SHORT = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"];
 
 const STATUS_STYLE: Record<ReservationRow["status"], string> = {
   confirmed: "bg-emerald-50 text-emerald-800",
@@ -36,11 +36,11 @@ const STATUS_STYLE: Record<ReservationRow["status"], string> = {
 };
 
 const STATUS_LABEL: Record<ReservationRow["status"], string> = {
-  confirmed: "Confirmed",
-  seated: "Seated",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  no_show: "No-show",
+  confirmed: "Confirmată",
+  seated: "Așezat la masă",
+  completed: "Finalizată",
+  cancelled: "Anulată",
+  no_show: "Neprezentat",
 };
 
 type Tab = "today" | "upcoming" | "past";
@@ -65,15 +65,15 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     start(async () => {
       const result = await updateReservationStatus(id, nextStatus);
       if (!result.ok) {
-        toast.error(result.error ?? "Could not update reservation.");
+        toast.error(result.error ?? "Rezervarea nu a putut fi actualizată.");
         return;
       }
       const label =
         nextStatus === "no_show"
-          ? "Marked as no-show."
+          ? "Marcat ca neprezentat."
           : nextStatus === "seated"
-            ? "Marked seated."
-            : "Marked complete.";
+            ? "Marcat ca așezat la masă."
+            : "Marcat ca finalizat.";
       toast.success(label);
       router.refresh();
     });
@@ -81,6 +81,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
 
   const rows = { today, upcoming, past }[tab];
   const counts = { today: today.length, upcoming: upcoming.length, past: past.length };
+  const TAB_LABEL: Record<Tab, string> = {
+    today: "Astăzi",
+    upcoming: "Următoare",
+    past: "Trecute",
+  };
 
   return (
     <div className="space-y-4 max-w-5xl">
@@ -90,13 +95,13 @@ export function ReservationsList({ today, upcoming, past }: Props) {
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-semibold capitalize border-b-2 -mb-px transition-colors ${
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
               tab === t
                 ? "border-brand-primary text-brand-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
-            {t} <span className="text-xs opacity-60">({counts[t]})</span>
+            {TAB_LABEL[t]} <span className="text-xs opacity-60">({counts[t]})</span>
           </button>
         ))}
       </div>
@@ -106,15 +111,15 @@ export function ReservationsList({ today, upcoming, past }: Props) {
           <CalendarCheck size={28} className="mx-auto text-text-muted mb-3" />
           <p className="font-semibold text-text-primary">
             {tab === "today"
-              ? "No bookings today"
+              ? "Nicio rezervare astăzi"
               : tab === "upcoming"
-                ? "No upcoming bookings"
-                : "No past bookings yet"}
+                ? "Nicio rezervare viitoare"
+                : "Nicio rezervare trecută încă"}
           </p>
           <p className="text-sm text-text-secondary mt-2 max-w-sm mx-auto">
             {tab === "past"
-              ? "Completed and cancelled bookings show up here after their date."
-              : "Diners who book through your public page will appear here right away."}
+              ? "Rezervările finalizate și anulate apar aici după data lor."
+              : "Clienții care rezervă prin pagina ta publică vor apărea aici imediat."}
           </p>
         </div>
       ) : (
@@ -122,13 +127,13 @@ export function ReservationsList({ today, upcoming, past }: Props) {
           <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
-                <th className="px-4 py-3 font-semibold text-text-secondary">When</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Guest</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Party</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Zone</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">Când</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">Client</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">Persoane</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">Zonă</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary">Status</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary text-right">
-                  Actions
+                  Acțiuni
                 </th>
               </tr>
             </thead>
@@ -180,7 +185,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-brand-primary text-xs font-semibold hover:underline mr-3"
                           >
-                            Mark seated
+                            Așază la masă
                           </button>
                           <button
                             type="button"
@@ -188,7 +193,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-amber-700 text-xs font-semibold hover:underline mr-3"
                           >
-                            No-show
+                            Neprezentat
                           </button>
                           <button
                             type="button"
@@ -196,7 +201,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-error text-xs font-semibold hover:underline"
                           >
-                            Cancel
+                            Anulează
                           </button>
                         </>
                       ) : r.status === "seated" ? (
@@ -207,7 +212,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-brand-primary text-xs font-semibold hover:underline mr-3"
                           >
-                            Complete
+                            Finalizează
                           </button>
                           <button
                             type="button"
@@ -215,7 +220,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-amber-700 text-xs font-semibold hover:underline"
                           >
-                            No-show
+                            Neprezentat
                           </button>
                         </>
                       ) : (

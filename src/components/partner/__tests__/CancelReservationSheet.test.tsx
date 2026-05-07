@@ -46,17 +46,17 @@ describe("CancelReservationSheet", () => {
     );
     expect(screen.getByText(/Maria/)).toBeInTheDocument();
     expect(screen.getByText(/19:30/)).toBeInTheDocument();
-    expect(screen.getByText(/party of 4/i)).toBeInTheDocument();
+    expect(screen.getByText(/grup de 4/i)).toBeInTheDocument();
   });
 
   test("submit button is disabled until a reason pill is selected", () => {
     render(
       <CancelReservationSheet open onClose={() => {}} reservation={reservation} />,
     );
-    const submit = screen.getByRole("button", { name: /^cancel reservation$/i });
+    const submit = screen.getByRole("button", { name: /^anulează rezervarea$/i });
     expect(submit).toBeDisabled();
 
-    fireEvent.click(screen.getByRole("button", { name: /overbooked/i }));
+    fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
     expect(submit).not.toBeDisabled();
   });
 
@@ -69,14 +69,14 @@ describe("CancelReservationSheet", () => {
     render(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /overbooked/i }));
-    fireEvent.click(screen.getByRole("button", { name: /^cancel reservation$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^anulează rezervarea$/i }));
 
     await waitFor(() => {
       expect(cancelReservation).toHaveBeenCalledWith("res-1", "overbooked");
     });
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("Reservation cancelled.");
+      expect(toast.success).toHaveBeenCalledWith("Rezervarea a fost anulată.");
     });
     expect(onClose).toHaveBeenCalled();
   });
@@ -89,8 +89,8 @@ describe("CancelReservationSheet", () => {
     render(
       <CancelReservationSheet open onClose={() => {}} reservation={reservation} />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /overbooked/i }));
-    fireEvent.click(screen.getByRole("button", { name: /^cancel reservation$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^anulează rezervarea$/i }));
 
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith(
@@ -108,8 +108,8 @@ describe("CancelReservationSheet", () => {
     render(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /overbooked/i }));
-    fireEvent.click(screen.getByRole("button", { name: /^cancel reservation$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^anulează rezervarea$/i }));
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Reservation not found.");
@@ -122,7 +122,7 @@ describe("CancelReservationSheet", () => {
     render(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /keep reservation/i }));
+    fireEvent.click(screen.getByRole("button", { name: /păstrează rezervarea/i }));
     expect(onClose).toHaveBeenCalled();
     expect(cancelReservation).not.toHaveBeenCalled();
   });

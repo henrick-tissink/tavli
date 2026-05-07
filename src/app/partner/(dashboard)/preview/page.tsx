@@ -26,16 +26,16 @@ export default async function PartnerPreviewPage() {
     <div className="px-8 py-8 max-w-3xl">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Preview
+          Previzualizare
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          See what diners see when they find you.
+          Vezi ce văd clienții când te găsesc.
         </p>
       </header>
 
       {publicUrl ? (
         <div className="bg-surface-white rounded-card border border-border p-6">
-          <p className="text-sm text-text-secondary">Your public URL:</p>
+          <p className="text-sm text-text-secondary">URL-ul tău public:</p>
           <p className="mt-2 font-mono text-sm bg-surface-bg px-3 py-2 rounded">
             {publicUrl}
           </p>
@@ -43,25 +43,25 @@ export default async function PartnerPreviewPage() {
             <Link href={publicUrl} target="_blank">
               <Button>
                 <span className="inline-flex items-center gap-2">
-                  Open public page <ExternalLink size={14} />
+                  Deschide pagina publică <ExternalLink size={14} />
                 </span>
               </Button>
             </Link>
           </div>
           {restaurant?.status !== "live" && (
             <p className="text-xs text-amber-700 mt-4">
-              Note: your restaurant status is &quot;{restaurant?.status}&quot; —
-              the public page may not be visible to diners yet.
+              Notă: statusul restaurantului tău este &quot;{restaurant?.status}&quot; —
+              s-ar putea ca pagina publică să nu fie încă vizibilă pentru clienți.
             </p>
           )}
         </div>
       ) : (
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            No public page available yet
+            Nicio pagină publică disponibilă încă
           </p>
           <p className="text-sm text-text-secondary mt-2">
-            Publish your restaurant to get a public URL.
+            Publică restaurantul pentru a obține un URL public.
           </p>
         </div>
       )}

@@ -14,11 +14,11 @@ export function PrintQrButton({ menuItemCount }: Props) {
       <span
         data-testid="print-qr-button"
         data-disabled="true"
-        title="Add at least one menu item before printing"
+        title="Adaugă cel puțin un fel de mâncare înainte de a tipări"
         aria-disabled="true"
         className={`${baseClasses} border-border text-text-muted bg-surface-bg cursor-not-allowed`}
       >
-        Print QR
+        Tipărește QR
       </span>
     );
   }
@@ -30,7 +30,7 @@ export function PrintQrButton({ menuItemCount }: Props) {
       data-disabled="false"
       className={`${baseClasses} border-brand-primary text-brand-primary bg-surface-white hover:bg-brand-primary-soft`}
     >
-      Print QR
+      Tipărește QR
     </Link>
   );
 }

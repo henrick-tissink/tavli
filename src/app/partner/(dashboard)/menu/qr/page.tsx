@@ -26,7 +26,7 @@ export default async function PartnerMenuQrPage() {
     .maybeSingle();
 
   if (!row) {
-    return <MissingState message="No restaurant linked to this account." />;
+    return <MissingState message="Niciun restaurant asociat acestui cont." />;
   }
 
   const cityField = row.cities as { slug: string } | { slug: string }[] | null;
@@ -36,7 +36,7 @@ export default async function PartnerMenuQrPage() {
 
   if (!citySlug) {
     return (
-      <MissingState message="Your restaurant isn't linked to a city yet — contact support so we can fix that before you print." />
+      <MissingState message="Restaurantul tău nu este încă asociat unui oraș — contactează echipa de suport ca să rezolvăm asta înainte să tipărești." />
     );
   }
 

@@ -22,8 +22,8 @@ export interface EditableItem {
 const TAG_OPTIONS: { value: string; label: string; icon?: string }[] = [
   { value: "vegetarian", label: "Vegetarian", icon: "🥬" },
   { value: "vegan", label: "Vegan", icon: "🌱" },
-  { value: "gluten_free", label: "Gluten-free", icon: "🌾" },
-  { value: "spicy", label: "Spicy", icon: "🌶" },
+  { value: "gluten_free", label: "Fără gluten", icon: "🌾" },
+  { value: "spicy", label: "Picant", icon: "🌶" },
   { value: "popular", label: "Popular", icon: "🔥" },
 ];
 
@@ -67,7 +67,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
       };
       const result = await saveItem(payload);
       if (!result.ok) {
-        setError(result.error ?? "Failed to save.");
+        setError(result.error ?? "Salvarea a eșuat.");
       } else {
         setError(null);
         onSaved();
@@ -80,19 +80,19 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Close"
+        aria-label="Închide"
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
       <div className="relative bg-surface-white rounded-card shadow-modal max-w-xl w-full max-h-[92vh] overflow-y-auto">
         <header className="px-6 py-5 border-b border-border flex items-center justify-between sticky top-0 bg-surface-white">
           <h2 className="font-display text-xl font-bold">
-            {state.id ? "Edit dish" : "New dish"}
+            {state.id ? "Editează felul" : "Fel nou"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label="Închide"
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
           >
             <X size={18} />
@@ -101,7 +101,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
         <div className="px-6 py-5 space-y-5">
           <div className="space-y-1">
             <label className="block text-sm font-medium" htmlFor="item-name">
-              Name
+              Nume
             </label>
             <input
               id="item-name"
@@ -115,7 +115,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
 
           <div className="space-y-1">
             <label className="block text-sm font-medium" htmlFor="item-description">
-              Description
+              Descriere
             </label>
             <textarea
               id="item-description"
@@ -124,7 +124,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                 setState((s) => ({ ...s, description: e.target.value }))
               }
               rows={3}
-              placeholder="Guanciale, pecorino romano, egg yolk, black pepper."
+              placeholder="Guanciale, pecorino romano, gălbenuș de ou, piper negru."
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
           </div>
@@ -132,7 +132,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium" htmlFor="item-price">
-                Price (lei)
+                Preț (lei)
               </label>
               <input
                 id="item-price"
@@ -154,13 +154,13 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                   }
                   className="h-4 w-4 rounded border-border accent-[var(--color-brand-primary)]"
                 />
-                Available on menu
+                Disponibil în meniu
               </label>
             </div>
           </div>
 
           <div>
-            <p className="text-sm font-medium mb-2">Tags</p>
+            <p className="text-sm font-medium mb-2">Etichete</p>
             <div className="flex flex-wrap gap-2">
               {TAG_OPTIONS.map((t) => {
                 const active = state.dietaryTags.includes(t.value);
@@ -200,7 +200,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                   : "text-text-muted"
               }
             />
-            Chef&apos;s pick
+            Recomandarea bucătarului
           </label>
 
           {error && (
@@ -211,10 +211,10 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
         </div>
         <footer className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 sticky bottom-0 bg-surface-white">
           <Button variant="ghost" onClick={onClose} type="button">
-            Cancel
+            Anulează
           </Button>
           <Button onClick={handleSave} disabled={pending} type="button">
-            {pending ? "Saving…" : state.id ? "Save changes" : "Add dish"}
+            {pending ? "Se salvează…" : state.id ? "Salvează modificările" : "Adaugă fel"}
           </Button>
         </footer>
       </div>

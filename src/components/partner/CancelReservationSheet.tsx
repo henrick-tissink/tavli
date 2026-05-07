@@ -21,8 +21,8 @@ interface Props {
   reservation: ReservationSummary;
 }
 
-const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const WEEKDAYS_SHORT = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
+const MONTHS_SHORT = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"];
 
 function prettyDate(ymd: string): string {
   const d = new Date(`${ymd}T12:00:00`);
@@ -39,13 +39,13 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
     start(async () => {
       const result = await cancelReservation(reservation.id, selected);
       if (!result.ok) {
-        toast.error(result.error ?? "Could not cancel reservation.");
+        toast.error(result.error ?? "Rezervarea nu a putut fi anulată.");
         return;
       }
       if (result.emailSent === false) {
-        toast.success("Cancelled — guest email could not be sent.");
+        toast.success("Anulată — emailul către client nu a putut fi trimis.");
       } else {
-        toast.success("Reservation cancelled.");
+        toast.success("Rezervarea a fost anulată.");
       }
       setSelected(null);
       onClose();
@@ -54,21 +54,21 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Cancel reservation">
+    <BottomSheet open={open} onClose={onClose} title="Anulează rezervarea">
       <div className="space-y-4">
         <div className="rounded-card bg-surface-bg px-4 py-3">
           <p className="text-sm font-semibold text-text-primary">
             {reservation.guestName}
           </p>
           <p className="text-xs text-text-secondary mt-0.5">
-            {prettyDate(reservation.reservationDate)} · {reservation.reservationTime} · party of{" "}
+            {prettyDate(reservation.reservationDate)} · {reservation.reservationTime} · grup de{" "}
             {reservation.partySize}
           </p>
         </div>
 
         <div>
           <p className="text-sm font-semibold text-text-primary mb-2">
-            Why are you cancelling?
+            De ce anulezi?
           </p>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(CANCEL_REASONS) as CancelReasonKey[]).map((key) => {
@@ -92,7 +92,7 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
             })}
           </div>
           <p className="text-xs text-text-muted mt-2">
-            The guest will see a friendly version of this reason in their email.
+            Clientul va vedea o variantă prietenoasă a acestui motiv în emailul primit.
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
             disabled={pending}
             className="px-4 py-2 rounded-button text-sm font-semibold text-text-secondary hover:text-text-primary"
           >
-            Keep reservation
+            Păstrează rezervarea
           </button>
           <button
             type="button"
@@ -111,7 +111,7 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
             disabled={!selected || pending}
             className="px-4 py-2 rounded-button text-sm font-semibold text-white bg-error disabled:opacity-50"
           >
-            {pending ? "Cancelling…" : "Cancel reservation"}
+            {pending ? "Se anulează…" : "Anulează rezervarea"}
           </button>
         </div>
       </div>

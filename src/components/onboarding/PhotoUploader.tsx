@@ -43,11 +43,11 @@ export function PhotoUploader({
 
       for (const file of toUpload) {
         if (!file.type.startsWith("image/")) {
-          setError(`${file.name} isn't an image.`);
+          setError(`${file.name} nu este o imagine.`);
           continue;
         }
         if (file.size > 10 * 1024 * 1024) {
-          setError(`${file.name} is over 10 MB.`);
+          setError(`${file.name} depășește 10 MB.`);
           continue;
         }
 
@@ -58,7 +58,7 @@ export function PhotoUploader({
 
         const result = await uploadRestaurantPhoto(fd);
         if (!result.ok || !result.photo) {
-          setError(`${file.name}: ${result.error ?? "upload failed"}`);
+          setError(`${file.name}: ${result.error ?? "încărcarea a eșuat"}`);
           continue;
         }
         setPhotos((prev) => [...prev, result.photo!]);
@@ -71,11 +71,11 @@ export function PhotoUploader({
 
   const handleDelete = useCallback(
     (photo: PhotoRow) => {
-      if (!confirm("Remove this photo?")) return;
+      if (!confirm("Ștergi această fotografie?")) return;
       startTransition(async () => {
         const result = await deletePhoto(photo.id);
         if (!result.ok) {
-          setError(result.error ?? "Could not delete.");
+          setError(result.error ?? "Nu s-a putut șterge.");
         } else {
           setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
         }
@@ -89,7 +89,7 @@ export function PhotoUploader({
       startTransition(async () => {
         const result = await setPhotoHero(photo.id);
         if (!result.ok) {
-          setError(result.error ?? "Could not set hero.");
+          setError(result.error ?? "Nu s-a putut seta fotografia principală.");
         } else {
           setPhotos((prev) =>
             prev.map((p) =>
@@ -125,11 +125,11 @@ export function PhotoUploader({
         />
         <Upload size={24} className="mx-auto text-text-muted" />
         <p className="font-semibold text-text-primary mt-2">
-          {uploading ? "Uploading…" : "Add photos"}
+          {uploading ? "Se încarcă…" : "Adaugă fotografii"}
         </p>
         <p className="text-xs text-text-muted mt-1">
-          JPEG / PNG / WebP / AVIF, up to 10 MB each. {photos.length}/
-          {maxPhotos} used.
+          JPEG / PNG / WebP / AVIF, până la 10 MB fiecare. {photos.length}/
+          {maxPhotos} folosite.
         </p>
       </label>
 
@@ -160,7 +160,7 @@ export function PhotoUploader({
                 )}
                 {isHero && (
                   <span className="absolute top-2 left-2 bg-brand-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                    <Star size={10} className="fill-white" /> Hero
+                    <Star size={10} className="fill-white" /> Principală
                   </span>
                 )}
                 <div className="absolute top-2 right-2 flex gap-1">
@@ -168,7 +168,7 @@ export function PhotoUploader({
                     <button
                       type="button"
                       onClick={() => handleSetHero(photo)}
-                      aria-label="Set as hero"
+                      aria-label="Setează ca principală"
                       className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70"
                     >
                       <Star size={12} />
@@ -177,7 +177,7 @@ export function PhotoUploader({
                   <button
                     type="button"
                     onClick={() => handleDelete(photo)}
-                    aria-label="Delete photo"
+                    aria-label="Șterge fotografia"
                     className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-600"
                   >
                     <Trash2 size={12} />

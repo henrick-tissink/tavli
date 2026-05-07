@@ -26,7 +26,7 @@ export default async function PartnerReservationsPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            No restaurant linked to this account.
+            Niciun restaurant asociat acestui cont.
           </p>
         </div>
       </div>
@@ -67,11 +67,11 @@ export default async function PartnerReservationsPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Reservations
+          Rezervări
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Confirm seated, mark no-shows, or cancel bookings. Consumers get an
-          email when you cancel.
+          Confirmă clienții așezați la masă, marchează neprezentările sau
+          anulează rezervări. Clienții primesc un email când anulezi.
         </p>
       </header>
 

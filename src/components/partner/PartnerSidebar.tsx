@@ -19,14 +19,14 @@ import {
 import { signOutPartner } from "@/app/partner/sign-in/actions";
 
 const NAV = [
-  { href: "/partner", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/partner/profile", label: "Profile", icon: User, exact: false },
-  { href: "/partner/hours", label: "Hours", icon: Clock, exact: false },
-  { href: "/partner/photos", label: "Photos", icon: ImageIcon, exact: false },
-  { href: "/partner/menu", label: "Menu", icon: BookOpen, exact: false },
-  { href: "/partner/availability", label: "Availability", icon: CalendarCog, exact: false },
-  { href: "/partner/reservations", label: "Reservations", icon: Calendar, exact: false },
-  { href: "/partner/preview", label: "Preview", icon: Eye, exact: false },
+  { href: "/partner", label: "Prezentare", icon: LayoutDashboard, exact: true },
+  { href: "/partner/profile", label: "Profil", icon: User, exact: false },
+  { href: "/partner/hours", label: "Program", icon: Clock, exact: false },
+  { href: "/partner/photos", label: "Fotografii", icon: ImageIcon, exact: false },
+  { href: "/partner/menu", label: "Meniu", icon: BookOpen, exact: false },
+  { href: "/partner/availability", label: "Disponibilitate", icon: CalendarCog, exact: false },
+  { href: "/partner/reservations", label: "Rezervări", icon: Calendar, exact: false },
+  { href: "/partner/preview", label: "Previzualizare", icon: Eye, exact: false },
 ];
 
 interface Props {
@@ -106,7 +106,7 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
             className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-bg transition-colors"
           >
             <LogOut size={16} />
-            Sign out
+            Deconectează-te
           </button>
         </form>
       </div>
@@ -123,7 +123,7 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open navigation"
+          aria-label="Deschide meniul"
           className="p-2 -ml-2 rounded-lg hover:bg-surface-bg text-text-secondary"
         >
           <Menu size={20} />
@@ -141,7 +141,7 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
         <div className="desktop:hidden fixed inset-0 z-50 flex">
           <button
             type="button"
-            aria-label="Close navigation"
+            aria-label="Închide meniul"
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/40"
           />
@@ -149,7 +149,7 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Close navigation"
+              aria-label="Închide meniul"
               className="absolute top-3 right-3 p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
             >
               <X size={18} />

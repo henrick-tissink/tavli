@@ -19,10 +19,10 @@ export default async function PartnerPhotosPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            No restaurant linked to this account yet
+            Niciun restaurant asociat acestui cont încă
           </p>
           <p className="text-sm text-text-secondary mt-2">
-            Contact the Tavli team if you reached this in error.
+            Contactează echipa Tavli dacă ai ajuns aici din greșeală.
           </p>
         </div>
       </div>
@@ -46,10 +46,11 @@ export default async function PartnerPhotosPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-3xl">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Photos
+          Fotografii
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Upload new shots, mark a hero, remove ones you don&apos;t love.
+          Încarcă fotografii noi, alege una principală, șterge-le pe cele
+          care nu îți plac.
         </p>
       </header>
 

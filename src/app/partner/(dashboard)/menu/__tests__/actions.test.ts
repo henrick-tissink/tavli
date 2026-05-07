@@ -64,7 +64,7 @@ describe("saveItem — UUID validation", () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/section/i);
+    expect(result.error).toMatch(/secțiune/i);
     // No insert should have happened.
     const calls = sb.from.mock.calls.map((c: [string]) => c[0]);
     expect(calls).not.toContain("menu_items");
@@ -81,7 +81,7 @@ describe("saveItem — UUID validation", () => {
       isAvailable: true,
     });
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/section/i);
+    expect(result.error).toMatch(/secțiune/i);
   });
 
   it("rejects empty id on update", async () => {

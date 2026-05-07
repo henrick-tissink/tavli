@@ -63,7 +63,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
   };
 
   const handleDeleteSection = (id: string, name: string) => {
-    if (!confirm(`Delete "${name}" and all its items?`)) return;
+    if (!confirm(`Ștergi „${name}” și toate felurile din ea?`)) return;
     start(async () => {
       await deleteSection(id);
       router.refresh();
@@ -71,7 +71,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
   };
 
   const handleDeleteItem = (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!confirm(`Ștergi „${name}”?`)) return;
     start(async () => {
       await deleteItem(id);
       router.refresh();
@@ -82,13 +82,13 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
     <div className="space-y-4 max-w-4xl">
       {sections.length === 0 && !newSectionForm && (
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="font-semibold text-text-primary">No sections yet</p>
+          <p className="font-semibold text-text-primary">Nicio secțiune încă</p>
           <p className="text-sm text-text-secondary mt-2 max-w-md mx-auto">
-            Start with a section like &ldquo;Starters&rdquo; or
-            &ldquo;Antipasti&rdquo;, then add dishes to it.
+            Începe cu o secțiune precum &bdquo;Aperitive&rdquo; sau
+            &bdquo;Antipasti&rdquo;, apoi adaugă feluri în ea.
           </p>
           <Button onClick={() => setNewSectionForm(true)} type="button" className="mt-6">
-            <span className="inline-flex items-center gap-2"><Plus size={14} /> Add first section</span>
+            <span className="inline-flex items-center gap-2"><Plus size={14} /> Adaugă prima secțiune</span>
           </Button>
         </div>
       )}
@@ -104,7 +104,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
               <button
                 type="button"
                 onClick={() => toggle(section.id)}
-                aria-label={isOpen ? "Collapse" : "Expand"}
+                aria-label={isOpen ? "Restrânge" : "Extinde"}
                 className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-bg"
               >
                 {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -120,7 +120,9 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                 )}
               </div>
               <span className="text-xs text-text-muted">
-                {section.items.length} item{section.items.length !== 1 ? "s" : ""}
+                {section.items.length === 1
+                  ? "1 fel"
+                  : `${section.items.length} feluri`}
               </span>
               <button
                 type="button"
@@ -131,7 +133,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                     intro: section.intro ?? "",
                   })
                 }
-                aria-label="Edit section"
+                aria-label="Editează secțiunea"
                 className="p-2 rounded-lg hover:bg-surface-bg"
               >
                 <Pencil size={14} />
@@ -139,7 +141,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
               <button
                 type="button"
                 onClick={() => handleDeleteSection(section.id, section.name)}
-                aria-label="Delete section"
+                aria-label="Șterge secțiunea"
                 disabled={pending}
                 className="p-2 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"
               >
@@ -163,7 +165,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                           {it.name}
                           {!it.isAvailable && (
                             <span className="ml-2 text-xs font-normal text-text-muted italic">
-                              (not available)
+                              (indisponibil)
                             </span>
                           )}
                         </p>
@@ -206,7 +208,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                           },
                         })
                       }
-                      aria-label="Edit item"
+                      aria-label="Editează felul"
                       className="p-1.5 rounded-lg hover:bg-surface-white"
                     >
                       <Pencil size={13} />
@@ -214,7 +216,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                     <button
                       type="button"
                       onClick={() => handleDeleteItem(it.id, it.name)}
-                      aria-label="Delete item"
+                      aria-label="Șterge felul"
                       disabled={pending}
                       className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"
                     >
@@ -241,7 +243,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                   className="flex items-center gap-2 w-full py-2 px-3 rounded-lg text-sm text-brand-primary font-semibold hover:bg-brand-primary-soft/50"
                 >
                   <Plus size={14} />
-                  Add dish
+                  Adaugă fel
                 </button>
               </div>
             )}
@@ -272,7 +274,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
       ) : (
         sections.length > 0 && (
           <Button variant="secondary" onClick={() => setNewSectionForm(true)}>
-            <span className="inline-flex items-center gap-2"><Plus size={14} /> Add section</span>
+            <span className="inline-flex items-center gap-2"><Plus size={14} /> Adaugă secțiune</span>
           </Button>
         )
       )}
@@ -311,7 +313,7 @@ function SectionEditorDialog({
         ? await createSection(fd)
         : await updateSection(initial.id, fd);
       if (!result.ok) {
-        setError(result.error ?? "Failed.");
+        setError(result.error ?? "A eșuat.");
       } else {
         onSaved();
       }
@@ -322,32 +324,32 @@ function SectionEditorDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Close"
+        aria-label="Închide"
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
       <div className="relative bg-surface-white rounded-card shadow-modal max-w-md w-full p-6">
         <h2 className="font-display text-xl font-bold mb-4">
-          {isNew ? "New section" : "Edit section"}
+          {isNew ? "Secțiune nouă" : "Editează secțiunea"}
         </h2>
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="block text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium">Nume</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Starters · Primi · Antipasti"
+              placeholder="Aperitive · Primi · Antipasti"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
           <div className="space-y-1">
-            <label className="block text-sm font-medium">Intro (optional)</label>
+            <label className="block text-sm font-medium">Intro (opțional)</label>
             <textarea
               value={intro}
               onChange={(e) => setIntro(e.target.value)}
               rows={2}
-              placeholder="Small plates to share while the primi is still cooking."
+              placeholder="Porții mici de împărțit cât timp se gătesc primi."
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
           </div>
@@ -355,10 +357,10 @@ function SectionEditorDialog({
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
           <Button variant="ghost" onClick={onClose} type="button">
-            Cancel
+            Anulează
           </Button>
           <Button onClick={handleSave} disabled={pending} type="button">
-            {pending ? "Saving…" : isNew ? "Create" : "Save"}
+            {pending ? "Se salvează…" : isNew ? "Creează" : "Salvează"}
           </Button>
         </div>
       </div>

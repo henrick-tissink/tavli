@@ -21,7 +21,7 @@ export default async function PartnerAvailabilityPage() {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="font-semibold text-text-primary">No restaurant linked.</p>
+          <p className="font-semibold text-text-primary">Niciun restaurant asociat.</p>
         </div>
       </div>
     );
@@ -46,12 +46,12 @@ export default async function PartnerAvailabilityPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Availability
+          Disponibilitate
         </h1>
         <p className="text-sm text-text-secondary mt-1 max-w-xl">
-          Define how many covers you can take per time slot per day. Diners
-          can only book times you&apos;ve configured here — unconfigured
-          slots return &ldquo;fully booked&rdquo;.
+          Definește câți clienți poți primi pe interval orar, pentru fiecare
+          zi. Clienții pot rezerva doar la orele configurate aici —
+          intervalele neconfigurate apar ca &ldquo;complet rezervat&rdquo;.
         </p>
       </header>
 

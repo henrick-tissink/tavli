@@ -27,14 +27,14 @@ export async function addSlot(
   capacity: number,
 ): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   if (dayOfWeek < 0 || dayOfWeek > 6)
-    return { ok: false, error: "Invalid day." };
-  if (!slotStart || !slotEnd) return { ok: false, error: "Slot times required." };
+    return { ok: false, error: "Zi invalidă." };
+  if (!slotStart || !slotEnd) return { ok: false, error: "Orele intervalului sunt obligatorii." };
   if (slotStart >= slotEnd)
-    return { ok: false, error: "End time must be after start time." };
-  if (capacity < 1) return { ok: false, error: "Capacity must be ≥ 1." };
+    return { ok: false, error: "Ora de sfârșit trebuie să fie după ora de început." };
+  if (capacity < 1) return { ok: false, error: "Capacitatea trebuie să fie ≥ 1." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("restaurant_availability").insert({
@@ -58,10 +58,10 @@ export async function updateSlot(
   capacity: number,
 ): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
   if (slotStart >= slotEnd)
-    return { ok: false, error: "End time must be after start time." };
-  if (capacity < 1) return { ok: false, error: "Capacity must be ≥ 1." };
+    return { ok: false, error: "Ora de sfârșit trebuie să fie după ora de început." };
+  if (capacity < 1) return { ok: false, error: "Capacitatea trebuie să fie ≥ 1." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -77,7 +77,7 @@ export async function updateSlot(
 
 export async function deleteSlot(slotId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -93,8 +93,8 @@ export async function deleteSlot(slotId: string): Promise<Ok> {
 
 export async function seedDefaultAvailability(capacity: number): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
-  if (!restaurantId) return { ok: false, error: "No restaurant." };
-  if (capacity < 1) return { ok: false, error: "Capacity must be ≥ 1." };
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (capacity < 1) return { ok: false, error: "Capacitatea trebuie să fie ≥ 1." };
 
   const supabase = await createSupabaseServerClient();
   const rows = Array.from({ length: 7 }).map((_, dow) => ({

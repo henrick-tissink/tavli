@@ -37,7 +37,7 @@ export function PartnerProfileForm({ initialValues }: Props) {
   );
 
   useEffect(() => {
-    if (state?.ok) toast.success("Profile saved.");
+    if (state?.ok) toast.success("Profilul a fost salvat.");
   }, [state]);
 
   const toggleCuisine = (c: string) =>
@@ -47,13 +47,13 @@ export function PartnerProfileForm({ initialValues }: Props) {
 
   return (
     <form action={action} className="space-y-5 max-w-2xl">
-      <Field label="Restaurant name" name="name" required defaultValue={initialValues.name ?? ""} />
+      <Field label="Numele restaurantului" name="name" required defaultValue={initialValues.name ?? ""} />
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">
-          Cuisines <span className="text-error">*</span>
+          Bucătării <span className="text-error">*</span>
         </label>
-        <p className="text-xs text-text-muted">Pick one or more.</p>
+        <p className="text-xs text-text-muted">Alege una sau mai multe.</p>
         <div className="flex flex-wrap gap-2">
           {CUISINES.map((c) => (
             <Pill
@@ -69,18 +69,18 @@ export function PartnerProfileForm({ initialValues }: Props) {
         ))}
       </div>
 
-      <Field label="Zone / neighbourhood" name="zone" defaultValue={initialValues.zone ?? ""} />
+      <Field label="Zonă / cartier" name="zone" defaultValue={initialValues.zone ?? ""} />
 
-      <Field label="Full address" name="address" required defaultValue={initialValues.address ?? ""} />
+      <Field label="Adresa completă" name="address" required defaultValue={initialValues.address ?? ""} />
 
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
-        <Field label="Phone" name="phone" type="tel" defaultValue={initialValues.phone ?? ""} />
+        <Field label="Telefon" name="phone" type="tel" defaultValue={initialValues.phone ?? ""} />
         <Field label="Website" name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl ?? ""} />
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="heroNote">
-          One-line story
+          Povestea pe scurt
         </label>
         <textarea
           id="heroNote"
@@ -88,17 +88,17 @@ export function PartnerProfileForm({ initialValues }: Props) {
           rows={2}
           maxLength={160}
           defaultValue={initialValues.heroNote ?? ""}
-          placeholder="Grandmother's recipes from the heart of Centru Vechi."
+          placeholder="Rețetele bunicii din inima Centrului Vechi."
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
         />
-        <p className="text-xs text-text-muted">Shown italicised on your menu hero. Max 160 chars.</p>
+        <p className="text-xs text-text-muted">Apare cu italice pe partea principală a meniului. Maxim 160 caractere.</p>
       </div>
 
       {state?.error && <p className="text-sm text-error" role="alert">{state.error}</p>}
 
       <div className="pt-2">
         <Button disabled={pending} type="submit">
-          {pending ? "Saving…" : "Save changes"}
+          {pending ? "Se salvează…" : "Salvează modificările"}
         </Button>
       </div>
     </form>

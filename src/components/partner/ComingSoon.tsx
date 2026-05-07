@@ -16,13 +16,13 @@ export function ComingSoon({ title, milestone, description }: Props) {
         </h1>
       </header>
       <div className="bg-surface-white rounded-card border border-border p-10 text-center max-w-lg">
-        <p className="font-semibold text-text-primary">Coming in {milestone}</p>
+        <p className="font-semibold text-text-primary">Disponibil în {milestone}</p>
         <p className="text-sm text-text-secondary mt-2 leading-relaxed">
           {description}
         </p>
         <div className="mt-6">
           <Link href="/partner">
-            <Button variant="secondary">Back to overview</Button>
+            <Button variant="secondary">Înapoi la prezentare</Button>
           </Link>
         </div>
       </div>

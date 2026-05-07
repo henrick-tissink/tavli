@@ -18,10 +18,10 @@ export default function PartnerSignInPage() {
             Partner
           </p>
           <h1 className="font-display text-[28px] font-bold text-text-primary mt-6">
-            Sign in
+            Conectează-te
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Access your restaurant dashboard.
+            Accesează panoul restaurantului tău.
           </p>
         </div>
         <PartnerSignInForm />

@@ -13,20 +13,20 @@ export async function signInPartner(
   formData: FormData,
 ): Promise<PartnerSignInResult> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return { ok: false, error: "Supabase isn't configured yet." };
+    return { ok: false, error: "Supabase nu este încă configurat." };
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
 
   if (!email || !password) {
-    return { ok: false, error: "Email and password are required." };
+    return { ok: false, error: "Emailul și parola sunt obligatorii." };
   }
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.user) {
-    return { ok: false, error: error?.message ?? "Sign in failed." };
+    return { ok: false, error: error?.message ?? "Conectarea a eșuat." };
   }
 
   const { data: profile } = await supabase
@@ -37,7 +37,7 @@ export async function signInPartner(
 
   if (profile?.role !== "restaurant_owner" && profile?.role !== "admin") {
     await supabase.auth.signOut();
-    return { ok: false, error: "This account isn't a partner account." };
+    return { ok: false, error: "Acest cont nu este un cont de partener." };
   }
 
   redirect("/partner");

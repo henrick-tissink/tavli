@@ -18,7 +18,7 @@ export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] })
   const [hours, setHours] = useState<DayHours[]>(initialHours);
 
   useEffect(() => {
-    if (state?.ok) toast.success("Hours saved.");
+    if (state?.ok) toast.success("Programul a fost salvat.");
   }, [state]);
 
   return (
@@ -29,7 +29,7 @@ export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] })
 
       <div className="pt-2">
         <Button disabled={pending} type="submit">
-          {pending ? "Saving…" : "Save hours"}
+          {pending ? "Se salvează…" : "Salvează programul"}
         </Button>
       </div>
     </form>

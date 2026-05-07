@@ -30,7 +30,7 @@ describe("MenuQrPreview", () => {
 
   test("toggling to sticker sheet renders 12 tile cards", () => {
     render(<MenuQrPreview {...props} />);
-    fireEvent.click(screen.getByRole("radio", { name: /sticker sheet/i }));
+    fireEvent.click(screen.getByRole("radio", { name: /coală cu stickere/i }));
     const cards = screen.getAllByTestId("menu-qr-card");
     expect(cards).toHaveLength(12);
     cards.forEach((card) => expect(card).toHaveAttribute("data-size", "tile"));
@@ -38,8 +38,8 @@ describe("MenuQrPreview", () => {
 
   test("toggling back to single mode returns to one card", () => {
     render(<MenuQrPreview {...props} />);
-    fireEvent.click(screen.getByRole("radio", { name: /sticker sheet/i }));
-    fireEvent.click(screen.getByRole("radio", { name: /single card/i }));
+    fireEvent.click(screen.getByRole("radio", { name: /coală cu stickere/i }));
+    fireEvent.click(screen.getByRole("radio", { name: /card individual/i }));
     const cards = screen.getAllByTestId("menu-qr-card");
     expect(cards).toHaveLength(1);
     expect(cards[0]).toHaveAttribute("data-size", "single");
@@ -48,7 +48,7 @@ describe("MenuQrPreview", () => {
   test("Print button calls window.print()", () => {
     const printSpy = jest.spyOn(window, "print").mockImplementation(() => {});
     render(<MenuQrPreview {...props} />);
-    fireEvent.click(screen.getByRole("button", { name: /^print$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^tipărește$/i }));
     expect(printSpy).toHaveBeenCalledTimes(1);
     printSpy.mockRestore();
   });

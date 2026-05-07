@@ -16,16 +16,16 @@ export async function savePartnerHours(
 ): Promise<SaveHoursResult> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   let hours: DayHours[];
   try {
     hours = JSON.parse(String(formData.get("hours") ?? "")) as DayHours[];
   } catch {
-    return { ok: false, error: "Could not parse hours." };
+    return { ok: false, error: "Nu s-a putut interpreta programul." };
   }
   if (!hours.some((h) => h.isOpen)) {
-    return { ok: false, error: "At least one day must be open." };
+    return { ok: false, error: "Cel puțin o zi trebuie să fie deschisă." };
   }
 
   const { data: restaurant } = await supabase
@@ -34,7 +34,7 @@ export async function savePartnerHours(
     .eq("owner_user_id", user.id)
     .maybeSingle();
   if (!restaurant) {
-    return { ok: false, error: "No restaurant linked to this account." };
+    return { ok: false, error: "Niciun restaurant asociat acestui cont." };
   }
 
   const schedule = hoursToSchedule(hours);

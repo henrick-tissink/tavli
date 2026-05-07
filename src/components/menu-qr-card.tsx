@@ -78,7 +78,7 @@ export function MenuQrCard({
       <p
         className={`font-display italic ${captionSizing} text-text-secondary text-center`}
       >
-        Scan to view our menu
+        Scanează pentru a vedea meniul nostru
       </p>
       <p className={`text-text-muted ${creditSizing}`}>tavli.ro</p>
     </div>

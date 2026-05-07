@@ -128,7 +128,7 @@ describe("cancelReservation", () => {
     });
     const result = await cancelReservation("res-1", "made-up-reason");
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/reason/i);
+    expect(result.error).toMatch(/motiv/i);
     // No DB writes when input is invalid
     expect(sendEmail).not.toHaveBeenCalled();
   });
@@ -141,7 +141,7 @@ describe("cancelReservation", () => {
     });
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/sign|auth/i);
+    expect(result.error).toMatch(/autentificat/i);
   });
 
   test("rejects when the user owns no restaurant", async () => {
@@ -163,7 +163,7 @@ describe("cancelReservation", () => {
     });
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/not found/i);
+    expect(result.error).toMatch(/nu a fost găsită/i);
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
@@ -175,7 +175,7 @@ describe("cancelReservation", () => {
     });
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/confirmed/i);
+    expect(result.error).toMatch(/confirmate/i);
     expect(sendEmail).not.toHaveBeenCalled();
   });
 

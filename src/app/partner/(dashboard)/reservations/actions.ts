@@ -23,14 +23,14 @@ export async function updateReservationStatus(
 ): Promise<Ok> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const { data: restaurant } = await supabase
     .from("restaurants")
     .select("id")
     .eq("owner_user_id", user.id)
     .maybeSingle();
-  if (!restaurant) return { ok: false, error: "No restaurant linked." };
+  if (!restaurant) return { ok: false, error: "Niciun restaurant asociat." };
 
   const { error } = await supabase
     .from("reservations")
@@ -55,13 +55,13 @@ export async function cancelReservation(
   reasonKey: string,
 ): Promise<CancelResult> {
   if (!isCancelReasonKey(reasonKey)) {
-    return { ok: false, error: "Invalid reason." };
+    return { ok: false, error: "Motiv invalid." };
   }
   const key = reasonKey as CancelReasonKey;
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  if (!user) return { ok: false, error: "Nu ești autentificat." };
 
   const { data: ownerRestaurant } = await supabase
     .from("restaurants")
@@ -69,7 +69,7 @@ export async function cancelReservation(
     .eq("owner_user_id", user.id)
     .maybeSingle();
   if (!ownerRestaurant) {
-    return { ok: false, error: "No restaurant linked." };
+    return { ok: false, error: "Niciun restaurant asociat." };
   }
 
   const { data: reservationRow } = await supabase
@@ -82,7 +82,7 @@ export async function cancelReservation(
     .maybeSingle();
 
   if (!reservationRow) {
-    return { ok: false, error: "Reservation not found." };
+    return { ok: false, error: "Rezervarea nu a fost găsită." };
   }
 
   const reservation = reservationRow as unknown as {
@@ -101,7 +101,7 @@ export async function cancelReservation(
   if (reservation.status !== "confirmed") {
     return {
       ok: false,
-      error: "Only confirmed reservations can be cancelled.",
+      error: "Doar rezervările confirmate pot fi anulate.",
     };
   }
 

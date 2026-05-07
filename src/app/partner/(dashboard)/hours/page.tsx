@@ -24,11 +24,11 @@ export default async function PartnerHoursPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Hours
+          Program
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Your weekly opening times. Special-date exceptions land in a later
-          milestone.
+          Programul tău săptămânal de deschidere. Excepțiile pentru date
+          speciale vor fi disponibile într-o etapă ulterioară.
         </p>
       </header>
 

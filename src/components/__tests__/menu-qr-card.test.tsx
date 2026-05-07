@@ -27,7 +27,7 @@ describe("MenuQrCard", () => {
     );
     expect(screen.getByText("Trattoria Roma")).toBeInTheDocument();
     expect(screen.getByText("✦")).toBeInTheDocument();
-    expect(screen.getByText(/scan to view our menu/i)).toBeInTheDocument();
+    expect(screen.getByText(/scanează pentru a vedea meniul nostru/i)).toBeInTheDocument();
     expect(screen.getByText("tavli.ro")).toBeInTheDocument();
   });
 

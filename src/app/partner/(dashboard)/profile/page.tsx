@@ -18,10 +18,10 @@ export default async function PartnerProfilePage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Profile
+          Profil
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          How your restaurant is presented to diners.
+          Cum este prezentat restaurantul tău clienților.
         </p>
       </header>
 

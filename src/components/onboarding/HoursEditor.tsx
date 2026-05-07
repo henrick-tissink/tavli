@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Copy } from "lucide-react";
 import type { DayHours } from "@/lib/onboarding";
 
-const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_LABELS = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon..Sun
 
 export function HoursEditor({
@@ -48,7 +48,7 @@ export function HoursEditor({
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:underline"
         >
           <Copy size={12} />
-          Copy first open day to all
+          Copiază prima zi deschisă la toate
         </button>
       </div>
 
@@ -73,7 +73,7 @@ export function HoursEditor({
                   onChange={(e) => update(dow, { isOpen: e.target.checked })}
                   className="h-4 w-4 rounded border-border accent-[var(--color-brand-primary)]"
                 />
-                Open
+                Deschis
               </label>
               <div
                 className={`flex items-center gap-2 flex-1 justify-end transition-opacity ${
