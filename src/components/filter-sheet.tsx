@@ -5,6 +5,7 @@ import { Pill } from "@/components/pill";
 import { Button } from "@/components/button";
 import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
+import { cuisineLabel } from "@/lib/types";
 import { useMemo } from "react";
 
 interface FilterSheetProps {
@@ -70,7 +71,7 @@ export function FilterSheet({
           {cuisines.map((cuisine) => (
             <Pill
               key={cuisine}
-              label={cuisine}
+              label={cuisineLabel(cuisine)}
               active={filters.cuisines.some((c) => c.toLowerCase() === cuisine.toLowerCase())}
               onToggle={() => toggleArrayFilter("cuisines", cuisine)}
             />

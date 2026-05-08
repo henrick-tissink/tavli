@@ -45,9 +45,9 @@ describe("FilterSheet", () => {
 
   it("renders cuisine pills from mock data", () => {
     renderSheet();
-    expect(screen.getByText("Italian")).toBeInTheDocument();
-    expect(screen.getByText("Japanese")).toBeInTheDocument();
-    expect(screen.getByText("Romanian")).toBeInTheDocument();
+    expect(screen.getByText("Italiană")).toBeInTheDocument();
+    expect(screen.getByText("Japoneză")).toBeInTheDocument();
+    expect(screen.getByText("Românească")).toBeInTheDocument();
   });
 
   it("renders price options", () => {
@@ -61,7 +61,7 @@ describe("FilterSheet", () => {
   it("toggling a cuisine pill updates filters", async () => {
     const user = userEvent.setup();
     renderSheet();
-    await user.click(screen.getByText("Italian"));
+    await user.click(screen.getByText("Italiană"));
     expect(latestCtx.filters.cuisines).toContain("Italian");
   });
 
@@ -81,7 +81,7 @@ describe("FilterSheet", () => {
     const user = userEvent.setup();
     renderSheet();
     // Activate a filter first
-    await user.click(screen.getByText("Italian"));
+    await user.click(screen.getByText("Italiană"));
     expect(screen.getByText("Resetează")).toBeInTheDocument();
     await user.click(screen.getByText("Resetează"));
     expect(latestCtx.filters.cuisines).toEqual([]);

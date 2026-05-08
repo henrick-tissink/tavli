@@ -29,13 +29,41 @@ export const PRICE_LABELS: Record<number, string> = {
   4: "$$$$",
 };
 
+// Display labels for cuisines. Stored values stay in English (a stable
+// canonical key); the UI maps to Romanian for display. Unknown keys fall
+// through unchanged so partner-entered free-form values still render.
+export const CUISINE_LABELS: Record<string, string> = {
+  Romanian: "Românească",
+  Italian: "Italiană",
+  Japanese: "Japoneză",
+  Turkish: "Turcească",
+  French: "Franțuzească",
+  Chinese: "Chinezească",
+  Lebanese: "Libaneză",
+  Spanish: "Spaniolă",
+  Greek: "Grecească",
+  Thai: "Thailandeză",
+  Indian: "Indiană",
+  Mexican: "Mexicană",
+  Korean: "Coreeană",
+  Balkan: "Balcanică",
+  American: "Americană",
+  European: "Europeană",
+  Fusion: "Fusion",
+  Other: "Alta",
+};
+
+export function cuisineLabel(value: string): string {
+  return CUISINE_LABELS[value] ?? value;
+}
+
 /**
  * Display-format a list of cuisines. Empty arrays fall back to a generic
  * label so the UI doesn't render a stray middle-dot.
  */
 export function formatCuisines(cuisines: string[]): string {
   if (!cuisines || cuisines.length === 0) return "Restaurant";
-  return cuisines.join(" · ");
+  return cuisines.map(cuisineLabel).join(" · ");
 }
 
 export interface Review {

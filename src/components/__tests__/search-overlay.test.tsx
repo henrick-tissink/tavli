@@ -71,7 +71,7 @@ describe("SearchOverlay", () => {
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
     expect(screen.getByText("Bucătării")).toBeInTheDocument();
-    expect(screen.getByText(/Italian \(\d+ locuri?\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Italiană \(\d+ locuri?\)/)).toBeInTheDocument();
   });
 
   it("calls onSelectRestaurant when a restaurant is clicked", async () => {
@@ -93,7 +93,7 @@ describe("SearchOverlay", () => {
     render(<SearchOverlay {...defaultProps} onSelectCuisine={onSelectCuisine} />);
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
-    await user.click(screen.getByText(/Italian \(\d+ locuri?\)/));
+    await user.click(screen.getByText(/Italiană \(\d+ locuri?\)/));
     expect(onSelectCuisine).toHaveBeenCalledTimes(1);
     expect(onSelectCuisine).toHaveBeenCalledWith("Italian");
   });

@@ -17,7 +17,7 @@ function metaDescription(detail: RestaurantDetail): string {
   if (detail.description && detail.description.trim().length > 0) {
     return truncateAtWordBoundary(detail.description.trim(), MAX_DESCRIPTION_LENGTH);
   }
-  return `Restaurant ${formatCuisines(detail.cuisines)} în ${detail.city}. Rezervă o masă pe Tavli.`;
+  return `Bucătărie ${formatCuisines(detail.cuisines).toLowerCase()} în ${detail.city}. Rezervă o masă pe Tavli.`;
 }
 
 export function buildRestaurantMetadata(

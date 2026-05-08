@@ -40,7 +40,7 @@ describe("RestaurantCard", () => {
 
   it("renders cuisine, price label, and zone", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
-    expect(screen.getByText(/Romanian · \$\$ · Old Town/)).toBeInTheDocument();
+    expect(screen.getByText(/Românească · \$\$ · Old Town/)).toBeInTheDocument();
   });
 
   it("renders rating badge (the number 4.8)", () => {
@@ -144,7 +144,7 @@ describe("RestaurantCard", () => {
 
   it("uses text-xs for cuisine/zone row", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
-    const row = screen.getByText(/Romanian · \$\$ · Old Town/);
+    const row = screen.getByText(/Românească · \$\$ · Old Town/);
     expect(row).toHaveClass("text-xs");
   });
 });

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { Pill } from "@/components/pill";
 import { toast } from "@/components/toast";
+import { cuisineLabel } from "@/lib/types";
 import {
   savePartnerProfile,
   type SaveProfileResult,
@@ -58,7 +59,7 @@ export function PartnerProfileForm({ initialValues }: Props) {
           {CUISINES.map((c) => (
             <Pill
               key={c}
-              label={c}
+              label={cuisineLabel(c)}
               active={selectedCuisines.includes(c)}
               onToggle={() => toggleCuisine(c)}
             />

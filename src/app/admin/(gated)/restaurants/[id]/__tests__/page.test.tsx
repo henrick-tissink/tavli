@@ -47,7 +47,7 @@ describe("AdminRestaurantDetailPage", () => {
     render(ui);
 
     expect(screen.getByRole("heading", { name: "Casa Veche" })).toBeInTheDocument();
-    expect(screen.getByText("Romanian · București")).toBeInTheDocument();
+    expect(screen.getByText("Românească · București")).toBeInTheDocument();
     expect(screen.getByText("Str. Lipscani 45")).toBeInTheDocument();
   });
 

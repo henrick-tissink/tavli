@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, cuisineLabel } from "@/lib/types";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -286,7 +286,7 @@ export function SearchOverlay({
                           className="flex items-center w-full text-left py-3 border-b border-border last:border-b-0"
                         >
                           <span className="text-sm text-text-primary">
-                            {cuisine} ({count} {count === 1 ? "loc" : "locuri"})
+                            {cuisineLabel(cuisine)} ({count} {count === 1 ? "loc" : "locuri"})
                           </span>
                         </button>
                       ))}
