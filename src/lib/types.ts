@@ -49,7 +49,15 @@ export const CUISINE_LABELS: Record<string, string> = {
   Balkan: "Balcanică",
   American: "Americană",
   European: "Europeană",
+  Mediterranean: "Mediteraneană",
   Fusion: "Fusion",
+  Brunch: "Brunch",
+  Coffee: "Cafenea",
+  Cocktails: "Cocktail bar",
+  Pizza: "Pizzerie",
+  Burger: "Burger",
+  Vegan: "Vegană",
+  Vegetarian: "Vegetariană",
   Other: "Alta",
 };
 
