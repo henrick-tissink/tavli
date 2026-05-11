@@ -32,6 +32,7 @@ export function Pill({
         <button
           type="button"
           onClick={onToggle}
+          aria-pressed={onToggle ? active : undefined}
           className="inline-flex items-center gap-1 bg-transparent border-none p-0 text-inherit font-inherit text-xs font-semibold cursor-pointer"
         >
           {icon && <span>{icon}</span>}
@@ -51,10 +52,24 @@ export function Pill({
     );
   }
 
+  // Decorative pills (no toggle handler, not dismissible) shouldn't be focusable
+  // buttons — screen readers would announce them as buttons that do nothing.
+  if (!onToggle && !dismissible) {
+    return (
+      <span className={baseClasses}>
+        {icon && <span>{icon}</span>}
+        <span>{label}</span>
+        {count !== undefined && <span>{count}</span>}
+        {hasDropdown && <span>▾</span>}
+      </span>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onToggle}
+      aria-pressed={onToggle ? active : undefined}
       className={baseClasses}
     >
       {icon && <span>{icon}</span>}

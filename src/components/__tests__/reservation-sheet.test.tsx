@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // Mock server-action module to avoid loading Resend (pulls in postal-mime
@@ -10,6 +10,9 @@ jest.mock("@/app/api/reservations/actions", () => ({
     reservationId: "mock-test",
   })),
 }));
+
+import { createReservation } from "@/app/api/reservations/actions";
+const createReservationMock = createReservation as jest.Mock;
 
 import { ReservationSheet } from "../reservation-sheet";
 
@@ -73,6 +76,40 @@ describe("ReservationSheet", () => {
     expect(screen.getByRole("button", { name: "20:30" })).toHaveClass("bg-brand-primary");
     expect(screen.getByRole("button", { name: "19:00" })).not.toHaveClass(
       "bg-brand-primary",
+    );
+  });
+
+  it('"Alege data" blocks confirm until a date is picked', async () => {
+    const user = userEvent.setup();
+    render(<ReservationSheet {...defaultProps} />);
+    await user.click(screen.getByText("19:00"));
+    await user.type(screen.getByPlaceholderText("Numele tău"), "Maria");
+    await user.type(screen.getByPlaceholderText("Număr de telefon"), "712345678");
+    // Activate "Alege data" — without picking a date, confirm should stay disabled.
+    await user.click(screen.getByText("Alege data"));
+    expect(screen.getByRole("button", { name: /confirmă/i })).toBeDisabled();
+  });
+
+  it('"Alege data" with a picked date submits that date to the API', async () => {
+    const user = userEvent.setup();
+    createReservationMock.mockClear();
+    render(<ReservationSheet {...defaultProps} />);
+    await user.click(screen.getByText("19:00"));
+    await user.type(screen.getByPlaceholderText("Numele tău"), "Maria");
+    await user.type(screen.getByPlaceholderText("Număr de telefon"), "712345678");
+    await user.click(screen.getByText("Alege data"));
+    // Simulate the native picker choosing a date 7 days from now.
+    const target = new Date();
+    target.setDate(target.getDate() + 7);
+    const targetIso = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, "0")}-${String(target.getDate()).padStart(2, "0")}`;
+    const dateInput = screen.getByLabelText("Alege data rezervării") as HTMLInputElement;
+    await user.clear(dateInput);
+    // userEvent.type respects the date-input format on jsdom
+    fireEvent.change(dateInput, { target: { value: targetIso } });
+    expect(screen.getByRole("button", { name: /confirmă/i })).not.toBeDisabled();
+    await user.click(screen.getByRole("button", { name: /confirmă/i }));
+    expect(createReservationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ date: targetIso }),
     );
   });
 

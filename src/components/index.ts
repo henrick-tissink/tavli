@@ -11,6 +11,7 @@ export { TabBar } from "./tab-bar";
 export { TopNav } from "./top-nav";
 export { ContextBanner } from "./context-banner";
 export { FilterPillBar } from "./filter-pill-bar";
+export { PillPopover } from "./pill-popover";
 export { HorizontalSection } from "./horizontal-section";
 export { MapFab } from "./map-fab";
 export { PhotoGallery } from "./photo-gallery";

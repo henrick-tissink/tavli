@@ -57,7 +57,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             type="button"
             aria-label="Închide harta"
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-            onClick={() => router.back()}
+            onClick={() => router.push(`/${city}`)}
           >
             <X size={18} className="text-text-secondary" />
           </button>
@@ -148,7 +148,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
               className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
               onClick={() => setFilterSheetOpen(true)}
             >
-              Filters
+              Filtre
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
@@ -159,7 +159,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
               type="button"
               aria-label="Închide harta"
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-              onClick={() => router.back()}
+              onClick={() => router.push(`/${city}`)}
             >
               <X size={18} className="text-text-secondary" />
             </button>

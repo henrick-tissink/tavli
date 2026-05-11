@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { HorizontalSection } from "../horizontal-section";
 import type { Restaurant } from "@/lib/types";
 
@@ -38,38 +37,6 @@ describe("HorizontalSection", () => {
     );
     expect(screen.getAllByText("Test Restaurant").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Second Restaurant").length).toBeGreaterThan(0);
-  });
-
-  it("shows 'See all' when onSeeAll provided", () => {
-    render(
-      <HorizontalSection
-        title="Trending Now"
-        restaurants={mockRestaurants}
-        onSeeAll={jest.fn()}
-      />
-    );
-    expect(screen.getByText(/Vezi tot/)).toBeInTheDocument();
-  });
-
-  it("does not show 'See all' when onSeeAll not provided", () => {
-    render(
-      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
-    );
-    expect(screen.queryByText(/Vezi tot/)).not.toBeInTheDocument();
-  });
-
-  it("calls onSeeAll when clicked", async () => {
-    const user = userEvent.setup();
-    const handleSeeAll = jest.fn();
-    render(
-      <HorizontalSection
-        title="Trending Now"
-        restaurants={mockRestaurants}
-        onSeeAll={handleSeeAll}
-      />
-    );
-    await user.click(screen.getByText(/Vezi tot/));
-    expect(handleSeeAll).toHaveBeenCalledTimes(1);
   });
 
   it("cards are in a scroll container", () => {

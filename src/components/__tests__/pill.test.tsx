@@ -35,8 +35,15 @@ describe("Pill", () => {
     expect(screen.getByLabelText("Remove Italian filter")).toBeInTheDocument();
   });
 
-  it("renders as a single button when not dismissible", () => {
+  it("renders as a span when non-interactive (decorative)", () => {
     const { container } = render(<Pill label="Italian" />);
+    expect(container.firstChild?.nodeName).toBe("SPAN");
+  });
+
+  it("renders as a button when interactive (onToggle)", () => {
+    const { container } = render(
+      <Pill label="Italian" onToggle={jest.fn()} />,
+    );
     expect(container.firstChild?.nodeName).toBe("BUTTON");
   });
 
@@ -59,6 +66,21 @@ describe("Pill", () => {
   it("shows dropdown indicator", () => {
     render(<Pill label="Sort" hasDropdown />);
     expect(screen.getByText("▾")).toBeInTheDocument();
+  });
+
+  it("exposes aria-pressed when interactive (onToggle provided)", () => {
+    render(<Pill label="Italian" onToggle={jest.fn()} active />);
+    expect(screen.getByText("Italian").closest("button")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("omits aria-pressed for decorative (no onToggle) pills", () => {
+    render(<Pill label="Italian" />);
+    expect(
+      screen.queryByRole("button", { name: "Italian" }),
+    ).not.toBeInTheDocument();
   });
 
   it("dismiss click does not trigger onToggle", async () => {

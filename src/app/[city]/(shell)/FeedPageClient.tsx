@@ -34,12 +34,9 @@ export function FeedPageClient({
 }: Props) {
   const router = useRouter();
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } =
-    useFilters();
+  const { resetFilters, activeFilterCount, applyFilters } = useFilters();
   const timeContext = useTimeContext();
   const { isSaved, toggleSave } = useSaved();
-
-  const [activeInjectedPills, setActiveInjectedPills] = useState<string[]>([]);
 
   const filteredRestaurants = useMemo(
     () => applyFilters(allRestaurants),
@@ -61,46 +58,12 @@ export function FeedPageClient({
   const firstChunk = openFiltered.slice(0, 8);
   const restChunk = openFiltered.slice(8);
 
-  const activePills = useMemo(() => {
-    const pills: string[] = [...activeInjectedPills];
-    if (activeFilterCount === 0 && activeInjectedPills.length === 0) pills.push("Toate");
-    if (filters.openNow) pills.push("Deschis acum");
-    if (filters.cuisines.length > 0) pills.push("Bucătărie");
-    if (filters.priceRange.length > 0) pills.push("Preț");
-    if (filters.neighborhoods.length > 0 || filters.minRating > 0)
-      pills.push("Mai multe");
-    return pills;
-  }, [filters, activeFilterCount, activeInjectedPills]);
-
-  const injectedLabels = useMemo(
-    () => new Set((timeContext.injectedPills ?? []).map((p) => p.label)),
-    [timeContext.injectedPills],
-  );
-
-  function handlePillToggle(pill: string) {
-    if (pill === "Toate") {
-      resetFilters();
-      setActiveInjectedPills([]);
-    } else if (pill === "Deschis acum") {
-      setFilter("openNow", !filters.openNow);
-    } else if (injectedLabels.has(pill)) {
-      setActiveInjectedPills((prev) =>
-        prev.includes(pill) ? prev.filter((p) => p !== pill) : [...prev, pill],
-      );
-    }
-  }
-
-  function handleDropdownOpen(_pill: string) {
-    setFilterSheetOpen(true);
-  }
-
   return (
     <>
       <FilterPillBar
-        activePills={activePills}
-        onPillToggle={handlePillToggle}
-        onDropdownOpen={handleDropdownOpen}
+        restaurants={allRestaurants}
         injectedPills={timeContext.injectedPills}
+        onOpenAdvanced={() => setFilterSheetOpen(true)}
       />
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">

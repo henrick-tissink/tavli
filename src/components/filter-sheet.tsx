@@ -40,12 +40,14 @@ export function FilterSheet({
 
   const cuisines = useMemo(() => {
     const all = restaurants.flatMap((r) => r.cuisines);
-    return [...new Set(all)].sort();
+    return [...new Set(all)].sort((a, b) =>
+      cuisineLabel(a).localeCompare(cuisineLabel(b), "ro"),
+    );
   }, [restaurants]);
 
   const neighborhoods = useMemo(() => {
-    const all = restaurants.map((r) => r.zone);
-    return [...new Set(all)].sort();
+    const all = restaurants.map((r) => r.zone).filter(Boolean);
+    return [...new Set(all)].sort((a, b) => a.localeCompare(b, "ro"));
   }, [restaurants]);
 
   return (
@@ -83,21 +85,25 @@ export function FilterSheet({
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Preț</h3>
         <div className="grid grid-cols-2 gap-2">
-          {PRICE_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => toggleArrayFilter("priceRange", value)}
-              className={[
-                "rounded-button px-4 py-3 text-sm font-semibold text-center transition-all",
-                filters.priceRange.includes(value)
-                  ? "bg-brand-primary text-white"
-                  : "bg-surface-bg text-text-secondary",
-              ].join(" ")}
-            >
-              {label}
-            </button>
-          ))}
+          {PRICE_OPTIONS.map(({ value, label }) => {
+            const isOn = filters.priceRange.includes(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => toggleArrayFilter("priceRange", value)}
+                aria-pressed={isOn}
+                className={[
+                  "rounded-button px-4 py-3 text-sm font-semibold text-center transition-all",
+                  isOn
+                    ? "bg-brand-primary text-white"
+                    : "bg-surface-bg text-text-secondary",
+                ].join(" ")}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

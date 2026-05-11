@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { CheckCircle } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import { RatingChip } from "./rating-chip";
@@ -8,6 +8,26 @@ import { TimeSlotPills } from "./time-slot-pills";
 import { Pill } from "./pill";
 import { Button } from "./button";
 import { createReservation } from "@/app/api/reservations/actions";
+
+const RO_DATE_FORMAT = new Intl.DateTimeFormat("ro-RO", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
+
+// Returns a Date at local midnight for a YYYY-MM-DD string (avoids the UTC
+// drift you get from `new Date("2026-05-12")`).
+function localDateFromIso(yyyymmdd: string): Date {
+  const [y, m, d] = yyyymmdd.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function isoDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
 interface ReservationSheetProps {
   open: boolean;
@@ -47,6 +67,7 @@ export function ReservationSheet({
   const [guestInput, setGuestInput] = useState("");
   const [showGuestInput, setShowGuestInput] = useState(false);
   const [dateOption, setDateOption] = useState<DateOption>("today");
+  const [pickedDate, setPickedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<string | null>(preSelectedSlot ?? null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -56,6 +77,14 @@ export function ReservationSheet({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [reservationMode, setReservationMode] = useState<"db" | "mock" | null>(null);
   const [pending, startTransition] = useTransition();
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const todayIso = isoDate(new Date());
+  const maxDateIso = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 90);
+    return isoDate(d);
+  })();
 
   // Sheet stays mounted across open/close cycles. On every transition to
   // open, re-sync state from props so a fresh tap from the detail page's
@@ -77,15 +106,38 @@ export function ReservationSheet({
     pick: "Alege data",
   };
 
-  const canConfirm = name.trim().length > 0 && phone.trim().length > 0;
+  // Source of truth for the chosen calendar day. Returns null when the user
+  // selected "pick" but hasn't picked yet — confirm stays blocked.
+  const getBookingDate = (): Date | null => {
+    if (dateOption === "pick") {
+      if (!pickedDate) return null;
+      return localDateFromIso(pickedDate);
+    }
+    const d = new Date();
+    if (dateOption === "tomorrow") d.setDate(d.getDate() + 1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  // Display label for the chosen date. When the user picked a custom day,
+  // format it Romanian-style instead of showing the literal "Alege data".
+  const dateDisplayLabel =
+    dateOption === "pick" && pickedDate
+      ? RO_DATE_FORMAT.format(localDateFromIso(pickedDate))
+      : dateLabels[dateOption];
+
+  const canConfirm =
+    name.trim().length > 0 &&
+    phone.trim().length > 0 &&
+    (dateOption !== "pick" || pickedDate.length > 0);
 
   const handleConfirm = () => {
     if (!canConfirm || !selectedSlot) return;
     setSubmitError(null);
 
-    const bookingDate = new Date();
-    if (dateOption === "tomorrow") bookingDate.setDate(bookingDate.getDate() + 1);
-    const dateStr = bookingDate.toISOString().slice(0, 10);
+    const bookingDate = getBookingDate();
+    if (!bookingDate) return;
+    const dateStr = isoDate(bookingDate);
 
     startTransition(async () => {
       const result = await createReservation({
@@ -108,7 +160,7 @@ export function ReservationSheet({
       setReservationMode(result.mode);
       onBookingConfirmed?.({
         restaurantName,
-        date: dateLabels[dateOption],
+        date: dateDisplayLabel,
         time: selectedSlot,
         guests,
         reservationId: result.reservationId,
@@ -118,8 +170,7 @@ export function ReservationSheet({
   };
 
   if (step === "confirmed") {
-    const bookingDate = new Date();
-    if (dateOption === "tomorrow") bookingDate.setDate(bookingDate.getDate() + 1);
+    const bookingDate = getBookingDate() ?? new Date();
     const [hh = "19", mm = "00"] = (selectedSlot ?? "19:00").split(":");
     bookingDate.setHours(Number(hh), Number(mm), 0, 0);
     const endDate = new Date(bookingDate.getTime() + 2 * 60 * 60 * 1000);
@@ -134,7 +185,7 @@ export function ReservationSheet({
     const handleShare = async () => {
       const shareData = {
         title: `Rezervare la ${restaurantName}`,
-        text: `Am rezervat la ${restaurantName} pentru ${dateLabels[dateOption]} la ${selectedSlot} — ${guests} ${guests === 1 ? "persoană" : "persoane"}. Vii și tu?`,
+        text: `Am rezervat la ${restaurantName} pentru ${dateDisplayLabel} la ${selectedSlot} — ${guests} ${guests === 1 ? "persoană" : "persoane"}. Vii și tu?`,
         url: typeof window !== "undefined" ? window.location.href : "",
       };
       try {
@@ -156,7 +207,7 @@ export function ReservationSheet({
           <h3 className="text-xl font-bold text-center mt-4">Rezervarea ta este confirmată!</h3>
           <div className="text-sm text-text-secondary text-center mt-3 space-y-1">
             <p>{restaurantName}</p>
-            <p>{dateLabels[dateOption]}</p>
+            <p>{dateDisplayLabel}</p>
             <p>{selectedSlot}</p>
             <p>{guests} {guests === 1 ? "persoană" : "persoane"}</p>
             {selectedZone && <p>{selectedZone}</p>}
@@ -258,12 +309,51 @@ export function ReservationSheet({
             {(["today", "tomorrow", "pick"] as DateOption[]).map((opt) => (
               <Pill
                 key={opt}
-                label={dateLabels[opt]}
+                label={
+                  opt === "pick" && pickedDate
+                    ? RO_DATE_FORMAT.format(localDateFromIso(pickedDate))
+                    : dateLabels[opt]
+                }
                 active={dateOption === opt}
-                onToggle={() => setDateOption(opt)}
+                onToggle={() => {
+                  setDateOption(opt);
+                  if (opt === "pick") {
+                    // Pop the native calendar immediately so the pill feels
+                    // like a button to a calendar, not a state toggle.
+                    requestAnimationFrame(() => {
+                      const el = dateInputRef.current;
+                      if (!el) return;
+                      try {
+                        el.showPicker();
+                      } catch {
+                        el.focus();
+                      }
+                    });
+                  }
+                }}
               />
             ))}
           </div>
+          <input
+            ref={dateInputRef}
+            type="date"
+            value={pickedDate}
+            min={todayIso}
+            max={maxDateIso}
+            onChange={(e) => {
+              setPickedDate(e.target.value);
+              setDateOption("pick");
+            }}
+            aria-label="Alege data rezervării"
+            // sr-only-ish: keep in DOM so showPicker() has something to anchor,
+            // but only reveal as a visible field when the pick option is active
+            // and no date is chosen yet.
+            className={
+              dateOption === "pick" && !pickedDate
+                ? "mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                : "sr-only"
+            }
+          />
         </div>
 
         {/* Time slots */}
