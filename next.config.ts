@@ -14,10 +14,14 @@ const supabaseHost = (() => {
 const nextConfig: NextConfig = {
   output: "standalone",
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  // Allow photo uploads through server actions up to 12 MB (app-level limit
+  // is 10 MB per file; the extra headroom covers multipart encoding).
   experimental: {
     serverActions: { bodySizeLimit: "12mb" },
   },
   images: {
+    // Next.js 16 blocks image optimization of private IPs (127.0.0.1, 10.*,
+    // etc.) by default — needed for local Supabase Storage in dev.
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
