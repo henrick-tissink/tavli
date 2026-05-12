@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const supabaseHost = (() => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,14 +13,11 @@ const supabaseHost = (() => {
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Allow photo uploads through server actions up to 12 MB (app-level limit
-  // is 10 MB per file; the extra headroom covers multipart encoding).
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   experimental: {
     serverActions: { bodySizeLimit: "12mb" },
   },
   images: {
-    // Next.js 16 blocks image optimization of private IPs (127.0.0.1, 10.*,
-    // etc.) by default — needed for local Supabase Storage in dev.
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -29,4 +27,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withMDX = createMDX({});
+
+export default withMDX(nextConfig);
