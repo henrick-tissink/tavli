@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tavli — Logo Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@500;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --orange: #F97316;
+    --orange-dark: #EA580C;
+    --cream: #FFF7ED;
+    --ink: #1C1917;
+    --muted: #57534E;
+    --hairline: #E7E5E4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 32px 80px;
+    background: #FAFAF9;
+    color: var(--ink);
+    font-family: "Inter", -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 48px;
+    max-width: 60ch;
+    line-height: 1.5;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .meta h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 24px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .meta .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .meta p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  .specs {
+    border-top: 1px solid var(--hairline);
+    padding-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .surfaces {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 16px;
+  }
+  .surface-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 16px;
+    border: 1px dashed var(--hairline);
+    border-radius: 12px;
+  }
+  .surface-label {
+    width: 96px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scales {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .scales img.s16 { width: 16px; height: 16px; }
+  .scales img.s32 { width: 32px; height: 32px; }
+  .scales img.s64 { width: 64px; height: 64px; }
+  .scales img.s128 { width: 128px; height: 128px; }
+
+  /* Mock navbar */
+  .navbar {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    height: 64px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .nav-left img {
+    width: 28px;
+    height: 28px;
+  }
+  .wordmark-fraunces {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--orange);
+  }
+  .wordmark-fraunces-italic {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+    color: var(--orange);
+  }
+  .wordmark-fraunces-tall {
+    font-family: "Fraunces", serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.025em;
+    font-variation-settings: "opsz" 144;
+    color: var(--orange);
+  }
+  .nav-city {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .nav-search {
+    flex: 1;
+    max-width: 320px;
+    background: #FAFAF9;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #A8A29E;
+    font-size: 13px;
+  }
+  .nav-icons {
+    display: flex;
+    gap: 8px;
+    color: var(--muted);
+  }
+  .nav-icons span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    display: inline-block;
+    border: 1px solid var(--hairline);
+  }
+</style>
+</head>
+<body>
+
+<h1>Tavli — Logo concepts</h1>
+<p class="subtitle">
+  Three full systems (mark + wordmark + lockup) all rooted in the same hook: <em>Tavli</em> means backgammon — the game played across a shared table.
+  Each direction is rendered at favicon (16px), apple-icon (64px), hero (128px), and navbar lockup with Fraunces wordmark for direct comparison.
+</p>
+
+<div class="grid">
+
+  <!-- CONCEPT 1 -->
+  <section class="card">
+    <div class="meta">
+      <span class="tag">Concept 1</span>
+      <h2>Across the Table</h2>
+      <p>
+        Two backgammon-point triangles facing inward with a deliberate gap.
+        At a glance it's an abstract, ownable geometric mark; on closer look it's two players meeting,
+        with the table living in the negative space. Most conceptual, most distinct from existing food-tech marks.
+      </p>
+      <div class="specs">
+        <strong>Mood:</strong> Considered, intellectual, design-led<br/>
+        <strong>Wordmark:</strong> Fraunces 800, tight tracking<br/>
+        <strong>Strength:</strong> Owns a geometry no competitor has<br/>
+        <strong>Risk:</strong> Requires brand-line to land ("share a table")
+      </div>
+    </div>
+    <div class="surfaces">
+      <div class="surface-row">
+        <div class="surface-label">Scales</div>
+        <div class="scales">
+          <img class="s16" src="concept-1-across.svg" alt="" />
+          <img class="s32" src="concept-1-across.svg" alt="" />
+          <img class="s64" src="concept-1-across.svg" alt="" />
+          <img class="s128" src="concept-1-across.svg" alt="" />
+        </div>
+      </div>
+      <div class="surface-row">
+        <div class="surface-label">Navbar</div>
+        <div class="navbar">
+          <div class="nav-left">
+            <img src="concept-1-across.svg" alt="" />
+            <span class="wordmark-fraunces-tall">Tavli</span>
+            <span class="nav-city">București ▾</span>
+          </div>
+          <div class="nav-search">🔍 Caută restaurante…</div>
+          <div class="nav-icons"><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT 2 -->
+  <section class="card">
+    <div class="meta">
+      <span class="tag">Concept 2</span>
+      <h2>Hourglass</h2>
+      <p>
+        Two triangles tip-to-tip vertically. The hourglass is the universal language of
+        <em>anticipation</em> — exactly what a reservation is. Backgammon-point geometry
+        still lives in the silhouette. Reads as a quiet "T" by suggestion.
+      </p>
+      <div class="specs">
+        <strong>Mood:</strong> Warm, ceremonial, slightly poetic<br/>
+        <strong>Wordmark:</strong> Fraunces 600 italic, lowercase<br/>
+        <strong>Strength:</strong> Universally legible meaning<br/>
+        <strong>Risk:</strong> Hourglass is well-trodden territory
+      </div>
+    </div>
+    <div class="surfaces">
+      <div class="surface-row">
+        <div class="surface-label">Scales</div>
+        <div class="scales">
+          <img class="s16" src="concept-2-hourglass.svg" alt="" />
+          <img class="s32" src="concept-2-hourglass.svg" alt="" />
+          <img class="s64" src="concept-2-hourglass.svg" alt="" />
+          <img class="s128" src="concept-2-hourglass.svg" alt="" />
+        </div>
+      </div>
+      <div class="surface-row">
+        <div class="surface-label">Navbar</div>
+        <div class="navbar">
+          <div class="nav-left">
+            <img src="concept-2-hourglass.svg" alt="" />
+            <span class="wordmark-fraunces-italic">tavli</span>
+            <span class="nav-city">București ▾</span>
+          </div>
+          <div class="nav-search">🔍 Caută restaurante…</div>
+          <div class="nav-icons"><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT 3 -->
+  <section class="card">
+    <div class="meta">
+      <span class="tag">Concept 3</span>
+      <h2>Serifed T</h2>
+      <p>
+        Closest in DNA to your current monogram, but with a soul: a custom-drawn slab-serif "T"
+        whose stem ends in a triangular point — the backgammon-point geometry lives in the
+        serif, not the silhouette. Reads as a refined "T" first, reveals the story on second look.
+      </p>
+      <div class="specs">
+        <strong>Mood:</strong> Editorial, premium-restaurant, evolutionary<br/>
+        <strong>Wordmark:</strong> Fraunces 700, title case<br/>
+        <strong>Strength:</strong> Lowest brand-risk migration<br/>
+        <strong>Risk:</strong> Less conceptually distinct from current
+      </div>
+    </div>
+    <div class="surfaces">
+      <div class="surface-row">
+        <div class="surface-label">Scales</div>
+        <div class="scales">
+          <img class="s16" src="concept-3-serif.svg" alt="" />
+          <img class="s32" src="concept-3-serif.svg" alt="" />
+          <img class="s64" src="concept-3-serif.svg" alt="" />
+          <img class="s128" src="concept-3-serif.svg" alt="" />
+        </div>
+      </div>
+      <div class="surface-row">
+        <div class="surface-label">Navbar</div>
+        <div class="navbar">
+          <div class="nav-left">
+            <img src="concept-3-serif.svg" alt="" />
+            <span class="wordmark-fraunces">Tavli</span>
+            <span class="nav-city">București ▾</span>
+          </div>
+          <div class="nav-search">🔍 Caută restaurante…</div>
+          <div class="nav-icons"><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>

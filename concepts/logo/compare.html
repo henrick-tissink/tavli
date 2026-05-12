@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tavli — Side by side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,ital@9..144,400,0;9..144,600,1;9..144,700,0;9..144,800,0&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --orange: #F97316;
+    --ink: #1C1917;
+    --muted: #57534E;
+    --hairline: #E7E5E4;
+    --bg: #FAFAF9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 56px 32px 80px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    text-align: center;
+  }
+  .subtitle {
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 56px;
+    font-size: 14px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1280px;
+    margin: 0 auto 32px;
+  }
+  .col {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .col .tag {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .col h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0 0 24px;
+    letter-spacing: -0.01em;
+  }
+  .hero {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 32px;
+    display: block;
+  }
+  .navbar-mini {
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+  .navbar-mini img {
+    width: 32px;
+    height: 32px;
+  }
+  .wm-1 {
+    font-family: "Fraunces", serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -0.025em;
+    font-variation-settings: "opsz" 144;
+    color: var(--orange);
+  }
+  .wm-2 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 26px;
+    letter-spacing: -0.015em;
+    color: var(--orange);
+  }
+  .wm-3 {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    color: var(--orange);
+  }
+  .pitch {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+    text-align: left;
+  }
+  .pitch strong { color: var(--ink); }
+  .micro-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px 0 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .micro-row img { display: block; }
+  .micro-row .s16 { width: 16px; height: 16px; }
+  .micro-row .s24 { width: 24px; height: 24px; }
+  .micro-row .s32 { width: 32px; height: 32px; }
+  .micro-row .s48 { width: 48px; height: 48px; }
+  .micro-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Side by side</h1>
+<p class="subtitle">Hero at 200px · favicon scales · real navbar lockup with Fraunces wordmark</p>
+
+<div class="row">
+
+  <div class="col">
+    <div class="tag">Concept 1</div>
+    <h2>Across the Table</h2>
+    <img class="hero" src="concept-1-across.svg" alt="" />
+    <div class="micro-label">Favicon sizes</div>
+    <div class="micro-row">
+      <img class="s16" src="concept-1-across.svg" alt="" />
+      <img class="s24" src="concept-1-across.svg" alt="" />
+      <img class="s32" src="concept-1-across.svg" alt="" />
+      <img class="s48" src="concept-1-across.svg" alt="" />
+    </div>
+    <div class="micro-label">Navbar lockup</div>
+    <div class="navbar-mini">
+      <img src="concept-1-across.svg" alt="" />
+      <span class="wm-1">Tavli</span>
+    </div>
+    <div class="pitch">
+      <strong>The story:</strong> Two backgammon-point triangles facing inward — two players, the table in the negative space. Most ownable geometry.<br/><br/>
+      <strong>Pairs with:</strong> Fraunces 800, condensed optical size, tight tracking. Confident, modern.<br/><br/>
+      <strong>Watch out for:</strong> At 16px the gap reads as a thin slit — needs careful pixel-snapping in the favicon.
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="tag">Concept 2</div>
+    <h2>Hourglass</h2>
+    <img class="hero" src="concept-2-hourglass.svg" alt="" />
+    <div class="micro-label">Favicon sizes</div>
+    <div class="micro-row">
+      <img class="s16" src="concept-2-hourglass.svg" alt="" />
+      <img class="s24" src="concept-2-hourglass.svg" alt="" />
+      <img class="s32" src="concept-2-hourglass.svg" alt="" />
+      <img class="s48" src="concept-2-hourglass.svg" alt="" />
+    </div>
+    <div class="micro-label">Navbar lockup</div>
+    <div class="navbar-mini">
+      <img src="concept-2-hourglass.svg" alt="" />
+      <span class="wm-2">tavli</span>
+    </div>
+    <div class="pitch">
+      <strong>The story:</strong> Hourglass = the moment before a reservation. Backgammon-point geometry still lives in the silhouette. Means what the product does.<br/><br/>
+      <strong>Pairs with:</strong> Fraunces 600 italic lowercase. Warm, editorial, like a magazine masthead.<br/><br/>
+      <strong>Watch out for:</strong> Hourglass is a well-known shape — borrowing from a universal language.
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="tag">Concept 3</div>
+    <h2>Serifed T</h2>
+    <img class="hero" src="concept-3-serif.svg" alt="" />
+    <div class="micro-label">Favicon sizes</div>
+    <div class="micro-row">
+      <img class="s16" src="concept-3-serif.svg" alt="" />
+      <img class="s24" src="concept-3-serif.svg" alt="" />
+      <img class="s32" src="concept-3-serif.svg" alt="" />
+      <img class="s48" src="concept-3-serif.svg" alt="" />
+    </div>
+    <div class="micro-label">Navbar lockup</div>
+    <div class="navbar-mini">
+      <img src="concept-3-serif.svg" alt="" />
+      <span class="wm-3">Tavli</span>
+    </div>
+    <div class="pitch">
+      <strong>The story:</strong> A slab-serif "T" whose stem ends in a triangular point — the backgammon hook is in the serif, not the silhouette. Reads "T" first, story second.<br/><br/>
+      <strong>Pairs with:</strong> Fraunces 700 title case "Tavli". Most premium-restaurant feeling.<br/><br/>
+      <strong>Watch out for:</strong> Closest to your current monogram — evolutionary, not revolutionary.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

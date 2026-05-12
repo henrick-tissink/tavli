@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Tavli">
+  <rect width="256" height="256" rx="56" fill="#F97316"/>
+  <!-- Upper triangle, pointing down -->
+  <path d="M 64 60 L 192 60 L 128 124 Z" fill="#FFFFFF"/>
+  <!-- Lower triangle, pointing up -->
+  <path d="M 64 196 L 192 196 L 128 132 Z" fill="#FFFFFF"/>
+</svg>

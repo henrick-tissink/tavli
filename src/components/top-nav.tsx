@@ -23,7 +23,20 @@ export function TopNav({
       <div className="flex items-center justify-between max-w-[var(--container-content)] mx-auto px-6 w-full">
         {/* Left: Logo + City */}
         <div className="flex items-center gap-4">
-          <span className="text-xl font-extrabold text-brand-primary">Tavli</span>
+          <div className="flex items-center gap-2" aria-label="Tavli">
+            <svg
+              viewBox="0 0 256 256"
+              className="w-7 h-7 rounded-[6px]"
+              aria-hidden="true"
+            >
+              <rect width="256" height="256" rx="56" fill="#F97316" />
+              <path d="M 56 64 L 56 192 L 108 128 Z" fill="#FFFFFF" />
+              <path d="M 200 64 L 200 192 L 148 128 Z" fill="#FFFFFF" />
+            </svg>
+            <span className="font-display text-2xl font-bold tracking-tight text-brand-primary leading-none">
+              Tavli
+            </span>
+          </div>
           <CitySelector currentCity={currentCity} onSelect={onCityChange} />
         </div>
 

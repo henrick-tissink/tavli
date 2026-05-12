@@ -85,6 +85,17 @@ export function FilterPillBar({
     <div className="sticky top-0 z-10 bg-surface-bg py-3">
       <div className="relative max-w-[var(--container-content)] mx-auto">
         <div className="px-4 desktop:px-6 flex gap-2 overflow-x-auto hide-scrollbar">
+        {/* Mobile-only brand mark, sticky-pinned so it stays visible as pills scroll. */}
+        <div
+          aria-hidden="true"
+          className="sticky left-0 shrink-0 self-center desktop:hidden bg-surface-bg z-1 pr-1"
+        >
+          <svg viewBox="0 0 256 256" className="w-6 h-6 rounded-[5px] block">
+            <rect width="256" height="256" rx="56" fill="#F97316" />
+            <path d="M 56 64 L 56 192 L 108 128 Z" fill="#FFFFFF" />
+            <path d="M 200 64 L 200 192 L 148 128 Z" fill="#FFFFFF" />
+          </svg>
+        </div>
         <Pill
           label="Toate"
           active={nothingSelected}

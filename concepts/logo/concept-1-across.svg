@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Tavli">
   <rect width="256" height="256" rx="56" fill="#F97316"/>
+  <!-- Left backgammon point, tip facing right -->
   <path d="M 56 64 L 56 192 L 108 128 Z" fill="#FFFFFF"/>
+  <!-- Right backgammon point, tip facing left -->
   <path d="M 200 64 L 200 192 L 148 128 Z" fill="#FFFFFF"/>
 </svg>
