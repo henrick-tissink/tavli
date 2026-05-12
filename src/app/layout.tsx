@@ -3,6 +3,7 @@ import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/toast";
 import { CookieFootnote } from "@/components/legal/cookie-footnote";
+import { SiteFooter } from "@/components/site-footer";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="ro" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="font-sans">
         {children}
+        <SiteFooter />
         <Toaster />
         <CookieFootnote />
       </body>
