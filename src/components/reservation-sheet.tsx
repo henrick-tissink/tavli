@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ShieldCheck, Scale } from "lucide-react";
+import Link from "next/link";
 import { BottomSheet } from "./bottom-sheet";
 import { RatingChip } from "./rating-chip";
 import { TimeSlotPills } from "./time-slot-pills";
@@ -434,6 +435,35 @@ export function ReservationSheet({
                 {submitError}
               </p>
             )}
+
+            <div className="px-4 pb-3 pt-1">
+              <p className="text-[11px] leading-snug text-text-muted text-center">
+                Prin rezervare, accepți{" "}
+                <Link href="/termeni" className="underline hover:text-text-secondary">Termenii</Link>
+                {" "}și{" "}
+                <Link href="/confidentialitate" className="underline hover:text-text-secondary">Politica de confidențialitate</Link>.
+              </p>
+              <div className="mt-2 flex items-center justify-center gap-4">
+                <a
+                  href="https://anpc.ro/ce-este-sal/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="ANPC SAL"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-text-muted hover:text-text-secondary"
+                >
+                  <ShieldCheck size={12} /> ANPC SAL
+                </a>
+                <a
+                  href="https://ec.europa.eu/consumers/odr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="EU ODR"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-text-muted hover:text-text-secondary"
+                >
+                  <Scale size={12} /> EU ODR
+                </a>
+              </div>
+            </div>
 
             <Button
               fullWidth
