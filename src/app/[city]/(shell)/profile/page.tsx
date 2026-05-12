@@ -163,6 +163,40 @@ export default function ProfilePage({
         </div>
       </section>
 
+      {/* Legal & informare — mobile entry point (desktop has the footer). */}
+      <section className="bg-surface-white border border-border rounded-card mb-4 desktop:hidden">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-text-secondary px-4 pt-4 pb-2">
+          Legal & informare
+        </h2>
+        <ul className="divide-y divide-border">
+          {[
+            { href: "/confidentialitate", label: "Confidențialitate" },
+            { href: "/termeni", label: "Termeni" },
+            { href: "/cookie-uri", label: "Cookie-uri" },
+            { href: "/anpc", label: "ANPC & SOL" },
+          ].map((item) => (
+            <li key={item.href}>
+              <a
+                href={item.href}
+                className="flex items-center justify-between px-4 py-3.5 text-sm text-text-primary hover:bg-surface-bg"
+              >
+                <span>{item.label}</span>
+                <span aria-hidden className="text-text-muted">›</span>
+              </a>
+            </li>
+          ))}
+          <li>
+            <a
+              href="mailto:hello@tavli.ro"
+              className="flex items-center justify-between px-4 py-3.5 text-sm text-text-primary hover:bg-surface-bg"
+            >
+              <span>Contact: hello@tavli.ro</span>
+              <span aria-hidden className="text-text-muted">›</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
       {/* Sign Out */}
       <div className="mt-8">
         <Button variant="ghost" fullWidth onClick={() => signOut()}>
