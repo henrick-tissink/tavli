@@ -221,6 +221,12 @@ CREATE POLICY "companies_admin_update" ON "companies" FOR UPDATE
     WHERE cm."company_id" = "companies"."id"
       AND cm."user_id" = auth.uid()
       AND cm."role" IN ('owner', 'admin')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM "company_members" cm
+    WHERE cm."company_id" = "companies"."id"
+      AND cm."user_id" = auth.uid()
+      AND cm."role" IN ('owner', 'admin')
   ));
 
 -- company_members: members can read their own org
@@ -262,6 +268,11 @@ CREATE POLICY "restaurant_event_settings_owner_write"
     SELECT 1 FROM "restaurants" r
     WHERE r."id" = "restaurant_event_settings"."restaurant_id"
       AND r."owner_user_id" = auth.uid()
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM "restaurants" r
+    WHERE r."id" = "restaurant_event_settings"."restaurant_id"
+      AND r."owner_user_id" = auth.uid()
   ));
 
 -- availability_exceptions: public read; owner write
@@ -271,6 +282,11 @@ CREATE POLICY "availability_exceptions_public_read"
 CREATE POLICY "availability_exceptions_owner_write"
   ON "availability_exceptions" FOR ALL
   USING (EXISTS (
+    SELECT 1 FROM "restaurants" r
+    WHERE r."id" = "availability_exceptions"."restaurant_id"
+      AND r."owner_user_id" = auth.uid()
+  ))
+  WITH CHECK (EXISTS (
     SELECT 1 FROM "restaurants" r
     WHERE r."id" = "availability_exceptions"."restaurant_id"
       AND r."owner_user_id" = auth.uid()
@@ -288,6 +304,11 @@ CREATE POLICY "partner_notifications_owner_read"
 CREATE POLICY "partner_notifications_owner_update"
   ON "partner_notifications" FOR UPDATE
   USING (EXISTS (
+    SELECT 1 FROM "restaurants" r
+    WHERE r."id" = "partner_notifications"."restaurant_id"
+      AND r."owner_user_id" = auth.uid()
+  ))
+  WITH CHECK (EXISTS (
     SELECT 1 FROM "restaurants" r
     WHERE r."id" = "partner_notifications"."restaurant_id"
       AND r."owner_user_id" = auth.uid()
