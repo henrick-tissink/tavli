@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/cron/expire-event-request-drafts", "schedule": "*/10 * * * *" },
+    { "path": "/api/cron/expire-event-request-quotes", "schedule": "0 * * * *" },
+    { "path": "/api/cron/nudge-event-request-silence", "schedule": "0 9 * * *" }
+  ]
+}
