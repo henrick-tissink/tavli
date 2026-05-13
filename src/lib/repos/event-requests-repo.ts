@@ -73,11 +73,15 @@ async function transitionTo(id: string, to: EventRequestStatus, patch: Partial<E
   const [current] = await dbAdmin.select().from(eventRequests).where(eq(eventRequests.id, id)).limit(1);
   if (!current) throw new Error(`event_request ${id} not found`);
   assertTransition(current.status, to);
-  const [row] = await dbAdmin.update(eventRequests)
+  // Atomic: include read status in the WHERE so a concurrent transition fails closed.
+  const updated = await dbAdmin.update(eventRequests)
     .set({ ...patch, status: to })
-    .where(eq(eventRequests.id, id))
+    .where(and(eq(eventRequests.id, id), eq(eventRequests.status, current.status)))
     .returning();
-  return row;
+  if (updated.length === 0) {
+    throw new Error(`concurrent transition: ${id} status changed during transition to ${to}`);
+  }
+  return updated[0];
 }
 
 export async function promoteDraftToNew(id: string, userId: string): Promise<EventRequest> {
