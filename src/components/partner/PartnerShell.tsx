@@ -5,13 +5,23 @@ import { PartnerNotificationBell } from "./PartnerNotificationBell";
 interface Props {
   restaurantName: string | null;
   userEmail: string | null;
+  openEventRequestsCount?: number;
   children: ReactNode;
 }
 
-export function PartnerShell({ restaurantName, userEmail, children }: Props) {
+export function PartnerShell({
+  restaurantName,
+  userEmail,
+  openEventRequestsCount = 0,
+  children,
+}: Props) {
   return (
     <div className="min-h-screen desktop:flex bg-surface-bg">
-      <PartnerSidebar restaurantName={restaurantName} userEmail={userEmail} />
+      <PartnerSidebar
+        restaurantName={restaurantName}
+        userEmail={userEmail}
+        openEventRequestsCount={openEventRequestsCount}
+      />
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="hidden desktop:flex sticky top-0 z-20 h-12 items-center justify-end gap-2 bg-surface-white border-b border-border px-6">
           <PartnerNotificationBell />
