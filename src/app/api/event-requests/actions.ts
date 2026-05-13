@@ -1,9 +1,15 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { and, eq, gte } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests, restaurants } from "@/lib/db/schema";
+import {
+  availabilityExceptions,
+  eventRequests,
+  reservations,
+  restaurants,
+} from "@/lib/db/schema";
 import {
   createEventRequestDraft,
   markViewing,
@@ -185,4 +191,84 @@ export async function declineEventRequest({
     throw new Error("reason required");
   }
   return decline(id, reason);
+}
+
+// ─── Materialization (Task 13) ───────────────────────────────────────────
+// Once the partner has accepted an event request they choose how to realize
+// it: `private_room` produces N reservation rows that ride alongside normal
+// inventory, while `whole_venue` adds an `availability_exceptions` row that
+// zeroes the venue's capacity for the date so the public availability code
+// stops offering it. Both modes run in a single transaction so a partial
+// failure leaves nothing behind. We intentionally do NOT flip the event
+// request to `completed` here — that's a separate post-event step.
+
+const materializeSchema = z.object({
+  id: z.string().uuid(),
+  mode: z.enum(["private_room", "whole_venue"]),
+  slots: z
+    .array(
+      z.object({
+        time: z.string().regex(/^\d{2}:\d{2}$/),
+        partySize: z.number().int().positive(),
+        zone: z.string().max(60).optional(),
+      }),
+    )
+    .min(1),
+});
+
+export async function materializeAcceptedEventRequest(
+  input: z.infer<typeof materializeSchema>,
+): Promise<{ materializedReservationIds: string[] }> {
+  const data = materializeSchema.parse(input);
+  const { restaurantId } = await assertPartnerOwns(data.id);
+  const [er] = await dbAdmin
+    .select()
+    .from(eventRequests)
+    .where(eq(eventRequests.id, data.id))
+    .limit(1);
+  if (!er) throw new Error("not found");
+  if (er.status !== "accepted") {
+    throw new Error("event request must be accepted before materializing");
+  }
+
+  const reservationIds: string[] = [];
+
+  await dbAdmin.transaction(async (tx) => {
+    for (const slot of data.slots) {
+      const [row] = await tx
+        .insert(reservations)
+        .values({
+          restaurantId,
+          guestName: er.guestName,
+          guestPhone: er.guestPhone ?? "",
+          guestEmail: er.guestEmail,
+          partySize: slot.partySize,
+          reservationDate: er.eventDate,
+          reservationTime: `${slot.time}:00`,
+          zone: slot.zone ?? (data.mode === "private_room" ? "Private Room" : null),
+          notes: `Event request ${er.id} — ${er.occasion}`,
+          status: "confirmed",
+          confirmationToken: randomBytes(32).toString("hex"),
+          bookingType: "private_event",
+          eventRequestId: er.id,
+          bookedByUserId: er.requestedByUserId,
+        })
+        .returning({ id: reservations.id });
+      reservationIds.push(row.id);
+    }
+
+    if (data.mode === "whole_venue") {
+      await tx.insert(availabilityExceptions).values({
+        restaurantId,
+        exceptionDate: er.eventDate,
+        slotStart: null,
+        slotEnd: null,
+        overrideCapacity: 0,
+        reason: `whole-venue event ${er.id}`,
+        sourceEventRequestId: er.id,
+      });
+    }
+  });
+
+  return { materializedReservationIds: reservationIds };
 }
