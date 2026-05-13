@@ -149,14 +149,14 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled",
     )
     .eq("slug", slug)
     .eq("status", "live")
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots, chefPicks] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks, eventSettings] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -170,10 +170,27 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .then(({ data }) => Promise.all((data ?? []).map((r) => restaurantFromRow(r)))),
     fetchTodaySlots(data.id as string),
     fetchChefPicks(data.id as string),
+    sb
+      .from("restaurant_event_settings")
+      .select("accepted_occasions, min_lead_days, budget_per_head_guidance")
+      .eq("restaurant_id", data.id)
+      .maybeSingle()
+      .then(({ data }) => data),
   ]);
 
   const reviews = await getReviewsForRestaurant(data.id as string, 20);
   const reviewIntelligence = processReviews(reviews);
+
+  // Default to all occasions when intake is on but no settings row exists yet,
+  // so the venue can still receive requests while the partner tunes their
+  // policy. Mirrors the fallback in the plan (Task 17 Step 3).
+  const defaultOccasions: import("@/lib/types").EventOccasion[] = [
+    "wedding",
+    "birthday",
+    "corporate_dinner",
+    "product_launch",
+    "other",
+  ];
 
   return {
     ...base,
@@ -192,6 +209,13 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     chefPicks,
     websiteUrl: (data.website_url as string) ?? undefined,
     menuPdfUrl: undefined,
+    eventsIntakeEnabled: Boolean(data.events_intake_enabled),
+    acceptedOccasions:
+      (eventSettings?.accepted_occasions as import("@/lib/types").EventOccasion[] | undefined) ??
+      defaultOccasions,
+    minLeadDays: (eventSettings?.min_lead_days as number | undefined) ?? undefined,
+    budgetPerHeadGuidance:
+      (eventSettings?.budget_per_head_guidance as string | null | undefined) ?? null,
   };
 }
 

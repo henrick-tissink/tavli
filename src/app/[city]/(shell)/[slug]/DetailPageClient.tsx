@@ -17,6 +17,7 @@ import { Pill } from "@/components/pill";
 import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
 import { ReservationSheet } from "@/components/reservation-sheet";
+import { EventRequestCta } from "@/components/event-request-cta";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
 import { useSaved } from "@/lib/saved-context";
@@ -405,10 +406,18 @@ function InfoBlock({
           variant="full"
         />
       </div>
-      <div ref={ctaRef} className="mt-4">
+      <div ref={ctaRef} className="mt-4 space-y-2">
         <Button fullWidth onClick={onBook}>
           Rezervă o masă
         </Button>
+        <EventRequestCta
+          enabled={restaurant.eventsIntakeEnabled}
+          restaurantId={restaurant.id}
+          restaurantName={restaurant.name}
+          acceptedOccasions={restaurant.acceptedOccasions}
+          minLeadDays={restaurant.minLeadDays}
+          budgetPerHeadGuidance={restaurant.budgetPerHeadGuidance}
+        />
       </div>
     </div>
   );

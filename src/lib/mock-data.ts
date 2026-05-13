@@ -556,7 +556,17 @@ function makeReviews(restaurantName: string): Review[] {
   ];
 }
 
-const restaurantDetails: Record<string, Omit<RestaurantDetail, keyof Restaurant> & { lat: number; lng: number }> = {
+const restaurantDetails: Record<
+  string,
+  Omit<RestaurantDetail, keyof Restaurant | "eventsIntakeEnabled" | "acceptedOccasions"> & {
+    lat: number;
+    lng: number;
+    eventsIntakeEnabled?: boolean;
+    acceptedOccasions?: RestaurantDetail["acceptedOccasions"];
+    minLeadDays?: number;
+    budgetPerHeadGuidance?: string | null;
+  }
+> = {
   "casa-veche": {
     description: "A beloved Romanian restaurant in the heart of Centru Vechi, serving traditional dishes with a modern twist. Known for our grandmother's sarmale recipe and an extensive selection of Romanian wines.",
     photos: [
@@ -733,6 +743,16 @@ export function getRestaurantDetail(slug: string): RestaurantDetail | null {
     ...detail,
     reviewIntelligence,
     nearby,
+    eventsIntakeEnabled: detail.eventsIntakeEnabled ?? false,
+    acceptedOccasions: detail.acceptedOccasions ?? [
+      "wedding",
+      "birthday",
+      "corporate_dinner",
+      "product_launch",
+      "other",
+    ],
+    minLeadDays: detail.minLeadDays,
+    budgetPerHeadGuidance: detail.budgetPerHeadGuidance ?? null,
   };
 }
 
