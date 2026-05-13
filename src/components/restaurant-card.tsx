@@ -14,6 +14,13 @@ interface RestaurantCardProps {
   onSave?: (id: string) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
   onClick?: (restaurant: Restaurant) => void;
+  /**
+   * When set on a capability landing page (e.g. `/[city]/events`), the
+   * card surfaces a small chip near the title so the user can confirm at
+   * a glance why this venue is in the filtered listing. Defaults to off
+   * so the discovery feed stays uncluttered.
+   */
+  highlightCapability?: "events" | "meetings" | "standing" | "corporate_meals";
 }
 
 export function RestaurantCard({
@@ -22,6 +29,7 @@ export function RestaurantCard({
   onSave,
   onSlotSelect,
   onClick,
+  highlightCapability: _highlightCapability,
 }: RestaurantCardProps) {
   const isClosed = restaurant.status === "closed";
 
