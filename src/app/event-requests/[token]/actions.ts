@@ -12,6 +12,7 @@
  */
 
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import {
   getByTrackingToken,
   acceptQuote,
@@ -19,11 +20,29 @@ import {
   cancel,
 } from "@/lib/repos/event-requests-repo";
 import { insertNotification } from "@/lib/repos/partner-notifications-repo";
+import { dbAdmin } from "@/lib/db/admin";
+import { restaurants } from "@/lib/db/schema";
+import {
+  sendEventRequestAccepted,
+  sendEventRequestDeclined,
+} from "@/lib/email/event-requests";
+import { appOrigin } from "@/lib/app-origin";
 
 async function loadByToken(token: string) {
   const er = await getByTrackingToken(token);
   if (!er) throw new Error("not found");
   return er;
+}
+
+async function loadRestaurantContact(
+  restaurantId: string,
+): Promise<{ name: string; email: string | null }> {
+  const [r] = await dbAdmin
+    .select({ name: restaurants.name, email: restaurants.email })
+    .from(restaurants)
+    .where(eq(restaurants.id, restaurantId))
+    .limit(1);
+  return { name: r?.name ?? "Tavli", email: r?.email ?? null };
 }
 
 export async function consumerAcceptQuote(token: string) {
@@ -34,6 +53,28 @@ export async function consumerAcceptQuote(token: string) {
     kind: "quote_accepted",
     payload: { eventRequestId: er.id },
   });
+  // Notify the venue that the consumer has accepted. Materialization will
+  // also send confirmation emails — this one tells the partner "act now".
+  try {
+    const contact = await loadRestaurantContact(er.restaurantId);
+    if (contact.email) {
+      await sendEventRequestAccepted({
+        to: contact.email,
+        locale: "ro",
+        restaurantName: contact.name,
+        guestName: er.guestName,
+        occasion: er.occasion,
+        eventDate: er.eventDate,
+        partySize: er.partySize,
+        trackingUrl: `${appOrigin()}/event-requests/${er.trackingToken}`,
+        amountLei: er.quotedAmountCents
+          ? Math.round(er.quotedAmountCents / 100)
+          : 0,
+      });
+    }
+  } catch (err) {
+    console.error("[email] consumerAcceptQuote email failed:", err);
+  }
   return out;
 }
 
@@ -52,6 +93,24 @@ export async function consumerDeclineQuote({
     kind: "quote_declined",
     payload: { eventRequestId: er.id, reason: parsed },
   });
+  try {
+    const contact = await loadRestaurantContact(er.restaurantId);
+    if (contact.email) {
+      await sendEventRequestDeclined({
+        to: contact.email,
+        locale: "ro",
+        restaurantName: contact.name,
+        guestName: er.guestName,
+        occasion: er.occasion,
+        eventDate: er.eventDate,
+        partySize: er.partySize,
+        trackingUrl: `${appOrigin()}/event-requests/${er.trackingToken}`,
+        declineReason: parsed ?? "consumer_declined",
+      });
+    }
+  } catch (err) {
+    console.error("[email] consumerDeclineQuote email failed:", err);
+  }
   return out;
 }
 

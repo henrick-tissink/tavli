@@ -20,6 +20,13 @@ import {
 import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
 import { getCurrentSession } from "@/lib/auth/session";
+import {
+  sendEventRequestReplied,
+  sendEventRequestQuoted,
+  sendEventRequestDeclined,
+  sendEventRequestAccepted,
+} from "@/lib/email/event-requests";
+import { appOrigin } from "@/lib/app-origin";
 
 const submitSchema = z.object({
   restaurantId: z.string().uuid(),
@@ -143,6 +150,43 @@ async function assertPartnerOwns(
   return { userId: session.userId, restaurantId: er.restaurantId };
 }
 
+// Used by transition actions to compose consumer-facing emails. We fetch
+// the restaurant name once and build a tracking URL from the canonical
+// `tracking_token`. Phase 1 defaults to RO locale; per-user locale comes
+// later.
+async function loadEmailContext(eventRequestId: string): Promise<{
+  restaurantName: string;
+  restaurantEmail: string | null;
+  guestEmail: string;
+  guestName: string;
+  occasion: typeof eventRequests.$inferSelect.occasion;
+  eventDate: string;
+  partySize: number;
+  trackingUrl: string;
+}> {
+  const [er] = await dbAdmin
+    .select()
+    .from(eventRequests)
+    .where(eq(eventRequests.id, eventRequestId))
+    .limit(1);
+  if (!er) throw new Error("not found");
+  const [r] = await dbAdmin
+    .select({ name: restaurants.name, email: restaurants.email })
+    .from(restaurants)
+    .where(eq(restaurants.id, er.restaurantId))
+    .limit(1);
+  return {
+    restaurantName: r?.name ?? "Tavli",
+    restaurantEmail: r?.email ?? null,
+    guestEmail: er.guestEmail,
+    guestName: er.guestName,
+    occasion: er.occasion,
+    eventDate: er.eventDate,
+    partySize: er.partySize,
+    trackingUrl: `${appOrigin()}/event-requests/${er.trackingToken}`,
+  };
+}
+
 export async function markEventRequestViewing({ id }: { id: string }) {
   await assertPartnerOwns(id);
   return markViewing(id);
@@ -159,7 +203,24 @@ export async function replyToEventRequest({
   if (message.length < 1 || message.length > 4000) {
     throw new Error("message length");
   }
-  return reply(id, message);
+  const out = await reply(id, message);
+  try {
+    const ctx = await loadEmailContext(id);
+    await sendEventRequestReplied({
+      guestEmail: ctx.guestEmail,
+      locale: "ro",
+      restaurantName: ctx.restaurantName,
+      guestName: ctx.guestName,
+      occasion: ctx.occasion,
+      eventDate: ctx.eventDate,
+      partySize: ctx.partySize,
+      trackingUrl: ctx.trackingUrl,
+      partnerResponse: message,
+    });
+  } catch (err) {
+    console.error("[email] sendEventRequestReplied failed:", err);
+  }
+  return out;
 }
 
 const quoteSchema = z.object({
@@ -172,11 +233,29 @@ const quoteSchema = z.object({
 export async function quoteEventRequest(input: z.infer<typeof quoteSchema>) {
   const data = quoteSchema.parse(input);
   await assertPartnerOwns(data.id);
-  return sendQuote(data.id, {
+  const out = await sendQuote(data.id, {
     amountCents: data.amountCents,
     expiresAt: new Date(data.expiresAt),
     partnerResponse: data.partnerResponse,
   });
+  try {
+    const ctx = await loadEmailContext(data.id);
+    await sendEventRequestQuoted({
+      guestEmail: ctx.guestEmail,
+      locale: "ro",
+      restaurantName: ctx.restaurantName,
+      guestName: ctx.guestName,
+      occasion: ctx.occasion,
+      eventDate: ctx.eventDate,
+      partySize: ctx.partySize,
+      trackingUrl: ctx.trackingUrl,
+      amountLei: Math.round(data.amountCents / 100),
+      quoteExpiresAt: data.expiresAt,
+    });
+  } catch (err) {
+    console.error("[email] sendEventRequestQuoted failed:", err);
+  }
+  return out;
 }
 
 export async function declineEventRequest({
@@ -190,7 +269,24 @@ export async function declineEventRequest({
   if (!reason || reason.length > 1000) {
     throw new Error("reason required");
   }
-  return decline(id, reason);
+  const out = await decline(id, reason);
+  try {
+    const ctx = await loadEmailContext(id);
+    await sendEventRequestDeclined({
+      to: ctx.guestEmail,
+      locale: "ro",
+      restaurantName: ctx.restaurantName,
+      guestName: ctx.guestName,
+      occasion: ctx.occasion,
+      eventDate: ctx.eventDate,
+      partySize: ctx.partySize,
+      trackingUrl: ctx.trackingUrl,
+      declineReason: reason,
+    });
+  } catch (err) {
+    console.error("[email] sendEventRequestDeclined failed:", err);
+  }
+  return out;
 }
 
 // ─── Materialization (Task 13) ───────────────────────────────────────────
@@ -269,6 +365,32 @@ export async function materializeAcceptedEventRequest(
       });
     }
   });
+
+  // Confirmation email to both consumer and venue. Best-effort: if the email
+  // backend chokes, the reservations have already committed and the partner
+  // can fall back to the in-app inbox.
+  try {
+    const ctx = await loadEmailContext(data.id);
+    const amountLei = er.quotedAmountCents
+      ? Math.round(er.quotedAmountCents / 100)
+      : 0;
+    const baseProps = {
+      locale: "ro" as const,
+      restaurantName: ctx.restaurantName,
+      guestName: ctx.guestName,
+      occasion: ctx.occasion,
+      eventDate: ctx.eventDate,
+      partySize: ctx.partySize,
+      trackingUrl: ctx.trackingUrl,
+      amountLei,
+    };
+    await sendEventRequestAccepted({ ...baseProps, to: ctx.guestEmail });
+    if (ctx.restaurantEmail) {
+      await sendEventRequestAccepted({ ...baseProps, to: ctx.restaurantEmail });
+    }
+  } catch (err) {
+    console.error("[email] sendEventRequestAccepted failed:", err);
+  }
 
   return { materializedReservationIds: reservationIds };
 }

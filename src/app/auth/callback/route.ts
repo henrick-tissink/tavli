@@ -13,9 +13,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests, profiles } from "@/lib/db/schema";
+import { eventRequests, profiles, restaurants } from "@/lib/db/schema";
 import { promoteDraftToNew } from "@/lib/repos/event-requests-repo";
 import { insertNotification } from "@/lib/repos/partner-notifications-repo";
+import { sendEventRequestNew } from "@/lib/email/event-requests";
+import { appOrigin } from "@/lib/app-origin";
 
 export async function GET(req: NextRequest): Promise<Response> {
   const url = new URL(req.url);
@@ -65,6 +67,31 @@ export async function GET(req: NextRequest): Promise<Response> {
             partySize: promoted.partySize,
           },
         });
+
+        // Notify the partner. Failures are swallowed so the redirect still
+        // completes — the state transition has already committed and the
+        // partner can also see the in-app notification.
+        try {
+          const [r] = await dbAdmin
+            .select({ name: restaurants.name, email: restaurants.email })
+            .from(restaurants)
+            .where(eq(restaurants.id, promoted.restaurantId))
+            .limit(1);
+          if (r?.email) {
+            await sendEventRequestNew({
+              partnerEmail: r.email,
+              locale: "ro",
+              restaurantName: r.name,
+              guestName: promoted.guestName,
+              occasion: promoted.occasion,
+              eventDate: promoted.eventDate,
+              partySize: promoted.partySize,
+              partnerInboxUrl: `${appOrigin()}/partner/corporate/events`,
+            });
+          }
+        } catch (err) {
+          console.error("[email] sendEventRequestNew failed:", err);
+        }
       }
 
       return NextResponse.redirect(new URL(`/event-requests/${token}`, url));
