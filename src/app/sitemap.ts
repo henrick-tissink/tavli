@@ -8,6 +8,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const restaurants = await getSitemapRestaurants();
 
+  // Dedupe to one entry per city slug. Capability landing pages
+  // (`/[city]/events`) are per-city, not per-restaurant, so emitting one
+  // URL per unique city is enough — and avoids ballooning the sitemap
+  // when a city has many restaurants.
+  const citySlugs = Array.from(new Set(restaurants.map((r) => r.citySlug)));
+
   return [
     {
       url: `${base}/`,
@@ -20,6 +26,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: r.updatedAt,
       changeFrequency: "daily" as const,
       priority: 0.7,
+    })),
+    ...citySlugs.map((slug) => ({
+      url: `${base}/${slug}/events`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
   ];
 }

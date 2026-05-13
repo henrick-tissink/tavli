@@ -29,7 +29,7 @@ export function RestaurantCard({
   onSave,
   onSlotSelect,
   onClick,
-  highlightCapability: _highlightCapability,
+  highlightCapability,
 }: RestaurantCardProps) {
   const isClosed = restaurant.status === "closed";
 
@@ -110,9 +110,16 @@ export function RestaurantCard({
       <div className="p-3 flex flex-col gap-1.5">
         {/* Row 1: Name + inline rating */}
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-text-primary truncate text-[17px]">
-            {restaurant.name}
-          </h3>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-bold text-text-primary truncate text-[17px]">
+              {restaurant.name}
+            </h3>
+            {highlightCapability === "events" && (
+              <span className="shrink-0 text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                Eveniment privat
+              </span>
+            )}
+          </div>
           <RatingChip
             rating={restaurant.rating}
             voteCount={restaurant.voteCount}
