@@ -4,9 +4,16 @@ import { z } from "zod";
 import { and, eq, gte } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests, restaurants } from "@/lib/db/schema";
-import { createEventRequestDraft } from "@/lib/repos/event-requests-repo";
+import {
+  createEventRequestDraft,
+  markViewing,
+  reply,
+  sendQuote,
+  decline,
+} from "@/lib/repos/event-requests-repo";
 import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
+import { getCurrentSession } from "@/lib/auth/session";
 
 const submitSchema = z.object({
   restaurantId: z.string().uuid(),
@@ -99,4 +106,83 @@ export async function submitEventRequestDraft(
 
   await sendOtp({ email: data.guestEmail, redirectToToken: draft.trackingToken });
   return { ok: true, trackingToken: draft.trackingToken };
+}
+
+// ─── Partner transitions (Task 11) ───────────────────────────────────────
+// Each action verifies the calling user owns the restaurant tied to the
+// event_request via `assertPartnerOwns` before delegating to the repo.
+
+async function assertPartnerOwns(
+  eventRequestId: string,
+): Promise<{ userId: string; restaurantId: string }> {
+  const session = await getCurrentSession();
+  if (!session) throw new Error("forbidden: not signed in");
+  const [er] = await dbAdmin
+    .select({
+      id: eventRequests.id,
+      restaurantId: eventRequests.restaurantId,
+    })
+    .from(eventRequests)
+    .where(eq(eventRequests.id, eventRequestId))
+    .limit(1);
+  if (!er) throw new Error("not found");
+  const [r] = await dbAdmin
+    .select({ ownerUserId: restaurants.ownerUserId })
+    .from(restaurants)
+    .where(eq(restaurants.id, er.restaurantId))
+    .limit(1);
+  if (r?.ownerUserId !== session.userId) {
+    throw new Error("forbidden: not the owner");
+  }
+  return { userId: session.userId, restaurantId: er.restaurantId };
+}
+
+export async function markEventRequestViewing({ id }: { id: string }) {
+  await assertPartnerOwns(id);
+  return markViewing(id);
+}
+
+export async function replyToEventRequest({
+  id,
+  message,
+}: {
+  id: string;
+  message: string;
+}) {
+  await assertPartnerOwns(id);
+  if (message.length < 1 || message.length > 4000) {
+    throw new Error("message length");
+  }
+  return reply(id, message);
+}
+
+const quoteSchema = z.object({
+  id: z.string().uuid(),
+  amountCents: z.number().int().positive(),
+  expiresAt: z.string().datetime(),
+  partnerResponse: z.string().max(4000).optional(),
+});
+
+export async function quoteEventRequest(input: z.infer<typeof quoteSchema>) {
+  const data = quoteSchema.parse(input);
+  await assertPartnerOwns(data.id);
+  return sendQuote(data.id, {
+    amountCents: data.amountCents,
+    expiresAt: new Date(data.expiresAt),
+    partnerResponse: data.partnerResponse,
+  });
+}
+
+export async function declineEventRequest({
+  id,
+  reason,
+}: {
+  id: string;
+  reason: string;
+}) {
+  await assertPartnerOwns(id);
+  if (!reason || reason.length > 1000) {
+    throw new Error("reason required");
+  }
+  return decline(id, reason);
 }
