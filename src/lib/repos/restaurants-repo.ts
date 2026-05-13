@@ -17,6 +17,7 @@ import type {
   MenuItem,
   MenuSection,
 } from "@/lib/types";
+import type { CapabilityFilter } from "@/lib/filter-context";
 import * as mock from "@/lib/mock-data";
 import * as menuMock from "@/lib/menu-data";
 import { supabaseAnon } from "@/lib/db/anon";
@@ -25,6 +26,12 @@ import type { AvailabilitySlot } from "@/lib/seo/restaurant-jsonld";
 import { computeSlots } from "@/lib/availability";
 import { getReviewsForRestaurant } from "@/lib/repos/reviews-repo";
 import { processReviews } from "@/lib/review-processor";
+
+export interface ListRestaurantsInput {
+  citySlug?: string;
+  capabilities?: CapabilityFilter[];
+  limit?: number;
+}
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
@@ -318,6 +325,74 @@ function toTagsPublic(
 export async function getRestaurants(): Promise<Restaurant[]> {
   if (dbActive()) return dbGetRestaurants();
   return Promise.resolve(mock.getRestaurants());
+}
+
+/**
+ * Filtered list of live restaurants used by capability landing pages
+ * (e.g. `/[city]/events`) and capability-aware feed queries. Applies a
+ * city slug filter and any combination of capability filters server-side
+ * so the page never needs to ship the full corpus and trim client-side.
+ *
+ * Capability semantics:
+ * - `"events"` → `restaurants.events_intake_enabled = true`
+ * - `"standing"` → `restaurants.accepts_standing = true`
+ * - `"corporate_meals"` → `restaurants.accepts_corporate_meals = true`
+ * - `"meetings"` → no-op for Phase 1; will derive from
+ *   `meeting_spaces` once Phase 4 lands.
+ *
+ * Mock mode reads the demo restaurants and, because the demo doesn't
+ * surface capability flags on `Restaurant`, only the citySlug + limit
+ * are honoured — capability filters become no-ops there.
+ */
+export async function listRestaurants(
+  input: ListRestaurantsInput = {},
+): Promise<Restaurant[]> {
+  if (dbActive()) {
+    const sb = supabaseAnon()!;
+    let query = sb
+      .from("restaurants")
+      .select(
+        "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, cities!inner(slug)",
+      )
+      .eq("status", "live");
+
+    if (input.citySlug) {
+      // `cities!inner(slug)` joins the cities table; `cities.slug` selects
+      // restaurants in that city only.
+      query = query.eq("cities.slug", input.citySlug);
+    }
+    if (input.capabilities?.includes("events")) {
+      query = query.eq("events_intake_enabled", true);
+    }
+    if (input.capabilities?.includes("standing")) {
+      query = query.eq("accepts_standing", true);
+    }
+    if (input.capabilities?.includes("corporate_meals")) {
+      query = query.eq("accepts_corporate_meals", true);
+    }
+    // "meetings" is derived from meeting_spaces — Phase 4 will add:
+    //   .filter("id", "in", "(select restaurant_id from meeting_spaces where is_active = true)")
+
+    query = query.order("rating", { ascending: false });
+    if (input.limit) query = query.limit(input.limit);
+
+    const { data } = await query;
+    return Promise.all(
+      (data ?? []).map(async (r) => {
+        const [base, slots] = await Promise.all([
+          restaurantFromRow(r),
+          fetchTodaySlots(r.id as string),
+        ]);
+        return { ...base, availableSlots: slots };
+      }),
+    );
+  }
+  // Mock mode: capability flags aren't surfaced on the demo Restaurant
+  // shape, so apply only citySlug + limit. Capability filtering is
+  // exercised against real DB rows.
+  let rows = mock.getRestaurants();
+  if (input.limit) rows = rows.slice(0, input.limit);
+  return Promise.resolve(rows);
 }
 
 export async function getTrendingRestaurants(): Promise<Restaurant[]> {
