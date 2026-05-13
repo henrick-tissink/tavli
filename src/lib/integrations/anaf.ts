@@ -35,6 +35,7 @@ export async function lookupCui(input: string): Promise<CuiLookupResult> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify([{ cui: Number(digitsOnly(cui)), data: today }]),
+      signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return { ok: false, found: false, cui };
     const data = await res.json() as { found?: Array<{ date_generale?: { cui: number; denumire?: string; adresa?: string }; inregistrare_scop_Tva?: { scpTVA?: boolean } }> };

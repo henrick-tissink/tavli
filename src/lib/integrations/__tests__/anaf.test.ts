@@ -57,4 +57,11 @@ describe("lookupCui", () => {
     expect(res.ok).toBe(false);
     expect(res.found).toBe(false);
   });
+
+  it("returns ok=false when fetch is aborted via timeout signal", async () => {
+    global.fetch = jest.fn().mockImplementation(() => Promise.reject(new DOMException("aborted", "AbortError")));
+    const res = await lookupCui("12345678");
+    expect(res.ok).toBe(false);
+    expect(res.found).toBe(false);
+  });
 });
