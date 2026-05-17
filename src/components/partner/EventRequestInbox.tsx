@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 interface Row {
   id: string;
@@ -34,6 +35,9 @@ const OCCASION_LABELS_RO: Record<string, string> = {
 };
 
 export function EventRequestInbox({ rows }: { rows: Row[] }) {
+  // Pinned at mount so the table doesn't re-flow on unrelated re-renders.
+  // Days-since-creation only changes by 1 per day; a stable reading is fine.
+  const [nowMs] = useState(() => Date.now());
   if (rows.length === 0)
     return <p className="text-zinc-500">Nicio cerere încă.</p>;
   return (
@@ -51,7 +55,7 @@ export function EventRequestInbox({ rows }: { rows: Row[] }) {
       <tbody>
         {rows.map((r) => {
           const days = Math.floor(
-            (Date.now() - new Date(r.createdAt).getTime()) / 86_400_000,
+            (nowMs - new Date(r.createdAt).getTime()) / 86_400_000,
           );
           return (
             <tr key={r.id} className="border-t hover:bg-zinc-50">
