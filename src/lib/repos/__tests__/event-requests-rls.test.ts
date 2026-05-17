@@ -2,48 +2,48 @@
  * @jest-environment node
  *
  * Cross-cutting RLS integration tests for the `event_requests` table.
- *
- * SKELETON STATUS — currently `describe.skip`. This suite verifies that
- * RLS policies on event_requests enforce the intended visibility matrix:
+ * Asserts the policy visibility matrix:
  *
  *   - restaurant owner can read their own venue's event_requests
  *   - requester (auth.uid() == requested_by_user_id) can read their own row
  *   - unrelated authenticated users cannot read either above
- *   - anonymous callers cannot read directly, but the SECURITY DEFINER
- *     `get_event_request_by_token(p_token text)` RPC returns the row when
- *     given a valid tracking token, and nothing otherwise
+ *   - anon callers cannot read event_requests directly, but the SECURITY
+ *     DEFINER `get_event_request_by_token(p_token text)` RPC returns the
+ *     row when given a valid tracking token (and nothing otherwise)
  *
- * TODO before un-skipping:
- *
- *   1. Create `src/lib/db/test-helpers.ts` exporting:
- *
- *        export function createClientForUser(userId: string | null): SupabaseClient
- *
- *      Strategy: construct a Supabase JS client with the anon key, then
- *      either (a) mint a short-lived JWT signed with the Supabase JWT
- *      secret carrying `sub = userId` and `role = "authenticated"` (or
- *      `"anon"` when `userId` is null), or (b) use the Admin API to
- *      issue/refresh a session for a real auth.users row created with
- *      `supabase.auth.admin.createUser`. Strategy (a) is faster but
- *      requires `SUPABASE_JWT_SECRET` in the env; strategy (b) is more
- *      faithful but needs cleanup hooks.
- *
- *   2. Ensure the local Supabase stack is running with the 0008
- *      migration applied (it ships the policies under test).
- *
- *   3. Ensure `profiles`, `restaurants`, `cities`, `event_requests` are
- *      writeable from `dbAdmin` in tests (CI/local). Existing repo tests
- *      already assume this.
- *
- *   4. Remove the `.skip` below and run:
- *        npx jest src/lib/repos/__tests__/event-requests-rls.test.ts --forceExit
+ * Prereqs:
+ *   - Local Supabase stack running with 0008_corporate_foundations applied.
+ *   - SUPABASE_JWT_SECRET (defaults to the local stack secret).
  */
 
-import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests, restaurants, cities, profiles } from "@/lib/db/schema";
-// TODO: import { createClientForUser } from "@/lib/db/test-helpers";
+import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
+import {
+  eventRequests,
+  restaurants,
+  cities,
+  profiles,
+} from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
+import { createClientForUser } from "@/lib/db/test-helpers";
 
-describe.skip("event_requests RLS", () => {
+// Create a real auth.users entry so PostgREST recognises the user. The
+// `on_auth_user_created` trigger backfills the profiles row.
+async function seedAuthUser(emailHint: string): Promise<string> {
+  const admin = createSupabaseAdminClient();
+  const email = `${emailHint}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}@rls.test`;
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    password: "test-pw-9f7a3c",
+  });
+  if (error || !data.user) throw new Error(`createUser: ${error?.message}`);
+  return data.user.id;
+}
+
+describe("event_requests RLS", () => {
   let restaurantId = "";
   let ownerId = "";
   let strangerId = "";
@@ -52,19 +52,25 @@ describe.skip("event_requests RLS", () => {
   let eventRequestId = "";
 
   beforeAll(async () => {
-    ownerId = crypto.randomUUID();
-    strangerId = crypto.randomUUID();
-    requesterId = crypto.randomUUID();
-    await dbAdmin.insert(profiles).values([
-      { id: ownerId, role: "restaurant_owner", email: "o@t.co" },
-      { id: strangerId, role: "consumer", email: "s@t.co" },
-      { id: requesterId, role: "consumer", email: "r@t.co" },
+    [ownerId, strangerId, requesterId] = await Promise.all([
+      seedAuthUser("owner"),
+      seedAuthUser("stranger"),
+      seedAuthUser("requester"),
     ]);
     await dbAdmin
+      .update(profiles)
+      .set({ role: "restaurant_owner" })
+      .where(eq(profiles.id, ownerId));
+
+    await dbAdmin
       .insert(cities)
-      .values({ slug: "rls", name: "R", countryCode: "RO" })
+      .values({ slug: "rls-city", name: "RLS", countryCode: "RO" })
       .onConflictDoNothing();
-    const [c] = await dbAdmin.select().from(cities).limit(1);
+    const [c] = await dbAdmin
+      .select()
+      .from(cities)
+      .where(eq(cities.slug, "rls-city"))
+      .limit(1);
     const [r] = await dbAdmin
       .insert(restaurants)
       .values({
@@ -77,45 +83,81 @@ describe.skip("event_requests RLS", () => {
       })
       .returning();
     restaurantId = r.id;
+
     const [er] = await dbAdmin
       .insert(eventRequests)
       .values({
         restaurantId,
         guestName: "X",
-        guestEmail: "r@t.co",
+        guestEmail: "requester@t.co",
         occasion: "wedding",
         eventDate: "2026-08-01",
         partySize: 30,
-        trackingToken:
-          "rls_token_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         requestedByUserId: requesterId,
         status: "new",
+        trackingToken: randomBytes(32).toString("hex"),
       })
       .returning();
     eventRequestId = er.id;
     trackingToken = er.trackingToken;
   });
 
-  it.todo("owner can read their venue's event_requests");
-  it.todo("requester can read their own event_requests");
-  it.todo("stranger cannot read others' event_requests");
-  it.todo("anon can read via SECURITY DEFINER function with valid token");
-  it.todo("anon gets nothing with bad token");
+  it("owner can read their venue's event_requests", async () => {
+    const c = createClientForUser(ownerId);
+    const { data, error } = await c
+      .from("event_requests")
+      .select("id")
+      .eq("id", eventRequestId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+  });
 
-  // Once `createClientForUser` exists, replace the it.todo() entries with
-  // the bodies from
-  // docs/superpowers/plans/2026-05-13-corporate-bookings-phase-1-private-events.md
-  // Task 34, which look like:
-  //
-  //   it("owner can read their venue's event_requests", async () => {
-  //     const c = createClientForUser(ownerId);
-  //     const { data } = await c.from("event_requests").select("id").eq("id", eventRequestId);
-  //     expect(data).toHaveLength(1);
-  //   });
-  //
-  // (etc., one case per `it.todo()` above)
-  void restaurantId;
-  void strangerId;
-  void trackingToken;
-  void eventRequestId;
+  it("requester can read their own event_requests", async () => {
+    const c = createClientForUser(requesterId);
+    const { data, error } = await c
+      .from("event_requests")
+      .select("id")
+      .eq("id", eventRequestId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+  });
+
+  it("stranger cannot read others' event_requests", async () => {
+    const c = createClientForUser(strangerId);
+    const { data } = await c
+      .from("event_requests")
+      .select("id")
+      .eq("id", eventRequestId);
+    expect(data ?? []).toHaveLength(0);
+  });
+
+  it("anon cannot select event_requests directly", async () => {
+    const c = createClientForUser(null);
+    const { data } = await c
+      .from("event_requests")
+      .select("id")
+      .eq("id", eventRequestId);
+    expect(data ?? []).toHaveLength(0);
+  });
+
+  it("anon can fetch via SECURITY DEFINER RPC with a valid token", async () => {
+    const c = createClientForUser(null);
+    const { data, error } = await c.rpc("get_event_request_by_token", {
+      p_token: trackingToken,
+    });
+    expect(error).toBeNull();
+    expect(data).toBeTruthy();
+    const rows = Array.isArray(data) ? data : [data];
+    expect(rows[0]?.id).toBe(eventRequestId);
+  });
+
+  it("anon gets nothing via RPC with a bad token", async () => {
+    const c = createClientForUser(null);
+    const { data, error } = await c.rpc("get_event_request_by_token", {
+      p_token: "no_such_token_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(error).toBeNull();
+    const rows = Array.isArray(data) ? data : data ? [data] : [];
+    expect(rows).toHaveLength(0);
+  });
 });

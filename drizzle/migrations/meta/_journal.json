@@ -64,6 +64,13 @@
       "when": 1779041833806,
       "tag": "0008_corporate_foundations",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779049000000,
+      "tag": "0009_fix_company_members_rls_recursion",
+      "breakpoints": true
     }
   ]
 }
