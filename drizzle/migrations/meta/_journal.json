@@ -57,6 +57,13 @@
       "when": 1778104986576,
       "tag": "0007_reviews_snapshot_context",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779041833806,
+      "tag": "0008_corporate_foundations",
+      "breakpoints": true
     }
   ]
 }
