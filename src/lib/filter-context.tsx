@@ -16,7 +16,6 @@ export interface FilterState {
   neighborhoods: string[];
   minRating: number; // 0=any, 3, 4, 4.5, 5
   searchQuery: string;
-  capabilities: CapabilityFilter[];
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -26,7 +25,6 @@ const DEFAULT_FILTERS: FilterState = {
   neighborhoods: [],
   minRating: 0,
   searchQuery: "",
-  capabilities: [],
 };
 
 interface FilterContextValue {
@@ -36,7 +34,6 @@ interface FilterContextValue {
     key: "cuisines" | "priceRange" | "neighborhoods",
     value: string | number,
   ) => void;
-  toggleCapability: (key: CapabilityFilter) => void;
   resetFilters: () => void;
   activeFilterCount: number;
   applyFilters: (restaurants: Restaurant[]) => Restaurant[];
@@ -68,17 +65,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const toggleCapability = useCallback((key: CapabilityFilter) => {
-    setFilters((prev) => {
-      const arr = prev.capabilities ?? [];
-      const exists = arr.includes(key);
-      return {
-        ...prev,
-        capabilities: exists ? arr.filter((v) => v !== key) : [...arr, key],
-      };
-    });
-  }, []);
-
   const resetFilters = useCallback(() => {
     setFilters({ ...DEFAULT_FILTERS });
   }, []);
@@ -91,7 +77,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     count += filters.neighborhoods.length;
     if (filters.minRating > 0) count++;
     if (filters.searchQuery.length > 0) count++;
-    count += filters.capabilities?.length ?? 0;
     return count;
   }, [filters]);
 
@@ -146,7 +131,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       filters,
       setFilter,
       toggleArrayFilter,
-      toggleCapability,
       resetFilters,
       activeFilterCount,
       applyFilters,
@@ -155,7 +139,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       filters,
       setFilter,
       toggleArrayFilter,
-      toggleCapability,
       resetFilters,
       activeFilterCount,
       applyFilters,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Pill } from "@/components/pill";
 import { PillPopover } from "@/components/pill-popover";
@@ -32,10 +33,18 @@ export function FilterPillBar({
     filters,
     setFilter,
     toggleArrayFilter,
-    toggleCapability,
     resetFilters,
     activeFilterCount,
   } = useFilters();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams<{ city?: string }>();
+  const citySlug = params?.city;
+  // Capability pills navigate to the dedicated capability route on click.
+  // Active state is derived from the URL — no client-side filter state.
+  const eventsActive = pathname?.endsWith("/events") ?? false;
+  const goToCity = () => citySlug && router.push(`/${citySlug}`);
+  const goToEvents = () => citySlug && router.push(`/${citySlug}/events`);
 
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
   const priceBtnRef = useRef<HTMLButtonElement>(null);
@@ -115,18 +124,8 @@ export function FilterPillBar({
 
         <Pill
           label="Eveniment privat"
-          active={filters.capabilities?.includes("events") ?? false}
-          onToggle={() => toggleCapability("events")}
-        />
-        <Pill
-          label="Cină corporate"
-          active={filters.capabilities?.includes("corporate_meals") ?? false}
-          onToggle={() => toggleCapability("corporate_meals")}
-        />
-        <Pill
-          label="Rezervare recurentă"
-          active={filters.capabilities?.includes("standing") ?? false}
-          onToggle={() => toggleCapability("standing")}
+          active={eventsActive}
+          onToggle={() => (eventsActive ? goToCity() : goToEvents())}
         />
 
         {injectedPills?.map((pill) => (

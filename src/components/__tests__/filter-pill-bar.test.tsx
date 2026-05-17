@@ -4,6 +4,12 @@ import { FilterPillBar } from "../filter-pill-bar";
 import { FilterProvider, useFilters } from "@/lib/filter-context";
 import { getRestaurants } from "@/lib/mock-data";
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn() }),
+  usePathname: () => "/test-city",
+  useParams: () => ({ city: "test-city" }),
+}));
+
 let latestCtx: ReturnType<typeof useFilters>;
 function CtxSpy() {
   latestCtx = useFilters();
