@@ -13,6 +13,7 @@ import {
   CalendarCog,
   Eye,
   Briefcase,
+  DoorOpen,
   LogOut,
   Menu,
   X,
@@ -27,7 +28,8 @@ const NAV = [
   { href: "/partner/menu", label: "Meniu", icon: BookOpen, exact: false },
   { href: "/partner/availability", label: "Disponibilitate", icon: CalendarCog, exact: false },
   { href: "/partner/reservations", label: "Rezervări", icon: Calendar, exact: false },
-  { href: "/partner/corporate", label: "Corporate", icon: Briefcase, exact: false },
+  { href: "/partner/corporate", label: "Corporate", icon: Briefcase, exact: true },
+  { href: "/partner/corporate/spaces", label: "Spații", icon: DoorOpen, exact: false },
   { href: "/partner/preview", label: "Previzualizare", icon: Eye, exact: false },
 ];
 
