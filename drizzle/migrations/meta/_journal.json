@@ -71,6 +71,13 @@
       "when": 1779049000000,
       "tag": "0009_fix_company_members_rls_recursion",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779054147898,
+      "tag": "0010_private_spaces_and_quote_lines",
+      "breakpoints": true
     }
   ]
 }
