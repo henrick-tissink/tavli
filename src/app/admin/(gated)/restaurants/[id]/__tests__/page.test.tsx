@@ -3,6 +3,10 @@ import { render, screen } from "@testing-library/react";
 jest.mock("@/lib/db/server", () => ({
   createSupabaseServerClient: jest.fn(),
 }));
+jest.mock("../actions", () => ({
+  suspendRestaurant: jest.fn(),
+  unsuspendRestaurant: jest.fn(),
+}));
 
 import AdminRestaurantDetailPage from "../page";
 import { createSupabaseServerClient } from "@/lib/db/server";

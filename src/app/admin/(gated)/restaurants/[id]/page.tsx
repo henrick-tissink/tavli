@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCuisines } from "@/lib/types";
+import { suspendRestaurant, unsuspendRestaurant } from "./actions";
 
 const STATUS_LABEL: Record<string, string> = {
   live: "Live",
@@ -89,14 +90,41 @@ export default async function AdminRestaurantDetailPage({
             </span>
           </div>
         </div>
-        {publicHref && (
-          <Link
-            href={publicHref}
-            className="text-sm font-semibold text-brand-primary"
-          >
-            View public page →
-          </Link>
-        )}
+        <div className="flex flex-col items-end gap-2">
+          {publicHref && (
+            <Link
+              href={publicHref}
+              className="text-sm font-semibold text-brand-primary"
+            >
+              View public page →
+            </Link>
+          )}
+          {restaurant.status === "suspended" ? (
+            <form action={async () => {
+              "use server";
+              await unsuspendRestaurant(restaurant.id);
+            }}>
+              <button
+                type="submit"
+                className="text-xs font-semibold px-3 py-1.5 rounded bg-brand-primary text-white hover:opacity-90"
+              >
+                Unsuspend
+              </button>
+            </form>
+          ) : (
+            <form action={async () => {
+              "use server";
+              await suspendRestaurant(restaurant.id);
+            }}>
+              <button
+                type="submit"
+                className="text-xs font-semibold px-3 py-1.5 rounded bg-red-600 text-white hover:opacity-90"
+              >
+                Suspend
+              </button>
+            </form>
+          )}
+        </div>
       </header>
 
       <dl className="bg-surface-white rounded-card border border-border divide-y divide-border">
