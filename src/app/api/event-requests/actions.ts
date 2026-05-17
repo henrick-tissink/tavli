@@ -140,12 +140,22 @@ async function assertPartnerOwns(
     .limit(1);
   if (!er) throw new Error("not found");
   const [r] = await dbAdmin
-    .select({ ownerUserId: restaurants.ownerUserId })
+    .select({
+      ownerUserId: restaurants.ownerUserId,
+      status: restaurants.status,
+    })
     .from(restaurants)
     .where(eq(restaurants.id, er.restaurantId))
     .limit(1);
   if (r?.ownerUserId !== session.userId) {
     throw new Error("forbidden: not the owner");
+  }
+  if (r.status === "suspended") {
+    // Refuse all partner transitions while suspended. The proper cascade
+    // (auto-decline outstanding requests on suspend) will land with the
+    // admin suspend mutation; this guard prevents a suspended venue from
+    // continuing to transact in the meantime.
+    throw new Error("forbidden: restaurant suspended");
   }
   return { userId: session.userId, restaurantId: er.restaurantId };
 }
@@ -330,6 +340,19 @@ export async function materializeAcceptedEventRequest(
   const reservationIds: string[] = [];
 
   await dbAdmin.transaction(async (tx) => {
+    // Idempotency: reject if reservations have already been materialized for
+    // this event request. The whole_venue path is also guarded by the unique
+    // availability-exception, but private_room has no such guard — without
+    // this check, a double-click would insert duplicate reservations.
+    const existing = await tx
+      .select({ id: reservations.id })
+      .from(reservations)
+      .where(eq(reservations.eventRequestId, data.id))
+      .limit(1);
+    if (existing.length > 0) {
+      throw new Error("reservations already materialized");
+    }
+
     for (const slot of data.slots) {
       const [row] = await tx
         .insert(reservations)

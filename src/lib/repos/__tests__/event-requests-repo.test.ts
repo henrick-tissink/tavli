@@ -16,8 +16,16 @@ import {
   getByTrackingToken,
   findOverlappingReservations,
 } from "../event-requests-repo";
-import { restaurants, cities, profiles } from "@/lib/db/schema";
+import {
+  restaurants,
+  cities,
+  profiles,
+  reservations,
+  availabilityExceptions,
+  restaurantAvailability,
+} from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
 
 async function seedRestaurant() {
   await dbAdmin.insert(cities).values({ slug: "test-city", name: "Test", countryCode: "RO" }).onConflictDoNothing();
@@ -93,10 +101,63 @@ describe("event-requests-repo", () => {
     expect(q.quotedAmountCents).toBe(50000);
   });
 
-  it("getByTrackingToken uses the SECURITY DEFINER RPC and skips drafts", async () => {
+  it("cancel from 'accepted' cascades to reservations and availability exceptions", async () => {
+    const r = await seedRestaurant();
+    const profile = await seedConsumerProfile("cancel-cascade");
+    const er = await createEventRequestDraft({
+      restaurantId: r.id, guestName: "Carl", guestEmail: "carl@t.co",
+      occasion: "wedding", eventDate: "2026-09-15", partySize: 50,
+    });
+    await promoteDraftToNew(er.id, profile.id);
+    await markViewing(er.id);
+    await sendQuote(er.id, { amountCents: 100000, expiresAt: new Date(Date.now() + 7 * 86400_000) });
+    await acceptQuote(er.id);
+    // 2026-09-15 is a Tuesday (dow=2). Seed availability so the capacity
+    // trigger lets the reservation insert succeed.
+    await dbAdmin.insert(restaurantAvailability).values({
+      restaurantId: r.id,
+      dayOfWeek: 2,
+      slotStart: "18:00:00",
+      slotEnd: "23:00:00",
+      capacity: 200,
+    });
+    // Simulate materialization: a reservation + a whole-venue availability exception.
+    const [resv] = await dbAdmin.insert(reservations).values({
+      restaurantId: r.id,
+      guestName: er.guestName,
+      guestPhone: "",
+      guestEmail: er.guestEmail,
+      partySize: 50,
+      reservationDate: er.eventDate,
+      reservationTime: "19:00:00",
+      status: "confirmed",
+      confirmationToken: randomBytes(32).toString("hex"),
+      bookingType: "private_event",
+      eventRequestId: er.id,
+    }).returning();
+    const [exc] = await dbAdmin.insert(availabilityExceptions).values({
+      restaurantId: r.id,
+      exceptionDate: er.eventDate,
+      slotStart: null,
+      slotEnd: null,
+      overrideCapacity: 0,
+      reason: `whole-venue event ${er.id}`,
+      sourceEventRequestId: er.id,
+    }).returning();
+
+    const cancelled = await cancel(er.id);
+    expect(cancelled.status).toBe("cancelled");
+
+    const [resvAfter] = await dbAdmin.select().from(reservations).where(eq(reservations.id, resv.id));
+    expect(resvAfter.status).toBe("cancelled");
+    const excAfter = await dbAdmin.select().from(availabilityExceptions).where(eq(availabilityExceptions.id, exc.id));
+    expect(excAfter).toHaveLength(0);
+  });
+
+  it("getByTrackingToken returns camelCase fields and skips drafts", async () => {
     const r = await seedRestaurant();
     const er = await createEventRequestDraft({
-      restaurantId: r.id, guestName: "A", guestEmail: "a@b.co",
+      restaurantId: r.id, guestName: "Alice", guestEmail: "a@b.co",
       occasion: "wedding", eventDate: "2026-08-01", partySize: 20,
     });
     expect(await getByTrackingToken(er.trackingToken)).toBeNull();
@@ -104,5 +165,12 @@ describe("event-requests-repo", () => {
     await promoteDraftToNew(er.id, profile.id);
     const found = await getByTrackingToken(er.trackingToken);
     expect(found?.id).toBe(er.id);
+    // Drizzle must map snake_case columns to camelCase — the consumer
+    // tracking page reads these fields directly.
+    expect(found?.guestName).toBe("Alice");
+    expect(found?.eventDate).toBe("2026-08-01");
+    expect(found?.partySize).toBe(20);
+    expect(found?.trackingToken).toBe(er.trackingToken);
+    expect(found?.requestedByUserId).toBe(profile.id);
   });
 });
