@@ -46,3 +46,5 @@ ialoc-*.png
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+test-results/
+playwright-report/
