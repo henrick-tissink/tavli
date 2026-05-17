@@ -84,6 +84,47 @@ export const dietaryTag = pgEnum("dietary_tag", [
 
 export const currencyCode = pgEnum("currency_code", ["lei", "TRY", "EUR"]);
 
+export const companyStatus = pgEnum("company_status", [
+  "pending_verification",
+  "active",
+  "suspended",
+]);
+
+export const companyMemberRole = pgEnum("company_member_role", [
+  "owner",
+  "admin",
+  "booker",
+  "viewer",
+]);
+
+export const eventOccasion = pgEnum("event_occasion", [
+  "wedding",
+  "birthday",
+  "corporate_dinner",
+  "product_launch",
+  "other",
+]);
+
+export const eventRequestStatus = pgEnum("event_request_status", [
+  "draft",
+  "new",
+  "viewing",
+  "replied",
+  "quoted",
+  "accepted",
+  "declined",
+  "expired_quote",
+  "cancelled",
+  "expired",
+  "completed",
+]);
+
+export const bookingType = pgEnum("booking_type", [
+  "standard",
+  "private_event",
+  "standing",
+]);
+
 // ─── profiles (extends auth.users 1:1) ───────────────────────────────────
 export const profiles = pgTable("profiles", {
   id: uuid("id")
@@ -140,6 +181,10 @@ export const restaurants = pgTable("restaurants", {
   voteCount: integer("vote_count").notNull().default(0),
   photoCount: integer("photo_count").notNull().default(0),
   schedule: jsonb("schedule").$type<ScheduleEntry[]>().notNull().default([]),
+  eventsIntakeEnabled: boolean("events_intake_enabled").notNull().default(false),
+  acceptsCorporateMeals: boolean("accepts_corporate_meals").notNull().default(false),
+  acceptsStanding: boolean("accepts_standing").notNull().default(false),
+  proPlanActive: boolean("pro_plan_active").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -288,6 +333,10 @@ export const reservations = pgTable("reservations", {
     .unique(),
   cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
   cancelledReason: text("cancelled_reason"),
+  bookingType: bookingType("booking_type").notNull().default("standard"),
+  companyId: uuid("company_id").references(() => companies.id, { onDelete: "set null" }),
+  bookedByUserId: uuid("booked_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  eventRequestId: uuid("event_request_id").references(() => eventRequests.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   postVisitEmailSentAt: timestamp("post_visit_email_sent_at", {
     withTimezone: true,
@@ -347,4 +396,151 @@ export const reviews = pgTable("reviews", {
     .defaultNow(),
 }, (t) => [
   index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
+]);
+
+// ─── companies ──────────────────────────────────────────────────────────
+export const companies = pgTable("companies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  legalName: text("legal_name"),
+  cui: varchar("cui", { length: 20 }).notNull().unique(),
+  regCom: varchar("reg_com", { length: 40 }),
+  billingAddress: text("billing_address"),
+  billingCity: text("billing_city"),
+  billingCountry: varchar("billing_country", { length: 2 }).notNull().default("RO"),
+  vatPayer: boolean("vat_payer").notNull().default(false),
+  efacturaEnabled: boolean("efactura_enabled").notNull().default(true),
+  primaryContactEmail: varchar("primary_contact_email", { length: 255 }),
+  primaryContactPhone: varchar("primary_contact_phone", { length: 32 }),
+  status: companyStatus("status").notNull().default("pending_verification"),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  verifiedByUserId: uuid("verified_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("companies_status_idx").on(t.status),
+]);
+
+// ─── company_members ────────────────────────────────────────────────────
+export const companyMembers = pgTable("company_members", {
+  companyId: uuid("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  role: companyMemberRole("role").notNull().default("booker"),
+  budgetMonthlyCents: integer("budget_monthly_cents"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.companyId, t.userId] }),
+  index("company_members_user_idx").on(t.userId),
+]);
+
+// ─── company_invitations ────────────────────────────────────────────────
+// Sibling of existing `invitations` (restaurant-ownership specific). Kept
+// separate because the domains are different and a generic table would
+// muddy semantics.
+export const companyInvitations = pgTable("company_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 255 }).notNull(),
+  role: companyMemberRole("role").notNull().default("booker"),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+  invitedByUserId: uuid("invited_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  status: invitationStatus("status").notNull().default("pending"),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  claimedByUserId: uuid("claimed_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("company_invitations_company_idx").on(t.companyId),
+  index("company_invitations_email_status_idx").on(t.email, t.status),
+]);
+
+// ─── event_requests ─────────────────────────────────────────────────────
+// Phase 1 negotiation object. Separate from `reservations` because the
+// shape of a quote/decline/thread negotiation differs from a confirmed
+// booking. On acceptance the partner materializes one or more reservation
+// rows referencing back via `event_request_id`.
+export const eventRequests = pgTable("event_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  companyId: uuid("company_id").references(() => companies.id, { onDelete: "set null" }),
+  claimedCompanyCui: varchar("claimed_company_cui", { length: 20 }),
+  claimedCompanyName: text("claimed_company_name"),
+  requestedByUserId: uuid("requested_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  guestName: text("guest_name").notNull(),
+  guestEmail: varchar("guest_email", { length: 255 }).notNull(),
+  guestPhone: varchar("guest_phone", { length: 32 }),
+  occasion: eventOccasion("occasion").notNull(),
+  eventDate: date("event_date").notNull(),
+  eventTimePreference: text("event_time_preference"),
+  partySize: smallint("party_size").notNull(),
+  spacePreference: text("space_preference"),
+  budgetPerHeadCents: integer("budget_per_head_cents"),
+  menuPreference: text("menu_preference"),
+  dietaryNotes: text("dietary_notes"),
+  additionalNotes: text("additional_notes"),
+  status: eventRequestStatus("status").notNull().default("draft"),
+  partnerResponse: text("partner_response"),
+  quotedAmountCents: integer("quoted_amount_cents"),
+  quotedAt: timestamp("quoted_at", { withTimezone: true }),
+  quoteExpiresAt: timestamp("quote_expires_at", { withTimezone: true }),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  declinedAt: timestamp("declined_at", { withTimezone: true }),
+  cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  declineReason: text("decline_reason"),
+  trackingToken: varchar("tracking_token", { length: 64 }).notNull().unique(),
+  lastNudgeAt: timestamp("last_nudge_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("event_requests_restaurant_status_idx").on(t.restaurantId, t.status),
+  index("event_requests_status_created_idx").on(t.status, t.createdAt),
+  index("event_requests_user_idx").on(t.requestedByUserId),
+  index("event_requests_company_idx").on(t.companyId),
+  index("event_requests_claim_idx").on(t.claimedCompanyCui),
+]);
+
+// ─── restaurant_event_settings ──────────────────────────────────────────
+// 1:1 with restaurants when events_intake_enabled=true. Policy config.
+export const restaurantEventSettings = pgTable("restaurant_event_settings", {
+  restaurantId: uuid("restaurant_id").primaryKey().references(() => restaurants.id, { onDelete: "cascade" }),
+  minPartySize: smallint("min_party_size"),
+  maxPartySize: smallint("max_party_size"),
+  minLeadDays: smallint("min_lead_days").notNull().default(7),
+  acceptedOccasions: eventOccasion("accepted_occasions").array().notNull().default([]).$type<Array<"wedding"|"birthday"|"corporate_dinner"|"product_launch"|"other">>(),
+  budgetPerHeadGuidance: text("budget_per_head_guidance"),
+  autoReplyTemplate: text("auto_reply_template"),
+  blackoutDates: jsonb("blackout_dates").$type<Array<{ start: string; end: string }>>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ─── availability_exceptions ────────────────────────────────────────────
+// One-off date overrides to the weekday-rule `restaurant_availability`.
+// override_capacity=0 blocks the slot entirely; >0 replaces the default.
+export const availabilityExceptions = pgTable("availability_exceptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  exceptionDate: date("exception_date").notNull(),
+  slotStart: time("slot_start"),
+  slotEnd: time("slot_end"),
+  overrideCapacity: integer("override_capacity").notNull(),
+  reason: text("reason"),
+  sourceEventRequestId: uuid("source_event_request_id").references(() => eventRequests.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("availability_exceptions_restaurant_date_idx").on(t.restaurantId, t.exceptionDate),
+]);
+
+// ─── partner_notifications ──────────────────────────────────────────────
+// Lightweight bell-icon surface. Polled, not realtime, for v1.
+export const partnerNotifications = pgTable("partner_notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  kind: varchar("kind", { length: 40 }).notNull(),
+  payload: jsonb("payload").notNull().default({}),
+  readAt: timestamp("read_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("partner_notifications_restaurant_unread_idx").on(t.restaurantId, t.readAt, t.createdAt),
 ]);

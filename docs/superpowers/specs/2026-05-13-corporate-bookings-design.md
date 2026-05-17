@@ -1,7 +1,7 @@
 # Corporate Bookings — Design Spec
 
 **Date:** 2026-05-13
-**Status:** Brainstorm complete; awaiting user review before implementation-plan phase.
+**Status:** Phase 1 implementation plan written at `docs/superpowers/plans/2026-05-13-corporate-bookings-phase-1-private-events.md`. Phase 1 implementation in progress on branch `feat/corporate-bookings-phase-1`. Phases 2–4 plans pending.
 **Anchor:** First-class "corporate" capability surface on top of today's guest-only reservation primitive.
 
 ## Goal

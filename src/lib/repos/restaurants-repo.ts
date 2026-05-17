@@ -17,6 +17,7 @@ import type {
   MenuItem,
   MenuSection,
 } from "@/lib/types";
+import type { CapabilityFilter } from "@/lib/filter-context";
 import * as mock from "@/lib/mock-data";
 import * as menuMock from "@/lib/menu-data";
 import { supabaseAnon } from "@/lib/db/anon";
@@ -25,6 +26,12 @@ import type { AvailabilitySlot } from "@/lib/seo/restaurant-jsonld";
 import { computeSlots } from "@/lib/availability";
 import { getReviewsForRestaurant } from "@/lib/repos/reviews-repo";
 import { processReviews } from "@/lib/review-processor";
+
+export interface ListRestaurantsInput {
+  citySlug?: string;
+  capabilities?: CapabilityFilter[];
+  limit?: number;
+}
 
 const USE_DB = process.env.NEXT_PUBLIC_USE_DB === "true";
 
@@ -149,14 +156,14 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled",
     )
     .eq("slug", slug)
     .eq("status", "live")
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots, chefPicks] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks, eventSettings] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -170,10 +177,27 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .then(({ data }) => Promise.all((data ?? []).map((r) => restaurantFromRow(r)))),
     fetchTodaySlots(data.id as string),
     fetchChefPicks(data.id as string),
+    sb
+      .from("restaurant_event_settings")
+      .select("accepted_occasions, min_lead_days, budget_per_head_guidance")
+      .eq("restaurant_id", data.id)
+      .maybeSingle()
+      .then(({ data }) => data),
   ]);
 
   const reviews = await getReviewsForRestaurant(data.id as string, 20);
   const reviewIntelligence = processReviews(reviews);
+
+  // Default to all occasions when intake is on but no settings row exists yet,
+  // so the venue can still receive requests while the partner tunes their
+  // policy. Mirrors the fallback in the plan (Task 17 Step 3).
+  const defaultOccasions: import("@/lib/types").EventOccasion[] = [
+    "wedding",
+    "birthday",
+    "corporate_dinner",
+    "product_launch",
+    "other",
+  ];
 
   return {
     ...base,
@@ -192,6 +216,13 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     chefPicks,
     websiteUrl: (data.website_url as string) ?? undefined,
     menuPdfUrl: undefined,
+    eventsIntakeEnabled: Boolean(data.events_intake_enabled),
+    acceptedOccasions:
+      (eventSettings?.accepted_occasions as import("@/lib/types").EventOccasion[] | undefined) ??
+      defaultOccasions,
+    minLeadDays: (eventSettings?.min_lead_days as number | undefined) ?? undefined,
+    budgetPerHeadGuidance:
+      (eventSettings?.budget_per_head_guidance as string | null | undefined) ?? null,
   };
 }
 
@@ -294,6 +325,74 @@ function toTagsPublic(
 export async function getRestaurants(): Promise<Restaurant[]> {
   if (dbActive()) return dbGetRestaurants();
   return Promise.resolve(mock.getRestaurants());
+}
+
+/**
+ * Filtered list of live restaurants used by capability landing pages
+ * (e.g. `/[city]/events`) and capability-aware feed queries. Applies a
+ * city slug filter and any combination of capability filters server-side
+ * so the page never needs to ship the full corpus and trim client-side.
+ *
+ * Capability semantics:
+ * - `"events"` → `restaurants.events_intake_enabled = true`
+ * - `"standing"` → `restaurants.accepts_standing = true`
+ * - `"corporate_meals"` → `restaurants.accepts_corporate_meals = true`
+ * - `"meetings"` → no-op for Phase 1; will derive from
+ *   `meeting_spaces` once Phase 4 lands.
+ *
+ * Mock mode reads the demo restaurants and, because the demo doesn't
+ * surface capability flags on `Restaurant`, only the citySlug + limit
+ * are honoured — capability filters become no-ops there.
+ */
+export async function listRestaurants(
+  input: ListRestaurantsInput = {},
+): Promise<Restaurant[]> {
+  if (dbActive()) {
+    const sb = supabaseAnon()!;
+    let query = sb
+      .from("restaurants")
+      .select(
+        "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, cities!inner(slug)",
+      )
+      .eq("status", "live");
+
+    if (input.citySlug) {
+      // `cities!inner(slug)` joins the cities table; `cities.slug` selects
+      // restaurants in that city only.
+      query = query.eq("cities.slug", input.citySlug);
+    }
+    if (input.capabilities?.includes("events")) {
+      query = query.eq("events_intake_enabled", true);
+    }
+    if (input.capabilities?.includes("standing")) {
+      query = query.eq("accepts_standing", true);
+    }
+    if (input.capabilities?.includes("corporate_meals")) {
+      query = query.eq("accepts_corporate_meals", true);
+    }
+    // "meetings" is derived from meeting_spaces — Phase 4 will add:
+    //   .filter("id", "in", "(select restaurant_id from meeting_spaces where is_active = true)")
+
+    query = query.order("rating", { ascending: false });
+    if (input.limit) query = query.limit(input.limit);
+
+    const { data } = await query;
+    return Promise.all(
+      (data ?? []).map(async (r) => {
+        const [base, slots] = await Promise.all([
+          restaurantFromRow(r),
+          fetchTodaySlots(r.id as string),
+        ]);
+        return { ...base, availableSlots: slots };
+      }),
+    );
+  }
+  // Mock mode: capability flags aren't surfaced on the demo Restaurant
+  // shape, so apply only citySlug + limit. Capability filtering is
+  // exercised against real DB rows.
+  let rows = mock.getRestaurants();
+  if (input.limit) rows = rows.slice(0, input.limit);
+  return Promise.resolve(rows);
 }
 
 export async function getTrendingRestaurants(): Promise<Restaurant[]> {

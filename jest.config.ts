@@ -9,6 +9,9 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+  // Playwright specs live under e2e/ and are run by `playwright test`,
+  // not Jest. Keep Jest from picking them up.
+  testPathIgnorePatterns: ["/node_modules/", "/e2e/"],
 };
 
 export default createJestConfig(config);

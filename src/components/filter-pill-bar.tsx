@@ -32,6 +32,7 @@ export function FilterPillBar({
     filters,
     setFilter,
     toggleArrayFilter,
+    toggleCapability,
     resetFilters,
     activeFilterCount,
   } = useFilters();
@@ -110,6 +111,22 @@ export function FilterPillBar({
           label="Deschis acum"
           active={filters.openNow}
           onToggle={() => setFilter("openNow", !filters.openNow)}
+        />
+
+        <Pill
+          label="Eveniment privat"
+          active={filters.capabilities?.includes("events") ?? false}
+          onToggle={() => toggleCapability("events")}
+        />
+        <Pill
+          label="Cină corporate"
+          active={filters.capabilities?.includes("corporate_meals") ?? false}
+          onToggle={() => toggleCapability("corporate_meals")}
+        />
+        <Pill
+          label="Rezervare recurentă"
+          active={filters.capabilities?.includes("standing") ?? false}
+          onToggle={() => toggleCapability("standing")}
         />
 
         {injectedPills?.map((pill) => (

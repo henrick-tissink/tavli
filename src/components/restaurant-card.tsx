@@ -14,6 +14,13 @@ interface RestaurantCardProps {
   onSave?: (id: string) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
   onClick?: (restaurant: Restaurant) => void;
+  /**
+   * When set on a capability landing page (e.g. `/[city]/events`), the
+   * card surfaces a small chip near the title so the user can confirm at
+   * a glance why this venue is in the filtered listing. Defaults to off
+   * so the discovery feed stays uncluttered.
+   */
+  highlightCapability?: "events" | "meetings" | "standing" | "corporate_meals";
 }
 
 export function RestaurantCard({
@@ -22,6 +29,7 @@ export function RestaurantCard({
   onSave,
   onSlotSelect,
   onClick,
+  highlightCapability,
 }: RestaurantCardProps) {
   const isClosed = restaurant.status === "closed";
 
@@ -102,9 +110,16 @@ export function RestaurantCard({
       <div className="p-3 flex flex-col gap-1.5">
         {/* Row 1: Name + inline rating */}
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-text-primary truncate text-[17px]">
-            {restaurant.name}
-          </h3>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-bold text-text-primary truncate text-[17px]">
+              {restaurant.name}
+            </h3>
+            {highlightCapability === "events" && (
+              <span className="shrink-0 text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                Eveniment privat
+              </span>
+            )}
+          </div>
           <RatingChip
             rating={restaurant.rating}
             voteCount={restaurant.voteCount}

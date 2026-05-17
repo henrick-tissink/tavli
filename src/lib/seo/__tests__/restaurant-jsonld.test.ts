@@ -34,6 +34,8 @@ function makeDetail(overrides: Partial<RestaurantDetail> = {}): RestaurantDetail
     reviews: [],
     nearby: [],
     chefPicks: [],
+    eventsIntakeEnabled: false,
+    acceptedOccasions: [],
   };
   return { ...base, ...overrides };
 }

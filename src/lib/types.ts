@@ -134,6 +134,13 @@ export interface Menu {
   heroNote?: string;
 }
 
+export type EventOccasion =
+  | "wedding"
+  | "birthday"
+  | "corporate_dinner"
+  | "product_launch"
+  | "other";
+
 export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   lat: number | null;
   lng: number | null;
@@ -149,4 +156,8 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   chefPicks: MenuItem[];
   websiteUrl?: string;
   menuPdfUrl?: string;
+  eventsIntakeEnabled: boolean;
+  acceptedOccasions: EventOccasion[];
+  minLeadDays?: number;
+  budgetPerHeadGuidance?: string | null;
 }

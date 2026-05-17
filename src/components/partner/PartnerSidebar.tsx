@@ -12,6 +12,7 @@ import {
   Calendar,
   CalendarCog,
   Eye,
+  Briefcase,
   LogOut,
   Menu,
   X,
@@ -26,15 +27,21 @@ const NAV = [
   { href: "/partner/menu", label: "Meniu", icon: BookOpen, exact: false },
   { href: "/partner/availability", label: "Disponibilitate", icon: CalendarCog, exact: false },
   { href: "/partner/reservations", label: "Rezervări", icon: Calendar, exact: false },
+  { href: "/partner/corporate", label: "Corporate", icon: Briefcase, exact: false },
   { href: "/partner/preview", label: "Previzualizare", icon: Eye, exact: false },
 ];
 
 interface Props {
   restaurantName: string | null;
   userEmail: string | null;
+  openEventRequestsCount?: number;
 }
 
-export function PartnerSidebar({ restaurantName, userEmail }: Props) {
+export function PartnerSidebar({
+  restaurantName,
+  userEmail,
+  openEventRequestsCount = 0,
+}: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -78,6 +85,8 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
               ? pathname === item.href
               : pathname.startsWith(item.href);
             const Icon = item.icon;
+            const showBadge =
+              item.href === "/partner/corporate" && openEventRequestsCount > 0;
             return (
               <li key={item.href}>
                 <Link
@@ -89,7 +98,15 @@ export function PartnerSidebar({ restaurantName, userEmail }: Props) {
                   }`}
                 >
                   <Icon size={16} />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {showBadge && (
+                    <span
+                      aria-label={`${openEventRequestsCount} cereri deschise`}
+                      className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-brand-primary text-white text-[11px] font-semibold leading-none"
+                    >
+                      {openEventRequestsCount > 99 ? "99+" : openEventRequestsCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );
