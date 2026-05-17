@@ -55,7 +55,17 @@ export async function GET(req: NextRequest): Promise<Response> {
         .where(eq(eventRequests.trackingToken, token))
         .limit(1);
 
-      if (er && er.status === "draft") {
+      // Only promote when the authenticated user matches the draft's guest
+      // email. Without this, anyone holding the trackingToken (e.g. via a
+      // leaked URL) could claim the draft under their own auth.uid and gain
+      // RLS access to the request via the `requested_by_user_id = auth.uid()`
+      // policy.
+      const emailsMatch =
+        !!er &&
+        !!user.email &&
+        er.guestEmail.toLowerCase() === user.email.toLowerCase();
+
+      if (er && er.status === "draft" && emailsMatch) {
         const promoted = await promoteDraftToNew(er.id, user.id);
         await insertNotification({
           restaurantId: promoted.restaurantId,
