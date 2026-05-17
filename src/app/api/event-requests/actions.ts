@@ -236,7 +236,7 @@ export async function replyToEventRequest({
 
 const sendQuoteSchema = z.object({
   id: z.string().uuid(),
-  expiresAt: z.string(),
+  expiresAt: z.string().datetime(),
   lineItems: z
     .array(
       z.object({

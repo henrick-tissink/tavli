@@ -119,6 +119,10 @@ describe("submitEventRequestDraft", () => {
 });
 
 describe("sendQuoteForEventRequest", () => {
+  beforeEach(() => {
+    mockSession.mockReset();
+  });
+
   it("sendQuote persists line items and stores their total on the row", async () => {
     const { restaurant: r, ownerUserId } = await seedVenueWithOwner();
     mockSession.mockResolvedValue({ userId: ownerUserId } as Awaited<

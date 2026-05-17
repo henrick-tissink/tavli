@@ -65,6 +65,7 @@ export function QuoteForm({
           onChange={(e) => setPartnerResponse(e.target.value)}
           className="w-full mt-1 border rounded p-2"
           rows={3}
+          maxLength={2000}
         />
       </label>
       <div className="flex gap-2">
