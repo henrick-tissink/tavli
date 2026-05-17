@@ -423,6 +423,8 @@ See "Where new code lives" above for the inventory. Phase 1 ships the foundation
 
 ## Phase 2 — Corporate accounts
 
+> **Implementation plan for 2a:** [docs/superpowers/plans/2026-05-17-corporate-bookings-phase-2a-corporate-accounts.md](../plans/2026-05-17-corporate-bookings-phase-2a-corporate-accounts.md)
+
 ### 2a. Foundation (consumer-side dashboard)
 
 - **Signup wizard** at `/companies/new`: legal details (CUI lookup via `lib/integrations/anaf.ts` pre-fills name/legal_name/address/vat_payer), billing contact, invite team. Submit creates `companies` row in `pending_verification`.
