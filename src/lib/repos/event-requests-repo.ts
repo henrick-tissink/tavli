@@ -4,7 +4,7 @@ import {
   eventRequests,
   reservations,
 } from "@/lib/db/schema";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 
 type EventRequest = typeof eventRequests.$inferSelect;
@@ -175,8 +175,12 @@ export async function getByTrackingToken(token: string): Promise<EventRequest | 
 }
 
 export async function findOverlappingReservations(restaurantId: string, eventDate: string): Promise<typeof reservations.$inferSelect[]> {
+  // Only confirmed/seated/completed reservations count as "overlapping" — a
+  // cancelled or no_show row shouldn't inflate the partner-facing conflict
+  // count.
   return dbAdmin.select().from(reservations).where(and(
     eq(reservations.restaurantId, restaurantId),
     eq(reservations.reservationDate, eventDate),
+    inArray(reservations.status, ["confirmed", "seated", "completed"]),
   ));
 }
