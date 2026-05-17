@@ -1,5 +1,5 @@
 {
-  "id": "588f91f3-dbaa-4382-a758-203734fe1b6c",
+  "id": "850448a5-dc9f-46cd-b483-25afc45f2624",
   "prevId": "616c3d7f-dbac-406a-bbbb-af516699a601",
   "version": "7",
   "dialect": "postgresql",
@@ -1616,19 +1616,14 @@
               "nulls": "last"
             },
             {
-              "expression": "read_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
               "expression": "created_at",
               "isExpression": false,
-              "asc": true,
+              "asc": false,
               "nulls": "last"
             }
           ],
           "isUnique": false,
+          "where": "\"partner_notifications\".\"read_at\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}

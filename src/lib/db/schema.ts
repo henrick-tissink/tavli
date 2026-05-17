@@ -11,6 +11,7 @@
  *   single-subquery (see plan — cross-tenant trigger enforces integrity).
  */
 
+import { sql } from "drizzle-orm";
 import {
   pgEnum,
   pgSchema,
@@ -542,5 +543,7 @@ export const partnerNotifications = pgTable("partner_notifications", {
   readAt: timestamp("read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("partner_notifications_restaurant_unread_idx").on(t.restaurantId, t.readAt, t.createdAt),
+  index("partner_notifications_restaurant_unread_idx")
+    .on(t.restaurantId, t.createdAt.desc())
+    .where(sql`${t.readAt} IS NULL`),
 ]);
