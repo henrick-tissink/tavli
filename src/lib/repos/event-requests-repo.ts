@@ -1,7 +1,10 @@
 import { dbAdmin } from "@/lib/db/admin";
-import { dbAnon } from "@/lib/db/anon";
-import { eventRequests, reservations } from "@/lib/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import {
+  availabilityExceptions,
+  eventRequests,
+  reservations,
+} from "@/lib/db/schema";
+import { and, eq, ne } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 
 type EventRequest = typeof eventRequests.$inferSelect;
@@ -118,16 +121,57 @@ export async function declineQuote(id: string, reason?: string): Promise<EventRe
 }
 
 export async function cancel(id: string): Promise<EventRequest> {
-  return transitionTo(id, "cancelled", { cancelledAt: new Date() });
+  // If cancelling from `accepted`, reservations may already have been
+  // materialized and a whole-venue availability exception may exist. Cancel
+  // them in the same transaction so a "cancelled" event-request doesn't keep
+  // holding the venue or counting against capacity.
+  return dbAdmin.transaction(async (tx) => {
+    const [current] = await tx
+      .select()
+      .from(eventRequests)
+      .where(eq(eventRequests.id, id))
+      .limit(1);
+    if (!current) throw new Error(`event_request ${id} not found`);
+    assertTransition(current.status, "cancelled");
+    const updated = await tx
+      .update(eventRequests)
+      .set({ status: "cancelled", cancelledAt: new Date() })
+      .where(and(eq(eventRequests.id, id), eq(eventRequests.status, current.status)))
+      .returning();
+    if (updated.length === 0) {
+      throw new Error(`concurrent transition: ${id} status changed during cancel`);
+    }
+    if (current.status === "accepted") {
+      await tx
+        .update(reservations)
+        .set({ status: "cancelled" })
+        .where(and(
+          eq(reservations.eventRequestId, id),
+          ne(reservations.status, "cancelled"),
+        ));
+      await tx
+        .delete(availabilityExceptions)
+        .where(eq(availabilityExceptions.sourceEventRequestId, id));
+    }
+    return updated[0];
+  });
 }
 
 export async function getByTrackingToken(token: string): Promise<EventRequest | null> {
-  // Uses the SECURITY DEFINER RPC; anon client is enough.
-  // postgres-js `execute` returns an iterable RowList (rows are array-like
-  // on the result itself), not a `{ rows: [...] }` wrapper. Cast through
-  // unknown because Drizzle's typed return is opinionated about shape.
-  const result = (await dbAnon.execute(sql`SELECT * FROM get_event_request_by_token(${token})`)) as unknown as EventRequest[];
-  return result[0] ?? null;
+  // Server-side typed lookup — Drizzle maps snake_case columns to camelCase
+  // for us. A SECURITY DEFINER RPC (`get_event_request_by_token`) still
+  // exists in the migration for any future anon/PostgREST path, but here we
+  // already hold an admin connection so we filter the same way (token match,
+  // skip drafts) inline.
+  const [row] = await dbAdmin
+    .select()
+    .from(eventRequests)
+    .where(and(
+      eq(eventRequests.trackingToken, token),
+      ne(eventRequests.status, "draft"),
+    ))
+    .limit(1);
+  return row ?? null;
 }
 
 export async function findOverlappingReservations(restaurantId: string, eventDate: string): Promise<typeof reservations.$inferSelect[]> {
