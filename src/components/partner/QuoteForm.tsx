@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/button";
-import { quoteEventRequest } from "@/app/api/event-requests/actions";
+import { sendQuoteForEventRequest } from "@/app/api/event-requests/actions";
 
 export function QuoteForm({
   eventRequestId,
@@ -21,9 +21,12 @@ export function QuoteForm({
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
-          await quoteEventRequest({
+          await sendQuoteForEventRequest({
             id: eventRequestId,
-            amountCents: amountLei * 100,
+            // Task 21 will expose proper line-item composition in the UI; for
+            // now we ship a single "Total" line so the action's required
+            // shape stays satisfied without changing the form's surface.
+            lineItems: [{ label: "Total", amountCents: amountLei * 100 }],
             expiresAt: new Date(
               Date.now() + daysValid * 86_400_000,
             ).toISOString(),

@@ -5,10 +5,23 @@
 jest.mock("@/lib/auth/otp", () => ({
   sendOtp: jest.fn().mockResolvedValue({ ok: true }),
 }));
+jest.mock("@/lib/auth/session", () => ({
+  getCurrentSession: jest.fn(),
+}));
 
-import { submitEventRequestDraft } from "../actions";
-import { dbAdmin } from "@/lib/db/admin";
-import { restaurants, cities } from "@/lib/db/schema";
+import { submitEventRequestDraft, sendQuoteForEventRequest } from "../actions";
+import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
+import { restaurants, cities, eventRequests, profiles } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import {
+  createEventRequestDraft,
+  promoteDraftToNew,
+  markViewing,
+} from "@/lib/repos/event-requests-repo";
+import { listLineItems } from "@/lib/repos/quote-line-items-repo";
+import { getCurrentSession } from "@/lib/auth/session";
+
+const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
 async function seedR(overrides?: Partial<typeof restaurants.$inferInsert>) {
   await dbAdmin
@@ -28,6 +41,26 @@ async function seedR(overrides?: Partial<typeof restaurants.$inferInsert>) {
     })
     .returning();
   return r;
+}
+
+async function seedConsumerProfile(hint?: string): Promise<typeof profiles.$inferSelect> {
+  const admin = createSupabaseAdminClient();
+  const email = `${hint ?? "u"}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.co`;
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    password: "test-pw-9f7a3c",
+  });
+  if (error || !data.user) throw new Error(`createUser failed: ${error?.message}`);
+  const [row] = await dbAdmin.select().from(profiles).where(eq(profiles.id, data.user.id)).limit(1);
+  if (!row) throw new Error(`profile trigger did not fire for ${data.user.id}`);
+  return row;
+}
+
+async function seedVenueWithOwner() {
+  const owner = await seedConsumerProfile("owner");
+  const r = await seedR({ ownerUserId: owner.id });
+  return { restaurant: r, ownerUserId: owner.id };
 }
 
 describe("submitEventRequestDraft", () => {
@@ -82,5 +115,41 @@ describe("submitEventRequestDraft", () => {
       partySize: 10,
     });
     expect(b.trackingToken).toBe(a.trackingToken);
+  });
+});
+
+describe("sendQuoteForEventRequest", () => {
+  it("sendQuote persists line items and stores their total on the row", async () => {
+    const { restaurant: r, ownerUserId } = await seedVenueWithOwner();
+    mockSession.mockResolvedValue({ userId: ownerUserId } as Awaited<
+      ReturnType<typeof getCurrentSession>
+    >);
+    const er = await createEventRequestDraft({
+      restaurantId: r.id,
+      guestName: "G",
+      guestEmail: "g@t.co",
+      occasion: "wedding",
+      eventDate: "2026-09-15",
+      partySize: 20,
+    });
+    await promoteDraftToNew(er.id, (await seedConsumerProfile("ql")).id);
+    await markViewing(er.id);
+    await sendQuoteForEventRequest({
+      id: er.id,
+      expiresAt: new Date(Date.now() + 7 * 86400_000).toISOString(),
+      lineItems: [
+        { label: "Meniu standard", amountCents: 250_00 * 20 },
+        { label: "Welcome cocktail", amountCents: 25_00 * 20 },
+      ],
+      partnerResponse: "Mulțumim, atașat e meniul.",
+    });
+    const [row] = await dbAdmin
+      .select()
+      .from(eventRequests)
+      .where(eq(eventRequests.id, er.id));
+    expect(row.status).toBe("quoted");
+    expect(row.quotedAmountCents).toBe(275_00 * 20);
+    const lines = await listLineItems(er.id);
+    expect(lines).toHaveLength(2);
   });
 });
