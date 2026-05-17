@@ -45,6 +45,7 @@ const submitSchema = z.object({
   additionalNotes: z.string().max(1000).optional(),
   claimedCompanyCui: z.string().optional(),
   claimedCompanyName: z.string().max(240).optional(),
+  privateSpaceId: z.string().uuid().optional(),
 });
 
 export type SubmitEventRequestInput = z.infer<typeof submitSchema>;
@@ -116,6 +117,7 @@ export async function submitEventRequestDraft(
     additionalNotes: data.additionalNotes,
     claimedCompanyCui: claimedCui,
     claimedCompanyName: data.claimedCompanyName,
+    privateSpaceId: data.privateSpaceId,
   });
 
   await sendOtp({ email: data.guestEmail, redirectToToken: draft.trackingToken });
