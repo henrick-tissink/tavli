@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { useSaved } from "@/lib/saved-context";
 import { RestaurantCard } from "@/components/restaurant-card";
+import { EmptyState } from "@/components/empty-state";
 
 interface Props {
   city: string;
@@ -28,9 +29,12 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
           Locurile tale salvate
         </h2>
         {savedRestaurants.length === 0 ? (
-          <p className="text-sm text-text-secondary py-4 text-center">
-            Niciun restaurant salvat încă. Apasă pe inima oricărui restaurant pentru a-l salva.
-          </p>
+          <EmptyState
+            illustration="/illustrations/empty-saved.svg"
+            title="Niciun loc salvat"
+            body="Apasă pe inima oricărui restaurant ca să-l adaugi aici."
+            action={{ label: "Descoperă restaurante", href: `/${city}` }}
+          />
         ) : (
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
             {savedRestaurants.map((restaurant) => (
@@ -51,9 +55,11 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
           Rezervări anterioare
         </h2>
         {bookings.length === 0 ? (
-          <p className="text-sm text-text-secondary py-4 text-center">
-            Nicio rezervare încă. Rezervă o masă pentru a-ți vedea istoricul aici.
-          </p>
+          <EmptyState
+            illustration="/illustrations/empty-bookings.svg"
+            title="Nicio rezervare"
+            body="Rezervă o masă pentru a-ți vedea istoricul aici."
+          />
         ) : (
           <div className="space-y-3">
             {bookings.map((booking) => (
