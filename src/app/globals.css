@@ -23,6 +23,18 @@
   --color-error: #DC2626;
   --color-info: #0EA5E9;
 
+  /* Occasion accents — used by EventRequestSheet step 1 cards + tracking page. */
+  --color-occasion-wedding: #E11D48;          /* warm rose */
+  --color-occasion-wedding-soft: #FFF1F2;
+  --color-occasion-birthday: #F97316;         /* peach */
+  --color-occasion-birthday-soft: #FFF7ED;
+  --color-occasion-corporate: #475569;        /* slate blue */
+  --color-occasion-corporate-soft: #F1F5F9;
+  --color-occasion-product: #0D9488;          /* teal */
+  --color-occasion-product-soft: #F0FDFA;
+  --color-occasion-other: #6B7280;            /* neutral */
+  --color-occasion-other-soft: #F9FAFB;
+
   /* Border radius */
   --radius-card: 16px;
   --radius-button: 10px;

@@ -20,6 +20,14 @@ export interface Restaurant {
   distance?: string;
   lat?: number;
   lng?: number;
+  privateSpaces?: {
+    id: string;
+    name: string;
+    description: string | null;
+    capacityMin: number;
+    capacityMax: number;
+    photoStoragePath: string | null;
+  }[];
 }
 
 export const PRICE_LABELS: Record<number, string> = {

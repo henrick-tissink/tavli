@@ -19,6 +19,7 @@ import {
   reservations,
   availabilityExceptions,
   restaurantAvailability,
+  restaurantPrivateSpaces,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
@@ -168,5 +169,18 @@ describe("event-requests-repo", () => {
     expect(found?.partySize).toBe(20);
     expect(found?.trackingToken).toBe(er.trackingToken);
     expect(found?.requestedByUserId).toBe(profile.id);
+  });
+
+  it("createEventRequestDraft stores privateSpaceId when supplied", async () => {
+    const r = await seedRestaurant();
+    const [space] = await dbAdmin.insert(restaurantPrivateSpaces).values({
+      restaurantId: r.id, name: "Sala Roșie", capacityMin: 10, capacityMax: 30,
+    }).returning();
+    const er = await createEventRequestDraft({
+      restaurantId: r.id, guestName: "G", guestEmail: "g@t.co",
+      occasion: "wedding", eventDate: "2026-09-15", partySize: 20,
+      privateSpaceId: space.id,
+    });
+    expect(er.privateSpaceId).toBe(space.id);
   });
 });

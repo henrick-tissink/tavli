@@ -17,6 +17,7 @@ import {
   sendQuote,
   decline,
 } from "@/lib/repos/event-requests-repo";
+import { replaceLineItems } from "@/lib/repos/quote-line-items-repo";
 import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -44,6 +45,7 @@ const submitSchema = z.object({
   additionalNotes: z.string().max(1000).optional(),
   claimedCompanyCui: z.string().optional(),
   claimedCompanyName: z.string().max(240).optional(),
+  privateSpaceId: z.string().uuid().optional(),
 });
 
 export type SubmitEventRequestInput = z.infer<typeof submitSchema>;
@@ -115,6 +117,7 @@ export async function submitEventRequestDraft(
     additionalNotes: data.additionalNotes,
     claimedCompanyCui: claimedCui,
     claimedCompanyName: data.claimedCompanyName,
+    privateSpaceId: data.privateSpaceId,
   });
 
   await sendOtp({ email: data.guestEmail, redirectToToken: draft.trackingToken });
@@ -233,21 +236,42 @@ export async function replyToEventRequest({
   return out;
 }
 
-const quoteSchema = z.object({
+const sendQuoteSchema = z.object({
   id: z.string().uuid(),
-  amountCents: z.number().int().positive(),
   expiresAt: z.string().datetime(),
-  partnerResponse: z.string().max(4000).optional(),
+  lineItems: z
+    .array(
+      z.object({
+        label: z.string().min(1).max(160),
+        amountCents: z.number().int().min(0).max(100_000_00),
+      }),
+    )
+    .min(1)
+    .max(20),
+  partnerResponse: z.string().max(2000).optional(),
 });
 
-export async function quoteEventRequest(input: z.infer<typeof quoteSchema>) {
-  const data = quoteSchema.parse(input);
+export async function sendQuoteForEventRequest(
+  input: z.infer<typeof sendQuoteSchema>,
+) {
+  const data = sendQuoteSchema.parse(input);
   await assertPartnerOwns(data.id);
+  const total = data.lineItems.reduce((acc, l) => acc + l.amountCents, 0);
+
+  // Phase 1.5: we persist the line items first, then flip the row to `quoted`
+  // with the computed total. We deliberately do NOT wrap these in an outer
+  // transaction — `replaceLineItems` is itself transactional, and `sendQuote`
+  // is a single UPDATE. The window between "lines persisted" and "status
+  // flipped" is tiny. If `sendQuote` throws (e.g. invalid transition), the
+  // lines stay attached to the row but a subsequent retry overwrites them via
+  // the next `replaceLineItems` call, so no permanent drift accumulates.
+  await replaceLineItems(data.id, data.lineItems);
   const out = await sendQuote(data.id, {
-    amountCents: data.amountCents,
+    amountCents: total,
     expiresAt: new Date(data.expiresAt),
     partnerResponse: data.partnerResponse,
   });
+
   try {
     const ctx = await loadEmailContext(data.id);
     await sendEventRequestQuoted({
@@ -259,7 +283,7 @@ export async function quoteEventRequest(input: z.infer<typeof quoteSchema>) {
       eventDate: ctx.eventDate,
       partySize: ctx.partySize,
       trackingUrl: ctx.trackingUrl,
-      amountLei: Math.round(data.amountCents / 100),
+      amountLei: Math.round(total / 100),
       quoteExpiresAt: data.expiresAt,
     });
   } catch (err) {

@@ -10,6 +10,15 @@ interface Item {
   createdAt: string;
 }
 
+const KIND_LABEL: Record<string, string> = {
+  new_event_request: "Cerere nouă",
+  event_request_replied: "Răspuns nou",
+  event_request_quoted: "Ofertă trimisă",
+  quote_accepted: "Ofertă acceptată",
+  quote_declined: "Ofertă refuzată",
+  event_request_cancelled: "Cerere anulată",
+};
+
 export function PartnerNotificationBell() {
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
@@ -38,9 +47,18 @@ export function PartnerNotificationBell() {
     };
   }, []);
 
-  async function markRead() {
-    await fetch("/api/partner-notifications", { method: "POST" });
-    setCount(0);
+  async function onBellClick() {
+    setOpen((o) => !o);
+    if (count > 0) {
+      try {
+        const res = await fetch("/api/partner-notifications", {
+          method: "POST",
+        });
+        if (res.ok) setCount(0);
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 
   return (
@@ -48,10 +66,7 @@ export function PartnerNotificationBell() {
       <button
         type="button"
         aria-label="Notificări"
-        onClick={() => {
-          setOpen((o) => !o);
-          if (count > 0) markRead();
-        }}
+        onClick={onBellClick}
         className="relative p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
       >
         <Bell className="w-5 h-5" />
@@ -68,8 +83,10 @@ export function PartnerNotificationBell() {
           ) : (
             items.map((n) => (
               <div key={n.id} className="text-sm p-2 hover:bg-zinc-50">
-                <span className="font-medium">{n.kind}</span> ·{" "}
-                {new Date(n.createdAt).toLocaleString("ro-RO")}
+                <span className="font-medium">
+                  {KIND_LABEL[n.kind] ?? n.kind}
+                </span>{" "}
+                · {new Date(n.createdAt).toLocaleString("ro-RO")}
               </div>
             ))
           )}

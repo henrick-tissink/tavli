@@ -491,6 +491,7 @@ export const eventRequests = pgTable("event_requests", {
   declineReason: text("decline_reason"),
   trackingToken: varchar("tracking_token", { length: 64 }).notNull().unique(),
   lastNudgeAt: timestamp("last_nudge_at", { withTimezone: true }),
+  privateSpaceId: uuid("private_space_id").references(() => restaurantPrivateSpaces.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -546,4 +547,43 @@ export const partnerNotifications = pgTable("partner_notifications", {
   index("partner_notifications_restaurant_unread_idx")
     .on(t.restaurantId, t.createdAt.desc())
     .where(sql`${t.readAt} IS NULL`),
+]);
+
+// ─── restaurant_private_spaces ──────────────────────────────────────────
+// Phase 1.5: lightweight rooms catalogue per restaurant. Each row is a
+// distinct private space (e.g. "Garden Terrace", "Cellar Room") the
+// partner can offer for event requests, with min/max capacity bounds.
+export const restaurantPrivateSpaces = pgTable("restaurant_private_spaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 120 }).notNull(),
+  description: text("description"),
+  capacityMin: integer("capacity_min").notNull(),
+  capacityMax: integer("capacity_max").notNull(),
+  photoStoragePath: text("photo_storage_path"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("rps_restaurant_active_idx").on(t.restaurantId).where(sql`${t.isActive} = TRUE`),
+]);
+
+// ─── event_request_quote_line_items ─────────────────────────────────────
+// Phase 1.5: itemized breakdown of a quote (e.g. food, beverage, room
+// rental). Sum should match event_requests.quoted_amount_cents; the app
+// layer keeps them in sync.
+export const eventRequestQuoteLineItems = pgTable("event_request_quote_line_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventRequestId: uuid("event_request_id")
+    .notNull()
+    .references(() => eventRequests.id, { onDelete: "cascade" }),
+  label: varchar("label", { length: 160 }).notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("erqli_event_request_idx").on(t.eventRequestId, t.sortOrder),
 ]);

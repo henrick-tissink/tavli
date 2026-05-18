@@ -163,7 +163,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots, chefPicks, eventSettings] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks, eventSettings, privateSpaces] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -183,6 +183,14 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .eq("restaurant_id", data.id)
       .maybeSingle()
       .then(({ data }) => data),
+    sb
+      .from("restaurant_private_spaces")
+      .select("id, name, description, capacity_min, capacity_max, photo_storage_path")
+      .eq("restaurant_id", data.id)
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("capacity_min")
+      .then(({ data }) => data ?? []),
   ]);
 
   const reviews = await getReviewsForRestaurant(data.id as string, 20);
@@ -223,6 +231,14 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     minLeadDays: (eventSettings?.min_lead_days as number | undefined) ?? undefined,
     budgetPerHeadGuidance:
       (eventSettings?.budget_per_head_guidance as string | null | undefined) ?? null,
+    privateSpaces: privateSpaces.map((s) => ({
+      id: s.id as string,
+      name: s.name as string,
+      description: (s.description as string | null) ?? null,
+      capacityMin: s.capacity_min as number,
+      capacityMax: s.capacity_max as number,
+      photoStoragePath: (s.photo_storage_path as string | null) ?? null,
+    })),
   };
 }
 
