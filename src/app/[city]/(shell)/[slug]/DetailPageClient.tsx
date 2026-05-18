@@ -96,6 +96,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
       <HeroNoteSection restaurant={restaurant} />
 
+      <hr className="border-t border-border my-0 max-w-3xl mx-auto px-4 desktop:px-6" />
+
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto">
         <div className="desktop:flex desktop:gap-8">
           <div className="desktop:w-[55%]">
@@ -159,6 +161,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   <Pill key={tag} label={tag} />
                 ))}
               </div>
+              <hr className="border-t border-border mt-10 desktop:mt-14 max-w-3xl" />
             </section>
 
             {restaurant.chefPicks.length > 0 && (
