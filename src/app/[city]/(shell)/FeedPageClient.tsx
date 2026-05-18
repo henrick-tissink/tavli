@@ -8,13 +8,13 @@ import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { FilterPillBar } from "@/components/filter-pill-bar";
 import { FilterSheet } from "@/components/filter-sheet";
-import { ContextBanner } from "@/components/context-banner";
+import { CityCoverHero } from "@/components/city-cover-hero";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 import { useFilters } from "@/lib/filter-context";
-import { useTimeContext, fillSubtext } from "@/lib/time-context";
+import { useTimeContext } from "@/lib/time-context";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -66,14 +66,17 @@ export function FeedPageClient({
         onOpenAdvanced={() => setFilterSheetOpen(true)}
       />
 
+      <CityCoverHero
+        cityDisplay={displayCity}
+        backgroundPhotoUrl={trending[0]?.photoUrl ?? undefined}
+        greeting={timeContext.greeting}
+        availableTonightCount={filteredRestaurants.filter(
+          (r) => r.availableSlots.length > 0 && r.status === "open",
+        ).length}
+        onSearch={() => setFilterSheetOpen(true)}
+      />
+
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
-        <ContextBanner
-          greeting={timeContext.greeting}
-          subtext={fillSubtext(
-            timeContext.subtextTemplate,
-            filteredRestaurants.length,
-          )}
-        />
 
         {filteredRestaurants.length === 0 ? (
           <div className="mt-12 flex flex-col items-center text-center">
