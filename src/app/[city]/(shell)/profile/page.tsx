@@ -2,7 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Bell, User } from "lucide-react";
+import { LogOut, Bell } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
@@ -80,21 +81,16 @@ export default function ProfilePage({
 
   if (!auth.isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <div className="w-16 h-16 rounded-full bg-surface-bg flex items-center justify-center mb-4">
-          <User size={28} className="text-text-muted" />
-        </div>
-        <h1 className="text-xl font-bold text-text-primary">Profilul tău</h1>
-        <p className="text-sm text-text-secondary mt-2 text-center max-w-xs">
-          Conectează-te pentru a-ți gestiona contul și preferințele.
-        </p>
-        <div className="mt-6">
+      <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
+        <EmptyState
+          illustration="/illustrations/empty-profile.svg"
+          title="Profilul tău"
+          body="Conectează-te pentru a-ți gestiona contul, preferințele și istoricul de rezervări."
+        />
+        <div className="flex justify-center">
           <Button onClick={() => setAuthSheetOpen(true)}>Conectează-te</Button>
         </div>
-        <AuthSheet
-          open={authSheetOpen}
-          onClose={() => setAuthSheetOpen(false)}
-        />
+        <AuthSheet open={authSheetOpen} onClose={() => setAuthSheetOpen(false)} />
       </div>
     );
   }
