@@ -26,9 +26,11 @@ describe("TrackingClient", () => {
           quoteExpiresAt: new Date("2026-07-15"),
           declineReason: null,
         }}
+        restaurant={{ name: "Demo Bistro", heroPath: null }}
+        quoteLineItems={[]}
       />,
     );
-    expect(screen.getByText(/7500\.00 lei/)).toBeInTheDocument();
+    expect(screen.getByText(/7[\.,]500 lei/)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /acceptă|accept/i }),
     ).toBeInTheDocument();
