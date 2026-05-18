@@ -16,7 +16,7 @@ import { TimeSlotPills } from "@/components/time-slot-pills";
 import { Pill } from "@/components/pill";
 import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
-import { ReservationSheet } from "@/components/reservation-sheet";
+import { ReservationSheetV2 } from "@/components/reservation-sheet-v2";
 import { EventRequestCtaV2 } from "@/components/event-request-cta-v2";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
@@ -341,7 +341,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         </div>
       )}
 
-      <ReservationSheet
+      <ReservationSheetV2
         open={sheetOpen}
         onClose={() => {
           setSheetOpen(false);

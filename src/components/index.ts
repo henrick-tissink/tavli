@@ -18,7 +18,7 @@ export { PhotoGallery } from "./photo-gallery";
 export { SentimentBar } from "./sentiment-bar";
 export { ReviewIntelligenceSection } from "./review-intelligence";
 export { ReviewCard } from "./review-card";
-export { ReservationSheet } from "./reservation-sheet";
+export { ReservationSheetV2 } from "./reservation-sheet-v2";
 export { MapContainer } from "./map-container";
 export { MapPin } from "./map-pin";
 export { MapCarousel } from "./map-carousel";
