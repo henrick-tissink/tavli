@@ -92,4 +92,67 @@ describe("private-spaces partner actions", () => {
     });
     expect(res.ok).toBe(false);
   });
+
+  it("createSpaceAction rejects capacityMin > capacityMax via schema", async () => {
+    const { restaurantId } = await seedOwnerWithVenue();
+    const res = await createSpaceAction({
+      restaurantId,
+      name: "Backwards",
+      capacityMin: 30,
+      capacityMax: 10,
+      description: "",
+    });
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/capacityMin must be <= capacityMax/);
+  });
+
+  it("updateSpaceAction non-owner gets forbidden", async () => {
+    const { restaurantId } = await seedOwnerWithVenue();
+    const created = await createSpaceAction({
+      restaurantId,
+      name: "Owned",
+      capacityMin: 5,
+      capacityMax: 15,
+      description: "",
+    });
+    expect(created.ok).toBe(true);
+    const [row] = await dbAdmin
+      .select()
+      .from(restaurantPrivateSpaces)
+      .where(eq(restaurantPrivateSpaces.restaurantId, restaurantId));
+
+    mockSession.mockResolvedValueOnce({
+      userId: "stranger",
+      userEmail: "x@t.co",
+      profile: { id: "stranger", role: "consumer", email: "x@t.co" },
+    } as never);
+    const res = await updateSpaceAction({ id: row.id, name: "Hijacked" });
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/forbidden/i);
+  });
+
+  it("deactivateSpaceAction non-owner gets forbidden", async () => {
+    const { restaurantId } = await seedOwnerWithVenue();
+    const created = await createSpaceAction({
+      restaurantId,
+      name: "Owned",
+      capacityMin: 5,
+      capacityMax: 15,
+      description: "",
+    });
+    expect(created.ok).toBe(true);
+    const [row] = await dbAdmin
+      .select()
+      .from(restaurantPrivateSpaces)
+      .where(eq(restaurantPrivateSpaces.restaurantId, restaurantId));
+
+    mockSession.mockResolvedValueOnce({
+      userId: "stranger",
+      userEmail: "x@t.co",
+      profile: { id: "stranger", role: "consumer", email: "x@t.co" },
+    } as never);
+    const res = await deactivateSpaceAction({ id: row.id });
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/forbidden/i);
+  });
 });

@@ -19,6 +19,12 @@ async function assertOwns(
 ): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
   const session = await getCurrentSession();
   if (!session) return { ok: false, error: "Unauthorised." };
+  if (
+    session.profile.role !== "restaurant_owner" &&
+    session.profile.role !== "admin"
+  ) {
+    return { ok: false, error: "Forbidden." };
+  }
   const [r] = await dbAdmin
     .select({ owner: restaurants.ownerUserId })
     .from(restaurants)
@@ -28,19 +34,31 @@ async function assertOwns(
   return { ok: true, userId: session.userId };
 }
 
-const createSchema = z.object({
-  restaurantId: z.string().uuid(),
-  name: z.string().min(1).max(120),
-  description: z.string().max(2000).optional().nullable(),
-  capacityMin: z.number().int().min(1).max(2000),
-  capacityMax: z.number().int().min(1).max(2000),
-  photoStoragePath: z.string().max(500).optional().nullable(),
-});
+const createSchema = z
+  .object({
+    restaurantId: z.string().uuid(),
+    name: z.string().min(1).max(120),
+    description: z.string().max(2000).optional().nullable(),
+    capacityMin: z.number().int().min(1).max(2000),
+    capacityMax: z.number().int().min(1).max(2000),
+    photoStoragePath: z.string().max(500).optional().nullable(),
+  })
+  .refine((d) => d.capacityMin <= d.capacityMax, {
+    message: "capacityMin must be <= capacityMax",
+    path: ["capacityMax"],
+  });
 
 export async function createSpaceAction(
   input: z.infer<typeof createSchema>,
 ): Promise<Result> {
-  const data = createSchema.parse(input);
+  const parsed = createSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+    };
+  }
+  const data = parsed.data;
   const auth = await assertOwns(data.restaurantId);
   if (!auth.ok) return auth;
   await createPrivateSpace({
@@ -55,25 +73,43 @@ export async function createSpaceAction(
   return { ok: true };
 }
 
-const updateSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(120).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  capacityMin: z.number().int().min(1).max(2000).optional(),
-  capacityMax: z.number().int().min(1).max(2000).optional(),
-  photoStoragePath: z.string().max(500).optional().nullable(),
-});
+const updateSchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(1).max(120).optional(),
+    description: z.string().max(2000).optional().nullable(),
+    capacityMin: z.number().int().min(1).max(2000).optional(),
+    capacityMax: z.number().int().min(1).max(2000).optional(),
+    photoStoragePath: z.string().max(500).optional().nullable(),
+  })
+  .refine(
+    (d) =>
+      d.capacityMin === undefined ||
+      d.capacityMax === undefined ||
+      d.capacityMin <= d.capacityMax,
+    {
+      message: "capacityMin must be <= capacityMax",
+      path: ["capacityMax"],
+    },
+  );
 
 export async function updateSpaceAction(
   input: z.infer<typeof updateSchema>,
 ): Promise<Result> {
-  const data = updateSchema.parse(input);
+  const parsed = updateSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+    };
+  }
+  const data = parsed.data;
   const [existing] = await dbAdmin
     .select({ restaurantId: restaurantPrivateSpaces.restaurantId })
     .from(restaurantPrivateSpaces)
     .where(eq(restaurantPrivateSpaces.id, data.id))
     .limit(1);
-  if (!existing) return { ok: false, error: "Not found." };
+  if (!existing) return { ok: false, error: "Forbidden." };
   const auth = await assertOwns(existing.restaurantId);
   if (!auth.ok) return auth;
   const { id: _id, ...patch } = data;
@@ -87,13 +123,20 @@ const deleteSchema = z.object({ id: z.string().uuid() });
 export async function deactivateSpaceAction(
   input: z.infer<typeof deleteSchema>,
 ): Promise<Result> {
-  const data = deleteSchema.parse(input);
+  const parsed = deleteSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+    };
+  }
+  const data = parsed.data;
   const [existing] = await dbAdmin
     .select({ restaurantId: restaurantPrivateSpaces.restaurantId })
     .from(restaurantPrivateSpaces)
     .where(eq(restaurantPrivateSpaces.id, data.id))
     .limit(1);
-  if (!existing) return { ok: false, error: "Not found." };
+  if (!existing) return { ok: false, error: "Forbidden." };
   const auth = await assertOwns(existing.restaurantId);
   if (!auth.ok) return auth;
   await deactivatePrivateSpace(data.id);
