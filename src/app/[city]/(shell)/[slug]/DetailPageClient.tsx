@@ -114,19 +114,22 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 Disponibil astăzi
               </h3>
               {restaurant.availableSlots.length === 0 ? (
-                <>
+                <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
                     title="Nu sunt locuri disponibile diseară"
                     body="Încearcă o altă zi din calendar."
                   />
-                  <TimeSlotPills
-                    slots={restaurant.availableSlots}
-                    maxVisible={6}
-                    onSelect={(slot) => openSheet(slot)}
-                    onMore={() => openSheet()}
-                  />
-                </>
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => openSheet()}
+                      className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                    >
+                      Rezervă pentru altă zi →
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <TimeSlotPills
                   slots={restaurant.availableSlots}
@@ -225,19 +228,22 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 Disponibil astăzi
               </h3>
               {restaurant.availableSlots.length === 0 ? (
-                <>
+                <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
                     title="Nu sunt locuri disponibile diseară"
                     body="Încearcă o altă zi din calendar."
                   />
-                  <TimeSlotPills
-                    slots={restaurant.availableSlots}
-                    maxVisible={6}
-                    onSelect={(slot) => openSheet(slot)}
-                    onMore={() => openSheet()}
-                  />
-                </>
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => openSheet()}
+                      className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                    >
+                      Rezervă pentru altă zi →
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <TimeSlotPills
                   slots={restaurant.availableSlots}
