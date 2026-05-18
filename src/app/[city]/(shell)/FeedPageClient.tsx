@@ -8,13 +8,15 @@ import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { FilterPillBar } from "@/components/filter-pill-bar";
 import { FilterSheet } from "@/components/filter-sheet";
-import { ContextBanner } from "@/components/context-banner";
+import { CityCoverHero } from "@/components/city-cover-hero";
 import { HorizontalSection } from "@/components/horizontal-section";
+import { SectionHeader } from "@/components/section-header";
+import { EditorialInterstitial } from "@/components/editorial-interstitial";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 import { useFilters } from "@/lib/filter-context";
-import { useTimeContext, fillSubtext } from "@/lib/time-context";
+import { useTimeContext } from "@/lib/time-context";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -58,6 +60,27 @@ export function FeedPageClient({
   const firstChunk = openFiltered.slice(0, 8);
   const restChunk = openFiltered.slice(8);
 
+  // Compute time-of-day pull-quote for the editorial interstitial
+  const pullQuote = useMemo(() => {
+    const active = timeContext.active;
+    if (active.includes("morning") || active.includes("brunch")) {
+      return {
+        eyebrow: "PUȚINĂ INSPIRAȚIE",
+        body: "Cei mai buni meseni încep planificarea de dimineață. Caută masă pentru diseară.",
+      };
+    }
+    if (active.includes("lunch") || active.includes("afternoon")) {
+      return {
+        eyebrow: "DUPĂ-AMIAZĂ",
+        body: "Bucureștiul devine un alt oraș la apus. Reține-ți locul.",
+      };
+    }
+    return {
+      eyebrow: "SEARA",
+      body: `În seara asta, în ${displayCity}, oamenii deja stau la mese. Și tu poți.`,
+    };
+  }, [timeContext.active, displayCity]);
+
   return (
     <>
       <FilterPillBar
@@ -66,14 +89,17 @@ export function FeedPageClient({
         onOpenAdvanced={() => setFilterSheetOpen(true)}
       />
 
+      <CityCoverHero
+        cityDisplay={displayCity}
+        backgroundPhotoUrl={trending[0]?.photoUrl ?? undefined}
+        greeting={timeContext.greeting}
+        availableTonightCount={filteredRestaurants.filter(
+          (r) => r.availableSlots.length > 0 && r.status === "open",
+        ).length}
+        onSearch={() => setFilterSheetOpen(true)}
+      />
+
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
-        <ContextBanner
-          greeting={timeContext.greeting}
-          subtext={fillSubtext(
-            timeContext.subtextTemplate,
-            filteredRestaurants.length,
-          )}
-        />
 
         {filteredRestaurants.length === 0 ? (
           <div className="mt-12 flex flex-col items-center text-center">
@@ -112,6 +138,7 @@ export function FeedPageClient({
               <div className="mt-8">
                 <HorizontalSection
                   title={`Populare în ${displayCity}`}
+                  subtitle="Cele mai rezervate în această săptămână."
                   restaurants={trendingRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
@@ -124,11 +151,19 @@ export function FeedPageClient({
               </div>
             )}
 
+            <EditorialInterstitial
+              eyebrow={pullQuote.eyebrow}
+              body={pullQuote.body}
+            />
+
             {firstChunk.length > 0 && (
               <>
-                <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
-                  Disponibile astăzi
-                </h2>
+                <div className="mt-8">
+                  <SectionHeader
+                    title="Disponibile astăzi"
+                    subtitle="Locurile cu masă în următoarele ore."
+                  />
+                </div>
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
                   {firstChunk.map((restaurant) => (
                     <RestaurantCard
@@ -154,6 +189,7 @@ export function FeedPageClient({
               <div className="mt-8">
                 <HorizontalSection
                   title="Noi pe Tavli"
+                  subtitle="Locuri proaspăt deschise sau abia listate."
                   restaurants={newRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}

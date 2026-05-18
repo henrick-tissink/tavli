@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 jest.mock("@/app/api/reservations/actions", () => ({
   createReservation: jest
     .fn()
-    .mockResolvedValue({ ok: true, mode: "mock", reservationId: "r-123" }),
+    .mockResolvedValue({ ok: true, mode: "mock", reservationId: "r-123", confirmationToken: "tok-abc" }),
 }));
 
 jest.mock("next/navigation", () => ({

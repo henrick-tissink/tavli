@@ -5,11 +5,11 @@ import type { RefObject } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import { MapPin, ExternalLink, FileText, Star } from "lucide-react";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import type { RestaurantDetail, MenuItem } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/button";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -21,6 +21,7 @@ import { ReservationSheetV2 } from "@/components/reservation-sheet-v2";
 import { EventRequestCtaV2 } from "@/components/event-request-cta-v2";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
+import { SectionHeader } from "@/components/section-header";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -88,18 +89,15 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         onBack={() => router.back()}
         saved={isSaved(restaurant.id)}
         onSave={() => toggleSave(restaurant.id)}
+        overlayTitle={restaurant.name}
+        overlaySubtitle={`${formatCuisines(restaurant.cuisines)} · ${PRICE_LABELS[restaurant.priceLevel]}${restaurant.zone ? ` · ${restaurant.zone}` : ""}`}
+        overlayRating={restaurant.voteCount > 0 ? { value: restaurant.rating, voteCount: restaurant.voteCount } : undefined}
       />
 
+      <HeroNoteSection restaurant={restaurant} />
+
       {restaurant.heroNote && (
-        <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-8 desktop:pt-10">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="text-text-muted text-xs tracking-[0.2em] uppercase">· · ·</p>
-            <p className="font-display italic text-text-primary text-xl desktop:text-2xl leading-relaxed mt-3">
-              {restaurant.heroNote}
-            </p>
-            <p className="text-text-muted text-xs tracking-[0.2em] uppercase mt-3">· · ·</p>
-          </div>
-        </div>
+        <hr className="border-t border-border my-10 desktop:my-14 max-w-3xl mx-auto" />
       )}
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto">
@@ -110,9 +108,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </div>
 
             <div className="desktop:hidden mt-6">
-              <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Disponibil astăzi
-              </h3>
+              <SectionHeader title="Disponibil astăzi" />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
@@ -140,11 +136,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               )}
             </div>
 
-            <section className="mt-6">
-              <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                Despre
-              </h3>
-              <p className="text-sm text-text-secondary mt-2 leading-relaxed">
+            <section className="mt-10 desktop:mt-14 max-w-prose">
+              <p className="text-base desktop:text-lg text-text-primary leading-relaxed first-letter:font-display first-letter:text-5xl first-letter:font-bold first-letter:text-brand-primary first-letter:mr-2 first-letter:float-left first-letter:leading-[0.9]">
                 {displayDescription}
                 {descriptionNeedsTruncation && (
                   <button
@@ -165,30 +158,32 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   </button>
                 )}
               </p>
-              <div className="flex items-center gap-2 flex-wrap mt-3">
+              <div className="flex items-center gap-2 flex-wrap mt-4">
                 {restaurant.tags.map((tag) => (
                   <Pill key={tag} label={tag} />
                 ))}
               </div>
+              <hr className="border-t border-border mt-10 desktop:mt-14" />
             </section>
 
             {restaurant.chefPicks.length > 0 && (
               <section className="mt-8">
-                <div className="flex items-baseline justify-between mb-4">
-                  <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary inline-flex items-center gap-2">
-                    <Star size={18} className="fill-yellow-400 text-yellow-400" />
-                    Recomandările bucătarului
-                  </h3>
-                  <Link
-                    href={menuHref}
-                    className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap"
-                  >
-                    Vezi meniul →
-                  </Link>
-                </div>
+                <SectionHeader
+                  title="Recomandările bucătarului"
+                  subtitle="Felurile pe care le poți încerca aici."
+                  icon={<Star size={18} className="fill-yellow-400 text-yellow-400" />}
+                  rightSlot={
+                    <Link
+                      href={menuHref}
+                      className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap shrink-0"
+                    >
+                      Vezi meniul →
+                    </Link>
+                  }
+                />
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
-                  {restaurant.chefPicks.map((item) => (
-                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} />
+                  {restaurant.chefPicks.map((item, idx) => (
+                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} />
                   ))}
                 </div>
               </section>
@@ -205,12 +200,10 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             {restaurant.reviews.length > 0 && (
               <section className="mt-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                    Recenzii
-                  </h3>
-                  <span className="text-xs text-text-muted">Cele mai recente</span>
-                </div>
+                <SectionHeader
+                  title="Recenzii"
+                  subtitle="Ce spun oaspeții recenți."
+                />
                 <div className="divide-y divide-border">
                   {restaurant.reviews.map((review) => (
                     <ReviewCard key={review.id} review={review} />
@@ -224,9 +217,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={null} />
 
             <div className="mt-6">
-              <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Disponibil astăzi
-              </h3>
+              <SectionHeader title="Disponibil astăzi" />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
@@ -262,7 +253,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </Link>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Program</h3>
+              <SectionHeader title="Program" subtitle="Când e deschis." />
               <div className="mt-3 space-y-1">
                 {restaurant.schedule.map((entry) => (
                   <div key={entry.days} className="flex justify-between text-sm">
@@ -274,7 +265,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </section>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Locație</h3>
+              <SectionHeader title="Locație" subtitle="Cum ajungi." />
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
               {hasCoords && (
                 <div className="mt-3">
@@ -311,7 +302,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </section>
 
           <section className="mt-8">
-            <h3 className="text-[20px] font-bold text-text-primary">Hours</h3>
+            <SectionHeader title="Program" subtitle="Când e deschis." />
             <div className="mt-3 space-y-1">
               {restaurant.schedule.map((entry) => (
                 <div key={entry.days} className="flex justify-between text-sm">
@@ -323,7 +314,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </section>
 
           <section className="mt-8">
-            <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
+            <SectionHeader title="Locație" subtitle="Cum ajungi." />
             <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
             {hasCoords && (
               <div className="mt-3">
@@ -350,8 +341,9 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
         {restaurant.nearby.length > 0 && (
           <section className="mt-8">
+            <SectionHeader title="În apropiere" subtitle="Locuri pe aceeași stradă cu spiritul ăsta." />
             <HorizontalSection
-              title="În apropiere"
+              title=""
               restaurants={restaurant.nearby}
               isSaved={isSaved}
               onSave={toggleSave}
@@ -364,21 +356,36 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         <div className="h-24 desktop:h-8" />
       </div>
 
-      {showStickyCta && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface-white border-t border-border p-3 flex items-center gap-3 desktop:hidden">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-text-primary truncate">
-              {restaurant.name}
-            </p>
-          </div>
-          <RatingChip
-            rating={restaurant.rating}
-            voteCount={restaurant.voteCount}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
-          />
-          <Button onClick={() => openSheet()}>Rezervă o masă</Button>
-        </div>
-      )}
+      <AnimatePresence>
+        {showStickyCta && (
+          <motion.div
+            className="fixed bottom-16 left-0 right-0 z-40 px-3 pb-3 desktop:hidden"
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ type: "spring", damping: 24, stiffness: 280 }}
+          >
+            <div className="rounded-card bg-surface-white/95 backdrop-blur-md border border-border shadow-floating p-2.5 flex items-center gap-3">
+              {restaurant.photos[0] && (
+                <Image
+                  src={restaurant.photos[0]}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover w-10 h-10 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-text-primary truncate leading-tight">{restaurant.name}</p>
+                {restaurant.availableSlots[0] && (
+                  <p className="text-xs text-text-secondary leading-tight">Următor disponibil: {restaurant.availableSlots[0]}</p>
+                )}
+              </div>
+              <Button onClick={() => openSheet()} className="px-4">Rezervă</Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ReservationSheetV2
         open={sheetOpen}
@@ -419,20 +426,9 @@ function InfoBlock({
 }) {
   return (
     <div className="mt-4">
-      <div className="flex items-start justify-between gap-2">
-        <h1 className="text-[28px] font-extrabold text-text-primary leading-tight">
-          {restaurant.name}
-        </h1>
-        <RatingChip
-          rating={restaurant.rating}
-          voteCount={restaurant.voteCount}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
-        />
-      </div>
-      <p className="text-sm text-text-secondary mt-1">
-        {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]}
-        {restaurant.distance && ` · ${restaurant.distance}`}
-      </p>
+      <h2 className="hidden desktop:block font-display text-3xl font-bold text-text-primary leading-tight tracking-tight mb-3">
+        {restaurant.name}
+      </h2>
       <p className="text-sm text-text-secondary mt-1 flex items-center gap-1">
         <MapPin size={14} className="flex-shrink-0" />
         {restaurant.address}
@@ -463,7 +459,51 @@ function InfoBlock({
   );
 }
 
-function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) {
+const CUISINE_ADJECTIVES: Record<string, string> = {
+  Romanian: "autentic românesc",
+  Italian: "cu savori italiene",
+  Japanese: "japonez rafinat",
+  Turkish: "turcesc autentic",
+  French: "franțuzesc cu eleganță",
+  Chinese: "chinezesc tradițional",
+  Lebanese: "libanez vibrant",
+  Spanish: "spaniol însorit",
+  Greek: "grecesc mediteranean",
+  Thai: "thailandez aromat",
+  Indian: "indian condimentat",
+  Mexican: "mexican picant",
+  Korean: "coreean modern",
+  Balkan: "balcanic plin de caracter",
+  American: "american relaxat",
+  European: "european contemporan",
+  Mediterranean: "mediteranean luminos",
+  Fusion: "fusion inventiv",
+  Brunch: "perfect pentru brunch",
+  Coffee: "pentru iubitorii de cafea",
+  Cocktails: "pentru serile cu cocktailuri",
+  Pizza: "cu pizza artizanală",
+  Burger: "cu burger-uri artizanale",
+  Vegan: "vegan și creativ",
+  Vegetarian: "vegetarian și sănătos",
+};
+
+function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
+  if (!restaurant.heroNote) return null;
+
+  return (
+    <section className="px-4 desktop:px-6 max-w-3xl mx-auto pt-10 desktop:pt-14 pb-6 desktop:pb-10">
+      <div className="text-center">
+        <span className="inline-block text-brand-primary text-2xl tracking-[0.3em]" aria-hidden>—</span>
+        <p className="font-display italic text-text-primary text-2xl desktop:text-3xl leading-snug mt-6 max-w-2xl mx-auto">
+          {restaurant.heroNote}
+        </p>
+        <span className="inline-block text-brand-primary text-2xl tracking-[0.3em] mt-6" aria-hidden>—</span>
+      </div>
+    </section>
+  );
+}
+
+function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: string; index: number }) {
   return (
     <Link
       href={menuHref}
@@ -478,10 +518,20 @@ function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) 
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(min-width: 768px) 25vw, 100vw"
           />
+          {index < 3 && (
+            <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
+              Pick #{index + 1}
+            </span>
+          )}
         </div>
       ) : (
-        <div className="aspect-[4/3] bg-surface-bg flex items-center justify-center">
+        <div className="relative aspect-[4/3] bg-surface-bg flex items-center justify-center">
           <Star size={24} className="text-text-muted" />
+          {index < 3 && (
+            <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
+              Pick #{index + 1}
+            </span>
+          )}
         </div>
       )}
       <div className="p-3 flex-1 flex flex-col">
@@ -489,11 +539,13 @@ function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) 
           {item.name}
         </h4>
         {item.description && (
-          <p className="text-xs text-text-secondary mt-1 line-clamp-2">
+          <p className="text-sm italic text-text-secondary mt-2 line-clamp-3 leading-relaxed">
             {item.description}
           </p>
         )}
-        <p className="text-sm font-bold text-brand-primary mt-2">{item.price} lei</p>
+        <p className="font-display text-lg font-bold text-brand-primary mt-3">
+          {item.price} <span className="text-sm font-normal text-text-muted">lei</span>
+        </p>
       </div>
     </Link>
   );
