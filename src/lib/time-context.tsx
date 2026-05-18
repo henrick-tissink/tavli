@@ -18,6 +18,7 @@ export interface TimeContextValue {
   greeting: string;
   subtextTemplate: string;
   injectedPills: { label: string; icon: string }[];
+  pullQuote: { eyebrow: string; body: string };
 }
 
 const GREETING_PRIORITY: TimeContextId[] = [
@@ -89,6 +90,45 @@ const PILL_PRIORITY = [
   "weekend+evening",
 ];
 
+// Pull-quote copy keyed by greeting priority. Stays in lock-step with the
+// greeting so the cover hero's "Bună seara" never clashes with a "DUPĂ-AMIAZĂ"
+// interstitial. `body` accepts a `{city}` placeholder that the consumer
+// substitutes; eyebrows are static, uppercase, tracked.
+const PULL_QUOTE_MAP: Record<TimeContextId, { eyebrow: string; body: string }> = {
+  morning: {
+    eyebrow: "PUȚINĂ INSPIRAȚIE",
+    body: "Cei mai buni meseni încep planificarea de dimineață. Caută masă pentru diseară.",
+  },
+  brunch: {
+    eyebrow: "TIMP DE BRUNCH",
+    body: "Sâmbătă, duminică — orașul își aranjează mesele lente. Găsește-ți a ta.",
+  },
+  lunch: {
+    eyebrow: "ORA PRÂNZULUI",
+    body: "Cele mai bune mese de prânz se găsesc cu o oră înainte. Caută acum.",
+  },
+  afternoon: {
+    eyebrow: "DUPĂ-AMIAZĂ",
+    body: "Bucureștiul devine un alt oraș la apus. Reține-ți locul.",
+  },
+  evening: {
+    eyebrow: "SEARA",
+    body: "În seara asta, în {city}, oamenii deja stau la mese. Și tu poți.",
+  },
+  late: {
+    eyebrow: "DUPĂ MIEZ DE NOAPTE",
+    body: "Oraș nedormit. Sunt locuri care încă au lumini aprinse.",
+  },
+  terrace: { eyebrow: "", body: "" },
+  weekend: { eyebrow: "", body: "" },
+  holiday: { eyebrow: "", body: "" },
+};
+
+const DEFAULT_PULL_QUOTE = {
+  eyebrow: "DESCOPERĂ",
+  body: "Mese pregătite pentru tine, oriunde te-ai afla.",
+};
+
 export function computeTimeContext(now: Date, temperature?: number): TimeContextValue {
   const hour = now.getHours();
   const day = now.getDay(); // 0=Sunday, 6=Saturday
@@ -150,7 +190,18 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
     }
   }
 
-  return { active, greeting, subtextTemplate, injectedPills };
+  // Resolve pullQuote by the SAME priority as greeting — keeps cover hero
+  // and editorial interstitial in lock-step.
+  let pullQuote = DEFAULT_PULL_QUOTE;
+  for (const id of GREETING_PRIORITY) {
+    if (active.includes(id)) {
+      const mapped = PULL_QUOTE_MAP[id];
+      if (mapped.body) pullQuote = mapped;
+      break;
+    }
+  }
+
+  return { active, greeting, subtextTemplate, injectedPills, pullQuote };
 }
 
 const TimeContext = createContext<TimeContextValue | null>(null);
@@ -164,6 +215,7 @@ const NEUTRAL_CTX: TimeContextValue = {
   greeting: "Descoperă",
   subtextTemplate: "{N} {P:loc|locuri} de explorat",
   injectedPills: [],
+  pullQuote: DEFAULT_PULL_QUOTE,
 };
 
 export function TimeContextProvider({ children }: { children: ReactNode }) {
