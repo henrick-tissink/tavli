@@ -177,8 +177,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
-                  {restaurant.chefPicks.map((item) => (
-                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} />
+                  {restaurant.chefPicks.map((item, idx) => (
+                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} />
                   ))}
                 </div>
               </section>
@@ -505,7 +505,7 @@ function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
   );
 }
 
-function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) {
+function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: string; index: number }) {
   return (
     <Link
       href={menuHref}
@@ -520,10 +520,20 @@ function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) 
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(min-width: 768px) 25vw, 100vw"
           />
+          {index < 3 && (
+            <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
+              Pick #{index + 1}
+            </span>
+          )}
         </div>
       ) : (
-        <div className="aspect-[4/3] bg-surface-bg flex items-center justify-center">
+        <div className="relative aspect-[4/3] bg-surface-bg flex items-center justify-center">
           <Star size={24} className="text-text-muted" />
+          {index < 3 && (
+            <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
+              Pick #{index + 1}
+            </span>
+          )}
         </div>
       )}
       <div className="p-3 flex-1 flex flex-col">
@@ -531,11 +541,13 @@ function ChefPickCard({ item, menuHref }: { item: MenuItem; menuHref: string }) 
           {item.name}
         </h4>
         {item.description && (
-          <p className="text-xs text-text-secondary mt-1 line-clamp-2">
+          <p className="text-sm italic text-text-secondary mt-2 line-clamp-3 leading-relaxed">
             {item.description}
           </p>
         )}
-        <p className="text-sm font-bold text-brand-primary mt-2">{item.price} lei</p>
+        <p className="font-display text-lg font-bold text-brand-primary mt-3">
+          {item.price} <span className="text-sm font-normal text-text-muted">lei</span>
+        </p>
       </div>
     </Link>
   );
