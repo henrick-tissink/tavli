@@ -10,7 +10,7 @@ interface StepSentProps {
   date: string; // ISO
   slot: string;
   guests: number;
-  reservationId?: string | null;
+  confirmationToken?: string | null;
   onClose: () => void;
 }
 
@@ -19,7 +19,7 @@ export function StepSent({
   date,
   slot,
   guests,
-  reservationId,
+  confirmationToken,
   onClose,
 }: StepSentProps) {
   const formatted = RO_DATE_FORMAT.format(localDateFromIso(date));
@@ -44,9 +44,9 @@ export function StepSent({
       </p>
 
       <div className="flex flex-col gap-2 pt-2">
-        {reservationId ? (
+        {confirmationToken ? (
           <Link
-            href={`/reservations/${reservationId}`}
+            href={`/reservations/${confirmationToken}`}
             className="w-full bg-brand-primary text-white font-semibold py-3 rounded-button hover:bg-brand-primary-dark transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             Vezi rezervarea
@@ -56,7 +56,7 @@ export function StepSent({
           type="button"
           onClick={onClose}
           className={`w-full font-semibold py-3 rounded-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
-            reservationId
+            confirmationToken
               ? "border border-border text-text-primary hover:bg-surface-bg"
               : "bg-brand-primary text-white hover:bg-brand-primary-dark"
           }`}

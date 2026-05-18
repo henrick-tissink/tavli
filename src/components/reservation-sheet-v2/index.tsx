@@ -73,6 +73,7 @@ export function ReservationSheetV2({
     makeInitialForm(preSelectedSlot),
   );
   const [reservationId, setReservationId] = useState<string | null>(null);
+  const [confirmationToken, setConfirmationToken] = useState<string | null>(null);
   const [errors, setErrors] = useState<
     Partial<Record<"name" | "phone" | "email" | "notes", string>>
   >({});
@@ -89,6 +90,7 @@ export function ReservationSheetV2({
       setErrors({});
       setSubmitError(null);
       setSubmitting(false);
+      setConfirmationToken(null);
     }
   }
 
@@ -160,6 +162,7 @@ export function ReservationSheetV2({
       });
       if (result.ok) {
         setReservationId(result.reservationId ?? null);
+        setConfirmationToken(result.confirmationToken ?? null);
         onBookingConfirmed?.({
           restaurantName,
           date: form.date,
@@ -293,7 +296,7 @@ export function ReservationSheetV2({
                 date={form.date}
                 slot={form.slot!}
                 guests={form.guests}
-                reservationId={reservationId ?? undefined}
+                confirmationToken={confirmationToken}
                 onClose={onClose}
               />
             </motion.div>
