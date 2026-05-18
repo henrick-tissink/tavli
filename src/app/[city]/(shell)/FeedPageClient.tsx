@@ -10,6 +10,7 @@ import { FilterPillBar } from "@/components/filter-pill-bar";
 import { FilterSheet } from "@/components/filter-sheet";
 import { CityCoverHero } from "@/components/city-cover-hero";
 import { HorizontalSection } from "@/components/horizontal-section";
+import { SectionHeader } from "@/components/section-header";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -115,6 +116,7 @@ export function FeedPageClient({
               <div className="mt-8">
                 <HorizontalSection
                   title={`Populare în ${displayCity}`}
+                  subtitle="Cele mai rezervate în această săptămână."
                   restaurants={trendingRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
@@ -129,9 +131,12 @@ export function FeedPageClient({
 
             {firstChunk.length > 0 && (
               <>
-                <h2 className="text-[20px] desktop:text-[24px] font-bold mt-8 mb-4">
-                  Disponibile astăzi
-                </h2>
+                <div className="mt-8">
+                  <SectionHeader
+                    title="Disponibile astăzi"
+                    subtitle="Locurile cu masă în următoarele ore."
+                  />
+                </div>
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
                   {firstChunk.map((restaurant) => (
                     <RestaurantCard
@@ -157,6 +162,7 @@ export function FeedPageClient({
               <div className="mt-8">
                 <HorizontalSection
                   title="Noi pe Tavli"
+                  subtitle="Locuri proaspăt deschise sau abia listate."
                   restaurants={newRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
