@@ -88,6 +88,9 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         onBack={() => router.back()}
         saved={isSaved(restaurant.id)}
         onSave={() => toggleSave(restaurant.id)}
+        overlayTitle={restaurant.name}
+        overlaySubtitle={`${formatCuisines(restaurant.cuisines)} · ${PRICE_LABELS[restaurant.priceLevel]}${restaurant.zone ? ` · ${restaurant.zone}` : ""}`}
+        overlayRating={restaurant.voteCount > 0 ? { value: restaurant.rating, voteCount: restaurant.voteCount } : undefined}
       />
 
       {restaurant.heroNote && (
@@ -419,20 +422,6 @@ function InfoBlock({
 }) {
   return (
     <div className="mt-4">
-      <div className="flex items-start justify-between gap-2">
-        <h1 className="text-[28px] font-extrabold text-text-primary leading-tight">
-          {restaurant.name}
-        </h1>
-        <RatingChip
-          rating={restaurant.rating}
-          voteCount={restaurant.voteCount}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
-        />
-      </div>
-      <p className="text-sm text-text-secondary mt-1">
-        {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]}
-        {restaurant.distance && ` · ${restaurant.distance}`}
-      </p>
       <p className="text-sm text-text-secondary mt-1 flex items-center gap-1">
         <MapPin size={14} className="flex-shrink-0" />
         {restaurant.address}
