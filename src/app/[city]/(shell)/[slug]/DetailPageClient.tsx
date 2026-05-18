@@ -13,6 +13,7 @@ import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/button";
 import { TimeSlotPills } from "@/components/time-slot-pills";
+import { EmptyState } from "@/components/empty-state";
 import { Pill } from "@/components/pill";
 import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
@@ -112,12 +113,28 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               <h3 className="text-[20px] font-bold text-text-primary mb-3">
                 Disponibil astăzi
               </h3>
-              <TimeSlotPills
-                slots={restaurant.availableSlots}
-                maxVisible={6}
-                onSelect={(slot) => openSheet(slot)}
-                onMore={() => openSheet()}
-              />
+              {restaurant.availableSlots.length === 0 ? (
+                <>
+                  <EmptyState
+                    illustration="/illustrations/empty-bookings.svg"
+                    title="Nu sunt locuri disponibile diseară"
+                    body="Încearcă o altă zi din calendar."
+                  />
+                  <TimeSlotPills
+                    slots={restaurant.availableSlots}
+                    maxVisible={6}
+                    onSelect={(slot) => openSheet(slot)}
+                    onMore={() => openSheet()}
+                  />
+                </>
+              ) : (
+                <TimeSlotPills
+                  slots={restaurant.availableSlots}
+                  maxVisible={6}
+                  onSelect={(slot) => openSheet(slot)}
+                  onMore={() => openSheet()}
+                />
+              )}
             </div>
 
             <section className="mt-6">
@@ -207,12 +224,28 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               <h3 className="text-[20px] font-bold text-text-primary mb-3">
                 Disponibil astăzi
               </h3>
-              <TimeSlotPills
-                slots={restaurant.availableSlots}
-                maxVisible={6}
-                onSelect={(slot) => openSheet(slot)}
-                onMore={() => openSheet()}
-              />
+              {restaurant.availableSlots.length === 0 ? (
+                <>
+                  <EmptyState
+                    illustration="/illustrations/empty-bookings.svg"
+                    title="Nu sunt locuri disponibile diseară"
+                    body="Încearcă o altă zi din calendar."
+                  />
+                  <TimeSlotPills
+                    slots={restaurant.availableSlots}
+                    maxVisible={6}
+                    onSelect={(slot) => openSheet(slot)}
+                    onMore={() => openSheet()}
+                  />
+                </>
+              ) : (
+                <TimeSlotPills
+                  slots={restaurant.availableSlots}
+                  maxVisible={6}
+                  onSelect={(slot) => openSheet(slot)}
+                  onMore={() => openSheet()}
+                />
+              )}
             </div>
 
             <Link
