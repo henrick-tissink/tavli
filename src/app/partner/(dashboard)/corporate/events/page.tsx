@@ -35,6 +35,7 @@ export default async function EventInboxPage() {
       guestName: eventRequests.guestName,
       status: eventRequests.status,
       createdAt: eventRequests.createdAt,
+      budgetPerHeadCents: eventRequests.budgetPerHeadCents,
     })
     .from(eventRequests)
     .where(eq(eventRequests.restaurantId, r.id))
