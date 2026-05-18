@@ -113,7 +113,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
-                    title="Nu sunt locuri disponibile diseară"
+                    title="Nu sunt locuri disponibile astăzi"
                     body="Încearcă o altă zi din calendar."
                   />
                   <div className="text-center">
@@ -222,7 +222,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
-                    title="Nu sunt locuri disponibile diseară"
+                    title="Nu sunt locuri disponibile astăzi"
                     body="Încearcă o altă zi din calendar."
                   />
                   <div className="text-center">

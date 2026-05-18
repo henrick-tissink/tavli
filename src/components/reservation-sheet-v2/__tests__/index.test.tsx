@@ -27,8 +27,17 @@ const defaultProps = {
 };
 
 describe("ReservationSheetV2 orchestrator", () => {
+  const originalFetch = global.fetch;
   beforeEach(() => {
     createReservationMock.mockClear();
+    // Mock the date-slots fetch the orchestrator fires when form.date changes.
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ slots: ["18:00", "19:30"] }),
+    }) as unknown as typeof fetch;
+  });
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   it("renders Step 1 (date) with progress bar on open", () => {

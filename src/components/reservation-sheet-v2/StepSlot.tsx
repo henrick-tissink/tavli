@@ -5,6 +5,7 @@ interface StepSlotProps {
   zones?: string[]; // e.g. ["Terasă", "Interior"]
   selectedSlot: string | null;
   selectedZone: string | null;
+  loading?: boolean;
   onSelectSlot: (slot: string) => void;
   onSelectZone: (zone: string | null) => void;
 }
@@ -14,6 +15,7 @@ export function StepSlot({
   zones,
   selectedSlot,
   selectedZone,
+  loading = false,
   onSelectSlot,
   onSelectZone,
 }: StepSlotProps) {
@@ -28,7 +30,13 @@ export function StepSlot({
         Alege intervalul de sosire.
       </p>
 
-      {availableSlots.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-3 tablet:grid-cols-4 gap-2" aria-label="Se încarcă locurile" aria-busy="true">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="h-11 rounded-button bg-surface-bg animate-pulse" />
+          ))}
+        </div>
+      ) : availableSlots.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-text-secondary">
             Nu sunt locuri disponibile pentru această dată.

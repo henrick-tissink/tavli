@@ -60,26 +60,16 @@ export function FeedPageClient({
   const firstChunk = openFiltered.slice(0, 8);
   const restChunk = openFiltered.slice(8);
 
-  // Compute time-of-day pull-quote for the editorial interstitial
-  const pullQuote = useMemo(() => {
-    const active = timeContext.active;
-    if (active.includes("morning") || active.includes("brunch")) {
-      return {
-        eyebrow: "PUȚINĂ INSPIRAȚIE",
-        body: "Cei mai buni meseni încep planificarea de dimineață. Caută masă pentru diseară.",
-      };
-    }
-    if (active.includes("lunch") || active.includes("afternoon")) {
-      return {
-        eyebrow: "DUPĂ-AMIAZĂ",
-        body: "Bucureștiul devine un alt oraș la apus. Reține-ți locul.",
-      };
-    }
-    return {
-      eyebrow: "SEARA",
-      body: `În seara asta, în ${displayCity}, oamenii deja stau la mese. Și tu poți.`,
-    };
-  }, [timeContext.active, displayCity]);
+  // Pull-quote derives from the SAME `timeContext` priority as the cover-hero
+  // greeting (see `PULL_QUOTE_MAP` in time-context). The `{city}` token in the
+  // body is substituted client-side so eyebrow + greeting are always in sync.
+  const pullQuote = useMemo(
+    () => ({
+      eyebrow: timeContext.pullQuote.eyebrow,
+      body: timeContext.pullQuote.body.replace("{city}", displayCity),
+    }),
+    [timeContext.pullQuote, displayCity],
+  );
 
   return (
     <>
