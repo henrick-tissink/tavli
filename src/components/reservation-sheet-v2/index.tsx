@@ -104,9 +104,10 @@ export function ReservationSheetV2({
   const patch = (p: Partial<ReservationFormState>) =>
     setForm((f) => ({ ...f, ...p }));
 
-  // Fetch slots whenever the user picks/changes a date. Past times for "today"
-  // are filtered server-side. If the lookup fails we leave slots = [] so the
-  // empty-state UX kicks in rather than the stale prop.
+  // Fetch slots whenever the user picks/changes a date. The API returns every
+  // slot for that day-of-week; we filter past slots HERE using the client's
+  // local wall clock (server may be UTC while the user is in RO/UTC+3). If the
+  // lookup fails we leave slots = [] so the empty-state UX kicks in.
   useEffect(() => {
     if (!open || !form.date || !restaurantId) return;
     const controller = new AbortController();
@@ -117,10 +118,19 @@ export function ReservationSheetV2({
     )
       .then((r) => (r.ok ? r.json() : { slots: [] }))
       .then((j: { slots?: string[] }) => {
-        setDateSlots(Array.isArray(j.slots) ? j.slots : []);
-        // If the previously selected slot isn't in the new list (date changed),
-        // drop the selection so the user picks again.
-        if (form.slot && Array.isArray(j.slots) && !j.slots.includes(form.slot)) {
+        const raw = Array.isArray(j.slots) ? j.slots : [];
+        // If picking today, drop slots already past the local wall clock.
+        const now = new Date();
+        const localTodayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        let filtered = raw;
+        if (form.date === localTodayIso) {
+          const cutoff = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+          filtered = raw.filter((s) => s > cutoff);
+        }
+        setDateSlots(filtered);
+        // If the previously selected slot isn't in the new list (date changed
+        // or now in the past), drop the selection so the user picks again.
+        if (form.slot && !filtered.includes(form.slot)) {
           setForm((f) => ({ ...f, slot: null }));
         }
       })
