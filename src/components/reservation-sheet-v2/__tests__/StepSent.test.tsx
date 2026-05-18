@@ -17,3 +17,20 @@ test("renders confirmation copy and triggers onClose", () => {
   fireEvent.click(screen.getByRole("button", { name: /Înapoi/i }));
   expect(onClose).toHaveBeenCalled();
 });
+
+test("renders 'Vezi rezervarea' link when reservationId is provided", () => {
+  render(
+    <StepSent
+      restaurantName="Caru' cu Bere"
+      date="2026-05-18"
+      slot="19:30"
+      guests={4}
+      reservationId="abc-123"
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByRole("link", { name: /Vezi rezervarea/i })).toHaveAttribute(
+    "href",
+    "/reservations/abc-123",
+  );
+});
