@@ -5,11 +5,11 @@ import type { RefObject } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import { MapPin, ExternalLink, FileText, Star } from "lucide-react";
 import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import type { RestaurantDetail, MenuItem } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/button";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -354,21 +354,36 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         <div className="h-24 desktop:h-8" />
       </div>
 
-      {showStickyCta && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface-white border-t border-border p-3 flex items-center gap-3 desktop:hidden">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-text-primary truncate">
-              {restaurant.name}
-            </p>
-          </div>
-          <RatingChip
-            rating={restaurant.rating}
-            voteCount={restaurant.voteCount}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
-          />
-          <Button onClick={() => openSheet()}>Rezervă o masă</Button>
-        </div>
-      )}
+      <AnimatePresence>
+        {showStickyCta && (
+          <motion.div
+            className="fixed bottom-16 left-0 right-0 z-40 px-3 pb-3 desktop:hidden"
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ type: "spring", damping: 24, stiffness: 280 }}
+          >
+            <div className="rounded-card bg-surface-white/95 backdrop-blur-md border border-border shadow-floating p-2.5 flex items-center gap-3">
+              {restaurant.photos[0] && (
+                <Image
+                  src={restaurant.photos[0]}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover w-10 h-10 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-text-primary truncate leading-tight">{restaurant.name}</p>
+                {restaurant.availableSlots[0] && (
+                  <p className="text-xs text-text-secondary leading-tight">Următor disponibil: {restaurant.availableSlots[0]}</p>
+                )}
+              </div>
+              <Button onClick={() => openSheet()} className="px-4">Rezervă</Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ReservationSheetV2
         open={sheetOpen}
