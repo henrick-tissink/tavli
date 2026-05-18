@@ -155,7 +155,7 @@ export function PhotoGallery({
       )}
 
       {/* Dot indicators */}
-      <div className={`absolute ${overlayTitle ? "bottom-[72px] desktop:bottom-[88px]" : "bottom-4"} left-0 right-0 flex justify-center gap-1.5`}>
+      <div className={`absolute ${overlayTitle && currentIndex === 0 ? "bottom-[72px] desktop:bottom-[88px]" : "bottom-4"} left-0 right-0 flex justify-center gap-1.5`}>
         {photos.map((_, i) => (
           <div
             key={i}

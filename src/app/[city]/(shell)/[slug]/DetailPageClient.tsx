@@ -96,7 +96,9 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
       <HeroNoteSection restaurant={restaurant} />
 
-      <hr className="border-t border-border my-0 max-w-3xl mx-auto px-4 desktop:px-6" />
+      {restaurant.heroNote && (
+        <hr className="border-t border-border my-10 desktop:my-14 max-w-3xl mx-auto" />
+      )}
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto">
         <div className="desktop:flex desktop:gap-8">
@@ -161,7 +163,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   <Pill key={tag} label={tag} />
                 ))}
               </div>
-              <hr className="border-t border-border mt-10 desktop:mt-14 max-w-3xl" />
+              <hr className="border-t border-border mt-10 desktop:mt-14" />
             </section>
 
             {restaurant.chefPicks.length > 0 && (
@@ -424,6 +426,9 @@ function InfoBlock({
 }) {
   return (
     <div className="mt-4">
+      <h2 className="hidden desktop:block font-display text-3xl font-bold text-text-primary leading-tight tracking-tight mb-3">
+        {restaurant.name}
+      </h2>
       <p className="text-sm text-text-secondary mt-1 flex items-center gap-1">
         <MapPin size={14} className="flex-shrink-0" />
         {restaurant.address}
@@ -483,21 +488,14 @@ const CUISINE_ADJECTIVES: Record<string, string> = {
 };
 
 function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
-  const noteText = restaurant.heroNote
-    ? restaurant.heroNote
-    : (() => {
-        const cuisine = restaurant.cuisines[0];
-        const adj = cuisine ? (CUISINE_ADJECTIVES[cuisine] ?? "unic în felul său") : "unic în felul său";
-        const zonePart = restaurant.zone ? ` în inima zonei ${restaurant.zone}` : "";
-        return `Un loc ${adj}${zonePart}.`;
-      })();
+  if (!restaurant.heroNote) return null;
 
   return (
     <section className="px-4 desktop:px-6 max-w-3xl mx-auto pt-10 desktop:pt-14 pb-6 desktop:pb-10">
       <div className="text-center">
         <span className="inline-block text-brand-primary text-2xl tracking-[0.3em]" aria-hidden>—</span>
         <p className="font-display italic text-text-primary text-2xl desktop:text-3xl leading-snug mt-6 max-w-2xl mx-auto">
-          {noteText}
+          {restaurant.heroNote}
         </p>
         <span className="inline-block text-brand-primary text-2xl tracking-[0.3em] mt-6" aria-hidden>—</span>
       </div>
