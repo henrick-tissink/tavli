@@ -16,9 +16,6 @@ export function StepParty({ value, onChange }: StepPartyProps) {
 
   return (
     <div className="space-y-5">
-      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-        Pas 2 din 4
-      </p>
       <h2 className="font-display text-xl font-bold text-text-primary">
         Câte persoane?
       </h2>

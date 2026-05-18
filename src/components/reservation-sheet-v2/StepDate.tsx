@@ -19,9 +19,6 @@ export function StepDate({ value, onSelect }: StepDateProps) {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-        Pas 1 din 4
-      </p>
       <h2 className="font-display text-xl font-bold text-text-primary">
         Când vrei să rezervi?
       </h2>
