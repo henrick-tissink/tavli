@@ -21,6 +21,7 @@ import { ReservationSheetV2 } from "@/components/reservation-sheet-v2";
 import { EventRequestCtaV2 } from "@/components/event-request-cta-v2";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
+import { SectionHeader } from "@/components/section-header";
 import { useSaved } from "@/lib/saved-context";
 
 interface Props {
@@ -103,9 +104,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </div>
 
             <div className="desktop:hidden mt-6">
-              <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Disponibil astăzi
-              </h3>
+              <SectionHeader title="Disponibil astăzi" />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
@@ -164,18 +163,19 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             {restaurant.chefPicks.length > 0 && (
               <section className="mt-8">
-                <div className="flex items-baseline justify-between mb-4">
-                  <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary inline-flex items-center gap-2">
-                    <Star size={18} className="fill-yellow-400 text-yellow-400" />
-                    Recomandările bucătarului
-                  </h3>
-                  <Link
-                    href={menuHref}
-                    className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap"
-                  >
-                    Vezi meniul →
-                  </Link>
-                </div>
+                <SectionHeader
+                  title="Recomandările bucătarului"
+                  subtitle="Felurile pe care le poți încerca aici."
+                  icon={<Star size={18} className="fill-yellow-400 text-yellow-400" />}
+                  rightSlot={
+                    <Link
+                      href={menuHref}
+                      className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap shrink-0"
+                    >
+                      Vezi meniul →
+                    </Link>
+                  }
+                />
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
                   {restaurant.chefPicks.map((item, idx) => (
                     <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} />
@@ -195,12 +195,10 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
             {restaurant.reviews.length > 0 && (
               <section className="mt-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                    Recenzii
-                  </h3>
-                  <span className="text-xs text-text-muted">Cele mai recente</span>
-                </div>
+                <SectionHeader
+                  title="Recenzii"
+                  subtitle="Ce spun oaspeții recenți."
+                />
                 <div className="divide-y divide-border">
                   {restaurant.reviews.map((review) => (
                     <ReviewCard key={review.id} review={review} />
@@ -214,9 +212,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={null} />
 
             <div className="mt-6">
-              <h3 className="text-[20px] font-bold text-text-primary mb-3">
-                Disponibil astăzi
-              </h3>
+              <SectionHeader title="Disponibil astăzi" />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
@@ -252,7 +248,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </Link>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Program</h3>
+              <SectionHeader title="Program" subtitle="Când e deschis." />
               <div className="mt-3 space-y-1">
                 {restaurant.schedule.map((entry) => (
                   <div key={entry.days} className="flex justify-between text-sm">
@@ -264,7 +260,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </section>
 
             <section className="mt-8">
-              <h3 className="text-[20px] font-bold text-text-primary">Locație</h3>
+              <SectionHeader title="Locație" subtitle="Cum ajungi." />
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
               {hasCoords && (
                 <div className="mt-3">
@@ -301,7 +297,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </section>
 
           <section className="mt-8">
-            <h3 className="text-[20px] font-bold text-text-primary">Hours</h3>
+            <SectionHeader title="Program" subtitle="Când e deschis." />
             <div className="mt-3 space-y-1">
               {restaurant.schedule.map((entry) => (
                 <div key={entry.days} className="flex justify-between text-sm">
@@ -313,7 +309,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </section>
 
           <section className="mt-8">
-            <h3 className="text-[20px] font-bold text-text-primary">Location</h3>
+            <SectionHeader title="Locație" subtitle="Cum ajungi." />
             <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
             {hasCoords && (
               <div className="mt-3">
@@ -340,8 +336,9 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
         {restaurant.nearby.length > 0 && (
           <section className="mt-8">
+            <SectionHeader title="În apropiere" subtitle="Și altele aproape de tine." />
             <HorizontalSection
-              title="În apropiere"
+              title=""
               restaurants={restaurant.nearby}
               isSaved={isSaved}
               onSave={toggleSave}

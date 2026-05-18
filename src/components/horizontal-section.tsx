@@ -22,11 +22,13 @@ export function HorizontalSection({
 }: HorizontalSectionProps) {
   return (
     <section>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-          {title}
-        </h2>
-      </div>
+      {title && (
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
+            {title}
+          </h2>
+        </div>
+      )}
       <div className="overflow-x-auto flex gap-4 hide-scrollbar snap-x snap-mandatory pb-2">
         {restaurants.map((restaurant) => (
           <div
