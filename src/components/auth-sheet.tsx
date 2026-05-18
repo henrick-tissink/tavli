@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { Mail } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import { Button } from "./button";
 import { useAuth } from "@/lib/auth-context";
@@ -66,23 +68,47 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
   };
 
   const title = mode === "sign-in" ? "Conectează-te" : "Creează cont";
-  const submitLabel =
-    mode === "sign-in" ? "Conectează-te" : "Creează cont";
+  const submitLabel = mode === "sign-in" ? "Conectează-te" : "Creează cont";
+  const loadingLabel = mode === "sign-in" ? "Se conectează…" : "Se creează contul…";
 
   return (
     <BottomSheet open={open} onClose={handleClose} title={title}>
       {needsConfirmation ? (
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary">
-            Ți-am trimis un email la <strong>{email}</strong>. Confirmă adresa
-            pentru a finaliza contul, apoi conectează-te.
-          </p>
+          {/* Icon header */}
+          <div className="flex flex-col items-center gap-3 pb-2">
+            <div className="w-14 h-14 rounded-full bg-brand-primary-soft flex items-center justify-center">
+              <Mail size={24} className="text-brand-primary" />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-text-primary text-center">
+              Verifică emailul
+            </h2>
+            <p className="text-sm text-text-secondary text-center">
+              Ți-am trimis un email la <strong>{email}</strong>. Confirmă adresa
+              pentru a finaliza contul, apoi conectează-te.
+            </p>
+          </div>
           <Button fullWidth onClick={handleClose}>
             Am înțeles
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Icon header */}
+          <div className="flex flex-col items-center gap-3 pb-2">
+            <div className="w-14 h-14 rounded-full bg-brand-primary-soft flex items-center justify-center">
+              <Mail size={24} className="text-brand-primary" />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-text-primary text-center">
+              {title}
+            </h2>
+            <p className="text-sm text-text-secondary text-center">
+              {mode === "sign-in"
+                ? "Introdu datele contului tău pentru a continua."
+                : "Creează un cont gratuit pentru a face rezervări."}
+            </p>
+          </div>
+
           <input
             type="email"
             value={email}
@@ -90,7 +116,7 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             placeholder="Email"
             aria-label="Email"
             autoComplete="email"
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="rounded-button border border-border px-3 py-2.5 w-full text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary focus:bg-brand-primary-soft/40"
           />
           <input
             type="password"
@@ -99,7 +125,7 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             placeholder="Parolă (minim 6 caractere)"
             aria-label="Parolă"
             autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="rounded-button border border-border px-3 py-2.5 w-full text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary focus:bg-brand-primary-soft/40"
           />
 
           {error && (
@@ -112,7 +138,7 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
           )}
 
           <Button fullWidth disabled={!canSubmit} onClick={handleSubmit}>
-            {submitting ? "Se procesează…" : submitLabel}
+            {submitting ? loadingLabel : submitLabel}
           </Button>
 
           <div className="text-center">
@@ -128,6 +154,21 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
                 ? "Nu ai cont? Creează unul"
                 : "Ai deja cont? Conectează-te"}
             </button>
+          </div>
+
+          {/* Legal microcopy */}
+          <div className="border-t border-border pt-3">
+            <p className="text-xs text-text-muted text-center">
+              Continuând, ești de acord cu{" "}
+              <Link href="/termeni" className="underline hover:text-text-secondary">
+                Termenii
+              </Link>{" "}
+              și{" "}
+              <Link href="/confidentialitate" className="underline hover:text-text-secondary">
+                Confidențialitatea
+              </Link>
+              .
+            </p>
           </div>
         </div>
       )}

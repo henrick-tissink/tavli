@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Table top -->
+  <ellipse cx="160" cy="190" rx="72" ry="18"/>
+  <!-- Table leg left -->
+  <line x1="120" y1="208" x2="108" y2="260"/>
+  <!-- Table leg right -->
+  <line x1="200" y1="208" x2="212" y2="260"/>
+  <!-- Table base crossbar -->
+  <line x1="104" y1="260" x2="216" y2="260"/>
+  <!-- Plate -->
+  <ellipse cx="160" cy="187" rx="36" ry="10"/>
+  <!-- Fork left of plate -->
+  <line x1="116" y1="175" x2="116" y2="200"/>
+  <line x1="112" y1="175" x2="112" y2="185"/>
+  <line x1="116" y1="175" x2="116" y2="185"/>
+  <line x1="120" y1="175" x2="120" y2="185"/>
+  <path d="M112 185 Q116 189 120 185"/>
+  <!-- Knife right of plate -->
+  <line x1="204" y1="175" x2="204" y2="200"/>
+  <path d="M204 175 Q210 178 204 183"/>
+  <!-- Wine glass stem -->
+  <line x1="160" y1="152" x2="160" y2="178"/>
+  <!-- Wine glass base -->
+  <line x1="152" y1="178" x2="168" y2="178"/>
+  <!-- Wine glass bowl -->
+  <path d="M148 130 Q148 152 160 152 Q172 152 172 130 Z"/>
+  <!-- Wine in glass -->
+  <path d="M150 142 Q160 146 170 142"/>
+  <!-- Heart floating above -->
+  <path d="M156 108 C156 104 150 100 150 106 C150 112 156 116 160 120 C164 116 170 112 170 106 C170 100 164 104 164 108 C162 105 158 105 156 108 Z"/>
+</svg>

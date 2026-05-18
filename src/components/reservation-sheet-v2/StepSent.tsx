@@ -1,0 +1,69 @@
+"use client";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
+import { RO_DATE_FORMAT, localDateFromIso } from "./helpers";
+
+interface StepSentProps {
+  restaurantName: string;
+  date: string; // ISO
+  slot: string;
+  guests: number;
+  reservationId?: string | null;
+  onClose: () => void;
+}
+
+export function StepSent({
+  restaurantName,
+  date,
+  slot,
+  guests,
+  reservationId,
+  onClose,
+}: StepSentProps) {
+  const formatted = RO_DATE_FORMAT.format(localDateFromIso(date));
+
+  return (
+    <div className="text-center py-6 space-y-4">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 18 }}
+        className="mx-auto w-16 h-16 flex items-center justify-center"
+      >
+        <CheckCircle className="w-16 h-16 text-brand-primary" />
+      </motion.div>
+
+      <h2 className="font-display text-2xl font-bold text-text-primary text-center">
+        Rezervarea ta este confirmată
+      </h2>
+
+      <p className="text-sm text-text-secondary text-center">
+        {restaurantName} · {formatted} la {slot} · {guests} persoane
+      </p>
+
+      <div className="flex flex-col gap-2 pt-2">
+        {reservationId ? (
+          <Link
+            href={`/reservations/${reservationId}`}
+            className="w-full bg-brand-primary text-white font-semibold py-3 rounded-button hover:bg-brand-primary-dark transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          >
+            Vezi rezervarea
+          </Link>
+        ) : null}
+        <button
+          type="button"
+          onClick={onClose}
+          className={`w-full font-semibold py-3 rounded-button transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
+            reservationId
+              ? "border border-border text-text-primary hover:bg-surface-bg"
+              : "bg-brand-primary text-white hover:bg-brand-primary-dark"
+          }`}
+        >
+          Înapoi la restaurant
+        </button>
+      </div>
+    </div>
+  );
+}
