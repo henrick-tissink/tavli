@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { SheetProgress } from "./SheetProgress";
 import { StepDate } from "./StepDate";
@@ -80,6 +79,13 @@ export function ReservationSheetV2({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Slots for the selected date. Fetched async when `form.date` changes.
+  // `null` means "no date picked yet"; `[]` means "fetched, none available".
+  // Falls back to the server-rendered `availableSlots` for the FIRST date
+  // picked when it matches today, so we don't double-fetch on open.
+  const [dateSlots, setDateSlots] = useState<string[] | null>(null);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+
   // Mirror v1 reopen behaviour: reset state each time open transitions false → true
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
@@ -91,11 +97,42 @@ export function ReservationSheetV2({
       setSubmitError(null);
       setSubmitting(false);
       setConfirmationToken(null);
+      setDateSlots(null);
     }
   }
 
   const patch = (p: Partial<ReservationFormState>) =>
     setForm((f) => ({ ...f, ...p }));
+
+  // Fetch slots whenever the user picks/changes a date. Past times for "today"
+  // are filtered server-side. If the lookup fails we leave slots = [] so the
+  // empty-state UX kicks in rather than the stale prop.
+  useEffect(() => {
+    if (!open || !form.date || !restaurantId) return;
+    const controller = new AbortController();
+    setSlotsLoading(true);
+    fetch(
+      `/api/restaurants/${encodeURIComponent(restaurantId)}/slots?date=${form.date}`,
+      { signal: controller.signal },
+    )
+      .then((r) => (r.ok ? r.json() : { slots: [] }))
+      .then((j: { slots?: string[] }) => {
+        setDateSlots(Array.isArray(j.slots) ? j.slots : []);
+        // If the previously selected slot isn't in the new list (date changed),
+        // drop the selection so the user picks again.
+        if (form.slot && Array.isArray(j.slots) && !j.slots.includes(form.slot)) {
+          setForm((f) => ({ ...f, slot: null }));
+        }
+      })
+      .catch((e) => {
+        if (e?.name !== "AbortError") setDateSlots([]);
+      })
+      .finally(() => setSlotsLoading(false));
+    return () => controller.abort();
+    // form.slot is intentionally NOT a dep — we read its current value
+    // imperatively to decide whether to clear it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, form.date, restaurantId]);
 
   // ── Step validity ──────────────────────────────────────────────────────────
   function isStepValid(s: ReservationStep): boolean {
@@ -245,10 +282,11 @@ export function ReservationSheetV2({
               transition={{ duration: 0.16 }}
             >
               <StepSlot
-                availableSlots={availableSlots}
+                availableSlots={dateSlots ?? availableSlots}
                 zones={zones}
                 selectedSlot={form.slot}
                 selectedZone={form.zone}
+                loading={slotsLoading}
                 onSelectSlot={(s) => patch({ slot: s })}
                 onSelectZone={(z) => patch({ zone: z })}
               />
