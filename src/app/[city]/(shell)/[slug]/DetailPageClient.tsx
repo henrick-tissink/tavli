@@ -133,11 +133,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               )}
             </div>
 
-            <section className="mt-6">
-              <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-                Despre
-              </h3>
-              <p className="text-sm text-text-secondary mt-2 leading-relaxed">
+            <section className="mt-10 desktop:mt-14 max-w-prose">
+              <p className="text-base desktop:text-lg text-text-primary leading-relaxed first-letter:font-display first-letter:text-5xl first-letter:font-bold first-letter:text-brand-primary first-letter:mr-2 first-letter:float-left first-letter:leading-[0.9]">
                 {displayDescription}
                 {descriptionNeedsTruncation && (
                   <button
@@ -158,7 +155,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   </button>
                 )}
               </p>
-              <div className="flex items-center gap-2 flex-wrap mt-3">
+              <div className="flex items-center gap-2 flex-wrap mt-4">
                 {restaurant.tags.map((tag) => (
                   <Pill key={tag} label={tag} />
                 ))}
