@@ -93,17 +93,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         overlayRating={restaurant.voteCount > 0 ? { value: restaurant.rating, voteCount: restaurant.voteCount } : undefined}
       />
 
-      {restaurant.heroNote && (
-        <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-8 desktop:pt-10">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="text-text-muted text-xs tracking-[0.2em] uppercase">· · ·</p>
-            <p className="font-display italic text-text-primary text-xl desktop:text-2xl leading-relaxed mt-3">
-              {restaurant.heroNote}
-            </p>
-            <p className="text-text-muted text-xs tracking-[0.2em] uppercase mt-3">· · ·</p>
-          </div>
-        </div>
-      )}
+      <HeroNoteSection restaurant={restaurant} />
 
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto">
         <div className="desktop:flex desktop:gap-8">
@@ -449,6 +439,57 @@ function InfoBlock({
         />
       </div>
     </div>
+  );
+}
+
+const CUISINE_ADJECTIVES: Record<string, string> = {
+  Romanian: "autentic românesc",
+  Italian: "cu savori italiene",
+  Japanese: "japonez rafinat",
+  Turkish: "turcesc autentic",
+  French: "franțuzesc cu eleganță",
+  Chinese: "chinezesc tradițional",
+  Lebanese: "libanez vibrant",
+  Spanish: "spaniol însorit",
+  Greek: "grecesc mediteranean",
+  Thai: "thailandez aromat",
+  Indian: "indian condimentat",
+  Mexican: "mexican picant",
+  Korean: "coreean modern",
+  Balkan: "balcanic plin de caracter",
+  American: "american relaxat",
+  European: "european contemporan",
+  Mediterranean: "mediteranean luminos",
+  Fusion: "fusion inventiv",
+  Brunch: "perfect pentru brunch",
+  Coffee: "pentru iubitorii de cafea",
+  Cocktails: "pentru serile cu cocktailuri",
+  Pizza: "cu pizza artizanală",
+  Burger: "cu burger-uri artizanale",
+  Vegan: "vegan și creativ",
+  Vegetarian: "vegetarian și sănătos",
+};
+
+function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
+  const noteText = restaurant.heroNote
+    ? restaurant.heroNote
+    : (() => {
+        const cuisine = restaurant.cuisines[0];
+        const adj = cuisine ? (CUISINE_ADJECTIVES[cuisine] ?? "unic în felul său") : "unic în felul său";
+        const zonePart = restaurant.zone ? ` în inima zonei ${restaurant.zone}` : "";
+        return `Un loc ${adj}${zonePart}.`;
+      })();
+
+  return (
+    <section className="px-4 desktop:px-6 max-w-3xl mx-auto pt-10 desktop:pt-14 pb-6 desktop:pb-10">
+      <div className="text-center">
+        <span className="inline-block text-brand-primary text-2xl tracking-[0.3em]" aria-hidden>—</span>
+        <p className="font-display italic text-text-primary text-2xl desktop:text-3xl leading-snug mt-6 max-w-2xl mx-auto">
+          {noteText}
+        </p>
+        <span className="inline-block text-brand-primary text-2xl tracking-[0.3em] mt-6" aria-hidden>—</span>
+      </div>
+    </section>
   );
 }
 
