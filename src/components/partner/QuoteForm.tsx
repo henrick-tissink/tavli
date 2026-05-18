@@ -9,6 +9,8 @@ export function QuoteForm({
   onCancel,
 }: {
   eventRequestId: string;
+  partySize?: number;
+  budgetPerHeadCents?: number | null;
   onCancel: () => void;
 }) {
   const [amountLei, setAmountLei] = useState<number>(0);
