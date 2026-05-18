@@ -341,7 +341,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
         {restaurant.nearby.length > 0 && (
           <section className="mt-8">
-            <SectionHeader title="În apropiere" subtitle="Și altele aproape de tine." />
+            <SectionHeader title="În apropiere" subtitle="Locuri pe aceeași stradă cu spiritul ăsta." />
             <HorizontalSection
               title=""
               restaurants={restaurant.nearby}

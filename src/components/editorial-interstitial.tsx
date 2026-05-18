@@ -16,7 +16,7 @@ export function EditorialInterstitial({
           {eyebrow}
         </p>
       )}
-      <p className="font-display italic text-xl desktop:text-2xl text-text-primary leading-snug">
+      <p className="font-display italic text-2xl desktop:text-3xl text-text-primary leading-snug">
         {body}
       </p>
       {attribution && (
