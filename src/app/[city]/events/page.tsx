@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listRestaurants } from "@/lib/repos/restaurants-repo";
 import { RestaurantCard } from "@/components/restaurant-card";
+import { EditorialHero } from "@/components/events-landing/EditorialHero";
+import { OccasionEntryGrid } from "@/components/events-landing/OccasionEntryGrid";
 
 export async function generateMetadata({
   params,
@@ -28,25 +29,23 @@ export default async function CityEventsPage({
     limit: 60,
   });
   if (!rows) notFound();
-
+  const cityCapitalised = city.charAt(0).toUpperCase() + city.slice(1);
   return (
     <main className="max-w-6xl mx-auto p-6">
-      <header className="mb-6">
-        <h1 className="text-3xl font-semibold">
-          Locații pentru evenimente private
-        </h1>
-        <p className="text-zinc-600 mt-2">
-          {rows.length} locații care primesc solicitări pentru evenimente în{" "}
-          {city}.
-        </p>
-      </header>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {rows.map((r) => (
-          <Link key={r.id} href={`/${city}/${r.slug}`} className="block">
-            <RestaurantCard restaurant={r} highlightCapability="events" />
-          </Link>
-        ))}
-      </div>
+      <EditorialHero city={cityCapitalised} venueCount={rows.length} />
+      <OccasionEntryGrid />
+      <section>
+        <h2 className="font-display text-2xl font-bold mb-4">
+          Toate locațiile
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {rows.map((r) => (
+            <a key={r.id} href={`/${city}/${r.slug}`} className="block">
+              <RestaurantCard restaurant={r} highlightCapability="events" />
+            </a>
+          ))}
+        </div>
+      </section>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

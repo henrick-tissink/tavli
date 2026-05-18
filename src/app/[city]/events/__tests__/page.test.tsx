@@ -22,14 +22,18 @@ jest.mock("@/lib/repos/restaurants-repo", () => ({
 }));
 
 describe("CityEventsPage", () => {
-  it("renders heading and listing", async () => {
+  it("renders editorial hero, occasion grid and listing", async () => {
     const ui = await CityEventsPage({
       params: Promise.resolve({ city: "bucuresti" }),
     });
     render(ui);
     expect(
-      screen.getByText(/Locații pentru evenimente private/),
+      screen.getByText(/Momente memorabile, găzduite în Bucuresti/),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "X" })).toBeInTheDocument();
+    expect(screen.getByText(/Pentru ce moment cauți/)).toBeInTheDocument();
+    expect(screen.getByText(/Toate locațiile/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "X" }),
+    ).toBeInTheDocument();
   });
 });
