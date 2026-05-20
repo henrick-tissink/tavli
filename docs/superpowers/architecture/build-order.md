@@ -52,7 +52,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] `ERROR_CODES` typed registry — `src/lib/errors/codes.ts` (foundations §16.1) — 54 TV codes + 7 cross-cutting, range/slug invariants tested
 - [x] `AUDIT` typed registry — `src/lib/audit/actions.ts` (foundations §16.2) — shipped with the recordAudit helper since its TS signature depends on the registry
 - [x] `JOBS` typed registry — `src/lib/jobs/keys.ts` (foundations §16.3) — full registry across 12 domains, prefix + uniqueness invariants tested
-- [ ] `ActionResult<T>` + `ok()` / `fail()` helpers (foundations §3.2)
+- [x] `ActionResult<T>` + `ok()` / `fail()` helpers (foundations §3.2) — src/lib/server-action.ts; covers ok/fail/invalid/unauthenticated/forbidden/notFound/conflict/rateLimited
 - [ ] `can()` / `requireCan()` permission framework (foundations §3.4)
 - [ ] `webhook_events` table + `ingestWebhook` skeleton (foundations §6.6)
 - [ ] pg-boss install + worker process (foundations §17.7)
