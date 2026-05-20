@@ -6,7 +6,14 @@
  */
 
 import type { CurrentSession } from "@/lib/auth/session";
-import { can, requireCan, setMembershipResolver, type MembershipResolver } from "../can";
+import {
+  can,
+  dedupRolesFor,
+  requireCan,
+  setMembershipResolver,
+  type MembershipResolver,
+  type MembershipScope,
+} from "../can";
 import type { MatrixRole } from "../permissions";
 
 function adminSession(): CurrentSession {
@@ -117,6 +124,38 @@ describe("can()", () => {
         restaurant_id: "r-1",
       }),
     ).toBe(false);
+  });
+});
+
+describe("dedupRolesFor", () => {
+  // The Map injection mirrors what React's cache() does in a real
+  // server context — same Map per request, fresh Map per request. We
+  // can't exercise React's cache() under jest, so the dedup helper is
+  // tested directly.
+  it("collapses concurrent calls for the same (user, scope) into one resolver call", async () => {
+    const rolesForScope = jest.fn().mockResolvedValue(["venue_owner"]);
+    const resolver: MembershipResolver = { rolesForScope };
+    const map = new Map<string, Promise<MatrixRole[]>>();
+    const scope: MembershipScope = { kind: "venue", restaurantId: "r-1" };
+
+    await Promise.all([
+      dedupRolesFor(resolver, "user-1", scope, map),
+      dedupRolesFor(resolver, "user-1", scope, map),
+    ]);
+
+    expect(rolesForScope).toHaveBeenCalledTimes(1);
+  });
+
+  it("issues separate resolver calls for different scopes", async () => {
+    const rolesForScope = jest.fn().mockResolvedValue([]);
+    const resolver: MembershipResolver = { rolesForScope };
+    const map = new Map<string, Promise<MatrixRole[]>>();
+
+    await dedupRolesFor(resolver, "user-1", { kind: "venue", restaurantId: "r-1" }, map);
+    await dedupRolesFor(resolver, "user-1", { kind: "venue", restaurantId: "r-2" }, map);
+    await dedupRolesFor(resolver, "user-2", { kind: "venue", restaurantId: "r-1" }, map);
+
+    expect(rolesForScope).toHaveBeenCalledTimes(3);
   });
 });
 

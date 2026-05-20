@@ -21,6 +21,7 @@
  */
 
 import "server-only";
+import { cache } from "react";
 import { fail, type ActionResult } from "@/lib/server-action";
 import type { CurrentSession } from "@/lib/auth/session";
 import {
@@ -57,6 +58,56 @@ async function getActiveResolver(): Promise<MembershipResolver> {
   const { legacyResolver } = await import("./resolvers/legacy");
   activeResolver = legacyResolver;
   return activeResolver;
+}
+
+/**
+ * Per-request membership cache per §01 §4.2 step 6. React's `cache()`
+ * scopes the Map to a single React render (server component or server
+ * action request); a fresh request gets a fresh Map. Outside a React
+ * runtime (jest, scripts) `cache()` is a passthrough — each call
+ * returns a fresh Map, so dedup doesn't kick in. That's why
+ * `dedupRolesFor` is exported with an injectable Map for tests.
+ *
+ * We cache the Promise (not the resolved value) so concurrent can()
+ * calls for the same scope dedupe in flight: only one DB query goes out.
+ */
+const getRequestMembershipCache = cache(
+  (): Map<string, Promise<MatrixRole[]>> => new Map(),
+);
+
+function scopeKey(scope: MembershipScope): string {
+  switch (scope.kind) {
+    case "restaurant":
+      return `r:${scope.id}`;
+    case "venue":
+      return `v:${scope.restaurantId}`;
+    case "organization":
+      return `o:${scope.id}`;
+  }
+}
+
+/** Exported so tests can verify dedup with an injected Map. */
+export async function dedupRolesFor(
+  resolver: MembershipResolver,
+  userId: string,
+  scope: MembershipScope,
+  map: Map<string, Promise<MatrixRole[]>>,
+): Promise<MatrixRole[]> {
+  const key = `${userId}|${scopeKey(scope)}`;
+  let pending = map.get(key);
+  if (!pending) {
+    pending = resolver.rolesForScope(userId, scope);
+    map.set(key, pending);
+  }
+  return pending;
+}
+
+async function rolesFor(
+  resolver: MembershipResolver,
+  userId: string,
+  scope: MembershipScope,
+): Promise<MatrixRole[]> {
+  return dedupRolesFor(resolver, userId, scope, getRequestMembershipCache());
 }
 
 function scopeForSubject(subject: Subject): MembershipScope | null {
@@ -96,7 +147,7 @@ export async function can(
   if (!scope) return false; // global/unscoped — only admins allowed
 
   const resolver = await getActiveResolver();
-  const roles = await resolver.rolesForScope(session.userId, scope);
+  const roles = await rolesFor(resolver, session.userId, scope);
   if (roles.length === 0) return false;
 
   const cells = PERMISSION_MATRIX[action];
