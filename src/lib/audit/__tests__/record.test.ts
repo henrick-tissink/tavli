@@ -83,4 +83,44 @@ describe("recordAudit", () => {
 
     expect(insert).not.toHaveBeenCalled();
   });
+
+  it("throws when context contains a sensitive key (PII/credential)", async () => {
+    const { executor, insert } = makeFakeExecutor();
+
+    await expect(
+      recordAudit(
+        {
+          action: AUDIT.reservation.created,
+          subjectType: "reservation",
+          actorRole: "venue_owner",
+          context: {
+            reservation_id: "r-1",
+            // Forbidden — caller should pass diner_id, not the name.
+            guest_name: "Ana Popescu",
+          },
+        },
+        executor,
+      ),
+    ).rejects.toThrow(/guest_name.*sensitive/);
+
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("rejects credentials in context too (not just PII)", async () => {
+    const { executor, insert } = makeFakeExecutor();
+
+    await expect(
+      recordAudit(
+        {
+          action: AUDIT.webhook.received,
+          subjectType: "webhook",
+          actorRole: "system",
+          context: { stripe_signature: "t=..,v1=.." },
+        },
+        executor,
+      ),
+    ).rejects.toThrow(/stripe_signature.*sensitive/);
+
+    expect(insert).not.toHaveBeenCalled();
+  });
 });

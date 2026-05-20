@@ -13,9 +13,30 @@
 import "server-only";
 import { dbAdmin } from "@/lib/db/admin";
 import { auditLogs } from "@/lib/db/schema";
+import { isSensitiveKey } from "@/lib/pii/keys";
 import type { ActorRole, AuditAction } from "./actions";
 
 const CONTEXT_BYTE_LIMIT = 4096;
+
+function assertNoSensitiveKeys(
+  context: Record<string, unknown>,
+  action: AuditAction,
+): void {
+  // Shallow scan only — audit context is meant to be a flat map of FK
+  // ids + scalars. Nested PII almost never appears at depth in real
+  // usage; if it does, the helper consumer is doing it wrong and a
+  // deeper scan would just hide that.
+  for (const key of Object.keys(context)) {
+    if (isSensitiveKey(key)) {
+      throw new Error(
+        `recordAudit: context key '${key}' is sensitive (PII/credential/secret) ` +
+          `and is not allowed in audit_logs.context (action=${action}). ` +
+          `Pass FK ids instead — e.g. { diner_id, reservation_id } not ` +
+          `{ diner_name, email }. See src/lib/pii/keys.ts for the full list.`,
+      );
+    }
+  }
+}
 
 export interface RecordAuditInput {
   action: AuditAction;
@@ -40,14 +61,18 @@ export async function recordAudit(
 ): Promise<void> {
   const context = input.context ?? {};
 
-  // Spec §16.2: enforce the 4KB payload cap in the helper, not the DB.
+  // Spec §16.2: helper enforces both the 4KB context cap AND the
+  // no-PII discipline. Cheaper to throw at the call site than to find
+  // a Sentry alert about a leaked email weeks later.
+  assertNoSensitiveKeys(context, input.action);
+
   const serialised = JSON.stringify(context);
   const bytes = Buffer.byteLength(serialised, "utf8");
   if (bytes > CONTEXT_BYTE_LIMIT) {
     throw new Error(
       `recordAudit: context payload ${bytes}B exceeds ${CONTEXT_BYTE_LIMIT}B limit ` +
-        `(action=${input.action}). Store the blob in audit_log_attachments and ` +
-        `pass a reference instead.`,
+        `(action=${input.action}). Shrink the payload — pass FK ids instead of ` +
+        `denormalised values, and move large blobs to their own table.`,
     );
   }
 

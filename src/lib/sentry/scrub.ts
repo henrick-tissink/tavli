@@ -15,54 +15,10 @@
 
 // Sentry's @sentry/nextjs package doesn't re-export these type aliases;
 // pull them from @sentry/core where they're declared.
-import type { Breadcrumb, ErrorEvent, EventHint } from "@sentry/core";
+import type { Breadcrumb, ErrorEvent } from "@sentry/core";
+import { isSensitiveKey } from "@/lib/pii/keys";
 
 const REDACTED = "[REDACTED]" as const;
-
-/**
- * Keys that always get redacted regardless of nesting depth. Match is
- * case-insensitive on the leaf key name only.
- */
-const PII_KEYS = new Set<string>([
-  // Diner / guest identifiers
-  "phone",
-  "email",
-  "full_name",
-  "fullname",
-  "guest_phone",
-  "guest_email",
-  "guest_name",
-  "diner_phone",
-  "diner_email",
-  "diner_name",
-  "allergies",
-  "notes",
-  // Credentials + tokens
-  "password",
-  "password_confirmation",
-  "api_key",
-  "refresh_token",
-  "access_token",
-  "session_token",
-  "confirmation_token",
-  "unsubscribe_token",
-  "signed_token",
-  // Webhook signature secrets
-  "stripe_signature",
-  "twilio_signature",
-  "resend_signature",
-  // Payment surface
-  "card",
-  "card_number",
-  "cvv",
-  "cvc",
-  "exp_month",
-  "exp_year",
-]);
-
-function isPiiKey(key: string): boolean {
-  return PII_KEYS.has(key.toLowerCase());
-}
 
 function redactRecursive(value: unknown, depth = 0): unknown {
   if (depth > 8) return value; // bound traversal
@@ -72,7 +28,7 @@ function redactRecursive(value: unknown, depth = 0): unknown {
   }
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-    if (isPiiKey(k)) {
+    if (isSensitiveKey(k)) {
       out[k] = REDACTED;
     } else {
       out[k] = redactRecursive(v, depth + 1);
@@ -88,10 +44,7 @@ function redactRecursive(value: unknown, depth = 0): unknown {
  * because `beforeSend` only fires for those (transactions go through
  * `beforeSendTransaction`, which we don't wire today).
  */
-export function scrubSentryEvent<E extends ErrorEvent>(
-  event: E,
-  _hint?: EventHint,
-): E {
+export function scrubSentryEvent<E extends ErrorEvent>(event: E): E {
   if (event.request?.data) {
     event.request.data = redactRecursive(event.request.data) as typeof event.request.data;
   }
