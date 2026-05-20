@@ -54,7 +54,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] `JOBS` typed registry — `src/lib/jobs/keys.ts` (foundations §16.3) — full registry across 12 domains, prefix + uniqueness invariants tested
 - [x] `ActionResult<T>` + `ok()` / `fail()` helpers (foundations §3.2) — src/lib/server-action.ts; covers ok/fail/invalid/unauthenticated/forbidden/notFound/conflict/rateLimited
 - [ ] `can()` / `requireCan()` permission framework (foundations §3.4)
-- [ ] `webhook_events` table + `ingestWebhook` skeleton (foundations §6.6)
+- [x] `webhook_events` table + `ingestWebhook` skeleton (foundations §6.6) — migration 0012_webhook_events on prod (bookkeeping row 13, sha256 3e2f2c4d23efe0d2); helper at src/lib/webhooks/handle.ts with 4 unit tests covering signature failure / dup / success / handler-throw paths
 - [ ] pg-boss install + worker process (foundations §17.7)
 - [ ] Sentry EU project + DSN wired up (foundations §15a.8, §12.3)
 - [ ] OpenTelemetry baseline tracing (foundations §12.3)
