@@ -16,6 +16,7 @@
  *                          to the worker process distinct from the web.
  */
 
+import { bootstrapQueues } from "@/lib/jobs/bootstrap";
 import { getBoss, stopBoss } from "@/lib/jobs/boss";
 
 async function main(): Promise<void> {
@@ -28,8 +29,9 @@ async function main(): Promise<void> {
   }
 
   const boss = await getBoss();
+  await bootstrapQueues(boss);
   console.log(
-    `[worker] pg-boss started (service=${process.env.OTEL_SERVICE_NAME ?? "tavli-worker"}); awaiting handler registrations`,
+    `[worker] pg-boss started (service=${process.env.OTEL_SERVICE_NAME ?? "tavli-worker"}); queues + DLQs bootstrapped; awaiting handler registrations`,
   );
 
   // Domain units register their handlers here as they land. Until then,
