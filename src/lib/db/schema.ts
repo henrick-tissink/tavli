@@ -587,3 +587,38 @@ export const eventRequestQuoteLineItems = pgTable("event_request_quote_line_item
 }, (t) => [
   index("erqli_event_request_idx").on(t.eventRequestId, t.sortOrder),
 ]);
+
+// ─── audit_logs ─────────────────────────────────────────────────────────
+// Append-only audit substrate. Per foundations §16.2 + §18 step 14.
+//
+// `action` is plain text rather than an enum: the typed AUDIT registry in
+// src/lib/audit/actions.ts is the runtime contract, and a DB enum would
+// force a migration every time a new action is registered.
+//
+// `actor_role` is plain text for the same reason (the §01 role surface is
+// still expanding). `organization_id` has no FK yet — organizations table
+// arrives in Wave 2; the FK constraint will be added then.
+//
+// All writes go through recordAudit() via the service-role client, which
+// bypasses RLS. Direct inserts from authenticated/anon are forbidden by
+// the RLS policy (no INSERT policy is declared).
+export const auditLogs = pgTable("audit_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  action: text("action").notNull(),
+  subjectType: text("subject_type").notNull(),
+  subjectId: uuid("subject_id"),
+  actorUserId: uuid("actor_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  actorRole: text("actor_role").notNull(),
+  impersonatorUserId: uuid("impersonator_user_id").references(() => profiles.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id"),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "set null" }),
+  context: jsonb("context").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("audit_logs_action_idx").on(t.action, t.createdAt),
+  index("audit_logs_subject_idx").on(t.subjectType, t.subjectId),
+  index("audit_logs_actor_idx").on(t.actorUserId, t.createdAt),
+  index("audit_logs_organization_idx").on(t.organizationId, t.createdAt),
+  index("audit_logs_restaurant_idx").on(t.restaurantId, t.createdAt),
+  index("audit_logs_created_at_idx").on(t.createdAt),
+]);
