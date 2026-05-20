@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "language": "en-GB",
+  "dictionaryDefinitions": [
+    {
+      "name": "tavli-project",
+      "path": "./cspell-dict.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": ["tavli-project"],
+  "ignorePaths": [
+    "node_modules/**",
+    ".next/**",
+    "drizzle/migrations/**",
+    "package-lock.json",
+    "*.lock",
+    "dist/**",
+    "build/**",
+    ".git/**"
+  ]
+}
