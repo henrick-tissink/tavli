@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createMDX from "@next/mdx";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const supabaseHost = (() => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,4 +34,20 @@ const nextConfig: NextConfig = {
 
 const withMDX = createMDX({});
 
-export default withMDX(nextConfig);
+// Sentry: source-map upload requires SENTRY_AUTH_TOKEN. Without it the
+// wrapper is harmless — build proceeds, but stack traces in Sentry show
+// minified frames. The org/project slugs come from env so the same code
+// works for prod (tavli) and any future projects.
+export default withSentryConfig(withMDX(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  // Upload source maps from the build but delete them from the deployed
+  // client bundle (keeps stack traces resolvable in Sentry without
+  // leaking source to browsers).
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+});

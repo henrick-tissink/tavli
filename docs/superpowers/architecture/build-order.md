@@ -56,7 +56,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [ ] `can()` / `requireCan()` permission framework (foundations §3.4)
 - [x] `webhook_events` table + `ingestWebhook` skeleton (foundations §6.6) — migration 0012_webhook_events on prod (bookkeeping row 13, sha256 3e2f2c4d23efe0d2); helper at src/lib/webhooks/handle.ts with 4 unit tests covering signature failure / dup / success / handler-throw paths
 - [ ] pg-boss install + worker process (foundations §17.7)
-- [ ] Sentry EU project + DSN wired up (foundations §15a.8, §12.3)
+- [x] Sentry EU project + DSN wired up (foundations §15a.8, §12.3) — `@sentry/nextjs` installed; sentry.server/edge/instrumentation-client configs wired with PII scrubbing per §12.1 (src/lib/sentry/scrub.ts, 4 unit tests). Env-gated: when SENTRY_DSN unset, init is a no-op. User still needs to (1) create EU-region Sentry project + provide DSN, (2) optionally provide SENTRY_AUTH_TOKEN for source-map upload.
 - [x] OpenTelemetry baseline tracing (foundations §12.3) — `@vercel/otel` + `@opentelemetry/{api,sdk-logs,api-logs,instrumentation}` installed; `instrumentation.ts` registers OTel with service name (defaults to `tavli-web`). Exporter target attaches in the Sentry unit (§12.3)
 - [ ] Stripe SDK install + env config (foundations §17.8)
 - [ ] Twilio SDK install + env config (foundations §17.7)

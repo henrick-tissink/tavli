@@ -1,26 +1,35 @@
 /**
- * OpenTelemetry baseline per foundations §12.3.
+ * Server-side instrumentation entry. Next.js 16 calls `register()`
+ * once per server start, before the first request is served.
  *
- * Next.js calls `register()` once per server start (Node + Edge runtimes
- * both fire). `@vercel/otel` handles the SDK init for both — auto-
- * instruments HTTP fetch and Next.js' own spans (route handlers,
- * server actions, RSC renders). Postgres + pg-boss auto-instrumentation
- * lands with the pg-boss unit (Wave 1 still in progress).
+ * Two layers, in order:
  *
- * Service name defaults to "tavli-web"; override via OTEL_SERVICE_NAME
- * if a worker process needs to identify itself separately.
+ * 1. OpenTelemetry baseline per foundations §12.3 — registerOTel sets
+ *    up auto-instrumentation for HTTP fetch + Next.js' own spans.
+ *    Service name defaults to "tavli-web"; override via
+ *    OTEL_SERVICE_NAME for separately-identifiable worker processes.
  *
- * Exporter target: currently default (no explicit OTLP endpoint set).
- * The Sentry unit (Wave 1) will register Sentry's tracing exporter to
- * ship spans to its APM endpoint per §12.3.
- *
- * To see verbose Next.js spans during local dev: NEXT_OTEL_VERBOSE=1.
+ * 2. Sentry per foundations §12.1 — Node and Edge configs live in
+ *    sibling files because their initializers differ. The async import
+ *    pattern is required so Edge bundling doesn't try to pull Node-only
+ *    modules into the Edge runtime.
  */
 
 import { registerOTel } from "@vercel/otel";
 
-export function register() {
+export async function register() {
   registerOTel({
     serviceName: process.env.OTEL_SERVICE_NAME ?? "tavli-web",
   });
+
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("./sentry.server.config");
+  }
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("./sentry.edge.config");
+  }
 }
+
+// Sentry's request-error hook — wired here so route handlers' uncaught
+// errors land in Sentry with the same context as server-action throws.
+export { captureRequestError as onRequestError } from "@sentry/nextjs";
