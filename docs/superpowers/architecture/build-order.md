@@ -59,7 +59,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] Sentry EU project + DSN wired up (foundations §15a.8, §12.3) — `@sentry/nextjs` installed; sentry.server/edge/instrumentation-client configs wired with PII scrubbing per §12.1 (src/lib/sentry/scrub.ts, 4 unit tests). Env-gated: when SENTRY_DSN unset, init is a no-op. User still needs to (1) create EU-region Sentry project + provide DSN, (2) optionally provide SENTRY_AUTH_TOKEN for source-map upload.
 - [x] OpenTelemetry baseline tracing (foundations §12.3) — `@vercel/otel` + `@opentelemetry/{api,sdk-logs,api-logs,instrumentation}` installed; `instrumentation.ts` registers OTel with service name (defaults to `tavli-web`). Exporter target attaches in the Sentry unit (§12.3)
 - [x] Stripe SDK install + env config (foundations §17.8) — `stripe` installed; `src/lib/stripe/client.ts` provides `getStripe()` singleton + `verifyStripeSignature()` for §6.6 webhook ingest. Subscription/Checkout/SetupIntent logic lives in §12 (Wave 5). User must provide STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET.
-- [ ] Twilio SDK install + env config (foundations §17.7)
+- [x] Twilio SDK install + env config (foundations §17.7) — `twilio` installed; `src/lib/twilio/client.ts` provides `getTwilio()` singleton + `verifyTwilioSignature()`. SMS wrapper (E.164, quiet hours, STOP keyword) lives in §04 (Wave 3); WhatsApp wrapper in §11 (Wave 7). User must provide TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN (EU-region project).
 
 ## Wave 2 — Identity + bookings reconciliation
 
