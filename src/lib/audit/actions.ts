@@ -157,17 +157,24 @@ export type AuditAction = {
  * Granular per §01 permission matrix. `system` is for pg-boss jobs,
  * webhook handlers, and cron — i.e. writes with no human actor.
  *
- * Several roles below (org_*, restaurant_manager, restaurant_host) become
- * meaningful only once §01 ships `organizations` + `restaurant_staff`.
- * Until then, callers will use `tavli_admin`, `restaurant_owner`, `diner`,
- * or `system`.
+ * Vocabulary aligns with `MatrixRole` in src/lib/authz/permissions.ts
+ * (one source of truth for "what role is this user, right now, in this
+ * subject's scope"). The §16.2 spec previously used `restaurant_*`;
+ * unified on `venue_*` 2026-05-21 to match the authz matrix and avoid
+ * a hand-mapping layer between can() and recordAudit.
+ *
+ * Org-scoped roles (org_*) and venue staff (venue_manager, venue_host)
+ * become meaningful only once §01 ships `organizations` +
+ * `restaurant_staff`. Until then callers will use `tavli_admin`,
+ * `venue_owner`, `diner`, or `system`.
  */
 export type ActorRole =
   | "tavli_admin"
   | "org_owner"
+  | "org_admin"
   | "org_manager"
-  | "restaurant_owner"
-  | "restaurant_manager"
-  | "restaurant_host"
+  | "venue_owner"
+  | "venue_manager"
+  | "venue_host"
   | "diner"
   | "system";

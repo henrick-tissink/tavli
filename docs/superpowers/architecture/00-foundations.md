@@ -1357,11 +1357,13 @@ await recordAudit({
   },
 })
 
-// ActorRole — granular per §01 permission matrix
+// ActorRole — granular per §01 permission matrix. Vocabulary mirrors
+// MatrixRole in src/lib/authz/permissions.ts; the two are kept aligned
+// so recordAudit and can() never need a hand-mapping layer.
 type ActorRole =
   | 'tavli_admin'
-  | 'org_owner' | 'org_manager'
-  | 'restaurant_owner' | 'restaurant_manager' | 'restaurant_host'
+  | 'org_owner' | 'org_admin' | 'org_manager'
+  | 'venue_owner' | 'venue_manager' | 'venue_host'
   | 'diner'
   | 'system'                                     // pg-boss jobs, webhooks, cron
 ```
