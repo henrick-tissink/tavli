@@ -85,6 +85,13 @@
       "when": 1779306467433,
       "tag": "0011_audit_logs",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1779309535313,
+      "tag": "0012_webhook_events",
+      "breakpoints": true
     }
   ]
 }

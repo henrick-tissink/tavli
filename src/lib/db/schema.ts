@@ -588,6 +588,40 @@ export const eventRequestQuoteLineItems = pgTable("event_request_quote_line_item
   index("erqli_event_request_idx").on(t.eventRequestId, t.sortOrder),
 ]);
 
+// ─── webhook_events ─────────────────────────────────────────────────────
+// Shared idempotency + audit substrate for inbound webhooks (Resend,
+// Twilio, Stripe, Meta WhatsApp). Per foundations §6.6.
+//
+// `(provider, provider_event_id)` is unique → idempotency via
+// onConflictDoNothing.
+//
+// `processed_at` null = stuck row to retry (sweeper: JOBS.webhook
+// .reingestUnprocessed). `process_attempts` capped at 5 by the sweeper
+// before manual review.
+//
+// `signature_verified` is always true today (handler rejects pre-insert
+// on signature failure); the column exists for forward-compat with a
+// future "log signature failures for forensics" mode.
+export const webhookEvents = pgTable("webhook_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  provider: text("provider").notNull(),
+  providerEventId: text("provider_event_id").notNull(),
+  eventType: text("event_type").notNull(),
+  signatureVerified: boolean("signature_verified").notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  processedAt: timestamp("processed_at", { withTimezone: true }),
+  processError: text("process_error"),
+  processAttempts: integer("process_attempts").notNull().default(0),
+  rawPayload: jsonb("raw_payload").notNull(),
+  context: jsonb("context").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("webhook_events_idem").on(t.provider, t.providerEventId),
+  index("webhook_events_unprocessed")
+    .on(t.provider, t.receivedAt)
+    .where(sql`${t.processedAt} is null`),
+]);
+
 // ─── audit_logs ─────────────────────────────────────────────────────────
 // Append-only audit substrate. Per foundations §16.2 + §18 step 14.
 //
