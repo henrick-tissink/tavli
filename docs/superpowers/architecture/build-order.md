@@ -48,9 +48,9 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: every subsequent wave. These contracts are quoted by every domain.*
 
-- [ ] `audit_logs` table + `recordAudit` helper (foundations §17.12, §16.2)
+- [x] `audit_logs` table + `recordAudit` helper (foundations §17.12, §16.2) — migration 0011_audit_logs, src/lib/audit/record.ts
 - [ ] `ERROR_CODES` typed registry — `src/lib/errors/codes.ts` (foundations §16.1)
-- [ ] `AUDIT` typed registry — `src/lib/audit/actions.ts` (foundations §16.2)
+- [x] `AUDIT` typed registry — `src/lib/audit/actions.ts` (foundations §16.2) — shipped with the recordAudit helper since its TS signature depends on the registry
 - [ ] `JOBS` typed registry — `src/lib/jobs/keys.ts` (foundations §16.3)
 - [ ] `ActionResult<T>` + `ok()` / `fail()` helpers (foundations §3.2)
 - [ ] `can()` / `requireCan()` permission framework (foundations §3.4)
@@ -199,4 +199,10 @@ When the doc updates, bump the date at the bottom and note the reason in a `## R
 
 ---
 
-*Last updated: 2026-05-20. Initial draft after the architecture-doc perfection pass.*
+## Revisions
+
+- **2026-05-20** — Wave 1 unit `audit_logs` table + `recordAudit` helper shipped together with the `AUDIT` typed registry. Reason: §16.2 specifies the helper's TypeScript signature is keyed by the registry, so they cannot ship apart cleanly. The other two Wave 1 items (`ERROR_CODES`, `JOBS`) remain independent and stay as separate units.
+
+---
+
+*Last updated: 2026-05-20. Initial draft after the architecture-doc perfection pass; first Wave 1 unit landed same day.*
