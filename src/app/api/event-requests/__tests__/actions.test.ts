@@ -74,10 +74,10 @@ async function seedConsumerProfile(hint?: string): Promise<typeof profiles.$infe
 
 async function seedVenueWithOwner() {
   const owner = await seedConsumerProfile("owner");
-  const r = await seedR({ ownerUserId: owner.id });
-  // §3.6 sub-unit B: can() now resolves via organization_members +
-  // restaurant_staff, so seed both with owner role so the partner-side
-  // transitions pass the new authz check.
+  const r = await seedR();
+  // §3.6 sub-unit C: ownership lives entirely in organization_members +
+  // restaurant_staff now (owner_user_id column dropped). Seed both with
+  // owner role so the partner-side transitions pass the can() check.
   await dbAdmin.insert(organizationMembers).values({
     organizationId: r.organizationId,
     userId: owner.id,
@@ -90,7 +90,7 @@ async function seedVenueWithOwner() {
     role: "owner",
     isActive: true,
   });
-  return { restaurant: r, ownerUserId: owner.id };
+  return { restaurant: r, ownerId: owner.id };
 }
 
 describe("submitEventRequestDraft", () => {
@@ -154,12 +154,12 @@ describe("sendQuoteForEventRequest", () => {
   });
 
   it("sendQuote persists line items and stores their total on the row", async () => {
-    const { restaurant: r, ownerUserId } = await seedVenueWithOwner();
+    const { restaurant: r, ownerId } = await seedVenueWithOwner();
     mockSession.mockResolvedValue({
-      userId: ownerUserId,
+      userId: ownerId,
       userEmail: "owner@test.co",
       profile: {
-        id: ownerUserId,
+        id: ownerId,
         role: "restaurant_owner",
         fullName: null,
         email: "owner@test.co",

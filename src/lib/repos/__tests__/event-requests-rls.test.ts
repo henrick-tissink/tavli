@@ -85,7 +85,6 @@ describe("event_requests RLS", () => {
         name: "R",
         cityId: c.id,
         status: "live",
-        ownerUserId: ownerId,
         eventsIntakeEnabled: true,
         organizationId: orgId,
       })

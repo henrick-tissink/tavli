@@ -193,9 +193,6 @@ export const restaurants = pgTable("restaurants", {
   websiteUrl: text("website_url"),
   tags: text("tags").array().notNull().default([]).$type<string[]>(),
   status: restaurantStatus("status").notNull().default("draft"),
-  ownerUserId: uuid("owner_user_id").references(() => profiles.id, {
-    onDelete: "set null",
-  }),
   organizationId: uuid("organization_id")
     .notNull()
     .references(() => organizations.id, { onDelete: "restrict" }),
@@ -212,7 +209,6 @@ export const restaurants = pgTable("restaurants", {
 }, (t) => [
   uniqueIndex("restaurants_city_slug_unique").on(t.cityId, t.slug),
   index("restaurants_status_idx").on(t.status),
-  index("restaurants_owner_idx").on(t.ownerUserId),
   index("restaurants_city_status_idx").on(t.cityId, t.status),
   index("restaurants_organization_idx").on(t.organizationId),
 ]);

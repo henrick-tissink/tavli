@@ -38,7 +38,6 @@ async function seedOwnerWithVenue() {
       name: "S",
       cityId: c.id,
       status: "live",
-      ownerUserId: data!.user!.id,
       organizationId: orgId,
     })
     .returning();
