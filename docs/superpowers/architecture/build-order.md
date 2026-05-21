@@ -73,7 +73,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] §02 audit-write retrofit on every reservation mutation *(shipped 2026-05-21 — `src/lib/audit/actor-role.ts` helper + recordAudit() wired into 6 reservation-mutation sites: public booking INSERT, partner status update, partner cancel, public consumer cancel via RPC, corporate accept → reservation INSERT, corporate event-request cancel cascade. Site 6 audit lives at the caller (`src/app/event-requests/[token]/actions.ts`) rather than the repo per Task 7's option-(b) recommendation.)*
 - [ ] §02 `bulkExportReservations` action (§02 §4.8)
 - [x] §02 slot concurrency safety (§02 §4.7) *(shipped 2026-05-21 via migration 0016: `FOR UPDATE` on `reservations_check_capacity()` trigger's availability SELECT. Deviates from spec's "new function" proposal in favor of trigger-level locking — protects all reservation INSERT paths uniformly; rationale in `docs/superpowers/specs/2026-05-21-slot-concurrency-design.md`.)*
-- [ ] §02 phone E.164 normalisation (§02 §4.7)
+- [x] §02 phone E.164 normalisation (§02 §4.7) *(shipped 2026-05-21 — `src/lib/phone/normalize.ts` helper using libphonenumber-js + 4 action-boundary wirings: public booking, event request, partner profile, onboard profile. Default country RO. Forward-only; legacy prod data stays as-typed.)*
 - [ ] §10 `companies` → `corporate_clients` consistency pass (small cleanup; §10)
 
 ## Wave 3 — Diner CRM + comms upgrade
