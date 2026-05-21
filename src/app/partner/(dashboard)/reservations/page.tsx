@@ -17,15 +17,7 @@ export default async function PartnerReservationsPage() {
   const supabase = await createSupabaseServerClient();
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
-  const { data: restaurant } = restaurantId
-    ? await supabase
-        .from("restaurants")
-        .select("id")
-        .eq("id", restaurantId)
-        .maybeSingle()
-    : { data: null };
-
-  if (!restaurant) {
+  if (!restaurantId) {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
@@ -44,7 +36,7 @@ export default async function PartnerReservationsPage() {
     .select(
       "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at",
     )
-    .eq("restaurant_id", restaurant.id)
+    .eq("restaurant_id", restaurantId)
     .order("reservation_date")
     .order("reservation_time")
     .limit(500);

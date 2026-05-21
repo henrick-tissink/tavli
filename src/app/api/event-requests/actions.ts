@@ -152,6 +152,11 @@ async function assertPartnerOwns(
     .where(eq(restaurants.id, er.restaurantId))
     .limit(1);
   if (!r) throw new Error("not found: restaurant");
+  // Subject is typed `kind: "reservation"` rather than "event_request" — the
+  // Subject union has no `event_request` kind today, and `reservation` resolves
+  // to the same venue scope in `scopeForSubject()`. A future Subject extension
+  // (`{ kind: "event_request"; restaurant_id; organization_id? }`) is the right
+  // long-term shape; for now this proxy is correct and type-safe.
   if (
     !(await can(session, "event_request.respond", {
       kind: "reservation",

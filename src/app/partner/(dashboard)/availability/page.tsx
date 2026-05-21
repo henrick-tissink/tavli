@@ -13,15 +13,7 @@ export default async function PartnerAvailabilityPage() {
   const supabase = await createSupabaseServerClient();
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
-  const { data: restaurant } = restaurantId
-    ? await supabase
-        .from("restaurants")
-        .select("id")
-        .eq("id", restaurantId)
-        .maybeSingle()
-    : { data: null };
-
-  if (!restaurant) {
+  if (!restaurantId) {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
@@ -34,7 +26,7 @@ export default async function PartnerAvailabilityPage() {
   const { data: rows } = await supabase
     .from("restaurant_availability")
     .select("id, day_of_week, slot_start, slot_end, capacity")
-    .eq("restaurant_id", restaurant.id)
+    .eq("restaurant_id", restaurantId)
     .order("day_of_week")
     .order("slot_start");
 

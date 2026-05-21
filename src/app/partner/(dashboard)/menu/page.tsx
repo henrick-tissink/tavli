@@ -14,15 +14,7 @@ export default async function PartnerMenuPage() {
   const supabase = await createSupabaseServerClient();
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
-  const { data: restaurant } = restaurantId
-    ? await supabase
-        .from("restaurants")
-        .select("id")
-        .eq("id", restaurantId)
-        .maybeSingle()
-    : { data: null };
-
-  if (!restaurant) {
+  if (!restaurantId) {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
@@ -37,7 +29,7 @@ export default async function PartnerMenuPage() {
   const { data: sectionsRaw } = await supabase
     .from("menu_sections")
     .select("id, name, intro, sort_order")
-    .eq("restaurant_id", restaurant.id)
+    .eq("restaurant_id", restaurantId)
     .order("sort_order");
 
   const { data: itemsRaw } = await supabase
@@ -45,7 +37,7 @@ export default async function PartnerMenuPage() {
     .select(
       "id, section_id, name, description, price_cents, dietary_tags, is_chef_pick, is_available, sort_order",
     )
-    .eq("restaurant_id", restaurant.id)
+    .eq("restaurant_id", restaurantId)
     .order("sort_order");
 
   const sections: MenuSectionData[] = (sectionsRaw ?? []).map((s) => ({

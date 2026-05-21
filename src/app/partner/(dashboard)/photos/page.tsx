@@ -10,15 +10,7 @@ export default async function PartnerPhotosPage() {
   const supabase = await createSupabaseServerClient();
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
-  const { data: restaurant } = restaurantId
-    ? await supabase
-        .from("restaurants")
-        .select("id")
-        .eq("id", restaurantId)
-        .maybeSingle()
-    : { data: null };
-
-  if (!restaurant) {
+  if (!restaurantId) {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
@@ -36,7 +28,7 @@ export default async function PartnerPhotosPage() {
   const { data: existing } = await supabase
     .from("restaurant_photos")
     .select("id, storage_path, kind, sort_order")
-    .eq("restaurant_id", restaurant.id)
+    .eq("restaurant_id", restaurantId)
     .order("sort_order");
 
   const photos: PhotoRow[] = (existing ?? []).map((p) => ({
@@ -58,7 +50,7 @@ export default async function PartnerPhotosPage() {
         </p>
       </header>
 
-      <PhotoUploader restaurantId={restaurant.id} initialPhotos={photos} />
+      <PhotoUploader restaurantId={restaurantId} initialPhotos={photos} />
     </div>
   );
 }
