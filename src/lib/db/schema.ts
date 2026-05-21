@@ -139,6 +139,18 @@ export const orgCustomerType = pgEnum("org_customer_type", [
   "personal",
 ]);
 
+export const staffInvitationKind = pgEnum("staff_invitation_kind", [
+  "org",
+  "restaurant",
+]);
+
+export const staffInvitationStatus = pgEnum("staff_invitation_status", [
+  "pending",
+  "claimed",
+  "expired",
+  "revoked",
+]);
+
 export const orgStatus = pgEnum("org_status", [
   "pending_verification",
   "active",
@@ -761,4 +773,46 @@ export const restaurantStaff = pgTable("restaurant_staff", {
   index("restaurant_staff_restaurant_idx")
     .on(t.restaurantId)
     .where(sql`${t.isActive} = true`),
+]);
+
+// ─── staff_invitations ──────────────────────────────────────────────────
+// §01 §3.5 — org-level or venue-level staff invitations. Check constraint
+// ensures exactly one of (organization_id, restaurant_id) is set per
+// `kind`. RLS pattern (post-sub-unit-A): narrow SELECT for inviter +
+// invitee + Tavli admin; mutations via service-role helpers (no policy).
+// token_hash is varchar(64) (hex-encoded sha256) matching the existing
+// `invitations` table convention.
+export const staffInvitations = pgTable("staff_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: staffInvitationKind("kind").notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id, {
+    onDelete: "cascade",
+  }),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, {
+    onDelete: "cascade",
+  }),
+  email: varchar("email", { length: 255 }).notNull(),
+  role: varchar("role", { length: 32 }).notNull(),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  status: staffInvitationStatus("status").notNull().default("pending"),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  claimedByUserId: uuid("claimed_by_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+  invitedByUserId: uuid("invited_by_user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("staff_invitations_email_status_idx")
+    .on(t.email, t.status)
+    .where(sql`${t.status} = 'pending'`),
+  index("staff_invitations_org_idx")
+    .on(t.organizationId)
+    .where(sql`${t.status} = 'pending'`),
+  index("staff_invitations_restaurant_idx")
+    .on(t.restaurantId)
+    .where(sql`${t.status} = 'pending'`),
 ]);
