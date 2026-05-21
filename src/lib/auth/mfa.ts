@@ -1,0 +1,142 @@
+/**
+ * §01 §5a.2 (foundations §5.2) — TOTP MFA helper layer (phase 1).
+ *
+ * Thin wrappers around Supabase Auth's MFA API + audit-row writes on
+ * the side-effectful operations (verify, unenrol). Callers inject the
+ * server-context SupabaseClient; tests inject a structural mock.
+ *
+ * No sign-in enforcement here — that arrives with the /admin/security
+ * + /partner/security UI follow-up. This module only provides the
+ * primitives the UI will consume.
+ *
+ * actorRole note: MFA is a self-service flow (the user acts on their
+ * own account), so the audit row's actorRole would ideally be the
+ * user's effective role for some scope. We don't have a restaurant
+ * context here, so the writes use `"venue_owner"` as a conservative
+ * default — partner accounts in current prod are all venue_owners.
+ * The UI follow-up refines this by passing the resolved role.
+ */
+
+import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
+
+export interface EnrolledFactor {
+  id: string;
+  friendlyName: string | null;
+  status: "verified" | "unverified";
+  createdAt: string;
+}
+
+export type EnrolTotpResult =
+  | { ok: true; factorId: string; qrCodeSvg: string; uri: string; secret: string }
+  | { ok: false; error: string };
+
+export type VerifyTotpResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function enrolTotpFactor(
+  supabase: SupabaseClient,
+  friendlyName?: string,
+): Promise<EnrolTotpResult> {
+  const { data, error } = await supabase.auth.mfa.enroll({
+    factorType: "totp",
+    friendlyName,
+  });
+  if (error || !data) {
+    return { ok: false, error: error?.message ?? "Enrollment failed." };
+  }
+  // Supabase returns `data.totp` with `qr_code` (SVG), `uri`, `secret`.
+  // The shape is `{ id, type: 'totp', totp: { qr_code, secret, uri }, friendly_name }`.
+  const totp = (data as { totp?: { qr_code: string; uri: string; secret: string } }).totp;
+  if (!totp) {
+    return { ok: false, error: "Enrollment returned no TOTP payload." };
+  }
+  return {
+    ok: true,
+    factorId: data.id,
+    qrCodeSvg: totp.qr_code,
+    uri: totp.uri,
+    secret: totp.secret,
+  };
+}
+
+export async function verifyTotpEnrollment(
+  supabase: SupabaseClient,
+  factorId: string,
+  code: string,
+  userIdForAudit: string,
+): Promise<VerifyTotpResult> {
+  const challenge = await supabase.auth.mfa.challenge({ factorId });
+  if (challenge.error || !challenge.data) {
+    return {
+      ok: false,
+      error: challenge.error?.message ?? "Could not challenge factor.",
+    };
+  }
+  const verify = await supabase.auth.mfa.verify({
+    factorId,
+    challengeId: challenge.data.id,
+    code,
+  });
+  if (verify.error || !verify.data) {
+    return {
+      ok: false,
+      error: verify.error?.message ?? "Verification failed.",
+    };
+  }
+  await recordAudit({
+    action: AUDIT.auth.mfa_enrolled,
+    subjectType: "user",
+    subjectId: userIdForAudit,
+    actorUserId: userIdForAudit,
+    actorRole: "venue_owner",
+    context: { factor_type: "totp", factor_id: factorId },
+  });
+  return { ok: true };
+}
+
+export async function unenrollFactor(
+  supabase: SupabaseClient,
+  factorId: string,
+  userIdForAudit: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase.auth.mfa.unenroll({ factorId });
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  await recordAudit({
+    action: AUDIT.auth.mfa_disabled,
+    subjectType: "user",
+    subjectId: userIdForAudit,
+    actorUserId: userIdForAudit,
+    actorRole: "venue_owner",
+    context: { factor_id: factorId },
+  });
+  return { ok: true };
+}
+
+export async function listVerifiedTotpFactors(
+  supabase: SupabaseClient,
+): Promise<EnrolledFactor[]> {
+  const { data, error } = await supabase.auth.mfa.listFactors();
+  if (error || !data) return [];
+  const totp = data.totp ?? [];
+  return totp
+    .filter((f) => f.status === "verified")
+    .map((f) => ({
+      id: f.id,
+      friendlyName: f.friendly_name ?? null,
+      status: "verified",
+      createdAt: f.created_at,
+    }));
+}
+
+export async function userHasVerifiedFactor(
+  supabase: SupabaseClient,
+): Promise<boolean> {
+  const factors = await listVerifiedTotpFactors(supabase);
+  return factors.length > 0;
+}
