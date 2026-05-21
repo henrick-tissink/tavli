@@ -15,6 +15,7 @@ import {
   NotAuthenticatedError,
   ForbiddenError,
 } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export type PartnerRestaurant = typeof restaurants.$inferSelect;
 
@@ -28,11 +29,14 @@ export async function getPartnerRestaurant(): Promise<PartnerRestaurant> {
     throw new ForbiddenError("Requires partner role");
   }
 
-  const [restaurant] = await dbAdmin
-    .select()
-    .from(restaurants)
-    .where(eq(restaurants.ownerUserId, session.userId))
-    .limit(1);
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  const [restaurant] = restaurantId
+    ? await dbAdmin
+        .select()
+        .from(restaurants)
+        .where(eq(restaurants.id, restaurantId))
+        .limit(1)
+    : [];
 
   if (!restaurant) {
     throw new ForbiddenError("No restaurant associated with this account");

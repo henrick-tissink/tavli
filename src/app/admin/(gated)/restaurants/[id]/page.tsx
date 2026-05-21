@@ -24,7 +24,7 @@ export default async function AdminRestaurantDetailPage({
   const { data: restaurant } = await supabase
     .from("restaurants")
     .select(
-      "id, slug, name, cuisines, status, address, phone, website_url, hero_note, photo_count, vote_count, rating, lat, lng, created_at, owner_user_id, cities(name, slug)",
+      "id, slug, name, cuisines, status, address, phone, website_url, hero_note, photo_count, vote_count, rating, lat, lng, created_at, organization_id, organizations(id, name), cities(name, slug)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -51,6 +51,40 @@ export default async function AdminRestaurantDetailPage({
   const city = Array.isArray(restaurant.cities)
     ? restaurant.cities[0]
     : (restaurant.cities as { name: string; slug: string } | null);
+
+  // §3.6 sub-unit B: display the org name + the (active) org-owner's email
+  // instead of the raw owner_user_id (which sub-unit C drops). The nested
+  // Supabase select can return either a single object or an array
+  // depending on the inferred relationship — handle both for safety.
+  const { data: ownerMembership } = restaurant.organization_id
+    ? await supabase
+        .from("organization_members")
+        .select("profiles!inner(email)")
+        .eq("organization_id", restaurant.organization_id)
+        .eq("role", "owner")
+        .eq("is_active", true)
+        .maybeSingle()
+    : { data: null };
+
+  const ownerEmail = (() => {
+    if (!ownerMembership?.profiles) return null;
+    const p = ownerMembership.profiles;
+    if (Array.isArray(p)) {
+      return (p[0] as { email: string | null } | undefined)?.email ?? null;
+    }
+    return (p as { email: string | null }).email;
+  })();
+
+  const orgRow = (() => {
+    if (!restaurant.organizations) return null;
+    if (Array.isArray(restaurant.organizations)) {
+      return (
+        (restaurant.organizations[0] as { id: string; name: string } | undefined) ??
+        null
+      );
+    }
+    return restaurant.organizations as { id: string; name: string };
+  })();
 
   const publicHref =
     restaurant.status === "live" && city
@@ -151,8 +185,12 @@ export default async function AdminRestaurantDetailPage({
           }
         />
         <Row
-          label="Owner user id"
-          value={restaurant.owner_user_id ?? "Unassigned"}
+          label="Organization"
+          value={
+            orgRow
+              ? `${orgRow.name}${ownerEmail ? ` (owner: ${ownerEmail})` : ""}`
+              : "Unassigned"
+          }
         />
         <Row
           label="Created"

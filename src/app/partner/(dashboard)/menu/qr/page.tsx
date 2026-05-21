@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { appOrigin } from "@/lib/app-origin";
 import { MenuQrPreview } from "./MenuQrPreview";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +20,14 @@ export default async function PartnerMenuQrPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
 
-  const { data: row } = await supabase
-    .from("restaurants")
-    .select("id, slug, name, cities(slug)")
-    .eq("owner_user_id", session!.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session!);
+  const { data: row } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("id, slug, name, cities(slug)")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   if (!row) {
     return <MissingState message="Niciun restaurant asociat acestui cont." />;

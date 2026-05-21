@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export interface PublishResult {
   ok: boolean;
@@ -13,16 +15,17 @@ export async function publishRestaurant(
   _prev: PublishResult | undefined,
 ): Promise<PublishResult | void> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id, name, cuisines, address, schedule")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("id, name, cuisines, address, schedule")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   if (!restaurant) return { ok: false, error: "No restaurant found for your account." };
   const hasCuisines =

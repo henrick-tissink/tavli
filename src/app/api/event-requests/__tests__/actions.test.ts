@@ -11,7 +11,15 @@ jest.mock("@/lib/auth/session", () => ({
 
 import { submitEventRequestDraft, sendQuoteForEventRequest } from "../actions";
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
-import { restaurants, cities, eventRequests, organizations, profiles } from "@/lib/db/schema";
+import {
+  restaurants,
+  cities,
+  eventRequests,
+  organizations,
+  organizationMembers,
+  restaurantStaff,
+  profiles,
+} from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import {
   createEventRequestDraft,
@@ -67,6 +75,21 @@ async function seedConsumerProfile(hint?: string): Promise<typeof profiles.$infe
 async function seedVenueWithOwner() {
   const owner = await seedConsumerProfile("owner");
   const r = await seedR({ ownerUserId: owner.id });
+  // §3.6 sub-unit B: can() now resolves via organization_members +
+  // restaurant_staff, so seed both with owner role so the partner-side
+  // transitions pass the new authz check.
+  await dbAdmin.insert(organizationMembers).values({
+    organizationId: r.organizationId,
+    userId: owner.id,
+    role: "owner",
+    isActive: true,
+  });
+  await dbAdmin.insert(restaurantStaff).values({
+    restaurantId: r.id,
+    userId: owner.id,
+    role: "owner",
+    isActive: true,
+  });
   return { restaurant: r, ownerUserId: owner.id };
 }
 
@@ -132,9 +155,18 @@ describe("sendQuoteForEventRequest", () => {
 
   it("sendQuote persists line items and stores their total on the row", async () => {
     const { restaurant: r, ownerUserId } = await seedVenueWithOwner();
-    mockSession.mockResolvedValue({ userId: ownerUserId } as Awaited<
-      ReturnType<typeof getCurrentSession>
-    >);
+    mockSession.mockResolvedValue({
+      userId: ownerUserId,
+      userEmail: "owner@test.co",
+      profile: {
+        id: ownerUserId,
+        role: "restaurant_owner",
+        fullName: null,
+        email: "owner@test.co",
+        locale: "ro",
+        defaultOrganizationId: null,
+      },
+    } as Awaited<ReturnType<typeof getCurrentSession>>);
     const er = await createEventRequestDraft({
       restaurantId: r.id,
       guestName: "G",

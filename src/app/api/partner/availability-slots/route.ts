@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurantAvailability, restaurants } from "@/lib/db/schema";
+import { restaurantAvailability } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +13,8 @@ export async function GET(req: NextRequest) {
   const date = req.nextUrl.searchParams.get("date");
   if (!date) return NextResponse.json({ slots: [] });
   // Find the partner's restaurant
-  const [r] = await dbAdmin
-    .select()
-    .from(restaurants)
-    .where(eq(restaurants.ownerUserId, session.userId))
-    .limit(1);
-  if (!r) return NextResponse.json({ slots: [] });
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) return NextResponse.json({ slots: [] });
   const dow = new Date(date).getDay();
   const rows = await dbAdmin
     .select({
@@ -27,7 +24,7 @@ export async function GET(req: NextRequest) {
     .from(restaurantAvailability)
     .where(
       and(
-        eq(restaurantAvailability.restaurantId, r.id),
+        eq(restaurantAvailability.restaurantId, restaurantId),
         eq(restaurantAvailability.dayOfWeek, dow),
       ),
     );

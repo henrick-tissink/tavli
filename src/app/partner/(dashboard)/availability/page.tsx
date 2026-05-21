@@ -4,6 +4,7 @@ import {
   AvailabilityEditor,
   type AvailabilitySlot,
 } from "@/components/partner/AvailabilityEditor";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +12,14 @@ export default async function PartnerAvailabilityPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", session!.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session!);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("id")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   if (!restaurant) {
     return (

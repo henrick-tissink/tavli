@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { PhotoUploader, type PhotoRow } from "@/components/onboarding/PhotoUploader";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -8,11 +9,14 @@ export default async function PartnerPhotosPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", session!.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session!);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("id")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   if (!restaurant) {
     return (

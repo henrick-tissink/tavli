@@ -21,6 +21,7 @@ import { replaceLineItems } from "@/lib/repos/quote-line-items-repo";
 import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
 import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 import {
   sendEventRequestReplied,
   sendEventRequestQuoted,
@@ -144,14 +145,21 @@ async function assertPartnerOwns(
   if (!er) throw new Error("not found");
   const [r] = await dbAdmin
     .select({
-      ownerUserId: restaurants.ownerUserId,
       status: restaurants.status,
+      organizationId: restaurants.organizationId,
     })
     .from(restaurants)
     .where(eq(restaurants.id, er.restaurantId))
     .limit(1);
-  if (r?.ownerUserId !== session.userId) {
-    throw new Error("forbidden: not the owner");
+  if (!r) throw new Error("not found: restaurant");
+  if (
+    !(await can(session, "event_request.respond", {
+      kind: "reservation",
+      restaurant_id: er.restaurantId,
+      organization_id: r.organizationId,
+    }))
+  ) {
+    throw new Error("forbidden: cannot act on this venue's event requests");
   }
   if (r.status === "suspended") {
     // Refuse all partner transitions while suspended. The proper cascade

@@ -14,9 +14,17 @@ jest.mock("@/lib/email/resend", () => ({
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
+jest.mock("@/lib/auth/session", () => ({
+  getCurrentSession: jest.fn(),
+}));
+jest.mock("@/lib/restaurants/current-user", () => ({
+  currentUserPrimaryRestaurant: jest.fn(),
+}));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { sendEmail } from "@/lib/email/resend";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 interface ReservationFixture {
   id: string;
@@ -54,15 +62,6 @@ function setupSupabase({
       getUser: jest.fn().mockResolvedValue({ data: { user } }),
     },
     from: jest.fn((table: string) => {
-      if (table === "restaurants") {
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          maybeSingle: jest.fn().mockResolvedValue({
-            data: ownerRestaurantId ? { id: ownerRestaurantId } : null,
-          }),
-        };
-      }
       if (table === "reservations") {
         reservationsCallCount++;
         if (reservationsCallCount === 1) {
@@ -92,6 +91,27 @@ function setupSupabase({
   };
 
   (createSupabaseServerClient as jest.Mock).mockResolvedValue(supabaseMock);
+  // §3.6 sub-unit B: actions now resolve the active venue via the helper
+  // off CurrentSession instead of a direct restaurants.owner_user_id lookup.
+  (getCurrentSession as jest.Mock).mockResolvedValue(
+    user
+      ? {
+          userId: user.id,
+          userEmail: `${user.id}@test.co`,
+          profile: {
+            id: user.id,
+            role: "restaurant_owner",
+            fullName: null,
+            email: `${user.id}@test.co`,
+            locale: "ro",
+            defaultOrganizationId: null,
+          },
+        }
+      : null,
+  );
+  (currentUserPrimaryRestaurant as jest.Mock).mockResolvedValue(
+    ownerRestaurantId,
+  );
   return supabaseMock;
 }
 

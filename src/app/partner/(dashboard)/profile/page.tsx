@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { PartnerProfileForm } from "@/components/partner/PartnerProfileForm";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -8,11 +9,14 @@ export default async function PartnerProfilePage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("name, cuisines, address, zone, phone, hero_note, website_url")
-    .eq("owner_user_id", session!.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session!);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("name, cuisines, address, zone, phone, hero_note, website_url")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">

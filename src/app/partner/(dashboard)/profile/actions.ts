@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { geocode } from "@/lib/geocoding";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -14,8 +16,11 @@ export async function savePartnerProfile(
   formData: FormData,
 ): Promise<SaveProfileResult> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
+
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const profile = {
     name: String(formData.get("name") ?? "").trim(),
@@ -46,7 +51,7 @@ export async function savePartnerProfile(
       website_url: profile.websiteUrl || null,
       updated_at: new Date().toISOString(),
     })
-    .eq("owner_user_id", user.id);
+    .eq("id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
 
@@ -55,7 +60,7 @@ export async function savePartnerProfile(
     await supabase
       .from("restaurants")
       .update({ lat: coords.lat, lng: coords.lng })
-      .eq("owner_user_id", user.id);
+      .eq("id", restaurantId);
   }
 
   revalidatePath("/partner");

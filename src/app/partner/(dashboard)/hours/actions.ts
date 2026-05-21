@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { hoursToSchedule, type DayHours } from "@/lib/onboarding";
 import { hoursToAvailabilityRows } from "@/lib/availability";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -15,8 +17,8 @@ export async function savePartnerHours(
   formData: FormData,
 ): Promise<SaveHoursResult> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
   let hours: DayHours[];
   try {
@@ -28,12 +30,8 @@ export async function savePartnerHours(
     return { ok: false, error: "Cel puțin o zi trebuie să fie deschisă." };
   }
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
-  if (!restaurant) {
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) {
     return { ok: false, error: "Niciun restaurant asociat acestui cont." };
   }
 
@@ -41,7 +39,7 @@ export async function savePartnerHours(
   const { error: scheduleError } = await supabase
     .from("restaurants")
     .update({ schedule, updated_at: new Date().toISOString() })
-    .eq("id", restaurant.id);
+    .eq("id", restaurantId);
   if (scheduleError) return { ok: false, error: scheduleError.message };
 
   // Reset and rewrite availability rows from the freshly-saved hours.
@@ -49,8 +47,8 @@ export async function savePartnerHours(
   await supabase
     .from("restaurant_availability")
     .delete()
-    .eq("restaurant_id", restaurant.id);
-  const rows = hoursToAvailabilityRows(restaurant.id, hours);
+    .eq("restaurant_id", restaurantId);
+  const rows = hoursToAvailabilityRows(restaurantId, hours);
   if (rows.length > 0) {
     const { error: availError } = await supabase
       .from("restaurant_availability")
@@ -59,10 +57,12 @@ export async function savePartnerHours(
   }
 
   // Mirror to draft so returning to onboarding still works.
+  // draft_restaurants is keyed by owner_user_id (its own PK) — that's the
+  // user's id, not the restaurant's owner.
   await supabase
     .from("draft_restaurants")
     .update({ payload: { hours }, updated_at: new Date().toISOString() })
-    .eq("owner_user_id", user.id);
+    .eq("owner_user_id", session.userId);
 
   revalidatePath("/partner");
   revalidatePath("/partner/hours");

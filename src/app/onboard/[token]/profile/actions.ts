@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { advanceStep, mergeDraftPayload } from "@/lib/onboarding";
 import { geocode } from "@/lib/geocoding";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -16,8 +18,13 @@ export async function saveProfile(
   formData: FormData,
 ): Promise<SaveProfileResult> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
+
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) {
+    return { ok: false, error: "No restaurant found for your account." };
+  }
 
   const profile = {
     name: String(formData.get("name") ?? "").trim(),
@@ -48,7 +55,7 @@ export async function saveProfile(
       website_url: profile.websiteUrl || null,
       updated_at: new Date().toISOString(),
     })
-    .eq("owner_user_id", user.id);
+    .eq("id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
 
@@ -59,7 +66,7 @@ export async function saveProfile(
     await supabase
       .from("restaurants")
       .update({ lat: coords.lat, lng: coords.lng })
-      .eq("owner_user_id", user.id);
+      .eq("id", restaurantId);
   }
 
   await mergeDraftPayload({ profile });

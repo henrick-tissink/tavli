@@ -7,6 +7,7 @@ import {
   ContentHealthChecklist,
   type ChecklistItem,
 } from "@/components/partner/ContentHealthChecklist";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -28,13 +29,16 @@ export default async function PartnerDashboardPage({
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select(
-      "id, name, status, hero_note, cuisines, schedule",
-    )
-    .eq("owner_user_id", session!.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session!);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select(
+          "id, name, status, hero_note, cuisines, schedule",
+        )
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   if (!restaurant) {
     return (

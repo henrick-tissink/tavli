@@ -15,6 +15,13 @@ export interface SessionProfile {
   fullName: string | null;
   email: string | null;
   locale: string;
+  /**
+   * §01 §3.6: per-user "active organization" used by
+   * `currentUserPrimaryRestaurant()` as the first resolution step. Null
+   * for new users until the first org is seeded; org members may switch
+   * it from the (future) multi-org picker UI.
+   */
+  defaultOrganizationId: string | null;
 }
 
 export interface CurrentSession {
@@ -44,7 +51,7 @@ export async function getCurrentSession(): Promise<CurrentSession | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, full_name, email, locale")
+    .select("id, role, full_name, email, locale, default_organization_id")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -59,6 +66,7 @@ export async function getCurrentSession(): Promise<CurrentSession | null> {
       fullName: profile.full_name,
       email: profile.email,
       locale: profile.locale,
+      defaultOrganizationId: profile.default_organization_id,
     },
   };
 }

@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { PHOTO_BUCKET } from "@/lib/storage";
+import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 
 export interface UploadResult {
   ok: boolean;
@@ -23,17 +24,14 @@ export interface UploadResult {
  * sidesteps the browser-client session issue where anon/publishable
  * keys don't always propagate the access token in all SDK flows.
  *
- * Limits enforced here: max 50 photos per restaurant; must match
- * owner_user_id; image MIME type.
+ * Limits enforced here: max 50 photos per restaurant; user must hold
+ * restaurant.update on the venue (via can()); image MIME type.
  */
 export async function uploadRestaurantPhoto(
   formData: FormData,
 ): Promise<UploadResult> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
   const restaurantId = String(formData.get("restaurantId") ?? "");
   const kindIn = String(formData.get("kind") ?? "gallery");
@@ -55,13 +53,22 @@ export async function uploadRestaurantPhoto(
 
   const admin = createSupabaseAdminClient();
 
-  // Verify ownership.
-  const { data: restaurant } = await admin
+  // Verify ownership via the can() framework — first photo-action caller.
+  const { data: restaurantRow } = await admin
     .from("restaurants")
-    .select("owner_user_id")
+    .select("organization_id")
     .eq("id", restaurantId)
     .maybeSingle();
-  if (!restaurant || restaurant.owner_user_id !== user.id) {
+  if (!restaurantRow) {
+    return { ok: false, error: "Nu este restaurantul tău." };
+  }
+  if (
+    !(await can(session, "restaurant.update", {
+      kind: "restaurant",
+      id: restaurantId,
+      organization_id: restaurantRow.organization_id,
+    }))
+  ) {
     return { ok: false, error: "Nu este restaurantul tău." };
   }
 
@@ -132,11 +139,8 @@ export async function uploadRestaurantPhoto(
 }
 
 export async function setPhotoHero(photoId: string): Promise<UploadResult> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
   const admin = createSupabaseAdminClient();
 
@@ -147,12 +151,21 @@ export async function setPhotoHero(photoId: string): Promise<UploadResult> {
     .maybeSingle();
   if (!photo) return { ok: false, error: "Fotografia nu a fost găsită." };
 
-  const { data: restaurant } = await admin
+  const { data: restaurantRow } = await admin
     .from("restaurants")
-    .select("owner_user_id")
+    .select("organization_id")
     .eq("id", photo.restaurant_id)
     .maybeSingle();
-  if (!restaurant || restaurant.owner_user_id !== user.id) {
+  if (!restaurantRow) {
+    return { ok: false, error: "Nu este fotografia ta." };
+  }
+  if (
+    !(await can(session, "restaurant.update", {
+      kind: "restaurant",
+      id: photo.restaurant_id,
+      organization_id: restaurantRow.organization_id,
+    }))
+  ) {
     return { ok: false, error: "Nu este fotografia ta." };
   }
 
@@ -173,11 +186,8 @@ export async function setPhotoHero(photoId: string): Promise<UploadResult> {
 }
 
 export async function deletePhoto(photoId: string): Promise<UploadResult> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
   const admin = createSupabaseAdminClient();
 
@@ -188,12 +198,21 @@ export async function deletePhoto(photoId: string): Promise<UploadResult> {
     .maybeSingle();
   if (!photo) return { ok: false, error: "Fotografia nu a fost găsită." };
 
-  const { data: restaurant } = await admin
+  const { data: restaurantRow } = await admin
     .from("restaurants")
-    .select("owner_user_id")
+    .select("organization_id")
     .eq("id", photo.restaurant_id)
     .maybeSingle();
-  if (!restaurant || restaurant.owner_user_id !== user.id) {
+  if (!restaurantRow) {
+    return { ok: false, error: "Nu este fotografia ta." };
+  }
+  if (
+    !(await can(session, "restaurant.update", {
+      kind: "restaurant",
+      id: photo.restaurant_id,
+      organization_id: restaurantRow.organization_id,
+    }))
+  ) {
     return { ok: false, error: "Nu este fotografia ta." };
   }
 

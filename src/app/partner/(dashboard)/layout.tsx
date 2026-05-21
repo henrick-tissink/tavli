@@ -5,6 +5,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { PartnerShell } from "@/components/partner/PartnerShell";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +24,14 @@ export default async function PartnerGatedLayout({
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id, name")
-    .eq("owner_user_id", session.userId)
-    .maybeSingle();
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  const { data: restaurant } = restaurantId
+    ? await supabase
+        .from("restaurants")
+        .select("id, name")
+        .eq("id", restaurantId)
+        .maybeSingle()
+    : { data: null };
 
   let openEventRequestsCount = 0;
   if (restaurant?.id) {

@@ -26,6 +26,7 @@ function adminSession(): CurrentSession {
       fullName: "Admin",
       email: "admin@tavli.ro",
       locale: "ro",
+      defaultOrganizationId: null,
     },
   };
 }
@@ -40,6 +41,7 @@ function partnerSession(userId = "user-1"): CurrentSession {
       fullName: "Partner",
       email: `${userId}@example.com`,
       locale: "ro",
+      defaultOrganizationId: null,
     },
   };
 }

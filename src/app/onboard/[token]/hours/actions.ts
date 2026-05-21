@@ -9,6 +9,8 @@ import {
   type DayHours,
 } from "@/lib/onboarding";
 import { hoursToAvailabilityRows } from "@/lib/availability";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -21,8 +23,8 @@ export async function saveHours(
   formData: FormData,
 ): Promise<SaveHoursResult> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
 
   const raw = String(formData.get("hours") ?? "");
   let hours: DayHours[];
@@ -38,12 +40,8 @@ export async function saveHours(
 
   // Look up the restaurant once so we can both update the display schedule
   // and project hours into structured availability rows.
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
-  if (!restaurant) {
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) {
     return { ok: false, error: "No restaurant linked to this account." };
   }
 
@@ -51,7 +49,7 @@ export async function saveHours(
   const { error: scheduleError } = await supabase
     .from("restaurants")
     .update({ schedule, updated_at: new Date().toISOString() })
-    .eq("id", restaurant.id);
+    .eq("id", restaurantId);
   if (scheduleError) return { ok: false, error: scheduleError.message };
 
   // Reset and rewrite this restaurant's availability rows from the new hours.
@@ -59,8 +57,8 @@ export async function saveHours(
   await supabase
     .from("restaurant_availability")
     .delete()
-    .eq("restaurant_id", restaurant.id);
-  const rows = hoursToAvailabilityRows(restaurant.id, hours);
+    .eq("restaurant_id", restaurantId);
+  const rows = hoursToAvailabilityRows(restaurantId, hours);
   if (rows.length > 0) {
     const { error: availError } = await supabase
       .from("restaurant_availability")

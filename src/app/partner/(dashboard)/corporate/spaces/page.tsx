@@ -4,16 +4,19 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
 import { SpacesEditor } from "./SpacesEditor";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const dynamic = "force-dynamic";
 
 export default async function SpacesPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) redirect("/partner");
   const [venue] = await dbAdmin
     .select()
     .from(restaurants)
-    .where(eq(restaurants.ownerUserId, session.userId))
+    .where(eq(restaurants.id, restaurantId))
     .limit(1);
   if (!venue) redirect("/partner");
   const spaces = await dbAdmin

@@ -2,21 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s: unknown): s is string => typeof s === "string" && UUID_RE.test(s);
 
 async function ownerRestaurantId(): Promise<string | null> {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
-  return data?.id ?? null;
+  const session = await getCurrentSession();
+  if (!session) return null;
+  return currentUserPrimaryRestaurant(session);
 }
 
 export interface Ok {

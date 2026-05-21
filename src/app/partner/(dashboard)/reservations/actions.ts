@@ -9,6 +9,8 @@ import {
   type CancelReasonKey,
 } from "@/lib/cancel-reasons";
 import { PartnerCancelledEmail } from "@/emails/PartnerCancelledEmail";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export type NewStatus = "seated" | "no_show" | "completed";
 
@@ -22,21 +24,17 @@ export async function updateReservationStatus(
   nextStatus: NewStatus,
 ): Promise<Ok> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
-  if (!restaurant) return { ok: false, error: "Niciun restaurant asociat." };
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
 
   const { error } = await supabase
     .from("reservations")
     .update({ status: nextStatus })
     .eq("id", reservationId)
-    .eq("restaurant_id", restaurant.id);
+    .eq("restaurant_id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/partner/reservations");
@@ -60,15 +58,11 @@ export async function cancelReservation(
   const key = reasonKey as CancelReasonKey;
 
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Nu ești autentificat." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
 
-  const { data: ownerRestaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
-  if (!ownerRestaurant) {
+  const ownerRestaurantId = await currentUserPrimaryRestaurant(session);
+  if (!ownerRestaurantId) {
     return { ok: false, error: "Niciun restaurant asociat." };
   }
 
@@ -78,7 +72,7 @@ export async function cancelReservation(
       "id, status, guest_name, guest_email, reservation_date, reservation_time, party_size, restaurants!inner(name, email, slug, cities!inner(slug))",
     )
     .eq("id", reservationId)
-    .eq("restaurant_id", ownerRestaurant.id)
+    .eq("restaurant_id", ownerRestaurantId)
     .maybeSingle();
 
   if (!reservationRow) {
@@ -113,7 +107,7 @@ export async function cancelReservation(
       cancelled_reason: key,
     })
     .eq("id", reservationId)
-    .eq("restaurant_id", ownerRestaurant.id);
+    .eq("restaurant_id", ownerRestaurantId);
 
   if (updateError) {
     return { ok: false, error: updateError.message };

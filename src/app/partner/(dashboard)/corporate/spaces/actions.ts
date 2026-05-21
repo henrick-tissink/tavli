@@ -5,12 +5,13 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurantPrivateSpaces, restaurants } from "@/lib/db/schema";
+import { restaurantPrivateSpaces } from "@/lib/db/schema";
 import {
   createPrivateSpace,
   updatePrivateSpace,
   deactivatePrivateSpace,
 } from "@/lib/repos/private-spaces-repo";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -25,12 +26,15 @@ async function assertOwns(
   ) {
     return { ok: false, error: "Forbidden." };
   }
-  const [r] = await dbAdmin
-    .select({ owner: restaurants.ownerUserId })
-    .from(restaurants)
-    .where(eq(restaurants.id, restaurantId))
-    .limit(1);
-  if (!r || r.owner !== session.userId) return { ok: false, error: "Forbidden." };
+  // Admins pass through (legacy behaviour from owner_user_id era was an
+  // exact ownership match, so this branch keeps the same surface). The
+  // restaurant_owner branch must hit the helper to confirm the venue
+  // belongs to them per §3.6 sub-unit B.
+  if (session.profile.role === "admin") return { ok: true, userId: session.userId };
+  const primary = await currentUserPrimaryRestaurant(session);
+  if (!primary || primary !== restaurantId) {
+    return { ok: false, error: "Forbidden." };
+  }
   return { ok: true, userId: session.userId };
 }
 

@@ -10,24 +10,23 @@ jest.mock("@/lib/db/server", () => ({
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
+jest.mock("@/lib/auth/session", () => ({
+  getCurrentSession: jest.fn(),
+}));
+jest.mock("@/lib/restaurants/current-user", () => ({
+  currentUserPrimaryRestaurant: jest.fn(),
+}));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 const VALID_UUID = "11111111-1111-1111-1111-111111111111";
 
-function makeSupabase(restaurantId: string | null) {
+function makeSupabase() {
   return {
     auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) },
     from: jest.fn((table: string) => {
-      if (table === "restaurants") {
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          maybeSingle: jest.fn().mockResolvedValue({
-            data: restaurantId ? { id: restaurantId } : null,
-          }),
-        };
-      }
       if (table === "menu_items") {
         return {
           select: jest.fn().mockReturnThis(),
@@ -46,11 +45,24 @@ function makeSupabase(restaurantId: string | null) {
 
 describe("saveItem — UUID validation", () => {
   beforeEach(() => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(makeSupabase(VALID_UUID));
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(makeSupabase());
+    (getCurrentSession as jest.Mock).mockResolvedValue({
+      userId: "u1",
+      userEmail: "u1@test.co",
+      profile: {
+        id: "u1",
+        role: "restaurant_owner",
+        fullName: null,
+        email: "u1@test.co",
+        locale: "ro",
+        defaultOrganizationId: null,
+      },
+    });
+    (currentUserPrimaryRestaurant as jest.Mock).mockResolvedValue(VALID_UUID);
   });
 
   it("rejects empty sectionId with a friendly message — never reaches DB", async () => {
-    const sb = makeSupabase(VALID_UUID);
+    const sb = makeSupabase();
     (createSupabaseServerClient as jest.Mock).mockResolvedValue(sb);
 
     const result = await saveItem({
