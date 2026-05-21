@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { hashInvitationToken } from "@/lib/invitations";
+import { validatePasswordPolicy } from "@/lib/auth/password-policy";
 
 export interface CreateAccountResult {
   ok: boolean;
@@ -21,7 +22,22 @@ export async function createAccount(
 
   if (!token) return { ok: false, error: "Missing invitation token." };
   if (!email || !email.includes("@")) return { ok: false, error: "Valid email required." };
-  if (password.length < 8) return { ok: false, error: "Password must be at least 8 characters." };
+
+  // §01 §5a.1 (NIST 800-63B): length minimum + HIBP breach check via
+  // k-anonymity API. HIBP fails open on transient errors per spec.
+  const policyResult = await validatePasswordPolicy(password);
+  if (!policyResult.ok) {
+    if (policyResult.reason === "too_short") {
+      return { ok: false, error: "Password must be at least 8 characters." };
+    }
+    if (policyResult.reason === "pwned") {
+      return {
+        ok: false,
+        error: "This password has appeared in a known data breach. Please choose a different one.",
+      };
+    }
+    return { ok: false, error: "Password validation failed." };
+  }
 
   const admin = createSupabaseAdminClient();
 
