@@ -1,17 +1,17 @@
 import { dbAdmin } from "@/lib/db/admin";
-import { companies } from "@/lib/db/schema";
+import { corporateClients } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { normalizeCui } from "@/lib/integrations/anaf";
 
-export type CompanyRow = typeof companies.$inferSelect;
+export type CorporateClientRow = typeof corporateClients.$inferSelect;
 
-export async function findCompanyByCui(cui: string): Promise<CompanyRow | null> {
+export async function findCorporateClientByCui(cui: string): Promise<CorporateClientRow | null> {
   const normalized = normalizeCui(cui);
-  const rows = await dbAdmin.select().from(companies).where(eq(companies.cui, normalized)).limit(1);
+  const rows = await dbAdmin.select().from(corporateClients).where(eq(corporateClients.cui, normalized)).limit(1);
   return rows[0] ?? null;
 }
 
-export async function insertPendingCompany(input: {
+export async function insertPendingCorporateClient(input: {
   cui: string;
   name: string;
   legalName?: string | null;
@@ -20,12 +20,12 @@ export async function insertPendingCompany(input: {
   vatPayer?: boolean;
   primaryContactEmail?: string | null;
   primaryContactPhone?: string | null;
-}): Promise<CompanyRow> {
+}): Promise<CorporateClientRow> {
   const cui = normalizeCui(input.cui);
-  const existing = await findCompanyByCui(cui);
+  const existing = await findCorporateClientByCui(cui);
   if (existing) return existing;
 
-  const [row] = await dbAdmin.insert(companies).values({
+  const [row] = await dbAdmin.insert(corporateClients).values({
     cui,
     name: input.name,
     legalName: input.legalName ?? null,

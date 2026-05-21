@@ -32,7 +32,7 @@ export function createSupabaseAdminClient() {
 }
 
 // ─── Drizzle service-role client ─────────────────────────────────────────
-// Used by typed repos (companies-repo, event-requests-repo, etc.). Bypasses
+// Used by typed repos (corporate-clients-repo, event-requests-repo, etc.). Bypasses
 // RLS because it connects with the Postgres superuser via DATABASE_URL.
 // Lazily constructed via a JS Proxy so importing this module is free —
 // tests that don't touch the DB pay nothing, and the connection only opens

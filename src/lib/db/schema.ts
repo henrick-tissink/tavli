@@ -85,13 +85,13 @@ export const dietaryTag = pgEnum("dietary_tag", [
 
 export const currencyCode = pgEnum("currency_code", ["lei", "TRY", "EUR"]);
 
-export const companyStatus = pgEnum("company_status", [
+export const corporateClientStatus = pgEnum("corporate_client_status", [
   "pending_verification",
   "active",
   "suspended",
 ]);
 
-export const companyMemberRole = pgEnum("company_member_role", [
+export const corporateClientMemberRole = pgEnum("corporate_client_member_role", [
   "owner",
   "admin",
   "booker",
@@ -370,7 +370,7 @@ export const reservations = pgTable("reservations", {
   cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
   cancelledReason: text("cancelled_reason"),
   bookingType: bookingType("booking_type").notNull().default("standard"),
-  companyId: uuid("company_id").references(() => companies.id, { onDelete: "set null" }),
+  corporateClientId: uuid("corporate_client_id").references(() => corporateClients.id, { onDelete: "set null" }),
   bookedByUserId: uuid("booked_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
   eventRequestId: uuid("event_request_id").references(() => eventRequests.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -434,8 +434,12 @@ export const reviews = pgTable("reviews", {
   index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
 ]);
 
-// ─── companies ──────────────────────────────────────────────────────────
-export const companies = pgTable("companies", {
+// ─── corporate_clients ──────────────────────────────────────────────────
+// The corporate buyer's legal entity (the customer placing event/private
+// dining requests). Renamed from `companies` in migration 0019 to avoid
+// cognitive collision with `organizations` (the restaurant SELLER's legal
+// entity introduced in 0013/0014).
+export const corporateClients = pgTable("corporate_clients", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   legalName: text("legal_name"),
@@ -448,36 +452,36 @@ export const companies = pgTable("companies", {
   efacturaEnabled: boolean("efactura_enabled").notNull().default(true),
   primaryContactEmail: varchar("primary_contact_email", { length: 255 }),
   primaryContactPhone: varchar("primary_contact_phone", { length: 32 }),
-  status: companyStatus("status").notNull().default("pending_verification"),
+  status: corporateClientStatus("status").notNull().default("pending_verification"),
   verifiedAt: timestamp("verified_at", { withTimezone: true }),
   verifiedByUserId: uuid("verified_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("companies_status_idx").on(t.status),
+  index("corporate_clients_status_idx").on(t.status),
 ]);
 
-// ─── company_members ────────────────────────────────────────────────────
-export const companyMembers = pgTable("company_members", {
-  companyId: uuid("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+// ─── corporate_client_members ───────────────────────────────────────────
+export const corporateClientMembers = pgTable("corporate_client_members", {
+  corporateClientId: uuid("corporate_client_id").notNull().references(() => corporateClients.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
-  role: companyMemberRole("role").notNull().default("booker"),
+  role: corporateClientMemberRole("role").notNull().default("booker"),
   budgetMonthlyCents: integer("budget_monthly_cents"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  primaryKey({ columns: [t.companyId, t.userId] }),
-  index("company_members_user_idx").on(t.userId),
+  primaryKey({ columns: [t.corporateClientId, t.userId] }),
+  index("corporate_client_members_user_idx").on(t.userId),
 ]);
 
-// ─── company_invitations ────────────────────────────────────────────────
+// ─── corporate_client_invitations ───────────────────────────────────────
 // Sibling of existing `invitations` (restaurant-ownership specific). Kept
 // separate because the domains are different and a generic table would
 // muddy semantics.
-export const companyInvitations = pgTable("company_invitations", {
+export const corporateClientInvitations = pgTable("corporate_client_invitations", {
   id: uuid("id").primaryKey().defaultRandom(),
-  companyId: uuid("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+  corporateClientId: uuid("corporate_client_id").notNull().references(() => corporateClients.id, { onDelete: "cascade" }),
   email: varchar("email", { length: 255 }).notNull(),
-  role: companyMemberRole("role").notNull().default("booker"),
+  role: corporateClientMemberRole("role").notNull().default("booker"),
   tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
   invitedByUserId: uuid("invited_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
@@ -486,8 +490,8 @@ export const companyInvitations = pgTable("company_invitations", {
   claimedByUserId: uuid("claimed_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("company_invitations_company_idx").on(t.companyId),
-  index("company_invitations_email_status_idx").on(t.email, t.status),
+  index("corporate_client_invitations_corporate_client_idx").on(t.corporateClientId),
+  index("corporate_client_invitations_email_status_idx").on(t.email, t.status),
 ]);
 
 // ─── event_requests ─────────────────────────────────────────────────────
@@ -498,7 +502,7 @@ export const companyInvitations = pgTable("company_invitations", {
 export const eventRequests = pgTable("event_requests", {
   id: uuid("id").primaryKey().defaultRandom(),
   restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
-  companyId: uuid("company_id").references(() => companies.id, { onDelete: "set null" }),
+  corporateClientId: uuid("corporate_client_id").references(() => corporateClients.id, { onDelete: "set null" }),
   claimedCompanyCui: varchar("claimed_company_cui", { length: 20 }),
   claimedCompanyName: text("claimed_company_name"),
   requestedByUserId: uuid("requested_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
@@ -533,7 +537,7 @@ export const eventRequests = pgTable("event_requests", {
   index("event_requests_restaurant_status_idx").on(t.restaurantId, t.status),
   index("event_requests_status_created_idx").on(t.status, t.createdAt),
   index("event_requests_user_idx").on(t.requestedByUserId),
-  index("event_requests_company_idx").on(t.companyId),
+  index("event_requests_corporate_client_idx").on(t.corporateClientId),
   index("event_requests_claim_idx").on(t.claimedCompanyCui),
 ]);
 

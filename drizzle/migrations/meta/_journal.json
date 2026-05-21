@@ -134,6 +134,13 @@
       "when": 1779397470538,
       "tag": "0018_staff_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1779400114379,
+      "tag": "0019_corporate_clients_rename",
+      "breakpoints": true
     }
   ]
 }
