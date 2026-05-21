@@ -20,6 +20,7 @@ import {
 import { replaceLineItems } from "@/lib/repos/quote-line-items-repo";
 import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
+import { normalizePhone } from "@/lib/phone/normalize";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { recordAudit } from "@/lib/audit/record";
@@ -84,6 +85,20 @@ export async function submitEventRequestDraft(
       : undefined
     : undefined;
 
+  // §02 §4.7: normalise guest phone to E.164. Field is optional, so empty
+  // input is fine ("empty" reason → undefined); a non-empty unparseable
+  // value rejects the submission.
+  let guestPhoneE164: string | undefined;
+  if (data.guestPhone !== undefined) {
+    const phoneResult = normalizePhone(data.guestPhone);
+    if (phoneResult.ok) {
+      guestPhoneE164 = phoneResult.e164;
+    } else if (phoneResult.reason === "invalid") {
+      throw new Error("invalid phone: please enter a valid number with country code");
+    }
+    // reason === "empty" → leave guestPhoneE164 undefined
+  }
+
   // 5-min dedupe: absorb accidental double-submits and let the user resume
   // their pending OTP rather than fragmenting the partner inbox.
   const cutoff = new Date(Date.now() - 5 * 60_000);
@@ -109,7 +124,7 @@ export async function submitEventRequestDraft(
     restaurantId: data.restaurantId,
     guestName: data.guestName,
     guestEmail: data.guestEmail,
-    guestPhone: data.guestPhone,
+    guestPhone: guestPhoneE164,
     occasion: data.occasion,
     eventDate: data.eventDate,
     eventTimePreference: data.eventTimePreference,

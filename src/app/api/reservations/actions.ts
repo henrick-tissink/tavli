@@ -8,6 +8,7 @@ import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
 import { appOrigin } from "@/lib/app-origin";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
+import { normalizePhone } from "@/lib/phone/normalize";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -50,6 +51,19 @@ export async function createReservation(
     return { ok: false, mode: "db", error: "Incomplete reservation details." };
   }
 
+  // §02 §4.7: normalise to E.164 at the action boundary so stored
+  // guest_phone is always in canonical form (required by §04 SMS reminders).
+  const phoneResult = normalizePhone(input.guestPhone);
+  if (!phoneResult.ok) {
+    return {
+      ok: false,
+      mode: "db",
+      error: "Please enter a valid phone number with country code.",
+      errorCode: "OTHER",
+    };
+  }
+  const guestPhoneE164 = phoneResult.e164;
+
   const supabaseConfigured =
     !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
     !!process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -75,7 +89,7 @@ export async function createReservation(
     .insert({
       restaurant_id: input.restaurantId,
       guest_name: input.guestName.trim(),
-      guest_phone: input.guestPhone.trim(),
+      guest_phone: guestPhoneE164,
       guest_email: input.guestEmail?.trim() || null,
       party_size: input.partySize,
       reservation_date: input.date,
@@ -168,7 +182,7 @@ export async function createReservation(
         reservationTime: input.time,
         partySize: input.partySize,
         guestName: input.guestName.trim(),
-        guestPhone: input.guestPhone.trim(),
+        guestPhone: guestPhoneE164,
         guestEmail: input.guestEmail,
         zone: input.zone,
         notes: input.notes,

@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { geocode } from "@/lib/geocoding";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { normalizePhone } from "@/lib/phone/normalize";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -39,6 +40,18 @@ export async function savePartnerProfile(
   if (profile.cuisines.length === 0) return { ok: false, error: "Alege cel puțin o bucătărie." };
   if (!profile.address) return { ok: false, error: "Adresa este obligatorie." };
 
+  // §02 §4.7: normalise restaurant phone to E.164. Optional field — empty
+  // → null; invalid → reject.
+  let phoneE164: string | null = null;
+  if (profile.phone) {
+    const phoneResult = normalizePhone(profile.phone);
+    if (phoneResult.ok) {
+      phoneE164 = phoneResult.e164;
+    } else if (phoneResult.reason === "invalid") {
+      return { ok: false, error: "Numărul de telefon este invalid. Introdu un număr cu prefixul de țară." };
+    }
+  }
+
   const { error } = await supabase
     .from("restaurants")
     .update({
@@ -46,7 +59,7 @@ export async function savePartnerProfile(
       cuisines: profile.cuisines,
       address: profile.address,
       zone: profile.zone || null,
-      phone: profile.phone || null,
+      phone: phoneE164,
       hero_note: profile.heroNote || null,
       website_url: profile.websiteUrl || null,
       updated_at: new Date().toISOString(),
