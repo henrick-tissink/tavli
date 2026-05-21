@@ -11,6 +11,9 @@ import {
 import { PartnerCancelledEmail } from "@/emails/PartnerCancelledEmail";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
+import { getActorRole } from "@/lib/audit/actor-role";
 
 export type NewStatus = "seated" | "no_show" | "completed";
 
@@ -37,6 +40,29 @@ export async function updateReservationStatus(
     .eq("restaurant_id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
+
+  // §02 audit: capture status transition. Org id is best-effort — partner may
+  // operate a venue not yet linked to an org. Context payload is FK ids +
+  // scalars only (no PII).
+  const actorRole = await getActorRole(session, restaurantId);
+  const { data: orgRow } = await supabase
+    .from("restaurants")
+    .select("organization_id")
+    .eq("id", restaurantId)
+    .maybeSingle();
+  await recordAudit({
+    action: AUDIT.reservation.modified,
+    subjectType: "reservation",
+    subjectId: reservationId,
+    actorUserId: session.userId,
+    actorRole,
+    restaurantId,
+    organizationId: orgRow?.organization_id ?? null,
+    context: {
+      next_status: nextStatus,
+    },
+  });
+
   revalidatePath("/partner/reservations");
   revalidatePath("/partner");
   return { ok: true };
@@ -138,6 +164,29 @@ export async function cancelReservation(
     });
     emailSent = result.ok;
   }
+
+  // §02 audit: cancellation row carries the reason key + whether the
+  // guest-notification email actually went out. No PII — reason_key is an
+  // enum value and email_sent is a boolean.
+  const actorRole = await getActorRole(session, ownerRestaurantId);
+  const { data: orgRow } = await supabase
+    .from("restaurants")
+    .select("organization_id")
+    .eq("id", ownerRestaurantId)
+    .maybeSingle();
+  await recordAudit({
+    action: AUDIT.reservation.cancelled,
+    subjectType: "reservation",
+    subjectId: reservationId,
+    actorUserId: session.userId,
+    actorRole,
+    restaurantId: ownerRestaurantId,
+    organizationId: orgRow?.organization_id ?? null,
+    context: {
+      reason_key: key,
+      email_sent: emailSent,
+    },
+  });
 
   revalidatePath("/partner/reservations");
   revalidatePath("/partner");

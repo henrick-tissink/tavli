@@ -12,7 +12,7 @@
  */
 
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   getByTrackingToken,
   acceptQuote,
@@ -21,12 +21,14 @@ import {
 } from "@/lib/repos/event-requests-repo";
 import { insertNotification } from "@/lib/repos/partner-notifications-repo";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurants } from "@/lib/db/schema";
+import { reservations, restaurants } from "@/lib/db/schema";
 import {
   sendEventRequestAccepted,
   sendEventRequestDeclined,
 } from "@/lib/email/event-requests";
 import { appOrigin } from "@/lib/app-origin";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
 
 async function loadByToken(token: string) {
   const er = await getByTrackingToken(token);
@@ -116,11 +118,53 @@ export async function consumerDeclineQuote({
 
 export async function consumerCancelEventRequest(token: string) {
   const er = await loadByToken(token);
+  const wasAccepted = er.status === "accepted";
   const out = await cancel(er.id);
   await insertNotification({
     restaurantId: er.restaurantId,
     kind: "event_request_cancelled",
     payload: { eventRequestId: er.id },
   });
+
+  // §02 audit: if the event was already accepted, `cancel()` cascaded
+  // materialized reservations to status='cancelled' in the same transaction
+  // (see event-requests-repo.cancel). Emit one audit row per cancelled
+  // reservation so the trail shows which inventory was released. The
+  // consumer is acting via the tracking token — no session — so we stamp
+  // actorRole='diner' and actorUserId=null. Context carries FK ids only.
+  if (wasAccepted) {
+    const [orgRow] = await dbAdmin
+      .select({ organizationId: restaurants.organizationId })
+      .from(restaurants)
+      .where(eq(restaurants.id, er.restaurantId))
+      .limit(1);
+    const organizationId = orgRow?.organizationId ?? null;
+    const cancelledRows = await dbAdmin
+      .select({ id: reservations.id })
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.eventRequestId, er.id),
+          eq(reservations.status, "cancelled"),
+        ),
+      );
+    for (const row of cancelledRows) {
+      await recordAudit({
+        action: AUDIT.reservation.modified,
+        subjectType: "reservation",
+        subjectId: row.id,
+        actorUserId: null,
+        actorRole: "diner",
+        restaurantId: er.restaurantId,
+        organizationId,
+        context: {
+          event_request_id: er.id,
+          source: "corporate",
+          next_status: "cancelled",
+        },
+      });
+    }
+  }
+
   return out;
 }

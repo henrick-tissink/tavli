@@ -22,6 +22,9 @@ import { sendOtp } from "@/lib/auth/otp";
 import { normalizeCui, isValidCuiFormat } from "@/lib/integrations/anaf";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
+import { getActorRole } from "@/lib/audit/actor-role";
 import {
   sendEventRequestReplied,
   sendEventRequestQuoted,
@@ -374,6 +377,17 @@ export async function materializeAcceptedEventRequest(
     throw new Error("event request must be accepted before materializing");
   }
 
+  // §02 audit: resolve actor + org once outside the loop so each
+  // recordAudit() call inside the transaction is a single INSERT.
+  const auditSession = await getCurrentSession();
+  const actorRole = await getActorRole(auditSession, restaurantId);
+  const [orgRow] = await dbAdmin
+    .select({ organizationId: restaurants.organizationId })
+    .from(restaurants)
+    .where(eq(restaurants.id, restaurantId))
+    .limit(1);
+  const organizationId = orgRow?.organizationId ?? null;
+
   const reservationIds: string[] = [];
 
   await dbAdmin.transaction(async (tx) => {
@@ -411,6 +425,25 @@ export async function materializeAcceptedEventRequest(
         })
         .returning({ id: reservations.id });
       reservationIds.push(row.id);
+
+      // Atomic with the reservation INSERT — pass `tx` so a failure here
+      // rolls back the matching reservation row.
+      await recordAudit(
+        {
+          action: AUDIT.reservation.created,
+          subjectType: "reservation",
+          subjectId: row.id,
+          actorUserId: auditSession?.userId ?? null,
+          actorRole,
+          restaurantId,
+          organizationId,
+          context: {
+            event_request_id: er.id,
+            source: "corporate",
+          },
+        },
+        tx,
+      );
     }
 
     if (data.mode === "whole_venue") {

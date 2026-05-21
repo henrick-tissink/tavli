@@ -20,6 +20,16 @@ jest.mock("@/lib/auth/session", () => ({
 jest.mock("@/lib/restaurants/current-user", () => ({
   currentUserPrimaryRestaurant: jest.fn(),
 }));
+// §02 audit retrofit: the mutation sites now call recordAudit() + getActorRole.
+// Both hit dbAdmin against the real local DB which isn't available in this
+// suite's mocked supabase context — stub them out so the business-logic
+// assertions stay isolated.
+jest.mock("@/lib/audit/record", () => ({
+  recordAudit: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock("@/lib/audit/actor-role", () => ({
+  getActorRole: jest.fn().mockResolvedValue("venue_owner"),
+}));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { sendEmail } from "@/lib/email/resend";
@@ -62,6 +72,18 @@ function setupSupabase({
       getUser: jest.fn().mockResolvedValue({ data: { user } }),
     },
     from: jest.fn((table: string) => {
+      if (table === "restaurants") {
+        // §02 audit retrofit: org_id lookup for the audit row's
+        // organizationId. Behaviour doesn't depend on it; return a stable
+        // null so the audit call composes correctly.
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({
+            data: { organization_id: null },
+          }),
+        };
+      }
       if (table === "reservations") {
         reservationsCallCount++;
         if (reservationsCallCount === 1) {

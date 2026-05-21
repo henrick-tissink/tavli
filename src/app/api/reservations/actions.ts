@@ -6,6 +6,8 @@ import { sendEmail } from "@/lib/email/resend";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
 import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
 import { appOrigin } from "@/lib/app-origin";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -113,9 +115,27 @@ export async function createReservation(
   // Resolve restaurant details for the emails.
   const { data: restaurant } = await admin
     .from("restaurants")
-    .select("name, address, email")
+    .select("name, address, email, organization_id")
     .eq("id", data.restaurant_id)
     .maybeSingle();
+
+  // §02 audit: stamp every public booking on the audit trail. The diner is
+  // anonymous on this path (no session), so actorUserId is null and the
+  // role degrades to 'diner'. Context carries FK ids + scalars only.
+  await recordAudit({
+    action: AUDIT.reservation.created,
+    subjectType: "reservation",
+    subjectId: data.id,
+    actorUserId: null,
+    actorRole: "diner",
+    restaurantId: data.restaurant_id,
+    organizationId: restaurant?.organization_id ?? null,
+    context: {
+      party_size: input.partySize,
+      reservation_date: input.date,
+      reservation_time: input.time,
+    },
+  });
 
   const cancelUrl = `${appOrigin()}/reservations/${confirmationToken}`;
 
