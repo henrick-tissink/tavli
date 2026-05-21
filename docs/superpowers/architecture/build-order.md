@@ -67,6 +67,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 - [x] §01 `organizations` table + `organization_members` + `restaurant_staff` (migration 0013, src/lib/authz/resolvers/org.ts; orgResolver swapped in for legacyResolver. §3.6 column-ownership swap closed.) *(sub-unit A shipped 2026-05-21 — migration 0014 adds the columns with backfill + activates orgResolver cross-scope grant; sub-unit B shipped 2026-05-21 — 22 callsites moved off owner_user_id; sub-unit C shipped 2026-05-21 — migration 0015 drops owner_user_id + rewrites is_owner_of/claim_invitation + deletes legacyResolver)*
 - [x] §01 `customer_type` enum + `tax_id` uniqueness enforcement *(shipped 2026-05-22 — migration 0017 adds `org_customer_type` enum + `organizations.customer_type` nullable column per §12 §4.1. tax_id uniqueness already shipped in 0014 sub-unit A. Deferrable check constraint waits for §12's subscriptions table.)*
+- [x] §01 §3.5 `staff_invitations` table *(shipped 2026-05-22 — migration 0018: 2 enums + table + 4 FKs + 3 partial indexes + check constraint + 3 SELECT-only RLS policies. token_hash uses varchar(64) (existing-codebase convention) not the spec's bytea. The invitation FLOW — invite/claim/revoke/resend + email + `claim_staff_invitation` stored proc — is §01 §13 step 10, a separate future unit.)*
 - [ ] §01 MFA / passkeys (§01 §5.2)
 - [ ] §01 Tavli-admin support impersonation (§01 §5.3)
 - [ ] §01 NIST 800-63B password policy + session revocation (§01 §5.1, §5a.4)
