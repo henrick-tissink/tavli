@@ -46,6 +46,18 @@ export function makeOrgResolver(deps: OrgResolverDeps): MembershipResolver {
         const restaurantId = scope.kind === "venue" ? scope.restaurantId : scope.id;
         const venueRows = await deps.loadVenueStaff(userId, restaurantId);
         for (const row of venueRows) roles.push(venueRoleToMatrix[row.role]);
+
+        // Cross-scope grant: if this venue has a parent org, fold in the
+        // user's org-level roles for that org. Sequential rather than
+        // parallel — clarity outweighs marginal latency at current scale,
+        // and React's cache() dedupes per-request anyway. Convert to
+        // Promise.all([loadVenueStaff, loadRestaurantOrgId]) only when
+        // can() becomes a hot path.
+        const orgId = await deps.loadRestaurantOrgId(restaurantId);
+        if (orgId) {
+          const orgRows = await deps.loadOrgMembership(userId, orgId);
+          for (const row of orgRows) roles.push(orgRoleToMatrix[row.role]);
+        }
       }
 
       if (scope.kind === "organization") {
@@ -91,15 +103,12 @@ const productionDeps: OrgResolverDeps = {
   },
 
   async loadRestaurantOrgId(restaurantId) {
-    // §3.6 hasn't shipped yet. The restaurants table has no organization_id
-    // column today, so this always returns null. When the §3.6 follow-up
-    // unit lands, this becomes a real SELECT — and the venue-scope branch
-    // in rolesForScope above starts ALSO calling loadOrgMembership when
-    // loadRestaurantOrgId returns non-null. That's a one-line change in
-    // the venue branch.
-    void restaurants; // silence unused-import lint until §3.6 lands
-    void restaurantId;
-    return null;
+    const rows = await dbAdmin
+      .select({ organizationId: restaurants.organizationId })
+      .from(restaurants)
+      .where(eq(restaurants.id, restaurantId))
+      .limit(1);
+    return rows[0]?.organizationId ?? null;
   },
 };
 

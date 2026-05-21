@@ -10,7 +10,7 @@ describe("OrgResolver", () => {
       const deps: OrgResolverDeps = {
         loadVenueStaff: jest.fn().mockResolvedValue([{ role: "owner" }]),
         loadOrgMembership: jest.fn(),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -32,7 +32,7 @@ describe("OrgResolver", () => {
           { role: "host" },
         ]),
         loadOrgMembership: jest.fn(),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -48,7 +48,7 @@ describe("OrgResolver", () => {
       const deps: OrgResolverDeps = {
         loadVenueStaff: jest.fn().mockResolvedValue([]),
         loadOrgMembership: jest.fn(),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -66,7 +66,7 @@ describe("OrgResolver", () => {
       const deps: OrgResolverDeps = {
         loadVenueStaff: jest.fn().mockResolvedValue([{ role: "host" }]),
         loadOrgMembership: jest.fn(),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -85,7 +85,7 @@ describe("OrgResolver", () => {
       const deps: OrgResolverDeps = {
         loadVenueStaff: jest.fn(),
         loadOrgMembership: jest.fn().mockResolvedValue([{ role: "admin" }]),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -102,7 +102,7 @@ describe("OrgResolver", () => {
       const deps: OrgResolverDeps = {
         loadVenueStaff: jest.fn(),
         loadOrgMembership: jest.fn().mockResolvedValue([]),
-        loadRestaurantOrgId: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
       };
       const resolver = makeOrgResolver(deps);
 
@@ -112,6 +112,61 @@ describe("OrgResolver", () => {
       });
 
       expect(roles).toEqual([]);
+    });
+  });
+
+  describe("venue scope — cross-scope grant via org membership", () => {
+    it("grants org_admin to a non-venue-staff user when the restaurant belongs to an org they admin", async () => {
+      const deps: OrgResolverDeps = {
+        loadVenueStaff: jest.fn().mockResolvedValue([]),
+        loadOrgMembership: jest.fn().mockResolvedValue([{ role: "admin" }]),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue("o-1"),
+      };
+      const resolver = makeOrgResolver(deps);
+
+      const roles = await resolver.rolesForScope(userId, {
+        kind: "venue",
+        restaurantId: "r-1",
+      });
+
+      expect(roles).toEqual(["org_admin"]);
+      expect(deps.loadRestaurantOrgId).toHaveBeenCalledWith("r-1");
+      expect(deps.loadOrgMembership).toHaveBeenCalledWith(userId, "o-1");
+    });
+
+    it("returns empty when the restaurant has no parent org (legacy state)", async () => {
+      const deps: OrgResolverDeps = {
+        loadVenueStaff: jest.fn().mockResolvedValue([]),
+        loadOrgMembership: jest.fn(),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue(null),
+      };
+      const resolver = makeOrgResolver(deps);
+
+      const roles = await resolver.rolesForScope(userId, {
+        kind: "venue",
+        restaurantId: "r-1",
+      });
+
+      expect(roles).toEqual([]);
+      expect(deps.loadOrgMembership).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("venue scope — union of venue staff + org membership", () => {
+    it("returns both venue_host and org_owner when the user holds both", async () => {
+      const deps: OrgResolverDeps = {
+        loadVenueStaff: jest.fn().mockResolvedValue([{ role: "host" }]),
+        loadOrgMembership: jest.fn().mockResolvedValue([{ role: "owner" }]),
+        loadRestaurantOrgId: jest.fn().mockResolvedValue("o-1"),
+      };
+      const resolver = makeOrgResolver(deps);
+
+      const roles = await resolver.rolesForScope(userId, {
+        kind: "venue",
+        restaurantId: "r-1",
+      });
+
+      expect(roles).toEqual(["venue_host", "org_owner"]);
     });
   });
 });

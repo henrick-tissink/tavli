@@ -216,28 +216,26 @@ Separate from the existing `invitations` table (which is specifically for restau
 ### 3.6 Modifications to existing tables
 
 ```sql
--- restaurants gets an organization owner. Every venue belongs to exactly one org.
+-- Phase 1: pre-flight assertion (auth.users/profiles drift check)
+-- Phase 2: add columns nullable
 alter table restaurants
-  add column organization_id uuid references organizations(id) on delete restrict not null;
-
-create index restaurants_organization on restaurants (organization_id);
-
--- restaurants.owner_user_id is DROPPED in the same migration.
--- Source of truth for "who owns this restaurant" is `organization_members where role = 'owner'`.
-alter table restaurants drop column owner_user_id;
-
--- profiles gets a UX hint for which org context the user last operated in.
+  add column organization_id uuid references organizations(id) on delete restrict;
 alter table profiles
   add column default_organization_id uuid references organizations(id) on delete set null;
+-- Phase 3: backfill via DO block (one org per distinct owner_user_id, with
+--          org_owner membership + venue_owner restaurant_staff rows)
+-- Phase 4: orphan check (RAISE if any restaurant lacks organization_id)
+-- Phase 5: lockdown
+alter table restaurants alter column organization_id set not null;
+create index restaurants_organization_idx on restaurants(organization_id);
+
+-- Sub-unit C (deferred): drop restaurants.owner_user_id + restaurants_owner_idx
+-- after sub-unit B refactors the ~27 ad-hoc callsites that read owner_user_id.
 ```
 
-**Pre-release simplification.** Since there are no production rows yet (only dev environments, which are reseeded), the migration runs as a single atomic step:
-1. Add `organizations` table + indexes.
-2. Add `organization_id NOT NULL` to `restaurants` (dev environments are truncated first; no backfill required).
-3. Drop `restaurants.owner_user_id`.
-4. Add `default_organization_id` to `profiles`.
+**Phased backfill rationale.** The original spec assumed "no production rows yet — dev environments truncated first; no backfill required." Reality: the test partner account on tavli.ro has live restaurant + profile rows that must survive the migration. The phased approach (add nullable → backfill → SET NOT NULL + index) lets us add the column to existing data deterministically. The entire migration wraps in `BEGIN`/`COMMIT` so any failure rolls back atomically. See `drizzle/migrations/0014_org_ownership_swap.sql` for the canonical version.
 
-If we were post-launch this would be a 5-phase backfill (add nullable col → seed orgs → backfill FK → seed memberships → set NOT NULL + drop owner_user_id). We're not, so we don't.
+**Source of truth for "who owns this restaurant"** is `organization_members where role = 'owner'`. `restaurants.owner_user_id` is retained for one more sub-unit while the 27 ad-hoc callsites that read it migrate to `can()` / `organization_members` / `restaurant_staff`. Drop happens in sub-unit C.
 
 ### 3.7 RLS policies (new tables)
 
@@ -762,6 +760,7 @@ This entire sequence can be parallelised with §00 cross-cutting work (authz hel
 ## Revisions
 
 - **2026-05-21** — §3.7 RLS policies tightened. The originally-drafted `organization_members`, `restaurant_staff`, and `staff_invitations` policies all self-referenced their own table (or a chain ending in their own table) inside `USING` subqueries, which triggers Postgres 42P17 recursion errors at evaluation time (same bug 0009 fixed for `company_members`). All three `_select` policies are narrowed to `user_id = auth.uid()` (or the equivalent inviter/invitee predicate for `staff_invitations`). All `FOR ALL` mutation policies are intentionally dropped — writes route through service-role helpers in `src/lib/identity/*` (§5/§6 future units), matching the `audit_logs` + `webhook_events` pattern. Cross-member team-roster reads and cross-scope grants (org member → all org venues) land later via SECURITY DEFINER helpers. The `organizations` policies are unchanged: their inner `select organization_id from organization_members` subquery is non-recursive (different table). Shipped in migration 0013 + fix commit 6533370.
+- **2026-05-21** — §3.6 column-ownership swap split into three sub-units. Sub-unit A (shipped 2026-05-21, migration 0014) adds `restaurants.organization_id NOT NULL` + `profiles.default_organization_id` with a phased backfill (pre-flight → add nullable → DO-block backfill of one org per distinct `owner_user_id` → orphan check → SET NOT NULL + index); also activates the `orgResolver`'s cross-scope grant via the now-real `loadRestaurantOrgId`. Sub-unit B (deferred) refactors the ~27 ad-hoc `owner_user_id` callsites to `can()` / `organization_members` / `restaurant_staff`. Sub-unit C (deferred, blocked on B) drops `restaurants.owner_user_id` + `restaurants_owner_idx`. Phased rather than "pre-release simplified" because the test partner's prod data must survive.
 
 ---
 
