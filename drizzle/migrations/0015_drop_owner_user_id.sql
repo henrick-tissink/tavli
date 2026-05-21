@@ -107,23 +107,20 @@ BEGIN
     FROM public.profiles
    WHERE id = p_user_id;
 
-  -- Seed the org now (or fetch if the partner already has a default_organization_id).
-  -- A claim_invitation call always seeds a fresh org — the invitation carries
-  -- a new restaurant identity, so the partner's existing default is preserved
-  -- (default_organization_id is updated to the new org only when not set).
-  INSERT INTO public.organizations (name, primary_contact_email, locale, status)
-  VALUES (
-    coalesce(v_invitation.proposed_name, v_partner_name, 'New Restaurant'),
-    v_partner_email,
-    coalesce(v_partner_locale, 'ro'),
-    'active'
-  )
-  RETURNING id INTO v_org_id;
-
-  INSERT INTO public.organization_members (organization_id, user_id, role, is_active)
-  VALUES (v_org_id, p_user_id, 'owner', true);
-
+  -- Branch on whether the invitation pre-bound a restaurant. The new-restaurant
+  -- branch creates a fresh org + restaurant pair; the existing-restaurant branch
+  -- reuses the restaurant's org (every restaurant has organization_id NOT NULL
+  -- post-0014, so the reuse is always safe).
   IF v_invitation.restaurant_id IS NULL THEN
+    INSERT INTO public.organizations (name, primary_contact_email, locale, status)
+    VALUES (
+      coalesce(v_invitation.proposed_name, v_partner_name, 'New Restaurant'),
+      v_partner_email,
+      coalesce(v_partner_locale, 'ro'),
+      'active'
+    )
+    RETURNING id INTO v_org_id;
+
     INSERT INTO public.restaurants (
       slug, name, cuisines, city_id, organization_id, status, email
     ) VALUES (
@@ -137,14 +134,26 @@ BEGIN
     )
     RETURNING id INTO v_restaurant_id;
   ELSE
-    UPDATE public.restaurants
-       SET organization_id = v_org_id
+    SELECT organization_id INTO v_org_id
+      FROM public.restaurants
      WHERE id = v_invitation.restaurant_id;
     v_restaurant_id := v_invitation.restaurant_id;
   END IF;
 
+  -- Idempotent membership inserts — re-claiming after a previous failed run
+  -- shouldn't conflict, and admin-pre-bound restaurants may already have
+  -- restaurant_staff rows from the 0014 backfill.
+  INSERT INTO public.organization_members (organization_id, user_id, role, is_active)
+  VALUES (v_org_id, p_user_id, 'owner', true)
+  ON CONFLICT (organization_id, user_id) DO UPDATE
+     SET role = 'owner',
+         is_active = true;
+
   INSERT INTO public.restaurant_staff (restaurant_id, user_id, role, is_active)
-  VALUES (v_restaurant_id, p_user_id, 'owner', true);
+  VALUES (v_restaurant_id, p_user_id, 'owner', true)
+  ON CONFLICT (restaurant_id, user_id) DO UPDATE
+     SET role = 'owner',
+         is_active = true;
 
   -- Set the partner's default-org pointer if not already set.
   UPDATE public.profiles

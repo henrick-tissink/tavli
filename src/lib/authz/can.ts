@@ -15,9 +15,9 @@
  *
  * MembershipResolver is the swap point. The active default is
  * `orgResolver` (§01 Wave 2: queries `organization_members` +
- * `restaurant_staff`). `legacyResolver` (current-prod
- * `restaurants.owner_user_id` → `venue_owner`) is kept as a rollback
- * fallback for one wave; deletable once orgResolver soaks.
+ * `restaurant_staff` + cross-scope grant via `restaurants.organization_id`).
+ * The §3.6 trilogy completed with sub-unit C dropping the prior
+ * `restaurants.owner_user_id` column + retiring `legacyResolver`.
  */
 
 import "server-only";
@@ -44,8 +44,7 @@ let activeResolver: MembershipResolver | null = null;
 
 /**
  * Install the resolver. Called once at module load time by the relevant
- * compositional layer. Tests inject a stub; prod uses legacyResolver
- * today, the §01 org-aware resolver after Wave 2.
+ * compositional layer. Tests inject a stub; prod uses orgResolver.
  */
 export function setMembershipResolver(resolver: MembershipResolver): void {
   activeResolver = resolver;
@@ -54,10 +53,9 @@ export function setMembershipResolver(resolver: MembershipResolver): void {
 async function getActiveResolver(): Promise<MembershipResolver> {
   if (activeResolver) return activeResolver;
   // Lazy default — keeps tests free to install a stub before any can()
-  // call without pulling in db dependencies. §01 Wave 2: swapped from
-  // legacyResolver (current-prod owner_user_id) to orgResolver (new
-  // organization_members + restaurant_staff tables). legacyResolver is
-  // kept as a fallback for one wave; deletable after orgResolver soaks.
+  // call without pulling in db dependencies. orgResolver queries
+  // organization_members + restaurant_staff and folds in the cross-scope
+  // grant via restaurants.organization_id (§3.6 sub-unit A).
   const { orgResolver } = await import("./resolvers/org");
   activeResolver = orgResolver;
   return activeResolver;

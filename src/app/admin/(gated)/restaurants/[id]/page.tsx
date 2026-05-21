@@ -53,7 +53,7 @@ export default async function AdminRestaurantDetailPage({
     : (restaurant.cities as { name: string; slug: string } | null);
 
   // §3.6 sub-unit B: display the org name + the (active) org-owner's email
-  // instead of the raw owner_user_id (which sub-unit C drops). The nested
+  // instead of the raw owner_user_id (which sub-unit C dropped). The nested
   // Supabase select can return either a single object or an array
   // depending on the inferred relationship — handle both for safety.
   const { data: ownerMembership } = restaurant.organization_id
