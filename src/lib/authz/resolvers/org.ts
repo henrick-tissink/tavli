@@ -1,12 +1,15 @@
 // src/lib/authz/resolvers/org.ts
 /**
  * OrgResolver — §01 Wave 2 replacement for `legacyResolver`. Returns the
- * MatrixRole(s) a user holds for a given scope, querying the new
- * organization_members + restaurant_staff tables.
+ * MatrixRole(s) a user holds for a given scope.
  *
- * Cross-scope grant (org members implicitly seeing all the org's venues)
- * requires restaurants.organization_id, which lands in the §3.6 unit. Until
- * then, venue scope only checks restaurant_staff.
+ * Venue scope: unions venue-staff roles (from `restaurant_staff`) with the
+ * user's org-level roles for the venue's parent org (resolved via
+ * `restaurants.organization_id` → `organization_members`).
+ *
+ * Organization scope: checks `organization_members` directly.
+ *
+ * Restaurant scope: same as venue scope.
  */
 
 import "server-only";
