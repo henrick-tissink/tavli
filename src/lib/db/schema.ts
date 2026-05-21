@@ -149,6 +149,10 @@ export const profiles = pgTable("profiles", {
   fullName: text("full_name"),
   email: text("email"),
   locale: varchar("locale", { length: 5 }).notNull().default("ro"),
+  defaultOrganizationId: uuid("default_organization_id").references(
+    () => organizations.id,
+    { onDelete: "set null" },
+  ),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("profiles_role_idx").on(t.role),
@@ -192,6 +196,9 @@ export const restaurants = pgTable("restaurants", {
   ownerUserId: uuid("owner_user_id").references(() => profiles.id, {
     onDelete: "set null",
   }),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "restrict" }),
   rating: numeric("rating", { precision: 2, scale: 1 }),
   voteCount: integer("vote_count").notNull().default(0),
   photoCount: integer("photo_count").notNull().default(0),
@@ -207,6 +214,7 @@ export const restaurants = pgTable("restaurants", {
   index("restaurants_status_idx").on(t.status),
   index("restaurants_owner_idx").on(t.ownerUserId),
   index("restaurants_city_status_idx").on(t.cityId, t.status),
+  index("restaurants_organization_idx").on(t.organizationId),
 ]);
 
 export interface ScheduleEntry {
