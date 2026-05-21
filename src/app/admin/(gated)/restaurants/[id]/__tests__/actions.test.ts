@@ -10,6 +10,7 @@ import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
 import {
   cities,
   eventRequests,
+  organizations,
   profiles,
   restaurants,
 } from "@/lib/db/schema";
@@ -49,6 +50,12 @@ async function seedRestaurant(): Promise<{ id: string }> {
     .from(cities)
     .where(eq(cities.slug, "sus"))
     .limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@suspend.test`,
+  });
   const [r] = await dbAdmin
     .insert(restaurants)
     .values({
@@ -56,6 +63,7 @@ async function seedRestaurant(): Promise<{ id: string }> {
       name: "Sus",
       cityId: c.id,
       status: "live",
+      organizationId: orgId,
     })
     .returning();
   return { id: r.id };

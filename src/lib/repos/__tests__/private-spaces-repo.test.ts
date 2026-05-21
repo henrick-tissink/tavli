@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { dbAdmin } from "@/lib/db/admin";
-import { cities, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
+import { cities, organizations, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import {
   createPrivateSpace,
@@ -14,8 +14,15 @@ async function seedVenue() {
     .values({ slug: "ps", name: "PS", countryCode: "RO" })
     .onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin.insert(restaurants).values({
     slug: `ps-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name: "PS", cityId: c.id, status: "live",
+    organizationId: orgId,
   }).returning();
   return r;
 }

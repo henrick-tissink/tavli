@@ -21,6 +21,7 @@ import {
   eventRequests,
   restaurants,
   cities,
+  organizations,
   profiles,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -71,6 +72,12 @@ describe("event_requests RLS", () => {
       .from(cities)
       .where(eq(cities.slug, "rls-city"))
       .limit(1);
+    const orgId = crypto.randomUUID();
+    await dbAdmin.insert(organizations).values({
+      id: orgId,
+      name: "Test Org",
+      primaryContactEmail: `org-${orgId}@rls.test`,
+    });
     const [r] = await dbAdmin
       .insert(restaurants)
       .values({
@@ -80,6 +87,7 @@ describe("event_requests RLS", () => {
         status: "live",
         ownerUserId: ownerId,
         eventsIntakeEnabled: true,
+        organizationId: orgId,
       })
       .returning();
     restaurantId = r.id;

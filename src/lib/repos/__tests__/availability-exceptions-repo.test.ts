@@ -4,13 +4,20 @@
 
 import { dbAdmin } from "@/lib/db/admin";
 import { listExceptionsForDate, insertWholeVenueBlock } from "../availability-exceptions-repo";
-import { cities, restaurants } from "@/lib/db/schema";
+import { cities, organizations, restaurants } from "@/lib/db/schema";
 
 async function seedR() {
   await dbAdmin.insert(cities).values({ slug: "x", name: "X", countryCode: "RO" }).onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin.insert(restaurants).values({
     slug: `ex-${Date.now()}`, name: "X", cityId: c.id, status: "live",
+    organizationId: orgId,
   }).returning();
   return r;
 }

@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
-import { cities, profiles, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
+import { cities, organizations, profiles, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
@@ -25,6 +25,12 @@ async function seedOwnerWithVenue() {
     .values({ slug: "sp", name: "S", countryCode: "RO" })
     .onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@spaces.test`,
+  });
   const [r] = await dbAdmin
     .insert(restaurants)
     .values({
@@ -33,6 +39,7 @@ async function seedOwnerWithVenue() {
       cityId: c.id,
       status: "live",
       ownerUserId: data!.user!.id,
+      organizationId: orgId,
     })
     .returning();
   mockSession.mockResolvedValue({

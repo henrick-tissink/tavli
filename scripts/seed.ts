@@ -24,6 +24,7 @@ import postgres from "postgres";
 import { eq, sql } from "drizzle-orm";
 import {
   cities,
+  organizations,
   restaurants,
   restaurantPhotos,
   menus,
@@ -73,6 +74,34 @@ async function main() {
   )[0]!.id;
   console.log(`  ✓ cities seeded (Bucuresti = ${bucurestiId.slice(0, 8)}…)`);
 
+  // ── 1b. seed organization ───────────────────────────────────────────────
+  // §01 §3.6 — every restaurant must belong to an organization. The mock
+  // restaurants are not bound to any specific owner profile, so we use a
+  // single deterministic "Tavli Seed Operator" org and reuse its id across
+  // every seeded restaurant. Idempotent by lookup on primary_contact_email
+  // (there is no DB unique index on that column, so we lookup-or-create).
+  const seedOrgEmail = "seed-operator@tavli.local";
+  const existingOrg = (
+    await db
+      .select({ id: organizations.id })
+      .from(organizations)
+      .where(eq(organizations.primaryContactEmail, seedOrgEmail))
+      .limit(1)
+  )[0];
+  const seedOrgId =
+    existingOrg?.id ??
+    (
+      await db
+        .insert(organizations)
+        .values({
+          name: "Tavli Seed Operator",
+          primaryContactEmail: seedOrgEmail,
+          status: "active",
+        })
+        .returning({ id: organizations.id })
+    )[0].id;
+  console.log(`  ✓ organization seeded (id = ${seedOrgId.slice(0, 8)}…)`);
+
   // ── 2. mock data import ─────────────────────────────────────────────────
   const { getRestaurants, getRestaurantDetail } = await import(
     "../src/lib/mock-data"
@@ -99,6 +128,7 @@ async function main() {
         name: r.name,
         cuisines: r.cuisines,
         cityId: bucurestiId,
+        organizationId: seedOrgId,
         zone: r.zone,
         priceLevel: r.priceLevel,
         lat: r.lat ? String(r.lat) : null,

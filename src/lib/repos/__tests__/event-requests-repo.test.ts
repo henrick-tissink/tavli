@@ -15,6 +15,7 @@ import {
 import {
   restaurants,
   cities,
+  organizations,
   profiles,
   reservations,
   availabilityExceptions,
@@ -27,8 +28,15 @@ import { randomBytes } from "node:crypto";
 async function seedRestaurant() {
   await dbAdmin.insert(cities).values({ slug: "test-city", name: "Test", countryCode: "RO" }).onConflictDoNothing();
   const [city] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin.insert(restaurants).values({
     slug: `test-r-${Date.now()}`, name: "Test R", cityId: city.id, status: "live",
+    organizationId: orgId,
   }).returning();
   return r;
 }

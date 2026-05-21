@@ -11,7 +11,7 @@ jest.mock("@/lib/auth/session", () => ({
 
 import { submitEventRequestDraft, sendQuoteForEventRequest } from "../actions";
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
-import { restaurants, cities, eventRequests, profiles } from "@/lib/db/schema";
+import { restaurants, cities, eventRequests, organizations, profiles } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import {
   createEventRequestDraft,
@@ -29,6 +29,12 @@ async function seedR(overrides?: Partial<typeof restaurants.$inferInsert>) {
     .values({ slug: "tt", name: "T", countryCode: "RO" })
     .onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin
     .insert(restaurants)
     .values({
@@ -37,6 +43,7 @@ async function seedR(overrides?: Partial<typeof restaurants.$inferInsert>) {
       cityId: c.id,
       status: "live",
       eventsIntakeEnabled: true,
+      organizationId: orgId,
       ...overrides,
     })
     .returning();

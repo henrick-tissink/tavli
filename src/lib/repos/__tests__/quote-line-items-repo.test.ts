@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { dbAdmin } from "@/lib/db/admin";
-import { cities, eventRequests, restaurants } from "@/lib/db/schema";
+import { cities, eventRequests, organizations, restaurants } from "@/lib/db/schema";
 import { randomBytes } from "node:crypto";
 import {
   replaceLineItems,
@@ -11,8 +11,15 @@ import {
 async function seedRequest() {
   await dbAdmin.insert(cities).values({ slug: "ql", name: "Q", countryCode: "RO" }).onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin.insert(restaurants).values({
     slug: `ql-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name: "Q", cityId: c.id, status: "live",
+    organizationId: orgId,
   }).returning();
   const [er] = await dbAdmin.insert(eventRequests).values({
     restaurantId: r.id, guestName: "G", guestEmail: "g@t.co",

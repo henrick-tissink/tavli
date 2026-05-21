@@ -9,7 +9,7 @@ jest.mock("@/lib/email/event-requests", () => ({
 
 import { GET } from "../route";
 import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests, cities, restaurants } from "@/lib/db/schema";
+import { eventRequests, cities, organizations, restaurants } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { sendEventRequestExpired } from "@/lib/email/event-requests";
 
@@ -19,6 +19,12 @@ async function seedRestaurant() {
     .values({ slug: "c", name: "C", countryCode: "RO" })
     .onConflictDoNothing();
   const [c] = await dbAdmin.select().from(cities).limit(1);
+  const orgId = crypto.randomUUID();
+  await dbAdmin.insert(organizations).values({
+    id: orgId,
+    name: "Test Org",
+    primaryContactEmail: `org-${orgId}@test.co`,
+  });
   const [r] = await dbAdmin
     .insert(restaurants)
     .values({
@@ -26,6 +32,7 @@ async function seedRestaurant() {
       name: "X",
       cityId: c.id,
       status: "live",
+      organizationId: orgId,
     })
     .returning();
   return r;
