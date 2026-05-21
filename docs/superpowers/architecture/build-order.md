@@ -75,7 +75,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] §02 `bulkExportReservations` action (§02 §4.8) *(shipped 2026-05-21 — `src/app/partner/(dashboard)/reservations/export-actions.ts` server action returning base64-encoded CSV; date range + scope (restaurant or org) + `can('analytics.export')` gate + `AUDIT.analytics.export_run` audit. CSV-only for v1; XLSX deferred. UI download button is a future commit.)*
 - [x] §02 slot concurrency safety (§02 §4.7) *(shipped 2026-05-21 via migration 0016: `FOR UPDATE` on `reservations_check_capacity()` trigger's availability SELECT. Deviates from spec's "new function" proposal in favor of trigger-level locking — protects all reservation INSERT paths uniformly; rationale in `docs/superpowers/specs/2026-05-21-slot-concurrency-design.md`.)*
 - [x] §02 phone E.164 normalisation (§02 §4.7) *(shipped 2026-05-21 — `src/lib/phone/normalize.ts` helper using libphonenumber-js + 4 action-boundary wirings: public booking, event request, partner profile, onboard profile. Default country RO. Forward-only; legacy prod data stays as-typed.)*
-- [ ] §10 `companies` → `corporate_clients` consistency pass (small cleanup; §10)
+- [x] §10 `companies` → `corporate_clients` consistency pass *(shipped 2026-05-22 — migration 0019: 3 tables + 2 enums + 1 column across 4 tables + 5 user-named indexes + 8 FK constraints + 3 RLS policies renamed in a single BEGIN/COMMIT block (all metadata-only RENAMEs, no data rewrite); Drizzle schema mirror updated; companies-repo.ts → corporate-clients-repo.ts + test renamed. Internal-only — user-facing copy ("Company name", "Companie", claimedCompany* form-field contract) deliberately preserved.)*
 
 ## Wave 3 — Diner CRM + comms upgrade
 
