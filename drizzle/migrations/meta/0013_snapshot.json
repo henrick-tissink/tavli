@@ -1956,8 +1956,8 @@
         }
       },
       "indexes": {
-        "organization_members_user": {
-          "name": "organization_members_user",
+        "organization_members_user_idx": {
+          "name": "organization_members_user_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -2167,8 +2167,8 @@
           "method": "btree",
           "with": {}
         },
-        "organizations_status": {
-          "name": "organizations_status",
+        "organizations_status_idx": {
+          "name": "organizations_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -3074,8 +3074,8 @@
         }
       },
       "indexes": {
-        "restaurant_staff_user": {
-          "name": "restaurant_staff_user",
+        "restaurant_staff_user_idx": {
+          "name": "restaurant_staff_user_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -3090,8 +3090,8 @@
           "method": "btree",
           "with": {}
         },
-        "restaurant_staff_restaurant": {
-          "name": "restaurant_staff_restaurant",
+        "restaurant_staff_restaurant_idx": {
+          "name": "restaurant_staff_restaurant_idx",
           "columns": [
             {
               "expression": "restaurant_id",

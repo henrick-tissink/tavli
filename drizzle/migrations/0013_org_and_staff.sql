@@ -7,6 +7,11 @@
 --   - §3.5 staff_invitations table
 --   - §3.6 restaurants.organization_id + drop owner_user_id
 --   - §3.6 profiles.default_organization_id
+-- Membership-table mutation policies (INSERT/UPDATE/DELETE on
+-- organization_members + restaurant_staff) are intentionally absent —
+-- service-role writes via forthcoming src/lib/identity/* helpers (§5/§6).
+-- SELECTs are narrowed to user_id = auth.uid() per the 0009 precedent
+-- (cross-member team-roster UI requires a SECURITY DEFINER helper, deferred).
 
 CREATE TYPE "public"."org_role" AS ENUM('owner', 'admin', 'manager');--> statement-breakpoint
 CREATE TYPE "public"."org_status" AS ENUM('pending_verification', 'active', 'suspended');--> statement-breakpoint
@@ -58,11 +63,11 @@ ALTER TABLE "organization_members" ADD CONSTRAINT "organization_members_invited_
 ALTER TABLE "restaurant_staff" ADD CONSTRAINT "restaurant_staff_restaurant_id_restaurants_id_fk" FOREIGN KEY ("restaurant_id") REFERENCES "public"."restaurants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restaurant_staff" ADD CONSTRAINT "restaurant_staff_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restaurant_staff" ADD CONSTRAINT "restaurant_staff_invited_by_user_id_users_id_fk" FOREIGN KEY ("invited_by_user_id") REFERENCES "auth"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "organization_members_user" ON "organization_members" USING btree ("user_id") WHERE "organization_members"."is_active" = true;--> statement-breakpoint
+CREATE INDEX "organization_members_user_idx" ON "organization_members" USING btree ("user_id") WHERE "organization_members"."is_active" = true;--> statement-breakpoint
 CREATE UNIQUE INDEX "organizations_tax_id_unique" ON "organizations" USING btree ("country_code","tax_id") WHERE "organizations"."tax_id" is not null;--> statement-breakpoint
-CREATE INDEX "organizations_status" ON "organizations" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "restaurant_staff_user" ON "restaurant_staff" USING btree ("user_id") WHERE "restaurant_staff"."is_active" = true;--> statement-breakpoint
-CREATE INDEX "restaurant_staff_restaurant" ON "restaurant_staff" USING btree ("restaurant_id") WHERE "restaurant_staff"."is_active" = true;
+CREATE INDEX "organizations_status_idx" ON "organizations" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "restaurant_staff_user_idx" ON "restaurant_staff" USING btree ("user_id") WHERE "restaurant_staff"."is_active" = true;--> statement-breakpoint
+CREATE INDEX "restaurant_staff_restaurant_idx" ON "restaurant_staff" USING btree ("restaurant_id") WHERE "restaurant_staff"."is_active" = true;
 
 -- ─── RLS ────────────────────────────────────────────────────────────────
 
@@ -96,27 +101,20 @@ CREATE POLICY "organizations_tavli_admin_read" ON "organizations" FOR SELECT
     WHERE p."id" = auth.uid() AND p."role" = 'admin'
   ));
 
--- organization_members: a member can see every member of every org they
--- belong to. Only org owners can mutate (insert/update/delete).
+-- organization_members: a member can see their own membership row. The
+-- cross-member team-roster UI is deferred to a SECURITY DEFINER helper
+-- per the 0009 precedent (a self-referencing subquery here triggers
+-- Postgres 42P17 recursion).
 ALTER TABLE "organization_members" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "organization_members_member_select" ON "organization_members" FOR SELECT
-  USING (
-    "organization_id" IN (
-      SELECT "organization_id" FROM "organization_members"
-      WHERE "user_id" = auth.uid() AND "is_active" = true
-    )
-  );
+  USING ("user_id" = auth.uid());
 
-CREATE POLICY "organization_members_owner_mutate" ON "organization_members" FOR ALL
-  USING (
-    "organization_id" IN (
-      SELECT "organization_id" FROM "organization_members"
-      WHERE "user_id" = auth.uid()
-        AND "is_active" = true
-        AND "role" = 'owner'
-    )
-  );
+-- No INSERT/UPDATE/DELETE policies. Writes come from service-role helpers
+-- in src/lib/identity/* (§5/§6 future units), which bypass RLS. Matches
+-- the audit_logs + webhook_events pattern — keeps mutation surface off
+-- the authenticated role and avoids the privilege-escalation footgun of
+-- a FOR ALL policy without WITH CHECK.
 
 CREATE POLICY "organization_members_tavli_admin_read" ON "organization_members" FOR SELECT
   USING (EXISTS (
@@ -124,36 +122,22 @@ CREATE POLICY "organization_members_tavli_admin_read" ON "organization_members" 
     WHERE p."id" = auth.uid() AND p."role" = 'admin'
   ));
 
--- restaurant_staff: select if you're staff there, an org member of the
--- parent org, or staff with owner/manager role at the same restaurant.
--- Mutate if you're an org owner/admin on the parent org OR the venue
--- owner. NOTE: the org-member path requires restaurants.organization_id,
--- which lands in the §3.6 follow-up unit. Until that column exists, the
--- `restaurants.organization_id` subquery returns no rows and the policy
--- falls back to the user_id and restaurant_staff branches — that's
--- correct, just narrower than the eventual final state.
+-- restaurant_staff: select your own staff row only. The cross-scope path
+-- (sibling staff visibility + org-member visibility via the future
+-- restaurants.organization_id column) is deferred along with §3.6 and
+-- will route through a SECURITY DEFINER helper to avoid the Postgres
+-- 42P17 recursion that a self-referencing subquery here would trigger
+-- (per the 0009 precedent).
 ALTER TABLE "restaurant_staff" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "restaurant_staff_select" ON "restaurant_staff" FOR SELECT
-  USING (
-    "user_id" = auth.uid()
-    OR "restaurant_id" IN (
-      SELECT "restaurant_id" FROM "restaurant_staff"
-      WHERE "user_id" = auth.uid()
-        AND "is_active" = true
-        AND "role" IN ('owner', 'manager')
-    )
-  );
+  USING ("user_id" = auth.uid());
 
-CREATE POLICY "restaurant_staff_mutate" ON "restaurant_staff" FOR ALL
-  USING (
-    "restaurant_id" IN (
-      SELECT "restaurant_id" FROM "restaurant_staff"
-      WHERE "user_id" = auth.uid()
-        AND "is_active" = true
-        AND "role" = 'owner'
-    )
-  );
+-- No INSERT/UPDATE/DELETE policies. Writes come from service-role helpers
+-- in src/lib/identity/* (§5/§6 future units), which bypass RLS. Matches
+-- the audit_logs + webhook_events pattern — keeps mutation surface off
+-- the authenticated role and avoids the privilege-escalation footgun of
+-- a FOR ALL policy without WITH CHECK.
 
 CREATE POLICY "restaurant_staff_tavli_admin_read" ON "restaurant_staff" FOR SELECT
   USING (EXISTS (

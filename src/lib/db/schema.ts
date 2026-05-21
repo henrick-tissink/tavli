@@ -700,7 +700,7 @@ export const organizations = pgTable("organizations", {
   uniqueIndex("organizations_tax_id_unique")
     .on(t.countryCode, t.taxId)
     .where(sql`${t.taxId} is not null`),
-  index("organizations_status").on(t.status),
+  index("organizations_status_idx").on(t.status),
 ]);
 
 // ─── organization_members ───────────────────────────────────────────────
@@ -722,7 +722,7 @@ export const organizationMembers = pgTable("organization_members", {
   }),
 }, (t) => [
   primaryKey({ columns: [t.organizationId, t.userId] }),
-  index("organization_members_user")
+  index("organization_members_user_idx")
     .on(t.userId)
     .where(sql`${t.isActive} = true`),
 ]);
@@ -745,10 +745,10 @@ export const restaurantStaff = pgTable("restaurant_staff", {
   }),
 }, (t) => [
   primaryKey({ columns: [t.restaurantId, t.userId] }),
-  index("restaurant_staff_user")
+  index("restaurant_staff_user_idx")
     .on(t.userId)
     .where(sql`${t.isActive} = true`),
-  index("restaurant_staff_restaurant")
+  index("restaurant_staff_restaurant_idx")
     .on(t.restaurantId)
     .where(sql`${t.isActive} = true`),
 ]);
