@@ -126,6 +126,20 @@ export const bookingType = pgEnum("booking_type", [
   "standing",
 ]);
 
+export const orgRole = pgEnum("org_role", ["owner", "admin", "manager"]);
+
+export const venueStaffRole = pgEnum("venue_staff_role", [
+  "owner",
+  "manager",
+  "host",
+]);
+
+export const orgStatus = pgEnum("org_status", [
+  "pending_verification",
+  "active",
+  "suspended",
+]);
+
 // ─── profiles (extends auth.users 1:1) ───────────────────────────────────
 export const profiles = pgTable("profiles", {
   id: uuid("id")
@@ -655,4 +669,86 @@ export const auditLogs = pgTable("audit_logs", {
   index("audit_logs_organization_idx").on(t.organizationId, t.createdAt),
   index("audit_logs_restaurant_idx").on(t.restaurantId, t.createdAt),
   index("audit_logs_created_at_idx").on(t.createdAt),
+]);
+
+// ─── organizations ──────────────────────────────────────────────────────
+// §01 §3.2 — legal entity that owns one or more restaurants. Source of
+// truth for billing identity (stripe_customer_id) and one-trial-per-entity
+// enforcement (uniqueness on (country_code, tax_id) when tax_id is set).
+export const organizations = pgTable("organizations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 200 }).notNull(),
+  legalName: varchar("legal_name", { length: 300 }),
+  countryCode: varchar("country_code", { length: 2 }).notNull().default("RO"),
+  taxId: varchar("tax_id", { length: 60 }),
+  vatNumber: varchar("vat_number", { length: 60 }),
+  registrationNumber: varchar("registration_number", { length: 60 }),
+  billingAddress: text("billing_address"),
+  billingCity: varchar("billing_city", { length: 100 }),
+  billingCountry: varchar("billing_country", { length: 100 }),
+  primaryContactEmail: varchar("primary_contact_email", { length: 255 }).notNull(),
+  primaryContactPhone: varchar("primary_contact_phone", { length: 60 }),
+  locale: varchar("locale", { length: 2 }).notNull().default("ro"),
+  status: orgStatus("status").notNull().default("pending_verification"),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 80 }).unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  // Partial unique index — uniqueness on (country, tax_id) only enforced
+  // once tax_id is set, so signup can create orgs in pending_verification
+  // before the operator confirms their CUI.
+  uniqueIndex("organizations_tax_id_unique")
+    .on(t.countryCode, t.taxId)
+    .where(sql`${t.taxId} is not null`),
+  index("organizations_status").on(t.status),
+]);
+
+// ─── organization_members ───────────────────────────────────────────────
+// §01 §3.3 — composite PK (organization_id, user_id). Soft-delete via
+// is_active flip rather than row DELETE so audit history can still
+// resolve actor→org for past mutations.
+export const organizationMembers = pgTable("organization_members", {
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  role: orgRole("role").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  invitedByUserId: uuid("invited_by_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+}, (t) => [
+  primaryKey({ columns: [t.organizationId, t.userId] }),
+  index("organization_members_user")
+    .on(t.userId)
+    .where(sql`${t.isActive} = true`),
+]);
+
+// ─── restaurant_staff ───────────────────────────────────────────────────
+// §01 §3.4 — composite PK (restaurant_id, user_id). Same soft-delete
+// policy as organization_members.
+export const restaurantStaff = pgTable("restaurant_staff", {
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  role: venueStaffRole("role").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  invitedByUserId: uuid("invited_by_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+}, (t) => [
+  primaryKey({ columns: [t.restaurantId, t.userId] }),
+  index("restaurant_staff_user")
+    .on(t.userId)
+    .where(sql`${t.isActive} = true`),
+  index("restaurant_staff_restaurant")
+    .on(t.restaurantId)
+    .where(sql`${t.isActive} = true`),
 ]);
