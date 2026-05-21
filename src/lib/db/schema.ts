@@ -134,6 +134,11 @@ export const venueStaffRole = pgEnum("venue_staff_role", [
   "host",
 ]);
 
+export const orgCustomerType = pgEnum("org_customer_type", [
+  "business",
+  "personal",
+]);
+
 export const orgStatus = pgEnum("org_status", [
   "pending_verification",
   "active",
@@ -694,6 +699,7 @@ export const organizations = pgTable("organizations", {
   primaryContactPhone: varchar("primary_contact_phone", { length: 60 }),
   locale: varchar("locale", { length: 2 }).notNull().default("ro"),
   status: orgStatus("status").notNull().default("pending_verification"),
+  customerType: orgCustomerType("customer_type"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 80 }).unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
