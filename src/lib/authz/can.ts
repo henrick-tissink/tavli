@@ -13,11 +13,11 @@
  *      only ADD permissions.
  *   5. Otherwise → deny.
  *
- * MembershipResolver is the swap point. The default is `legacyResolver`
- * (current-prod data model: `restaurants.owner_user_id` → `venue_owner`).
- * §01 (Wave 2) ships an org-aware resolver that queries the new
- * `organization_members` + `restaurant_staff` tables. Call sites don't
- * change when we swap.
+ * MembershipResolver is the swap point. The active default is
+ * `orgResolver` (§01 Wave 2: queries `organization_members` +
+ * `restaurant_staff`). `legacyResolver` (current-prod
+ * `restaurants.owner_user_id` → `venue_owner`) is kept as a rollback
+ * fallback for one wave; deletable once orgResolver soaks.
  */
 
 import "server-only";
@@ -54,9 +54,12 @@ export function setMembershipResolver(resolver: MembershipResolver): void {
 async function getActiveResolver(): Promise<MembershipResolver> {
   if (activeResolver) return activeResolver;
   // Lazy default — keeps tests free to install a stub before any can()
-  // call without pulling in db dependencies.
-  const { legacyResolver } = await import("./resolvers/legacy");
-  activeResolver = legacyResolver;
+  // call without pulling in db dependencies. §01 Wave 2: swapped from
+  // legacyResolver (current-prod owner_user_id) to orgResolver (new
+  // organization_members + restaurant_staff tables). legacyResolver is
+  // kept as a fallback for one wave; deletable after orgResolver soaks.
+  const { orgResolver } = await import("./resolvers/org");
+  activeResolver = orgResolver;
   return activeResolver;
 }
 

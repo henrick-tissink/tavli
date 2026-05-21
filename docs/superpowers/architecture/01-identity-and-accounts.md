@@ -272,23 +272,19 @@ create policy "organizations_admin_update" on organizations
 ```sql
 alter table organization_members enable row level security;
 
+-- A user can see their own membership row. Cross-member visibility
+-- (the team-roster UI) is deferred to a SECURITY DEFINER helper per
+-- the 0009 precedent — a self-referencing `select … from
+-- organization_members` subquery here triggers Postgres 42P17 recursion.
 create policy "organization_members_member_select" on organization_members
-  for select using (
-    organization_id in (
-      select organization_id from organization_members
-      where user_id = auth.uid() and is_active = true
-    )
-  );
+  for select using (user_id = auth.uid());
 
-create policy "organization_members_owner_mutate" on organization_members
-  for all using (
-    organization_id in (
-      select organization_id from organization_members
-      where user_id = auth.uid()
-        and is_active = true
-        and role = 'owner'
-    )
-  );
+-- No INSERT/UPDATE/DELETE policies. Mutation policies are intentionally
+-- absent: writes come from service-role helpers in `src/lib/identity/*`
+-- (§5/§6 future units), which bypass RLS. Matches the `audit_logs` +
+-- `webhook_events` pattern — keeps the mutation surface off the
+-- authenticated role and avoids the privilege-escalation footgun of a
+-- `FOR ALL` policy without `WITH CHECK`.
 ```
 
 **`restaurant_staff`:**
@@ -296,42 +292,19 @@ create policy "organization_members_owner_mutate" on organization_members
 ```sql
 alter table restaurant_staff enable row level security;
 
--- A user can see staff at a restaurant if they're staff there OR they're an org member of the parent org.
+-- A user can see their own staff row. The cross-scope path (sibling
+-- staff visibility + org-member visibility via the future
+-- `restaurants.organization_id` column) is deferred along with §3.6
+-- and will route through a SECURITY DEFINER helper to avoid the
+-- Postgres 42P17 recursion that a self-referencing subquery would
+-- trigger here (per the 0009 precedent).
 create policy "restaurant_staff_select" on restaurant_staff
-  for select using (
-    user_id = auth.uid()
-    or restaurant_id in (
-      select id from restaurants
-      where organization_id in (
-        select organization_id from organization_members
-        where user_id = auth.uid() and is_active = true
-      )
-    )
-    or restaurant_id in (
-      select restaurant_id from restaurant_staff
-      where user_id = auth.uid() and is_active = true and role in ('owner', 'manager')
-    )
-  );
+  for select using (user_id = auth.uid());
 
--- Mutation: org admins/owners on the venue's org, OR venue owners.
-create policy "restaurant_staff_mutate" on restaurant_staff
-  for all using (
-    restaurant_id in (
-      select id from restaurants
-      where organization_id in (
-        select organization_id from organization_members
-        where user_id = auth.uid()
-          and is_active = true
-          and role in ('owner', 'admin')
-      )
-    )
-    or restaurant_id in (
-      select restaurant_id from restaurant_staff
-      where user_id = auth.uid()
-        and is_active = true
-        and role = 'owner'
-    )
-  );
+-- No INSERT/UPDATE/DELETE policies. Mutation policies are intentionally
+-- absent: writes come from service-role helpers in `src/lib/identity/*`
+-- (§5/§6 future units), which bypass RLS. Same rationale as
+-- `organization_members` above.
 ```
 
 **`staff_invitations`:**
@@ -339,7 +312,8 @@ create policy "restaurant_staff_mutate" on restaurant_staff
 ```sql
 alter table staff_invitations enable row level security;
 
--- Inviters can see invitations they sent; invitees can see invitations for their email.
+-- Inviters can see invitations they sent; invitees can see invitations
+-- for their email.
 create policy "staff_invitations_inviter_select" on staff_invitations
   for select using (invited_by_user_id = auth.uid());
 
@@ -348,33 +322,13 @@ create policy "staff_invitations_invitee_select" on staff_invitations
     email = (select email from profiles where id = auth.uid())
   );
 
-create policy "staff_invitations_admin_mutate" on staff_invitations
-  for all using (
-    (kind = 'org' and organization_id in (
-      select organization_id from organization_members
-      where user_id = auth.uid()
-        and is_active = true
-        and role in ('owner', 'admin')
-    ))
-    or
-    (kind = 'restaurant' and (
-      restaurant_id in (
-        select id from restaurants
-        where organization_id in (
-          select organization_id from organization_members
-          where user_id = auth.uid()
-            and is_active = true
-            and role in ('owner', 'admin')
-        )
-      )
-      or restaurant_id in (
-        select restaurant_id from restaurant_staff
-        where user_id = auth.uid()
-          and is_active = true
-          and role = 'owner'
-      )
-    ))
-  );
+-- No INSERT/UPDATE/DELETE policies. Mutation policies are intentionally
+-- absent: writes come from service-role helpers in `src/lib/identity/*`
+-- (§5/§6 future units), which bypass RLS. The original `admin_mutate`
+-- design self-referenced `organization_members` + `restaurant_staff`,
+-- which would re-introduce the 42P17 recursion the 0009 precedent
+-- forbids; routing mutations through the service role sidesteps the
+-- problem and matches the `audit_logs` + `webhook_events` pattern.
 ```
 
 ## 4. The authorisation helper
@@ -805,4 +759,10 @@ This entire sequence can be parallelised with §00 cross-cutting work (authz hel
 
 ---
 
-*Last updated: 2026-05-20. Update as decisions lock or as the codebase diverges from this design.*
+## Revisions
+
+- **2026-05-21** — §3.7 RLS policies tightened. The originally-drafted `organization_members`, `restaurant_staff`, and `staff_invitations` policies all self-referenced their own table (or a chain ending in their own table) inside `USING` subqueries, which triggers Postgres 42P17 recursion errors at evaluation time (same bug 0009 fixed for `company_members`). All three `_select` policies are narrowed to `user_id = auth.uid()` (or the equivalent inviter/invitee predicate for `staff_invitations`). All `FOR ALL` mutation policies are intentionally dropped — writes route through service-role helpers in `src/lib/identity/*` (§5/§6 future units), matching the `audit_logs` + `webhook_events` pattern. Cross-member team-roster reads and cross-scope grants (org member → all org venues) land later via SECURITY DEFINER helpers. The `organizations` policies are unchanged: their inner `select organization_id from organization_members` subquery is non-recursive (different table). Shipped in migration 0013 + fix commit 6533370.
+
+---
+
+*Last updated: 2026-05-21. Update as decisions lock or as the codebase diverges from this design.*

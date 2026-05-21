@@ -65,7 +65,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: §09, §12, §14, §15 (all need `organizations`). Retires §02's audit-debt.*
 
-- [ ] §01 `organizations` table + `restaurant_staff` table
+- [x] §01 `organizations` table + `organization_members` + `restaurant_staff` (migration 0013, src/lib/authz/resolvers/org.ts; orgResolver swapped in for legacyResolver. §3.6 column-ownership swap deferred to follow-up unit.)
 - [ ] §01 `customer_type` enum + `tax_id` uniqueness enforcement
 - [ ] §01 MFA / passkeys (§01 §5.2)
 - [ ] §01 Tavli-admin support impersonation (§01 §5.3)
@@ -202,7 +202,8 @@ When the doc updates, bump the date at the bottom and note the reason in a `## R
 ## Revisions
 
 - **2026-05-20** — Wave 1 unit `audit_logs` table + `recordAudit` helper shipped together with the `AUDIT` typed registry. Reason: §16.2 specifies the helper's TypeScript signature is keyed by the registry, so they cannot ship apart cleanly. The other two Wave 1 items (`ERROR_CODES`, `JOBS`) remain independent and stay as separate units.
+- **2026-05-21** — Wave 2 unit "§01 organizations + restaurant_staff" split: the three new tables (§3.2/§3.3/§3.4) + org-aware resolver shipped in migration 0013; §3.6 modifications (restaurants.organization_id, drop owner_user_id, profiles.default_organization_id) deferred to a follow-up unit because they require a backfill decision that's distinct from the new-table additions. Until §3.6 lands, the orgResolver covers venue scope via restaurant_staff and organization scope via organization_members but does not yet grant cross-scope access (org member → all org venues).
 
 ---
 
-*Last updated: 2026-05-20. Initial draft after the architecture-doc perfection pass; first Wave 1 unit landed same day.*
+*Last updated: 2026-05-21. Initial draft after the architecture-doc perfection pass; first Wave 1 unit landed same day. Wave 2 §01 organizations + restaurant_staff unit landed 2026-05-21.*
