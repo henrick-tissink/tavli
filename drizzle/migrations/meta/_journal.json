@@ -155,6 +155,13 @@
       "when": 1779478955677,
       "tag": "0021_diners_table",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1779479051950,
+      "tag": "0022_diner_fk_columns",
+      "breakpoints": true
     }
   ]
 }

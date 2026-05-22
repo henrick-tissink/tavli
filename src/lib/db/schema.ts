@@ -375,6 +375,7 @@ export const reservations = pgTable("reservations", {
   corporateClientId: uuid("corporate_client_id").references(() => corporateClients.id, { onDelete: "set null" }),
   bookedByUserId: uuid("booked_by_user_id").references(() => profiles.id, { onDelete: "set null" }),
   eventRequestId: uuid("event_request_id").references(() => eventRequests.id, { onDelete: "set null" }),
+  dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   postVisitEmailSentAt: timestamp("post_visit_email_sent_at", {
     withTimezone: true,
@@ -386,6 +387,7 @@ export const reservations = pgTable("reservations", {
     t.reservationTime,
   ),
   index("reservations_status_idx").on(t.status),
+  index("reservations_diner").on(t.dinerId),
 ]);
 
 // ─── draft_restaurants (onboarding scratchpad) ──────────────────────────
@@ -429,11 +431,13 @@ export const reviews = pgTable("reviews", {
   // exposing other reservation columns (guest_name, phone, email) to anon.
   partySize: smallint("party_size").notNull(),
   reservationDate: date("reservation_date").notNull(),
+  dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 }, (t) => [
   index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
+  index("reviews_diner").on(t.dinerId),
 ]);
 
 // ─── corporate_clients ──────────────────────────────────────────────────
