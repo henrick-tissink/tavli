@@ -5,6 +5,9 @@ import {
   UserDrawer,
   type AuditEvent,
   type DrawerUser,
+  type OrgMembership,
+  type RestaurantStaffEntry,
+  type MfaFactor,
 } from "./_components/UserDrawer";
 
 export const dynamic = "force-dynamic";
@@ -60,9 +63,12 @@ async function fetchUsers(q: string | undefined): Promise<UserRow[]> {
     .slice(0, 100);
 }
 
-async function fetchUserDetail(
-  userId: string,
-): Promise<{ events: AuditEvent[] } | null> {
+async function fetchUserDetail(userId: string): Promise<{
+  events: AuditEvent[];
+  orgMemberships: OrgMembership[];
+  restaurantStaff: RestaurantStaffEntry[];
+  mfaFactors: MfaFactor[];
+} | null> {
   const supabase = createSupabaseAdminClient();
   const { data: userResp } = await supabase.auth.admin.getUserById(userId);
   if (!userResp?.user) return null;
@@ -74,7 +80,47 @@ async function fetchUserDetail(
     ORDER BY created_at DESC
     LIMIT 50
   `);
-  return { events: events as unknown as AuditEvent[] };
+
+  const orgRows = await dbAdmin.execute(sql`
+    SELECT om.role, om.is_active, om.joined_at, o.name AS org_name, o.id AS org_id
+    FROM organization_members om
+    JOIN organizations o ON o.id = om.organization_id
+    WHERE om.user_id = ${userId}
+    ORDER BY om.joined_at DESC
+  `);
+
+  const staffRows = await dbAdmin.execute(sql`
+    SELECT rs.role, rs.is_active, rs.joined_at, r.name AS restaurant_name, r.id AS restaurant_id
+    FROM restaurant_staff rs
+    JOIN restaurants r ON r.id = rs.restaurant_id
+    WHERE rs.user_id = ${userId}
+    ORDER BY rs.joined_at DESC
+  `);
+
+  // Supabase admin's getUserById returns factors on the user object.
+  // Filter for verified TOTP — matches the listing-page convention.
+  const rawFactors =
+    (userResp.user as { factors?: Array<{
+      id: string;
+      friendly_name?: string | null;
+      factor_type: string;
+      status: string;
+      created_at: string;
+    }> }).factors ?? [];
+  const mfaFactors: MfaFactor[] = rawFactors
+    .filter((f) => f.factor_type === "totp" && f.status === "verified")
+    .map((f) => ({
+      id: f.id,
+      friendlyName: f.friendly_name ?? null,
+      createdAt: f.created_at,
+    }));
+
+  return {
+    events: events as unknown as AuditEvent[],
+    orgMemberships: orgRows as unknown as OrgMembership[],
+    restaurantStaff: staffRows as unknown as RestaurantStaffEntry[],
+    mfaFactors,
+  };
 }
 
 export default async function AdminUsersPage({
@@ -87,6 +133,9 @@ export default async function AdminUsersPage({
 
   let drawerUser: DrawerUser | null = null;
   let events: AuditEvent[] = [];
+  let orgMemberships: OrgMembership[] = [];
+  let restaurantStaff: RestaurantStaffEntry[] = [];
+  let mfaFactors: MfaFactor[] = [];
   if (params.selected) {
     const detail = await fetchUserDetail(params.selected);
     const u = users.find((row) => row.id === params.selected);
@@ -98,6 +147,9 @@ export default async function AdminUsersPage({
         createdAt: u.lastSignInAt ?? "",
       };
       events = detail.events;
+      orgMemberships = detail.orgMemberships;
+      restaurantStaff = detail.restaurantStaff;
+      mfaFactors = detail.mfaFactors;
     }
   }
 
@@ -124,7 +176,13 @@ export default async function AdminUsersPage({
         <UsersTable users={users} selectedId={params.selected} />
       </div>
       {drawerUser && (
-        <UserDrawer user={drawerUser} events={events} />
+        <UserDrawer
+          user={drawerUser}
+          events={events}
+          orgMemberships={orgMemberships}
+          restaurantStaff={restaurantStaff}
+          mfaFactors={mfaFactors}
+        />
       )}
     </div>
   );
