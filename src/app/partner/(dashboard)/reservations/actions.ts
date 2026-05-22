@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { render } from "@react-email/render";
 import { createSupabaseServerClient } from "@/lib/db/server";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import {
   CANCEL_REASONS,
   isCancelReasonKey,
@@ -142,6 +143,14 @@ export async function cancelReservation(
     return { ok: false, error: updateError.message };
   }
 
+  // Resolve org id once — used by both the transactional email log row
+  // and the audit row downstream.
+  const { data: orgRow } = await supabase
+    .from("restaurants")
+    .select("organization_id")
+    .eq("id", ownerRestaurantId)
+    .maybeSingle();
+
   // Best-effort guest notification
   let emailSent = false;
   if (reservation.guest_email) {
@@ -150,20 +159,31 @@ export async function cancelReservation(
     const citiesField = restaurant.cities;
     const city = Array.isArray(citiesField) ? citiesField[0] : citiesField;
 
-    const result = await sendEmail({
+    const subject = `Rezervare anulată la ${restaurant.name}`;
+    const node = PartnerCancelledEmail({
+      restaurantName: restaurant.name,
+      restaurantCitySlug: city.slug,
+      restaurantSlug: restaurant.slug,
+      reservationDate: reservation.reservation_date,
+      reservationTime: reservation.reservation_time.slice(0, 5),
+      partySize: reservation.party_size,
+      guestName: reservation.guest_name,
+      guestMessage: CANCEL_REASONS[key].guestMessage,
+    });
+    const html = await render(node);
+    const text = await render(node, { plainText: true });
+    const result = await sendTransactionalEmail({
       to: reservation.guest_email,
-      subject: `Rezervare anulată la ${restaurant.name}`,
-      replyTo: restaurant.email ?? undefined,
-      react: PartnerCancelledEmail({
-        restaurantName: restaurant.name,
-        restaurantCitySlug: city.slug,
-        restaurantSlug: restaurant.slug,
-        reservationDate: reservation.reservation_date,
-        reservationTime: reservation.reservation_time.slice(0, 5),
-        partySize: reservation.party_size,
-        guestName: reservation.guest_name,
-        guestMessage: CANCEL_REASONS[key].guestMessage,
-      }),
+      locale: "ro",
+      templateKey: "reservation_modified",
+      subject,
+      html,
+      text,
+      context: {
+        reservation_id: reservationId,
+        restaurant_id: ownerRestaurantId,
+        organization_id: orgRow?.organization_id ?? undefined,
+      },
     });
     emailSent = result.ok;
   }
@@ -172,11 +192,6 @@ export async function cancelReservation(
   // guest-notification email actually went out. No PII — reason_key is an
   // enum value and email_sent is a boolean.
   const actorRole = await getActorRole(session, ownerRestaurantId);
-  const { data: orgRow } = await supabase
-    .from("restaurants")
-    .select("organization_id")
-    .eq("id", ownerRestaurantId)
-    .maybeSingle();
   const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.reservation.cancelled,

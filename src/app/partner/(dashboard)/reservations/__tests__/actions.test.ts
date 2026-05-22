@@ -4,12 +4,20 @@
 
 import { cancelReservation, updateReservationStatus } from "../actions";
 
+// @react-email/render uses dynamic imports under the hood that jest can't
+// resolve without --experimental-vm-modules. Stub it to a synchronous string
+// returner — these tests don't care about the rendered HTML, only that the
+// pipeline composes correctly.
+jest.mock("@react-email/render", () => ({
+  render: jest.fn().mockResolvedValue("<rendered/>"),
+}));
+
 // Mock the Supabase server client and email sender so we can drive every branch.
 jest.mock("@/lib/db/server", () => ({
   createSupabaseServerClient: jest.fn(),
 }));
-jest.mock("@/lib/email/resend", () => ({
-  sendEmail: jest.fn(),
+jest.mock("@/lib/email/send-transactional", () => ({
+  sendTransactionalEmail: jest.fn(),
 }));
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
@@ -41,7 +49,7 @@ jest.mock("@/lib/auth/current-actor", () => ({
 }));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
@@ -167,7 +175,7 @@ function fixture(overrides: Partial<ReservationFixture> = {}): ReservationFixtur
 
 beforeEach(() => {
   jest.clearAllMocks();
-  (sendEmail as jest.Mock).mockResolvedValue({ ok: true });
+  (sendTransactionalEmail as jest.Mock).mockResolvedValue({ ok: true });
 });
 
 describe("cancelReservation", () => {
@@ -181,7 +189,7 @@ describe("cancelReservation", () => {
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/motiv/i);
     // No DB writes when input is invalid
-    expect(sendEmail).not.toHaveBeenCalled();
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   test("rejects when there is no signed-in user", async () => {
@@ -215,7 +223,7 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/nu a fost găsită/i);
-    expect(sendEmail).not.toHaveBeenCalled();
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   test("rejects when reservation status is not confirmed", async () => {
@@ -227,7 +235,7 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/confirmate/i);
-    expect(sendEmail).not.toHaveBeenCalled();
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   test("happy path: updates status, sends email, returns ok+emailSent=true", async () => {
@@ -239,11 +247,18 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(true);
     expect(result.emailSent).toBe(true);
-    expect(sendEmail).toHaveBeenCalledTimes(1);
-    const args = (sendEmail as jest.Mock).mock.calls[0][0];
+    expect(sendTransactionalEmail).toHaveBeenCalledTimes(1);
+    const args = (sendTransactionalEmail as jest.Mock).mock.calls[0][0];
     expect(args.to).toBe("maria@example.com");
-    expect(args.replyTo).toBe("host@casaveche.ro");
     expect(args.subject).toMatch(/anulat/i);
+    expect(args.templateKey).toBe("reservation_modified");
+    expect(args.locale).toBe("ro");
+    expect(args.context).toEqual(
+      expect.objectContaining({
+        reservation_id: "res-1",
+        restaurant_id: "r1",
+      }),
+    );
   });
 
   test("skips email when guest_email is null", async () => {
@@ -255,7 +270,7 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(true);
     expect(result.emailSent).toBe(false);
-    expect(sendEmail).not.toHaveBeenCalled();
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   test("returns ok with emailSent=false when Resend fails", async () => {
@@ -264,20 +279,24 @@ describe("cancelReservation", () => {
       ownerRestaurantId: "r1",
       reservation: fixture(),
     });
-    (sendEmail as jest.Mock).mockResolvedValue({ ok: false, error: "boom" });
+    (sendTransactionalEmail as jest.Mock).mockResolvedValue({ ok: false, error: "boom" });
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(true);
     expect(result.emailSent).toBe(false);
     // The DB write isn't rolled back — partner has a workable workaround.
   });
 
-  test("returns ok with emailSent=true in dev mode (RESEND_API_KEY unset)", async () => {
+  test("returns ok with emailSent=true when the wrapper resolves ok (dev fallback path)", async () => {
     setupSupabase({
       user: { id: "u1" },
       ownerRestaurantId: "r1",
       reservation: fixture(),
     });
-    (sendEmail as jest.Mock).mockResolvedValue({ ok: true, devMode: true });
+    (sendTransactionalEmail as jest.Mock).mockResolvedValue({
+      ok: true,
+      messageId: "dev-123",
+      logId: "log-1",
+    });
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(true);
     expect(result.emailSent).toBe(true);
@@ -293,7 +312,7 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/rls denied/);
-    expect(sendEmail).not.toHaveBeenCalled();
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   // §01 §5a.3 phase 2 sub-unit C: the cancellation audit row must carry the

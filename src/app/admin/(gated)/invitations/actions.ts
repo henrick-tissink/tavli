@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { render } from "@react-email/render";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import {
@@ -9,7 +10,7 @@ import {
   invitationExpiresAt,
   invitationUrl,
 } from "@/lib/invitations";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { InvitationEmail } from "@/emails/InvitationEmail";
 
 export interface CreateInvitationResult {
@@ -67,16 +68,26 @@ export async function createInvitation(
     .eq("id", cityId)
     .maybeSingle();
 
-  const emailResult = await sendEmail({
+  const subject = `You're invited to Tavli${proposedName ? ` — ${proposedName}` : ""}`;
+  const node = InvitationEmail({
+    inviteUrl: url,
+    cityName: city?.name,
+    proposedName: proposedName || undefined,
+    invitedByName: session.profile.fullName ?? undefined,
+    expiresAt,
+  });
+  const html = await render(node);
+  const text = await render(node, { plainText: true });
+  // Platform-level invitation — no restaurant/org context. Wrapper falls back
+  // to PLATFORM_ORG_ID for organization_id_at_event.
+  const emailResult = await sendTransactionalEmail({
     to: email,
-    subject: `You're invited to Tavli${proposedName ? ` — ${proposedName}` : ""}`,
-    react: InvitationEmail({
-      inviteUrl: url,
-      cityName: city?.name,
-      proposedName: proposedName || undefined,
-      invitedByName: session.profile.fullName ?? undefined,
-      expiresAt,
-    }),
+    locale: "ro",
+    templateKey: "staff_invitation",
+    subject,
+    html,
+    text,
+    context: {},
   });
 
   revalidatePath("/admin/invitations");
@@ -85,7 +96,6 @@ export async function createInvitation(
   return {
     ok: true,
     invitationUrl: url,
-    devMode: emailResult.devMode,
     error: emailResult.ok ? undefined : emailResult.error,
   };
 }
@@ -136,23 +146,32 @@ export async function resendInvitation(
     .maybeSingle();
 
   const url = invitationUrl(raw);
-  const emailResult = await sendEmail({
+  const subject = `Your Tavli invitation (resent)`;
+  const node = InvitationEmail({
+    inviteUrl: url,
+    cityName: city?.name,
+    proposedName: invitation.proposed_name ?? undefined,
+    invitedByName: session.profile.fullName ?? undefined,
+    expiresAt,
+  });
+  const html = await render(node);
+  const text = await render(node, { plainText: true });
+  // Platform-level invitation — no restaurant/org context. Wrapper falls back
+  // to PLATFORM_ORG_ID for organization_id_at_event.
+  const emailResult = await sendTransactionalEmail({
     to: invitation.email,
-    subject: `Your Tavli invitation (resent)`,
-    react: InvitationEmail({
-      inviteUrl: url,
-      cityName: city?.name,
-      proposedName: invitation.proposed_name ?? undefined,
-      invitedByName: session.profile.fullName ?? undefined,
-      expiresAt,
-    }),
+    locale: "ro",
+    templateKey: "staff_invitation",
+    subject,
+    html,
+    text,
+    context: {},
   });
 
   revalidatePath("/admin/invitations");
 
   return {
     ok: true,
-    devMode: emailResult.devMode,
     url,
     error: emailResult.ok ? undefined : emailResult.error,
   };

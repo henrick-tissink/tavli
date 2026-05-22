@@ -4,22 +4,34 @@
 
 import { POST } from "@/app/api/cron/post-visit-emails/route";
 
+// @react-email/render uses dynamic imports under the hood that jest can't
+// resolve without --experimental-vm-modules. Stub it to a synchronous string
+// returner — these tests don't care about the rendered HTML, only that the
+// pipeline composes correctly.
+jest.mock("@react-email/render", () => ({
+  render: jest.fn().mockResolvedValue("<rendered/>"),
+}));
+
 jest.mock("@/lib/db/admin", () => ({
   createSupabaseAdminClient: jest.fn(),
 }));
-jest.mock("@/lib/email/resend", () => ({
-  sendEmail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock("@/lib/email/send-transactional", () => ({
+  sendTransactionalEmail: jest.fn().mockResolvedValue({
+    ok: true,
+    messageId: "test-msg-id",
+    logId: "test-log-id",
+  }),
 }));
 
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 
 const OLD_ENV = process.env;
 
 beforeEach(() => {
   jest.resetAllMocks();
-  // Restore default sendEmail behaviour after resetAllMocks clears the factory impl.
-  (sendEmail as jest.Mock).mockResolvedValue({ ok: true });
+  // Restore default sendTransactionalEmail behaviour after resetAllMocks clears the factory impl.
+  (sendTransactionalEmail as jest.Mock).mockResolvedValue({ ok: true });
   process.env = {
     ...OLD_ENV,
     CRON_SECRET: "test-secret",
@@ -75,7 +87,8 @@ describe("POST /api/cron/post-visit-emails", () => {
         guest_email: "ana@example.com",
         reservation_date: longAgo,
         reservation_time: oldTime,
-        restaurants: { name: "Roma" },
+        diner_id: null,
+        restaurants: { name: "Roma", organization_id: "org-1" },
       },
     ];
 
@@ -103,7 +116,7 @@ describe("POST /api/cron/post-visit-emails", () => {
       makeReq({ authorization: "Bearer test-secret" }),
     );
     expect(res.status).toBe(200);
-    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendTransactionalEmail).toHaveBeenCalledTimes(1);
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({ post_visit_email_sent_at: expect.any(String) }),
     );

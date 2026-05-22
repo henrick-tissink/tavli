@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { render } from "@react-email/render";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { PostVisitReviewEmail } from "@/emails/PostVisitReviewEmail";
 import { appOrigin } from "@/lib/app-origin";
 
@@ -35,7 +36,7 @@ export async function POST(req: Request): Promise<Response> {
   const { data: candidates, error } = await admin
     .from("reservations")
     .select(
-      "id, confirmation_token, restaurant_id, guest_name, guest_email, reservation_date, reservation_time, restaurants(name)",
+      "id, confirmation_token, restaurant_id, guest_name, guest_email, reservation_date, reservation_time, diner_id, restaurants(name, organization_id)",
     )
     .eq("status", "confirmed")
     .is("post_visit_email_sent_at", null)
@@ -61,23 +62,39 @@ export async function POST(req: Request): Promise<Response> {
   let sent = 0;
   for (const r of eligible) {
     const restaurantField = r.restaurants as
-      | { name: string }
-      | { name: string }[]
+      | { name: string; organization_id: string | null }
+      | { name: string; organization_id: string | null }[]
       | null;
-    const restaurantName = Array.isArray(restaurantField)
-      ? restaurantField[0]?.name ?? "the restaurant"
-      : restaurantField?.name ?? "the restaurant";
+    const restaurant = Array.isArray(restaurantField)
+      ? restaurantField[0]
+      : restaurantField;
+    const restaurantName = restaurant?.name ?? "the restaurant";
+    const organizationId = restaurant?.organization_id ?? undefined;
 
     const reviewBaseUrl = `${appOrigin()}/reviews/${r.confirmation_token}`;
 
-    const result = await sendEmail({
+    const subject = `Cum a fost la ${restaurantName}?`;
+    const node = PostVisitReviewEmail({
+      restaurantName,
+      guestName: r.guest_name,
+      reviewBaseUrl,
+    });
+    const html = await render(node);
+    const text = await render(node, { plainText: true });
+
+    const result = await sendTransactionalEmail({
       to: r.guest_email!,
-      subject: `Cum a fost la ${restaurantName}?`,
-      react: PostVisitReviewEmail({
-        restaurantName,
-        guestName: r.guest_name,
-        reviewBaseUrl,
-      }),
+      locale: "ro",
+      templateKey: "review_request",
+      subject,
+      html,
+      text,
+      context: {
+        reservation_id: r.id,
+        restaurant_id: r.restaurant_id,
+        organization_id: organizationId,
+        diner_id: r.diner_id ?? undefined,
+      },
     });
 
     if (result.ok) {

@@ -6,11 +6,23 @@
  * row's impersonator threading on the §01 §5a.3 phase 2 sub-unit C retrofit.
  */
 
+// @react-email/render uses dynamic imports under the hood that jest can't
+// resolve without --experimental-vm-modules. Stub it to a synchronous string
+// returner — these tests don't care about the rendered HTML, only that the
+// pipeline composes correctly.
+jest.mock("@react-email/render", () => ({
+  render: jest.fn().mockResolvedValue("<rendered/>"),
+}));
+
 jest.mock("@/lib/db/admin", () => ({
   createSupabaseAdminClient: jest.fn(),
 }));
-jest.mock("@/lib/email/resend", () => ({
-  sendEmail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock("@/lib/email/send-transactional", () => ({
+  sendTransactionalEmail: jest.fn().mockResolvedValue({
+    ok: true,
+    messageId: "test-msg-id",
+    logId: "test-log-id",
+  }),
 }));
 jest.mock("@/lib/audit/record", () => ({
   recordAudit: jest.fn().mockResolvedValue(undefined),

@@ -1,8 +1,9 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { render } from "@react-email/render";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { sendEmail } from "@/lib/email/resend";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
 import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
 import { appOrigin } from "@/lib/app-origin";
@@ -142,6 +143,7 @@ export async function createReservation(
   // NULL post-Wave-2 §3.6.A, but we degrade gracefully if a legacy row
   // somehow lacks it). Failures here are swallowed so the booking still
   // confirms — diner tracking is a back-office concern, not a blocker.
+  let resolvedDinerId: string | undefined;
   if (restaurant?.organization_id) {
     try {
       const { dinerId } = await findOrCreateDinerForReservation({
@@ -156,6 +158,7 @@ export async function createReservation(
         .from("reservations")
         .update({ diner_id: dinerId })
         .eq("id", data.id);
+      resolvedDinerId = dinerId;
     } catch (e) {
       console.error("[createReservation] diner upsert failed", e);
     }
@@ -193,38 +196,63 @@ export async function createReservation(
 
   // Consumer confirmation.
   if (input.guestEmail) {
-    await sendEmail({
+    const subject = `Rezervare la ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`;
+    const node = ReservationConfirmationEmail({
+      restaurantName: restaurant?.name ?? "Your restaurant",
+      restaurantAddress: restaurant?.address ?? undefined,
+      reservationDate: input.date,
+      reservationTime: input.time,
+      partySize: input.partySize,
+      guestName: input.guestName.trim(),
+      zone: input.zone,
+      cancelUrl,
+    });
+    const html = await render(node);
+    const text = await render(node, { plainText: true });
+    await sendTransactionalEmail({
       to: input.guestEmail,
-      subject: `Rezervare la ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`,
-      react: ReservationConfirmationEmail({
-        restaurantName: restaurant?.name ?? "Your restaurant",
-        restaurantAddress: restaurant?.address ?? undefined,
-        reservationDate: input.date,
-        reservationTime: input.time,
-        partySize: input.partySize,
-        guestName: input.guestName.trim(),
-        zone: input.zone,
-        cancelUrl,
-      }),
+      locale: "ro",
+      templateKey: "reservation_confirmation",
+      subject,
+      html,
+      text,
+      context: {
+        reservation_id: data.id,
+        restaurant_id: data.restaurant_id,
+        organization_id: restaurant?.organization_id ?? undefined,
+        diner_id: resolvedDinerId,
+      },
     });
   }
 
   // Partner alert.
   if (restaurant?.email) {
-    await sendEmail({
+    const subject = `Rezervare nouă — ${restaurant.name} · ${input.date} ${input.time}`;
+    const node = PartnerBookingAlertEmail({
+      restaurantName: restaurant.name,
+      reservationDate: input.date,
+      reservationTime: input.time,
+      partySize: input.partySize,
+      guestName: input.guestName.trim(),
+      guestPhone: guestPhoneE164,
+      guestEmail: input.guestEmail,
+      zone: input.zone,
+      notes: input.notes,
+    });
+    const html = await render(node);
+    const text = await render(node, { plainText: true });
+    await sendTransactionalEmail({
       to: restaurant.email,
-      subject: `Rezervare nouă — ${restaurant.name} · ${input.date} ${input.time}`,
-      react: PartnerBookingAlertEmail({
-        restaurantName: restaurant.name,
-        reservationDate: input.date,
-        reservationTime: input.time,
-        partySize: input.partySize,
-        guestName: input.guestName.trim(),
-        guestPhone: guestPhoneE164,
-        guestEmail: input.guestEmail,
-        zone: input.zone,
-        notes: input.notes,
-      }),
+      locale: "ro",
+      templateKey: "partner_booking_alert",
+      subject,
+      html,
+      text,
+      context: {
+        reservation_id: data.id,
+        restaurant_id: data.restaurant_id,
+        organization_id: restaurant?.organization_id ?? undefined,
+      },
     });
   }
 
