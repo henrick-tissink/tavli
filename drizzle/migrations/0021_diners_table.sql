@@ -82,34 +82,7 @@ CREATE POLICY diners_org_admin_write ON diners
       AND om.role IN ('owner', 'admin')
   ));
 
-CREATE POLICY diners_venue_staff_select ON diners
-  FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM restaurant_staff rs
-    JOIN restaurants r ON r.id = rs.restaurant_id
-    WHERE rs.user_id = auth.uid()
-      AND rs.is_active = true
-      AND r.organization_id = diners.organization_id
-      AND EXISTS (
-        SELECT 1 FROM reservations res
-        WHERE res.restaurant_id = rs.restaurant_id
-          AND res.diner_id = diners.id
-      )
-  ));
-
-CREATE POLICY diners_venue_staff_update_notes ON diners
-  FOR UPDATE
-  USING (EXISTS (
-    SELECT 1 FROM restaurant_staff rs
-    JOIN restaurants r ON r.id = rs.restaurant_id
-    WHERE rs.user_id = auth.uid()
-      AND rs.is_active = true
-      AND r.organization_id = diners.organization_id
-      AND EXISTS (
-        SELECT 1 FROM reservations res
-        WHERE res.restaurant_id = rs.restaurant_id
-          AND res.diner_id = diners.id
-      )
-  ));
+-- Note: diners_venue_staff_select + diners_venue_staff_update_notes policies
+-- are created in migration 0022 because they reference reservations.diner_id.
 
 COMMIT;
