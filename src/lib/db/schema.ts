@@ -820,3 +820,26 @@ export const staffInvitations = pgTable("staff_invitations", {
     .on(t.restaurantId)
     .where(sql`${t.status} = 'pending'`),
 ]);
+
+// ─── mfa_recovery_codes ─────────────────────────────────────────────────
+// §01 §5a.2 phase 2 — TOTP recovery codes. One row per code; codes are
+// stored as sha-256 hashes (hex-encoded, 64 chars). RLS pattern: narrow
+// SELECT for self; writes via service-role.
+export const mfaRecoveryCodes = pgTable(
+  "mfa_recovery_codes",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: uuid("user_id").notNull(),
+    codeHash: varchar("code_hash", { length: 64 }).notNull().unique(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    userActive: index("idx_mfa_recovery_codes_user_active").on(
+      t.userId,
+      t.consumedAt,
+    ),
+  }),
+);
