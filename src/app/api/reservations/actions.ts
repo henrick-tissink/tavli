@@ -11,6 +11,7 @@ import { AUDIT } from "@/lib/audit/actions";
 import { normalizePhone } from "@/lib/phone/normalize";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
+import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -134,6 +135,31 @@ export async function createReservation(
     .select("name, address, email, organization_id")
     .eq("id", data.restaurant_id)
     .maybeSingle();
+
+  // §03 §5.2 Wave 3 sub-unit A.3: resolve (or create) the diner row for
+  // this booking and stamp diner_id on the reservation. Skipped when the
+  // restaurant has no organization_id (defensive — schema enforces NOT
+  // NULL post-Wave-2 §3.6.A, but we degrade gracefully if a legacy row
+  // somehow lacks it). Failures here are swallowed so the booking still
+  // confirms — diner tracking is a back-office concern, not a blocker.
+  if (restaurant?.organization_id) {
+    try {
+      const { dinerId } = await findOrCreateDinerForReservation({
+        organizationId: restaurant.organization_id,
+        restaurantId: data.restaurant_id,
+        guestName: input.guestName.trim(),
+        guestPhone: input.guestPhone,
+        guestEmail: input.guestEmail?.trim() || undefined,
+        acquisitionSource: "widget",
+      });
+      await admin
+        .from("reservations")
+        .update({ diner_id: dinerId })
+        .eq("id", data.id);
+    } catch (e) {
+      console.error("[createReservation] diner upsert failed", e);
+    }
+  }
 
   // §02 audit: stamp every public booking on the audit trail. The diner is
   // anonymous on this path (no session), so actorUserId is null and the

@@ -27,17 +27,31 @@ jest.mock("@/lib/auth/current-actor", () => ({
     impersonatorUserId: null,
   })),
 }));
+// §03 §5.2 Wave 3 sub-unit A.3: stub the diner upsert. The helper has its
+// own focused unit tests under src/lib/diners/__tests__/. Here we only
+// verify the integration glue (called with the right args, diner_id
+// stamped on the reservation row).
+jest.mock("@/lib/diners/upsert", () => ({
+  findOrCreateDinerForReservation: jest.fn().mockResolvedValue({
+    dinerId: "diner-1",
+    isNew: true,
+  }),
+}));
 
 import { createReservation } from "../actions";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
+import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
 
 const REAL_UUID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
-function setupSupabaseAdmin() {
-  let restaurantsCall = 0;
+function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
+  const orgId = opts.organizationId === undefined ? "org-1" : opts.organizationId;
+  const reservationUpdate = jest.fn().mockReturnValue({
+    eq: jest.fn().mockResolvedValue({ error: null }),
+  });
   const adminMock = {
     from: jest.fn((table: string) => {
       if (table === "reservations") {
@@ -50,10 +64,12 @@ function setupSupabaseAdmin() {
               }),
             }),
           }),
+          // §03 §5.2 Wave 3 sub-unit A.3: createReservation stamps the
+          // resolved diner_id onto the reservation row.
+          update: reservationUpdate,
         };
       }
       if (table === "restaurants") {
-        restaurantsCall++;
         return {
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
@@ -62,15 +78,16 @@ function setupSupabaseAdmin() {
               name: "Casa",
               address: null,
               email: null,
-              organization_id: "org-1",
+              organization_id: orgId,
             },
           }),
         };
       }
-      throw new Error(`unexpected from(${table}) call ${restaurantsCall}`);
+      throw new Error(`unexpected from(${table})`);
     }),
   };
   (createSupabaseAdminClient as jest.Mock).mockReturnValue(adminMock);
+  return { reservationUpdate };
 }
 
 beforeEach(() => {
@@ -138,5 +155,71 @@ describe("createReservation (public flow)", () => {
         impersonatorUserId: "admin-9",
       }),
     );
+  });
+
+  it("upserts a diner and stamps diner_id on the reservation row", async () => {
+    const { reservationUpdate } = setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+
+    const result = await createReservation({
+      restaurantId: REAL_UUID,
+      date: "2026-08-01",
+      time: "19:00",
+      partySize: 2,
+      guestName: "A",
+      guestPhone: "+40712345678",
+      guestEmail: "a@test.co",
+    });
+    expect(result.ok).toBe(true);
+    expect(findOrCreateDinerForReservation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: "org-1",
+        restaurantId: REAL_UUID,
+        guestName: "A",
+        guestPhone: "+40712345678",
+        guestEmail: "a@test.co",
+        acquisitionSource: "widget",
+      }),
+    );
+    expect(reservationUpdate).toHaveBeenCalledWith({ diner_id: "diner-1" });
+  });
+
+  it("skips diner upsert when restaurant lacks organization_id", async () => {
+    const { reservationUpdate } = setupSupabaseAdmin({ organizationId: null });
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+
+    const result = await createReservation({
+      restaurantId: REAL_UUID,
+      date: "2026-08-01",
+      time: "19:00",
+      partySize: 2,
+      guestName: "A",
+      guestPhone: "+40712345678",
+    });
+    expect(result.ok).toBe(true);
+    expect(findOrCreateDinerForReservation).not.toHaveBeenCalled();
+    expect(reservationUpdate).not.toHaveBeenCalled();
+  });
+
+  it("still confirms the booking when the diner upsert throws", async () => {
+    const { reservationUpdate } = setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (findOrCreateDinerForReservation as jest.Mock).mockRejectedValueOnce(
+      new Error("simulated DB outage"),
+    );
+    // Suppress the expected diagnostic log so test output stays clean.
+    const errSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await createReservation({
+      restaurantId: REAL_UUID,
+      date: "2026-08-01",
+      time: "19:00",
+      partySize: 2,
+      guestName: "A",
+      guestPhone: "+40712345678",
+    });
+    expect(result.ok).toBe(true);
+    expect(reservationUpdate).not.toHaveBeenCalled();
+    errSpy.mockRestore();
   });
 });
