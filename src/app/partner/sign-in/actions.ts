@@ -2,11 +2,22 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { createSupabaseAdminClient } from "@/lib/db/admin";
+import {
+  listVerifiedTotpFactors,
+  countUnconsumedRecoveryCodes,
+  consumeRecoveryCode,
+} from "@/lib/auth/mfa";
 
-export interface PartnerSignInResult {
-  ok: boolean;
-  error?: string;
-}
+export type PartnerSignInResult =
+  | { ok: false; error: string }
+  | {
+      ok: false;
+      state: "needs_mfa";
+      factorId: string;
+      hasRecoveryCodes: boolean;
+      error?: string;
+    };
 
 export async function signInPartner(
   _prev: PartnerSignInResult | undefined,
@@ -16,17 +27,92 @@ export async function signInPartner(
     return { ok: false, error: "Supabase nu este încă configurat." };
   }
 
+  const mfaCode = formData.get("mfa_code");
+  const recoveryCode = formData.get("recovery_code");
+  const factorId = String(formData.get("factor_id") ?? "");
+
+  // Step 2 — MFA challenge or recovery-code consumption.
+  // If factor_id is present we're in the MFA step. Even if the user submitted
+  // with empty inputs we must re-render needs_mfa rather than fall through to
+  // the password branch (which would lose their step state).
+  if (factorId) {
+    const supabase = await createSupabaseServerClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) {
+      return { ok: false, error: "Sesiunea a expirat. Conectează-te din nou." };
+    }
+
+    if (!mfaCode && !recoveryCode) {
+      const remaining = await countUnconsumedRecoveryCodes(userData.user.id);
+      return {
+        ok: false,
+        state: "needs_mfa",
+        factorId,
+        hasRecoveryCodes: remaining > 0,
+        error: "Introdu un cod pentru a continua.",
+      };
+    }
+
+    if (mfaCode) {
+      const challenge = await supabase.auth.mfa.challenge({ factorId });
+      if (challenge.error || !challenge.data) {
+        return {
+          ok: false,
+          state: "needs_mfa",
+          factorId,
+          hasRecoveryCodes: false,
+          error: "Nu am putut emite provocarea. Încearcă din nou.",
+        };
+      }
+      const verify = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code: String(mfaCode),
+      });
+      if (verify.error) {
+        return {
+          ok: false,
+          state: "needs_mfa",
+          factorId,
+          hasRecoveryCodes: false,
+          error: "Cod incorect.",
+        };
+      }
+      redirect("/partner");
+    } else if (recoveryCode) {
+      const adminClient = createSupabaseAdminClient();
+      const result = await consumeRecoveryCode(
+        userData.user.id,
+        String(recoveryCode),
+        adminClient,
+      );
+      if (!result.ok) {
+        return {
+          ok: false,
+          state: "needs_mfa",
+          factorId,
+          hasRecoveryCodes: true,
+          error: "Cod de recuperare invalid.",
+        };
+      }
+      redirect("/partner/security?enrol=recommended");
+    }
+  }
+
+  // Step 1 — email + password.
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-
   if (!email || !password) {
     return { ok: false, error: "Emailul și parola sunt obligatorii." };
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
   if (error || !data.user) {
-    return { ok: false, error: error?.message ?? "Conectarea a eșuat." };
+    return { ok: false, error: "Date de autentificare invalide." };
   }
 
   const { data: profile } = await supabase
@@ -38,6 +124,17 @@ export async function signInPartner(
   if (profile?.role !== "restaurant_owner" && profile?.role !== "admin") {
     await supabase.auth.signOut();
     return { ok: false, error: "Acest cont nu este un cont de partener." };
+  }
+
+  const factors = await listVerifiedTotpFactors(supabase);
+  if (factors.length > 0) {
+    const remaining = await countUnconsumedRecoveryCodes(data.user.id);
+    return {
+      ok: false,
+      state: "needs_mfa",
+      factorId: factors[0].id,
+      hasRecoveryCodes: remaining > 0,
+    };
   }
 
   redirect("/partner");
