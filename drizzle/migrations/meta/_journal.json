@@ -197,6 +197,13 @@
       "when": 1779483020297,
       "tag": "0027_restaurant_transactional_sms",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1779483089194,
+      "tag": "0028_partner_notifications_pending_erasure",
+      "breakpoints": true
     }
   ]
 }

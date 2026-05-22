@@ -588,6 +588,8 @@ export const partnerNotifications = pgTable("partner_notifications", {
   kind: varchar("kind", { length: 40 }).notNull(),
   payload: jsonb("payload").notNull().default({}),
   readAt: timestamp("read_at", { withTimezone: true }),
+  pendingErasureAt: timestamp("pending_erasure_at", { withTimezone: true }),
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("partner_notifications_restaurant_unread_idx")
