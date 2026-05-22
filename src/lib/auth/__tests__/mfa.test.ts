@@ -309,3 +309,138 @@ describe("countUnconsumedRecoveryCodes", () => {
     expect(result).toBe(0);
   });
 });
+
+// ─── consumeRecoveryCode (§01 §5a.2 phase 2) ─────────────────────────────
+
+import { consumeRecoveryCode } from "../mfa";
+
+describe("consumeRecoveryCode", () => {
+  beforeEach(() => {
+    (recordAudit as jest.Mock).mockClear();
+    (dbAdmin.transaction as jest.Mock).mockReset();
+    (currentActor as jest.Mock).mockResolvedValue({
+      actorUserId: "user-1",
+      impersonatorUserId: null,
+    });
+  });
+
+  function mockAdminClient(factors: Array<{ id: string }>) {
+    const listFactors = jest.fn().mockResolvedValue({
+      data: {
+        factors: factors.map((f) => ({ ...f, factor_type: "totp" })),
+      },
+      error: null,
+    });
+    const deleteFactor = jest.fn().mockResolvedValue({ error: null });
+    return {
+      auth: {
+        admin: {
+          mfa: { listFactors, deleteFactor },
+        },
+      },
+      listFactors,
+      deleteFactor,
+    };
+  }
+
+  function mockCountSelect(count: number) {
+    const whereFn = jest.fn().mockResolvedValue([{ count }]);
+    const fromFn = jest.fn().mockReturnValue({ where: whereFn });
+    (dbAdmin as unknown as { select: jest.Mock }).select = jest
+      .fn()
+      .mockReturnValue({ from: fromFn });
+  }
+
+  it("returns ok=false when input length is wrong", async () => {
+    const ac = mockAdminClient([]);
+    const result = await consumeRecoveryCode(
+      "user-1",
+      "too-short",
+      ac as never,
+    );
+    expect(result).toEqual({ ok: false });
+    expect(dbAdmin.transaction).not.toHaveBeenCalled();
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("returns ok=false when no matching unconsumed row", async () => {
+    const ac = mockAdminClient([]);
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) =>
+      cb({
+        update: jest.fn().mockReturnValue({
+          set: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              returning: jest.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      }),
+    );
+    const result = await consumeRecoveryCode(
+      "user-1",
+      "abcd-efgh-jk", // 10 chars + 2 dashes
+      ac as never,
+    );
+    expect(result).toEqual({ ok: false });
+    expect(recordAudit).not.toHaveBeenCalled();
+    expect(ac.deleteFactor).not.toHaveBeenCalled();
+  });
+
+  it("consumes the row, unenrols all factors, audits per factor + once for code consumption", async () => {
+    const ac = mockAdminClient([{ id: "f1" }, { id: "f2" }]);
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) =>
+      cb({
+        update: jest.fn().mockReturnValue({
+          set: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              returning: jest.fn().mockResolvedValue([{ id: "row-id" }]),
+            }),
+          }),
+        }),
+      }),
+    );
+    mockCountSelect(9);
+
+    const result = await consumeRecoveryCode("user-1", "abcd-efgh-jk", ac as never);
+    expect(result).toEqual({ ok: true, remaining: 9 });
+    expect(ac.deleteFactor).toHaveBeenCalledTimes(2);
+    expect(ac.deleteFactor).toHaveBeenCalledWith({ userId: "user-1", id: "f1" });
+    expect(ac.deleteFactor).toHaveBeenCalledWith({ userId: "user-1", id: "f2" });
+
+    // mfa_disabled audit per factor + mfa_recovery_code_consumed once
+    const calls = (recordAudit as jest.Mock).mock.calls.map((c) => c[0].action);
+    expect(calls.filter((a) => a === AUDIT.auth.mfa_disabled)).toHaveLength(2);
+    expect(calls.filter((a) => a === AUDIT.user.mfa_recovery_code_consumed)).toHaveLength(1);
+  });
+
+  it("threads currentActor's impersonatorUserId on the consumption audit row", async () => {
+    const ac = mockAdminClient([]);
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) =>
+      cb({
+        update: jest.fn().mockReturnValue({
+          set: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              returning: jest.fn().mockResolvedValue([{ id: "row-id" }]),
+            }),
+          }),
+        }),
+      }),
+    );
+    mockCountSelect(5);
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "user-1",
+      impersonatorUserId: "admin-1",
+    });
+
+    await consumeRecoveryCode("user-1", "abcd-efgh-jk", ac as never);
+
+    const consumeCall = (recordAudit as jest.Mock).mock.calls.find(
+      (c) => c[0].action === AUDIT.user.mfa_recovery_code_consumed,
+    );
+    expect(consumeCall).toBeDefined();
+    expect(consumeCall[0]).toMatchObject({
+      actorUserId: "user-1",
+      impersonatorUserId: "admin-1",
+    });
+  });
+});

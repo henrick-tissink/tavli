@@ -215,3 +215,78 @@ export async function countUnconsumedRecoveryCodes(userId: string): Promise<numb
     );
   return rows[0]?.count ?? 0;
 }
+
+/**
+ * Consume a recovery code: validate, mark consumed, unenrol ALL of the user's
+ * TOTP factors (recovery code means "lost authenticator"), audit. Caller must
+ * pass an `adminClient` (service-role) — Supabase Auth's admin.mfa surface
+ * requires service-role privileges to mutate factors of another user (and to
+ * mutate factors at all without the user's current auth context).
+ *
+ * After consumption the user's session is AAL1 with no factors; sign-in flow
+ * routes them to /security?enrol=required (admin) or ?enrol=recommended (partner).
+ */
+export async function consumeRecoveryCode(
+  userId: string,
+  rawInput: string,
+  adminClient: SupabaseClient,
+): Promise<{ ok: true; remaining: number } | { ok: false }> {
+  const normalized = rawInput.replace(/-/g, "").trim().toLowerCase();
+  if (normalized.length !== RECOVERY_CODE_LENGTH) return { ok: false };
+  const hash = hashRecoveryCode(normalized);
+
+  const matched = await dbAdmin.transaction(async (tx) => {
+    const rows = await tx
+      .update(mfaRecoveryCodes)
+      .set({ consumedAt: new Date() })
+      .where(
+        and(
+          eq(mfaRecoveryCodes.userId, userId),
+          eq(mfaRecoveryCodes.codeHash, hash),
+          isNull(mfaRecoveryCodes.consumedAt),
+        ),
+      )
+      .returning({ id: mfaRecoveryCodes.id });
+    return rows.length > 0;
+  });
+
+  if (!matched) return { ok: false };
+
+  // Recovery code consumed → unenrol all TOTP factors (user lost their device).
+  // The admin.mfa.listFactors endpoint returns `{ factors: Factor[] }` (a flat
+  // list with `factor_type`), unlike the user-context `auth.mfa.listFactors`
+  // which buckets by `{ totp, phone, all }`. Filter explicitly.
+  const { data: factorsData } = await adminClient.auth.admin.mfa.listFactors({
+    userId,
+  });
+  const allFactors = (factorsData?.factors ?? []) as Array<{
+    id: string;
+    factor_type?: string;
+  }>;
+  const totpFactors = allFactors.filter((f) => f.factor_type === "totp");
+  for (const f of totpFactors) {
+    await adminClient.auth.admin.mfa.deleteFactor({ userId, id: f.id });
+    await recordAudit({
+      action: AUDIT.auth.mfa_disabled,
+      subjectType: "user",
+      subjectId: userId,
+      actorUserId: userId,
+      actorRole: "venue_owner",
+      context: { factor_id: f.id, reason: "recovery_code_consumed" },
+    });
+  }
+
+  const actor = await currentActor(userId);
+  await recordAudit({
+    action: AUDIT.user.mfa_recovery_code_consumed,
+    subjectType: "user",
+    subjectId: userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
+    actorRole: "venue_owner",
+    context: {},
+  });
+
+  const remaining = await countUnconsumedRecoveryCodes(userId);
+  return { ok: true, remaining };
+}
