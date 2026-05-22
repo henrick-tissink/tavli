@@ -161,12 +161,26 @@ export const RECOVERY_CODE_LENGTH = 10;
 const RECOVERY_CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no ambiguous glyphs
 
 function generateOneCode(): string {
-  const bytes = randomBytes(RECOVERY_CODE_LENGTH);
-  let out = "";
-  for (let i = 0; i < RECOVERY_CODE_LENGTH; i++) {
-    out += RECOVERY_CODE_ALPHABET[bytes[i] % RECOVERY_CODE_ALPHABET.length];
+  // Rejection sampling against the alphabet length to avoid modulo bias.
+  // Each byte draw (0–255) is accepted only if it falls in the first
+  // floor(256 / alphabet.length) * alphabet.length values — for a 31-char
+  // alphabet that's 0–247 (8 cycles of 31), giving uniform distribution.
+  const maxAccepted =
+    Math.floor(256 / RECOVERY_CODE_ALPHABET.length) *
+    RECOVERY_CODE_ALPHABET.length;
+  const out: string[] = [];
+  while (out.length < RECOVERY_CODE_LENGTH) {
+    // Draw extra bytes per iteration to amortize syscall cost; only ~3% of
+    // draws are rejected so RECOVERY_CODE_LENGTH * 2 is comfortably enough.
+    const draw = randomBytes(RECOVERY_CODE_LENGTH * 2);
+    for (let i = 0; i < draw.length && out.length < RECOVERY_CODE_LENGTH; i++) {
+      const b = draw[i];
+      if (b < maxAccepted) {
+        out.push(RECOVERY_CODE_ALPHABET[b % RECOVERY_CODE_ALPHABET.length]);
+      }
+    }
   }
-  return out;
+  return out.join("");
 }
 
 function formatForDisplay(raw: string): string {
