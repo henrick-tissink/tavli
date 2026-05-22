@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
+import {
+  readImpersonationReturnCookie,
+  IMPERSONATION_COOKIE_NAME,
+} from "@/lib/auth/impersonation-cookie";
 
 /**
  * Route-protection + session-refresh middleware.
@@ -79,6 +82,23 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Read the impersonation return cookie once for both the dangling-cookie
+  // cleanup below and the AAL2 bypass further down.
+  const impersonationCookie = await readImpersonationReturnCookie();
+  const impersonating = impersonationCookie !== null;
+
+  // Dangling-cookie cleanup: if the return cookie is present but there's no
+  // Supabase Auth session, the user signed out everywhere or the target session
+  // died mid-impersonation. Clear the cookie + redirect to sign-in so the admin
+  // re-authenticates.
+  if (impersonating && !user && (needsAdmin || needsPartner)) {
+    const cleanup = NextResponse.redirect(
+      new URL("/admin/sign-in?session_expired=1", request.url),
+    );
+    cleanup.cookies.delete(IMPERSONATION_COOKIE_NAME);
+    return cleanup;
+  }
+
   if (needsAdmin) {
     if (!user) {
       return NextResponse.redirect(new URL("/admin/sign-in", request.url));
@@ -109,9 +129,6 @@ export async function proxy(request: NextRequest) {
 
   // After role check passes: AAL gates with impersonation bypass.
   if (needsAdmin || needsPartner) {
-    const impersonationCookie = await readImpersonationReturnCookie();
-    const impersonating = impersonationCookie !== null;
-
     const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 
     // Forced enrolment for admins only — partner is voluntary.
