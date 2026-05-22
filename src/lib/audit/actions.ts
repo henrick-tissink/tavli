@@ -26,6 +26,9 @@ export const AUDIT = {
     role_changed: "user.role_changed",
     impersonation_started: "user.impersonation_started",
     impersonation_ended: "user.impersonation_ended",
+    signed_out_everywhere: "user.signed_out_everywhere",
+    mfa_recovery_codes_regenerated: "user.mfa_recovery_codes_regenerated",
+    mfa_recovery_code_consumed: "user.mfa_recovery_code_consumed",
   },
   organization: {
     created: "organization.created",
