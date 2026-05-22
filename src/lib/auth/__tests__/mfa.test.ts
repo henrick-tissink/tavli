@@ -443,4 +443,52 @@ describe("consumeRecoveryCode", () => {
       impersonatorUserId: "admin-1",
     });
   });
+
+  it("skips the mfa_disabled audit when deleteFactor errors, but continues with remaining factors", async () => {
+    const listFactors = jest.fn().mockResolvedValue({
+      data: { factors: [{ id: "f1", factor_type: "totp" }, { id: "f2", factor_type: "totp" }] },
+      error: null,
+    });
+    const deleteFactor = jest
+      .fn()
+      .mockResolvedValueOnce({ error: { message: "factor not found" } })
+      .mockResolvedValueOnce({ error: null });
+    const ac = { auth: { admin: { mfa: { listFactors, deleteFactor } } } };
+
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) =>
+      cb({
+        update: jest.fn().mockReturnValue({
+          set: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              returning: jest.fn().mockResolvedValue([{ id: "row-id" }]),
+            }),
+          }),
+        }),
+      }),
+    );
+    // mockCountSelect helper from earlier tests:
+    const whereFn = jest.fn().mockResolvedValue([{ count: 5 }]);
+    const fromFn = jest.fn().mockReturnValue({ where: whereFn });
+    (dbAdmin as unknown as { select: jest.Mock }).select = jest
+      .fn()
+      .mockReturnValue({ from: fromFn });
+
+    const result = await consumeRecoveryCode("user-1", "abcd-efgh-jk", ac as never);
+
+    expect(result).toEqual({ ok: true, remaining: 5 });
+    // Both deleteFactor calls happened
+    expect(deleteFactor).toHaveBeenCalledTimes(2);
+    // Only ONE mfa_disabled audit (for f2, since f1 errored)
+    const mfaDisabledCalls = (recordAudit as jest.Mock).mock.calls.filter(
+      (c) => c[0].action === AUDIT.auth.mfa_disabled,
+    );
+    expect(mfaDisabledCalls).toHaveLength(1);
+    expect(mfaDisabledCalls[0][0]).toMatchObject({ context: { factor_id: "f2" } });
+    // Consumption audit still written
+    expect(
+      (recordAudit as jest.Mock).mock.calls.some(
+        (c) => c[0].action === AUDIT.user.mfa_recovery_code_consumed,
+      ),
+    ).toBe(true);
+  });
 });

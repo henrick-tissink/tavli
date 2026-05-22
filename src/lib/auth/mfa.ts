@@ -265,7 +265,11 @@ export async function consumeRecoveryCode(
   }>;
   const totpFactors = allFactors.filter((f) => f.factor_type === "totp");
   for (const f of totpFactors) {
-    await adminClient.auth.admin.mfa.deleteFactor({ userId, id: f.id });
+    const { error: deleteErr } = await adminClient.auth.admin.mfa.deleteFactor({
+      userId,
+      id: f.id,
+    });
+    if (deleteErr) continue;
     await recordAudit({
       action: AUDIT.auth.mfa_disabled,
       subjectType: "user",
