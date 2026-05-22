@@ -19,12 +19,15 @@ import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { encryptAesGcm } from "./crypto";
+import { encryptAesGcm, decryptAesGcm } from "./crypto";
 import {
   IMPERSONATION_COOKIE_NAME,
   type ImpersonationReturnPayload,
 } from "./impersonation-cookie";
-import { recordImpersonationStart } from "./impersonation";
+import {
+  recordImpersonationStart,
+  recordImpersonationEnd,
+} from "./impersonation";
 
 interface CookieStore {
   set: (name: string, value: string, options: object) => void;
@@ -155,4 +158,73 @@ export async function startImpersonationSession(
   });
 
   redirect("/partner");
+}
+
+// ─── stop ─────────────────────────────────────────────────────────────────
+
+export interface StopImpersonationDeps {
+  supabase: SupabaseClient;
+  cookieStore: CookieStore;
+}
+
+/**
+ * Stop an active impersonation session and restore the admin's original
+ * session using the return-ticket cookie's encrypted admin tokens.
+ *
+ * Failure modes:
+ * - No cookie / decrypt fails → clear cookie, signOut target, redirect to
+ *   /admin/sign-in?session_expired=1 (admin re-signs-in including MFA).
+ * - setSession fails with the admin tokens (stale refresh chain) → same.
+ *
+ * Note: the audit row writes BEFORE setSession so even if restoration
+ * fails, the end of impersonation is recorded (paired with the start).
+ */
+export async function stopImpersonationSession(
+  deps?: Partial<StopImpersonationDeps>,
+): Promise<void> {
+  const supabase = deps?.supabase ?? (await createSupabaseServerClient());
+  const cookieStore = deps?.cookieStore ?? (await cookies());
+
+  const raw = cookieStore.get?.(IMPERSONATION_COOKIE_NAME)?.value;
+  if (!raw) {
+    await supabase.auth.signOut();
+    redirect("/admin/sign-in?session_expired=1");
+  }
+
+  const decrypted = decryptAesGcm(raw, getKey());
+  let payload: ImpersonationReturnPayload | null = null;
+  if (decrypted) {
+    try {
+      payload = JSON.parse(decrypted) as ImpersonationReturnPayload;
+    } catch {
+      // fallthrough to handler below
+    }
+  }
+  if (!payload) {
+    cookieStore.delete(IMPERSONATION_COOKIE_NAME);
+    redirect("/admin/sign-in?session_expired=1");
+  }
+
+  // Audit BEFORE the restoration attempt — pair with the start row even
+  // if restoration fails.
+  await recordImpersonationEnd({
+    adminUserId: payload.adminUserId,
+    targetUserId: payload.targetUserId,
+  });
+
+  // Clear target session
+  await supabase.auth.signOut();
+
+  // Restore admin
+  const { error } = await supabase.auth.setSession({
+    access_token: payload.adminAccessToken,
+    refresh_token: payload.adminRefreshToken,
+  });
+  if (error) {
+    cookieStore.delete(IMPERSONATION_COOKIE_NAME);
+    redirect("/admin/sign-in?session_expired=1");
+  }
+
+  cookieStore.delete(IMPERSONATION_COOKIE_NAME);
+  redirect("/admin/users");
 }

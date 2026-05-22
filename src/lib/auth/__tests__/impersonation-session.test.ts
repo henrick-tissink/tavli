@@ -7,8 +7,12 @@ jest.mock("@/lib/audit/record", () => ({
 const KEY = randomBytes(32).toString("base64");
 process.env.IMPERSONATION_COOKIE_SECRET = KEY;
 
-import { startImpersonationSession } from "../impersonation-session";
+import {
+  startImpersonationSession,
+  stopImpersonationSession,
+} from "../impersonation-session";
 import { recordAudit } from "@/lib/audit/record";
+import { encryptAesGcm } from "../crypto";
 
 function buildSupabaseMock(opts: {
   user?: { id: string; email: string } | null;
@@ -232,6 +236,169 @@ describe("startImpersonationSession", () => {
         cookieStore: cookieStore as never,
       }),
     ).rejects.toThrow();
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+});
+
+function buildSupabaseForStop(opts: {
+  signOutOk?: boolean;
+  setSessionOk?: boolean;
+} = {}) {
+  return {
+    auth: {
+      signOut: jest.fn().mockResolvedValue({}),
+      setSession: jest.fn().mockResolvedValue({
+        error: opts.setSessionOk === false ? { message: "stale" } : null,
+      }),
+    },
+  };
+}
+
+describe("stopImpersonationSession", () => {
+  beforeEach(() => (recordAudit as jest.Mock).mockClear());
+
+  it("audits, signs out target, restores admin via setSession", async () => {
+    const payload = {
+      v: 1,
+      adminUserId: "admin",
+      adminEmail: "a@x",
+      targetUserId: "target",
+      targetEmail: "t@x",
+      startedAt: "2026-05-22T10:00:00Z",
+      adminAccessToken: "AT",
+      adminRefreshToken: "RT",
+    };
+    const cookieValue = encryptAesGcm(JSON.stringify(payload), KEY);
+
+    const supabase = buildSupabaseForStop();
+    const store = new Map<string, string>();
+    store.set("tavli_impersonation_return", cookieValue);
+    const cookieStore = {
+      get: jest.fn((name: string) => {
+        const v = store.get(name);
+        return v ? { value: v } : undefined;
+      }),
+      delete: jest.fn((name: string) => store.delete(name)),
+    };
+
+    let caught: Error | null = null;
+    try {
+      await stopImpersonationSession({
+        supabase: supabase as never,
+        cookieStore: cookieStore as never,
+      });
+    } catch (e: unknown) {
+      caught = e as Error;
+    }
+    // redirect throws; expect that pattern
+    expect(caught?.message ?? "").toMatch(/NEXT_REDIRECT|admin\/users/);
+
+    expect(supabase.auth.signOut).toHaveBeenCalled();
+    expect(supabase.auth.setSession).toHaveBeenCalledWith({
+      access_token: "AT",
+      refresh_token: "RT",
+    });
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "user.impersonation_ended",
+        subjectId: "target",
+        actorUserId: "admin",
+        impersonatorUserId: "admin",
+      }),
+    );
+    expect(cookieStore.delete).toHaveBeenCalledWith(
+      "tavli_impersonation_return",
+    );
+  });
+
+  it("falls back to sign-in when no return cookie is present", async () => {
+    const supabase = buildSupabaseForStop();
+    const cookieStore = {
+      get: jest.fn().mockReturnValue(undefined),
+      delete: jest.fn(),
+    };
+
+    let caught: (Error & { digest?: string }) | null = null;
+    try {
+      await stopImpersonationSession({
+        supabase: supabase as never,
+        cookieStore: cookieStore as never,
+      });
+    } catch (e: unknown) {
+      caught = e as Error & { digest?: string };
+    }
+    // Should redirect to /admin/sign-in?session_expired=1
+    const trace = `${caught?.message ?? ""}|${caught?.digest ?? ""}`;
+    expect(trace).toMatch(/session_expired|sign-in/);
+    expect(supabase.auth.signOut).toHaveBeenCalled();
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("falls back to sign-in when refresh chain is stale", async () => {
+    const payload = {
+      v: 1,
+      adminUserId: "admin",
+      adminEmail: "a@x",
+      targetUserId: "target",
+      targetEmail: "t@x",
+      startedAt: "2026-05-22T10:00:00Z",
+      adminAccessToken: "AT",
+      adminRefreshToken: "RT",
+    };
+    const cookieValue = encryptAesGcm(JSON.stringify(payload), KEY);
+
+    const supabase = buildSupabaseForStop({ setSessionOk: false });
+    const store = new Map<string, string>();
+    store.set("tavli_impersonation_return", cookieValue);
+    const cookieStore = {
+      get: jest.fn((name: string) => {
+        const v = store.get(name);
+        return v ? { value: v } : undefined;
+      }),
+      delete: jest.fn((name: string) => store.delete(name)),
+    };
+
+    let caught: (Error & { digest?: string }) | null = null;
+    try {
+      await stopImpersonationSession({
+        supabase: supabase as never,
+        cookieStore: cookieStore as never,
+      });
+    } catch (e: unknown) {
+      caught = e as Error & { digest?: string };
+    }
+    const trace = `${caught?.message ?? ""}|${caught?.digest ?? ""}`;
+    expect(trace).toMatch(/session_expired|sign-in/);
+    // recordImpersonationEnd is called BEFORE the setSession attempt (audit happens early)
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "user.impersonation_ended" }),
+    );
+    expect(cookieStore.delete).toHaveBeenCalledWith(
+      "tavli_impersonation_return",
+    );
+  });
+
+  it("returns null payload + falls back when decryption fails", async () => {
+    const supabase = buildSupabaseForStop();
+    const cookieStore = {
+      get: jest.fn().mockReturnValue({ value: "tampered-base64url" }),
+      delete: jest.fn(),
+    };
+
+    let caught: (Error & { digest?: string }) | null = null;
+    try {
+      await stopImpersonationSession({
+        supabase: supabase as never,
+        cookieStore: cookieStore as never,
+      });
+    } catch (e: unknown) {
+      caught = e as Error & { digest?: string };
+    }
+    const trace = `${caught?.message ?? ""}|${caught?.digest ?? ""}`;
+    expect(trace).toMatch(/session_expired|sign-in/);
+    expect(cookieStore.delete).toHaveBeenCalledWith(
+      "tavli_impersonation_return",
+    );
     expect(recordAudit).not.toHaveBeenCalled();
   });
 });
