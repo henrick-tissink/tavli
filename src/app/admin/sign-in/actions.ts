@@ -36,11 +36,25 @@ export async function signInAdmin(
   const factorId = String(formData.get("factor_id") ?? "");
 
   // Step 2 — MFA challenge or recovery-code consumption.
-  if (factorId && (mfaCode || recoveryCode)) {
+  // If factor_id is present we're in the MFA step. Even if the user submitted
+  // with empty inputs we must re-render needs_mfa rather than fall through to
+  // the password branch (which would lose their step state).
+  if (factorId) {
     const supabase = await createSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) {
       return { ok: false, error: "Session expired. Please sign in again." };
+    }
+
+    if (!mfaCode && !recoveryCode) {
+      const remaining = await countUnconsumedRecoveryCodes(userData.user.id);
+      return {
+        ok: false,
+        state: "needs_mfa",
+        factorId,
+        hasRecoveryCodes: remaining > 0,
+        error: "Enter a code to continue.",
+      };
     }
 
     if (mfaCode) {
@@ -102,8 +116,7 @@ export async function signInAdmin(
     password,
   });
   if (error || !data.user) {
-    // §5a.1 uniform error — never distinguish unknown email from wrong password.
-    return { ok: false, error: error?.message ?? "Sign in failed." };
+    return { ok: false, error: "Invalid credentials." };
   }
 
   const { data: profile } = await supabase
