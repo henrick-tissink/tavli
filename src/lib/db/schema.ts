@@ -30,6 +30,8 @@ import {
   uniqueIndex,
   index,
   primaryKey,
+  char,
+  check,
 } from "drizzle-orm/pg-core";
 
 // ─── Supabase-managed auth.users reference ──────────────────────────────
@@ -842,6 +844,93 @@ export const mfaRecoveryCodes = pgTable(
     userActive: index("idx_mfa_recovery_codes_user_active").on(
       t.userId,
       t.consumedAt,
+    ),
+  }),
+);
+
+// ─── diners ─────────────────────────────────────────────────────────────
+// §03 §4.1 — org-scoped diner record. Identity is (organization_id, phone)
+// when phone is set; otherwise (organization_id, lower(email)). Partial
+// unique indices include `WHERE redacted_at IS NULL` so pseudonymised rows
+// don't block new diners with the same contact info from being created.
+export const dinerAcquisitionSource = pgEnum("diner_acquisition_source", [
+  "widget",
+  "venue_page",
+  "editorial",
+  "corporate",
+  "walk_in",
+  "manual",
+  "import",
+  "email_campaign",
+  "api",
+]);
+
+export const diners = pgTable(
+  "diners",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    phone: varchar("phone", { length: 20 }),
+    phoneRaw: varchar("phone_raw", { length: 40 }),
+    email: varchar("email", { length: 255 }),
+    fullName: varchar("full_name", { length: 200 }),
+    locale: char("locale", { length: 2 }).notNull().default("ro"),
+    allergies: text("allergies").array().notNull().default(sql`'{}'::text[]`),
+    occasionTags: text("occasion_tags").array().notNull().default(sql`'{}'::text[]`),
+    seatingPreferences: jsonb("seating_preferences").notNull().default(sql`'{}'::jsonb`),
+    dietaryPreferences: text("dietary_preferences").array().notNull().default(sql`'{}'::text[]`),
+    birthdayDate: date("birthday_date"),
+    anniversaryDate: date("anniversary_date"),
+    internalNotes: text("internal_notes"),
+    acquisitionSource: dinerAcquisitionSource("acquisition_source"),
+    acquisitionRestaurantId: uuid("acquisition_restaurant_id").references(
+      () => restaurants.id,
+      { onDelete: "set null" },
+    ),
+    visitCount: integer("visit_count").notNull().default(0),
+    coversTotal: integer("covers_total").notNull().default(0),
+    firstVisitedAt: timestamp("first_visited_at", { withTimezone: true }),
+    lastVisitedAt: timestamp("last_visited_at", { withTimezone: true }),
+    frequencyBucket: varchar("frequency_bucket", { length: 20 })
+      .notNull()
+      .default("first_timer"),
+    typicalPartySizeMin: integer("typical_party_size_min"),
+    typicalPartySizeMax: integer("typical_party_size_max"),
+    noShowCount: integer("no_show_count").notNull().default(0),
+    cancellationCount: integer("cancellation_count").notNull().default(0),
+    redactedAt: timestamp("redacted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    phoneUnique: uniqueIndex("diners_org_phone_unique")
+      .on(t.organizationId, t.phone)
+      .where(sql`${t.phone} IS NOT NULL AND ${t.redactedAt} IS NULL`),
+    emailUnique: uniqueIndex("diners_org_email_unique")
+      .on(t.organizationId, sql`lower(${t.email})`)
+      .where(
+        sql`${t.email} IS NOT NULL AND ${t.phone} IS NULL AND ${t.redactedAt} IS NULL`,
+      ),
+    fullNameIdx: index("diners_org_full_name").on(
+      t.organizationId,
+      sql`lower(${t.fullName})`,
+    ),
+    phoneIdx: index("diners_org_phone").on(t.organizationId, t.phone),
+    frequencyIdx: index("diners_frequency")
+      .on(t.organizationId, t.frequencyBucket)
+      .where(sql`${t.redactedAt} IS NULL`),
+    lastVisitedIdx: index("diners_last_visited")
+      .on(t.organizationId, sql`${t.lastVisitedAt} DESC`)
+      .where(sql`${t.redactedAt} IS NULL`),
+    identityRequiredCheck: check(
+      "diners_identity_required",
+      sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL`,
     ),
   }),
 );
