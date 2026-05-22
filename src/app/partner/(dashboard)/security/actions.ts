@@ -70,6 +70,7 @@ export async function verifyTotpStep(
     factorId,
     code,
     userData.user.id,
+    "venue_owner",
   );
   if (!result.ok) return { ok: false, error: result.error };
   return { ok: true };
@@ -84,7 +85,12 @@ export async function unenrolFactorAction(
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) return { ok: false, error: "Not signed in." };
-  const result = await unenrollFactor(supabase, factorId, userData.user.id);
+  const result = await unenrollFactor(
+    supabase,
+    factorId,
+    userData.user.id,
+    "venue_owner",
+  );
   if (!result.ok) return { ok: false, error: result.error ?? "Could not remove factor." };
   return { ok: true };
 }
@@ -95,7 +101,7 @@ export async function regenerateRecoveryCodes(): Promise<
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) return { ok: false, error: "Not signed in." };
-  const codes = await generateRecoveryCodes(userData.user.id);
+  const codes = await generateRecoveryCodes(userData.user.id, "venue_owner");
   return { ok: true, data: { codes } };
 }
 
@@ -123,16 +129,21 @@ export async function changePasswordAction(
   }
 
   const supabase = await createSupabaseServerClient();
-  const result = await changePassword(currentPassword, newPassword, {
-    supabase,
-    makeTransientClient: makeTransientAnonClient,
-  });
+  const result = await changePassword(
+    currentPassword,
+    newPassword,
+    {
+      supabase,
+      makeTransientClient: makeTransientAnonClient,
+    },
+    "venue_owner",
+  );
   if (!result.ok) return { ok: false, error: result.error };
   redirect("/partner/sign-in?password_changed=1");
 }
 
 export async function signOutEverywhereAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
-  await signOutEverywhere(supabase);
+  await signOutEverywhere(supabase, "venue_owner");
   redirect("/partner/sign-in?signed_out=1");
 }

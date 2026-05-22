@@ -12,9 +12,10 @@
  * actorRole note: MFA is a self-service flow (the user acts on their
  * own account), so the audit row's actorRole would ideally be the
  * user's effective role for some scope. We don't have a restaurant
- * context here, so the writes use `"venue_owner"` as a conservative
- * default — partner accounts in current prod are all venue_owners.
- * The UI follow-up refines this by passing the resolved role.
+ * context here, so the writes default to `"venue_owner"` — partner
+ * accounts in current prod are all venue_owners. Callers from
+ * /admin/security pass `"tavli_admin"` as the trailing optional arg
+ * so the audit reflects who actually acted.
  */
 
 import "server-only";
@@ -68,6 +69,7 @@ export async function verifyTotpEnrollment(
   factorId: string,
   code: string,
   userIdForAudit: string,
+  actorRole?: "venue_owner" | "tavli_admin",
 ): Promise<VerifyTotpResult> {
   const challenge = await supabase.auth.mfa.challenge({ factorId });
   if (challenge.error || !challenge.data) {
@@ -94,7 +96,7 @@ export async function verifyTotpEnrollment(
     subjectId: userIdForAudit,
     actorUserId: enrolActor.actorUserId,
     impersonatorUserId: enrolActor.impersonatorUserId ?? undefined,
-    actorRole: "venue_owner",
+    actorRole: actorRole ?? "venue_owner",
     context: { factor_type: "totp", factor_id: factorId },
   });
   return { ok: true };
@@ -104,6 +106,7 @@ export async function unenrollFactor(
   supabase: SupabaseClient,
   factorId: string,
   userIdForAudit: string,
+  actorRole?: "venue_owner" | "tavli_admin",
 ): Promise<{ ok: boolean; error?: string }> {
   const { error } = await supabase.auth.mfa.unenroll({ factorId });
   if (error) {
@@ -116,7 +119,7 @@ export async function unenrollFactor(
     subjectId: userIdForAudit,
     actorUserId: unenrolActor.actorUserId,
     impersonatorUserId: unenrolActor.impersonatorUserId ?? undefined,
-    actorRole: "venue_owner",
+    actorRole: actorRole ?? "venue_owner",
     context: { factor_id: factorId },
   });
   return { ok: true };
@@ -179,7 +182,10 @@ function hashRecoveryCode(raw: string): string {
  * Returns plaintext codes ONCE — they are hashed on storage and cannot be
  * recovered after this return. Writes audit row with impersonator threading.
  */
-export async function generateRecoveryCodes(userId: string): Promise<string[]> {
+export async function generateRecoveryCodes(
+  userId: string,
+  actorRole?: "venue_owner" | "tavli_admin",
+): Promise<string[]> {
   const codes: string[] = [];
   for (let i = 0; i < RECOVERY_CODE_COUNT; i++) {
     codes.push(generateOneCode());
@@ -200,7 +206,7 @@ export async function generateRecoveryCodes(userId: string): Promise<string[]> {
     subjectId: userId,
     actorUserId: actor.actorUserId,
     impersonatorUserId: actor.impersonatorUserId ?? undefined,
-    actorRole: "venue_owner",
+    actorRole: actorRole ?? "venue_owner",
     context: {},
   });
   return codes.map(formatForDisplay);
@@ -234,6 +240,7 @@ export async function consumeRecoveryCode(
   userId: string,
   rawInput: string,
   adminClient: SupabaseClient,
+  actorRole?: "venue_owner" | "tavli_admin",
 ): Promise<{ ok: true; remaining: number } | { ok: false }> {
   const normalized = rawInput.replace(/-/g, "").trim().toLowerCase();
   if (normalized.length !== RECOVERY_CODE_LENGTH) return { ok: false };
@@ -279,7 +286,7 @@ export async function consumeRecoveryCode(
       subjectType: "user",
       subjectId: userId,
       actorUserId: userId,
-      actorRole: "venue_owner",
+      actorRole: actorRole ?? "venue_owner",
       context: { factor_id: f.id, reason: "recovery_code_consumed" },
     });
   }
@@ -291,7 +298,7 @@ export async function consumeRecoveryCode(
     subjectId: userId,
     actorUserId: actor.actorUserId,
     impersonatorUserId: actor.impersonatorUserId ?? undefined,
-    actorRole: "venue_owner",
+    actorRole: actorRole ?? "venue_owner",
     context: {},
   });
 
@@ -323,6 +330,7 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string,
   deps: ChangePasswordDeps,
+  actorRole?: "venue_owner" | "tavli_admin",
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const { supabase, makeTransientClient } = deps;
 
@@ -354,7 +362,7 @@ export async function changePassword(
     subjectId: userId,
     actorUserId: actor.actorUserId,
     impersonatorUserId: actor.impersonatorUserId ?? undefined,
-    actorRole: "venue_owner",
+    actorRole: actorRole ?? "venue_owner",
     context: {},
   });
 
@@ -382,7 +390,10 @@ export function makeTransientAnonClient(): SupabaseClient {
  * scope='global' signOut, invalidating all refresh tokens for the user.
  * Audits with currentActor threading.
  */
-export async function signOutEverywhere(supabase: SupabaseClient): Promise<void> {
+export async function signOutEverywhere(
+  supabase: SupabaseClient,
+  actorRole?: "venue_owner" | "tavli_admin",
+): Promise<void> {
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData?.user?.id;
   if (userId) {
@@ -393,7 +404,7 @@ export async function signOutEverywhere(supabase: SupabaseClient): Promise<void>
       subjectId: userId,
       actorUserId: actor.actorUserId,
       impersonatorUserId: actor.impersonatorUserId ?? undefined,
-      actorRole: "venue_owner",
+      actorRole: actorRole ?? "venue_owner",
       context: {},
     });
   }

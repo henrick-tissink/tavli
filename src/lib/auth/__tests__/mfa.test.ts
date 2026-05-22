@@ -332,6 +332,23 @@ describe("generateRecoveryCodes", () => {
       }),
     );
   });
+
+  it("uses tavli_admin actorRole when passed", async () => {
+    const tx = {
+      delete: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }),
+      insert: jest.fn().mockReturnValue({ values: jest.fn().mockResolvedValue(undefined) }),
+    };
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) => cb(tx));
+
+    await generateRecoveryCodes("user-1", "tavli_admin");
+
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.user.mfa_recovery_codes_regenerated,
+        actorRole: "tavli_admin",
+      }),
+    );
+  });
 });
 
 describe("countUnconsumedRecoveryCodes", () => {
@@ -663,6 +680,38 @@ describe("changePassword", () => {
       }),
     );
   });
+
+  it("uses tavli_admin actorRole when passed", async () => {
+    const transientSignIn = jest.fn().mockResolvedValue({ data: {}, error: null });
+    const supabase = {
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "u1", email: "u@x.com" } } }),
+        updateUser: jest.fn().mockResolvedValue({ error: null }),
+        signOut: jest.fn().mockResolvedValue({ error: null }),
+      },
+    };
+
+    await changePassword(
+      "old",
+      "new",
+      {
+        supabase: supabase as never,
+        makeTransientClient: (() => ({
+          auth: { signInWithPassword: transientSignIn },
+        })) as never,
+      },
+      "tavli_admin",
+    );
+
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.auth.password_reset_completed,
+        actorRole: "tavli_admin",
+      }),
+    );
+  });
 });
 
 describe("signOutEverywhere", () => {
@@ -704,5 +753,22 @@ describe("signOutEverywhere", () => {
     await signOutEverywhere(supabase as never);
     expect(recordAudit).not.toHaveBeenCalled();
     expect(signOut).toHaveBeenCalledWith({ scope: "global" });
+  });
+
+  it("uses tavli_admin actorRole when passed", async () => {
+    const signOut = jest.fn().mockResolvedValue({ error: null });
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+        signOut,
+      },
+    };
+    await signOutEverywhere(supabase as never, "tavli_admin");
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.user.signed_out_everywhere,
+        actorRole: "tavli_admin",
+      }),
+    );
   });
 });

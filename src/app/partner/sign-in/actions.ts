@@ -87,6 +87,7 @@ export async function signInPartner(
         userData.user.id,
         String(recoveryCode),
         adminClient,
+        "venue_owner",
       );
       if (!result.ok) {
         return {

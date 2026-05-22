@@ -89,6 +89,7 @@ export async function signInAdmin(
         userData.user.id,
         String(recoveryCode),
         adminClient,
+        "tavli_admin",
       );
       if (!result.ok) {
         return {
