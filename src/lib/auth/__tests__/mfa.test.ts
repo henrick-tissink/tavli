@@ -492,3 +492,171 @@ describe("consumeRecoveryCode", () => {
     ).toBe(true);
   });
 });
+
+// ─── changePassword + signOutEverywhere (§01 §5a.2/§5a.4 phase 2) ────────
+
+import { changePassword, signOutEverywhere } from "../mfa";
+
+describe("changePassword", () => {
+  beforeEach(() => {
+    (recordAudit as jest.Mock).mockClear();
+    (currentActor as jest.Mock).mockResolvedValue({
+      actorUserId: "u1",
+      impersonatorUserId: null,
+    });
+  });
+
+  it("validates current password via transient client + updates via real session", async () => {
+    const transientSignIn = jest.fn().mockResolvedValue({ data: {}, error: null });
+    const realUpdate = jest.fn().mockResolvedValue({ error: null });
+    const realSignOut = jest.fn().mockResolvedValue({ error: null });
+
+    const supabase = {
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "u1", email: "u@x.com" } } }),
+        updateUser: realUpdate,
+        signOut: realSignOut,
+      },
+    };
+    const makeTransientClient = () => ({
+      auth: { signInWithPassword: transientSignIn },
+    });
+
+    const result = await changePassword("old-pass", "new-pass-12345", {
+      supabase: supabase as never,
+      makeTransientClient: makeTransientClient as never,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(transientSignIn).toHaveBeenCalledWith({ email: "u@x.com", password: "old-pass" });
+    expect(realUpdate).toHaveBeenCalledWith({ password: "new-pass-12345" });
+    expect(realSignOut).toHaveBeenCalled();
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.auth.password_reset_completed,
+        subjectId: "u1",
+        actorUserId: "u1",
+      }),
+    );
+  });
+
+  it("returns ok=false when current password is wrong", async () => {
+    const transientSignIn = jest
+      .fn()
+      .mockResolvedValue({ data: null, error: { message: "Invalid credentials" } });
+    const supabase = {
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "u1", email: "u@x.com" } } }),
+        updateUser: jest.fn(),
+        signOut: jest.fn(),
+      },
+    };
+    const makeTransientClient = () => ({
+      auth: { signInWithPassword: transientSignIn },
+    });
+
+    const result = await changePassword("wrong", "new-pass", {
+      supabase: supabase as never,
+      makeTransientClient: makeTransientClient as never,
+    });
+
+    expect(result).toEqual({ ok: false, error: "Current password is incorrect." });
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("returns ok=false when supabase has no signed-in user", async () => {
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
+        updateUser: jest.fn(),
+        signOut: jest.fn(),
+      },
+    };
+    const makeTransientClient = () => ({
+      auth: { signInWithPassword: jest.fn() },
+    });
+    const result = await changePassword("old", "new", {
+      supabase: supabase as never,
+      makeTransientClient: makeTransientClient as never,
+    });
+    expect(result.ok).toBe(false);
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("threads currentActor on the password audit row", async () => {
+    const transientSignIn = jest.fn().mockResolvedValue({ data: {}, error: null });
+    const supabase = {
+      auth: {
+        getUser: jest
+          .fn()
+          .mockResolvedValue({ data: { user: { id: "u1", email: "u@x.com" } } }),
+        updateUser: jest.fn().mockResolvedValue({ error: null }),
+        signOut: jest.fn().mockResolvedValue({ error: null }),
+      },
+    };
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "u1",
+      impersonatorUserId: "admin-1",
+    });
+
+    await changePassword("old", "new", {
+      supabase: supabase as never,
+      makeTransientClient: (() => ({
+        auth: { signInWithPassword: transientSignIn },
+      })) as never,
+    });
+
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.auth.password_reset_completed,
+        impersonatorUserId: "admin-1",
+      }),
+    );
+  });
+});
+
+describe("signOutEverywhere", () => {
+  beforeEach(() => {
+    (recordAudit as jest.Mock).mockClear();
+    (currentActor as jest.Mock).mockResolvedValue({
+      actorUserId: "u1",
+      impersonatorUserId: null,
+    });
+  });
+
+  it("calls scope=global signOut + audits with currentActor threading", async () => {
+    const signOut = jest.fn().mockResolvedValue({ error: null });
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+        signOut,
+      },
+    };
+    await signOutEverywhere(supabase as never);
+    expect(signOut).toHaveBeenCalledWith({ scope: "global" });
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.user.signed_out_everywhere,
+        actorUserId: "u1",
+        subjectId: "u1",
+      }),
+    );
+  });
+
+  it("does not audit when no user is signed in", async () => {
+    const signOut = jest.fn().mockResolvedValue({ error: null });
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
+        signOut,
+      },
+    };
+    await signOutEverywhere(supabase as never);
+    expect(recordAudit).not.toHaveBeenCalled();
+    expect(signOut).toHaveBeenCalledWith({ scope: "global" });
+  });
+});

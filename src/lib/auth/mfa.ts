@@ -294,3 +294,104 @@ export async function consumeRecoveryCode(
   const remaining = await countUnconsumedRecoveryCodes(userId);
   return { ok: true, remaining };
 }
+
+// ─── changePassword + signOutEverywhere (§01 §5a.2/§5a.4 phase 2) ────────
+
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+export interface ChangePasswordDeps {
+  supabase: SupabaseClient;
+  makeTransientClient: () => SupabaseClient;
+}
+
+/**
+ * Change the signed-in user's password. Validates current password via a
+ * transient anon-key client (no cookie binding — leaves user's session intact
+ * for the duration of the check). Then calls updateUser to rotate JWT material
+ * (§5a.4). Audits with currentActor threading. Caller must sign-out and
+ * redirect after — updateUser invalidates the session implicitly on next
+ * refresh, but the caller is responsible for the redirect-to-sign-in UX.
+ *
+ * Password policy enforcement is the caller's job (server action runs
+ * validatePasswordPolicy from password-policy.ts before invoking this).
+ */
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  deps: ChangePasswordDeps,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabase, makeTransientClient } = deps;
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user?.email) {
+    return { ok: false, error: "Not signed in." };
+  }
+  const email = userData.user.email;
+  const userId = userData.user.id;
+
+  const transient = makeTransientClient();
+  const { error: signInError } = await transient.auth.signInWithPassword({
+    email,
+    password: currentPassword,
+  });
+  if (signInError) {
+    return { ok: false, error: "Current password is incorrect." };
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+  if (updateError) return { ok: false, error: updateError.message };
+
+  const actor = await currentActor(userId);
+  await recordAudit({
+    action: AUDIT.auth.password_reset_completed,
+    subjectType: "user",
+    subjectId: userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
+    actorRole: "venue_owner",
+    context: {},
+  });
+
+  // updateUser rotates JWT material; sign out the local session so the user
+  // re-authenticates on next request.
+  await supabase.auth.signOut();
+  return { ok: true };
+}
+
+/**
+ * Production helper for callers that don't want to construct a transient
+ * client themselves. The transient client is anon-key + no-cookie-binding,
+ * so signInWithPassword validates credentials without touching the user's
+ * real session cookies.
+ */
+export function makeTransientAnonClient(): SupabaseClient {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
+
+/**
+ * Sign out from every active session (all devices) via Supabase's
+ * scope='global' signOut, invalidating all refresh tokens for the user.
+ * Audits with currentActor threading.
+ */
+export async function signOutEverywhere(supabase: SupabaseClient): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  if (userId) {
+    const actor = await currentActor(userId);
+    await recordAudit({
+      action: AUDIT.user.signed_out_everywhere,
+      subjectType: "user",
+      subjectId: userId,
+      actorUserId: actor.actorUserId,
+      impersonatorUserId: actor.impersonatorUserId ?? undefined,
+      actorRole: "venue_owner",
+      context: {},
+    });
+  }
+  await supabase.auth.signOut({ scope: "global" });
+}
