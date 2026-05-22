@@ -9,6 +9,8 @@ import { appOrigin } from "@/lib/app-origin";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { normalizePhone } from "@/lib/phone/normalize";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentActor } from "@/lib/auth/current-actor";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -136,11 +138,21 @@ export async function createReservation(
   // §02 audit: stamp every public booking on the audit trail. The diner is
   // anonymous on this path (no session), so actorUserId is null and the
   // role degrades to 'diner'. Context carries FK ids + scalars only.
+  //
+  // §01 §5a.3 phase 2 sub-unit C: if a signed-in user (e.g. an admin
+  // impersonating a diner identity for support work) makes a booking via the
+  // public flow, resolve the impersonator chain through currentActor() so
+  // the audit row still attributes the admin acting-as.
+  const session = await getCurrentSession();
+  const actor = session?.userId
+    ? await currentActor(session.userId)
+    : { actorUserId: null as string | null, impersonatorUserId: null as string | null };
   await recordAudit({
     action: AUDIT.reservation.created,
     subjectType: "reservation",
     subjectId: data.id,
-    actorUserId: null,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
     actorRole: "diner",
     restaurantId: data.restaurant_id,
     organizationId: restaurant?.organization_id ?? null,
