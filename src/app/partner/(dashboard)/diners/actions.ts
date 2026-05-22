@@ -147,3 +147,157 @@ export async function mergeDinersAction(
 
   return { ok: true, data: { targetDinerId: input.targetId } };
 }
+
+// ─── splitDinerAction ───────────────────────────────────────────────────
+//
+// Splits a subset of a source diner's reservations off onto a brand-new
+// diner row in the same organization. Use case: a single physical diner
+// row accidentally accumulated reservations from two different humans
+// (shared phone, walk-in conflation, etc.) and the venue wants to peel
+// them apart without losing history.
+//
+// Reviews follow their reservations — `reviews.reservation_id` is unique,
+// so we filter the review-repoint by the moved reservation ids rather
+// than by source diner id. (If we used the source-diner shortcut we'd
+// drag along reviews tied to reservations that stay with the source.)
+
+export interface SplitDinerInput {
+  sourceId: string;
+  reservationIds: string[];
+  newDiner: {
+    fullName: string;
+    phone?: string;
+    email?: string;
+  };
+}
+
+export async function splitDinerAction(
+  input: SplitDinerInput,
+): Promise<ActionResult<{ newDinerId: string }>> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  // Identity requirement matches the diners CHECK constraint.
+  if (!input.newDiner.phone && !input.newDiner.email) {
+    return { ok: false, error: "New diner requires phone or email." };
+  }
+  if (input.reservationIds.length === 0) {
+    return { ok: false, error: "No reservations selected to split." };
+  }
+
+  const sourceRows = await dbAdmin
+    .select({
+      id: diners.id,
+      organizationId: diners.organizationId,
+      phone: diners.phone,
+      email: diners.email,
+      locale: diners.locale,
+      acquisitionRestaurantId: diners.acquisitionRestaurantId,
+    })
+    .from(diners)
+    .where(eq(diners.id, input.sourceId));
+  const source = sourceRows[0];
+  if (!source) return { ok: false, error: "Source diner not found." };
+
+  // Cheap pre-check before the DB throws a unique-violation. The DB
+  // partial-unique index is still the source of truth (other diners in
+  // the org might already use the contact info) — we re-catch that case
+  // below.
+  if (input.newDiner.phone && source.phone === input.newDiner.phone) {
+    return {
+      ok: false,
+      error: "New diner phone matches source. Provide distinct identity.",
+    };
+  }
+  if (input.newDiner.email && source.email === input.newDiner.email) {
+    return {
+      ok: false,
+      error: "New diner email matches source. Provide distinct identity.",
+    };
+  }
+
+  // Verify every selected reservation belongs to the source diner. This
+  // catches both (a) typos/IDs from a different diner and (b) cross-org
+  // attempts where the caller stitches in foreign reservations.
+  const reservationCheck = await dbAdmin
+    .select({ id: reservations.id, dinerId: reservations.dinerId })
+    .from(reservations)
+    .where(inArray(reservations.id, input.reservationIds));
+  if (reservationCheck.length !== input.reservationIds.length) {
+    return { ok: false, error: "Some reservations not found." };
+  }
+  if (reservationCheck.some((r) => r.dinerId !== input.sourceId)) {
+    return {
+      ok: false,
+      error: "Some reservations are not owned by the source diner.",
+    };
+  }
+
+  let newDinerId: string;
+  try {
+    newDinerId = await dbAdmin.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(diners)
+        .values({
+          organizationId: source.organizationId,
+          phone: input.newDiner.phone ?? null,
+          email: input.newDiner.email ?? null,
+          fullName: input.newDiner.fullName.trim() || null,
+          locale: source.locale,
+          acquisitionSource: "manual",
+          acquisitionRestaurantId: source.acquisitionRestaurantId,
+        })
+        .returning({ id: diners.id });
+      const id = inserted[0].id;
+      // Reviews follow their reservations — filter by reservation_id (which
+      // is unique on reviews) so reviews tied to reservations that stay
+      // with the source are left alone.
+      await tx
+        .update(reservations)
+        .set({ dinerId: id })
+        .where(inArray(reservations.id, input.reservationIds));
+      await tx
+        .update(reviews)
+        .set({ dinerId: id })
+        .where(inArray(reviews.reservationId, input.reservationIds));
+      return id;
+    });
+  } catch (e) {
+    // Likely partial-unique-index violation on (org_id, phone) or
+    // (org_id, lower(email)) — i.e. another diner in this org already
+    // owns the contact info we're trying to assign. Map to a friendly
+    // error instead of bubbling the raw Postgres message.
+    const msg = (e as Error).message ?? "";
+    if (
+      msg.includes("diners_org_phone_unique") ||
+      msg.includes("diners_org_email_unique")
+    ) {
+      return {
+        ok: false,
+        error: "Another diner in this organization already uses that contact info.",
+      };
+    }
+    throw e;
+  }
+
+  const actor = await currentActor(user.id);
+  await recordAudit({
+    action: AUDIT.diner.split,
+    subjectType: "diner",
+    subjectId: newDinerId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
+    actorRole: "venue_owner",
+    organizationId: source.organizationId,
+    context: {
+      source_diner_id: input.sourceId,
+      new_diner_id: newDinerId,
+      moved_reservation_ids: input.reservationIds,
+    },
+  });
+
+  return { ok: true, data: { newDinerId } };
+}

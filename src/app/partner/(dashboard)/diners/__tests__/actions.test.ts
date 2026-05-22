@@ -1,8 +1,8 @@
 /**
  * @jest-environment node
  *
- * Unit tests for mergeDinersAction per Wave 3 §03 §5.3 sub-unit D (task D1).
- * splitDinerAction tests appended in task D2.
+ * Unit tests for mergeDinersAction + splitDinerAction per Wave 3 §03 §5.3
+ * sub-unit D (tasks D1 + D2).
  */
 
 jest.mock("@/lib/db/server", () => ({
@@ -22,7 +22,7 @@ jest.mock("@/lib/auth/current-actor", () => ({
   currentActor: jest.fn(),
 }));
 
-import { mergeDinersAction } from "../actions";
+import { mergeDinersAction, splitDinerAction } from "../actions";
 import { dbAdmin } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { createSupabaseServerClient } from "@/lib/db/server";
@@ -214,6 +214,245 @@ describe("mergeDinersAction", () => {
     const profileMergeSetCall = setMock.mock.calls[2][0];
     expect(profileMergeSetCall.internalNotes).toBe(
       "this is a much longer note than the source",
+    );
+  });
+});
+
+describe("splitDinerAction", () => {
+  it("returns ok=false when not signed in", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth(null),
+    );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/signed in/i);
+  });
+
+  it("rejects when new diner has neither phone nor email", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/phone or email/i);
+  });
+
+  it("rejects when no reservations are selected", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: [],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/no reservations/i);
+  });
+
+  it("rejects when source diner is missing", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectReturning([]));
+    const r = await splitDinerAction({
+      sourceId: "missing",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/source diner not found/i);
+  });
+
+  it("rejects identity collision when new phone matches source phone", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(
+      mockSelectReturning([
+        {
+          id: "src",
+          organizationId: "org-1",
+          phone: "+40700111222",
+          email: null,
+          locale: "ro",
+          acquisitionRestaurantId: null,
+        },
+      ]),
+    );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/distinct identity/i);
+  });
+
+  it("rejects when a selected reservation is not owned by source", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    (dbAdmin.select as jest.Mock)
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          {
+            id: "src",
+            organizationId: "org-1",
+            phone: null,
+            email: "old@example.com",
+            locale: "ro",
+            acquisitionRestaurantId: null,
+          },
+        ]),
+      )
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          { id: "r1", dinerId: "src" },
+          { id: "r2", dinerId: "other-diner" },
+        ]),
+      );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1", "r2"],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/not owned by the source/i);
+  });
+
+  it("rejects when some reservations are not found", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    (dbAdmin.select as jest.Mock)
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          {
+            id: "src",
+            organizationId: "org-1",
+            phone: null,
+            email: "old@example.com",
+            locale: "ro",
+            acquisitionRestaurantId: null,
+          },
+        ]),
+      )
+      .mockReturnValueOnce(mockSelectReturning([{ id: "r1", dinerId: "src" }]));
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1", "r2"],
+      newDiner: { fullName: "Bob", phone: "+40700111222" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/some reservations not found/i);
+  });
+
+  it("maps partial-unique-index violations to a friendly error", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("u1"),
+    );
+    (dbAdmin.select as jest.Mock)
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          {
+            id: "src",
+            organizationId: "org-1",
+            phone: "+40700111222",
+            email: null,
+            locale: "ro",
+            acquisitionRestaurantId: null,
+          },
+        ]),
+      )
+      .mockReturnValueOnce(mockSelectReturning([{ id: "r1", dinerId: "src" }]));
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async () => {
+      throw new Error(
+        'duplicate key value violates unique constraint "diners_org_phone_unique"',
+      );
+    });
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob", phone: "+40700333444" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/already uses that contact/i);
+  });
+
+  it("happy path: inserts new diner, moves reservations + reviews, writes audit", async () => {
+    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
+      mockSupabaseAuth("admin-1"),
+    );
+    (dbAdmin.select as jest.Mock)
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          {
+            id: "src",
+            organizationId: "org-1",
+            phone: "+40700111111",
+            email: null,
+            locale: "ro",
+            acquisitionRestaurantId: "rest-9",
+          },
+        ]),
+      )
+      .mockReturnValueOnce(
+        mockSelectReturning([
+          { id: "r1", dinerId: "src" },
+          { id: "r2", dinerId: "src" },
+        ]),
+      );
+
+    const insertReturning = jest
+      .fn()
+      .mockResolvedValue([{ id: "new-diner-id" }]);
+    const insertValues = jest
+      .fn()
+      .mockReturnValue({ returning: insertReturning });
+    const insertInto = jest.fn().mockReturnValue({ values: insertValues });
+    const updateWhere = jest.fn().mockResolvedValue(undefined);
+    const updateSet = jest.fn().mockReturnValue({ where: updateWhere });
+    const updateUpdate = jest.fn().mockReturnValue({ set: updateSet });
+
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) =>
+      cb({ insert: insertInto, update: updateUpdate }),
+    );
+
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "admin-1",
+      impersonatorUserId: "real-admin-99",
+    });
+
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1", "r2"],
+      newDiner: { fullName: "Bob", phone: "+40700222222" },
+    });
+
+    expect(r).toEqual({ ok: true, data: { newDinerId: "new-diner-id" } });
+    expect(insertInto).toHaveBeenCalledTimes(1);
+    expect(updateUpdate).toHaveBeenCalledTimes(2); // reservations + reviews
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "diner.split",
+        subjectId: "new-diner-id",
+        actorUserId: "admin-1",
+        impersonatorUserId: "real-admin-99",
+        context: expect.objectContaining({
+          source_diner_id: "src",
+          new_diner_id: "new-diner-id",
+          moved_reservation_ids: ["r1", "r2"],
+        }),
+      }),
     );
   });
 });
