@@ -8,8 +8,24 @@ jest.mock("@/lib/auth/otp", () => ({
 jest.mock("@/lib/auth/session", () => ({
   getCurrentSession: jest.fn(),
 }));
+// §01 §5a.3 phase 2 sub-unit C: currentActor wraps actorUserId with the
+// impersonator-thread payload. Default to "no impersonation"; specific tests
+// override with mockResolvedValueOnce.
+jest.mock("@/lib/auth/current-actor", () => ({
+  currentActor: jest.fn(async (id: string) => ({
+    actorUserId: id,
+    impersonatorUserId: null,
+  })),
+}));
+jest.mock("@/lib/audit/record", () => ({
+  recordAudit: jest.fn().mockResolvedValue(undefined),
+}));
 
-import { submitEventRequestDraft, sendQuoteForEventRequest } from "../actions";
+import {
+  submitEventRequestDraft,
+  sendQuoteForEventRequest,
+  materializeAcceptedEventRequest,
+} from "../actions";
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
 import {
   restaurants,
@@ -25,9 +41,14 @@ import {
   createEventRequestDraft,
   promoteDraftToNew,
   markViewing,
+  sendQuote,
+  acceptQuote,
 } from "@/lib/repos/event-requests-repo";
 import { listLineItems } from "@/lib/repos/quote-line-items-repo";
 import { getCurrentSession } from "@/lib/auth/session";
+import { recordAudit } from "@/lib/audit/record";
+import { currentActor } from "@/lib/auth/current-actor";
+import { AUDIT } from "@/lib/audit/actions";
 
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
@@ -194,5 +215,71 @@ describe("sendQuoteForEventRequest", () => {
     expect(row.quotedAmountCents).toBe(275_00 * 20);
     const lines = await listLineItems(er.id);
     expect(lines).toHaveLength(2);
+  });
+});
+
+describe("materializeAcceptedEventRequest", () => {
+  beforeEach(() => {
+    mockSession.mockReset();
+    (recordAudit as jest.Mock).mockClear();
+    (currentActor as jest.Mock).mockImplementation(async (id: string) => ({
+      actorUserId: id,
+      impersonatorUserId: null,
+    }));
+  });
+
+  // §01 §5a.3 phase 2 sub-unit C: when an admin is impersonating the venue
+  // owner, the reservation-created audit rows must thread the admin's id as
+  // impersonator_user_id so the audit log can attribute admin-acting-as
+  // activity.
+  it("threads impersonatorUserId on the reservation-created audit row", async () => {
+    const { restaurant: r, ownerId } = await seedVenueWithOwner();
+    mockSession.mockResolvedValue({
+      userId: ownerId,
+      userEmail: "owner@test.co",
+      profile: {
+        id: ownerId,
+        role: "restaurant_owner",
+        fullName: null,
+        email: "owner@test.co",
+        locale: "ro",
+        defaultOrganizationId: null,
+      },
+    } as Awaited<ReturnType<typeof getCurrentSession>>);
+    const er = await createEventRequestDraft({
+      restaurantId: r.id,
+      guestName: "G",
+      guestEmail: `mat-${Date.now()}@t.co`,
+      occasion: "corporate_dinner",
+      eventDate: "2026-10-10",
+      partySize: 8,
+    });
+    await promoteDraftToNew(er.id, (await seedConsumerProfile("mat")).id);
+    await markViewing(er.id);
+    await sendQuote(er.id, {
+      amountCents: 100_00,
+      expiresAt: new Date(Date.now() + 7 * 86400_000),
+    });
+    await acceptQuote(er.id);
+
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: ownerId,
+      impersonatorUserId: "admin-1",
+    });
+
+    await materializeAcceptedEventRequest({
+      id: er.id,
+      mode: "private_room",
+      slots: [{ time: "19:00", partySize: 8 }],
+    });
+
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.reservation.created,
+        actorUserId: ownerId,
+        impersonatorUserId: "admin-1",
+      }),
+      expect.anything(),
+    );
   });
 });

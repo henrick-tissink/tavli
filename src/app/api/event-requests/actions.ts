@@ -26,6 +26,7 @@ import { can } from "@/lib/authz/can";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { getActorRole } from "@/lib/audit/actor-role";
+import { currentActor } from "@/lib/auth/current-actor";
 import {
   sendEventRequestReplied,
   sendEventRequestQuoted,
@@ -402,6 +403,12 @@ export async function materializeAcceptedEventRequest(
     .where(eq(restaurants.id, restaurantId))
     .limit(1);
   const organizationId = orgRow?.organizationId ?? null;
+  // §01 §5a.3 phase 2 sub-unit C: thread impersonatorUserId so audit rows
+  // attribute admin-acting-as activity. `assertPartnerOwns` already ensured
+  // we have a signed-in session, so userId is defined here.
+  const actor = auditSession?.userId
+    ? await currentActor(auditSession.userId)
+    : { actorUserId: null, impersonatorUserId: null };
 
   const reservationIds: string[] = [];
 
@@ -448,7 +455,8 @@ export async function materializeAcceptedEventRequest(
           action: AUDIT.reservation.created,
           subjectType: "reservation",
           subjectId: row.id,
-          actorUserId: auditSession?.userId ?? null,
+          actorUserId: actor.actorUserId,
+          impersonatorUserId: actor.impersonatorUserId ?? undefined,
           actorRole,
           restaurantId,
           organizationId,
