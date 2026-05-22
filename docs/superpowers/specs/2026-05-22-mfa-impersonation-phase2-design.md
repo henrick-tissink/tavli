@@ -220,29 +220,44 @@ Sign-in form (client component, `useFormState`-driven): renders email/password w
 After role check, before passing the request through:
 
 ```ts
+// Server actions must always pass through — middleware can't block POST flows
+// like sign-out, factor enrolment, or stop-impersonation. Next.js sets this
+// header on every Server Action POST.
+const isServerAction = request.headers.get('next-action') !== null;
+if (isServerAction) return response;
+
+// Impersonation bypass: when the return cookie is present, the admin has
+// already established AAL2 before swapping; the target's MFA gates would
+// otherwise block /partner/* during impersonation. The encrypted cookie +
+// audit trail are the security guarantee here.
+const impersonationCookie = await readImpersonationReturnCookie();
+const impersonating = impersonationCookie !== null;
+
 const aal = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 // aal.currentLevel: 'aal1' | 'aal2'
 // aal.nextLevel: 'aal1' | 'aal2'
 
-// Forced enrolment for admins (only — partner is voluntary)
+// Forced enrolment for admins (only — partner is voluntary).
+// Admin can't be impersonating into here (target role != admin → redirected by role check),
+// so no impersonation bypass needed for this branch.
 if (needsAdmin) {
-  const adminEnrolAllow = ['/admin/sign-in', '/admin/security', '/admin/sign-out'];
+  const adminEnrolAllow = ['/admin/sign-in', '/admin/security'];
   if (aal.nextLevel === 'aal1' && !adminEnrolAllow.some(p => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL('/admin/security?enrol=required', request.url));
   }
 }
 
-// AAL2 gate (both admin and partner)
-if (aal.currentLevel === 'aal1' && aal.nextLevel === 'aal2') {
+// AAL2 gate (both admin and partner) — skip during impersonation.
+if (!impersonating && aal.currentLevel === 'aal1' && aal.nextLevel === 'aal2') {
   const scope = needsAdmin ? 'admin' : 'partner';
-  const signInAllow = [`/${scope}/sign-in`, `/${scope}/sign-out`];
+  const signInAllow = [`/${scope}/sign-in`];
   if (!signInAllow.some(p => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL(`/${scope}/sign-in?continue_mfa=1`, request.url));
   }
 }
 ```
 
-Sign-in page detects `continue_mfa=1` and skips straight to the MFA step using the current AAL1 session.
+Sign-in page detects `continue_mfa=1` and skips straight to the MFA step using the current AAL1 session. If no AAL1 session is present (e.g., user came directly with the query param), the page falls back to the password step.
 
 ### `/partner/security` page (editorial layout per chosen direction A)
 
@@ -334,14 +349,17 @@ async function stopImpersonationSession(): Promise<void>
 3.  assert targetUserId !== adminUser.id   (no self-impersonation)
 4.  capture { adminAccessToken, adminRefreshToken } from admin.getSession()
 5.  serviceRole.auth.admin.getUserById(targetUserId) → target (with email)
-6.  recordImpersonationStart({ adminUserId, targetUserId, reason })
-7.  serviceRole.auth.admin.generateLink({ type: 'magiclink', email: target.email })
-    → { properties.hashed_token }
-8.  cookieStore.delete('tavli_active_org')   (avoid org-context bleed; §7 self-corrects but explicit)
-9.  admin.auth.signOut()    (clears Supabase Auth cookies)
-10. admin.auth.verifyOtp({ token_hash, type: 'magiclink' })
+6.  serviceRole.auth.admin.generateLink({ type: 'magiclink', email: target.email })
+        → { properties.hashed_token }
+        Note: auth.admin.generateLink does NOT send an email — it returns
+        the link/token for programmatic consumption.
+7.  cookieStore.delete('tavli_active_org')   (avoid org-context bleed; §7 self-corrects but explicit)
+8.  admin.auth.signOut()    (clears Supabase Auth cookies)
+9.  admin.auth.verifyOtp({ token_hash, type: 'magiclink' })
         → mints target session, sets target cookies
     On failure: setSession({ adminAccessToken, adminRefreshToken }) to restore admin, then throw
+10. recordImpersonationStart({ adminUserId, targetUserId, reason })
+        (only after the swap succeeds — no audit row for failed attempts)
 11. encrypt JSON payload (v:1, ids, emails, startedAt, adminTokens) with IMPERSONATION_COOKIE_SECRET
 12. cookieStore.set('tavli_impersonation_return', encrypted, {
       httpOnly: true, secure: true, sameSite: 'strict',
@@ -425,8 +443,9 @@ if (!cookie) return null;
 
 return (
   <div
-    role="alert"
+    role="status"
     aria-live="polite"
+    aria-label="Impersonation session active"
     className="fixed top-0 inset-x-0 z-50 h-12 bg-red-600 text-white"
   >
     <div className="flex items-center justify-between h-full px-4 max-w-screen-2xl mx-auto">
@@ -545,11 +564,21 @@ Standard Supabase `auth.reauthenticate()` uses an email nonce — too heavy. Use
 
 ### `tavli_active_org` cookie during impersonation
 
-Admin's active_org cookie may carry over to the target. §7's self-correction handles it (cookie pointing to a wrong org gets cleared on first request). Belt-and-braces: explicitly delete the cookie at startImpersonationSession step 8.
+Admin's active_org cookie may carry over to the target. §7's self-correction handles it (cookie pointing to a wrong org gets cleared on first request). Belt-and-braces: explicitly delete the cookie at startImpersonationSession step 7.
+
+### Sign-out during impersonation
+
+If an admin clicks the partner's standard "Sign out" while impersonating, the naive flow would clear the target session and leave a dangling return cookie + a logged-out admin. Two mitigations:
+1. The partner sign-out server action (`signOutPartner`) checks for the return cookie first. If present, it routes through `stopImpersonationSession()` instead — restoring admin context — rather than just clearing target cookies.
+2. Defense in depth: any request with a return cookie but no Supabase Auth session triggers a cleanup path in the proxy — delete the return cookie and redirect to `/admin/sign-in?session_expired=1`.
+
+### Magic link generation does not email the target
+
+`serviceRole.auth.admin.generateLink({ type: 'magiclink', email })` is the Supabase admin-API endpoint that returns the link/hashed_token for programmatic consumption. It does not send the email (that path is `auth.signInWithOtp()` from the user-facing SDK). Target users do not receive an email when an admin starts an impersonation session.
 
 ### Banner accessibility
 
-`role="alert" aria-live="polite"`; white-on-red-600 (passes 4.5:1 contrast); focus indicator on the Stop button. Banner content reads naturally to a screen reader.
+`role="status"` with `aria-live="polite"` and a static `aria-label="Impersonation session active"`. `role="status"` (not `role="alert"`) avoids re-announcement on every navigation; `polite` means screen readers announce when free rather than interrupting. White-on-red-600 (passes 4.5:1 contrast); focus indicator on the Stop button.
 
 ---
 
@@ -599,6 +628,7 @@ Per sub-unit, before commit:
 - **No reads-during-impersonation auditing.** Only the impersonation_started/ended bookends + the retrofitted mutation callsites are audited. Matches existing convention.
 - **Multi-factor selection at sign-in.** Take the first verified factor. UI for choosing between multiple factors is v1.5.
 - **Partner's own sessions don't see the banner.** §5a.3 phrases the banner as visible to the partner; in real-session-swap, only the admin's hijacked session carries the return cookie that triggers the banner. Server-side notification on the partner's own sessions is out of scope for v1; see the spec-divergence note in the Banner section.
+- **Sign-out from partner nav while impersonating is rerouted.** Clicking the partner-side "Sign out" during an impersonation session calls `stopImpersonationSession()` instead of clearing only the target's cookies — otherwise the admin would be left with a dangling return cookie and no session.
 
 ---
 
