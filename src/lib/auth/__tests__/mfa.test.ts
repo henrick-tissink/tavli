@@ -187,3 +187,125 @@ describe("listVerifiedTotpFactors", () => {
     ]);
   });
 });
+
+// ─── Recovery codes (§01 §5a.2 phase 2) ──────────────────────────────────
+
+jest.mock("@/lib/db/admin", () => ({
+  dbAdmin: {
+    transaction: jest.fn(),
+    select: jest.fn(),
+  },
+  createSupabaseAdminClient: jest.fn(),
+}));
+
+jest.mock("@/lib/auth/current-actor", () => ({
+  currentActor: jest.fn().mockResolvedValue({
+    actorUserId: "user-1",
+    impersonatorUserId: null,
+  }),
+}));
+
+import { dbAdmin } from "@/lib/db/admin";
+import { currentActor } from "@/lib/auth/current-actor";
+import {
+  generateRecoveryCodes,
+  countUnconsumedRecoveryCodes,
+  RECOVERY_CODE_COUNT,
+  RECOVERY_CODE_LENGTH,
+} from "../mfa";
+
+describe("generateRecoveryCodes", () => {
+  beforeEach(() => {
+    (recordAudit as jest.Mock).mockClear();
+    (dbAdmin.transaction as jest.Mock).mockReset();
+    (currentActor as jest.Mock).mockResolvedValue({
+      actorUserId: "user-1",
+      impersonatorUserId: null,
+    });
+  });
+
+  it("generates RECOVERY_CODE_COUNT codes of RECOVERY_CODE_LENGTH chars from the safe alphabet", async () => {
+    const valuesFn = jest.fn().mockResolvedValue(undefined);
+    const insertFn = jest.fn().mockReturnValue({ values: valuesFn });
+    const whereFn = jest.fn().mockResolvedValue(undefined);
+    const deleteFn = jest.fn().mockReturnValue({ where: whereFn });
+    const tx = { delete: deleteFn, insert: insertFn };
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) => cb(tx));
+
+    const codes = await generateRecoveryCodes("user-1");
+    expect(codes).toHaveLength(RECOVERY_CODE_COUNT);
+    for (const display of codes) {
+      const raw = display.replace(/-/g, "");
+      expect(raw).toHaveLength(RECOVERY_CODE_LENGTH);
+      expect(raw).toMatch(/^[abcdefghjkmnpqrstuvwxyz23456789]+$/);
+      // Display format: xxxx-xxxx-xx (10 chars + 2 dashes = 12)
+      expect(display).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{2}$/);
+    }
+  });
+
+  it("deletes existing rows + inserts new hashed rows in a single transaction", async () => {
+    const valuesFn = jest.fn().mockResolvedValue(undefined);
+    const insertFn = jest.fn().mockReturnValue({ values: valuesFn });
+    const whereFn = jest.fn().mockResolvedValue(undefined);
+    const deleteFn = jest.fn().mockReturnValue({ where: whereFn });
+    const tx = { delete: deleteFn, insert: insertFn };
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) => cb(tx));
+
+    await generateRecoveryCodes("user-1");
+
+    expect(deleteFn).toHaveBeenCalledTimes(1);
+    expect(insertFn).toHaveBeenCalledTimes(1);
+    const inserted = (valuesFn as jest.Mock).mock.calls[0][0];
+    expect(inserted).toHaveLength(RECOVERY_CODE_COUNT);
+    for (const row of inserted) {
+      expect(row.userId).toBe("user-1");
+      expect(row.codeHash).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  it("writes audit row with impersonator threading via currentActor", async () => {
+    const tx = {
+      delete: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }),
+      insert: jest.fn().mockReturnValue({ values: jest.fn().mockResolvedValue(undefined) }),
+    };
+    (dbAdmin.transaction as jest.Mock).mockImplementation(async (cb) => cb(tx));
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "user-1",
+      impersonatorUserId: "admin-1",
+    });
+
+    await generateRecoveryCodes("user-1");
+
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.user.mfa_recovery_codes_regenerated,
+        subjectType: "user",
+        subjectId: "user-1",
+        actorUserId: "user-1",
+        impersonatorUserId: "admin-1",
+      }),
+    );
+  });
+});
+
+describe("countUnconsumedRecoveryCodes", () => {
+  it("returns the count from dbAdmin", async () => {
+    const whereFn = jest.fn().mockResolvedValue([{ count: 7 }]);
+    const fromFn = jest.fn().mockReturnValue({ where: whereFn });
+    const selectFn = jest.fn().mockReturnValue({ from: fromFn });
+    (dbAdmin as unknown as { select: jest.Mock }).select = selectFn;
+
+    const result = await countUnconsumedRecoveryCodes("user-1");
+    expect(result).toBe(7);
+  });
+
+  it("returns 0 when no rows", async () => {
+    const whereFn = jest.fn().mockResolvedValue([]);
+    const fromFn = jest.fn().mockReturnValue({ where: whereFn });
+    const selectFn = jest.fn().mockReturnValue({ from: fromFn });
+    (dbAdmin as unknown as { select: jest.Mock }).select = selectFn;
+
+    const result = await countUnconsumedRecoveryCodes("user-1");
+    expect(result).toBe(0);
+  });
+});

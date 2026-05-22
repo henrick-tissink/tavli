@@ -140,3 +140,78 @@ export async function userHasVerifiedFactor(
   const factors = await listVerifiedTotpFactors(supabase);
   return factors.length > 0;
 }
+
+// ─── Recovery codes (§01 §5a.2 phase 2) ──────────────────────────────────
+
+import { createHash, randomBytes } from "node:crypto";
+import { eq, isNull, and, sql } from "drizzle-orm";
+import { mfaRecoveryCodes } from "@/lib/db/schema";
+import { dbAdmin } from "@/lib/db/admin";
+import { currentActor } from "@/lib/auth/current-actor";
+
+export const RECOVERY_CODE_COUNT = 10;
+export const RECOVERY_CODE_LENGTH = 10;
+const RECOVERY_CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no ambiguous glyphs
+
+function generateOneCode(): string {
+  const bytes = randomBytes(RECOVERY_CODE_LENGTH);
+  let out = "";
+  for (let i = 0; i < RECOVERY_CODE_LENGTH; i++) {
+    out += RECOVERY_CODE_ALPHABET[bytes[i] % RECOVERY_CODE_ALPHABET.length];
+  }
+  return out;
+}
+
+function formatForDisplay(raw: string): string {
+  return `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 10)}`;
+}
+
+function hashRecoveryCode(raw: string): string {
+  return createHash("sha256").update(raw).digest("hex");
+}
+
+/**
+ * Generate 10 fresh recovery codes for the user, replacing any existing.
+ * Returns plaintext codes ONCE — they are hashed on storage and cannot be
+ * recovered after this return. Writes audit row with impersonator threading.
+ */
+export async function generateRecoveryCodes(userId: string): Promise<string[]> {
+  const codes: string[] = [];
+  for (let i = 0; i < RECOVERY_CODE_COUNT; i++) {
+    codes.push(generateOneCode());
+  }
+  await dbAdmin.transaction(async (tx) => {
+    await tx.delete(mfaRecoveryCodes).where(eq(mfaRecoveryCodes.userId, userId));
+    await tx.insert(mfaRecoveryCodes).values(
+      codes.map((raw) => ({
+        userId,
+        codeHash: hashRecoveryCode(raw),
+      })),
+    );
+  });
+  const actor = await currentActor(userId);
+  await recordAudit({
+    action: AUDIT.user.mfa_recovery_codes_regenerated,
+    subjectType: "user",
+    subjectId: userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
+    actorRole: "venue_owner",
+    context: {},
+  });
+  return codes.map(formatForDisplay);
+}
+
+/**
+ * Count unconsumed recovery codes for the user. Used by the security page
+ * to show "X of 10 codes remaining".
+ */
+export async function countUnconsumedRecoveryCodes(userId: string): Promise<number> {
+  const rows = await dbAdmin
+    .select({ count: sql<number>`count(*)::int` })
+    .from(mfaRecoveryCodes)
+    .where(
+      and(eq(mfaRecoveryCodes.userId, userId), isNull(mfaRecoveryCodes.consumedAt)),
+    );
+  return rows[0]?.count ?? 0;
+}
