@@ -223,6 +223,7 @@ export const restaurants = pgTable("restaurants", {
   acceptsCorporateMeals: boolean("accepts_corporate_meals").notNull().default(false),
   acceptsStanding: boolean("accepts_standing").notNull().default(false),
   proPlanActive: boolean("pro_plan_active").notNull().default(false),
+  transactionalSmsEnabled: boolean("transactional_sms_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
