@@ -829,7 +829,9 @@ export const mfaRecoveryCodes = pgTable(
   "mfa_recovery_codes",
   {
     id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-    userId: uuid("user_id").notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
     codeHash: varchar("code_hash", { length: 64 }).notNull().unique(),
     consumedAt: timestamp("consumed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
