@@ -183,6 +183,13 @@
       "when": 1779480498118,
       "tag": "0025_marketing_consents_suppressions",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1779481159774,
+      "tag": "0026_transactional_email_log",
+      "breakpoints": true
     }
   ]
 }

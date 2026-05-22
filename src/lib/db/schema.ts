@@ -1086,3 +1086,84 @@ export const marketingSuppressions = pgTable(
     ),
   }),
 );
+
+// ─── transactional_email_log ─────────────────────────────────────────────
+// §04 §5.1 — Unified comms log for both email + SMS. `channel` column
+// distinguishes; status mutex enforced by CHECK (email rows have
+// email_status set + sms_status null; sms rows mirror). organization_id_at_event
+// is the immutable owning org at send-time (survives org_id FK nulling).
+export const transactionalEmailLog = pgTable(
+  "transactional_email_log",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    templateKey: varchar("template_key", { length: 60 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    phone: varchar("phone", { length: 20 }),
+    dinerId: uuid("diner_id").references(() => diners.id, {
+      onDelete: "set null",
+    }),
+    reservationId: uuid("reservation_id").references(() => reservations.id, {
+      onDelete: "set null",
+    }),
+    organizationId: uuid("organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
+    organizationIdAtEvent: uuid("organization_id_at_event").notNull(),
+    restaurantId: uuid("restaurant_id").references(() => restaurants.id, {
+      onDelete: "set null",
+    }),
+    channel: varchar("channel", { length: 20 }).notNull(),
+    locale: char("locale", { length: 2 }).notNull(),
+    subject: varchar("subject", { length: 300 }),
+    resendMessageId: varchar("resend_message_id", { length: 80 }),
+    twilioMessageSid: varchar("twilio_message_sid", { length: 80 }),
+    emailStatus: varchar("email_status", { length: 20 }),
+    smsStatus: varchar("sms_status", { length: 20 }),
+    statusUpdatedAt: timestamp("status_updated_at", { withTimezone: true }),
+    failureReason: text("failure_reason"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    redactedAt: timestamp("redacted_at", { withTimezone: true }),
+  },
+  (t) => ({
+    dinerIdx: index("transactional_email_log_diner").on(
+      t.dinerId,
+      sql`${t.createdAt} DESC`,
+    ),
+    reservationIdx: index("transactional_email_log_reservation").on(
+      t.reservationId,
+      sql`${t.createdAt} DESC`,
+    ),
+    resendIdx: uniqueIndex("transactional_email_log_resend")
+      .on(t.resendMessageId)
+      .where(sql`${t.resendMessageId} IS NOT NULL`),
+    twilioIdx: uniqueIndex("transactional_email_log_twilio")
+      .on(t.twilioMessageSid)
+      .where(sql`${t.twilioMessageSid} IS NOT NULL`),
+    statusPerChannelCheck: check(
+      "transactional_log_status_per_channel",
+      sql`
+    (${t.channel} = 'email' AND ${t.emailStatus} IS NOT NULL AND ${t.smsStatus} IS NULL)
+    OR (${t.channel} = 'sms' AND ${t.smsStatus} IS NOT NULL AND ${t.emailStatus} IS NULL)
+  `,
+    ),
+    channelValidCheck: check(
+      "transactional_log_channel_valid",
+      sql`${t.channel} IN ('email', 'sms')`,
+    ),
+    emailStatusValidCheck: check(
+      "transactional_log_email_status_valid",
+      sql`
+    ${t.emailStatus} IS NULL OR ${t.emailStatus} IN ('queued', 'sent', 'delivered', 'bounced', 'complained', 'failed')
+  `,
+    ),
+    smsStatusValidCheck: check(
+      "transactional_log_sms_status_valid",
+      sql`
+    ${t.smsStatus} IS NULL OR ${t.smsStatus} IN ('queued', 'sent', 'delivered', 'undelivered', 'failed', 'optout')
+  `,
+    ),
+  }),
+);
