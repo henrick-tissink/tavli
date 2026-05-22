@@ -1,18 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 
 /**
  * Route-protection + session-refresh middleware.
  *
- * /admin/*   → requires role = 'admin' (sign-in + onboarding excluded)
- * /partner/* → requires role = 'restaurant_owner' OR 'admin'
- * /onboard/* → public (token validation happens in the route)
- * /reservations/* → public (token validation happens in the route)
+ * /admin/*   → requires role = 'admin' + AAL2 (after MFA enrolment + verify)
+ *               → forced-enrol redirect if no verified factor yet
+ * /partner/* → requires role = 'restaurant_owner' OR 'admin' + AAL2 when factor present
+ * /onboard/* → public (token validation in the route)
+ * /reservations/* → public (token validation in the route)
  * Everything else → public (consumer)
  *
- * If Supabase env vars aren't configured yet (early Phase 2 dev), the
- * middleware short-circuits to allow everything through so the consumer
- * app doesn't break while M1 foundations are still being wired.
+ * Server actions (POST with next-action header) bypass all gates — middleware
+ * must never block sign-out / factor enrolment / stop-impersonation POSTs.
+ *
+ * Impersonation bypass: when the encrypted return cookie is present, the
+ * admin established AAL2 before the swap; the target's MFA gate would
+ * otherwise block /partner/*. Cookie + audit trail are the security guarantee.
+ *
+ * Forced enrolment: admin sign-in must refuse to complete without an enrolled
+ * factor (§5a.2). Implemented here as a post-signin redirect to /admin/security
+ * for any /admin/* route except the sign-in and security paths.
  */
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
@@ -23,9 +32,16 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Server actions must always pass through — Next.js sets `next-action`
+  // on every Server Action POST. Without this bypass, AAL/forced-enrol gates
+  // would intercept POSTs to pages the user can't reach as GETs (sign-out,
+  // factor enrolment, stop-impersonation).
+  if (request.headers.get("next-action") !== null) {
+    return response;
+  }
+
   const pathname = request.nextUrl.pathname;
 
-  // Public routes — no session check needed, but still refresh cookies.
   const publicRoutes = [
     "/admin/sign-in",
     "/partner/sign-in",
@@ -33,8 +49,10 @@ export async function proxy(request: NextRequest) {
     "/reservations",
   ];
   const isPublic = publicRoutes.some((p) => pathname.startsWith(p));
-  const needsAdmin = pathname.startsWith("/admin") && !pathname.startsWith("/admin/sign-in");
-  const needsPartner = pathname.startsWith("/partner") && !pathname.startsWith("/partner/sign-in");
+  const needsAdmin =
+    pathname.startsWith("/admin") && !pathname.startsWith("/admin/sign-in");
+  const needsPartner =
+    pathname.startsWith("/partner") && !pathname.startsWith("/partner/sign-in");
 
   if (!needsAdmin && !needsPartner && !isPublic) {
     return response;
@@ -86,6 +104,45 @@ export async function proxy(request: NextRequest) {
       .maybeSingle();
     if (profile?.role !== "restaurant_owner" && profile?.role !== "admin") {
       return NextResponse.redirect(new URL("/partner/sign-in", request.url));
+    }
+  }
+
+  // After role check passes: AAL gates with impersonation bypass.
+  if (needsAdmin || needsPartner) {
+    const impersonationCookie = await readImpersonationReturnCookie();
+    const impersonating = impersonationCookie !== null;
+
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+    // Forced enrolment for admins only — partner is voluntary.
+    // Admin can't be impersonating into /admin/* (target role != admin →
+    // redirected by role check above), so no impersonation bypass needed here.
+    if (needsAdmin && aalData) {
+      const adminEnrolAllow = ["/admin/sign-in", "/admin/security"];
+      if (
+        aalData.nextLevel === "aal1" &&
+        !adminEnrolAllow.some((p) => pathname.startsWith(p))
+      ) {
+        return NextResponse.redirect(
+          new URL("/admin/security?enrol=required", request.url),
+        );
+      }
+    }
+
+    // AAL2 gate — skip during impersonation (admin established AAL2 pre-swap).
+    if (
+      !impersonating &&
+      aalData &&
+      aalData.currentLevel === "aal1" &&
+      aalData.nextLevel === "aal2"
+    ) {
+      const scope = needsAdmin ? "admin" : "partner";
+      const allow = [`/${scope}/sign-in`];
+      if (!allow.some((p) => pathname.startsWith(p))) {
+        return NextResponse.redirect(
+          new URL(`/${scope}/sign-in?continue_mfa=1`, request.url),
+        );
+      }
     }
   }
 
