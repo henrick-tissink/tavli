@@ -87,11 +87,13 @@ export async function verifyTotpEnrollment(
       error: verify.error?.message ?? "Verification failed.",
     };
   }
+  const enrolActor = await currentActor(userIdForAudit);
   await recordAudit({
     action: AUDIT.auth.mfa_enrolled,
     subjectType: "user",
     subjectId: userIdForAudit,
-    actorUserId: userIdForAudit,
+    actorUserId: enrolActor.actorUserId,
+    impersonatorUserId: enrolActor.impersonatorUserId ?? undefined,
     actorRole: "venue_owner",
     context: { factor_type: "totp", factor_id: factorId },
   });
@@ -107,11 +109,13 @@ export async function unenrollFactor(
   if (error) {
     return { ok: false, error: error.message };
   }
+  const unenrolActor = await currentActor(userIdForAudit);
   await recordAudit({
     action: AUDIT.auth.mfa_disabled,
     subjectType: "user",
     subjectId: userIdForAudit,
-    actorUserId: userIdForAudit,
+    actorUserId: unenrolActor.actorUserId,
+    impersonatorUserId: unenrolActor.impersonatorUserId ?? undefined,
     actorRole: "venue_owner",
     context: { factor_id: factorId },
   });

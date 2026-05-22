@@ -120,6 +120,31 @@ describe("verifyTotpEnrollment", () => {
     expect(result).toEqual({ ok: false, error: "Invalid TOTP code" });
     expect(recordAudit).not.toHaveBeenCalled();
   });
+
+  // §01 §5a.3 phase 2 sub-unit C: the mfa_enrolled audit row must thread the
+  // impersonator's user id when an admin is acting-as the user.
+  it("threads impersonatorUserId on the mfa_enrolled audit row", async () => {
+    const { currentActor: ca } = jest.requireMock("@/lib/auth/current-actor");
+    (ca as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "user-1",
+      impersonatorUserId: "admin-9",
+    });
+    const supabase = mockSupabase({
+      challenge: jest.fn().mockResolvedValue({ data: { id: "challenge-1" }, error: null }),
+      verify: jest.fn().mockResolvedValue({
+        data: { access_token: "tok", refresh_token: "tok2" },
+        error: null,
+      }),
+    });
+    await verifyTotpEnrollment(supabase, "factor-1", "123456", "user-1");
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.auth.mfa_enrolled,
+        actorUserId: "user-1",
+        impersonatorUserId: "admin-9",
+      }),
+    );
+  });
 });
 
 describe("unenrollFactor", () => {
@@ -148,6 +173,27 @@ describe("unenrollFactor", () => {
     const result = await unenrollFactor(supabase, "factor-1", "user-1");
     expect(result).toEqual({ ok: false, error: "Not found" });
     expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  // §01 §5a.3 phase 2 sub-unit C: the mfa_disabled audit row must thread the
+  // impersonator's user id when an admin is acting-as the user.
+  it("threads impersonatorUserId on the mfa_disabled audit row", async () => {
+    const { currentActor: ca } = jest.requireMock("@/lib/auth/current-actor");
+    (ca as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "user-1",
+      impersonatorUserId: "admin-9",
+    });
+    const supabase = mockSupabase({
+      unenroll: jest.fn().mockResolvedValue({ data: {}, error: null }),
+    });
+    await unenrollFactor(supabase, "factor-1", "user-1");
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: AUDIT.auth.mfa_disabled,
+        actorUserId: "user-1",
+        impersonatorUserId: "admin-9",
+      }),
+    );
   });
 });
 
