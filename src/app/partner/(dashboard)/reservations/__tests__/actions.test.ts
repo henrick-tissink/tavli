@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { cancelReservation } from "../actions";
+import { cancelReservation, updateReservationStatus } from "../actions";
 
 // Mock the Supabase server client and email sender so we can drive every branch.
 jest.mock("@/lib/db/server", () => ({
@@ -29,6 +29,15 @@ jest.mock("@/lib/audit/record", () => ({
 }));
 jest.mock("@/lib/audit/actor-role", () => ({
   getActorRole: jest.fn().mockResolvedValue("venue_owner"),
+}));
+// §01 §5a.3 phase 2 sub-unit C: currentActor wraps actorUserId with the
+// impersonator-thread payload. Default to "no impersonation"; specific tests
+// override with mockResolvedValueOnce.
+jest.mock("@/lib/auth/current-actor", () => ({
+  currentActor: jest.fn(async (id: string) => ({
+    actorUserId: id,
+    impersonatorUserId: null,
+  })),
 }));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
@@ -285,5 +294,103 @@ describe("cancelReservation", () => {
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/rls denied/);
     expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  // §01 §5a.3 phase 2 sub-unit C: the cancellation audit row must carry the
+  // impersonator's user id when an admin is acting-as the venue owner.
+  test("threads impersonatorUserId when impersonation is active", async () => {
+    setupSupabase({
+      user: { id: "u1" },
+      ownerRestaurantId: "r1",
+      reservation: fixture(),
+    });
+    const { currentActor } = jest.requireMock("@/lib/auth/current-actor");
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "u1",
+      impersonatorUserId: "admin-9",
+    });
+    const { recordAudit } = jest.requireMock("@/lib/audit/record");
+    await cancelReservation("res-1", "overbooked");
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorUserId: "u1",
+        impersonatorUserId: "admin-9",
+      }),
+    );
+  });
+});
+
+// §01 §5a.3 phase 2 sub-unit C: updateReservationStatus retrofit. The mock
+// only sees one `reservations` call (UPDATE) plus one `restaurants` lookup,
+// so we use a smaller setup helper.
+function setupSupabaseForUpdate(
+  ownerRestaurantId: string | null,
+  updateError: Error | null = null,
+) {
+  const supabaseMock = {
+    auth: {
+      getUser: jest.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+    },
+    from: jest.fn((table: string) => {
+      if (table === "restaurants") {
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({
+            data: { organization_id: null },
+          }),
+        };
+      }
+      if (table === "reservations") {
+        const chain: Record<string, unknown> = {
+          update: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          then: (
+            resolve: (v: { error: Error | null }) => unknown,
+            reject: (e: unknown) => unknown,
+          ) => Promise.resolve({ error: updateError }).then(resolve, reject),
+        };
+        (chain.update as jest.Mock).mockReturnValue(chain);
+        (chain.eq as jest.Mock).mockReturnValue(chain);
+        return chain;
+      }
+      throw new Error(`Unexpected from(${table})`);
+    }),
+  };
+  (createSupabaseServerClient as jest.Mock).mockResolvedValue(supabaseMock);
+  (getCurrentSession as jest.Mock).mockResolvedValue({
+    userId: "u1",
+    userEmail: "u1@test.co",
+    profile: {
+      id: "u1",
+      role: "restaurant_owner",
+      fullName: null,
+      email: "u1@test.co",
+      locale: "ro",
+      defaultOrganizationId: null,
+    },
+  });
+  (currentUserPrimaryRestaurant as jest.Mock).mockResolvedValue(ownerRestaurantId);
+  return supabaseMock;
+}
+
+describe("updateReservationStatus", () => {
+  test("threads impersonatorUserId when impersonation is active", async () => {
+    setupSupabaseForUpdate("r1");
+    const { currentActor } = jest.requireMock("@/lib/auth/current-actor");
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "u1",
+      impersonatorUserId: "admin-9",
+    });
+    const { recordAudit } = jest.requireMock("@/lib/audit/record");
+    const result = await updateReservationStatus("res-1", "seated");
+    expect(result.ok).toBe(true);
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorUserId: "u1",
+        impersonatorUserId: "admin-9",
+        context: { next_status: "seated" },
+      }),
+    );
   });
 });

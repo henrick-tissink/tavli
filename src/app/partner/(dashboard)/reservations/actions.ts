@@ -14,6 +14,7 @@ import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { getActorRole } from "@/lib/audit/actor-role";
+import { currentActor } from "@/lib/auth/current-actor";
 
 export type NewStatus = "seated" | "no_show" | "completed";
 
@@ -50,11 +51,13 @@ export async function updateReservationStatus(
     .select("organization_id")
     .eq("id", restaurantId)
     .maybeSingle();
+  const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.reservation.modified,
     subjectType: "reservation",
     subjectId: reservationId,
-    actorUserId: session.userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
     actorRole,
     restaurantId,
     organizationId: orgRow?.organization_id ?? null,
@@ -174,11 +177,13 @@ export async function cancelReservation(
     .select("organization_id")
     .eq("id", ownerRestaurantId)
     .maybeSingle();
+  const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.reservation.cancelled,
     subjectType: "reservation",
     subjectId: reservationId,
-    actorUserId: session.userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
     actorRole,
     restaurantId: ownerRestaurantId,
     organizationId: orgRow?.organization_id ?? null,
