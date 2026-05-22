@@ -194,6 +194,41 @@ describe("makeSendTransactionalEmail", () => {
     expect(inserted.organizationIdAtEvent).toBe("platform-org-uuid");
   });
 
+  test("passes replyTo through to Resend when provided", async () => {
+    const { db } = makeFakeDb();
+    const send = jest.fn().mockResolvedValue({ data: { id: "msg-id" } });
+    const sender = makeSendTransactionalEmail({
+      resend: { emails: { send } },
+      db: db as unknown as Parameters<typeof makeSendTransactionalEmail>[0]["db"],
+      fromAddress: "Tavli <hello@tavli.ro>",
+    });
+
+    await sender({ ...baseInput(), replyTo: "venue@example.com" });
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "diner@example.com",
+        replyTo: "venue@example.com",
+      }),
+    );
+  });
+
+  test("omits replyTo when not provided", async () => {
+    const { db } = makeFakeDb();
+    const send = jest.fn().mockResolvedValue({ data: { id: "msg-id" } });
+    const sender = makeSendTransactionalEmail({
+      resend: { emails: { send } },
+      db: db as unknown as Parameters<typeof makeSendTransactionalEmail>[0]["db"],
+      fromAddress: "Tavli <hello@tavli.ro>",
+    });
+
+    await sender(baseInput());
+
+    const callArgs = send.mock.calls[0][0] as Record<string, unknown>;
+    expect(callArgs.replyTo).toBeUndefined();
+    expect("replyTo" in callArgs).toBe(false);
+  });
+
   test("EMAIL_DEV_FORCED_RECIPIENT overrides input.to in both log row and Resend call", async () => {
     const { db, inserts } = makeFakeDb();
     const send = jest.fn().mockResolvedValue({ data: { id: "msg-3" } });

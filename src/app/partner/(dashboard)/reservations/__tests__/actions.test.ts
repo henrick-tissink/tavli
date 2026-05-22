@@ -250,6 +250,9 @@ describe("cancelReservation", () => {
     expect(sendTransactionalEmail).toHaveBeenCalledTimes(1);
     const args = (sendTransactionalEmail as jest.Mock).mock.calls[0][0];
     expect(args.to).toBe("maria@example.com");
+    // Cancellation notifications must set Reply-To to the venue inbox so the
+    // guest's reply reaches the restaurant, not our no-reply sender.
+    expect(args.replyTo).toBe("host@casaveche.ro");
     expect(args.subject).toMatch(/anulat/i);
     expect(args.templateKey).toBe("reservation_modified");
     expect(args.locale).toBe("ro");

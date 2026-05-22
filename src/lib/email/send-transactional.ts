@@ -27,6 +27,13 @@ export type Locale = "ro" | "en" | "de";
 
 export interface SendTransactionalEmailInput {
   to: string;
+  /**
+   * Optional Reply-To address. Surfaced for flows like partner cancellation
+   * notifications where the guest should be able to reply directly to the
+   * venue (vs. our no-reply sender). Passed through verbatim to Resend's
+   * `replyTo` field; omitted entirely when undefined.
+   */
+  replyTo?: string;
   locale: Locale;
   templateKey: string;
   subject: string;
@@ -49,6 +56,7 @@ interface ResendLike {
     send: (input: {
       from: string;
       to: string;
+      replyTo?: string;
       subject: string;
       html: string;
       text: string;
@@ -101,6 +109,7 @@ export function makeSendTransactionalEmail(deps: Deps) {
     const { data, error } = await deps.resend.emails.send({
       from: deps.fromAddress,
       to: recipient,
+      ...(input.replyTo ? { replyTo: input.replyTo } : {}),
       subject: input.subject,
       html: input.html,
       text: input.text,

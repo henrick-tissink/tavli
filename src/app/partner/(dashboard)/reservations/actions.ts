@@ -174,6 +174,9 @@ export async function cancelReservation(
     const text = await render(node, { plainText: true });
     const result = await sendTransactionalEmail({
       to: reservation.guest_email,
+      // Restore the legacy Reply-To so guests replying to the cancellation
+      // notification reach the venue inbox directly, not our no-reply sender.
+      replyTo: restaurant.email ?? undefined,
       locale: "ro",
       templateKey: "reservation_modified",
       subject,
