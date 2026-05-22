@@ -8,11 +8,15 @@ import {
   type PartnerSignInResult,
 } from "@/app/partner/sign-in/actions";
 
-export function PartnerSignInForm() {
+export function PartnerSignInForm({
+  initialState,
+}: {
+  initialState?: PartnerSignInResult;
+} = {}) {
   const [state, action, pending] = useActionState<
     PartnerSignInResult | undefined,
     FormData
-  >(signInPartner, undefined);
+  >(signInPartner, initialState);
   const needsMfa = !!state && "state" in state && state.state === "needs_mfa";
 
   if (needsMfa) {

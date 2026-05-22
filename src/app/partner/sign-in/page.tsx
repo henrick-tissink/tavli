@@ -1,10 +1,43 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PartnerSignInForm } from "@/components/partner/PartnerSignInForm";
+import { createSupabaseServerClient } from "@/lib/db/server";
+import {
+  listVerifiedTotpFactors,
+  countUnconsumedRecoveryCodes,
+} from "@/lib/auth/mfa";
+import type { PartnerSignInResult } from "@/app/partner/sign-in/actions";
 
 export const dynamic = "force-dynamic";
 
-export default function PartnerSignInPage() {
+export default async function PartnerSignInPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ continue_mfa?: string }>;
+}) {
+  // Honor `?continue_mfa=1` from the proxy: when an AAL1 session with a
+  // verified factor lands here we skip the password step and render the
+  // MFA step directly. If there's no live session we fall through to the
+  // password form (graceful degradation — the user must re-authenticate).
+  const params = (await searchParams) ?? {};
+  let initialState: PartnerSignInResult | undefined;
+  if (params.continue_mfa === "1" && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const supabase = await createSupabaseServerClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user) {
+      const factors = await listVerifiedTotpFactors(supabase);
+      if (factors.length > 0) {
+        const remaining = await countUnconsumedRecoveryCodes(userData.user.id);
+        initialState = {
+          ok: false,
+          state: "needs_mfa",
+          factorId: factors[0].id,
+          hasRecoveryCodes: remaining > 0,
+        };
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col desktop:flex-row">
       {/* Left panel — desktop only */}
@@ -60,7 +93,7 @@ export default function PartnerSignInPage() {
               Accesează panoul restaurantului tău.
             </p>
           </div>
-          <PartnerSignInForm />
+          <PartnerSignInForm initialState={initialState} />
         </div>
       </div>
     </div>

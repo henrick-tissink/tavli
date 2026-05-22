@@ -1,8 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SignInForm } from "@/components/admin/SignInForm";
+import { createSupabaseServerClient } from "@/lib/db/server";
+import {
+  listVerifiedTotpFactors,
+  countUnconsumedRecoveryCodes,
+} from "@/lib/auth/mfa";
+import type { SignInResult } from "@/app/admin/sign-in/actions";
 
-export default function AdminSignInPage() {
+export default async function AdminSignInPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ continue_mfa?: string }>;
+}) {
+  // Honor `?continue_mfa=1` from the proxy: when an AAL1 session with a
+  // verified factor lands here we skip the password step and render the
+  // MFA step directly. If there's no live session we fall through to the
+  // password form (graceful degradation — the user must re-authenticate).
+  const params = (await searchParams) ?? {};
+  let initialState: SignInResult | undefined;
+  if (params.continue_mfa === "1" && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const supabase = await createSupabaseServerClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user) {
+      const factors = await listVerifiedTotpFactors(supabase);
+      if (factors.length > 0) {
+        const remaining = await countUnconsumedRecoveryCodes(userData.user.id);
+        initialState = {
+          ok: false,
+          state: "needs_mfa",
+          factorId: factors[0].id,
+          hasRecoveryCodes: remaining > 0,
+        };
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col desktop:flex-row">
       {/* Left panel — desktop only */}
@@ -55,7 +88,7 @@ export default function AdminSignInPage() {
               Acces administrator
             </h1>
           </div>
-          <SignInForm />
+          <SignInForm initialState={initialState} />
         </div>
       </div>
     </div>

@@ -5,10 +5,14 @@ import { Button } from "@/components/button";
 import { PasswordInput } from "@/components/password-input";
 import { signInAdmin, type SignInResult } from "@/app/admin/sign-in/actions";
 
-export function SignInForm() {
+export function SignInForm({
+  initialState,
+}: {
+  initialState?: SignInResult;
+} = {}) {
   const [state, action, pending] = useActionState<SignInResult | undefined, FormData>(
     signInAdmin,
-    undefined,
+    initialState,
   );
   const needsMfa = !!state && "state" in state && state.state === "needs_mfa";
 
