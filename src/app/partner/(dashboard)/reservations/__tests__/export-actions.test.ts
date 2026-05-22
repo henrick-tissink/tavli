@@ -15,11 +15,21 @@ jest.mock("@/lib/authz/can", () => ({
 }));
 
 jest.mock("@/lib/audit/record", () => ({
-  recordAudit: jest.fn(),
+  recordAudit: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock("@/lib/audit/actor-role", () => ({
   getActorRole: jest.fn().mockResolvedValue("venue_owner"),
+}));
+
+// §01 §5a.3 phase 2 sub-unit C: currentActor wraps actorUserId with the
+// impersonator-thread payload. Default to "no impersonation"; specific tests
+// override with mockResolvedValueOnce.
+jest.mock("@/lib/auth/current-actor", () => ({
+  currentActor: jest.fn(async (id: string) => ({
+    actorUserId: id,
+    impersonatorUserId: null,
+  })),
 }));
 
 jest.mock("@/lib/db/admin", () => ({
@@ -127,6 +137,52 @@ describe("bulkExportReservations", () => {
       expect.anything(),
       "analytics.export",
       expect.objectContaining({ kind: "restaurant", id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
+    );
+  });
+
+  // §01 §5a.3 phase 2 sub-unit C: the export audit row must carry the
+  // impersonator's user id when an admin is acting-as the venue owner. Drives
+  // the happy path through can()=true and an empty reservations result.
+  it("threads impersonatorUserId on the export audit row when impersonation is active", async () => {
+    const dbAdminMock = jest.requireMock("@/lib/db/admin").dbAdmin;
+    // First select: restaurants org_id lookup. Second: reservations SELECT.
+    dbAdminMock.select
+      .mockReturnValueOnce({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([{ organizationId: "org-1" }]),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            orderBy: jest.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+    (getCurrentSession as jest.Mock).mockResolvedValue(mockSession("u1"));
+    (can as jest.Mock).mockResolvedValue(true);
+    const { currentActor } = jest.requireMock("@/lib/auth/current-actor");
+    (currentActor as jest.Mock).mockResolvedValueOnce({
+      actorUserId: "u1",
+      impersonatorUserId: "admin-9",
+    });
+    const { recordAudit } = jest.requireMock("@/lib/audit/record");
+
+    const result = await bulkExportReservations({
+      restaurantId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      dateFrom: "2026-01-01",
+      dateTo: "2026-01-31",
+      format: "csv",
+    });
+    expect(result.ok).toBe(true);
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorUserId: "u1",
+        impersonatorUserId: "admin-9",
+      }),
     );
   });
 });

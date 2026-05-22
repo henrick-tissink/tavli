@@ -27,6 +27,7 @@ import { can } from "@/lib/authz/can";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { getActorRole } from "@/lib/audit/actor-role";
+import { currentActor } from "@/lib/auth/current-actor";
 import { csvStringify, type CsvColumn } from "@/lib/csv/stringify";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -229,10 +230,12 @@ export async function bulkExportReservations(
     ? await getActorRole(session, auditRestaurantId)
     : "tavli_admin";
 
+  const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.analytics.export_run,
     subjectType: "reservation_export",
-    actorUserId: session.userId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
     actorRole,
     restaurantId: input.restaurantId ?? null,
     organizationId: input.organizationId ?? restaurantOrganizationId,
