@@ -1,9 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { regenerateRecoveryCodes } from "../actions";
+import type { ActionResult } from "../actions";
 
-export function RecoveryCodesSection({ remaining }: { remaining: number }) {
+export interface RecoveryCodesActions {
+  regenerateRecoveryCodes: () => Promise<ActionResult<{ codes: string[] }>>;
+}
+
+export function RecoveryCodesSection({
+  remaining,
+  actions,
+}: {
+  remaining: number;
+  actions: RecoveryCodesActions;
+}) {
   const [codes, setCodes] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -16,7 +26,7 @@ export function RecoveryCodesSection({ remaining }: { remaining: number }) {
     );
     if (!confirmed) return;
     startTransition(async () => {
-      const result = await regenerateRecoveryCodes();
+      const result = await actions.regenerateRecoveryCodes();
       if (result.ok && result.data) {
         setCodes(result.data.codes);
         setError(null);

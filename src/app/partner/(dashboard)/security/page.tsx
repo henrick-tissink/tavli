@@ -8,6 +8,7 @@ import { TwoFactorSection } from "./_components/TwoFactorSection";
 import { RecoveryCodesSection } from "./_components/RecoveryCodesSection";
 import { PasswordSection } from "./_components/PasswordSection";
 import { SessionsSection } from "./_components/SessionsSection";
+import * as partnerActions from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +38,14 @@ export default async function PartnerSecurityPage() {
           friendlyName: f.friendlyName,
           createdAt: f.createdAt,
         }))}
+        actions={partnerActions}
       />
 
-      {factors.length > 0 && <RecoveryCodesSection remaining={remaining} />}
-      <PasswordSection />
-      <SessionsSection />
+      {factors.length > 0 && (
+        <RecoveryCodesSection remaining={remaining} actions={partnerActions} />
+      )}
+      <PasswordSection actions={partnerActions} />
+      <SessionsSection actions={partnerActions} />
     </div>
   );
 }

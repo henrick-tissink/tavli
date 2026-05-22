@@ -2,11 +2,26 @@
 
 import { useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
-import {
-  startTotpEnrolment,
-  verifyTotpStep,
-  unenrolFactorAction,
-} from "../actions";
+import type { ActionResult } from "../actions";
+
+export interface TwoFactorActions {
+  startTotpEnrolment: () => Promise<
+    ActionResult<{
+      factorId: string;
+      qrCodeSvg: string;
+      uri: string;
+      secret: string;
+    }>
+  >;
+  verifyTotpStep: (
+    prev: ActionResult,
+    formData: FormData,
+  ) => Promise<ActionResult>;
+  unenrolFactorAction: (
+    prev: ActionResult,
+    formData: FormData,
+  ) => Promise<ActionResult>;
+}
 
 function VerifyButton() {
   const { pending } = useFormStatus();
@@ -27,7 +42,13 @@ interface Factor {
   createdAt: string;
 }
 
-export function TwoFactorSection({ factors }: { factors: Factor[] }) {
+export function TwoFactorSection({
+  factors,
+  actions,
+}: {
+  factors: Factor[];
+  actions: TwoFactorActions;
+}) {
   const [enrolment, setEnrolment] = useState<{
     factorId: string;
     qrCodeSvg: string;
@@ -39,7 +60,7 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
 
   function beginEnrol() {
     startTransition(async () => {
-      const result = await startTotpEnrolment();
+      const result = await actions.startTotpEnrolment();
       if (!result.ok || !result.data) {
         setVerifyError(result.error ?? "Could not start enrolment.");
         return;
@@ -55,7 +76,7 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
   async function submitVerify(formData: FormData) {
     if (!enrolment) return;
     formData.set("factor_id", enrolment.factorId);
-    const result = await verifyTotpStep({ ok: false }, formData);
+    const result = await actions.verifyTotpStep({ ok: false }, formData);
     if (!result.ok) {
       setVerifyError(result.error ?? "Incorrect code.");
       return;
@@ -68,7 +89,7 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
     const fd = new FormData();
     fd.set("factor_id", factorId);
     startTransition(async () => {
-      const result = await unenrolFactorAction({ ok: false }, fd);
+      const result = await actions.unenrolFactorAction({ ok: false }, fd);
       if (!result.ok) {
         setUnenrolError(result.error ?? "Could not remove factor.");
       } else {

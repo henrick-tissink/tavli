@@ -1,9 +1,12 @@
 "use client";
 
 import { useTransition } from "react";
-import { signOutEverywhereAction } from "../actions";
 
-export function SessionsSection() {
+export interface SessionsActions {
+  signOutEverywhereAction: () => Promise<void>;
+}
+
+export function SessionsSection({ actions }: { actions: SessionsActions }) {
   const [isPending, startTransition] = useTransition();
 
   function onClick() {
@@ -11,7 +14,7 @@ export function SessionsSection() {
       "Sign out from every device, including this one?",
     );
     if (!confirmed) return;
-    startTransition(() => signOutEverywhereAction());
+    startTransition(() => actions.signOutEverywhereAction());
   }
 
   return (

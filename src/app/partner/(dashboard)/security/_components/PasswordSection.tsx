@@ -1,11 +1,18 @@
 "use client";
 
 import { useActionState } from "react";
-import { changePasswordAction, type ActionResult } from "../actions";
+import type { ActionResult } from "../actions";
 
-export function PasswordSection() {
+export interface PasswordActions {
+  changePasswordAction: (
+    prev: ActionResult,
+    formData: FormData,
+  ) => Promise<ActionResult>;
+}
+
+export function PasswordSection({ actions }: { actions: PasswordActions }) {
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
-    changePasswordAction,
+    actions.changePasswordAction,
     { ok: false },
   );
 
