@@ -938,3 +938,43 @@ export const diners = pgTable(
     ),
   }),
 );
+
+// ─── diner_pii_access_log ───────────────────────────────────────────────
+// §03 §5.5 / §8.1 — One row per unmasked PII read. Written exclusively
+// by the `revealPiiBatch` helper (service-role; no INSERT policy).
+// Org members can SELECT their own org's rows; admins see all.
+export const dinerPiiAccessLog = pgTable(
+  "diner_pii_access_log",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    dinerId: uuid("diner_id")
+      .notNull()
+      .references(() => diners.id, { onDelete: "cascade" }),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    accessedByUserId: uuid("accessed_by_user_id")
+      .notNull()
+      .references(() => authUsers.id),
+    accessedField: varchar("accessed_field", { length: 40 }).notNull(),
+    accessKind: varchar("access_kind", { length: 20 }).notNull(),
+    surface: varchar("surface", { length: 40 }),
+    contextReservationId: uuid("context_reservation_id").references(
+      () => reservations.id,
+      { onDelete: "set null" },
+    ),
+    accessedAt: timestamp("accessed_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    dinerIdx: index("diner_pii_access_log_diner").on(
+      t.dinerId,
+      sql`${t.accessedAt} DESC`,
+    ),
+    actorIdx: index("diner_pii_access_log_actor").on(
+      t.accessedByUserId,
+      sql`${t.accessedAt} DESC`,
+    ),
+  }),
+);
