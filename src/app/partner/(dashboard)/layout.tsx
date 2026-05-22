@@ -6,6 +6,8 @@ import { eventRequests } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { PartnerShell } from "@/components/partner/PartnerShell";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { ImpersonationBanner } from "@/components/banners/ImpersonationBanner";
+import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 
 export const dynamic = "force-dynamic";
 
@@ -47,13 +49,21 @@ export default async function PartnerGatedLayout({
     openEventRequestsCount = openRows.length;
   }
 
+  const impersonationActive =
+    (await readImpersonationReturnCookie()) !== null;
+
   return (
-    <PartnerShell
-      restaurantName={restaurant?.name ?? null}
-      userEmail={session.userEmail}
-      openEventRequestsCount={openEventRequestsCount}
-    >
-      {children}
-    </PartnerShell>
+    <>
+      <ImpersonationBanner />
+      <div className={impersonationActive ? "pt-12" : ""}>
+        <PartnerShell
+          restaurantName={restaurant?.name ?? null}
+          userEmail={session.userEmail}
+          openEventRequestsCount={openEventRequestsCount}
+        >
+          {children}
+        </PartnerShell>
+      </div>
+    </>
   );
 }

@@ -8,6 +8,8 @@ import {
   countUnconsumedRecoveryCodes,
   consumeRecoveryCode,
 } from "@/lib/auth/mfa";
+import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
+import { stopImpersonationSession } from "@/lib/auth/impersonation-session";
 
 export type PartnerSignInResult =
   | { ok: false; error: string }
@@ -143,6 +145,13 @@ export async function signInPartner(
 export async function signOutPartner(): Promise<void> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     redirect("/partner/sign-in");
+  }
+  // If currently impersonating, route through stop so admin's session
+  // is restored (otherwise admin would have a dangling return cookie).
+  const cookie = await readImpersonationReturnCookie();
+  if (cookie) {
+    await stopImpersonationSession();
+    return;
   }
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
