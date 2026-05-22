@@ -47,7 +47,11 @@ export function PasswordSection() {
             className="mt-1 block w-full rounded-button border border-border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </label>
-        {state.error && <p className="text-sm text-error">{state.error}</p>}
+        {state.error && (
+          <p className="text-sm text-error" role="alert">
+            {state.error}
+          </p>
+        )}
         <button
           type="submit"
           disabled={pending}

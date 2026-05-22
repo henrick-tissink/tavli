@@ -75,7 +75,11 @@ export function RecoveryCodesSection({ remaining }: { remaining: number }) {
           {isPending ? "Generating…" : "Generate new codes"}
         </button>
       )}
-      {error && <p className="text-sm text-error">{error}</p>}
+      {error && (
+        <p className="text-sm text-error" role="alert">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

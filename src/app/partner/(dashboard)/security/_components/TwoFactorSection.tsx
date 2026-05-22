@@ -1,11 +1,25 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useFormStatus } from "react-dom";
 import {
   startTotpEnrolment,
   verifyTotpStep,
   unenrolFactorAction,
 } from "../actions";
+
+function VerifyButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
+    >
+      {pending ? "Verifying…" : "Verify and enable"}
+    </button>
+  );
+}
 
 interface Factor {
   id: string;
@@ -94,13 +108,12 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
               className="mt-1 block w-full rounded-button border border-border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </label>
-          {verifyError && <p className="text-sm text-error">{verifyError}</p>}
-          <button
-            type="submit"
-            className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark"
-          >
-            Verify and enable
-          </button>
+          {verifyError && (
+            <p className="text-sm text-error" role="alert">
+              {verifyError}
+            </p>
+          )}
+          <VerifyButton />
         </form>
       </section>
     );
@@ -116,7 +129,11 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
           A second factor on your account means a stolen password isn&apos;t enough
           to sign in. We recommend using an authenticator app on your phone.
         </p>
-        {verifyError && <p className="text-sm text-error">{verifyError}</p>}
+        {verifyError && (
+          <p className="text-sm text-error" role="alert">
+            {verifyError}
+          </p>
+        )}
         <button
           onClick={beginEnrol}
           disabled={isPending}
@@ -158,7 +175,11 @@ export function TwoFactorSection({ factors }: { factors: Factor[] }) {
           </button>
         </div>
       ))}
-      {unenrolError && <p className="text-sm text-error">{unenrolError}</p>}
+      {unenrolError && (
+        <p className="text-sm text-error" role="alert">
+          {unenrolError}
+        </p>
+      )}
     </section>
   );
 }
