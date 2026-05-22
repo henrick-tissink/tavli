@@ -40,6 +40,11 @@ export const JOBS = {
     leadRoutingNudge: "corporate.lead-routing-nudge",
     eventExpiry: "corporate.event-expiry",
   },
+  diner: {
+    recomputeAggregates: "diner.recompute-aggregates",
+    frequencyBucketRebalance: "diner.frequency-bucket-rebalance",
+    purgePseudonymised: "diner.purge-pseudonymised",
+  },
   analytics: {
     weeklySummary: "analytics.weekly-summary",
     refreshCohorts: "analytics.refresh-cohorts",
