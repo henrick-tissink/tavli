@@ -1020,3 +1020,69 @@ export const erasureLog = pgTable(
     createdIdx: index("erasure_log_created").on(sql`${t.createdAt} DESC`),
   }),
 );
+
+// ─── marketing_consents ─────────────────────────────────────────────────
+// foundations §4.7 — Per-(diner, channel) marketing/transactional consent
+// state. Most recent revoked_at wins. Diner cascade-deletes its consents.
+export const marketingConsents = pgTable(
+  "marketing_consents",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    dinerId: uuid("diner_id")
+      .notNull()
+      .references(() => diners.id, { onDelete: "cascade" }),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    channel: varchar("channel", { length: 30 }).notNull(),
+    consentGiven: boolean("consent_given").notNull(),
+    source: varchar("source", { length: 40 }).notNull(),
+    givenAt: timestamp("given_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    context: jsonb("context").notNull().default(sql`'{}'::jsonb`),
+  },
+  (t) => ({
+    dinerChannelIdx: index("marketing_consents_diner_channel").on(
+      t.dinerId,
+      t.channel,
+      sql`${t.givenAt} DESC`,
+    ),
+    channelValidCheck: check(
+      "marketing_consents_channel_valid",
+      sql`${t.channel} IN ('email_marketing', 'sms_marketing', 'sms_transactional', 'email_transactional')`,
+    ),
+  }),
+);
+
+// ─── marketing_suppressions ─────────────────────────────────────────────
+// foundations §4.7 — Suppression list. Bounced emails, complained, STOP'd
+// SMS, manual unsubscribes. organization_id NULL = global suppression.
+// Case-insensitive unique on (channel, lower(identifier)).
+export const marketingSuppressions = pgTable(
+  "marketing_suppressions",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    channel: varchar("channel", { length: 20 }).notNull(),
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    source: varchar("source", { length: 40 }).notNull(),
+    reason: text("reason"),
+    organizationId: uuid("organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    channelIdUnique: uniqueIndex(
+      "marketing_suppressions_channel_id_unique",
+    ).on(t.channel, sql`lower(${t.identifier})`),
+    channelValidCheck: check(
+      "marketing_suppressions_channel_valid",
+      sql`${t.channel} IN ('email', 'sms')`,
+    ),
+  }),
+);

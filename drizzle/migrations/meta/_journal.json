@@ -176,6 +176,13 @@
       "when": 1779480423700,
       "tag": "0024_erasure_log",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1779480498118,
+      "tag": "0025_marketing_consents_suppressions",
+      "breakpoints": true
     }
   ]
 }
