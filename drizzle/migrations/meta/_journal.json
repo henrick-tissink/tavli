@@ -169,6 +169,13 @@
       "when": 1779480065231,
       "tag": "0023_diner_pii_access_log",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1779480423700,
+      "tag": "0024_erasure_log",
+      "breakpoints": true
     }
   ]
 }

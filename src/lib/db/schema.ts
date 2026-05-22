@@ -978,3 +978,45 @@ export const dinerPiiAccessLog = pgTable(
     ),
   }),
 );
+
+// ─── erasure_log ────────────────────────────────────────────────────────
+// foundations §15a.1 — Append-only GDPR erasure log. One row per
+// pseudonymisation / DSAR erasure / auto-purge run. Service-role writes
+// only (no INSERT/UPDATE/DELETE policies); admins read all rows, org
+// owners read their org's rows.
+export const erasureLog = pgTable(
+  "erasure_log",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    subjectType: varchar("subject_type", { length: 40 }).notNull(),
+    subjectId: uuid("subject_id").notNull(),
+    organizationId: uuid("organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
+    reason: varchar("reason", { length: 80 }).notNull(),
+    redactedColumns: text("redacted_columns")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    actorUserId: uuid("actor_user_id").references(() => authUsers.id, {
+      onDelete: "set null",
+    }),
+    impersonatorUserId: uuid("impersonator_user_id").references(
+      () => authUsers.id,
+      { onDelete: "set null" },
+    ),
+    context: jsonb("context").notNull().default(sql`'{}'::jsonb`),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    subjectIdx: index("erasure_log_subject").on(t.subjectType, t.subjectId),
+    actorIdx: index("erasure_log_actor").on(
+      t.actorUserId,
+      sql`${t.createdAt} DESC`,
+    ),
+    createdIdx: index("erasure_log_created").on(sql`${t.createdAt} DESC`),
+  }),
+);
