@@ -260,6 +260,13 @@
       "when": 1748390400000,
       "tag": "0036_table_management_rls_venue_staff",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1748476800000,
+      "tag": "0037_translations",
+      "breakpoints": true
     }
   ]
 }

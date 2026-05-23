@@ -1480,3 +1480,119 @@ export const walkinQueue = pgTable(
     activeIdx: index("walkin_queue_active").on(t.restaurantId, t.position).where(sql`${t.status} IN ('waiting', 'called')`),
   }),
 );
+
+// ─── §05 Translation tables ──────────────────────────────────────────────
+
+// ─── restaurant_translations ─────────────────────────────────────────────
+// §05 §3.1 — Per-locale textual fields for restaurant pages. Composite PK
+// (restaurant_id, locale). Falls back to 'ro' per §4.3 if required fields
+// are missing in the requested locale.
+export const restaurantTranslations = pgTable(
+  "restaurant_translations",
+  {
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    locale: char("locale", { length: 2 }).notNull(),
+    name: varchar("name", { length: 200 }),
+    tagline: varchar("tagline", { length: 300 }),
+    descriptionShort: text("description_short"),
+    descriptionLong: text("description_long"),
+    heroSubtitle: varchar("hero_subtitle", { length: 200 }),
+    chefBio: text("chef_bio"),
+    ambience: text("ambience"),
+    dressCode: text("dress_code"),
+    parkingNote: text("parking_note"),
+    metaTitle: varchar("meta_title", { length: 200 }),
+    metaDescription: varchar("meta_description", { length: 300 }),
+    ogTitle: varchar("og_title", { length: 200 }),
+    ogDescription: varchar("og_description", { length: 300 }),
+    authoredByUserId: uuid("authored_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedByUserId: uuid("reviewed_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.restaurantId, t.locale] }),
+    index("restaurant_translations_reviewed").on(t.restaurantId, t.locale).where(sql`${t.reviewedAt} IS NOT NULL`),
+  ],
+);
+
+// ─── menu_translations ───────────────────────────────────────────────────
+// §05 §3.1 — Per-locale menu-level text (e.g. hero_note). Composite PK
+// (restaurant_id, locale).
+export const menuTranslations = pgTable(
+  "menu_translations",
+  {
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    locale: char("locale", { length: 2 }).notNull(),
+    heroNote: text("hero_note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.restaurantId, t.locale] }),
+  ],
+);
+
+// ─── menu_section_translations ───────────────────────────────────────────
+// §05 §3.2 — Per-locale section name + intro. Composite PK (section_id, locale).
+export const menuSectionTranslations = pgTable(
+  "menu_section_translations",
+  {
+    sectionId: uuid("section_id")
+      .notNull()
+      .references(() => menuSections.id, { onDelete: "cascade" }),
+    locale: char("locale", { length: 2 }).notNull(),
+    name: varchar("name", { length: 200 }),
+    intro: text("intro"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.sectionId, t.locale] }),
+  ],
+);
+
+// ─── menu_item_translations ──────────────────────────────────────────────
+// §05 §3.2 — Per-locale item name, description, and photo alt-text.
+// Composite PK (item_id, locale).
+export const menuItemTranslations = pgTable(
+  "menu_item_translations",
+  {
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => menuItems.id, { onDelete: "cascade" }),
+    locale: char("locale", { length: 2 }).notNull(),
+    name: varchar("name", { length: 200 }),
+    description: text("description"),
+    altText: varchar("alt_text", { length: 300 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.itemId, t.locale] }),
+  ],
+);
+
+// ─── restaurant_photo_translations ──────────────────────────────────────
+// §05 §3.3 — Per-locale alt-text for restaurant photos. Composite PK
+// (photo_id, locale). alt_text NOT NULL — every inserted row must carry copy.
+export const restaurantPhotoTranslations = pgTable(
+  "restaurant_photo_translations",
+  {
+    photoId: uuid("photo_id")
+      .notNull()
+      .references(() => restaurantPhotos.id, { onDelete: "cascade" }),
+    locale: char("locale", { length: 2 }).notNull(),
+    altText: varchar("alt_text", { length: 300 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.photoId, t.locale] }),
+  ],
+);
