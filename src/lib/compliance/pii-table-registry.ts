@@ -13,8 +13,11 @@
  */
 
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { sql } from "drizzle-orm";
 import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
 import { handleMarketingConsents } from "./handlers/marketing-consents";
+import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notifications-phase1";
+import { partnerNotifications } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -69,6 +72,21 @@ async function verifyMarketingSuppressionsRedacted(_deps: VerifyDeps): Promise<V
   return { tableName: "marketing_suppressions", rowsScanned: 0, rowsWithResidualPii: 0, residualRowIds: [] };
 }
 
+async function verifyPartnerNotificationsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: partnerNotifications.id })
+    .from(partnerNotifications)
+    .where(sql`${partnerNotifications.redactedAt} IS NOT NULL
+            AND COALESCE(${partnerNotifications.payload}->>'erased', 'false') != 'true'`)
+    .limit(100);
+  return {
+    tableName: "partner_notifications",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -86,6 +104,15 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyMarketingConsentsRedacted,
     twoPhase: false,
     piiColumns: [],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "partner_notifications",
+    shipped: true,
+    handler: handlePartnerNotificationsPhase1,
+    verificationQuery: verifyPartnerNotificationsRedacted,
+    twoPhase: true,
+    piiColumns: ["payload"],
     defaultReason: "gdpr_art_17",
   },
 ];
