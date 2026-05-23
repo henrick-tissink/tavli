@@ -108,6 +108,13 @@ describe("addVenueToOrg", () => {
     expect(d.db.transaction).not.toHaveBeenCalled();
   });
 
+  it("rejects with TV701 when the org has no active subscription (null)", async () => {
+    const d = deps({ deps: { loadActiveSubscription: jest.fn().mockResolvedValue(null) } });
+    const actions = makeVenueActions(d);
+    await expect(actions.addVenueToOrg(ADD_INPUT)).rejects.toThrow(/TV701/);
+    expect(d.db.transaction).not.toHaveBeenCalled();
+  });
+
   it("rejects with TV702 when max_venues cap is reached", async () => {
     const d = deps({ selectQueue: [[{ maxVenues: 2, currentVenueCount: 2 }]] });
     const actions = makeVenueActions(d);

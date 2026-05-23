@@ -13,16 +13,16 @@ import { getCurrentSession as defaultGetCurrentSession } from "@/lib/auth/sessio
 import { recordAudit as defaultRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { billingHooks as defaultBillingHooks } from "@/lib/billing/venue-hooks";
-import { loadActiveSubscription as stubLoadActiveSubscription } from "@/lib/billing/subscription-stub";
+import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 
 export interface VenueActionsDeps {
   db: typeof dbAdmin;
   can: typeof defaultCan;
   getCurrentSession: typeof defaultGetCurrentSession;
   recordAudit: typeof defaultRecordAudit;
-  // Injected so tests can simulate a 'pro' org while the live stub returns
-  // 'base' for every org until Wave 5 sub-unit B swaps in the real helper.
-  loadActiveSubscription: (orgId: string) => Promise<{ tier: "base" | "pro" }>;
+  // §12 §3.5 helper returns ActiveSubscriptionState | null; the action only
+  // needs the tier. null (no active subscription) is treated as base.
+  loadActiveSubscription: (orgId: string) => Promise<{ tier: "base" | "pro" } | null>;
   billingHooks: typeof defaultBillingHooks;
 }
 
@@ -51,11 +51,10 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     });
     if (!allowed) throw new Error("forbidden: org.add_venue");
 
-    // Tier gate (§09 §5.1 step 3). NOTE: the live loadActiveSubscription
-    // stub returns 'base' for every org until W5-B, so this blocks real
-    // multi-venue adds until then; tests inject a 'pro' fake.
+    // Tier gate (§09 §5.1 step 3). null (no active subscription) → base → reject.
+    // Base is single-venue only; multi-venue requires Pro.
     const sub = await deps.loadActiveSubscription(input.organizationId);
-    if (sub.tier === "base") {
+    if ((sub?.tier ?? "base") === "base") {
       throw new Error(`TV701 multi_venue_upgrade_required: ${input.organizationId}`);
     }
 
@@ -251,7 +250,7 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     if (!allowed) throw new Error("forbidden: org.add_venue");
 
     const sub = await deps.loadActiveSubscription(orgId);
-    if (sub.tier === "base") {
+    if ((sub?.tier ?? "base") === "base") {
       throw new Error(`TV701 multi_venue_upgrade_required: ${orgId}`);
     }
 
@@ -323,7 +322,6 @@ export const venueActions = makeVenueActions({
   can: defaultCan,
   getCurrentSession: defaultGetCurrentSession,
   recordAudit: defaultRecordAudit,
-  // src/lib/billing/subscription-stub.ts (replaced by the real helper in W5-B).
-  loadActiveSubscription: stubLoadActiveSubscription,
+  loadActiveSubscription,
   billingHooks: defaultBillingHooks,
 });

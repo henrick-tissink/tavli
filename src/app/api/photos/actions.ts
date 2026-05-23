@@ -6,7 +6,7 @@ import { PHOTO_BUCKET } from "@/lib/storage";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { stripExif } from "@/lib/photos/strip-exif";
-import { loadActiveSubscription } from "@/lib/billing/subscription-stub";
+import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 
 export interface UploadResult {
   ok: boolean;
@@ -77,7 +77,7 @@ export async function uploadRestaurantPhoto(
 
   // Enforce per-restaurant photo cap (tier-aware). §05 §3.5.
   const subscription = await loadActiveSubscription(restaurantRow.organization_id);
-  const isProActive = subscription.tier === "pro";
+  const isProActive = subscription?.tier === "pro";
   const PHOTO_CAP_BASE = 20;
 
   if (!isProActive) {
