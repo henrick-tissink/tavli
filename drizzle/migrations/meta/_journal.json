@@ -218,6 +218,13 @@
       "when": 1779531600000,
       "tag": "0030_redacted_at_columns_backfill",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1779532800000,
+      "tag": "0031_partner_notifications_pending_erasure_request_id",
+      "breakpoints": true
     }
   ]
 }

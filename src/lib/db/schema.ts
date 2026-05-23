@@ -594,11 +594,15 @@ export const partnerNotifications = pgTable("partner_notifications", {
   readAt: timestamp("read_at", { withTimezone: true }),
   pendingErasureAt: timestamp("pending_erasure_at", { withTimezone: true }),
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
+  pendingErasureRequestId: uuid("pending_erasure_request_id").references(() => dataSubjectRequests.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("partner_notifications_restaurant_unread_idx")
     .on(t.restaurantId, t.createdAt.desc())
     .where(sql`${t.readAt} IS NULL`),
+  index("partner_notifications_pending_erasure_request_idx")
+    .on(t.pendingErasureRequestId)
+    .where(sql`${t.pendingErasureRequestId} IS NOT NULL`),
 ]);
 
 // ─── restaurant_private_spaces ──────────────────────────────────────────
