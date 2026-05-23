@@ -60,6 +60,12 @@ create table data_subject_requests (
 
   legal_deadline_at timestamptz not null,
 
+  -- Approval (recorded when an admin transitions status from 'received' → 'in_progress';
+  -- this is the actor the orchestrator job propagates into pseudonymiseDiner +
+  -- per-handler audit threading).
+  approved_by_user_id uuid references auth.users(id) on delete set null,
+  approved_at timestamptz,
+
   deadline_extension_days smallint not null default 0,
   deadline_extension_reason text,
   deadline_extended_by_user_id uuid references auth.users(id) on delete set null,
@@ -84,14 +90,23 @@ create index data_subject_requests_diner on data_subject_requests (diner_id) whe
 
 **RLS:** service-role writes only (no INSERT/UPDATE/DELETE policy for authenticated). Read policy: Tavli admins (`profiles.role = 'tavli_admin'`) only. Diner-self-read is deferred until in-product intake ships.
 
-### 2.2 Migration 0030 — `audit_logs.redacted_at`
+### 2.2 Migration 0030 — `redacted_at` columns on `audit_logs` + `reservations` + `reviews`
+
+Foundations §15a.1 ("every PII-bearing table has a `redacted_at timestamptz` column") was partially honoured by Wave 3 — `diners`, `partner_notifications`, and `transactional_email_log` got the column, but `reservations` and `reviews` did not. The current `pseudonymiseDiner` mutates `guest_*`/`first_name` placeholders on those tables without leaving a per-row redaction marker, so the verification sweep has no way to confirm post-fact that a given row was redacted. This unit closes the gap:
 
 ```sql
-alter table audit_logs add column redacted_at timestamptz null;
-create index audit_logs_redacted_at_idx on audit_logs (redacted_at) where redacted_at is not null;
+alter table audit_logs    add column redacted_at timestamptz null;
+alter table reservations  add column redacted_at timestamptz null;
+alter table reviews       add column redacted_at timestamptz null;
+
+create index audit_logs_redacted_at_idx   on audit_logs   (redacted_at) where redacted_at is not null;
+create index reservations_redacted_at_idx on reservations (redacted_at) where redacted_at is not null;
+create index reviews_redacted_at_idx      on reviews      (redacted_at) where redacted_at is not null;
 ```
 
-No backfill. Default null means "not yet redacted". The `audit_logs` cascade handler sets this column when it overwrites `context` per §13 §6.3 step (i).
+No backfill. Default null means "not yet redacted". As part of this unit, `src/lib/diners/pseudonymise.ts` is extended to set `redacted_at = now()` on the `reservations` and `reviews` rows it touches (one-line addition per cascade UPDATE — backward-compatible with all existing call sites).
+
+The `audit_logs` cascade handler sets `redacted_at` when it overwrites `context` per §13 §6.3 step (i).
 
 ### 2.3 Migration 0031 — `partner_notifications.pending_erasure_request_id`
 
@@ -135,6 +150,16 @@ export type HandlerDeps = {
     phone: string | null;
     email: string | null;
   }>;
+  // Actor identity propagated from the DSR row at job-start time. Used by
+  // pseudonymiseDiner + recordAudit so the per-handler audit + erasure_log
+  // entries thread back to the admin who clicked "Approve erasure". pg-boss
+  // does not preserve session-time impersonator state across enqueue/dequeue,
+  // so impersonatorUserId is captured at approve-time and stored on the DSR
+  // row (in v1 always undefined — admins approving erasures while impersonating
+  // is treated as an edge case to revisit).
+  actorUserId: string;
+  impersonatorUserId: string | undefined;
+  actorRole: 'tavli_admin';
 };
 
 export type HandlerResult = {
@@ -259,9 +284,20 @@ Idempotent: re-run targets only rows where `pending_erasure_at IS NULL`.
 
 ### 4.4 `handleDiners` (wraps `pseudonymiseDiner`)
 
-For each `dinerId` in `dinerIds`, calls Wave 3's `pseudonymiseDiner(dinerId, { reason: 'gdpr_erasure', dsrId })`. That function already cascades to reservations + reviews + transactional_email_log and writes `erasure_log` rows; this handler just iterates and aggregates the row counts.
+For each `dinerId` in `dinerIds`, calls Wave 3's `pseudonymiseDiner({ dinerId, reason: \`gdpr_erasure_dsr_${dsrId}\`, actorUserId: dsr.approved_by_user_id, impersonatorUserId: undefined, actorRole: 'tavli_admin' })`. The orchestrator job runs async via pg-boss; the actor identity comes from the `approved_by_user_id` column captured at approve-time (not `identity_verified_by_user_id` — those may be different admins; the approver is the one who triggered the cascade). pg-boss does not preserve the impersonator chain across enqueue → dequeue, so `impersonatorUserId` is undefined at orchestrator-run time (an admin who approves an erasure while impersonating a venue owner is an extreme edge case; the approve audit row captures the impersonation chain at the moment of approval).
 
-Idempotent: `pseudonymiseDiner` checks `diners.anonymised_at IS NULL` before redacting.
+`pseudonymiseDiner` already cascades to reservations + reviews + transactional_email_log, writes ONE `erasure_log` row per diner (`subject_type='diner'`), and writes two audit rows (`diner.pseudonymised` + `compliance.erasure_executed`). This handler is the seam: it iterates `dinerIds` and aggregates `pseudonymiseDiner`'s effective row counts.
+
+**Per-diner `compliance.erasure_executed` audit rows are deliberately preserved** — they are the per-subject ledger entry. The orchestrator writes a separate `compliance.dsr_cascade_executed` row at the DSR level (§5.1 step 6) that aggregates across all diners. Two layers of audit, both valuable.
+
+This unit makes two backward-compatible extensions to `pseudonymiseDiner`:
+
+1. **Idempotency guard** — the function currently re-runs unconditionally on the same diner (Wave 3 callers only invoke it once per diner so the gap wasn't load-bearing). Add a `SELECT redacted_at FROM diners WHERE id = $dinerId FOR UPDATE` at the top of the transaction; if non-null, return early without writing audit, erasure_log, or cascade rows. The orchestrator handler can then call `pseudonymiseDiner` unconditionally and trust the function not to double-stamp.
+2. **Cascade redacted_at writes** — also set `redacted_at = now()` on the cascade UPDATEs to `reservations` and `reviews` (per migration 0030). One-line addition to each existing `.set({...})` call.
+
+Both changes are localised to `src/lib/diners/pseudonymise.ts` and add to the existing `__tests__/pseudonymise.test.ts` (a new idempotency test asserting the second call is a no-op).
+
+Handler-level idempotency: `handleDiners` aggregates only diners that were actually mutated (early-return path returns `{ skipped: true }` which the handler counts as zero rows).
 
 ### 4.5 `handleAuditLogs`
 
@@ -305,12 +341,12 @@ Writes a second `erasure_log` row per affected notification (`phase = 2`). Note:
 
 ### 5.1 Flow
 
-1. Load DSR row by id. Assert `status = 'in_progress'` (else throw TV1101) and `identity_verified = true` (else throw TV1102).
+1. Load DSR row by id. Assert `status = 'in_progress'` (else throw TV1101) and `identity_verified = true` (else throw TV1102) and `approved_by_user_id IS NOT NULL` (else throw TV1102; should be impossible given the action transitions both atomically, but the assertion documents the invariant). Extract `actorUserId = dsr.approved_by_user_id`.
 2. Resolve diner ids: start with `data_subject_requests.diner_id` (if set), then add any `diners.id` whose `phone = identifier_phone OR email = identifier_email` (cross-org). For each resolved diner, capture pre-redaction `(diner_id, phone, email)` into `capturedIdentifiers`.
-3. Iterate `PII_TABLE_REGISTRY` in order. For each entry with `shipped: true && handler !== null`, await `handler({ db, dsrId, dinerIds, capturedIdentifiers })`. Skip stubs and coveredBy entries. Accumulate results into a summary array.
+3. Iterate `PII_TABLE_REGISTRY` in order. For each entry with `shipped: true && handler !== null`, await `handler({ db, dsrId, dinerIds, capturedIdentifiers, actorUserId, impersonatorUserId: undefined, actorRole: 'tavli_admin' })`. Skip stubs and coveredBy entries. Accumulate results into a summary array.
 4. Enqueue `JOBS.compliance.erasurePartnerNotificationsPhase2(requestId)` with `startAfter: '5 minutes'`.
 5. `UPDATE data_subject_requests SET status = 'completed', completed_at = now(), updated_at = now() WHERE id = $dsrId`.
-6. Call `recordAudit({ action: AUDIT.compliance.erasure_executed, subjectType: 'data_subject_request', subjectId: dsrId, context: { dinerIds, summary, capturedIdentifierCount: capturedIdentifiers.length } })`.
+6. Call `recordAudit({ action: AUDIT.compliance.dsr_cascade_executed, subjectType: 'data_subject_request', subjectId: dsrId, actorUserId: dsr.approved_by_user_id, actorRole: 'tavli_admin', context: { dinerIds, summary, capturedIdentifierCount: capturedIdentifiers.length } })`. The DSR-level cascade rollup is distinct from `pseudonymiseDiner`'s per-diner `compliance.erasure_executed` rows — both ledger layers are preserved for audit defensibility.
 7. For each resolved `dinerId`, enqueue `JOBS.diner.purgePseudonymised(dinerId)` with `startAfter: '30 days'`. (The handler itself was shipped by Wave 3; this unit also registers it at worker bootstrap — closes the Wave 3 deferred follow-up.)
 8. If any captured identifier has a non-null `email`, call `sendTransactionalEmail({ to: email, template: 'data_deletion_confirmed', locale: resolveDinerLocale(dinerId) ?? 'ro', params: { dsrId, completedAt: now } })` once per unique email. Failures here do NOT roll back the cascade; they log to `transactional_email_log` per Wave 3's substrate.
 
@@ -318,7 +354,7 @@ Writes a second `erasure_log` row per affected notification (`phase = 2`). Note:
 
 Any handler exception bubbles up to pg-boss. pg-boss retries 3× with exponential backoff (default Wave 3 retry policy). After 3 failures:
 - DSR remains in `status = 'in_progress'` (no auto-rollback — partial cascade state is the truth).
-- `recordAudit({ action: AUDIT.compliance.erasure_failed, … })` with the error.
+- `recordAudit({ action: AUDIT.compliance.dsr_cascade_failed, … })` with the error.
 - Sentry alert at `level: 'error'` with `dsrId`, the failing handler's `tableName`, the error message.
 - The `/admin/gdpr-requests/[id]` detail page surfaces the failure state with a "Retry" button that re-enqueues the orchestrator job.
 
@@ -374,7 +410,7 @@ Each query returns up to 100 sample ids for the Sentry payload + a full count of
 | `createDsr(input)` | `can:gdpr.create_dsr` | Validates `request_kind ∈ {access,rectification,erasure,portability,restrict_processing,object}` and `request_source ∈ {in_product,email,postal,verbal}`. Computes `legal_deadline_at = now + interval '30 days'`. INSERTs. `recordAudit(AUDIT.compliance.dsr_created)`. Returns DSR id. |
 | `resolveDinerForDsr({ dsrId, diner_ids[] })` | `can:gdpr.resolve_diner` | Sets `data_subject_requests.diner_id = diner_ids[0]` (primary). The cascade re-resolves cross-org at run time via phone/email match, so the primary is a UI affordance. `recordAudit(AUDIT.compliance.dsr_resolved)`. |
 | `verifyDsrIdentity({ dsrId, method, reason })` | `can:gdpr.verify_identity` | Validates `method = 'tavli_admin_manual'` (only v1 value). `reason` is mandatory free text. UPDATE: sets `identity_verified = true`, `identity_verification_method`, `identity_verified_at = now`, `identity_verified_by_user_id = currentUserId`. `recordAudit(AUDIT.compliance.dsr_identity_verified, context: { reason })`. |
-| `approveDsrErasure({ dsrId })` | `can:gdpr.approve_erasure` | Asserts `identity_verified = true` (else TV1102) and `status = 'received'` (else TV1101) and `request_kind = 'erasure'` (else throw). UPDATE: `status = 'in_progress'`. Enqueues `JOBS.compliance.erasureExecute(dsrId)`. `recordAudit(AUDIT.compliance.dsr_approved)`. |
+| `approveDsrErasure({ dsrId })` | `can:gdpr.approve_erasure` | Asserts `identity_verified = true` (else TV1102) and `status = 'received'` (else TV1101) and `request_kind = 'erasure'` (else throw). UPDATE: `status = 'in_progress'`, `approved_by_user_id = currentUserId`, `approved_at = now()`. Enqueues `JOBS.compliance.erasureExecute({ requestId: dsrId })`. `recordAudit(AUDIT.compliance.dsr_approved)`. |
 | `rejectDsr({ dsrId, reason })` | `can:gdpr.reject` | Asserts `status IN ('received', 'in_progress')`. UPDATE: `status = 'rejected'`, `rejection_reason = reason`. `recordAudit(AUDIT.compliance.dsr_rejected)`. |
 | `extendDsrDeadline({ dsrId, days, reason })` | `can:gdpr.extend_deadline` | Validates `days ∈ [1, 14]` (else TV1106) and `reason` is non-empty (else TV1107). Enforced also by CHECK constraint. UPDATE: bumps `legal_deadline_at += days`, records `deadline_extension_days`, reason, extended_by, extended_at. `recordAudit(AUDIT.compliance.dsr_extended)`. |
 
@@ -393,10 +429,12 @@ Add to `src/lib/audit/actions.ts`:
 - `AUDIT.compliance.dsr_approved`
 - `AUDIT.compliance.dsr_rejected`
 - `AUDIT.compliance.dsr_extended`
-- `AUDIT.compliance.erasure_executed`
-- `AUDIT.compliance.erasure_failed`
+- `AUDIT.compliance.dsr_cascade_executed`   (NEW — orchestrator-level rollup; distinct from the existing `compliance.erasure_executed` written per-diner by `pseudonymiseDiner`)
+- `AUDIT.compliance.dsr_cascade_failed`
 - `AUDIT.compliance.erasure_verification_passed`
 - `AUDIT.compliance.erasure_verification_failed`
+
+`AUDIT.compliance.erasure_executed` already exists in `src/lib/audit/actions.ts` (Wave 3 added it for `pseudonymiseDiner`) and stays untouched.
 
 ---
 
@@ -452,19 +490,22 @@ Email send failure does NOT roll back the cascade. The `transactional_email_log`
 
 ## 10. pg-boss wiring
 
-### 10.1 New job keys (in `src/lib/jobs/keys.ts`)
+### 10.1 Pre-declared vs new job keys (in `src/lib/jobs/keys.ts`)
+
+`JOBS.compliance.erasureExecute` and `JOBS.compliance.erasureVerify` are **already pre-declared** in `keys.ts` per the foundations §16.3 convention — this unit does NOT re-add them; it ships their handlers. Pre-declared but out of scope for this unit (sibling units / future Waves): `retentionPurge`, `dsarExport`, `fullOrgExport`, `autoRejectUnverified`, `flagOverdueRequests`, `purgeRateLimits`, `purgeCookieConsents`, `gdprOtpVerify`, `retryAuthDeletion`.
+
+This unit **adds one new key**:
 
 ```ts
-JOBS.compliance.erasureExecute                         // payload: { requestId: string }
-JOBS.compliance.erasurePartnerNotificationsPhase2      // payload: { requestId: string }
-JOBS.compliance.erasureVerify                          // payload: {}
+JOBS.compliance.erasurePartnerNotificationsPhase2: "compliance.erasure-partner-notifications-phase-2"
+//   payload: { requestId: string }
 ```
 
 ### 10.2 Handlers + bootstrap registration
 
-- `src/lib/jobs/handlers/compliance.ts` — three exported handler functions wrapping the work in §5 / §4.6 / §6.
+- `src/lib/jobs/handlers/compliance.ts` — three exported handler functions wrapping the work in §5 / §4.6 / §6 — bound to `JOBS.compliance.erasureExecute`, `JOBS.compliance.erasurePartnerNotificationsPhase2`, `JOBS.compliance.erasureVerify` respectively.
 - `src/lib/jobs/bootstrap.ts` — registers each via `boss.work()`, plus `boss.schedule(JOBS.compliance.erasureVerify, '0 3 * * *')` for the nightly sweep.
-- Also registers the Wave-3-shipped `JOBS.diner.purgePseudonymised` handler (closes Wave 3's deferred follow-up).
+- Also registers the Wave-3-shipped `JOBS.diner.purgePseudonymised` handler at bootstrap (closes Wave 3's deferred follow-up flagged in the handoff).
 
 ---
 
@@ -524,7 +565,7 @@ Each handler in `src/lib/compliance/handlers/<table>.ts` ships with `__tests__/<
 2. Create + verify + approve a DSR.
 3. Run the orchestrator job synchronously (no pg-boss queue — direct handler call).
 4. Run the partner_notifications phase 2 handler.
-5. Assert: every PII column on every shipped table is null OR the JSONB `context` carries `{erased: true}`. The `erasure_log` table has rows for every redacted row. The DSR is `completed`. The diner has `anonymised_at` set. `JOBS.diner.purgePseudonymised` is queued with `startAfter` ≥ now + 29 days.
+5. Assert: every PII column on every shipped table is null OR the JSONB `context` carries `{erased: true}` — `reservations.guest_name = 'Redacted'`, `reservations.guest_phone = 'REDACTED'`, `reviews.first_name = 'Redacted'` (these tables have NOT NULL columns; placeholder writes per `pseudonymise.ts` §3 are the v1 fallback). The `redacted_at` column is non-null on every cascaded row. The `erasure_log` table has one row per redacted subject. The DSR is `completed`. The diner has `redacted_at` set. `JOBS.diner.purgePseudonymised` is queued with `startAfter` ≥ now + 29 days.
 
 ---
 
@@ -534,7 +575,7 @@ Each handler in `src/lib/compliance/handlers/<table>.ts` ships with `__tests__/<
 
 ```
 drizzle/migrations/0029_data_subject_requests.sql
-drizzle/migrations/0030_audit_logs_redacted_at.sql
+drizzle/migrations/0030_redacted_at_columns_backfill.sql
 drizzle/migrations/0031_partner_notifications_pending_erasure_request_id.sql
 
 src/lib/compliance/pii-table-registry.ts
