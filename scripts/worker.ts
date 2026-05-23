@@ -98,11 +98,11 @@ async function main(): Promise<void> {
   await boss.schedule(JOBS.compliance.purgeCookieConsents, "30 5 * * *");
 
   // Wave 5 sub-unit A: §09 nightly venue-count reconcile (drift backstop).
-  await boss.work(JOBS.multiLocation.reconcileVenueCount, async () => {
+  await boss.work(JOBS.multilocation.reconcileVenueCount, async () => {
     await reconcileVenueCount();
   });
 
-  await boss.schedule(JOBS.multiLocation.reconcileVenueCount, "0 2 * * *");
+  await boss.schedule(JOBS.multilocation.reconcileVenueCount, "0 2 * * *");
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
