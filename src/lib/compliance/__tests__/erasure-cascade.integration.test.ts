@@ -113,9 +113,6 @@ const handleErasureExecuteTest = makeHandleErasureExecute({
   enqueuePhase2: async () => {
     // no-op — phase 2 called directly in the test
   },
-  enqueuePurge: async () => {
-    // no-op — purge not tested here
-  },
   recordAudit: async () => {
     // no-op — avoid recordAudit's server-only / dbAdmin side-effects in test
   },

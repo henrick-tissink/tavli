@@ -46,7 +46,6 @@ describe("handleErasureExecute", () => {
       registry: [],
       updateDsrCompleted: jest.fn().mockResolvedValue(undefined),
       enqueuePhase2: jest.fn().mockResolvedValue(undefined),
-      enqueuePurge: jest.fn().mockResolvedValue(undefined),
       recordAudit: jest.fn().mockResolvedValue(undefined),
       sendEmail: jest.fn().mockResolvedValue(undefined),
       resolveDinerLocale: jest.fn().mockResolvedValue("ro"),
@@ -54,10 +53,17 @@ describe("handleErasureExecute", () => {
     };
   }
 
-  it("loads dsr, resolves diners, iterates registry, marks completed, sends email", async () => {
-    const handler1 = jest.fn().mockResolvedValue({ tableName: "marketing_suppressions", rowsRedacted: 1, skipped: false });
+  it("loads dsr, resolves diners, sends email first, iterates registry, enqueues phase2 before completing, records audit", async () => {
+    const callOrder: string[] = [];
+    const handler1 = jest.fn().mockImplementation(async () => {
+      callOrder.push("handler");
+      return { tableName: "marketing_suppressions", rowsRedacted: 1, skipped: false };
+    });
     const deps = makeDeps({
       registry: [{ tableName: "marketing_suppressions", shipped: true, handler: handler1, verificationQuery: null, twoPhase: false, piiColumns: [], defaultReason: "gdpr_art_17" }],
+      sendEmail: jest.fn().mockImplementation(async () => { callOrder.push("email"); }),
+      enqueuePhase2: jest.fn().mockImplementation(async () => { callOrder.push("enqueuePhase2"); }),
+      updateDsrCompleted: jest.fn().mockImplementation(async () => { callOrder.push("updateDsrCompleted"); }),
     });
     const subject = makeHandleErasureExecute(deps);
 
@@ -65,11 +71,32 @@ describe("handleErasureExecute", () => {
 
     expect(deps.loadDsr).toHaveBeenCalledWith(fakeDsr.id);
     expect(handler1).toHaveBeenCalled();
+    // #5: email sent before handler iteration
+    expect(callOrder.indexOf("email")).toBeLessThan(callOrder.indexOf("handler"));
+    // #6: enqueuePhase2 called before updateDsrCompleted
+    expect(callOrder.indexOf("enqueuePhase2")).toBeLessThan(callOrder.indexOf("updateDsrCompleted"));
     expect(deps.enqueuePhase2).toHaveBeenCalledWith({ requestId: fakeDsr.id });
     expect(deps.updateDsrCompleted).toHaveBeenCalled();
-    expect(deps.enqueuePurge).toHaveBeenCalledWith({ dinerId: "d1" });
+    // #8: enqueuePurge is gone — no such dep on the object
+    expect((deps as any).enqueuePurge).toBeUndefined();
     expect(deps.recordAudit).toHaveBeenCalledWith(expect.objectContaining({ action: "compliance.dsr_cascade_executed" }));
     expect(deps.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "alice@example.ro", locale: "ro" }));
+  });
+
+  it("sends confirmation email BEFORE handler iteration (so handler cascades catch the new log row)", async () => {
+    const callOrder: string[] = [];
+    const handler1 = jest.fn().mockImplementation(async () => {
+      callOrder.push("handler");
+      return { tableName: "diners", rowsRedacted: 1, skipped: false };
+    });
+    const sendEmail = jest.fn().mockImplementation(async () => { callOrder.push("email"); });
+    const deps = makeDeps({
+      registry: [{ tableName: "diners", shipped: true, handler: handler1, verificationQuery: null, twoPhase: false, piiColumns: [], defaultReason: "gdpr_art_17" }],
+      sendEmail,
+    });
+    const subject = makeHandleErasureExecute(deps);
+    await subject({ requestId: fakeDsr.id });
+    expect(callOrder).toEqual(["email", "handler"]);
   });
 
   it("throws TV1105 when DSR status is not in_progress", async () => {

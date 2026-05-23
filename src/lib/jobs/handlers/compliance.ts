@@ -2,9 +2,10 @@
  * compliance job handlers — orchestrator + phase-2 wrapper + verify sweep entrypoint.
  *
  * - handleErasureExecute: §13 §6.3 orchestrator. Loads DSR, resolves diners,
- *   iterates pii-table-registry, schedules phase 2 + diner purge, completes DSR,
- *   records audit, sends confirmation email. Idempotent per-handler (registry
- *   entries are individually idempotent).
+ *   sends confirmation email (BEFORE handler iteration so handleDiners catches
+ *   the new transactional_email_log row via its diner_id cascade), iterates
+ *   pii-table-registry, enqueues phase 2, completes DSR, records audit.
+ *   Idempotent per-handler (registry entries are individually idempotent).
  *
  * - handleErasurePartnerNotificationsPhase2: thin wrapper that delegates to
  *   the imported phase-2 handler with system-actor context.
@@ -68,7 +69,6 @@ interface OrchestratorDeps {
   registry: readonly PiiTableEntry[];
   updateDsrCompleted: (id: string, summary: Array<{ tableName: string; rowsRedacted: number }>) => Promise<void>;
   enqueuePhase2: (payload: { requestId: string }) => Promise<void>;
-  enqueuePurge: (payload: { dinerId: string }) => Promise<void>;
   recordAudit: typeof defaultRecordAudit;
   sendEmail: (input: SendTransactionalEmailInput) => Promise<unknown>;
   resolveDinerLocale: (dinerId: string) => Promise<Locale>;
@@ -85,39 +85,12 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
     const actorUserId = dsr.approvedByUserId;
     const { dinerIds, capturedIdentifiers } = await deps.resolveDiners(dsr);
 
-    const summary: Array<{ tableName: string; rowsRedacted: number }> = [];
-    for (const entry of deps.registry) {
-      if (!entry.shipped || !entry.handler) continue;
-      const result: HandlerResult | undefined = await entry.handler({
-        db: dbAdmin as any,
-        dsrId: dsr.id,
-        dinerIds,
-        capturedIdentifiers,
-        actorUserId,
-        impersonatorUserId: undefined,
-        actorRole: "tavli_admin",
-      });
-      if (result) {
-        summary.push({ tableName: result.tableName, rowsRedacted: result.rowsRedacted });
-      }
-    }
-
-    await deps.updateDsrCompleted(dsr.id, summary);
-    await deps.enqueuePhase2({ requestId: dsr.id });
-
-    await deps.recordAudit({
-      action: AUDIT.compliance.dsr_cascade_executed,
-      subjectType: "data_subject_request",
-      subjectId: dsr.id,
-      actorUserId,
-      actorRole: "tavli_admin",
-      context: { dinerIds: dinerIds.join(","), summary: JSON.stringify(summary), capturedIdentifierCount: capturedIdentifiers.length },
-    });
-
-    for (const dinerId of dinerIds) {
-      await deps.enqueuePurge({ dinerId });
-    }
-
+    // Step 3: Send confirmation email BEFORE handler iteration (#5 — PII-leak fix).
+    // sendTransactionalEmail inserts a new transactional_email_log row with the
+    // diner's email. By sending first, handleDiners' cascade UPDATE
+    // (WHERE diner_id = ?) will catch that new row and null out email/phone +
+    // stamp redacted_at. Sending after handlers would leave a live PII row that
+    // verifyTransactionalEmailLogRedacted can't detect (redacted_at IS NULL).
     const seenEmails = new Set<string>();
     for (const ci of capturedIdentifiers) {
       if (ci.email && !seenEmails.has(ci.email)) {
@@ -144,6 +117,49 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
         }
       }
     }
+
+    // Step 4: Iterate registry handlers. handleDiners will cascade-update
+    // transactional_email_log rows (including the one just inserted above).
+    const summary: Array<{ tableName: string; rowsRedacted: number }> = [];
+    for (const entry of deps.registry) {
+      if (!entry.shipped || !entry.handler) continue;
+      const result: HandlerResult | undefined = await entry.handler({
+        db: dbAdmin as any,
+        dsrId: dsr.id,
+        dinerIds,
+        capturedIdentifiers,
+        actorUserId,
+        impersonatorUserId: undefined,
+        actorRole: "tavli_admin",
+      });
+      if (result) {
+        summary.push({ tableName: result.tableName, rowsRedacted: result.rowsRedacted });
+      }
+    }
+
+    // Step 5: Enqueue phase 2 BEFORE marking completed (#6 — phase-2 orphan fix).
+    // If enqueuePhase2 fails, the DSR remains in_progress and the job can be
+    // retried safely (all handlers are idempotent). The T14 fix-up that reversed
+    // this order created the inverse problem: updateDsrCompleted succeeding then
+    // enqueuePhase2 failing would leave phase 2 permanently un-enqueued because
+    // the status guard (TV1105) blocks all retries.
+    await deps.enqueuePhase2({ requestId: dsr.id });
+
+    // Step 6: Mark DSR completed.
+    await deps.updateDsrCompleted(dsr.id, summary);
+
+    // Step 7: Record audit.
+    await deps.recordAudit({
+      action: AUDIT.compliance.dsr_cascade_executed,
+      subjectType: "data_subject_request",
+      subjectId: dsr.id,
+      actorUserId,
+      actorRole: "tavli_admin",
+      context: { dinerIds: dinerIds.join(","), summary: JSON.stringify(summary), capturedIdentifierCount: capturedIdentifiers.length },
+    });
+    // Note: per-diner enqueuePurge loop removed (#8). handlePurgePseudonymised is
+    // a batch sweep (no payload); the daily 04:00 UTC boss.schedule already covers
+    // all rows. N redundant whole-table sweeps per cascade were pure overhead.
   };
 }
 
@@ -220,9 +236,6 @@ export const handleErasureExecute = makeHandleErasureExecute({
   },
   enqueuePhase2: async (payload) => {
     await defaultEnqueue(JOBS.compliance.erasurePartnerNotificationsPhase2, payload, { startAfter: 5 * 60 });
-  },
-  enqueuePurge: async (payload) => {
-    await defaultEnqueue(JOBS.diner.purgePseudonymised, payload, { startAfter: 30 * 24 * 60 * 60 });
   },
   recordAudit: defaultRecordAudit,
   sendEmail: defaultSendEmail as unknown as OrchestratorDeps["sendEmail"],
