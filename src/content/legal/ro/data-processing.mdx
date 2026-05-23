@@ -1,0 +1,76 @@
+import { Placeholder } from "@/components/legal/placeholder";
+
+# Acord de prelucrare a datelor (DPA)
+
+*Ultima actualizare: 23 mai 2026*
+
+## 1. Părțile
+
+**Operatorul** este restaurantul partener care utilizează serviciile Tavli.
+
+**Persoana împuternicită** este <Placeholder name="name" />, cu sediul în <Placeholder name="address" />, CUI <Placeholder name="cui" />, înregistrată la Registrul Comerțului sub numărul <Placeholder name="jNumber" /> (denumită în continuare „Tavli").
+
+## 2. Obiectul prelucrării
+
+Tavli prelucrează date cu caracter personal ale clienților restaurantului în numele Operatorului, în scopul:
+
+- Confirmării, gestionării și anulării rezervărilor
+- Transmiterii de notificări tranzacționale (confirmare rezervare, reminder, follow-up post-vizită)
+- Generării de rapoarte și statistici agregate pentru restaurant
+- Gestionării recenziilor lăsate de clienți
+
+## 3. Categorii de date prelucrate
+
+- Date de identificare: nume, prenume, adresă de e-mail, număr de telefon
+- Date despre rezervare: data, ora, numărul de persoane, note/preferințe
+- Date despre recenzii: conținut, nota acordată, prenume
+- Date tehnice: adresa IP (pentru securitate)
+
+## 4. Durata prelucrării
+
+Prelucrarea se desfășoară pe durata contractului de servicii dintre restaurant și Tavli. La încetarea contractului, Tavli păstrează datele de rezervare timp de 36 de luni (obligație legală), după care le șterge sau le anonimizează.
+
+## 5. Obligațiile Tavli (persoana împuternicită)
+
+Tavli se obligă să:
+
+- Prelucreze datele **exclusiv pe baza instrucțiunilor documentate** ale Operatorului
+- Asigure că persoanele autorizate să prelucreze datele personale s-au angajat la confidențialitate
+- Implementeze **măsuri tehnice și organizatorice** adecvate conform Art. 32 GDPR: criptare TLS în tranzit, criptare la repaus, control acces pe bază de roluri, autentificare multi-factor pentru administratori, jurnale de audit
+- Notifice Operatorul fără întârziere nejustificată și în orice caz **în termen de 72 de ore** în cazul unei breșe de securitate care afectează datele prelucrate (Art. 33 GDPR)
+- Sprijine Operatorul în răspunsul la cererile de exercitare a drepturilor GDPR (acces, rectificare, ștergere, portabilitate, restricționare)
+- Furnizeze Operatorului toate informațiile necesare pentru a demonstra conformitatea cu Art. 28 GDPR
+
+## 6. Sub-procesatori
+
+Tavli utilizează următorii sub-procesatori aprobați:
+
+| Sub-procesator | Rol | Locație |
+| --- | --- | --- |
+| Supabase Inc. | Bază de date și autentificare | SUA (SCC + EU-US DPF) |
+| Resend | E-mail tranzacțional | SUA (SCC) |
+| Twilio Inc. | SMS tranzacțional | SUA (SCC) |
+| Hetzner Online GmbH | Găzduire aplicație | Germania |
+| Sentry | Monitorizare erori | SUA (SCC) |
+
+Operatorul autorizează în prealabil utilizarea acestor sub-procesatori. Tavli va notifica Operatorul cu **cel puțin 30 de zile înainte** de orice modificare (adăugare sau înlocuire). Operatorul poate obiecta în scris în acest termen.
+
+## 7. Transferuri internaționale
+
+Anumiți sub-procesatori (Supabase, Resend, Twilio, Sentry) prelucrează date în Statele Unite. Aceste transferuri se bazează pe Clauzele Contractuale Standard aprobate de Comisia Europeană și, unde este cazul, pe certificarea EU-US Data Privacy Framework.
+
+## 8. Returnarea și ștergerea datelor
+
+La cererea Operatorului sau la încetarea contractului, Tavli va:
+
+- Furniza un export al datelor de rezervare în format CSV în termen de 30 de zile
+- Șterge sau anonimiza toate datele prelucrate în numele Operatorului, cu excepția celor a căror păstrare este impusă de legea aplicabilă
+- Confirma în scris ștergerea
+
+## 9. Dreptul de audit
+
+Operatorul are dreptul să efectueze audituri privind conformitatea cu prezentul acord, cu un preaviz de 30 de zile, o dată pe an. Tavli poate satisface această cerință prin furnizarea de rapoarte de conformitate certificate de un auditor independent.
+
+## 10. Contact DPO
+
+Pentru orice aspect legat de prelucrarea datelor: <Placeholder name="email" />

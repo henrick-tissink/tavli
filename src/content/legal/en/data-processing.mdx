@@ -1,0 +1,76 @@
+import { Placeholder } from "@/components/legal/placeholder";
+
+# Data Processing Agreement (DPA)
+
+*Last updated: 23 May 2026*
+
+## 1. Parties
+
+The **Controller** is the partner restaurant using Tavli's services.
+
+The **Processor** is <Placeholder name="name" />, with registered office at <Placeholder name="address" />, fiscal code <Placeholder name="cui" />, registered with the Trade Registry under number <Placeholder name="jNumber" /> (hereinafter "Tavli").
+
+## 2. Subject Matter of Processing
+
+Tavli processes personal data of the restaurant's customers on behalf of the Controller, for the purpose of:
+
+- Confirming, managing, and canceling reservations
+- Sending transactional notifications (reservation confirmation, reminder, post-visit follow-up)
+- Generating aggregate reports and statistics for the restaurant
+- Managing customer reviews
+
+## 3. Categories of Data Processed
+
+- Identification data: first name, last name, email address, phone number
+- Reservation data: date, time, number of guests, notes/preferences
+- Review data: content, rating, first name
+- Technical data: IP address (for security)
+
+## 4. Duration of Processing
+
+Processing takes place for the duration of the service contract between the restaurant and Tavli. Upon termination of the contract, Tavli retains reservation data for 36 months (legal obligation), after which it deletes or anonymizes it.
+
+## 5. Tavli's Obligations (Processor)
+
+Tavli undertakes to:
+
+- Process data **exclusively on documented instructions** from the Controller
+- Ensure that persons authorized to process personal data have committed to confidentiality
+- Implement **appropriate technical and organizational measures** in accordance with Art. 32 GDPR: TLS encryption in transit, encryption at rest, role-based access control, multi-factor authentication for administrators, audit logs
+- Notify the Controller without undue delay and in any case **within 72 hours** in the event of a security breach affecting the processed data (Art. 33 GDPR)
+- Assist the Controller in responding to requests for the exercise of GDPR rights (access, rectification, erasure, portability, restriction)
+- Provide the Controller with all information necessary to demonstrate compliance with Art. 28 GDPR
+
+## 6. Sub-processors
+
+Tavli uses the following approved sub-processors:
+
+| Sub-processor | Role | Location |
+| --- | --- | --- |
+| Supabase Inc. | Database and authentication | USA (SCC + EU-US DPF) |
+| Resend | Transactional email | USA (SCC) |
+| Twilio Inc. | Transactional SMS | USA (SCC) |
+| Hetzner Online GmbH | Application hosting | Germany |
+| Sentry | Error monitoring | USA (SCC) |
+
+The Controller grants prior authorization for the use of these sub-processors. Tavli will notify the Controller **at least 30 days before** any change (addition or replacement). The Controller may object in writing within this period.
+
+## 7. International Transfers
+
+Certain sub-processors (Supabase, Resend, Twilio, Sentry) process data in the United States. These transfers rely on Standard Contractual Clauses approved by the European Commission and, where applicable, EU-US Data Privacy Framework certification.
+
+## 8. Return and Deletion of Data
+
+At the Controller's request or upon termination of the contract, Tavli will:
+
+- Provide an export of reservation data in CSV format within 30 days
+- Delete or anonymize all data processed on behalf of the Controller, except where retention is required by applicable law
+- Confirm deletion in writing
+
+## 9. Right to Audit
+
+The Controller has the right to conduct audits regarding compliance with this agreement, with 30 days' notice, once per year. Tavli may satisfy this requirement by providing compliance reports certified by an independent auditor.
+
+## 10. DPO Contact
+
+For any matter relating to data processing: <Placeholder name="email" />

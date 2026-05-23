@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const DOCS = ["privacy", "terms", "cookies", "anpc"] as const;
+const DOCS = ["privacy", "terms", "cookies", "anpc", "data-processing", "imprint"] as const;
 
 function extractHeadingLevels(mdxPath: string): string[] {
   const content = readFileSync(mdxPath, "utf8");
