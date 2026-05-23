@@ -97,11 +97,19 @@ All "active venue" queries across all domains filter `where archived_at is null`
 Re-activation sets `archived_at = null`. Matches the §08 `restaurant_tables.archived_at`
 soft-delete convention exactly.
 
-**Note on existing active-venue queries:** this sub-unit adds the column but
-does NOT retrofit every existing `restaurants` query with `archived_at is null`.
-A grep audit identifies hot read paths (venue lists, the diner-facing venue
-directory) and adds the filter where archival must hide a venue. Audit-only
-paths are left as-is. The audit + targeted filtering is a task in the plan.
+**Note on existing active-venue queries (retrofit DEFERRED out of this
+sub-unit):** this sub-unit adds the column but does NOT retrofit existing
+`restaurants` queries with `archived_at is null`. Decision (2026-05-24): defer
+the read-path retrofit to the future venue-archival-UI wave, because (1) no
+product surface archives a venue in W5-A — the remove/reactivate actions ship
+without UI wiring, so `archived_at` stays null through normal use until that
+wave; (2) the retrofit is nuanced — permission resolvers (e.g.
+`src/lib/authz/resolvers/org.ts`) must still resolve archived venues for
+admin/audit, while only display/active-list paths should filter — so doing it
+blind risks breaking authz; (3) it is testable end-to-end only against
+actually-archived venues, which exist once that UI lands. The follow-up is
+recorded in the plan (Task 7 note) with the exact idiom (`isNull(restaurants.archivedAt)`)
+and the `grep -rn "from(restaurants)" src/` audit command.
 
 ### 2.3 `venue_addition_log` (§4.2)
 
@@ -255,6 +263,7 @@ Vitest unit tests with injected deps (no real Stripe; the hook is a no-op):
 - **Prod migration ordering:** 0040 cannot be applied to prod until the pending
   0033–0039 batch is applied (MEMORY: user-triggered). This sub-unit ships code
   + migration file; prod apply is queued behind the existing batch.
-- **archived_at retrofit:** scoped to hot read paths only (§2.2); a full
-  every-query sweep is out of scope and tracked as a follow-up if needed.
+- **archived_at retrofit:** DEFERRED out of W5-A entirely (§2.2) to the
+  venue-archival-UI wave; no product surface archives a venue in W5-A so the
+  filter is not yet load-bearing. Tracked as a Task 7 follow-up note.
 ```
