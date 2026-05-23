@@ -24,6 +24,7 @@ import {
   handleErasurePartnerNotificationsPhase2,
   handleRetentionPurge,
   handlePurgeRateLimits,
+  handlePurgeCookieConsents,
 } from "@/lib/jobs/handlers/compliance";
 import { runErasureVerification } from "@/lib/compliance/verify";
 import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
@@ -87,7 +88,15 @@ async function main(): Promise<void> {
 
   await boss.schedule(JOBS.compliance.purgeRateLimits, "0 5 * * *");
 
-  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *)");
+  // Wave 4 sub-unit D: register purgeCookieConsents handler + schedule nightly.
+  // Runs 30 min after purgeRateLimits to avoid vacuum/lock contention.
+  await boss.work(JOBS.compliance.purgeCookieConsents, async () => {
+    await handlePurgeCookieConsents();
+  });
+
+  await boss.schedule(JOBS.compliance.purgeCookieConsents, "30 5 * * *");
+
+  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
     console.log(`[worker] received ${signal}, draining...`);
