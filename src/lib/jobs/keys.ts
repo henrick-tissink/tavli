@@ -69,6 +69,7 @@ export const JOBS = {
   },
   compliance: {
     erasureExecute: "compliance.erasure-execute",
+    erasurePartnerNotificationsPhase2: "compliance.erasure-partner-notifications-phase-2",
     erasureVerify: "compliance.erasure-verify",
     retentionPurge: "compliance.retention-purge",
     dsarExport: "compliance.dsar-export",
