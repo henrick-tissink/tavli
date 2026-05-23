@@ -136,3 +136,35 @@ describe("addVenueToOrg", () => {
     expect(d.recordAudit).toHaveBeenCalled();
   });
 });
+
+describe("removeVenueFromOrg", () => {
+  it("archives the venue + decrements counter + logs on the happy path", async () => {
+    const d = deps({
+      // 1st select: venue org lookup; 2nd select: future-reservation count (0)
+      selectQueue: [[{ organizationId: ORG_ID }], [{ futureCount: 0 }]],
+    });
+    const actions = makeVenueActions(d);
+    const result = await actions.removeVenueFromOrg({ restaurantId: REST_ID, reason: "closed" });
+
+    expect(result.restaurant_id).toBe(REST_ID);
+    expect(d.db.transaction).toHaveBeenCalled();
+    expect(d.billingHooks.onVenueRemoved).toHaveBeenCalledWith({ orgId: ORG_ID, restaurantId: REST_ID });
+    expect(d.recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "organization.updated",
+        context: expect.objectContaining({ event: "venue_removed", reason: "closed" }),
+      }),
+    );
+  });
+
+  it("rejects with TV703 when the venue has future confirmed reservations", async () => {
+    const d = deps({
+      selectQueue: [[{ organizationId: ORG_ID }], [{ futureCount: 3 }]],
+    });
+    const actions = makeVenueActions(d);
+    await expect(
+      actions.removeVenueFromOrg({ restaurantId: REST_ID, reason: "closed" }),
+    ).rejects.toThrow(/TV703/);
+    expect(d.db.transaction).not.toHaveBeenCalled();
+  });
+});

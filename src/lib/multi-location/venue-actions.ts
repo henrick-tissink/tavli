@@ -140,7 +140,92 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     return { restaurant_id: restaurantId };
   }
 
-  return { addVenueToOrg };
+  async function removeVenueFromOrg(input: {
+    restaurantId: string;
+    reason: string;
+  }): Promise<{ restaurant_id: string }> {
+    const session = await requireSession();
+
+    const venueRows = await deps.db
+      .select({ organizationId: restaurants.organizationId })
+      .from(restaurants)
+      .where(eq(restaurants.id, input.restaurantId));
+    const venue = venueRows[0];
+    if (!venue) throw new Error("not_found: restaurant");
+    const orgId = venue.organizationId;
+
+    const allowed = await deps.can(session, "restaurant.delete", {
+      kind: "restaurant",
+      id: input.restaurantId,
+      organization_id: orgId,
+    });
+    if (!allowed) throw new Error("forbidden: restaurant.delete");
+
+    // Future-reservation guard (§09 §5.2 step 2). The full cancel-and-notify
+    // flow stays in §02; here we only block.
+    const futureRows = await deps.db
+      .select({ futureCount: count() })
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.restaurantId, input.restaurantId),
+          eq(reservations.status, "confirmed"),
+          gte(reservations.reservationDate, sql`current_date`),
+        ),
+      );
+    if (Number(futureRows[0]?.futureCount ?? 0) > 0) {
+      throw new Error(`TV703 venue_has_future_reservations: ${input.restaurantId}`);
+    }
+
+    const venueCountAfter = await deps.db.transaction(async (tx) => {
+      await tx
+        .update(restaurants)
+        .set({ archivedAt: sql`now()` })
+        .where(eq(restaurants.id, input.restaurantId));
+
+      const updated = await tx
+        .update(organizations)
+        .set({ currentVenueCount: sql`${organizations.currentVenueCount} - 1` })
+        .where(eq(organizations.id, orgId))
+        .returning({ count: organizations.currentVenueCount });
+      const venueCountAfter = updated[0].count;
+
+      await tx.insert(venueAdditionLog).values({
+        organizationId: orgId,
+        restaurantId: input.restaurantId,
+        action: "removed",
+        byUserId: session.userId,
+        venueCountAfter,
+      });
+
+      return venueCountAfter;
+    });
+
+    try {
+      await deps.billingHooks.onVenueRemoved({ orgId, restaurantId: input.restaurantId });
+    } catch (err) {
+      console.error("[venue] onVenueRemoved hook failed (non-fatal)", err);
+    }
+
+    await deps.recordAudit({
+      action: AUDIT.organization.updated,
+      subjectType: "organization",
+      subjectId: orgId,
+      actorUserId: session.userId,
+      actorRole: "org_owner",
+      organizationId: orgId,
+      context: {
+        event: "venue_removed",
+        restaurant_id: input.restaurantId,
+        reason: input.reason,
+        venue_count_after: venueCountAfter,
+      },
+    });
+
+    return { restaurant_id: input.restaurantId };
+  }
+
+  return { addVenueToOrg, removeVenueFromOrg };
 }
 
 export const venueActions = makeVenueActions({

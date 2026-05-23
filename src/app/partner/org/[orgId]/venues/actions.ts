@@ -21,3 +21,15 @@ export async function addVenueToOrgAction(
   if (result.ok) revalidatePath(`/partner/org/${input.organizationId}/venues`);
   return result;
 }
+
+export async function removeVenueFromOrgAction(input: {
+  organizationId: string;
+  restaurantId: string;
+  reason: string;
+}): Promise<{ ok: true; data: { restaurant_id: string } } | { ok: false; error: string }> {
+  const result = await toResult(() =>
+    venueActions.removeVenueFromOrg({ restaurantId: input.restaurantId, reason: input.reason }),
+  );
+  if (result.ok) revalidatePath(`/partner/org/${input.organizationId}/venues`);
+  return result;
+}
