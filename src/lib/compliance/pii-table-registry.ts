@@ -18,7 +18,8 @@ import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
 import { handleMarketingConsents } from "./handlers/marketing-consents";
 import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notifications-phase1";
 import { handleDiners } from "./handlers/diners";
-import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog } from "@/lib/db/schema";
+import { handleAuditLogs } from "./handlers/audit-logs";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -153,6 +154,21 @@ async function verifyTransactionalEmailLogRedacted({ db }: VerifyDeps): Promise<
   };
 }
 
+async function verifyAuditLogsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: auditLogs.id })
+    .from(auditLogs)
+    .where(sql`${auditLogs.redactedAt} IS NOT NULL
+            AND COALESCE(${auditLogs.context}->>'erased', 'false') != 'true'`)
+    .limit(100);
+  return {
+    tableName: "audit_logs",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -218,6 +234,15 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyTransactionalEmailLogRedacted,
     twoPhase: false,
     piiColumns: ["email", "phone"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "audit_logs",
+    shipped: true,
+    handler: handleAuditLogs,
+    verificationQuery: verifyAuditLogsRedacted,
+    twoPhase: false,
+    piiColumns: ["context"],
     defaultReason: "gdpr_art_17",
   },
 ];
