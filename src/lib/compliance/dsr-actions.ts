@@ -20,6 +20,7 @@ import { can as defaultCan } from "@/lib/authz/can";
 import { getCurrentSession as defaultGetCurrentSession } from "@/lib/auth/session";
 import { currentActor as defaultCurrentActor } from "@/lib/auth/current-actor";
 import { enqueue as defaultEnqueue } from "@/lib/jobs/enqueue";
+import { JOBS } from "@/lib/jobs/keys";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -149,7 +150,100 @@ export function makeDsrActions(deps: Deps) {
     });
   }
 
-  return { createDsr, resolveDinerForDsr, verifyDsrIdentity };
+  async function approveDsrErasure(input: { dsrId: string }): Promise<void> {
+    const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.approve_erasure");
+
+    const rows = await deps.db
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, input.dsrId))
+      .limit(1);
+    const dsr = rows[0];
+    if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
+    if (dsr.status !== "received") throw new Error(`TV1105 dsr_wrong_status: ${dsr.status}`);
+    if (!dsr.identityVerified) throw new Error("TV1101 dsr_not_verified");
+    if (dsr.requestKind !== "erasure") throw new Error("approveDsrErasure: only erasure DSRs may be approved");
+
+    await deps.db
+      .update(dataSubjectRequests)
+      .set({
+        status: "in_progress",
+        approvedByUserId: session.userId,
+        approvedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(dataSubjectRequests.id, input.dsrId));
+
+    await deps.enqueue(JOBS.compliance.erasureExecute, { requestId: input.dsrId });
+
+    await deps.recordAudit({
+      action: AUDIT.compliance.dsr_approved,
+      subjectType: "data_subject_request",
+      subjectId: input.dsrId,
+      actorUserId: session.userId,
+      impersonatorUserId,
+      actorRole: "tavli_admin",
+      context: {},
+    });
+  }
+
+  async function rejectDsr(input: { dsrId: string; reason: string }): Promise<void> {
+    const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.reject");
+    await deps.db
+      .update(dataSubjectRequests)
+      .set({ status: "rejected", rejectionReason: input.reason, updatedAt: new Date() })
+      .where(eq(dataSubjectRequests.id, input.dsrId));
+    await deps.recordAudit({
+      action: AUDIT.compliance.dsr_rejected,
+      subjectType: "data_subject_request",
+      subjectId: input.dsrId,
+      actorUserId: session.userId,
+      impersonatorUserId,
+      actorRole: "tavli_admin",
+      context: { reason: input.reason },
+    });
+  }
+
+  async function extendDsrDeadline(input: { dsrId: string; days: number; reason: string }): Promise<void> {
+    if (input.days < 1 || input.days > 14) throw new Error(`TV1103 gdpr_deadline_extension_capped: ${input.days}`);
+    if (!input.reason?.trim()) throw new Error("TV1107 deadline_extension_missing_reason");
+
+    const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.extend_deadline");
+
+    const rows = await deps.db
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, input.dsrId))
+      .limit(1);
+    const dsr = rows[0];
+    if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
+
+    const newDeadline = new Date(dsr.legalDeadlineAt.getTime() + input.days * 24 * 60 * 60 * 1000);
+
+    await deps.db
+      .update(dataSubjectRequests)
+      .set({
+        legalDeadlineAt: newDeadline,
+        deadlineExtensionDays: (dsr.deadlineExtensionDays ?? 0) + input.days,
+        deadlineExtensionReason: input.reason,
+        deadlineExtendedByUserId: session.userId,
+        deadlineExtendedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(dataSubjectRequests.id, input.dsrId));
+
+    await deps.recordAudit({
+      action: AUDIT.compliance.dsr_extended,
+      subjectType: "data_subject_request",
+      subjectId: input.dsrId,
+      actorUserId: session.userId,
+      impersonatorUserId,
+      actorRole: "tavli_admin",
+      context: { days: String(input.days), reason: input.reason, new_deadline_at: newDeadline.toISOString() },
+    });
+  }
+
+  return { createDsr, resolveDinerForDsr, verifyDsrIdentity, approveDsrErasure, rejectDsr, extendDsrDeadline };
 }
 
 export const dsrActions = makeDsrActions({

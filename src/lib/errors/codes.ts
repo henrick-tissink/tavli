@@ -96,6 +96,7 @@ export const ERROR_CODES = {
   TV1103: { domain: "13", slug: "gdpr_deadline_extension_capped" },
   TV1104: { domain: "13", slug: "processing_restricted" },
   TV1105: { domain: "13", slug: "dsr_wrong_status" },
+  TV1107: { domain: "13", slug: "deadline_extension_missing_reason" },
   TV1108: { domain: "13", slug: "dsr_diner_not_resolved" },
 
   // §14 Setup (TV1200–TV1299)
