@@ -17,7 +17,8 @@ import { sql } from "drizzle-orm";
 import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
 import { handleMarketingConsents } from "./handlers/marketing-consents";
 import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notifications-phase1";
-import { partnerNotifications } from "@/lib/db/schema";
+import { handleDiners } from "./handlers/diners";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -87,6 +88,71 @@ async function verifyPartnerNotificationsRedacted({ db }: VerifyDeps): Promise<V
   };
 }
 
+async function verifyDinersRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: diners.id })
+    .from(diners)
+    .where(sql`${diners.redactedAt} IS NOT NULL
+            AND (${diners.phone} IS NOT NULL
+                 OR ${diners.email} IS NOT NULL
+                 OR ${diners.fullName} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "diners",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
+async function verifyReservationsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: reservations.id })
+    .from(reservations)
+    .where(sql`${reservations.redactedAt} IS NOT NULL
+            AND (${reservations.guestName} != 'Redacted'
+                 OR ${reservations.guestPhone} != 'REDACTED'
+                 OR ${reservations.guestEmail} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "reservations",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
+async function verifyReviewsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: reviews.id })
+    .from(reviews)
+    .where(sql`${reviews.redactedAt} IS NOT NULL
+            AND ${reviews.firstName} != 'Redacted'`)
+    .limit(100);
+  return {
+    tableName: "reviews",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
+async function verifyTransactionalEmailLogRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: transactionalEmailLog.id })
+    .from(transactionalEmailLog)
+    .where(sql`${transactionalEmailLog.redactedAt} IS NOT NULL
+            AND (${transactionalEmailLog.email} IS NOT NULL
+                 OR ${transactionalEmailLog.phone} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "transactional_email_log",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -113,6 +179,45 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyPartnerNotificationsRedacted,
     twoPhase: true,
     piiColumns: ["payload"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "diners",
+    shipped: true,
+    handler: handleDiners,
+    verificationQuery: verifyDinersRedacted,
+    twoPhase: false,
+    piiColumns: ["phone", "phone_raw", "email", "full_name", "internal_notes", "allergies", "occasion_tags", "seating_preferences", "dietary_preferences", "birthday_date", "anniversary_date"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "reservations",
+    shipped: true,
+    handler: null,
+    coveredBy: "diners",
+    verificationQuery: verifyReservationsRedacted,
+    twoPhase: false,
+    piiColumns: ["guest_name", "guest_phone", "guest_email"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "reviews",
+    shipped: true,
+    handler: null,
+    coveredBy: "diners",
+    verificationQuery: verifyReviewsRedacted,
+    twoPhase: false,
+    piiColumns: ["first_name"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "transactional_email_log",
+    shipped: true,
+    handler: null,
+    coveredBy: "diners",
+    verificationQuery: verifyTransactionalEmailLogRedacted,
+    twoPhase: false,
+    piiColumns: ["email", "phone"],
     defaultReason: "gdpr_art_17",
   },
 ];
