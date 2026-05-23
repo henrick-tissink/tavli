@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/toast";
 import { CookieFootnote } from "@/components/legal/cookie-footnote";
 import { SiteFooter } from "@/components/site-footer";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -39,6 +40,7 @@ export default function RootLayout({
         <SiteFooter />
         <Toaster />
         <CookieFootnote />
+        <CookieBanner />
       </body>
     </html>
   );
