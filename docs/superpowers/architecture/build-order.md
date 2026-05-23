@@ -96,7 +96,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: §11 (rate limits), §15 (cookie banner). Closes the §13 baseline.*
 
-- [ ] §13 `data_subject_requests` + `retention_policies` + nightly purge job
+- [x] §13 `data_subject_requests` + `retention_policies` + nightly purge job *(shipped 2026-05-23 — `data_subject_requests` table + RLS in sub-unit A (migration 0029, commit `b8f9133`); `retention_policies` table + 11-row v1 seed in sub-unit B (migration 0032 applied to prod with bookkeeping row 33, 5 live tables + 6 forward-declared future-wave that the job skips silently via `to_regclass`); `src/lib/compliance/retention.ts` purge engine (hard_delete chunked at 5000/transaction oldest-first; anonymise/archive_offline/exception_predicate as Wave-5/Wave-7-deferred throw-stubs); `JOBS.compliance.retentionPurge` registered at worker bootstrap + scheduled nightly 04:30 UTC (30min after `purgePseudonymised` 04:00 to avoid lock contention); identifier-validation regex hardens against future malformed seeds; recordAudit fires AFTER DELETE so audit_logs self-purge doesn't lose the per-policy summary. Reuses pre-existing AUDIT.compliance.retention_purge_run. First nightly run will actively purge webhook_events older than 90 days — intended. Sub-unit A.fix pass closed 12/13 findings from the final cross-cutting review including a GDPR-load-bearing PII leak (#5 — confirmation-email send moved BEFORE handler iteration so the new transactional_email_log row gets caught by handleDiners' cascade).)*
 - [ ] §13 `rate_limits` + `enforceRateLimit` middleware
 - [ ] §13 `cookie_consents` + banner UI + analytics gating
 - [ ] §13 legal pages (privacy, terms, cookies, ANPC, data-processing, imprint)
