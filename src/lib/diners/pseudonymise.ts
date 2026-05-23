@@ -88,7 +88,23 @@ export function makePseudonymiseDiner(deps: Deps) {
     const now = new Date();
     const role = input.actorRole ?? "venue_owner";
 
+    let didWork = false;
     await deps.db.transaction(async (tx) => {
+      // Idempotency guard — SELECT FOR UPDATE serialises concurrent calls
+      // (Wave 4 orchestrator dispatches pseudonymiseDiner via pg-boss with
+      // retry-on-failure; the row lock ensures a second in-flight call sees
+      // the committed redactedAt from the first and exits cleanly without
+      // double-writing erasure_log or audit rows).
+      const existing = await tx
+        .select({ redactedAt: diners.redactedAt })
+        .from(diners)
+        .where(eq(diners.id, input.dinerId))
+        .for("update");
+      if (existing[0]?.redactedAt != null) {
+        return;
+      }
+      didWork = true;
+
       // 1. Null PII on diner + set redacted_at. updated_at moves too so any
       //    downstream cache invalidation keyed on it picks up the change.
       await tx
@@ -122,6 +138,7 @@ export function makePseudonymiseDiner(deps: Deps) {
           guestName: REDACTED_PLACEHOLDER,
           guestPhone: REDACTED_PHONE_PLACEHOLDER,
           guestEmail: null,
+          redactedAt: now,
         })
         .where(eq(reservations.dinerId, input.dinerId));
 
@@ -131,7 +148,7 @@ export function makePseudonymiseDiner(deps: Deps) {
       //    silently shift restaurant ratings. Replace with a placeholder.
       await tx
         .update(reviews)
-        .set({ firstName: REDACTED_PLACEHOLDER })
+        .set({ firstName: REDACTED_PLACEHOLDER, redactedAt: now })
         .where(eq(reviews.dinerId, input.dinerId));
 
       // 4. Cascade into transactional_email_log — null contact details +
@@ -160,6 +177,8 @@ export function makePseudonymiseDiner(deps: Deps) {
         impersonatorUserId: input.impersonatorUserId,
       });
     });
+
+    if (!didWork) return;
 
     // 6. Audit. Two rows: one domain-shaped (`diner.pseudonymised`) for the
     //    venue-facing diner history view, one compliance-shaped

@@ -23,6 +23,7 @@ jest.mock("@/lib/db/admin", () => ({
 import { dbAdmin } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
+import { reservations, reviews } from "@/lib/db/schema";
 import {
   makePseudonymiseDiner,
   REDACTED_DINER_COLUMNS,
@@ -37,6 +38,15 @@ import {
  */
 function makeTx() {
   const calls: Array<{ op: string; table: unknown; args: unknown }> = [];
+  // select mock for the idempotency guard: returns redactedAt: null so the
+  // transaction body proceeds (happy-path / first-call behaviour).
+  const select = jest.fn().mockReturnValue({
+    from: jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnValue({
+        for: jest.fn().mockResolvedValue([{ redactedAt: null }]),
+      }),
+    }),
+  });
   const update = jest.fn((table) => {
     const builder = {
       set: jest.fn((args) => {
@@ -56,7 +66,7 @@ function makeTx() {
       }),
     };
   });
-  return { tx: { update, insert }, calls };
+  return { tx: { select, update, insert }, calls };
 }
 
 beforeEach(() => {
@@ -124,11 +134,13 @@ describe("pseudonymiseDiner", () => {
     });
 
     const resSet = calls[1].args as Record<string, unknown>;
-    expect(resSet).toEqual({
+    expect(resSet).toMatchObject({
       guestName: REDACTED_PLACEHOLDER,
       guestPhone: REDACTED_PHONE_PLACEHOLDER,
       guestEmail: null,
     });
+    // redacted_at is also stamped on cascade rows (Wave 4 T4)
+    expect(resSet.redactedAt).toBeInstanceOf(Date);
   });
 
   it("replaces reviews.firstName with the redaction placeholder (first_name is NOT NULL in schema)", async () => {
@@ -143,7 +155,9 @@ describe("pseudonymiseDiner", () => {
     });
 
     const reviewSet = calls[2].args as Record<string, unknown>;
-    expect(reviewSet).toEqual({ firstName: REDACTED_PLACEHOLDER });
+    expect(reviewSet).toMatchObject({ firstName: REDACTED_PLACEHOLDER });
+    // redacted_at is also stamped on cascade rows (Wave 4 T4)
+    expect(reviewSet.redactedAt).toBeInstanceOf(Date);
   });
 
   it("nulls transactional_email_log email + phone and stamps redacted_at", async () => {
@@ -256,5 +270,84 @@ describe("pseudonymiseDiner", () => {
       "birthday_date",
       "anniversary_date",
     ]);
+  });
+
+  it("is idempotent: second call on an already-redacted diner is a no-op", async () => {
+    // Simulate the second call: SELECT FOR UPDATE finds redactedAt non-null
+    // → handler returns early without writing audit, erasure_log, or cascade rows.
+    let updateCalls = 0;
+    let insertCalls = 0;
+    const txMock = jest.fn().mockImplementation(async (callback) => {
+      const tx = {
+        select: jest.fn().mockReturnValue({
+          from: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              for: jest.fn().mockResolvedValue([
+                { redactedAt: new Date("2024-01-01T00:00:00Z") },
+              ]),
+            }),
+          }),
+        }),
+        update: jest.fn().mockImplementation(() => {
+          updateCalls += 1;
+          return {
+            set: jest.fn().mockReturnValue({
+              where: jest.fn().mockResolvedValue([]),
+            }),
+          };
+        }),
+        insert: jest.fn().mockImplementation(() => {
+          insertCalls += 1;
+          return { values: jest.fn().mockResolvedValue([]) };
+        }),
+      };
+      await callback(tx);
+    });
+    const db = { transaction: txMock } as unknown as typeof dbAdmin;
+    const subject = makePseudonymiseDiner({ db });
+    await subject({
+      dinerId: "00000000-0000-0000-0000-000000000001",
+      reason: "gdpr_erasure",
+      actorUserId: "00000000-0000-0000-0000-000000000002",
+    });
+    expect(updateCalls).toBe(0);
+    expect(insertCalls).toBe(0);
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("sets redacted_at on cascaded reservations and reviews rows", async () => {
+    let reservationsSetValues: Record<string, unknown> | null = null;
+    let reviewsSetValues: Record<string, unknown> | null = null;
+    const txMock = jest.fn().mockImplementation(async (callback) => {
+      const tx = {
+        select: jest.fn().mockReturnValue({
+          from: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              for: jest.fn().mockResolvedValue([{ redactedAt: null }]),
+            }),
+          }),
+        }),
+        update: jest.fn().mockImplementation((table) => ({
+          set: jest.fn().mockImplementation((values) => {
+            if (table === reservations) reservationsSetValues = values;
+            if (table === reviews) reviewsSetValues = values;
+            return { where: jest.fn().mockResolvedValue([]) };
+          }),
+        })),
+        insert: jest
+          .fn()
+          .mockReturnValue({ values: jest.fn().mockResolvedValue([]) }),
+      };
+      await callback(tx);
+    });
+    const db = { transaction: txMock } as unknown as typeof dbAdmin;
+    const subject = makePseudonymiseDiner({ db });
+    await subject({
+      dinerId: "00000000-0000-0000-0000-000000000001",
+      reason: "gdpr_erasure",
+      actorUserId: "00000000-0000-0000-0000-000000000002",
+    });
+    expect((reservationsSetValues as unknown as Record<string, unknown>).redactedAt).toBeInstanceOf(Date);
+    expect((reviewsSetValues as unknown as Record<string, unknown>).redactedAt).toBeInstanceOf(Date);
   });
 });
