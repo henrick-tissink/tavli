@@ -68,6 +68,10 @@ export const AUDIT = {
     response_edited: "review.response_edited",
     hidden: "review.hidden",
     reported: "review.reported",
+    aggregate_consent_changed: "review.aggregate_consent_changed",
+    report_submitted: "review.report_submitted",
+    report_upheld: "review.report_upheld",
+    report_dismissed: "review.report_dismissed",
   },
   table: {
     created: "table.created",
