@@ -225,7 +225,97 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     return { restaurant_id: input.restaurantId };
   }
 
-  return { addVenueToOrg, removeVenueFromOrg };
+  async function reactivateVenue(input: {
+    restaurantId: string;
+  }): Promise<{ restaurant_id: string }> {
+    const session = await requireSession();
+
+    const venueRows = await deps.db
+      .select({
+        organizationId: restaurants.organizationId,
+        archivedAt: restaurants.archivedAt,
+      })
+      .from(restaurants)
+      .where(eq(restaurants.id, input.restaurantId));
+    const venue = venueRows[0];
+    if (!venue) throw new Error("not_found: restaurant");
+    if (venue.archivedAt == null) {
+      throw new Error(`conflict: venue not archived: ${input.restaurantId}`);
+    }
+    const orgId = venue.organizationId;
+
+    const allowed = await deps.can(session, "org.add_venue", {
+      kind: "organization",
+      id: orgId,
+    });
+    if (!allowed) throw new Error("forbidden: org.add_venue");
+
+    const sub = await deps.loadActiveSubscription(orgId);
+    if (sub.tier === "base") {
+      throw new Error(`TV701 multi_venue_upgrade_required: ${orgId}`);
+    }
+
+    const orgRows = await deps.db
+      .select({
+        maxVenues: organizations.maxVenues,
+        currentVenueCount: organizations.currentVenueCount,
+      })
+      .from(organizations)
+      .where(eq(organizations.id, orgId));
+    const org = orgRows[0];
+    if (!org) throw new Error("not_found: organization");
+    if (org.maxVenues != null && org.currentVenueCount >= org.maxVenues) {
+      throw new Error(`TV702 venue_cap_reached: ${orgId}`);
+    }
+
+    const venueCountAfter = await deps.db.transaction(async (tx) => {
+      await tx
+        .update(restaurants)
+        .set({ archivedAt: null })
+        .where(eq(restaurants.id, input.restaurantId));
+
+      const updated = await tx
+        .update(organizations)
+        .set({ currentVenueCount: sql`${organizations.currentVenueCount} + 1` })
+        .where(eq(organizations.id, orgId))
+        .returning({ count: organizations.currentVenueCount });
+      const venueCountAfter = updated[0].count;
+
+      await tx.insert(venueAdditionLog).values({
+        organizationId: orgId,
+        restaurantId: input.restaurantId,
+        action: "reactivated",
+        byUserId: session.userId,
+        venueCountAfter,
+      });
+
+      return venueCountAfter;
+    });
+
+    try {
+      await deps.billingHooks.onVenueAdded({ orgId, restaurantId: input.restaurantId });
+    } catch (err) {
+      console.error("[venue] onVenueAdded hook failed (non-fatal)", err);
+    }
+
+    await deps.recordAudit({
+      action: AUDIT.organization.updated,
+      subjectType: "organization",
+      subjectId: orgId,
+      actorUserId: session.userId,
+      actorRole: "org_owner",
+      organizationId: orgId,
+      context: {
+        event: "venue_reactivated",
+        restaurant_id: input.restaurantId,
+        venue_count_after: venueCountAfter,
+      },
+    });
+
+    return { restaurant_id: input.restaurantId };
+  }
+
+  return { addVenueToOrg, removeVenueFromOrg, reactivateVenue };
 }
 
 export const venueActions = makeVenueActions({

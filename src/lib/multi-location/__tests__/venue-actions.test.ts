@@ -168,3 +168,38 @@ describe("removeVenueFromOrg", () => {
     expect(d.db.transaction).not.toHaveBeenCalled();
   });
 });
+
+describe("reactivateVenue", () => {
+  it("un-archives + re-increments counter + logs 'reactivated' on the pro happy path", async () => {
+    const d = deps({
+      // 1st select: venue lookup (org + archivedAt set); 2nd select: org cap lookup
+      selectQueue: [
+        [{ organizationId: ORG_ID, archivedAt: new Date() }],
+        [{ maxVenues: null, currentVenueCount: 1 }],
+      ],
+    });
+    const actions = makeVenueActions(d);
+    const result = await actions.reactivateVenue({ restaurantId: REST_ID });
+
+    expect(result.restaurant_id).toBe(REST_ID);
+    expect(d.billingHooks.onVenueAdded).toHaveBeenCalledWith({ orgId: ORG_ID, restaurantId: REST_ID });
+    expect(d.recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ context: expect.objectContaining({ event: "venue_reactivated" }) }),
+    );
+  });
+
+  it("rejects when the venue is not archived", async () => {
+    const d = deps({ selectQueue: [[{ organizationId: ORG_ID, archivedAt: null }]] });
+    const actions = makeVenueActions(d);
+    await expect(actions.reactivateVenue({ restaurantId: REST_ID })).rejects.toThrow(/not archived/);
+  });
+
+  it("rejects with TV701 when the org is on the base tier", async () => {
+    const d = deps({
+      selectQueue: [[{ organizationId: ORG_ID, archivedAt: new Date() }]],
+      deps: { loadActiveSubscription: jest.fn().mockResolvedValue({ tier: "base" }) },
+    });
+    const actions = makeVenueActions(d);
+    await expect(actions.reactivateVenue({ restaurantId: REST_ID })).rejects.toThrow(/TV701/);
+  });
+});

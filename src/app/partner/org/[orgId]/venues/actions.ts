@@ -33,3 +33,14 @@ export async function removeVenueFromOrgAction(input: {
   if (result.ok) revalidatePath(`/partner/org/${input.organizationId}/venues`);
   return result;
 }
+
+export async function reactivateVenueAction(input: {
+  organizationId: string;
+  restaurantId: string;
+}): Promise<{ ok: true; data: { restaurant_id: string } } | { ok: false; error: string }> {
+  const result = await toResult(() =>
+    venueActions.reactivateVenue({ restaurantId: input.restaurantId }),
+  );
+  if (result.ok) revalidatePath(`/partner/org/${input.organizationId}/venues`);
+  return result;
+}
