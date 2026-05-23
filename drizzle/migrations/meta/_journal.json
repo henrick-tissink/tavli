@@ -211,6 +211,13 @@
       "when": 1779530677187,
       "tag": "0029_data_subject_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1779531600000,
+      "tag": "0030_redacted_at_columns_backfill",
+      "breakpoints": true
     }
   ]
 }

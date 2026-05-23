@@ -381,6 +381,7 @@ export const reservations = pgTable("reservations", {
   postVisitEmailSentAt: timestamp("post_visit_email_sent_at", {
     withTimezone: true,
   }),
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -389,6 +390,7 @@ export const reservations = pgTable("reservations", {
   ),
   index("reservations_status_idx").on(t.status),
   index("reservations_diner").on(t.dinerId),
+  index("reservations_redacted_at_idx").on(t.redactedAt).where(sql`${t.redactedAt} IS NOT NULL`),
 ]);
 
 // ─── draft_restaurants (onboarding scratchpad) ──────────────────────────
@@ -436,9 +438,11 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
 }, (t) => [
   index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
   index("reviews_diner").on(t.dinerId),
+  index("reviews_redacted_at_idx").on(t.redactedAt).where(sql`${t.redactedAt} IS NOT NULL`),
 ]);
 
 // ─── corporate_clients ──────────────────────────────────────────────────
@@ -696,6 +700,7 @@ export const auditLogs = pgTable("audit_logs", {
   restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "set null" }),
   context: jsonb("context").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
 }, (t) => [
   index("audit_logs_action_idx").on(t.action, t.createdAt),
   index("audit_logs_subject_idx").on(t.subjectType, t.subjectId),
@@ -703,6 +708,7 @@ export const auditLogs = pgTable("audit_logs", {
   index("audit_logs_organization_idx").on(t.organizationId, t.createdAt),
   index("audit_logs_restaurant_idx").on(t.restaurantId, t.createdAt),
   index("audit_logs_created_at_idx").on(t.createdAt),
+  index("audit_logs_redacted_at_idx").on(t.redactedAt).where(sql`${t.redactedAt} IS NOT NULL`),
 ]);
 
 // ─── organizations ──────────────────────────────────────────────────────
