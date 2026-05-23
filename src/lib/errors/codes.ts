@@ -66,6 +66,7 @@ export const ERROR_CODES = {
   // §08 Tables (TV600–TV699)
   TV601: { domain: "08", slug: "invalid_transition" },
   TV602: { domain: "08", slug: "combination_exceeds_capacity" },
+  TV603: { domain: "08", slug: "table_not_found" },
 
   // §09 Multi-location (TV700–TV799)
   TV701: { domain: "09", slug: "multi_venue_upgrade_required" },
