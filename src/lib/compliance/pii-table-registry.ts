@@ -13,6 +13,7 @@
  */
 
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -54,4 +55,20 @@ export type PiiTableEntry = {
   defaultReason: "gdpr_art_17" | "gdpr_art_17_with_fiscal_retention";
 };
 
-export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [];
+async function verifyMarketingSuppressionsRedacted(_deps: VerifyDeps): Promise<VerificationResult> {
+  // marketing_suppressions is ADDITIVE in erasure (handler INSERTs rows, doesn't redact).
+  // No residual-PII concept applies — the table stores intentional records.
+  return { tableName: "marketing_suppressions", rowsScanned: 0, rowsWithResidualPii: 0, residualRowIds: [] };
+}
+
+export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
+  {
+    tableName: "marketing_suppressions",
+    shipped: true,
+    handler: handleMarketingSuppressions,
+    verificationQuery: verifyMarketingSuppressionsRedacted,
+    twoPhase: false,
+    piiColumns: ["identifier"],
+    defaultReason: "gdpr_art_17",
+  },
+];
