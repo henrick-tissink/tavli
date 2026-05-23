@@ -246,6 +246,13 @@
       "when": 1748217600000,
       "tag": "0034_cookie_consents",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1748304000000,
+      "tag": "0035_tables_and_state_machine",
+      "breakpoints": true
     }
   ]
 }

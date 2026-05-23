@@ -160,6 +160,37 @@ export const orgStatus = pgEnum("org_status", [
   "suspended",
 ]);
 
+// §08 Table management enums
+export const tableStatus = pgEnum("table_status", [
+  "free",
+  "booked",
+  "seated",
+  "paying",
+  "dirty",
+  "combined",
+  "blocked",
+]);
+
+export const tableShape = pgEnum("table_shape", [
+  "round",
+  "square",
+  "rect_2x4",
+  "rect_2x6",
+  "rect_2x8",
+  "banquette",
+  "bar_stool",
+  "high_top",
+  "patio",
+]);
+
+export const walkinQueueStatus = pgEnum("walkin_queue_status", [
+  "waiting",
+  "called",
+  "seated",
+  "left",
+  "no_show",
+]);
+
 // ─── profiles (extends auth.users 1:1) ───────────────────────────────────
 export const profiles = pgTable("profiles", {
   id: uuid("id")
@@ -383,6 +414,12 @@ export const reservations = pgTable("reservations", {
     withTimezone: true,
   }),
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
+  // §08 Table assignment columns. FK constraints live in the DB (migration
+  // 0035); omitting .references() here breaks the circular type-inference
+  // cycle between reservations ↔ restaurant_tables ↔ table_combinations.
+  tableId: uuid("table_id"),
+  combinationId: uuid("combination_id"),
+  autoAssigned: boolean("auto_assigned").notNull().default(false),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -392,6 +429,8 @@ export const reservations = pgTable("reservations", {
   index("reservations_status_idx").on(t.status),
   index("reservations_diner").on(t.dinerId),
   index("reservations_redacted_at_idx").on(t.redactedAt).where(sql`${t.redactedAt} IS NOT NULL`),
+  index("reservations_table").on(t.tableId).where(sql`${t.tableId} IS NOT NULL`),
+  index("reservations_combination").on(t.combinationId).where(sql`${t.combinationId} IS NOT NULL`),
 ]);
 
 // ─── draft_restaurants (onboarding scratchpad) ──────────────────────────
@@ -1279,5 +1318,165 @@ export const cookieConsents = pgTable(
   },
   (t) => ({
     sessionIdx: index("cookie_consents_session").on(t.visitorSessionId, sql`${t.grantedAt} DESC`),
+  }),
+);
+
+// ─── §08 Table management ────────────────────────────────────────────────
+
+// ─── restaurant_table_sections ──────────────────────────────────────────
+// §08 §3.1 — Named floor sections (e.g. "Terrace", "Main Room"). Optional
+// grouping layer above individual tables. Sort order controls the UI
+// display sequence.
+export const restaurantTableSections = pgTable(
+  "restaurant_table_sections",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    color: varchar("color", { length: 7 }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
+  },
+  (t) => ({
+    restaurantIdx: index("restaurant_table_sections_restaurant").on(t.restaurantId, t.sortOrder),
+  }),
+);
+
+// ─── restaurant_tables ──────────────────────────────────────────────────
+// §08 §3.2 — Individual table records. `current_status` is denorm-synced
+// from `table_status_log` via the trg_table_status_log_sync_denorm trigger.
+// `current_combination_id` FK constraint added in migration after
+// table_combinations is created.
+export const restaurantTables = pgTable(
+  "restaurant_tables",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    sectionId: uuid("section_id").references(() => restaurantTableSections.id, { onDelete: "set null" }),
+    label: varchar("label", { length: 20 }).notNull(),
+    description: text("description"),
+    capacityMin: smallint("capacity_min").notNull(),
+    capacityMax: smallint("capacity_max").notNull(),
+    capacityTypical: smallint("capacity_typical"),
+    shape: tableShape("shape").notNull(),
+    positionX: integer("position_x").notNull(),
+    positionY: integer("position_y").notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    rotationDegrees: smallint("rotation_degrees").notNull().default(0),
+    currentStatus: tableStatus("current_status").notNull().default("free"),
+    currentStatusSince: timestamp("current_status_since", { withTimezone: true }).notNull().default(sql`now()`),
+    currentReservationId: uuid("current_reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+    // FK to table_combinations added via ALTER TABLE in migration 0035 (post-hoc, avoids circular type-inference).
+    currentCombinationId: uuid("current_combination_id"),
+    currentServerUserId: uuid("current_server_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    isBookableOnline: boolean("is_bookable_online").notNull().default(true),
+    isProOnly: boolean("is_pro_only").notNull().default(false),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
+  },
+  (t) => ({
+    labelActiveUniq: uniqueIndex("restaurant_tables_label_active").on(t.restaurantId, t.label).where(sql`${t.archivedAt} IS NULL`),
+    restaurantIdx: index("restaurant_tables_restaurant").on(t.restaurantId).where(sql`${t.archivedAt} IS NULL`),
+    sectionIdx: index("restaurant_tables_section").on(t.sectionId).where(sql`${t.archivedAt} IS NULL`),
+    currentReservationIdx: index("restaurant_tables_current_reservation").on(t.currentReservationId).where(sql`${t.currentReservationId} IS NOT NULL`),
+    capacityCheck: check("table_capacity_check", sql`${t.capacityMax} >= ${t.capacityMin} AND ${t.capacityMin} >= 1`),
+  }),
+);
+
+// ─── table_status_log ──────────────────────────────────────────────────
+// §08 §4.4 — Append-only log of every table status transition. The
+// trg_table_status_log_sync_denorm trigger keeps restaurant_tables
+// current_status in sync on each INSERT here.
+export const tableStatusLog = pgTable(
+  "table_status_log",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    tableId: uuid("table_id")
+      .notNull()
+      .references(() => restaurantTables.id, { onDelete: "cascade" }),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    fromStatus: tableStatus("from_status"),
+    toStatus: tableStatus("to_status").notNull(),
+    reservationId: uuid("reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+    // FK to table_combinations added via ALTER TABLE in migration 0035 (post-hoc, avoids circular type-inference).
+    combinationId: uuid("combination_id"),
+    changedByUserId: uuid("changed_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    changedAt: timestamp("changed_at", { withTimezone: true }).notNull().default(sql`now()`),
+    notes: text("notes"),
+    durationSecondsInFromStatus: integer("duration_seconds_in_from_status"),
+  },
+  (t) => ({
+    tableIdx: index("table_status_log_table").on(t.tableId, t.changedAt),
+    restaurantSeatedIdx: index("table_status_log_restaurant_seated").on(t.restaurantId, t.changedAt).where(sql`${t.toStatus} = 'seated'`),
+  }),
+);
+
+// ─── table_combinations ────────────────────────────────────────────────
+// §08 §3.3 — Ephemeral merge of 2+ tables for a single seating. `table_ids`
+// is a denorm array of all member table UUIDs. Lifecycle ends when dissolved_at
+// is set.
+export const tableCombinations = pgTable(
+  "table_combinations",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    tableIds: uuid("table_ids").array().notNull().$type<string[]>(),
+    primaryTableId: uuid("primary_table_id")
+      .notNull()
+      .references(() => restaurantTables.id, { onDelete: "cascade" }),
+    status: tableStatus("status").notNull().default("booked"),
+    statusSince: timestamp("status_since", { withTimezone: true }).notNull().default(sql`now()`),
+    reservationId: uuid("reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+    combinedCapacity: smallint("combined_capacity").notNull(),
+    createdByUserId: uuid("created_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    dissolvedAt: timestamp("dissolved_at", { withTimezone: true }),
+  },
+  (t) => ({
+    restaurantActiveIdx: index("table_combinations_restaurant_active").on(t.restaurantId).where(sql`${t.dissolvedAt} IS NULL`),
+    minimumSizeCheck: check("table_combinations_minimum_size", sql`array_length(${t.tableIds}, 1) >= 2`),
+  }),
+);
+
+// ─── walkin_queue ──────────────────────────────────────────────────────
+// §08 §3.4 — Walk-in waiting queue for a restaurant. `position` is the
+// display queue position (1-indexed); managed by app layer. Resolved entries
+// (seated/left/no_show) are excluded from the active partial index.
+export const walkinQueue = pgTable(
+  "walkin_queue",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    guestName: varchar("guest_name", { length: 120 }).notNull(),
+    guestPhone: varchar("guest_phone", { length: 20 }),
+    partySize: smallint("party_size").notNull(),
+    notes: text("notes"),
+    status: walkinQueueStatus("status").notNull().default("waiting"),
+    position: smallint("position").notNull(),
+    estimatedWaitMinutes: smallint("estimated_wait_minutes"),
+    addedByUserId: uuid("added_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    calledAt: timestamp("called_at", { withTimezone: true }),
+    seatedAt: timestamp("seated_at", { withTimezone: true }),
+    leftAt: timestamp("left_at", { withTimezone: true }),
+    seatedTableId: uuid("seated_table_id").references(() => restaurantTables.id, { onDelete: "set null" }),
+    seatedReservationId: uuid("seated_reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
+  },
+  (t) => ({
+    activeIdx: index("walkin_queue_active").on(t.restaurantId, t.position).where(sql`${t.status} IN ('waiting', 'called')`),
   }),
 );
