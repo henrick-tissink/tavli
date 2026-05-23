@@ -88,7 +88,9 @@ create index data_subject_requests_status on data_subject_requests (status, lega
 create index data_subject_requests_diner on data_subject_requests (diner_id) where diner_id is not null;
 ```
 
-**RLS:** service-role writes only (no INSERT/UPDATE/DELETE policy for authenticated). Read policy: Tavli admins (`profiles.role = 'tavli_admin'`) only. Diner-self-read is deferred until in-product intake ships.
+**RLS:** service-role writes only (no INSERT/UPDATE/DELETE policy for authenticated). Read policy: Tavli admins (`profiles.role = 'admin'`) only. Diner-self-read is deferred until in-product intake ships.
+
+Codebase note: the `profiles.role` enum is `'admin' | 'restaurant_owner' | 'consumer'`. The audit-domain `actorRole` enum is a richer set including `'tavli_admin'` (which corresponds to `profiles.role = 'admin'`). RLS policies check `profiles.role = 'admin'`; audit threading + permissions stamp `actorRole = 'tavli_admin'`.
 
 ### 2.2 Migration 0030 — `redacted_at` columns on `audit_logs` + `reservations` + `reviews`
 
