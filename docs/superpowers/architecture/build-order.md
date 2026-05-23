@@ -112,8 +112,8 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: §07, §11, §14, §15 (all need the billing-tier signal from `loadActiveSubscription`).*
 
-- [ ] §09 `organizations.brand_primary` / `brand_secondary` columns
-- [ ] §09 `restaurants.archived_at` rollup + venue archival flow
+- [x] §09 `organizations.brand_primary` / `brand_secondary` columns *(shipped 2026-05-24 — Wave 5 sub-unit A; migration 0040 also added `max_venues` + `current_venue_count` app-managed counter)*
+- [x] §09 `restaurants.archived_at` rollup + venue archival flow *(shipped 2026-05-24 — Wave 5 sub-unit A; `addVenueToOrg`/`removeVenueFromOrg`/`reactivateVenue` lib actions + app wrappers, `venue_addition_log` table, nightly `multilocation.reconcile-venue-count` job, forward-declared §12 billing-hook seam (`src/lib/billing/venue-hooks.ts`). archived_at read-path retrofit deferred to the venue-archival-UI wave; §09 §6 UX surfaces (org dashboard, venue switcher, add-venue wizard) not yet scheduled.)*
 - [ ] §12 Stripe products + prices seed script with `tax_behavior: 'exclusive'` assertion
 - [ ] §12 `subscriptions` + `subscription_items` + `invoices` + `payment_methods` + `billing_audit_log`
 - [ ] §12 `startSubscription` (§12 §7.1) + day-91 PSD2/SCA conversion (§12 §7.3)
