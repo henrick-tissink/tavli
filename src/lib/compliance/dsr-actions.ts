@@ -189,6 +189,18 @@ export function makeDsrActions(deps: Deps) {
 
   async function rejectDsr(input: { dsrId: string; reason: string }): Promise<void> {
     const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.reject");
+
+    const rows = await deps.db
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, input.dsrId))
+      .limit(1);
+    const dsr = rows[0];
+    if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
+    if (dsr.status !== "received" && dsr.status !== "in_progress") {
+      throw new Error(`TV1105 dsr_wrong_status: ${dsr.status}`);
+    }
+
     await deps.db
       .update(dataSubjectRequests)
       .set({ status: "rejected", rejectionReason: input.reason, updatedAt: new Date() })
@@ -218,13 +230,18 @@ export function makeDsrActions(deps: Deps) {
     const dsr = rows[0];
     if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
 
+    const cumulativeDays = (dsr.deadlineExtensionDays ?? 0) + input.days;
+    if (cumulativeDays > 14) {
+      throw new Error(`TV1103 gdpr_deadline_extension_capped: cumulative ${cumulativeDays}`);
+    }
+
     const newDeadline = new Date(dsr.legalDeadlineAt.getTime() + input.days * 24 * 60 * 60 * 1000);
 
     await deps.db
       .update(dataSubjectRequests)
       .set({
         legalDeadlineAt: newDeadline,
-        deadlineExtensionDays: (dsr.deadlineExtensionDays ?? 0) + input.days,
+        deadlineExtensionDays: cumulativeDays,
         deadlineExtensionReason: input.reason,
         deadlineExtendedByUserId: session.userId,
         deadlineExtendedAt: new Date(),

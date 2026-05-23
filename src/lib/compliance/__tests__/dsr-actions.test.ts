@@ -220,8 +220,17 @@ describe("rejectDsr", () => {
   it("sets status=rejected + reason + records audit", async () => {
     const setMock = jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) });
     const audit = jest.fn().mockResolvedValue(undefined);
+    const limit = jest.fn().mockResolvedValue([{ id: "dsr-1", status: "received" }]);
     const actions = makeDsrActions({
-      db: { update: jest.fn().mockReturnValue({ set: setMock }), insert: jest.fn(), select: jest.fn() } as any,
+      db: {
+        update: jest.fn().mockReturnValue({ set: setMock }),
+        insert: jest.fn(),
+        select: jest.fn().mockReturnValue({
+          from: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({ limit }),
+          }),
+        }),
+      } as any,
       recordAudit: audit,
       can: jest.fn().mockResolvedValue(true),
       getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
@@ -231,6 +240,71 @@ describe("rejectDsr", () => {
     await actions.rejectDsr({ dsrId: "dsr-1", reason: "Not the actual data subject" });
     expect(setMock).toHaveBeenCalledWith(expect.objectContaining({ status: "rejected" }));
     expect(audit).toHaveBeenCalledWith(expect.objectContaining({ action: "compliance.dsr_rejected" }));
+  });
+
+  describe("rejectDsr — status guards (A.fix.3)", () => {
+    function makeActions(dsr: any, override: any = {}) {
+      const setMock = jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) });
+      const limit = jest.fn().mockResolvedValue(dsr ? [dsr] : []);
+      return makeDsrActions({
+        db: {
+          select: jest.fn().mockReturnValue({
+            from: jest.fn().mockReturnValue({
+              where: jest.fn().mockReturnValue({ limit }),
+            }),
+          }),
+          update: jest.fn().mockReturnValue({ set: setMock }),
+          insert: jest.fn(),
+        } as any,
+        recordAudit: jest.fn().mockResolvedValue(undefined),
+        can: jest.fn().mockResolvedValue(true),
+        getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
+        currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin", impersonatorUserId: null }),
+        enqueue: jest.fn(),
+        ...override,
+      });
+    }
+
+    it("throws TV1100 when dsr not found", async () => {
+      const actions = makeActions(undefined);
+      await expect(actions.rejectDsr({ dsrId: "missing", reason: "test" })).rejects.toThrow(/TV1100/);
+    });
+
+    it("throws TV1105 when status='completed'", async () => {
+      const actions = makeActions({ id: "dsr-1", status: "completed" });
+      await expect(actions.rejectDsr({ dsrId: "dsr-1", reason: "test" })).rejects.toThrow(/TV1105/);
+    });
+
+    it("throws TV1105 when status='rejected'", async () => {
+      const actions = makeActions({ id: "dsr-1", status: "rejected" });
+      await expect(actions.rejectDsr({ dsrId: "dsr-1", reason: "test" })).rejects.toThrow(/TV1105/);
+    });
+
+    it("succeeds when status='in_progress'", async () => {
+      const setMock = jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) });
+      const dsr = { id: "dsr-1", status: "in_progress" };
+      const audit = jest.fn().mockResolvedValue(undefined);
+      const actions = makeDsrActions({
+        db: {
+          select: jest.fn().mockReturnValue({
+            from: jest.fn().mockReturnValue({
+              where: jest.fn().mockReturnValue({
+                limit: jest.fn().mockResolvedValue([dsr]),
+              }),
+            }),
+          }),
+          update: jest.fn().mockReturnValue({ set: setMock }),
+          insert: jest.fn(),
+        } as any,
+        recordAudit: audit,
+        can: jest.fn().mockResolvedValue(true),
+        getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
+        currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin", impersonatorUserId: null }),
+        enqueue: jest.fn(),
+      });
+      await actions.rejectDsr({ dsrId: "dsr-1", reason: "test" });
+      expect(setMock).toHaveBeenCalledWith(expect.objectContaining({ status: "rejected" }));
+    });
   });
 });
 
@@ -312,5 +386,50 @@ describe("extendDsrDeadline", () => {
     const actions = makeActionsForExtend(dsr, { recordAudit: audit });
     await actions.extendDsrDeadline({ dsrId: "dsr-1", days: 7, reason: "Awaiting documents" });
     expect(audit).toHaveBeenCalledWith(expect.objectContaining({ action: "compliance.dsr_extended" }));
+  });
+
+  describe("extendDsrDeadline — cumulative cap (A.fix.3)", () => {
+    function makeActions(dsr: any) {
+      const setMock = jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) });
+      return makeDsrActions({
+        db: {
+          select: jest.fn().mockReturnValue({
+            from: jest.fn().mockReturnValue({
+              where: jest.fn().mockReturnValue({
+                limit: jest.fn().mockResolvedValue([dsr]),
+              }),
+            }),
+          }),
+          update: jest.fn().mockReturnValue({ set: setMock }),
+          insert: jest.fn(),
+        } as any,
+        recordAudit: jest.fn().mockResolvedValue(undefined),
+        can: jest.fn().mockResolvedValue(true),
+        getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
+        currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin", impersonatorUserId: null }),
+        enqueue: jest.fn(),
+      });
+    }
+
+    it("throws TV1103 when cumulative would exceed 14 days", async () => {
+      const dsr = { id: "dsr-1", legalDeadlineAt: new Date("2026-06-01T00:00:00Z"), deadlineExtensionDays: 10 };
+      const actions = makeActions(dsr);
+      // 10 already used + 7 requested = 17 > 14 → TV1103
+      await expect(actions.extendDsrDeadline({ dsrId: "dsr-1", days: 7, reason: "valid reason" })).rejects.toThrow(/TV1103/);
+    });
+
+    it("succeeds when cumulative is exactly 14 days", async () => {
+      const dsr = { id: "dsr-1", legalDeadlineAt: new Date("2026-06-01T00:00:00Z"), deadlineExtensionDays: 7 };
+      const actions = makeActions(dsr);
+      // 7 + 7 = 14 → OK
+      await actions.extendDsrDeadline({ dsrId: "dsr-1", days: 7, reason: "valid reason" });
+    });
+
+    it("succeeds on first extension at 14 days", async () => {
+      const dsr = { id: "dsr-1", legalDeadlineAt: new Date("2026-06-01T00:00:00Z"), deadlineExtensionDays: 0 };
+      const actions = makeActions(dsr);
+      // 0 + 14 = 14 → OK
+      await actions.extendDsrDeadline({ dsrId: "dsr-1", days: 14, reason: "valid reason" });
+    });
   });
 });
