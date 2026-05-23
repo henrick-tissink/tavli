@@ -11,8 +11,11 @@ import "server-only";
  *
  * TODO(Wave 5 §12): bind Deps to dbAdmin + read subscriptions table;
  * add status, current_period_end, etc. to SubscriptionInfo.
- * TODO(Wave 5 §05): add menu cap enforcement (Base = 2 menus) to any
- * menu-creation action once it is introduced.
+ * TODO(Wave 5 §05 §6.3): add menu cap enforcement (Base = 2 menus) to the
+ * menu-creation action once multi-menu support is introduced. Currently menus
+ * is a 1:1 upsert with restaurants (no distinct create-menu action exists) so
+ * the cap is not applicable in v1. Revisit when a dedicated createMenu action
+ * is added that allows multiple menus per restaurant.
  */
 
 export type SubscriptionTier = "base" | "pro";
