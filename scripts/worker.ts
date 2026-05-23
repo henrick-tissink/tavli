@@ -63,7 +63,13 @@ async function main(): Promise<void> {
   // Schedule the nightly verification sweep at 03:00 UTC.
   await boss.schedule(JOBS.compliance.erasureVerify, "0 3 * * *");
 
-  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *)");
+  // Daily sweep at 04:00 UTC (1h after erasureVerify): purge diners whose
+  // redacted_at is >30 days old. The orchestrator (T14) ALSO enqueues a
+  // startAfter:30d invocation per diner, but the daily sweep is the
+  // reliable safety net + the only thing that picks up legacy pseudonymisations.
+  await boss.schedule(JOBS.diner.purgePseudonymised, "0 4 * * *");
+
+  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *)");
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
     console.log(`[worker] received ${signal}, draining...`);
