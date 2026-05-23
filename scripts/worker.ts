@@ -22,6 +22,7 @@ import { JOBS } from "@/lib/jobs/keys";
 import {
   handleErasureExecute,
   handleErasurePartnerNotificationsPhase2,
+  handleRetentionPurge,
 } from "@/lib/jobs/handlers/compliance";
 import { runErasureVerification } from "@/lib/compliance/verify";
 import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
@@ -69,7 +70,15 @@ async function main(): Promise<void> {
   // reliable safety net + the only thing that picks up legacy pseudonymisations.
   await boss.schedule(JOBS.diner.purgePseudonymised, "0 4 * * *");
 
-  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *)");
+  // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
+  // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.
+  await boss.work(JOBS.compliance.retentionPurge, async () => {
+    await handleRetentionPurge();
+  });
+
+  await boss.schedule(JOBS.compliance.retentionPurge, "30 4 * * *");
+
+  console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *)");
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
     console.log(`[worker] received ${signal}, draining...`);

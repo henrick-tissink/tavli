@@ -43,6 +43,7 @@ import {
   handlePartnerNotificationsPhase2,
 } from "@/lib/compliance/handlers/partner-notifications-phase2";
 import type { HandlerDeps as Phase2HandlerDeps } from "@/lib/compliance/pii-table-registry";
+import { runRetentionPurge } from "@/lib/compliance/retention";
 
 export interface ErasureExecutePayload {
   requestId: string;
@@ -282,4 +283,10 @@ export async function handleErasurePartnerNotificationsPhase2(payload: ErasurePh
     // Phase-2 is system-driven; "system" is a valid HandlerDeps.actorRole literal.
     actorRole: "system",
   });
+}
+
+// ─── Retention purge wrapper ──────────────────────────────────────────────────
+
+export async function handleRetentionPurge(): Promise<void> {
+  await runRetentionPurge();
 }
