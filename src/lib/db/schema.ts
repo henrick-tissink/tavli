@@ -479,10 +479,35 @@ export const reviews = pgTable("reviews", {
     .notNull()
     .defaultNow(),
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
+  // ── §06 §3 + §3.5 Wave 4 sub-unit J.1 — reviews polish ─────────────────
+  // Aggregate consent: diner opts this review into the restaurant's aggregate
+  // rating. The trigger filters on include_in_aggregate_rating=true so opt-out
+  // is immediate without recomputing historical rows.
+  includeInAggregateRating: boolean("include_in_aggregate_rating")
+    .notNull()
+    .default(false),
+  aggregateConsentAt: timestamp("aggregate_consent_at", { withTimezone: true }),
+  // Soft-hide for moderation (DSA notice-and-action). is_hidden=true removes
+  // the review from public reads and from the aggregate trigger filter.
+  isHidden: boolean("is_hidden").notNull().default(false),
+  hiddenReason: varchar("hidden_reason", { length: 60 }),
+  hiddenByUserId: uuid("hidden_by_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+  hiddenAt: timestamp("hidden_at", { withTimezone: true }),
+  // Optimistic-lock counter incremented on every mutation.
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  revision: smallint("revision").notNull().default(0),
 }, (t) => [
   index("reviews_restaurant_created_idx").on(t.restaurantId, t.createdAt.desc()),
   index("reviews_diner").on(t.dinerId),
   index("reviews_redacted_at_idx").on(t.redactedAt).where(sql`${t.redactedAt} IS NOT NULL`),
+  check(
+    "reviews_gdpr_takedown_attribution",
+    sql`${t.hiddenReason} != 'gdpr_takedown' OR ${t.hiddenByUserId} IS NOT NULL`,
+  ),
 ]);
 
 // ─── corporate_clients ──────────────────────────────────────────────────
