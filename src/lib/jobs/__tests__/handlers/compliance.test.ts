@@ -72,16 +72,22 @@ describe("handleErasureExecute", () => {
     expect(deps.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "alice@example.ro", locale: "ro" }));
   });
 
-  it("throws TV1101 when DSR status is not in_progress", async () => {
+  it("throws TV1105 when DSR status is not in_progress", async () => {
     const deps = makeDeps({ loadDsr: jest.fn().mockResolvedValue({ ...fakeDsr, status: "received" }) });
+    const subject = makeHandleErasureExecute(deps);
+    await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow(/TV1105/);
+  });
+
+  it("throws TV1101 when identity not verified", async () => {
+    const deps = makeDeps({ loadDsr: jest.fn().mockResolvedValue({ ...fakeDsr, identityVerified: false }) });
     const subject = makeHandleErasureExecute(deps);
     await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow(/TV1101/);
   });
 
-  it("throws TV1102 when identity not verified", async () => {
-    const deps = makeDeps({ loadDsr: jest.fn().mockResolvedValue({ ...fakeDsr, identityVerified: false }) });
+  it("throws TV1101 when approvedByUserId is missing despite identity_verified", async () => {
+    const deps = makeDeps({ loadDsr: jest.fn().mockResolvedValue({ ...fakeDsr, approvedByUserId: null }) });
     const subject = makeHandleErasureExecute(deps);
-    await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow(/TV1102/);
+    await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow(/TV1101/);
   });
 
   it("throws TV1100 when dsr not found", async () => {

@@ -78,9 +78,9 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
   return async function handleErasureExecute(payload: ErasureExecutePayload): Promise<void> {
     const dsr = await deps.loadDsr(payload.requestId);
     if (!dsr) throw new Error(`TV1100 dsr_not_found: ${payload.requestId}`);
-    if (dsr.status !== "in_progress") throw new Error(`TV1101 dsr_wrong_status: ${dsr.status}`);
-    if (!dsr.identityVerified) throw new Error("TV1102 dsr_not_verified");
-    if (!dsr.approvedByUserId) throw new Error("TV1102 dsr_not_verified: missing approver");
+    if (dsr.status !== "in_progress") throw new Error(`TV1105 dsr_wrong_status: ${dsr.status}`);
+    if (!dsr.identityVerified) throw new Error("TV1101 dsr_not_verified");
+    if (!dsr.approvedByUserId) throw new Error("TV1101 dsr_not_verified: missing approver");
 
     const actorUserId = dsr.approvedByUserId;
     const { dinerIds, capturedIdentifiers } = await deps.resolveDiners(dsr);
@@ -102,8 +102,8 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
       }
     }
 
-    await deps.enqueuePhase2({ requestId: dsr.id });
     await deps.updateDsrCompleted(dsr.id, summary);
+    await deps.enqueuePhase2({ requestId: dsr.id });
 
     await deps.recordAudit({
       action: AUDIT.compliance.dsr_cascade_executed,
@@ -243,6 +243,9 @@ export async function handleErasurePartnerNotificationsPhase2(payload: ErasurePh
     capturedIdentifiers: [],
     actorUserId: "00000000-0000-0000-0000-000000000000", // system actor for the scheduled phase-2 job
     impersonatorUserId: undefined,
-    actorRole: "tavli_admin",
+    // Phase-2 is system-driven; HandlerDeps.actorRole is narrowed to "tavli_admin"
+    // because all registry handlers (incl. diners) require it, but partner-notifications-phase2
+    // does not read actorRole — cast is safe here.
+    actorRole: "system" as unknown as "tavli_admin",
   });
 }

@@ -90,10 +90,12 @@ export const ERROR_CODES = {
   TV1006: { domain: "12", slug: "subscription_authentication_required" },
 
   // §13 Compliance (TV1100–TV1199)
+  TV1100: { domain: "13", slug: "dsr_not_found" },
   TV1101: { domain: "13", slug: "identity_not_verified" },
   TV1102: { domain: "13", slug: "rate_limit_exceeded" },
   TV1103: { domain: "13", slug: "gdpr_deadline_extension_capped" },
   TV1104: { domain: "13", slug: "processing_restricted" },
+  TV1105: { domain: "13", slug: "dsr_wrong_status" },
 
   // §14 Setup (TV1200–TV1299)
   TV1201: { domain: "14", slug: "migration_source_unsupported" },
