@@ -1217,3 +1217,22 @@ export const dataSubjectRequests = pgTable(
     dinerIdx: index("data_subject_requests_diner").on(t.dinerId).where(sql`${t.dinerId} IS NOT NULL`),
   }),
 );
+
+// ─── retention_policies ─────────────────────────────────────────────────
+// §13 §4.3 — declarative retention rules. The nightly purge job iterates
+// these rows. Future-wave tables are forward-declared; the job skips them
+// via to_regclass until those tables ship.
+export const retentionPolicies = pgTable(
+  "retention_policies",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    scopeTable: varchar("scope_table", { length: 80 }).notNull().unique(),
+    retentionPeriodDays: integer("retention_period_days").notNull(),
+    actionOnExpiry: varchar("action_on_expiry", { length: 20 }).notNull(),
+    appliesToColumn: varchar("applies_to_column", { length: 60 }).notNull().default("created_at"),
+    exceptionPredicate: jsonb("exception_predicate"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
+  },
+);

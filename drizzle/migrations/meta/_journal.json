@@ -225,6 +225,13 @@
       "when": 1779532800000,
       "tag": "0031_partner_notifications_pending_erasure_request_id",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1748044800000,
+      "tag": "0032_retention_policies",
+      "breakpoints": true
     }
   ]
 }
