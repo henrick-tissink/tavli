@@ -14,6 +14,7 @@
 
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
+import { handleMarketingConsents } from "./handlers/marketing-consents";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -55,6 +56,13 @@ export type PiiTableEntry = {
   defaultReason: "gdpr_art_17" | "gdpr_art_17_with_fiscal_retention";
 };
 
+async function verifyMarketingConsentsRedacted(_deps: VerifyDeps): Promise<VerificationResult> {
+  // marketing_consents redaction = set revoked_at. No plaintext PII columns
+  // exist on this table (it's join-keyed by diner_id); residual-PII concept
+  // doesn't apply.
+  return { tableName: "marketing_consents", rowsScanned: 0, rowsWithResidualPii: 0, residualRowIds: [] };
+}
+
 async function verifyMarketingSuppressionsRedacted(_deps: VerifyDeps): Promise<VerificationResult> {
   // marketing_suppressions is ADDITIVE in erasure (handler INSERTs rows, doesn't redact).
   // No residual-PII concept applies — the table stores intentional records.
@@ -69,6 +77,15 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyMarketingSuppressionsRedacted,
     twoPhase: false,
     piiColumns: ["identifier"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    tableName: "marketing_consents",
+    shipped: true,
+    handler: handleMarketingConsents,
+    verificationQuery: verifyMarketingConsentsRedacted,
+    twoPhase: false,
+    piiColumns: [],
     defaultReason: "gdpr_art_17",
   },
 ];
