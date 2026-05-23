@@ -49,40 +49,43 @@ export function makeHandleAuditLogs(_deps: Deps) {
 async function runChunkedPass(d: HandlerDeps, predicate: ReturnType<typeof sql>): Promise<number> {
   let total = 0;
   while (true) {
-    const updated = await d.db.execute<{ id: string }>(sql`
-      UPDATE audit_logs
-         SET redacted_at = now(),
-             context = jsonb_build_object(
-               'erased', true,
-               'dsr_id', ${d.dsrId}::uuid,
-               'original_action', action
-             )
-       WHERE id IN (
-         SELECT id FROM audit_logs
-          WHERE ${predicate}
-            AND redacted_at IS NULL
-          ORDER BY id
-          LIMIT ${CHUNK_SIZE}
-       )
-       RETURNING id;
-    `);
-
-    const rows = updated as unknown as Array<{ id: string }>;
-    if (rows.length === 0) break;
-    total += rows.length;
-
-    await d.db.insert(erasureLog).values(
-      rows.map((r) => ({
-        subjectType: "audit_log",
-        subjectId: r.id,
-        reason: "gdpr_art_17",
-        redactedColumns: ["context"],
-        actorUserId: d.actorUserId,
-        impersonatorUserId: d.impersonatorUserId,
-        context: { dsrId: d.dsrId },
-      })),
-    );
-
+    const chunkRows = await d.db.transaction(async (tx) => {
+      const updated = await tx.execute<{ id: string }>(sql`
+        UPDATE audit_logs
+           SET redacted_at = now(),
+               context = jsonb_build_object(
+                 'erased', true,
+                 'dsr_id', ${d.dsrId}::uuid,
+                 'original_action', action
+               )
+         WHERE id IN (
+           SELECT id FROM audit_logs
+            WHERE ${predicate}
+              AND redacted_at IS NULL
+            ORDER BY id
+            LIMIT ${CHUNK_SIZE}
+         )
+         RETURNING id;
+      `);
+      const rows = updated as unknown as Array<{ id: string }>;
+      if (rows.length > 0) {
+        await tx.insert(erasureLog).values(
+          rows.map((r) => ({
+            subjectType: "audit_log",
+            subjectId: r.id,
+            reason: "gdpr_art_17",
+            redactedColumns: ["context"],
+            actorUserId: d.actorUserId,
+            impersonatorUserId: d.impersonatorUserId,
+            context: { dsrId: d.dsrId },
+          })),
+        );
+      }
+      return rows;
+    });
+    if (chunkRows.length === 0) break;
+    total += chunkRows.length;
+    if (chunkRows.length < CHUNK_SIZE) break;
   }
   return total;
 }
