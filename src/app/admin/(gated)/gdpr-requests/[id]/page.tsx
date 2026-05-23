@@ -3,6 +3,12 @@ import { dataSubjectRequests, erasureLog, auditLogs } from "@/lib/db/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ResolveDinerModal } from "./_components/ResolveDinerModal";
+import { VerifyIdentityModal } from "./_components/VerifyIdentityModal";
+import { ApproveErasureButton } from "./_components/ApproveErasureButton";
+import { RejectModal } from "./_components/RejectModal";
+import { ExtendDeadlineModal } from "./_components/ExtendDeadlineModal";
+import { FailureBanner } from "./_components/FailureBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -60,12 +66,7 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
       </header>
 
       {lastFailure.length > 0 && (
-        <div className="mb-6 rounded-md border border-red-300 bg-red-50 p-4 text-sm">
-          <p className="font-medium text-red-900">Cascade failed — retry available in T22 UI.</p>
-          <p className="mt-1 text-red-800">
-            Last failure recorded at {lastFailure[0].createdAt.toLocaleString()}. Inspect the worker logs.
-          </p>
-        </div>
+        <FailureBanner dsrId={dsr.id} recordedAt={lastFailure[0].createdAt} />
       )}
 
       <section className="mb-8">
@@ -77,7 +78,10 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
             {dsr.dinerId ? (
               <span className="font-mono text-xs">{dsr.dinerId}</span>
             ) : (
-              <span className="text-stone-400">unresolved</span>
+              <div className="flex items-center gap-3">
+                <span className="text-stone-400">unresolved</span>
+                <ResolveDinerModal dsrId={dsr.id} />
+              </div>
             )}
           </Dt>
           <Dt label="Source">{dsr.requestSource}</Dt>
@@ -99,20 +103,20 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
             ✓ Verified {dsr.identityVerifiedAt?.toLocaleString()} via {dsr.identityVerificationMethod}
           </p>
         ) : (
-          <p className="text-sm text-stone-600">
-            Not verified yet. The &ldquo;Verify identity&rdquo; modal lands in T22. Until then, use the dsr-actions
-            API directly to record verification.
-          </p>
+          <VerifyIdentityModal dsrId={dsr.id} />
         )}
       </section>
 
       <section className="mb-8">
         <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">Actions</h3>
-        <p className="text-sm text-stone-600">
-          Approve / Reject / Extend deadline modals land in T22. The server actions
-          (<code>approveErasureAction</code>, <code>rejectDsrAction</code>, <code>extendDeadlineAction</code>)
-          are available in <code>./actions.ts</code> ready to be wired.
-        </p>
+        <div className="flex flex-wrap gap-3">
+          <ApproveErasureButton
+            dsrId={dsr.id}
+            enabled={dsr.identityVerified && dsr.status === "received" && dsr.requestKind === "erasure"}
+          />
+          <RejectModal dsrId={dsr.id} />
+          <ExtendDeadlineModal dsrId={dsr.id} />
+        </div>
       </section>
 
       <section>
