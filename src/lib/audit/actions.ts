@@ -76,6 +76,9 @@ export const AUDIT = {
     status_changed: "table.status_changed",
     combination_created: "table.combination_created",
     combination_dissolved: "table.combination_dissolved",
+    section_created: "table.section_created",
+    section_updated: "table.section_updated",
+    section_deleted: "table.section_deleted",
   },
   walkin: {
     added: "walkin.added",
