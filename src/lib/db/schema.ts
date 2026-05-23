@@ -1170,3 +1170,40 @@ export const transactionalEmailLog = pgTable(
     ),
   }),
 );
+
+// ─── data_subject_requests ──────────────────────────────────────────────
+// §13 §4.2 — GDPR DSR tracking. Tavli-admin intake only in v1.
+export const dataSubjectRequests = pgTable(
+  "data_subject_requests",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
+    identifierPhone: varchar("identifier_phone", { length: 20 }),
+    identifierEmail: varchar("identifier_email", { length: 255 }),
+    requestKind: varchar("request_kind", { length: 40 }).notNull(),
+    requestSource: varchar("request_source", { length: 40 }).notNull(),
+    requestBody: text("request_body"),
+    identityVerified: boolean("identity_verified").notNull().default(false),
+    identityVerificationMethod: varchar("identity_verification_method", { length: 60 }),
+    identityVerifiedAt: timestamp("identity_verified_at", { withTimezone: true }),
+    identityVerifiedByUserId: uuid("identity_verified_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    status: varchar("status", { length: 20 }).notNull().default("received"),
+    rejectionReason: text("rejection_reason"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    legalDeadlineAt: timestamp("legal_deadline_at", { withTimezone: true }).notNull(),
+    approvedByUserId: uuid("approved_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    deadlineExtensionDays: smallint("deadline_extension_days").notNull().default(0),
+    deadlineExtensionReason: text("deadline_extension_reason"),
+    deadlineExtendedByUserId: uuid("deadline_extended_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    deadlineExtendedAt: timestamp("deadline_extended_at", { withTimezone: true }),
+    exportStoragePath: text("export_storage_path"),
+    exportSignedUrlExpiresAt: timestamp("export_signed_url_expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
+  },
+  (t) => ({
+    statusIdx: index("data_subject_requests_status").on(t.status, t.legalDeadlineAt).where(sql`${t.status} IN ('received', 'in_progress')`),
+    dinerIdx: index("data_subject_requests_diner").on(t.dinerId).where(sql`${t.dinerId} IS NOT NULL`),
+  }),
+);

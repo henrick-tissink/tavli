@@ -204,6 +204,13 @@
       "when": 1779483089194,
       "tag": "0028_partner_notifications_pending_erasure",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1779530677187,
+      "tag": "0029_data_subject_requests",
+      "breakpoints": true
     }
   ]
 }
