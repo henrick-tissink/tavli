@@ -67,6 +67,14 @@ const SPEC: Array<{ action: Action; grants: MatrixRole[] }> = [
   // analytics
   { action: "analytics.read",   grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"] },
   { action: "analytics.export", grants: ["org_owner", "org_admin", "venue_owner"] },
+
+  // §13 compliance — tavli_admin only (early-return shortcut; no matrix role granted)
+  { action: "gdpr.create_dsr",      grants: [] },
+  { action: "gdpr.resolve_diner",   grants: [] },
+  { action: "gdpr.verify_identity", grants: [] },
+  { action: "gdpr.approve_erasure", grants: [] },
+  { action: "gdpr.reject",          grants: [] },
+  { action: "gdpr.extend_deadline", grants: [] },
 ];
 
 describe("PERMISSION_MATRIX", () => {

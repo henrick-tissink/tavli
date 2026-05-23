@@ -58,7 +58,14 @@ export type Action =
   | "event_request.quote"
   // analytics
   | "analytics.read"
-  | "analytics.export";
+  | "analytics.export"
+  // §13 compliance / GDPR DSR lifecycle (tavli_admin only)
+  | "gdpr.create_dsr"
+  | "gdpr.resolve_diner"
+  | "gdpr.verify_identity"
+  | "gdpr.approve_erasure"
+  | "gdpr.reject"
+  | "gdpr.extend_deadline";
 
 /**
  * Roles that appear in the matrix (excluding tavli_admin, which is
@@ -164,6 +171,14 @@ export const PERMISSION_MATRIX: Record<Action, MatrixRow> = {
   // analytics
   "analytics.read":   row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),
   "analytics.export": row("org_owner", "org_admin", "venue_owner"),
+
+  // §13 compliance — tavli_admin only (early-return shortcut applies)
+  "gdpr.create_dsr":      row(),
+  "gdpr.resolve_diner":   row(),
+  "gdpr.verify_identity": row(),
+  "gdpr.approve_erasure": row(),
+  "gdpr.reject":          row(),
+  "gdpr.extend_deadline": row(),
 };
 
 export { ALL_ROLES };
