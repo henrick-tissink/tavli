@@ -253,6 +253,13 @@
       "when": 1748304000000,
       "tag": "0035_tables_and_state_machine",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1748390400000,
+      "tag": "0036_table_management_rls_venue_staff",
+      "breakpoints": true
     }
   ]
 }
