@@ -114,15 +114,15 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 - [x] §09 `organizations.brand_primary` / `brand_secondary` columns *(shipped 2026-05-24 — Wave 5 sub-unit A; migration 0040 also added `max_venues` + `current_venue_count` app-managed counter)*
 - [x] §09 `restaurants.archived_at` rollup + venue archival flow *(shipped 2026-05-24 — Wave 5 sub-unit A; `addVenueToOrg`/`removeVenueFromOrg`/`reactivateVenue` lib actions + app wrappers, `venue_addition_log` table, nightly `multilocation.reconcile-venue-count` job, forward-declared §12 billing-hook seam (`src/lib/billing/venue-hooks.ts`). archived_at read-path retrofit deferred to the venue-archival-UI wave; §09 §6 UX surfaces (org dashboard, venue switcher, add-venue wizard) not yet scheduled.)*
-- [ ] §12 Stripe products + prices seed script with `tax_behavior: 'exclusive'` assertion
-- [ ] §12 `subscriptions` + `subscription_items` + `invoices` + `payment_methods` + `billing_audit_log`
+- [x] §12 Stripe products + prices seed script with `tax_behavior: 'exclusive'` assertion *(shipped 2026-05-24 — Wave 5 sub-unit B; `scripts/seed-stripe-prices.ts` + `npm run verify:stripe-prices` + `src/lib/billing/stripe-price-spec.ts` (tested core) + env-backed `price-ids.ts`. USER-run with STRIPE_SECRET_KEY, then set STRIPE_PRICE_* envs.)*
+- [x] §12 `subscriptions` + `subscription_items` + `invoices` + `payment_methods` + `billing_audit_log` *(shipped 2026-05-24 — Wave 5 sub-unit B; migration 0041, 4 enums + re_trial_granted + 5 tables + RLS. billing_audit_log two-column org-id design. chk_active_org_has_customer_type enforced in W5-C startSubscription, not a DB trigger per §4.3.)*
 - [ ] §12 `startSubscription` (§12 §7.1) + day-91 PSD2/SCA conversion (§12 §7.3)
 - [ ] §12 Stripe webhook router with two-layer idempotency (§12 §6.3.1)
 - [ ] §12 cancellation + pro-rata annual refund (§12 §10)
 - [ ] §12 tier swap (Base ↔ Pro) + frequency switch deferred to period-end (§12 §8.2, §8.3)
 - [ ] §12 per-additional-location quantity sync hook from §09 (§12 §8.1)
 - [ ] §12 tiered dunning — day 0–6 full / day 7 soft-lock / day 21 read-only (§12 §11.5)
-- [ ] §12 `loadActiveSubscription` helper with React `cache()` memoization (§12 §3.5)
+- [x] §12 `loadActiveSubscription` helper with React `cache()` memoization (§12 §3.5) *(shipped 2026-05-24 — Wave 5 sub-unit B; `src/lib/billing/load-subscription.ts` reads the subscriptions mirror, returns ActiveSubscriptionState|null, defensive (null on error, never throws). Replaced the Wave 4 subscription-stub; consumers (photos cap, venue-actions tier gate) updated to null→base. Returns null for every org until W5-C creates rows.)*
 
 ## Wave 6 — Analytics
 
