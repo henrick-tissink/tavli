@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { approveErasureAction } from "../actions";
+import { retryErasureCascadeAction } from "../actions";
 
 export function FailureBanner({ dsrId, recordedAt }: { dsrId: string; recordedAt: Date }) {
   const [pending, startTransition] = useTransition();
@@ -12,7 +12,7 @@ export function FailureBanner({ dsrId, recordedAt }: { dsrId: string; recordedAt
     if (!confirm("Retry the cascade? Handlers are idempotent — completed work won't be repeated.")) return;
     startTransition(async () => {
       try {
-        await approveErasureAction(dsrId);
+        await retryErasureCascadeAction(dsrId);
         router.refresh();
       } catch (e) {
         alert(`Retry failed: ${e instanceof Error ? e.message : String(e)}`);

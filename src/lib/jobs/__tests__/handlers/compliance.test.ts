@@ -148,4 +148,26 @@ describe("handleErasureExecute", () => {
     await subject({ requestId: fakeDsr.id });
     expect(deps.sendEmail).not.toHaveBeenCalled();
   });
+
+  it("records dsr_cascade_failed when a handler throws", async () => {
+    const failingHandler = jest.fn().mockRejectedValue(new Error("synthetic handler failure"));
+    const deps = makeDeps({
+      registry: [{ tableName: "marketing_suppressions", shipped: true, handler: failingHandler, verificationQuery: null, twoPhase: false, piiColumns: [], defaultReason: "gdpr_art_17" }],
+    });
+    const subject = makeHandleErasureExecute(deps);
+    await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow(/synthetic handler failure/);
+    expect(deps.recordAudit).toHaveBeenCalledWith(expect.objectContaining({
+      action: "compliance.dsr_cascade_failed",
+      context: expect.objectContaining({ error: expect.stringContaining("synthetic handler failure") }),
+    }));
+  });
+
+  it("re-throws the original error after writing dsr_cascade_failed (pg-boss still receives the rejection)", async () => {
+    const failingHandler = jest.fn().mockRejectedValue(new Error("boom"));
+    const deps = makeDeps({
+      registry: [{ tableName: "diners", shipped: true, handler: failingHandler, verificationQuery: null, twoPhase: false, piiColumns: [], defaultReason: "gdpr_art_17" }],
+    });
+    const subject = makeHandleErasureExecute(deps);
+    await expect(subject({ requestId: fakeDsr.id })).rejects.toThrow("boom");
+  });
 });

@@ -243,7 +243,27 @@ export function makeDsrActions(deps: Deps) {
     });
   }
 
-  return { createDsr, resolveDinerForDsr, verifyDsrIdentity, approveDsrErasure, rejectDsr, extendDsrDeadline };
+  async function retryErasureCascade(input: { dsrId: string }): Promise<void> {
+    // Reuses gdpr.approve_erasure permission — retry is conceptually "approve again".
+    const { session } = await loadSessionAndCheck("gdpr.approve_erasure");
+    void session; // used only for auth check; no audit written here (cascade itself audits)
+
+    const rows = await deps.db
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, input.dsrId))
+      .limit(1);
+    const dsr = rows[0];
+    if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
+    if (dsr.status !== "in_progress")
+      throw new Error(`TV1105 dsr_wrong_status: ${dsr.status} (retry only allowed when status='in_progress')`);
+
+    await deps.enqueue(JOBS.compliance.erasureExecute, { requestId: input.dsrId });
+    // No new audit action — the cascade itself will write either
+    // dsr_cascade_executed or dsr_cascade_failed.
+  }
+
+  return { createDsr, resolveDinerForDsr, verifyDsrIdentity, approveDsrErasure, rejectDsr, extendDsrDeadline, retryErasureCascade };
 }
 
 export const dsrActions = makeDsrActions({

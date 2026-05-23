@@ -39,3 +39,8 @@ export async function extendDeadlineAction(dsrId: string, days: number, reason: 
   await dsrActions.extendDsrDeadline({ dsrId, days, reason });
   revalidatePath(`/admin/gdpr-requests/${dsrId}`);
 }
+
+export async function retryErasureCascadeAction(dsrId: string) {
+  await dsrActions.retryErasureCascade({ dsrId });
+  revalidatePath(`/admin/gdpr-requests/${dsrId}`);
+}

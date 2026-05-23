@@ -85,81 +85,104 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
     const actorUserId = dsr.approvedByUserId;
     const { dinerIds, capturedIdentifiers } = await deps.resolveDiners(dsr);
 
-    // Step 3: Send confirmation email BEFORE handler iteration (#5 — PII-leak fix).
-    // sendTransactionalEmail inserts a new transactional_email_log row with the
-    // diner's email. By sending first, handleDiners' cascade UPDATE
-    // (WHERE diner_id = ?) will catch that new row and null out email/phone +
-    // stamp redacted_at. Sending after handlers would leave a live PII row that
-    // verifyTransactionalEmailLogRedacted can't detect (redacted_at IS NULL).
-    const seenEmails = new Set<string>();
-    for (const ci of capturedIdentifiers) {
-      if (ci.email && !seenEmails.has(ci.email)) {
-        seenEmails.add(ci.email);
-        const locale = await deps.resolveDinerLocale(ci.dinerId);
-        const now = new Date();
-        const props = { dsrId: dsr.id, completedAt: now, createdAt: now, locale };
-        const html = await render(DataDeletionConfirmedEmail(props));
-        const text = await render(DataDeletionConfirmedEmail(props), { plainText: true });
-        const subject = getDataDeletionSubject(locale, { dsrId: dsr.id });
-        try {
-          await deps.sendEmail({
-            to: ci.email,
-            locale,
-            templateKey: "data_deletion_confirmed",
-            subject,
-            html,
-            text,
-            context: { diner_id: ci.dinerId },
-          });
-        } catch {
-          // Send failure does NOT roll back the cascade. transactional_email_log
-          // captures the failure; manual re-send is a follow-up admin action.
+    try {
+      // Step 3: Send confirmation email BEFORE handler iteration (#5 — PII-leak fix).
+      // sendTransactionalEmail inserts a new transactional_email_log row with the
+      // diner's email. By sending first, handleDiners' cascade UPDATE
+      // (WHERE diner_id = ?) will catch that new row and null out email/phone +
+      // stamp redacted_at. Sending after handlers would leave a live PII row that
+      // verifyTransactionalEmailLogRedacted can't detect (redacted_at IS NULL).
+      const seenEmails = new Set<string>();
+      for (const ci of capturedIdentifiers) {
+        if (ci.email && !seenEmails.has(ci.email)) {
+          seenEmails.add(ci.email);
+          const locale = await deps.resolveDinerLocale(ci.dinerId);
+          const now = new Date();
+          const props = { dsrId: dsr.id, completedAt: now, createdAt: now, locale };
+          const html = await render(DataDeletionConfirmedEmail(props));
+          const text = await render(DataDeletionConfirmedEmail(props), { plainText: true });
+          const subject = getDataDeletionSubject(locale, { dsrId: dsr.id });
+          try {
+            await deps.sendEmail({
+              to: ci.email,
+              locale,
+              templateKey: "data_deletion_confirmed",
+              subject,
+              html,
+              text,
+              context: { diner_id: ci.dinerId },
+            });
+          } catch {
+            // Send failure does NOT roll back the cascade. transactional_email_log
+            // captures the failure; manual re-send is a follow-up admin action.
+          }
         }
       }
-    }
 
-    // Step 4: Iterate registry handlers. handleDiners will cascade-update
-    // transactional_email_log rows (including the one just inserted above).
-    const summary: Array<{ tableName: string; rowsRedacted: number }> = [];
-    for (const entry of deps.registry) {
-      if (!entry.shipped || !entry.handler) continue;
-      const result: HandlerResult | undefined = await entry.handler({
-        db: dbAdmin as any,
-        dsrId: dsr.id,
-        dinerIds,
-        capturedIdentifiers,
-        actorUserId,
-        impersonatorUserId: undefined,
-        actorRole: "tavli_admin",
-      });
-      if (result) {
-        summary.push({ tableName: result.tableName, rowsRedacted: result.rowsRedacted });
+      // Step 4: Iterate registry handlers. handleDiners will cascade-update
+      // transactional_email_log rows (including the one just inserted above).
+      const summary: Array<{ tableName: string; rowsRedacted: number }> = [];
+      for (const entry of deps.registry) {
+        if (!entry.shipped || !entry.handler) continue;
+        const result: HandlerResult | undefined = await entry.handler({
+          db: dbAdmin as any,
+          dsrId: dsr.id,
+          dinerIds,
+          capturedIdentifiers,
+          actorUserId,
+          impersonatorUserId: undefined,
+          actorRole: "tavli_admin",
+        });
+        if (result) {
+          summary.push({ tableName: result.tableName, rowsRedacted: result.rowsRedacted });
+        }
       }
+
+      // Step 5: Enqueue phase 2 BEFORE marking completed (#6 — phase-2 orphan fix).
+      // If enqueuePhase2 fails, the DSR remains in_progress and the job can be
+      // retried safely (all handlers are idempotent). The T14 fix-up that reversed
+      // this order created the inverse problem: updateDsrCompleted succeeding then
+      // enqueuePhase2 failing would leave phase 2 permanently un-enqueued because
+      // the status guard (TV1105) blocks all retries.
+      await deps.enqueuePhase2({ requestId: dsr.id });
+
+      // Step 6: Mark DSR completed.
+      await deps.updateDsrCompleted(dsr.id, summary);
+
+      // Step 7: Record audit.
+      await deps.recordAudit({
+        action: AUDIT.compliance.dsr_cascade_executed,
+        subjectType: "data_subject_request",
+        subjectId: dsr.id,
+        actorUserId,
+        actorRole: "tavli_admin",
+        context: { dinerIds: dinerIds.join(","), summary: JSON.stringify(summary), capturedIdentifierCount: capturedIdentifiers.length },
+      });
+      // Note: per-diner enqueuePurge loop removed (#8). handlePurgePseudonymised is
+      // a batch sweep (no payload); the daily 04:00 UTC boss.schedule already covers
+      // all rows. N redundant whole-table sweeps per cascade were pure overhead.
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      // Best-effort failure audit — written on EVERY failed attempt (including retries)
+      // for per-attempt forensics. If the audit write itself fails, swallow and re-throw
+      // the original error so pg-boss still receives the correct rejection.
+      try {
+        await deps.recordAudit({
+          action: AUDIT.compliance.dsr_cascade_failed,
+          subjectType: "data_subject_request",
+          subjectId: dsr.id,
+          actorUserId,
+          actorRole: "tavli_admin",
+          context: {
+            error: errorMessage,
+            dinerIdCount: String(dinerIds.length),
+          },
+        });
+      } catch {
+        // Audit failure — original error still propagates to pg-boss for retry/DLQ.
+      }
+      throw err;
     }
-
-    // Step 5: Enqueue phase 2 BEFORE marking completed (#6 — phase-2 orphan fix).
-    // If enqueuePhase2 fails, the DSR remains in_progress and the job can be
-    // retried safely (all handlers are idempotent). The T14 fix-up that reversed
-    // this order created the inverse problem: updateDsrCompleted succeeding then
-    // enqueuePhase2 failing would leave phase 2 permanently un-enqueued because
-    // the status guard (TV1105) blocks all retries.
-    await deps.enqueuePhase2({ requestId: dsr.id });
-
-    // Step 6: Mark DSR completed.
-    await deps.updateDsrCompleted(dsr.id, summary);
-
-    // Step 7: Record audit.
-    await deps.recordAudit({
-      action: AUDIT.compliance.dsr_cascade_executed,
-      subjectType: "data_subject_request",
-      subjectId: dsr.id,
-      actorUserId,
-      actorRole: "tavli_admin",
-      context: { dinerIds: dinerIds.join(","), summary: JSON.stringify(summary), capturedIdentifierCount: capturedIdentifiers.length },
-    });
-    // Note: per-diner enqueuePurge loop removed (#8). handlePurgePseudonymised is
-    // a batch sweep (no payload); the daily 04:00 UTC boss.schedule already covers
-    // all rows. N redundant whole-table sweeps per cascade were pure overhead.
   };
 }
 

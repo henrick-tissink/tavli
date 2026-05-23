@@ -234,6 +234,47 @@ describe("rejectDsr", () => {
   });
 });
 
+describe("retryErasureCascade", () => {
+  function makeActionsForRetry(dsrFromDb: any, override: any = {}) {
+    const limit = jest.fn().mockResolvedValue(dsrFromDb !== undefined ? [dsrFromDb] : []);
+    const db = {
+      select: jest.fn().mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({ limit }),
+        }),
+      }),
+      update: jest.fn(),
+      insert: jest.fn(),
+    };
+    return makeDsrActions({
+      db: db as any,
+      recordAudit: jest.fn().mockResolvedValue(undefined),
+      can: jest.fn().mockResolvedValue(true),
+      getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
+      currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin", impersonatorUserId: null }),
+      enqueue: jest.fn().mockResolvedValue(undefined),
+      ...override,
+    });
+  }
+
+  it("re-enqueues JOBS.compliance.erasureExecute when status='in_progress'", async () => {
+    const enqueue = jest.fn().mockResolvedValue(undefined);
+    const dsr = { id: "dsr-1", status: "in_progress" };
+    const actions = makeActionsForRetry(dsr, { enqueue });
+    await actions.retryErasureCascade({ dsrId: "dsr-1" });
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.stringContaining("compliance.erasure-execute"),
+      { requestId: "dsr-1" },
+    );
+  });
+
+  it("throws TV1105 when status != 'in_progress'", async () => {
+    const dsr = { id: "dsr-1", status: "completed" };
+    const actions = makeActionsForRetry(dsr);
+    await expect(actions.retryErasureCascade({ dsrId: "dsr-1" })).rejects.toThrow(/TV1105/);
+  });
+});
+
 describe("extendDsrDeadline", () => {
   function makeActionsForExtend(dsrFromDb: any, override: any = {}) {
     const setMock = jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) });
