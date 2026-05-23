@@ -510,6 +510,35 @@ export const reviews = pgTable("reviews", {
   ),
 ]);
 
+// ─── review_reports ─────────────────────────────────────────────────────
+// DSA notice-and-action: any visitor can file a report against a review.
+// Tavli admins uphold (→ review.is_hidden=true) or dismiss. Admin-only read
+// policy for v1; partner-side read added when partner review UI ships.
+// See migration 0039, §06 §3.3 Wave 4 sub-unit K.1.
+export const reviewReports = pgTable("review_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reviewId: uuid("review_id")
+    .notNull()
+    .references(() => reviews.id, { onDelete: "cascade" }),
+  reporterUserId: uuid("reporter_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+  reporterIp: inet("reporter_ip"),
+  reason: varchar("reason", { length: 60 }).notNull(),
+  details: text("details"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  resolvedByUserId: uuid("resolved_by_user_id").references(() => authUsers.id, {
+    onDelete: "set null",
+  }),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+}, (t) => [
+  index("review_reports_review").on(t.reviewId),
+  index("review_reports_status").on(t.status).where(sql`${t.status} = 'pending'`),
+]);
+
 // ─── corporate_clients ──────────────────────────────────────────────────
 // The corporate buyer's legal entity (the customer placing event/private
 // dining requests). Renamed from `companies` in migration 0019 to avoid

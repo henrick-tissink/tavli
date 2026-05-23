@@ -58,6 +58,7 @@ export const ERROR_CODES = {
   TV403: { domain: "06", slug: "edit_window_closed" },
   TV404: { domain: "06", slug: "review_hidden" },
   TV405: { domain: "06", slug: "comment_too_short" },
+  TV406: { domain: "06", slug: "review_report_not_found" },
 
   // §07 Analytics (TV500–TV599)
   TV501: { domain: "07", slug: "export_too_large" },
