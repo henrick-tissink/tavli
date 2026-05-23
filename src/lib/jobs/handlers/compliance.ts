@@ -44,6 +44,7 @@ import {
 } from "@/lib/compliance/handlers/partner-notifications-phase2";
 import type { HandlerDeps as Phase2HandlerDeps } from "@/lib/compliance/pii-table-registry";
 import { runRetentionPurge } from "@/lib/compliance/retention";
+import { purgeRateLimits } from "@/lib/rate-limit/cleanup";
 
 export interface ErasureExecutePayload {
   requestId: string;
@@ -289,4 +290,10 @@ export async function handleErasurePartnerNotificationsPhase2(payload: ErasurePh
 
 export async function handleRetentionPurge(): Promise<void> {
   await runRetentionPurge();
+}
+
+// ─── Rate-limits purge wrapper ────────────────────────────────────────────────
+
+export async function handlePurgeRateLimits(): Promise<void> {
+  await purgeRateLimits();
 }
