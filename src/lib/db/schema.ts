@@ -1236,3 +1236,23 @@ export const retentionPolicies = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
   },
 );
+
+// ─── rate_limits ─────────────────────────────────────────────────────────
+// §13 §4.4 — fixed-window rate limiting. Service-role only; RLS enabled with
+// no policies (blocks anon/authenticated by default). Rows auto-expire via
+// the nightly purgeRateLimits job (Wave 4 sub-unit C).
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    key: varchar("key", { length: 200 }).notNull(),
+    scope: varchar("scope", { length: 60 }).notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    windowEnd: timestamp("window_end", { withTimezone: true }).notNull(),
+    count: integer("count").notNull().default(1),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.key, t.windowStart] }),
+    expiresIdx: index("rate_limits_expires").on(t.expiresAt),
+  }),
+);

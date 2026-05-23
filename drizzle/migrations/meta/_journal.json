@@ -232,6 +232,13 @@
       "when": 1748044800000,
       "tag": "0032_retention_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1748131200000,
+      "tag": "0033_rate_limits",
+      "breakpoints": true
     }
   ]
 }
