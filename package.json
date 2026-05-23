@@ -13,6 +13,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
+    "seed:stripe-prices": "tsx scripts/seed-stripe-prices.ts",
+    "verify:stripe-prices": "tsx scripts/verify-stripe-prices.ts",
     "db:create-admin": "tsx scripts/create-admin.ts",
     "worker:start": "WORKER_MODE=true tsx scripts/worker.ts",
     "supabase:start": "supabase start",
