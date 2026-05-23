@@ -71,6 +71,8 @@ export const ERROR_CODES = {
 
   // §09 Multi-location (TV700–TV799)
   TV701: { domain: "09", slug: "multi_venue_upgrade_required" },
+  TV702: { domain: "09", slug: "venue_cap_reached" },
+  TV703: { domain: "09", slug: "venue_has_future_reservations" },
 
   // §10 Corporate events (TV800–TV899)
   TV801: { domain: "10", slug: "no_matching_venues" },

@@ -40,6 +40,9 @@ export const JOBS = {
     leadRoutingNudge: "corporate.lead-routing-nudge",
     eventExpiry: "corporate.event-expiry",
   },
+  multiLocation: {
+    reconcileVenueCount: "multi_location.reconcile-venue-count",
+  },
   diner: {
     recomputeAggregates: "diner.recompute-aggregates",
     frequencyBucketRebalance: "diner.frequency-bucket-rebalance",

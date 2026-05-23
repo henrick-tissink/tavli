@@ -256,6 +256,9 @@ export const restaurants = pgTable("restaurants", {
   acceptsStanding: boolean("accepts_standing").notNull().default(false),
   proPlanActive: boolean("pro_plan_active").notNull().default(false),
   transactionalSmsEnabled: boolean("transactional_sms_enabled").notNull().default(false),
+  // §09 §4.1a — soft-delete marker. archived_at IS NULL = live venue. This is
+  // the canonical "is this venue active" check across all domains.
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -830,6 +833,11 @@ export const organizations = pgTable("organizations", {
   status: orgStatus("status").notNull().default("pending_verification"),
   customerType: orgCustomerType("customer_type"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 80 }).unique(),
+  // §09 multi-location substrate (Wave 5 sub-unit A).
+  maxVenues: integer("max_venues"),
+  currentVenueCount: integer("current_venue_count").notNull().default(0),
+  brandPrimary: varchar("brand_primary", { length: 7 }),
+  brandSecondary: varchar("brand_secondary", { length: 7 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -864,6 +872,28 @@ export const organizationMembers = pgTable("organization_members", {
   index("organization_members_user_idx")
     .on(t.userId)
     .where(sql`${t.isActive} = true`),
+]);
+
+// ─── venue_addition_log ─────────────────────────────────────────────────
+// §09 §4.2 — audit-side track of venue add/remove/reactivate for billing
+// reconciliation. billing_impact_cents + stripe_subscription_item_id are
+// written null in Wave 5 sub-unit A; §12 (sub-unit F) backfills them.
+export const venueAdditionLog = pgTable("venue_addition_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  action: varchar("action", { length: 20 }).notNull(), // 'added' | 'removed' | 'reactivated'
+  byUserId: uuid("by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  venueCountAfter: integer("venue_count_after").notNull(),
+  billingImpactCents: integer("billing_impact_cents"),
+  stripeSubscriptionItemId: varchar("stripe_subscription_item_id", { length: 80 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("venue_addition_log_org").on(t.organizationId, t.createdAt.desc()),
 ]);
 
 // ─── restaurant_staff ───────────────────────────────────────────────────
