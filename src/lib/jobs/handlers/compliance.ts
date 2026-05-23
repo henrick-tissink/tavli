@@ -279,9 +279,7 @@ export async function handleErasurePartnerNotificationsPhase2(payload: ErasurePh
     capturedIdentifiers: [],
     actorUserId: "00000000-0000-0000-0000-000000000000", // system actor for the scheduled phase-2 job
     impersonatorUserId: undefined,
-    // Phase-2 is system-driven; HandlerDeps.actorRole is narrowed to "tavli_admin"
-    // because all registry handlers (incl. diners) require it, but partner-notifications-phase2
-    // does not read actorRole — cast is safe here.
-    actorRole: "system" as unknown as "tavli_admin",
+    // Phase-2 is system-driven; "system" is a valid HandlerDeps.actorRole literal.
+    actorRole: "system",
   });
 }

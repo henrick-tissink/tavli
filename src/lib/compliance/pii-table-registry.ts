@@ -32,7 +32,7 @@ export type HandlerDeps = {
   }>;
   actorUserId: string;
   impersonatorUserId: string | undefined;
-  actorRole: "tavli_admin";
+  actorRole: "tavli_admin" | "system";
 };
 
 export type HandlerResult = {
@@ -244,5 +244,69 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     twoPhase: false,
     piiColumns: ["context"],
     defaultReason: "gdpr_art_17",
+  },
+  // ─── Future-Wave stubs (spec §3.2) ────────────────────────────────────────
+  // shipped:false entries are skipped by the cascade orchestrator and
+  // verification sweep. Flip shipped:true + add handler + verificationQuery
+  // when the owning Wave ships the table.
+  {
+    tableName: "billing_audit_log",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: ["context"],
+    defaultReason: "gdpr_art_17_with_fiscal_retention",
+    // TODO Wave 5 — ship billing_audit_log + handler
+  },
+  {
+    tableName: "marketing_sends",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: ["email", "phone"],
+    defaultReason: "gdpr_art_17",
+    // TODO Wave 7 — ship marketing_sends + handler
+  },
+  {
+    tableName: "customer_consents",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: [],
+    defaultReason: "gdpr_art_17",
+    // TODO Wave 7 — ship customer_consents
+  },
+  {
+    tableName: "marketing_consent_audit",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: ["context"],
+    defaultReason: "gdpr_art_17",
+    // TODO Wave 7 — ship marketing_consent_audit + handler with predicate-AST engine
+  },
+  {
+    tableName: "walkin_queue",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: ["guest_name", "guest_phone"],
+    defaultReason: "gdpr_art_17",
+    // TODO Wave 4 §08 — ship walkin_queue + handler
+  },
+  {
+    tableName: "corporate_lead_intents",
+    shipped: false,
+    handler: null,
+    verificationQuery: null,
+    twoPhase: false,
+    piiColumns: [],
+    defaultReason: "gdpr_art_17",
+    // TODO Wave 4 §10 — ship corporate_lead_intents + handler
   },
 ];

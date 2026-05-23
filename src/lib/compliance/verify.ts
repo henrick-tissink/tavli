@@ -42,7 +42,16 @@ export function makeRunErasureVerification(deps: Deps) {
         subjectType: "system",
         subjectId: "00000000-0000-0000-0000-000000000000",
         actorRole: "system",
-        context: { rowsScannedByTable: JSON.stringify(rowsScannedByTable) },
+        context: {
+          rowsScannedByTable: JSON.stringify(rowsScannedByTable),
+          residual: JSON.stringify(
+            residual.map((r) => ({
+              tableName: r.tableName,
+              rowsWithResidualPii: r.rowsWithResidualPii,
+              sampleIds: r.residualRowIds.slice(0, 10),
+            })),
+          ),
+        },
       });
     } else {
       await deps.recordAudit({

@@ -29,12 +29,17 @@ export function makeHandleDiners(deps: Deps) {
     }
 
     for (const dinerId of d.dinerIds) {
+      // actorRole narrowing: handleDiners is only invoked by the cascade
+      // orchestrator which always passes "tavli_admin". pseudonymiseDiner
+      // does not accept "system" (reserved for headless phase-2 jobs that
+      // never reach this handler). The assertion is safe at runtime.
+      const pseudonymiseRole = d.actorRole === "system" ? "tavli_admin" : d.actorRole;
       await deps.pseudonymiseDiner({
         dinerId,
         reason: `gdpr_erasure_dsr_${d.dsrId}`,
         actorUserId: d.actorUserId,
         impersonatorUserId: d.impersonatorUserId,
-        actorRole: d.actorRole,
+        actorRole: pseudonymiseRole,
       });
     }
 

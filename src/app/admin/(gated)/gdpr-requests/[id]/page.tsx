@@ -30,7 +30,7 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
   const cascadeRows = await dbAdmin
     .select()
     .from(erasureLog)
-    .where(sql`${erasureLog.context}->>'dsrId' = ${id}`)
+    .where(sql`${erasureLog.context}->>'dsrId' = ${id} OR ${erasureLog.reason} = ${`gdpr_erasure_dsr_${id}`}`)
     .orderBy(desc(erasureLog.createdAt))
     .limit(200);
 
