@@ -32,6 +32,7 @@ import {
   primaryKey,
   char,
   check,
+  inet,
 } from "drizzle-orm/pg-core";
 
 // ─── Supabase-managed auth.users reference ──────────────────────────────
@@ -1254,5 +1255,29 @@ export const rateLimits = pgTable(
   (t) => ({
     pk: primaryKey({ columns: [t.key, t.windowStart] }),
     expiresIdx: index("rate_limits_expires").on(t.expiresAt),
+  }),
+);
+
+// ─── cookie_consents ─────────────────────────────────────────────────────
+// §13 §4.5 — visitor cookie consent records. Service-role only; RLS enabled
+// with no policies. 13-month retention via expires_at; nightly purge job
+// (Wave 4 sub-unit D) deletes expired rows.
+export const cookieConsents = pgTable(
+  "cookie_consents",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    visitorSessionId: uuid("visitor_session_id").notNull(),
+    dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
+    organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "set null" }),
+    essential: boolean("essential").notNull().default(true),
+    analytics: boolean("analytics").notNull().default(false),
+    marketingTracking: boolean("marketing_tracking").notNull().default(false),
+    grantedIp: inet("granted_ip"),
+    grantedAt: timestamp("granted_at", { withTimezone: true }).notNull().default(sql`now()`),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (t) => ({
+    sessionIdx: index("cookie_consents_session").on(t.visitorSessionId, sql`${t.grantedAt} DESC`),
   }),
 );
