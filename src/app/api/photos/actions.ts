@@ -5,6 +5,8 @@ import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { PHOTO_BUCKET } from "@/lib/storage";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
+import { stripExif } from "@/lib/photos/strip-exif";
+import { loadActiveSubscription } from "@/lib/billing/subscription-stub";
 
 export interface UploadResult {
   ok: boolean;
@@ -24,8 +26,9 @@ export interface UploadResult {
  * sidesteps the browser-client session issue where anon/publishable
  * keys don't always propagate the access token in all SDK flows.
  *
- * Limits enforced here: max 50 photos per restaurant; user must hold
+ * Limits enforced here: max 20 photos (Base tier) per restaurant; user must hold
  * restaurant.update on the venue (via can()); image MIME type.
+ * EXIF metadata is stripped from every upload before writing to Storage.
  */
 export async function uploadRestaurantPhoto(
   formData: FormData,
@@ -72,14 +75,27 @@ export async function uploadRestaurantPhoto(
     return { ok: false, error: "Nu este restaurantul tău." };
   }
 
-  // Enforce per-restaurant photo cap.
-  const { count } = await admin
-    .from("restaurant_photos")
-    .select("id", { count: "exact", head: true })
-    .eq("restaurant_id", restaurantId);
-  if ((count ?? 0) >= 50) {
-    return { ok: false, error: "Limita de fotografii a fost atinsă (50 per restaurant)." };
+  // Enforce per-restaurant photo cap (tier-aware). §05 §3.5.
+  const subscription = await loadActiveSubscription(restaurantRow.organization_id);
+  const isProActive = subscription.tier === "pro";
+  const PHOTO_CAP_BASE = 20;
+
+  if (!isProActive) {
+    const { count } = await admin
+      .from("restaurant_photos")
+      .select("id", { count: "exact", head: true })
+      .eq("restaurant_id", restaurantId);
+    if ((count ?? 0) >= PHOTO_CAP_BASE) {
+      return {
+        ok: false,
+        error: `Limita de fotografii a fost atinsă (${PHOTO_CAP_BASE} per restaurant). Upgradeaza la Pro pentru nelimitat.`,
+      };
+    }
   }
+
+  // Strip EXIF metadata before upload. §05 §5.1.
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const cleanBuffer = await stripExif(rawBuffer);
 
   // Upload to Storage.
   const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
@@ -87,7 +103,7 @@ export async function uploadRestaurantPhoto(
 
   const { error: uploadErr } = await admin.storage
     .from(PHOTO_BUCKET)
-    .upload(storagePath, file, {
+    .upload(storagePath, cleanBuffer, {
       contentType: file.type,
       upsert: false,
     });
