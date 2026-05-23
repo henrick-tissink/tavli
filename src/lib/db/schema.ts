@@ -142,6 +142,24 @@ export const orgCustomerType = pgEnum("org_customer_type", [
   "personal",
 ]);
 
+// §12 Billing enums (Wave 5 sub-unit B).
+export const subscriptionTier = pgEnum("subscription_tier", ["base", "pro"]);
+export const billingFrequency = pgEnum("billing_frequency", ["monthly", "annual"]);
+export const subscriptionStatus = pgEnum("subscription_status", [
+  "trialing",
+  "active",
+  "past_due",
+  "cancelled",
+  "unpaid",
+  "incomplete",
+]);
+export const subscriptionItemKind = pgEnum("subscription_item_kind", [
+  "base_tier",
+  "extra_location",
+  "sms_overage",
+  "whatsapp_overage",
+]);
+
 export const staffInvitationKind = pgEnum("staff_invitation_kind", [
   "org",
   "restaurant",
@@ -838,6 +856,8 @@ export const organizations = pgTable("organizations", {
   currentVenueCount: integer("current_venue_count").notNull().default(0),
   brandPrimary: varchar("brand_primary", { length: 7 }),
   brandSecondary: varchar("brand_secondary", { length: 7 }),
+  // §12 §4.1a — Tavli-admin grant of a second free trial in good-faith cases.
+  reTrialGranted: boolean("re_trial_granted").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -894,6 +914,120 @@ export const venueAdditionLog = pgTable("venue_addition_log", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("venue_addition_log_org").on(t.organizationId, t.createdAt.desc()),
+]);
+
+// ─── subscriptions (§12 §4.2) ───────────────────────────────────────────
+// One row per org; mirrors the Stripe Subscription. Stripe is source of
+// truth; this is the read mirror (loadActiveSubscription reads it).
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 80 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 80 }).notNull(),
+  tier: subscriptionTier("tier").notNull(),
+  frequency: billingFrequency("frequency").notNull().default("monthly"),
+  status: subscriptionStatus("status").notNull(),
+  statusSyncedAt: timestamp("status_synced_at", { withTimezone: true }).notNull().defaultNow(),
+  trialStartedAt: timestamp("trial_started_at", { withTimezone: true }).notNull(),
+  trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }).notNull(),
+  trialConversionBlockedAt: timestamp("trial_conversion_blocked_at", { withTimezone: true }),
+  currentPeriodStart: timestamp("current_period_start", { withTimezone: true }),
+  currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+  cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+  cancellationReason: text("cancellation_reason"),
+  cancellationRequestedByUserId: uuid("cancellation_requested_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  defaultPaymentMethodStripeId: varchar("default_payment_method_stripe_id", { length: 80 }),
+  consentEmailSentAt: timestamp("consent_email_sent_at", { withTimezone: true }),
+  annualPaidThrough: timestamp("annual_paid_through", { withTimezone: true }),
+  pendingFrequencyChange: billingFrequency("pending_frequency_change"),
+  pendingFrequencyEffectiveAt: timestamp("pending_frequency_effective_at", { withTimezone: true }),
+  pendingFrequencyRequestedAt: timestamp("pending_frequency_requested_at", { withTimezone: true }),
+  pendingFrequencyRequestedByUserId: uuid("pending_frequency_requested_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("subscriptions_org_active").on(t.organizationId)
+    .where(sql`status in ('trialing','active','past_due','unpaid')`),
+  index("subscriptions_trial_ends").on(t.trialEndsAt).where(sql`status = 'trialing'`),
+  index("subscriptions_current_period_end").on(t.currentPeriodEnd).where(sql`status in ('active','past_due')`),
+  index("subscriptions_stripe_id").on(t.stripeSubscriptionId),
+]);
+
+// ─── subscription_items (§12 §4.3) ──────────────────────────────────────
+export const subscriptionItems = pgTable("subscription_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  subscriptionId: uuid("subscription_id").notNull().references(() => subscriptions.id, { onDelete: "cascade" }),
+  stripeSubscriptionItemId: varchar("stripe_subscription_item_id", { length: 80 }).notNull().unique(),
+  kind: subscriptionItemKind("kind").notNull(),
+  stripePriceId: varchar("stripe_price_id", { length: 80 }).notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  unitAmountCents: integer("unit_amount_cents").notNull(),
+  currency: char("currency", { length: 3 }).notNull().default("EUR"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("subscription_items_kind_unique").on(t.subscriptionId, t.kind)
+    .where(sql`kind in ('base_tier','extra_location')`),
+  index("subscription_items_subscription").on(t.subscriptionId),
+]);
+
+// ─── invoices (§12 §4.4) ────────────────────────────────────────────────
+export const invoices = pgTable("invoices", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  subscriptionId: uuid("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+  stripeInvoiceId: varchar("stripe_invoice_id", { length: 80 }).notNull().unique(),
+  status: varchar("status", { length: 20 }).notNull(),
+  amountDueCents: integer("amount_due_cents").notNull(),
+  amountPaidCents: integer("amount_paid_cents").notNull().default(0),
+  taxAmountCents: integer("tax_amount_cents").notNull().default(0),
+  currency: char("currency", { length: 3 }).notNull(),
+  hostedInvoiceUrl: text("hosted_invoice_url"),
+  invoicePdfUrl: text("invoice_pdf_url"),
+  periodStart: timestamp("period_start", { withTimezone: true }),
+  periodEnd: timestamp("period_end", { withTimezone: true }),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  voidedAt: timestamp("voided_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("invoices_org").on(t.organizationId, t.createdAt.desc()),
+  index("invoices_subscription").on(t.subscriptionId, t.createdAt.desc()),
+  index("invoices_status").on(t.status),
+]);
+
+// ─── payment_methods (§12 §4.5) ─────────────────────────────────────────
+export const paymentMethods = pgTable("payment_methods", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  stripePaymentMethodId: varchar("stripe_payment_method_id", { length: 80 }).notNull().unique(),
+  type: varchar("type", { length: 20 }).notNull(),
+  cardBrand: varchar("card_brand", { length: 20 }),
+  cardLast4: varchar("card_last4", { length: 4 }),
+  cardExpMonth: smallint("card_exp_month"),
+  cardExpYear: smallint("card_exp_year"),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  detachedAt: timestamp("detached_at", { withTimezone: true }),
+}, (t) => [
+  index("payment_methods_org").on(t.organizationId).where(sql`detached_at is null`),
+]);
+
+// ─── billing_audit_log (§12 §4.6) ───────────────────────────────────────
+// Two-column org id: organization_id (FK, set-null on org delete, survives
+// 7-yr fiscal retention) + organization_id_at_event (immutable snapshot for
+// ANPC/forensic queries). Service-role inserts; created here, written by W5-C+.
+export const billingAuditLog = pgTable("billing_audit_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "set null" }),
+  organizationIdAtEvent: uuid("organization_id_at_event").notNull(),
+  eventType: varchar("event_type", { length: 60 }).notNull(),
+  actorUserId: uuid("actor_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  context: jsonb("context").notNull(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("billing_audit_log_org").on(t.organizationId, t.occurredAt.desc()),
+  index("billing_audit_log_type").on(t.eventType, t.occurredAt.desc()),
 ]);
 
 // ─── restaurant_staff ───────────────────────────────────────────────────

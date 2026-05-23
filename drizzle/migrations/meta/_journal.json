@@ -288,6 +288,13 @@
       "when": 1779574271570,
       "tag": "0040_multi_location_substrate",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1779576418330,
+      "tag": "0041_billing_foundation",
+      "breakpoints": true
     }
   ]
 }
