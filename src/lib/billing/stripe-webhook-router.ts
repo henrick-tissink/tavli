@@ -42,19 +42,29 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     if (await deps.wasEventApplied(event.id)) return;
     const sub = event.data.object as unknown as Obj;
     const rows = await deps.db
-      .select({ organizationId: subscriptions.organizationId, status: subscriptions.status })
+      .select({ organizationId: subscriptions.organizationId, status: subscriptions.status, frequency: subscriptions.frequency })
       .from(subscriptions)
       .where(eq(subscriptions.stripeSubscriptionId, sub.id as string));
     const row = rows[0];
     if (!row) return; // not mirrored yet; the created handler / W5-C insert owns it
     const after = mapStripeStatus(sub.status as Stripe.Subscription.Status);
+    // #10 — Stripe emits subscription.updated for many non-status reasons
+    // (quantity sync, card change, cancel-at-period-end). statusSyncedAt is the
+    // dunning clock (read as pastDueSince), so only re-stamp it on an actual
+    // status transition — otherwise the day-7/day-21 counter never advances.
+    const statusChanged = after !== row.status;
+    const periodEnd = tsToDate(sub.current_period_end);
     await deps.db
       .update(subscriptions)
       .set({
         status: after,
-        currentPeriodEnd: tsToDate(sub.current_period_end),
+        // #3 — populate the columns the §10.2 pro-rata refund branch reads.
+        // For an annual prepay, current_period_end IS the paid-through date.
+        currentPeriodStart: tsToDate(sub.current_period_start),
+        currentPeriodEnd: periodEnd,
+        ...(row.frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
         cancelAtPeriodEnd: Boolean(sub.cancel_at_period_end),
-        statusSyncedAt: sql`now()`,
+        ...(statusChanged ? { statusSyncedAt: sql`now()` } : {}),
       })
       .where(eq(subscriptions.stripeSubscriptionId, sub.id as string));
     await deps.recordBillingAudit({
@@ -69,6 +79,8 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     const orgId = (sub.metadata as Obj | undefined)?.organization_id as string | undefined;
     const resolvedOrg = orgId ?? (await orgByCustomer(sub.customer));
     if (!resolvedOrg) return;
+    const frequency = ((sub.metadata as Obj | undefined)?.frequency as "monthly" | "annual") ?? "monthly";
+    const periodEnd = tsToDate(sub.current_period_end);
     // UPSERT — idempotent against the row W5-C startSubscription already inserted.
     await deps.db
       .insert(subscriptions)
@@ -77,11 +89,14 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         stripeSubscriptionId: sub.id as string,
         stripeCustomerId: sub.customer as string,
         tier: ((sub.metadata as Obj | undefined)?.tier as "base" | "pro") ?? "base",
-        frequency: ((sub.metadata as Obj | undefined)?.frequency as "monthly" | "annual") ?? "monthly",
+        frequency,
         status: mapStripeStatus(sub.status as Stripe.Subscription.Status),
         trialStartedAt: tsToDate(sub.trial_start) ?? new Date(),
         trialEndsAt: tsToDate(sub.trial_end) ?? new Date(),
-        currentPeriodEnd: tsToDate(sub.current_period_end),
+        // #3 — seed the period columns the refund branch reads.
+        currentPeriodStart: tsToDate(sub.current_period_start),
+        currentPeriodEnd: periodEnd,
+        ...(frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
       })
       .onConflictDoUpdate({
         target: subscriptions.stripeSubscriptionId,
@@ -110,6 +125,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
   }
 
   async function onInvoice(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return; // #11 layer-2 idempotency
     const inv = event.data.object as unknown as Obj;
     const orgId = await orgByCustomer(inv.customer);
     if (!orgId) return;
@@ -187,6 +203,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
   }
 
   async function onSetupIntentSucceeded(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return; // #11 layer-2 idempotency
     const si = event.data.object as unknown as Obj;
     const meta = (si.metadata as Obj | undefined) ?? {};
     const stripeSubId = meta.subscription_id as string | undefined;
@@ -254,6 +271,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
   }
 
   async function onDispute(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return; // #11 layer-2 idempotency
     const dispute = event.data.object as unknown as Obj;
     const orgId = await orgByCustomer(dispute.customer);
     if (!orgId) return;
@@ -265,6 +283,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
   }
 
   async function onChargeRefunded(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return; // #11 layer-2 idempotency
     const charge = event.data.object as unknown as Obj;
     const orgId = await orgByCustomer(charge.customer);
     if (!orgId) return;
