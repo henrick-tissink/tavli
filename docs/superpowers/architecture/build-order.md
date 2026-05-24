@@ -158,18 +158,18 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: customer-acquisition surface + operator onboarding tooling.*
 
-- [ ] §14 `setup_progress` table + creation trigger
-- [ ] §14 `migration_imports` + CSV converter (manual template only for v1; per §14 §6.1)
-- [ ] §14 founder admin "in-flight setups" dashboard
-- [ ] §14 day-7 / day-30 / day-60 check-in emails
-- [ ] §14 parallel-run consolidation flow + banner UI
-- [ ] §15 `currency_reference_rates` + BNR XML fetcher + manual-override path
-- [ ] §15 pricing page components (RO + EN + DE)
-- [ ] §15 VAT disclosure panel (B2B / B2C / EU outside RO / outside EU)
-- [ ] §15 day-91 card-on-file disclosure block
-- [ ] §15 `prospect_waitlist` + wait-list mode toggle via `PARTNER_SIGNUP_ENABLED`
-- [ ] §15 SEO + JSON-LD + hreflang per-locale
-- [ ] §15 `frontend-design`-skill aesthetic pass (the editorial bar)
+- [x] §14 `setup_progress` table + creation trigger *(shipped 2026-05-24 — Wave 8 S1; migration 0044: 3 enums + setup_progress + migration_imports + reservations.migration_import_id + fn_seed_setup_progress trigger (4 base steps on restaurant insert) + RLS; +4 permission actions.)*
+- [x] §14 `migration_imports` + CSV converter (manual template only for v1; per §14 §6.1) *(shipped 2026-05-24 — Wave 8 S2; parseManualCsv (papaparse, require guest_phone) + dedup (4-tuple/E.164) + runMigrationImport job (find-or-create diner, tagged reservations, counts+audit) + startMigrationImport/rollbackMigrationImport actions. Per-competitor converters deferred to v1.5.)*
+- [x] §14 founder admin "in-flight setups" dashboard *(shipped 2026-05-24 — Wave 8 S5; `/admin/(gated)/setups` — trialing orgs + per-restaurant step progress + at-risk/awaiting/stuck signals.)*
+- [x] §14 day-7 / day-30 / day-60 check-in emails *(shipped 2026-05-24 — Wave 8 S3; SetupCheckinEmail RO/EN/DE + daily-sweep sendDayNCheckin (created N days ago) + flagAtRiskOrgs. Worker-wired.)*
+- [x] §14 parallel-run consolidation flow + banner UI *(shipped 2026-05-24 — Wave 8 S4; consolidateParallelRun (mark step completed + audit) + ParallelRunBanner. Operational-only, no data mirror.)*
+- [x] §15 `currency_reference_rates` + BNR XML fetcher + manual-override path *(shipped 2026-05-24 — Wave 8 P1+P2; migration 0045 (currency_reference_rates public-read + prospect_waitlist) + parseBnrXml (fast-xml-parser) + loadPricingPrimitives (BNR→admin_manual fallback + staleness) + refreshBnrRate job (30 11 * * *) + setManualRate admin override.)*
+- [ ] §15 pricing page components (RO + EN + DE) *(Wave 8 P3 — NOT YET; editorial trilingual page deferred to a focused session with the frontend-design skill. Data layer (rate + primitives + tier config) is ready.)*
+- [ ] §15 VAT disclosure panel (B2B / B2C / EU outside RO / outside EU) *(Wave 8 P3 — with the pricing page.)*
+- [ ] §15 day-91 card-on-file disclosure block *(Wave 8 P3 — with the pricing page.)*
+- [ ] §15 `prospect_waitlist` + wait-list mode toggle via `PARTNER_SIGNUP_ENABLED` *(table shipped (P1); joinWaitlist action + CTA toggle = Wave 8 P4.)*
+- [ ] §15 SEO + JSON-LD + hreflang per-locale *(Wave 8 P4 — with the pricing page.)*
+- [ ] §15 `frontend-design`-skill aesthetic pass (the editorial bar) *(Wave 8 P5 — the editorial pass.)*
 
 ## Wave 9 — Closure
 
