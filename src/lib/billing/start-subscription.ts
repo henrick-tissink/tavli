@@ -7,40 +7,10 @@ import { enqueue as defaultEnqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 import { priceIdForTierFrequency, priceIdForExtraLocation } from "@/lib/billing/price-ids";
 import { recordBillingAudit as defaultRecordBillingAudit } from "@/lib/billing/billing-audit";
+import { mapStripeStatus } from "@/lib/billing/stripe-status";
 
 const TRIAL_DAYS = 90;
 const DAY_MS = 86_400_000;
-
-type LocalSubscriptionStatus =
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "cancelled"
-  | "unpaid"
-  | "incomplete";
-
-/**
- * Map Stripe's status vocabulary (American "canceled" + extra states) to our
- * subscription_status enum. Full reconciliation lives in W5-D's webhook mirror;
- * this covers the creation path (typically "trialing") + defensive fallbacks.
- */
-function mapStripeStatus(s: Stripe.Subscription.Status): LocalSubscriptionStatus {
-  switch (s) {
-    case "trialing":
-    case "active":
-    case "past_due":
-    case "unpaid":
-    case "incomplete":
-      return s;
-    case "canceled":
-    case "incomplete_expired":
-      return "cancelled";
-    case "paused":
-      return "trialing"; // trial paused (missing payment method) — no charge yet
-    default:
-      return "incomplete";
-  }
-}
 
 export interface StartSubscriptionInput {
   organizationId: string;
