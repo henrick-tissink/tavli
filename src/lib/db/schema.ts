@@ -278,6 +278,10 @@ export const restaurants = pgTable("restaurants", {
   // retention windows, nightly-job scheduling). All v1 venues are Bucharest;
   // forward-compatible for expansion. Added Wave 6 (migration 0042).
   timezone: varchar("timezone", { length: 64 }).notNull().default("Europe/Bucharest"),
+  // audit #8 — turn-time occupancy (minutes). A reservation occupies
+  // [start, start+turn); the capacity trigger sums party_size over overlapping
+  // windows. Added migration 0049. Default 90.
+  turnTimeMinutes: smallint("turn_time_minutes").notNull().default(90),
   // §09 §4.1a — soft-delete marker. archived_at IS NULL = live venue. This is
   // the canonical "is this venue active" check across all domains.
   archivedAt: timestamp("archived_at", { withTimezone: true }),
