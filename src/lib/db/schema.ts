@@ -2233,7 +2233,9 @@ export const currencyReferenceRates = pgTable("currency_reference_rates", {
   overrideExpiresAt: timestamp("override_expires_at", { withTimezone: true }),
 }, (t) => [
   primaryKey({ columns: [t.source, t.effectiveDate] }),
-  check("chk_admin_manual_has_owner", sql`${t.source} <> 'admin_manual' OR (${t.fetchedByUserId} IS NOT NULL AND ${t.overrideExpiresAt} IS NOT NULL)`),
+  // audit #6 — owner clause dropped: fetched_by_user_id FK is ON DELETE SET
+  // NULL, so requiring it non-null made admins who set an override undeletable.
+  check("chk_admin_manual_has_owner", sql`${t.source} <> 'admin_manual' OR ${t.overrideExpiresAt} IS NOT NULL`),
 ]);
 
 // §15 §18 OQ8 — pre-launch wait-list when PARTNER_SIGNUP_ENABLED=false.
