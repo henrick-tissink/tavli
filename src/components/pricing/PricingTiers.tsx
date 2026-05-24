@@ -14,6 +14,7 @@ import {
   ronFromEurCents,
 } from "@/lib/pricing/display";
 import { CardOnFileDisclosure } from "./CardOnFileDisclosure";
+import { WaitlistButton } from "./WaitlistButton";
 
 function PriceBlock({
   cadence,
@@ -54,6 +55,7 @@ function TierCard({
   messages,
   ronRate,
   featured,
+  signupEnabled,
 }: {
   tier: TierPrice;
   content: TierContent;
@@ -61,6 +63,7 @@ function TierCard({
   messages: PricingMessages;
   ronRate: RonRate | null;
   featured: boolean;
+  signupEnabled: boolean;
 }) {
   const annualMonthlyCents = annualEffectiveMonthlyCents(tier.annualEurCents);
   const hrefBase = `/partner/sign-up?tier=${tier.key}`;
@@ -104,20 +107,24 @@ function TierCard({
         />
       </div>
 
-      <a
-        data-cta
-        data-href-base={hrefBase}
-        href={`${hrefBase}&frequency=monthly`}
-        className={[
-          "mt-7 inline-flex min-h-[48px] items-center justify-center rounded-button px-6 py-3 text-sm font-bold transition-all active:scale-[0.98]",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
-          featured
-            ? "bg-brand-primary text-white shadow-card hover:bg-brand-primary-dark"
-            : "bg-text-primary text-surface-white hover:bg-text-primary/90",
-        ].join(" ")}
-      >
-        {content.cta} → {content.name}
-      </a>
+      {signupEnabled ? (
+        <a
+          data-cta
+          data-href-base={hrefBase}
+          href={`${hrefBase}&frequency=monthly`}
+          className={[
+            "mt-7 inline-flex min-h-[48px] items-center justify-center rounded-button px-6 py-3 text-sm font-bold transition-all active:scale-[0.98]",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
+            featured
+              ? "bg-brand-primary text-white shadow-card hover:bg-brand-primary-dark"
+              : "bg-text-primary text-surface-white hover:bg-text-primary/90",
+          ].join(" ")}
+        >
+          {content.cta} → {content.name}
+        </a>
+      ) : (
+        <WaitlistButton messages={messages} locale={locale} featured={featured} />
+      )}
 
       <CardOnFileDisclosure messages={messages} />
 
@@ -150,10 +157,12 @@ export function PricingTiers({
   messages,
   primitives,
   locale,
+  signupEnabled,
 }: {
   messages: PricingMessages;
   primitives: PricingPrimitives;
   locale: Locale;
+  signupEnabled: boolean;
 }) {
   const { ronRate } = primitives;
   const base = primitives.tiers.find((t) => t.key === "base")!;
@@ -180,6 +189,7 @@ export function PricingTiers({
           messages={messages}
           ronRate={ronRate}
           featured={false}
+          signupEnabled={signupEnabled}
         />
         <TierCard
           tier={pro}
@@ -188,6 +198,7 @@ export function PricingTiers({
           messages={messages}
           ronRate={ronRate}
           featured
+          signupEnabled={signupEnabled}
         />
       </div>
 

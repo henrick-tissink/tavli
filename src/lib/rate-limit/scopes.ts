@@ -15,6 +15,9 @@ export const RATE_LIMIT_SCOPES = {
   public_search: { limit: 60, windowSeconds: 60 },
   review_report: { limit: 5, windowSeconds: 3600 },
   gdpr_otp_verify: { limit: 5, windowSeconds: 300 },
+  // §15 §18 OQ8 — pricing-page wait-list join. 1/email/day, 10/ip/day.
+  pricing_waitlist_join_per_email: { limit: 1, windowSeconds: 86400 },
+  pricing_waitlist_join_per_ip: { limit: 10, windowSeconds: 86400 },
 } as const;
 
 export type RateLimitScope = keyof typeof RATE_LIMIT_SCOPES;

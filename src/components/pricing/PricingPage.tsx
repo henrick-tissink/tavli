@@ -19,6 +19,7 @@ import { SixPromises } from "./SixPromises";
 import { TheSetupSection } from "./TheSetupSection";
 import { EnterpriseFallback } from "./EnterpriseFallback";
 import { PricingFaq } from "./PricingFaq";
+import { PricingPageJsonLd } from "./PricingPageJsonLd";
 
 async function loadPrimitivesSafe(): Promise<PricingPrimitives> {
   try {
@@ -31,12 +32,21 @@ async function loadPrimitivesSafe(): Promise<PricingPrimitives> {
 export async function PricingPage({ locale }: { locale: Locale }) {
   const messages = loadPricingMessages(locale);
   const primitives = await loadPrimitivesSafe();
+  // Single env var gates the signup CTAs (§12). Wait-list mode unless the flag
+  // is explicitly "false", so the signup design is the default in dev/preview.
+  const signupEnabled = process.env.PARTNER_SIGNUP_ENABLED !== "false";
 
   return (
     <main className="min-h-screen bg-surface-bg pb-px">
+      <PricingPageJsonLd messages={messages} primitives={primitives} locale={locale} />
       <PricingHero messages={messages} />
       <FrequencyPricing messages={messages}>
-        <PricingTiers messages={messages} primitives={primitives} locale={locale} />
+        <PricingTiers
+          messages={messages}
+          primitives={primitives}
+          locale={locale}
+          signupEnabled={signupEnabled}
+        />
         <VatDisclosureBlock messages={messages} />
         <YearOneCostTable messages={messages} locale={locale} />
       </FrequencyPricing>
