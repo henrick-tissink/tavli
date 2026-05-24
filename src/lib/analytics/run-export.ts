@@ -22,6 +22,9 @@ import { sql } from "drizzle-orm";
 import { render } from "@react-email/render";
 import { dbAdmin } from "@/lib/db/admin";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
+import { restaurantExportJobs } from "@/lib/db/schema";
+import { enqueue } from "@/lib/jobs/enqueue";
+import { JOBS } from "@/lib/jobs/keys";
 import { csvStringify, type CsvColumn, type CsvRow } from "@/lib/csv/stringify";
 import { recordAudit as realRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
@@ -313,6 +316,36 @@ async function fetchTable(
 const lazyStorage: StorageClient = {
   from: (bucket: string) => createSupabaseAdminClient().storage.from(bucket) as unknown as ReturnType<StorageClient["from"]>,
 };
+
+export type BypassReason = "subscription_cancellation" | "gdpr_data_subject_request" | "tavli_admin_override";
+
+/**
+ * §8.3 — create + enqueue a full-org export that bypasses the Base 12-month
+ * tier floor. Internal callers only (cancellation / GDPR DSAR / admin). This
+ * is the sole path that may set `bypass_tier_limit_reason` — the user-facing
+ * requestAnalyticsExport action never can.
+ */
+export async function enqueueBypassExport(opts: {
+  organizationId: string;
+  requestedByUserId: string;
+  reason: BypassReason;
+  tables?: string[];
+}): Promise<string> {
+  const [row] = await dbAdmin
+    .insert(restaurantExportJobs)
+    .values({
+      organizationId: opts.organizationId,
+      requestedByUserId: opts.requestedByUserId,
+      requestedRestaurants: [],
+      tables: opts.tables ?? ["reservations", "diners", "reviews"],
+      format: "csv",
+      status: "queued",
+      bypassTierLimitReason: opts.reason,
+    })
+    .returning({ id: restaurantExportJobs.id });
+  await enqueue(JOBS.analytics.runExport, { jobId: row.id });
+  return row.id;
+}
 
 export const runExport = makeRunExport({
   db: dbAdmin,

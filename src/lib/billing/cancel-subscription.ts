@@ -36,6 +36,11 @@ export interface CancelSubscriptionDeps {
   stripe: Pick<Stripe, "subscriptions" | "refunds" | "invoices">;
   recordBillingAudit: typeof defaultRecordBillingAudit;
   now?: () => Date;
+  // §07 §8.3 / §13 — final data-export-on-cancel. Defaults to the real
+  // bypass-export enqueuer; injected as a spy in tests. Fires only for
+  // customer-initiated cancels (an actor present) — system/dunning auto-cancels
+  // route their export through §13 retention instead.
+  triggerDataExport?: (organizationId: string, requestedByUserId: string) => Promise<void>;
 }
 
 export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
@@ -119,7 +124,22 @@ export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
       context: { reason: input.reason ?? null, feedback: input.feedback ?? null, mode: input.mode, pro_rata_refund_cents: refundCents },
     });
 
-    // TODO(§07/§13): trigger the final data-export-on-cancel flow here.
+    // §07 §8.3 — final data-export-on-cancel (contractual portability). Only
+    // for customer-initiated cancels; a null actor is a system auto-cancel
+    // whose export is owned by §13 retention.
+    if (input.actorUserId) {
+      const trigger =
+        deps.triggerDataExport ??
+        (async (orgId, userId) => {
+          const { enqueueBypassExport } = await import("@/lib/analytics/run-export");
+          await enqueueBypassExport({
+            organizationId: orgId,
+            requestedByUserId: userId,
+            reason: "subscription_cancellation",
+          });
+        });
+      await trigger(input.organizationId, input.actorUserId);
+    }
     return { refundCents };
   };
 }

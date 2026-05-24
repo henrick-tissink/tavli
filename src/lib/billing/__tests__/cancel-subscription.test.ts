@@ -48,6 +48,7 @@ function deps(over: Record<string, unknown> = {}) {
       invoices: { list: jest.fn().mockResolvedValue({ data: [{ payment_intent: "pi_1", amount_paid: 60000 }] }) },
     },
     recordBillingAudit: jest.fn().mockResolvedValue(undefined),
+    triggerDataExport: jest.fn().mockResolvedValue(undefined),
     now: () => new Date("2026-05-15"),
     ...over,
   };
@@ -83,5 +84,19 @@ describe("cancelSubscription", () => {
     const d = deps({ db: db(null) });
     const cancel = makeCancelSubscription(d as never);
     await expect(cancel({ organizationId: "org-1", mode: "immediate" })).rejects.toThrow(/not_found/);
+  });
+
+  it("fires the data-export seam for customer-initiated cancels", async () => {
+    const d = deps();
+    const cancel = makeCancelSubscription(d as never);
+    await cancel({ organizationId: "org-1", mode: "period_end", actorUserId: "user-1" });
+    expect(d.triggerDataExport).toHaveBeenCalledWith("org-1", "user-1");
+  });
+
+  it("does NOT fire the export seam for system auto-cancels (no actor)", async () => {
+    const d = deps();
+    const cancel = makeCancelSubscription(d as never);
+    await cancel({ organizationId: "org-1", mode: "immediate" });
+    expect(d.triggerDataExport).not.toHaveBeenCalled();
   });
 });
