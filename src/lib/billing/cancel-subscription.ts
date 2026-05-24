@@ -1,0 +1,125 @@
+import "server-only";
+import type Stripe from "stripe";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { dbAdmin } from "@/lib/db/admin";
+import { subscriptions } from "@/lib/db/schema";
+import { recordBillingAudit as defaultRecordBillingAudit } from "@/lib/billing/billing-audit";
+
+const CANCELLABLE = ["active", "trialing", "past_due", "unpaid"] as const;
+
+export interface ProRataInput {
+  annualPaidThrough: Date;
+  currentPeriodStart: Date;
+  amountPaidCents: number;
+  now: Date;
+}
+
+/** §10.2 — unused-fraction refund for an annual prepay cancelled mid-term. */
+export function computeProRataRefundCents(input: ProRataInput): number {
+  const total = input.annualPaidThrough.getTime() - input.currentPeriodStart.getTime();
+  const remaining = input.annualPaidThrough.getTime() - input.now.getTime();
+  if (total <= 0 || remaining <= 0) return 0;
+  const fraction = Math.min(1, remaining / total);
+  return Math.round(input.amountPaidCents * fraction);
+}
+
+export interface CancelSubscriptionInput {
+  organizationId: string;
+  mode: "period_end" | "immediate";
+  reason?: string;
+  feedback?: string;
+  actorUserId?: string | null;
+}
+
+export interface CancelSubscriptionDeps {
+  db: Pick<typeof dbAdmin, "select" | "update">;
+  stripe: Pick<Stripe, "subscriptions" | "refunds" | "invoices">;
+  recordBillingAudit: typeof defaultRecordBillingAudit;
+  now?: () => Date;
+}
+
+export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
+  const now = deps.now ?? (() => new Date());
+  return async function cancelSubscription(input: CancelSubscriptionInput): Promise<{ refundCents: number }> {
+    const rows = await deps.db
+      .select({
+        id: subscriptions.id,
+        stripeSubscriptionId: subscriptions.stripeSubscriptionId,
+        status: subscriptions.status,
+        frequency: subscriptions.frequency,
+        annualPaidThrough: subscriptions.annualPaidThrough,
+        currentPeriodStart: subscriptions.currentPeriodStart,
+      })
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.organizationId, input.organizationId),
+          inArray(subscriptions.status, [...CANCELLABLE]),
+        ),
+      );
+    const sub = rows[0];
+    if (!sub) throw new Error(`not_found: no cancellable subscription for ${input.organizationId}`);
+
+    let refundCents = 0;
+
+    if (input.mode === "period_end") {
+      await deps.stripe.subscriptions.update(sub.stripeSubscriptionId, { cancel_at_period_end: true });
+      await deps.db
+        .update(subscriptions)
+        .set({ cancelAtPeriodEnd: true, cancellationReason: input.reason ?? null })
+        .where(eq(subscriptions.id, sub.id));
+    } else {
+      await deps.stripe.subscriptions.cancel(sub.stripeSubscriptionId);
+      await deps.db
+        .update(subscriptions)
+        .set({ status: "cancelled", cancelledAt: sql`now()`, cancellationReason: input.reason ?? null })
+        .where(eq(subscriptions.id, sub.id));
+
+      // §10.2 — pro-rata refund on an annual prepay cancelled mid-term.
+      if (sub.frequency === "annual" && sub.annualPaidThrough && sub.currentPeriodStart) {
+        const paid = await deps.stripe.invoices.list({
+          subscription: sub.stripeSubscriptionId,
+          status: "paid",
+          limit: 1,
+        });
+        // payment_intent isn't on the stripe@17 Invoice type (it can be a
+        // string id or an expanded object); read it defensively.
+        const invoice = paid.data[0] as
+          | { payment_intent?: string | { id: string }; amount_paid?: number }
+          | undefined;
+        const piRaw = invoice?.payment_intent;
+        const paymentIntent = typeof piRaw === "string" ? piRaw : piRaw?.id;
+        const amountPaid = invoice?.amount_paid ?? 0;
+        refundCents = computeProRataRefundCents({
+          annualPaidThrough: sub.annualPaidThrough,
+          currentPeriodStart: sub.currentPeriodStart,
+          amountPaidCents: amountPaid,
+          now: now(),
+        });
+        if (refundCents > 0 && typeof paymentIntent === "string") {
+          const refund = await deps.stripe.refunds.create({
+            payment_intent: paymentIntent,
+            amount: refundCents,
+            reason: "requested_by_customer",
+          });
+          await deps.recordBillingAudit({
+            organizationId: input.organizationId,
+            eventType: "billing.refund_issued",
+            actorUserId: input.actorUserId,
+            context: { stripe_refund_id: refund.id, amount_cents: refundCents },
+          });
+        }
+      }
+    }
+
+    await deps.recordBillingAudit({
+      organizationId: input.organizationId,
+      eventType: "billing.subscription_cancelled",
+      actorUserId: input.actorUserId,
+      context: { reason: input.reason ?? null, feedback: input.feedback ?? null, mode: input.mode, pro_rata_refund_cents: refundCents },
+    });
+
+    // TODO(§07/§13): trigger the final data-export-on-cancel flow here.
+    return { refundCents };
+  };
+}
