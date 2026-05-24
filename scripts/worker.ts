@@ -40,6 +40,8 @@ import { refreshAggregates } from "@/lib/analytics/refresh-aggregates";
 import { refreshCohorts } from "@/lib/analytics/refresh-cohorts";
 import { backfillAggregates } from "@/lib/analytics/backfill-aggregates";
 import { purgeStaleHourlyWindows } from "@/lib/analytics/purge-hourly";
+import { runExport } from "@/lib/analytics/run-export";
+import { expireStaleExports } from "@/lib/analytics/expire-stale-exports";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -180,8 +182,16 @@ async function main(): Promise<void> {
     await purgeStaleHourlyWindows();
   });
   await boss.schedule(JOBS.analytics.purgeStaleHourlyWindows, "0 5 * * 1");
+  // Async CSV/ZIP export (on-demand) + nightly expired-export cleanup.
+  await boss.work(JOBS.analytics.runExport, async ([job]) => {
+    await runExport(job.data as { jobId: string });
+  });
+  await boss.work(JOBS.analytics.expireStaleExports, async () => {
+    await expireStaleExports();
+  });
+  await boss.schedule(JOBS.analytics.expireStaleExports, "0 4 * * *");
 
-  console.log("[worker] analytics handlers registered + refreshAggregates (0 1 * * *), refreshCohorts (30 1 * * *), purgeStaleHourlyWindows (0 5 * * 1) scheduled");
+  console.log("[worker] analytics handlers registered + refreshAggregates (0 1 * * *), refreshCohorts (30 1 * * *), purgeStaleHourlyWindows (0 5 * * 1), expireStaleExports (0 4 * * *) scheduled; runExport on-demand");
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
