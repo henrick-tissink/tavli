@@ -71,12 +71,11 @@ export function MarketingManager({
         <ul className="mt-4 divide-y divide-border overflow-hidden rounded-card border border-border bg-surface-white">
           {triggered.map((c) => {
             const enabled = c.status === "active";
+            const label = TRIGGERED_LABELS[c.triggeredCampaignKey ?? ""] ?? c.name;
             return (
               <li key={c.id} className="flex items-center justify-between gap-4 px-5 py-4">
                 <div className="min-w-0">
-                  <p className="font-medium text-text-primary">
-                    {TRIGGERED_LABELS[c.triggeredCampaignKey ?? ""] ?? c.name}
-                  </p>
+                  <p className="font-medium text-text-primary">{label}</p>
                   <p className="text-xs text-text-secondary">{CHANNEL_LABEL[c.channel] ?? c.channel}</p>
                 </div>
                 <button
@@ -89,6 +88,7 @@ export function MarketingManager({
                     )
                   }
                   aria-pressed={enabled}
+                  aria-label={`${enabled ? "Oprește" : "Pornește"} campania: ${label}`}
                   className={[
                     "relative h-7 w-12 shrink-0 rounded-pill transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
                     enabled ? "bg-brand-primary" : "bg-border",
