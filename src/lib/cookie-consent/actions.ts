@@ -5,10 +5,14 @@
  * 13 months. No auth required — anonymous visitors may record consent.
  *
  * Uses DI seam factory pattern; production export wires dbAdmin.
+ *
+ * NOTE: `server-only`, NOT a `"use server"` server-action module — its sole
+ * consumer is the `/api/cookie-consent` route handler (server-side), never a
+ * client component. A `"use server"` file may export only async functions, so
+ * the `makeRecordCookieConsent` factory export here would break `next build`.
  */
 
-"use server";
-
+import "server-only";
 import { sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { cookieConsents } from "@/lib/db/schema";
