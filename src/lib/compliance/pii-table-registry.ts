@@ -19,8 +19,9 @@ import { handleMarketingConsents } from "./handlers/marketing-consents";
 import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notifications-phase1";
 import { handleDiners } from "./handlers/diners";
 import { handleMarketingSends } from "./handlers/marketing-sends";
+import { handleProspectWaitlist, REDACTED_EMAIL } from "./handlers/prospect-waitlist";
 import { handleAuditLogs } from "./handlers/audit-logs";
-import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends } from "@/lib/db/schema";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -190,6 +191,22 @@ async function verifyMarketingSendsRedacted({ db }: VerifyDeps): Promise<Verific
   };
 }
 
+async function verifyProspectWaitlistRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: prospectWaitlist.id })
+    .from(prospectWaitlist)
+    .where(sql`${prospectWaitlist.redactedAt} IS NOT NULL
+            AND (${prospectWaitlist.email} != ${REDACTED_EMAIL}
+                 OR ${prospectWaitlist.sourceIp} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "prospect_waitlist",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -264,6 +281,17 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyAuditLogsRedacted,
     twoPhase: false,
     piiColumns: ["context"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    // audit #5 — §15 pre-launch wait-list. DSR path matches captured diner
+    // emails; un-converted prospects are purged by the 0046 retention policy.
+    tableName: "prospect_waitlist",
+    shipped: true,
+    handler: handleProspectWaitlist,
+    verificationQuery: verifyProspectWaitlistRedacted,
+    twoPhase: false,
+    piiColumns: ["email", "source_ip", "notes", "organization_name_hint"],
     defaultReason: "gdpr_art_17",
   },
   // ─── Future-Wave stubs (spec §3.2) ────────────────────────────────────────
