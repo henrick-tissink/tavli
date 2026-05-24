@@ -1,9 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TimeSlotPills } from "../time-slot-pills";
+import { freezeClock, unfreezeClock } from "@/test-support/clock";
 
 describe("TimeSlotPills", () => {
   const slots = ["18:00", "18:30", "19:00", "19:30", "20:00"];
+  // Freeze to morning so the components' wall-clock past-slot filter keeps every
+  // evening test slot — makes these render/limit/select assertions deterministic.
+  beforeEach(() => freezeClock());
+  afterEach(() => unfreezeClock());
 
   it("renders slots", () => {
     render(<TimeSlotPills slots={slots} onSelect={jest.fn()} />);

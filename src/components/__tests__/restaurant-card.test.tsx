@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RestaurantCard } from "../restaurant-card";
 import type { Restaurant } from "@/lib/types";
+import { freezeClock, unfreezeClock } from "@/test-support/clock";
 
 // Mock next/image
 jest.mock("next/image", () => ({
@@ -33,6 +34,11 @@ const baseRestaurant: Restaurant = {
 };
 
 describe("RestaurantCard", () => {
+  // Card renders TimeSlotPills (default past-slot filter); freeze to morning so
+  // the evening test slots are never filtered out by the wall clock.
+  beforeEach(() => freezeClock());
+  afterEach(() => unfreezeClock());
+
   it("renders restaurant name", () => {
     render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
     expect(screen.getByText("La Mama")).toBeInTheDocument();

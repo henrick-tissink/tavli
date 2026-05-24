@@ -22,6 +22,7 @@ import {
   restaurants,
   cities,
   organizations,
+  organizationMembers,
   profiles,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -78,6 +79,12 @@ describe("event_requests RLS", () => {
       name: "Test Org",
       primaryContactEmail: `org-${orgId}@rls.test`,
     });
+    // Ownership is org-membership-based since 0015 (is_owner_of checks
+    // organization_members / restaurant_staff, not profiles.role). The owner
+    // must actually be an org owner for the event_requests_owner_read policy.
+    await dbAdmin
+      .insert(organizationMembers)
+      .values({ organizationId: orgId, userId: ownerId, role: "owner" });
     const [r] = await dbAdmin
       .insert(restaurants)
       .values({

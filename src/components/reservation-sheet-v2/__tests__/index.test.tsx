@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { freezeClock, unfreezeClock } from "@/test-support/clock";
 
 // Mock server action to avoid loading Resend / server-only imports
 jest.mock("@/app/api/reservations/actions", () => ({
@@ -29,6 +30,9 @@ const defaultProps = {
 describe("ReservationSheetV2 orchestrator", () => {
   const originalFetch = global.fetch;
   beforeEach(() => {
+    // Freeze to morning so "Astăzi" + the 18:00/19:30 slots stay in the future
+    // regardless of when the suite runs (the sheet filters past slots for today).
+    freezeClock();
     createReservationMock.mockClear();
     // Mock the date-slots fetch the orchestrator fires when form.date changes.
     global.fetch = jest.fn().mockResolvedValue({
@@ -38,6 +42,7 @@ describe("ReservationSheetV2 orchestrator", () => {
   });
   afterEach(() => {
     global.fetch = originalFetch;
+    unfreezeClock();
   });
 
   it("renders Step 1 (date) with progress bar on open", () => {

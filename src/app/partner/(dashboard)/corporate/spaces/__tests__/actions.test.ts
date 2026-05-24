@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
-import { cities, organizations, profiles, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
+import { cities, organizations, organizationMembers, restaurantStaff, profiles, restaurants, restaurantPrivateSpaces } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
@@ -41,6 +41,14 @@ async function seedOwnerWithVenue() {
       organizationId: orgId,
     })
     .returning();
+  // Ownership is membership-based (is_owner_of / can() check org_members +
+  // restaurant_staff). profiles.role alone doesn't grant venue access.
+  await dbAdmin
+    .insert(organizationMembers)
+    .values({ organizationId: orgId, userId: data!.user!.id, role: "owner", isActive: true });
+  await dbAdmin
+    .insert(restaurantStaff)
+    .values({ restaurantId: r.id, userId: data!.user!.id, role: "owner", isActive: true });
   mockSession.mockResolvedValue({
     userId: data!.user!.id,
     userEmail: email,

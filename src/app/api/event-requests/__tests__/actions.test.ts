@@ -34,6 +34,7 @@ import {
   organizations,
   organizationMembers,
   restaurantStaff,
+  restaurantAvailability,
   profiles,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -111,6 +112,17 @@ async function seedVenueWithOwner() {
     role: "owner",
     isActive: true,
   });
+  // Wide availability across every day so materialised event reservations clear
+  // the reservations_check_capacity trigger (applies to all insert paths).
+  await dbAdmin.insert(restaurantAvailability).values(
+    [0, 1, 2, 3, 4, 5, 6].map((dow) => ({
+      restaurantId: r.id,
+      dayOfWeek: dow,
+      slotStart: "00:00",
+      slotEnd: "23:59",
+      capacity: 100,
+    })),
+  );
   return { restaurant: r, ownerId: owner.id };
 }
 
