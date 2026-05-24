@@ -68,11 +68,27 @@ export async function rollbackMigrationImport(raw: { migrationImportId: string; 
   if (!(await can(session, "migration.rollback", { kind: "restaurant", id: raw.restaurantId, organization_id: raw.organizationId })))
     return { ok: false, error: "Forbidden." };
 
+  // Ownership check (audit #2): can() gates the client-supplied restaurantId,
+  // but the import id is also client-supplied. Verify the import actually
+  // belongs to the gated restaurant before deleting anything — otherwise an
+  // operator authorized for venue A could pass venue B's import id and delete
+  // B's reservations.
+  const [imp] = await dbAdmin
+    .select({ restaurantId: migrationImports.restaurantId })
+    .from(migrationImports)
+    .where(eq(migrationImports.id, raw.migrationImportId))
+    .limit(1);
+  if (!imp) return { ok: false, error: "Migration import not found." };
+  if (imp.restaurantId !== raw.restaurantId)
+    return { ok: false, error: "Forbidden." };
+
   // Capture the import's diners before deleting reservations, then delete the
   // imported reservations + any now-orphan diners that this import created.
+  // Scope the DELETE by restaurant_id as well as import id — defense in depth
+  // against an import row that somehow points elsewhere.
   const deleted = (await dbAdmin
     .delete(reservations)
-    .where(eq(reservations.migrationImportId, raw.migrationImportId))
+    .where(and(eq(reservations.migrationImportId, raw.migrationImportId), eq(reservations.restaurantId, raw.restaurantId)))
     .returning({ dinerId: reservations.dinerId })) as Array<{ dinerId: string | null }>;
   const dinerIds = [...new Set(deleted.map((d) => d.dinerId).filter((x): x is string => !!x))];
   let dinersDeleted = 0;
