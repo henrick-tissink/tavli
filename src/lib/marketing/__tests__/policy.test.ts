@@ -60,6 +60,26 @@ describe("marketing policy evaluate", () => {
     const r = await makeMarketingPolicy(deps({ used: 4 }) as never)(baseInput);
     expect(r).toMatchObject({ allow: false, skip: "skipped_cap" });
   });
+  test("#14 frequency cap counts in-flight (queued) sends, not just delivered", async () => {
+    let capQuery = "";
+    const db = {
+      execute: jest.fn(async (q: unknown) => {
+        const t = JSON.stringify(q);
+        if (t.includes("FROM marketing_sends")) {
+          capQuery = t;
+          return [{ used: 0 }];
+        }
+        if (t.includes("FROM marketing_quota_usage")) return [{ sent_count: 0 }];
+        return [];
+      }),
+    };
+    const suppression = { isSuppressed: jest.fn(async () => false) };
+    const consent = { hasConsent: jest.fn(async () => true) };
+    await makeMarketingPolicy({ db, suppression, consent, now: () => new Date("2026-05-17T12:00:00Z") } as never)(baseInput);
+    // The cap query must include queued/sending in-window so a batch of
+    // concurrent leaf sends to one diner can't all pass before any flips to sent.
+    expect(capQuery).toContain("queued");
+  });
   test("over quota hard cap → skipped_quota", async () => {
     const r = await makeMarketingPolicy(deps({ quotaSent: 5000 }) as never)(baseInput);
     expect(r).toMatchObject({ allow: false, skip: "skipped_quota" });

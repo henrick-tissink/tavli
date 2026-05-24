@@ -1,8 +1,14 @@
 /**
  * §11 §3.3.1 / §14 — `marketing.fan-out-campaign`. Materializes a campaign's
  * segment in chunks of 500: multi-row INSERT `marketing_sends` (queued) + batch
- * enqueue per-recipient `marketing.send-message`, then re-enqueues itself with
- * the next offset until the segment is exhausted. Caps at 50k recipients.
+ * enqueue per-recipient `marketing.send-message`, then re-enqueues itself
+ * keyset on the last diner id until the segment is exhausted. Caps at 50k
+ * recipients (tracked via `processed`).
+ *
+ * Keyset (d.id > afterId), not OFFSET (audit #15): the segment is a LIVE query,
+ * so diners added/removed between chunks shifted an OFFSET window, skipping or
+ * duplicating recipients. Ordering by id and continuing after the last id is
+ * stable against concurrent membership changes.
  */
 import "server-only";
 import { sql, type SQL } from "drizzle-orm";
@@ -24,7 +30,10 @@ interface Deps {
 
 export interface FanOutPayload {
   campaignId: string;
-  offset?: number;
+  /** Keyset cursor — process diners with id > afterId. Null/absent = first chunk. */
+  afterId?: string | null;
+  /** Recipients processed so far (for the 50k cap across chunks). */
+  processed?: number;
 }
 
 interface CampaignRow {
@@ -47,8 +56,9 @@ interface Recipient {
 
 export function makeFanOutCampaign(deps: Deps) {
   return async function fanOutCampaign(payload: FanOutPayload): Promise<void> {
-    const offset = payload.offset ?? 0;
-    if (offset >= MAX_RECIPIENTS) return; // safety cap
+    const afterId = payload.afterId ?? null;
+    const processed = payload.processed ?? 0;
+    if (processed >= MAX_RECIPIENTS) return; // safety cap
 
     const campaignRows = (await deps.db.execute(sql`
       SELECT c.id, c.organization_id, c.restaurant_id, c.channel, c.recipient_count_estimate,
@@ -60,7 +70,7 @@ export function makeFanOutCampaign(deps: Deps) {
     const c = campaignRows[0];
     if (!c) return;
 
-    if (offset === 0) {
+    if (afterId === null) {
       await deps.recordAudit({
         action: AUDIT.marketing.campaign_sent,
         subjectType: "marketing_campaign",
@@ -78,7 +88,8 @@ export function makeFanOutCampaign(deps: Deps) {
     const recipients = (await deps.db.execute(sql`
       SELECT d.id, d.email, d.phone, d.locale FROM diners d
       WHERE d.organization_id = ${c.organization_id} AND d.redacted_at IS NULL AND ${where}
-      ORDER BY d.id LIMIT ${CHUNK} OFFSET ${offset}
+        ${afterId ? sql`AND d.id > ${afterId}::uuid` : sql``}
+      ORDER BY d.id LIMIT ${CHUNK}
     `)) as unknown as Recipient[];
 
     if (recipients.length > 0) {
@@ -98,7 +109,12 @@ export function makeFanOutCampaign(deps: Deps) {
     }
 
     if (recipients.length === CHUNK) {
-      await deps.enqueue(JOBS.marketing.fanOut, { campaignId: c.id, offset: offset + CHUNK });
+      const lastId = recipients[recipients.length - 1].id;
+      await deps.enqueue(JOBS.marketing.fanOut, {
+        campaignId: c.id,
+        afterId: lastId,
+        processed: processed + recipients.length,
+      });
     }
   };
 }

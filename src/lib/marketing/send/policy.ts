@@ -75,12 +75,17 @@ export function makeMarketingPolicy(deps: Deps) {
       return { allow: false, skip: "skipped_suppressed" };
     }
 
-    // Frequency cap — count this calendar month's delivered-ish sends.
+    // Frequency cap — count this calendar month's sends INCLUDING in-flight
+    // ones (audit #14). Counting only delivered rows let a batch of concurrent
+    // leaf sends to one diner all pass the cap before any flipped to 'sent'.
+    // In-flight rows (queued/sending) have no sent_at yet, so window on
+    // coalesce(sent_at, created_at). Conservative by design — over-counting
+    // under-sends, the safe direction for a frequency cap.
     const capRows = (await deps.db.execute(sql`
       SELECT count(*)::int AS used FROM marketing_sends
       WHERE diner_id = ${input.dinerId}
-        AND sent_at >= date_trunc('month', now())
-        AND status IN ('sent', 'delivered', 'opened', 'clicked')
+        AND coalesce(sent_at, created_at) >= date_trunc('month', now())
+        AND status IN ('queued', 'sending', 'sent', 'delivered', 'opened', 'clicked')
     `)) as unknown as Array<{ used: number }>;
     if ((capRows[0]?.used ?? 0) >= input.freqCap) return { allow: false, skip: "skipped_cap" };
 
