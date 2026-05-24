@@ -15,6 +15,7 @@ import {
   Briefcase,
   DoorOpen,
   CreditCard,
+  Building2,
   LogOut,
   Menu,
   X,
@@ -31,6 +32,7 @@ const NAV = [
   { href: "/partner/reservations", label: "Rezervări", icon: Calendar, exact: false },
   { href: "/partner/corporate", label: "Corporate", icon: Briefcase, exact: true },
   { href: "/partner/corporate/spaces", label: "Spații", icon: DoorOpen, exact: false },
+  { href: "/partner/org", label: "Organizație", icon: Building2, exact: false },
   { href: "/partner/billing", label: "Facturare", icon: CreditCard, exact: false },
   { href: "/partner/preview", label: "Previzualizare", icon: Eye, exact: false },
 ];
