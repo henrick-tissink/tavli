@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "node -e \"console.error('\\n[BANNED] drizzle-kit generate is disabled (audit #16).\\nschema.ts is DESCRIPTIVE-ONLY; the meta snapshots are intentionally frozen at 0028.\\nHand-author the SQL in drizzle/migrations/NNNN_*.sql + append a meta/_journal.json entry,\\napply via psql, and record the bookkeeping row. See AGENTS.md > Migrations.\\n'); process.exit(1)\"",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",

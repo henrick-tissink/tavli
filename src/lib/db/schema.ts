@@ -1,6 +1,11 @@
 /**
  * Drizzle schema for Tavli Phase 2.
  *
+ * DESCRIPTIVE-ONLY (audit #16): this file documents the live schema for
+ * type-safe queries; it is NOT the migration source of truth. `drizzle-kit
+ * generate` is BANNED (meta snapshots frozen at 0028) — hand-author SQL in
+ * drizzle/migrations/ and keep this file in sync. See AGENTS.md > Migrations.
+ *
  * Conventions:
  * - All tables live in the `public` schema.
  * - `auth.users` is managed by Supabase; we reference it via a declared
