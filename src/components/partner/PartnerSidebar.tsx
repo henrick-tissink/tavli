@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { signOutPartner } from "@/app/partner/sign-in/actions";
+import { VenueSwitcher } from "./VenueSwitcher";
 
 const NAV = [
   { href: "/partner", label: "Prezentare", icon: LayoutDashboard, exact: true },
@@ -47,12 +48,16 @@ interface Props {
   restaurantName: string | null;
   userEmail: string | null;
   openEventRequestsCount?: number;
+  venues?: { id: string; name: string }[];
+  activeVenueId?: string | null;
 }
 
 export function PartnerSidebar({
   restaurantName,
   userEmail,
   openEventRequestsCount = 0,
+  venues = [],
+  activeVenueId = null,
 }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -84,10 +89,16 @@ export function PartnerSidebar({
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
           Partner
         </p>
-        {restaurantName && (
-          <p className="text-sm font-semibold text-text-primary truncate mt-3">
-            {restaurantName}
-          </p>
+        {venues.length >= 2 ? (
+          <div className="mt-3">
+            <VenueSwitcher venues={venues} activeVenueId={activeVenueId} />
+          </div>
+        ) : (
+          restaurantName && (
+            <p className="text-sm font-semibold text-text-primary truncate mt-3">
+              {restaurantName}
+            </p>
+          )
         )}
       </div>
       <nav className="flex-1 px-3 overflow-y-auto">

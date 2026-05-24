@@ -5,7 +5,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { PartnerShell } from "@/components/partner/PartnerShell";
-import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { currentUserPrimaryRestaurant, listAccessibleVenues } from "@/lib/restaurants/current-user";
 import { ImpersonationBanner } from "@/components/banners/ImpersonationBanner";
 import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 
@@ -26,7 +26,10 @@ export default async function PartnerGatedLayout({
   }
 
   const supabase = await createSupabaseServerClient();
-  const restaurantId = await currentUserPrimaryRestaurant(session);
+  const [restaurantId, venues] = await Promise.all([
+    currentUserPrimaryRestaurant(session),
+    listAccessibleVenues(session),
+  ]);
   const { data: restaurant } = restaurantId
     ? await supabase
         .from("restaurants")
@@ -60,6 +63,8 @@ export default async function PartnerGatedLayout({
           restaurantName={restaurant?.name ?? null}
           userEmail={session.userEmail}
           openEventRequestsCount={openEventRequestsCount}
+          venues={venues}
+          activeVenueId={restaurantId}
         >
           {children}
         </PartnerShell>

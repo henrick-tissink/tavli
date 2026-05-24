@@ -6,6 +6,8 @@ interface Props {
   restaurantName: string | null;
   userEmail: string | null;
   openEventRequestsCount?: number;
+  venues?: { id: string; name: string }[];
+  activeVenueId?: string | null;
   children: ReactNode;
 }
 
@@ -13,6 +15,8 @@ export function PartnerShell({
   restaurantName,
   userEmail,
   openEventRequestsCount = 0,
+  venues = [],
+  activeVenueId = null,
   children,
 }: Props) {
   return (
@@ -21,6 +25,8 @@ export function PartnerShell({
         restaurantName={restaurantName}
         userEmail={userEmail}
         openEventRequestsCount={openEventRequestsCount}
+        venues={venues}
+        activeVenueId={activeVenueId}
       />
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="hidden desktop:flex sticky top-0 z-20 h-12 items-center justify-end gap-2 bg-surface-white border-b border-border px-6">
