@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "title": "Tavli pricing — €30 or €60/month",
+    "description": "Two tiers, monthly or annual. No per-cover fees, no setup fees. The first three months free for every new restaurant.",
+    "ogTitle": "Tavli — Two tiers. One promise.",
+    "ogDescription": "A complete reservation system from €30/month. Three months free, set up personally by the founder before you pay."
+  },
+  "hero": {
+    "eyebrow": "Pricing",
+    "title": "Two tiers.",
+    "titleAccent": "One promise.",
+    "subtitle": "Tavli is a reservation platform built like the restaurants that use it — in service of the diner, in service of the room, in service of the people running it. Two subscriptions, monthly or annual. No per-cover fees. No setup fees. No contract you can't walk away from.",
+    "trialNote": "The first three months free for every new restaurant."
+  },
+  "frequency": {
+    "label": "Billing",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "annualBadge": "2 months free",
+    "annualTooltip": "Annual prepay costs the same as 10 months — you get 2 months free versus monthly billing."
+  },
+  "tiers": {
+    "base": {
+      "name": "Tavli",
+      "tagline": "A complete reservation system for one independent restaurant.",
+      "perMonth": "/month",
+      "includedHeading": "What you get",
+      "bullets": [
+        "Unlimited reservations. Never a per-cover fee.",
+        "A booking widget that drops into your site in two lines of code — and looks like your brand, not ours.",
+        "Automated confirmations and 24-hour reminders in Romanian, English, and German.",
+        "Self-serve modify and cancel links — fewer phone calls to your host stand.",
+        "A trilingual venue page (RO / EN / DE), up to 20 photos and 2 menus.",
+        "Reviews only from diners with a checked-in reservation. No fake reviews, no anonymous trolling.",
+        "12 months of booking history, exportable to CSV any time, plus a weekly summary email.",
+        "Google Maps and Google Business sync — local SEO out of the box."
+      ],
+      "note": "Single location. Up to 5 staff accounts.",
+      "cta": "Start your 3 months free"
+    },
+    "pro": {
+      "name": "Tavli Pro",
+      "tagline": "Everything in Tavli, plus the corporate-events channel and a marketing suite.",
+      "perMonth": "/month",
+      "includedHeading": "Everything in Tavli, plus:",
+      "bullets": [
+        "The corporate and private-events channel — qualified inquiries routed to you, matched on cuisine, capacity, and price point.",
+        "Private-rooms and buyout module: multi-room availability, a custom event-request flow, deposits at booking.",
+        "The marketing suite: email, SMS, and WhatsApp Business, with six set-and-forget automated campaigns.",
+        "Segmentation across six dimensions, capped at 4 messages/diner/month — no diner spammed, no surprise bill.",
+        "Cross-venue customer database and per-campaign booking attribution.",
+        "No-show heat map, cohort retention, lead-time distribution, and a 4-week rolling cover forecast.",
+        "Unlimited photos and menus, a video hero on the venue page, and full CSS control of the widget.",
+        "First right to be featured in Tavli's editorial guides, plus rights to use our photography of your venue."
+      ],
+      "note": "Up to 3 locations included. Additional locations €15/month each.",
+      "cta": "Start your 3 months free",
+      "ribbon": "Most operators choose Pro"
+    }
+  },
+  "decisionHelp": {
+    "heading": "Not sure?",
+    "body": "Choose Tavli if you're one venue without a corporate-events motion. Choose Tavli Pro if you do private events, want marketing campaigns, or run multiple venues."
+  },
+  "vat": {
+    "heading": "All prices shown in EUR",
+    "intro": "The final amount payable depends on your tax status:",
+    "types": [
+      { "label": "Business customers in Romania", "body": "Reverse-charged VAT (you remit; the price shown is exactly what you pay)." },
+      { "label": "Personal customers in Romania", "body": "VAT included, at 19%." },
+      { "label": "Business customers in the EU (outside Romania)", "body": "Reverse-charged VAT with a valid VAT ID checked via VIES; otherwise +19%." },
+      { "label": "Customers outside the EU", "body": "No VAT." }
+    ],
+    "footer": "We'll confirm your tax status at signup. Stripe Tax computes and collects correctly for your locale."
+  },
+  "cardOnFile": {
+    "title": "Try Tavli free for 90 days.",
+    "body": "We save a card at signup for friction-free conversion at day 91.",
+    "cancelText": "Cancel anytime — we email reminders at day 60, 75, and 85 before the first charge."
+  },
+  "yearOne": {
+    "heading": "Year one, plainly",
+    "intro": "No asterisks. Here's exactly what you pay in your first year, on each plan.",
+    "planHeader": "Plan",
+    "yearHeader": "Year 1",
+    "rows": [
+      { "key": "base_monthly", "plan": "Tavli, monthly billing", "detail": "3 months free + 9 × €30" },
+      { "key": "base_annual", "plan": "Tavli, annual prepay", "detail": "3 months free + 9 months at €25 effective" },
+      { "key": "pro_monthly", "plan": "Tavli Pro, monthly billing", "detail": "3 months free + 9 × €60" },
+      { "key": "pro_annual", "plan": "Tavli Pro, annual prepay", "detail": "3 months free + 9 months at €50 effective" },
+      { "key": "pro5_monthly", "plan": "Tavli Pro with 5 locations, monthly billing", "detail": "3 months free + 9 × (€60 + 4 × €15)" },
+      { "key": "pro5_annual", "plan": "Tavli Pro with 5 locations, annual prepay", "detail": "3 months free + 9 months at €100 effective" }
+    ],
+    "footnote": "All prices in EUR. VAT treatment depends on your customer type — see the panel above. The RON equivalent is shown at the day's BNR reference rate."
+  },
+  "promises": {
+    "heading": "The promises we make",
+    "intro": "These aren't marketing lines. They're contract terms. We will not strike any of them out.",
+    "items": [
+      { "label": "No per-cover fees, ever.", "body": "If we ever change that pricing model in the future, your current contract grandfathers you out forever." },
+      { "label": "You own your data.", "body": "Cancel any time and we hand you a full CSV export of every diner, every booking, every review, every campaign. No data hostage situation." },
+      { "label": "Annual prepay is refundable pro-rata.", "body": "If you prepay annually and decide at month 4 it isn't working, we refund the unused months. No questions." },
+      { "label": "No annual lock-in unless you choose it.", "body": "Monthly billing is the default. Annual prepay is for the 2-months-free discount, not for keeping you stuck." },
+      { "label": "Cancellation is one click in the product.", "body": "No support ticket, no retention call, no \"we'll process this in 7-10 business days.\"" },
+      { "label": "One free trial per legal entity.", "body": "Card on file at signup. Billing starts day 91. No surprise charges before then." }
+    ]
+  },
+  "setup": {
+    "eyebrow": "The setup",
+    "heading": "What we do for you in your first three months free",
+    "intro": "The founder personally invests time in your launch before you ever pay us a euro.",
+    "steps": [
+      { "title": "White-glove migration", "body": "We move your reservations, your diner list, and your settings out of whatever you're using now and into Tavli. In one sitting.", "badge": "30 min" },
+      { "title": "Page-and-photos session", "body": "The founder visits your restaurant, photographs your dishes and dining room with proper equipment, and writes your trilingual venue page on the spot. You approve before publish.", "badge": "60–90 min" },
+      { "title": "Staff training", "body": "Your hosts and managers walk through the partner portal with us until they're comfortable.", "badge": "30 min" },
+      { "title": "Parallel run", "body": "Keep your old system live alongside Tavli for the first month. Switch over when you're ready, not when we tell you to.", "badge": "30 days" },
+      { "title": "First three campaigns set up live", "body": "We sit down with you and design your welcome series, your first lapsed-diner reactivation, and your first themed campaign — together, on your data.", "badge": "Pro only", "proOnly": true }
+    ],
+    "quote": "Three months free isn't a free trial. It's a setup window. The founder personally invests time in your launch before you ever pay us a euro.",
+    "quoteAttribution": "The Tavli setup promise"
+  },
+  "enterprise": {
+    "heading": "Running five or more locations?",
+    "body": "The two public tiers are for independent restaurants and small groups (1–3 locations). If you're running five or more, or you're a chain with a shared back-office, write to us and we'll design something that fits. We don't do inflated \"Enterprise\" pricing. We do \"tell us what you actually need\" pricing.",
+    "cta": "Write to hello@tavli.ro",
+    "email": "hello@tavli.ro"
+  },
+  "faq": {
+    "heading": "Frequently asked",
+    "items": [
+      { "label": "When does my card get charged?", "body": "Day 91 of your trial. We send reminders at day 60, 75, and 85; cancel any time during the trial and the card is never charged." },
+      { "label": "Is the card charged during the trial?", "body": "No. We save the card at signup, but the first charge is only on day 91. Until then you owe us nothing." },
+      { "label": "What happens if I cancel?", "body": "Cancellation is one click in the product — no ticket, no retention call. We hand you a full CSV export of all your data." },
+      { "label": "Can I switch between monthly and annual?", "body": "Yes, any time. Annual prepay gives you 2 months free. If you prepay annually and change your mind, we refund the unused months pro-rata." },
+      { "label": "How does VAT work?", "body": "Prices shown are in EUR, ex-VAT. VAT treatment depends on your customer type — see the VAT panel above. Stripe Tax computes and collects correctly." },
+      { "label": "What if I run more than one location?", "body": "Tavli Pro includes up to 3 locations. Each additional location is €15/month. For five or more, write to hello@tavli.ro." },
+      { "label": "What's the difference between Tavli and Tavli Pro?", "body": "Tavli if you're one venue without a corporate-events motion. Tavli Pro if you do private events, want marketing campaigns, or run multiple venues." }
+    ]
+  },
+  "ron": {
+    "prefix": "~",
+    "footnote": "RON shown at today's BNR reference rate, 1 EUR ≈ {rate} RON (as of {date}). We bill in EUR.",
+    "staleOneDay": "This rate is from yesterday — BNR hasn't published a newer one yet.",
+    "staleWarn": "This rate is no longer current — BNR hasn't published recent updates."
+  },
+  "waitlist": {
+    "cta": "Join the waiting list",
+    "modalTitle": "Join the waiting list",
+    "modalBody": "Tavli launches city by city. Leave your email and we'll let you know the moment we open signups in your area.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@yourrestaurant.com",
+    "orgLabel": "Restaurant name (optional)",
+    "orgPlaceholder": "Bistro Lipscani",
+    "submit": "Add me",
+    "success": "You're on the list. We'll write the moment we open in your area.",
+    "close": "Close",
+    "errorDuplicate": "This email is already on the list. We'll be in touch soon.",
+    "errorInvalid": "Please enter a valid email address.",
+    "errorRateLimited": "Too many attempts. Please try again later.",
+    "errorGeneric": "Something went wrong. Please try again."
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "title": "Prețuri Tavli — €30 sau €60/lună",
+    "description": "Două niveluri, lunar sau anual. Fără comision pe acoperit, fără taxe de instalare. Primele trei luni gratuite pentru fiecare restaurant nou.",
+    "ogTitle": "Tavli — Două niveluri. O promisiune.",
+    "ogDescription": "Un sistem complet de rezervări de la €30/lună. Trei luni gratuite, configurate personal de fondator înainte să plătești."
+  },
+  "hero": {
+    "eyebrow": "Prețuri",
+    "title": "Două niveluri.",
+    "titleAccent": "O promisiune.",
+    "subtitle": "Tavli e o platformă de rezervări construită ca restaurantele care o folosesc — în slujba oaspetelui, a sălii și a oamenilor care o conduc. Două abonamente, lunar sau anual. Fără comision pe acoperit. Fără taxe de instalare. Fără contract din care nu poți ieși.",
+    "trialNote": "Primele trei luni gratuite pentru fiecare restaurant nou."
+  },
+  "frequency": {
+    "label": "Facturare",
+    "monthly": "Lunar",
+    "annual": "Anual",
+    "annualBadge": "2 luni gratuite",
+    "annualTooltip": "Plata anuală costă cât 10 luni — primești 2 luni gratuite față de plata lunară."
+  },
+  "tiers": {
+    "base": {
+      "name": "Tavli",
+      "tagline": "Un sistem complet de rezervări pentru un restaurant independent.",
+      "perMonth": "/lună",
+      "includedHeading": "Ce primești",
+      "bullets": [
+        "Rezervări nelimitate. Niciodată comision pe acoperit.",
+        "Un widget de rezervări care intră în site-ul tău în două linii de cod — și arată ca brandul tău, nu ca al nostru.",
+        "Confirmări automate și mementouri cu 24 de ore înainte, în română, engleză și germană.",
+        "Linkuri self-service de modificare și anulare — mai puține telefoane la recepție.",
+        "Pagină de local trilingvă (RO / EN / DE), până la 20 de fotografii și 2 meniuri.",
+        "Recenzii doar de la oaspeți cu rezervare onorată. Fără recenzii false, fără trolling anonim.",
+        "12 luni de istoric, exportabil în CSV oricând, plus un rezumat săptămânal pe email.",
+        "Sincronizare Google Maps și Google Business — SEO local din prima zi."
+      ],
+      "note": "O locație. Până la 5 conturi de personal.",
+      "cta": "Începe cele 3 luni gratuite"
+    },
+    "pro": {
+      "name": "Tavli Pro",
+      "tagline": "Tot ce e în Tavli, plus canalul de evenimente corporate și o suită de marketing.",
+      "perMonth": "/lună",
+      "includedHeading": "Tot ce e în Tavli, plus:",
+      "bullets": [
+        "Canalul de evenimente corporate și private — primești cereri calificate, potrivite pe bucătărie, capacitate și buget.",
+        "Modul de spații private și buyout: disponibilitate pe mai multe săli, flux de cerere personalizat, depozite la rezervare.",
+        "Suita de marketing: email, SMS și WhatsApp Business, cu șase campanii automate set-and-forget.",
+        "Segmentare pe șase dimensiuni, plafonată la 4 mesaje/oaspete/lună — niciun oaspete spamat, nicio factură-surpriză.",
+        "Baza de clienți pe mai multe locații și atribuirea rezervărilor pe campanie.",
+        "Hartă de no-show, retenție pe cohorte, distribuția lead-time și prognoză de acoperiri pe 4 săptămâni.",
+        "Fotografii și meniuri nelimitate, video hero pe pagina de local și control CSS complet al widgetului.",
+        "Drept de prioritate în ghidurile editoriale Tavli, plus drepturi de folosire a fotografiilor noastre."
+      ],
+      "note": "Până la 3 locații incluse. Locații suplimentare €15/lună fiecare.",
+      "cta": "Începe cele 3 luni gratuite",
+      "ribbon": "Majoritatea aleg Pro"
+    }
+  },
+  "decisionHelp": {
+    "heading": "Nu ești sigur?",
+    "body": "Alege Tavli dacă ești un singur local fără evenimente corporate. Alege Tavli Pro dacă organizezi evenimente private, vrei campanii de marketing sau ai mai multe locații."
+  },
+  "vat": {
+    "heading": "Toate prețurile sunt în EUR",
+    "intro": "Suma finală de plată depinde de statutul tău fiscal:",
+    "types": [
+      { "label": "Firme din România", "body": "TVA cu taxare inversă (o declari tu; prețul afișat e exact ce plătești)." },
+      { "label": "Persoane fizice din România", "body": "TVA inclus, la 19%." },
+      { "label": "Firme din UE (în afara României)", "body": "TVA cu taxare inversă, cu cod valid de TVA verificat în VIES; altfel +19%." },
+      { "label": "Clienți din afara UE", "body": "Fără TVA." }
+    ],
+    "footer": "Îți confirmăm statutul fiscal la înscriere. Stripe Tax calculează și colectează corect, în funcție de regiunea ta."
+  },
+  "cardOnFile": {
+    "title": "Încearcă Tavli gratuit 90 de zile.",
+    "body": "Salvăm un card la înscriere, pentru o conversie fără fricțiune în ziua 91.",
+    "cancelText": "Anulează oricând — trimitem mementouri în ziua 60, 75 și 85, înainte de prima plată."
+  },
+  "yearOne": {
+    "heading": "Anul întâi, pe șleau",
+    "intro": "Fără asteriscuri. Iată exact ce plătești în primul an, pe fiecare plan.",
+    "planHeader": "Plan",
+    "yearHeader": "Anul 1",
+    "rows": [
+      { "key": "base_monthly", "plan": "Tavli, plată lunară", "detail": "3 luni gratuite + 9 × €30" },
+      { "key": "base_annual", "plan": "Tavli, plată anuală", "detail": "3 luni gratuite + 9 luni la €25 efectiv" },
+      { "key": "pro_monthly", "plan": "Tavli Pro, plată lunară", "detail": "3 luni gratuite + 9 × €60" },
+      { "key": "pro_annual", "plan": "Tavli Pro, plată anuală", "detail": "3 luni gratuite + 9 luni la €50 efectiv" },
+      { "key": "pro5_monthly", "plan": "Tavli Pro cu 5 locații, plată lunară", "detail": "3 luni gratuite + 9 × (€60 + 4 × €15)" },
+      { "key": "pro5_annual", "plan": "Tavli Pro cu 5 locații, plată anuală", "detail": "3 luni gratuite + 9 luni la €100 efectiv" }
+    ],
+    "footnote": "Toate prețurile în EUR. Tratamentul TVA depinde de tipul de client — vezi panoul de mai sus. Echivalentul în RON e afișat la cursul de referință BNR al zilei."
+  },
+  "promises": {
+    "heading": "Promisiunile pe care ți le facem",
+    "intro": "Astea nu sunt sloganuri de marketing. Sunt clauze de contract. Nu vom tăia niciuna.",
+    "items": [
+      { "label": "Niciodată comision pe acoperit.", "body": "Dacă schimbăm vreodată acest model de preț în viitor, contractul tău actual te scutește pe veci." },
+      { "label": "Datele îți aparțin.", "body": "Anulează oricând și îți predăm un export CSV complet — fiecare oaspete, fiecare rezervare, fiecare recenzie, fiecare campanie. Fără date ținute ostatic." },
+      { "label": "Plata anuală e rambursabilă pro-rata.", "body": "Dacă plătești anual și în luna a 4-a decizi că nu merge, îți rambursăm lunile nefolosite. Fără întrebări." },
+      { "label": "Fără blocaj anual decât dacă îl alegi tu.", "body": "Plata lunară e implicită. Plata anuală e pentru reducerea de 2 luni gratuite, nu ca să te țină captiv." },
+      { "label": "Anularea e un singur clic în aplicație.", "body": "Fără tichet de suport, fără apel de retenție, fără «o procesăm în 7-10 zile lucrătoare»." },
+      { "label": "O singură perioadă gratuită per entitate juridică.", "body": "Card pe fișier la înscriere. Facturarea începe în ziua 91. Fără plăți-surpriză înainte." }
+    ]
+  },
+  "setup": {
+    "eyebrow": "Configurarea",
+    "heading": "Ce facem pentru tine în primele trei luni gratuite",
+    "intro": "Fondatorul investește personal timp în lansarea ta înainte să ne plătești vreun euro.",
+    "steps": [
+      { "title": "Migrare white-glove", "body": "Mutăm rezervările, lista de oaspeți și setările tale din ce folosești acum în Tavli. Dintr-o singură ședință.", "badge": "30 min" },
+      { "title": "Sesiune de pagină și fotografii", "body": "Fondatorul vine la restaurant, fotografiază preparatele și sala cu echipament profesional și scrie pagina ta trilingvă pe loc. Aprobi înainte de publicare.", "badge": "60–90 min" },
+      { "title": "Training de personal", "body": "Gazdele și managerii tăi parcurg portalul împreună cu noi până se simt în largul lor.", "badge": "30 min" },
+      { "title": "Rulare în paralel", "body": "Ții sistemul vechi activ lângă Tavli în prima lună. Treci complet când ești pregătit, nu când îți spunem noi.", "badge": "30 zile" },
+      { "title": "Primele trei campanii configurate live", "body": "Ne așezăm cu tine și proiectăm seria de bun-venit, prima reactivare de oaspeți pierduți și prima campanie tematică — împreună, pe datele tale.", "badge": "Doar Pro", "proOnly": true }
+    ],
+    "quote": "Cele trei luni gratuite nu sunt o perioadă de probă. Sunt o fereastră de configurare. Fondatorul investește personal timp în lansarea ta înainte să ne plătești vreun euro.",
+    "quoteAttribution": "Promisiunea de configurare Tavli"
+  },
+  "enterprise": {
+    "heading": "Ai cinci sau mai multe locații?",
+    "body": "Cele două niveluri publice sunt pentru restaurante independente și grupuri mici (1–3 locații). Dacă ai cinci sau mai multe, sau ești un lanț cu back-office comun, scrie-ne și proiectăm ceva pe măsura ta. Nu facem prețuri «Enterprise» umflate. Facem prețuri «spune-ne de ce ai nevoie».",
+    "cta": "Scrie-ne la hello@tavli.ro",
+    "email": "hello@tavli.ro"
+  },
+  "faq": {
+    "heading": "Întrebări frecvente",
+    "items": [
+      { "label": "Când mi se taie banii de pe card?", "body": "În ziua 91 a perioadei tale. Trimitem mementouri în ziua 60, 75 și 85; anulează oricând în timpul perioadei gratuite și cardul nu e taxat niciodată." },
+      { "label": "Cardul e taxat în timpul perioadei gratuite?", "body": "Nu. Salvăm cardul la înscriere, dar prima plată e abia în ziua 91. Până atunci nu ne datorezi nimic." },
+      { "label": "Ce se întâmplă dacă anulez?", "body": "Anularea e un singur clic în aplicație — fără tichet, fără apel de retenție. Îți predăm un export CSV complet al tuturor datelor tale." },
+      { "label": "Pot trece de la plata lunară la cea anuală?", "body": "Da, oricând. Plata anuală îți dă 2 luni gratuite. Dacă plătești anual și te răzgândești, îți rambursăm lunile nefolosite pro-rata." },
+      { "label": "Cum funcționează TVA-ul?", "body": "Prețurile afișate sunt în EUR, fără TVA. Tratamentul TVA depinde de tipul tău de client — vezi panoul de informații TVA de mai sus. Stripe Tax calculează și colectează corect." },
+      { "label": "Ce se întâmplă dacă am mai multe locații?", "body": "Tavli Pro include până la 3 locații. Fiecare locație suplimentară costă €15/lună. Pentru cinci sau mai multe, scrie-ne la hello@tavli.ro." },
+      { "label": "Care e diferența dintre Tavli și Tavli Pro?", "body": "Tavli dacă ești un singur local fără evenimente corporate. Tavli Pro dacă organizezi evenimente private, vrei campanii de marketing sau ai mai multe locații." }
+    ]
+  },
+  "ron": {
+    "prefix": "~",
+    "footnote": "RON afișat la cursul de referință BNR al zilei, 1 EUR ≈ {rate} RON (la data de {date}). Facturăm în EUR.",
+    "staleOneDay": "Acest curs e de ieri — BNR încă nu a publicat unul mai nou.",
+    "staleWarn": "Acest curs nu mai e de azi — BNR nu a publicat actualizări recente."
+  },
+  "waitlist": {
+    "cta": "Înscrie-te pe lista de așteptare",
+    "modalTitle": "Înscrie-te pe lista de așteptare",
+    "modalBody": "Tavli se lansează pe orașe. Lasă-ne emailul și te anunțăm imediat ce deschidem înscrierile în zona ta.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tu@restaurantultau.ro",
+    "orgLabel": "Numele restaurantului (opțional)",
+    "orgPlaceholder": "Bistro Lipscani",
+    "submit": "Înscrie-mă",
+    "success": "Ești pe listă. Îți scriem imediat ce deschidem în zona ta.",
+    "close": "Închide",
+    "errorDuplicate": "Acest email e deja pe listă. Te anunțăm în curând.",
+    "errorInvalid": "Te rugăm să introduci o adresă de email validă.",
+    "errorRateLimited": "Prea multe încercări. Te rugăm să reîncerci mai târziu.",
+    "errorGeneric": "Ceva n-a mers. Te rugăm să reîncerci."
+  }
+}

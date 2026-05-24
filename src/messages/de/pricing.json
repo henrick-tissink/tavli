@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "title": "Tavli Preise — €30 oder €60/Monat",
+    "description": "Zwei Tarife, monatlich oder jährlich. Keine Gebühr pro Gedeck, keine Einrichtungsgebühr. Die ersten drei Monate kostenlos für jedes neue Restaurant.",
+    "ogTitle": "Tavli — Zwei Tarife. Ein Versprechen.",
+    "ogDescription": "Ein vollständiges Reservierungssystem ab €30/Monat. Drei Monate kostenlos, persönlich vom Gründer eingerichtet, bevor Sie zahlen."
+  },
+  "hero": {
+    "eyebrow": "Preise",
+    "title": "Zwei Tarife.",
+    "titleAccent": "Ein Versprechen.",
+    "subtitle": "Tavli ist eine Reservierungsplattform, gebaut wie die Restaurants, die sie nutzen — im Dienst des Gastes, des Raums und der Menschen, die ihn führen. Zwei Abonnements, monatlich oder jährlich. Keine Gebühr pro Gedeck. Keine Einrichtungsgebühr. Kein Vertrag, aus dem Sie nicht herauskommen.",
+    "trialNote": "Die ersten drei Monate kostenlos für jedes neue Restaurant."
+  },
+  "frequency": {
+    "label": "Abrechnung",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "annualBadge": "2 Monate gratis",
+    "annualTooltip": "Die jährliche Zahlung kostet so viel wie 10 Monate — Sie sparen 2 Monate gegenüber der monatlichen Abrechnung."
+  },
+  "tiers": {
+    "base": {
+      "name": "Tavli",
+      "tagline": "Ein vollständiges Reservierungssystem für ein unabhängiges Restaurant.",
+      "perMonth": "/Monat",
+      "includedHeading": "Was Sie bekommen",
+      "bullets": [
+        "Unbegrenzte Reservierungen. Niemals eine Gebühr pro Gedeck.",
+        "Ein Buchungs-Widget, das mit zwei Zeilen Code in Ihre Website passt — und aussieht wie Ihre Marke, nicht wie unsere.",
+        "Automatische Bestätigungen und Erinnerungen 24 Stunden vorher, auf Rumänisch, Englisch und Deutsch.",
+        "Selbstbedienungs-Links zum Ändern und Stornieren — weniger Anrufe an Ihrem Empfang.",
+        "Eine dreisprachige Restaurantseite (RO / EN / DE), bis zu 20 Fotos und 2 Speisekarten.",
+        "Bewertungen nur von Gästen mit eingecheckter Reservierung. Keine gefälschten Bewertungen, kein anonymes Trolling.",
+        "12 Monate Buchungsverlauf, jederzeit als CSV exportierbar, plus eine wöchentliche Zusammenfassung per E-Mail.",
+        "Google Maps- und Google Business-Synchronisation — lokales SEO von Anfang an."
+      ],
+      "note": "Ein Standort. Bis zu 5 Mitarbeiterkonten.",
+      "cta": "Starten Sie Ihre 3 Gratismonate"
+    },
+    "pro": {
+      "name": "Tavli Pro",
+      "tagline": "Alles aus Tavli, plus den Firmenevents-Kanal und eine Marketing-Suite.",
+      "perMonth": "/Monat",
+      "includedHeading": "Alles aus Tavli, plus:",
+      "bullets": [
+        "Den Kanal für Firmen- und Privatevents — qualifizierte Anfragen, passend zu Küche, Kapazität und Preisniveau, direkt an Sie geleitet.",
+        "Modul für Privaträume und Buyout: Verfügbarkeit über mehrere Räume, individueller Anfrageprozess, Anzahlungen bei Buchung.",
+        "Die Marketing-Suite: E-Mail, SMS und WhatsApp Business, mit sechs automatischen Kampagnen zum Einrichten und Vergessen.",
+        "Segmentierung über sechs Dimensionen, begrenzt auf 4 Nachrichten/Gast/Monat — kein Gast wird zugespammt, keine überraschende Rechnung.",
+        "Standortübergreifende Kundendatenbank und Buchungszuordnung pro Kampagne.",
+        "No-Show-Heatmap, Kohorten-Retention, Vorlaufzeit-Verteilung und eine 4-Wochen-Auslastungsprognose.",
+        "Unbegrenzte Fotos und Speisekarten, ein Video-Hero auf der Restaurantseite und volle CSS-Kontrolle über das Widget.",
+        "Vorrang, in Tavlis redaktionellen Guides vorgestellt zu werden, plus Nutzungsrechte an unseren Fotos Ihres Lokals."
+      ],
+      "note": "Bis zu 3 Standorte inklusive. Zusätzliche Standorte je €15/Monat.",
+      "cta": "Starten Sie Ihre 3 Gratismonate",
+      "ribbon": "Die meisten wählen Pro"
+    }
+  },
+  "decisionHelp": {
+    "heading": "Unsicher?",
+    "body": "Wählen Sie Tavli, wenn Sie ein einzelnes Lokal ohne Firmenevents sind. Wählen Sie Tavli Pro, wenn Sie Privatevents veranstalten, Marketingkampagnen wünschen oder mehrere Lokale führen."
+  },
+  "vat": {
+    "heading": "Alle Preise in EUR",
+    "intro": "Der endgültig zu zahlende Betrag hängt von Ihrem Steuerstatus ab:",
+    "types": [
+      { "label": "Unternehmen in Rumänien", "body": "Umkehr der Steuerschuld (Sie führen ab; der angezeigte Preis ist genau das, was Sie zahlen)." },
+      { "label": "Privatkunden in Rumänien", "body": "MwSt. inklusive, zu 19%." },
+      { "label": "Unternehmen in der EU (außerhalb Rumäniens)", "body": "Umkehr der Steuerschuld mit gültiger, über VIES geprüfter USt-IdNr.; andernfalls +19%." },
+      { "label": "Kunden außerhalb der EU", "body": "Keine MwSt." }
+    ],
+    "footer": "Wir bestätigen Ihren Steuerstatus bei der Anmeldung. Stripe Tax berechnet und erhebt korrekt nach Ihrer Region."
+  },
+  "cardOnFile": {
+    "title": "Testen Sie Tavli 90 Tage kostenlos.",
+    "body": "Wir hinterlegen bei der Anmeldung eine Karte für eine reibungslose Umstellung an Tag 91.",
+    "cancelText": "Jederzeit kündbar — wir senden Erinnerungen an Tag 60, 75 und 85 vor der ersten Abbuchung."
+  },
+  "yearOne": {
+    "heading": "Das erste Jahr, klar gerechnet",
+    "intro": "Keine Sternchen. Hier steht genau, was Sie im ersten Jahr pro Tarif zahlen.",
+    "planHeader": "Tarif",
+    "yearHeader": "Jahr 1",
+    "rows": [
+      { "key": "base_monthly", "plan": "Tavli, monatliche Zahlung", "detail": "3 Monate gratis + 9 × €30" },
+      { "key": "base_annual", "plan": "Tavli, jährliche Zahlung", "detail": "3 Monate gratis + 9 Monate zu effektiv €25" },
+      { "key": "pro_monthly", "plan": "Tavli Pro, monatliche Zahlung", "detail": "3 Monate gratis + 9 × €60" },
+      { "key": "pro_annual", "plan": "Tavli Pro, jährliche Zahlung", "detail": "3 Monate gratis + 9 Monate zu effektiv €50" },
+      { "key": "pro5_monthly", "plan": "Tavli Pro mit 5 Standorten, monatliche Zahlung", "detail": "3 Monate gratis + 9 × (€60 + 4 × €15)" },
+      { "key": "pro5_annual", "plan": "Tavli Pro mit 5 Standorten, jährliche Zahlung", "detail": "3 Monate gratis + 9 Monate zu effektiv €100" }
+    ],
+    "footnote": "Alle Preise in EUR. Die MwSt.-Behandlung hängt von Ihrem Kundentyp ab — siehe das Panel oben. Der RON-Gegenwert wird zum BNR-Referenzkurs des Tages angezeigt."
+  },
+  "promises": {
+    "heading": "Die Versprechen, die wir geben",
+    "intro": "Das sind keine Marketingfloskeln. Das sind Vertragsklauseln. Wir streichen keine davon.",
+    "items": [
+      { "label": "Niemals eine Gebühr pro Gedeck.", "body": "Sollten wir dieses Preismodell jemals künftig ändern, schützt Ihr aktueller Vertrag Sie für immer davor." },
+      { "label": "Die Daten gehören Ihnen.", "body": "Kündigen Sie jederzeit, und wir übergeben Ihnen einen vollständigen CSV-Export — jeden Gast, jede Buchung, jede Bewertung, jede Kampagne. Keine Daten als Geisel." },
+      { "label": "Jahreszahlung ist anteilig erstattbar.", "body": "Wenn Sie jährlich zahlen und in Monat 4 entscheiden, dass es nicht passt, erstatten wir die ungenutzten Monate. Ohne Rückfragen." },
+      { "label": "Keine Jahresbindung, es sei denn, Sie wählen sie.", "body": "Die monatliche Zahlung ist Standard. Die Jahreszahlung dient dem Rabatt von 2 Gratismonaten, nicht dazu, Sie festzuhalten." },
+      { "label": "Kündigung ist ein Klick in der App.", "body": "Kein Support-Ticket, kein Halte-Anruf, kein „wir bearbeiten das in 7–10 Werktagen“." },
+      { "label": "Eine kostenlose Testphase pro Rechtsträger.", "body": "Karte bei der Anmeldung hinterlegt. Die Abrechnung beginnt an Tag 91. Keine überraschenden Abbuchungen davor." }
+    ]
+  },
+  "setup": {
+    "eyebrow": "Die Einrichtung",
+    "heading": "Was wir in Ihren ersten drei Gratismonaten für Sie tun",
+    "intro": "Der Gründer investiert persönlich Zeit in Ihren Start, bevor Sie uns je einen Euro zahlen.",
+    "steps": [
+      { "title": "White-Glove-Migration", "body": "Wir holen Ihre Reservierungen, Ihre Gästeliste und Ihre Einstellungen aus dem, was Sie jetzt nutzen, in Tavli. In einer Sitzung.", "badge": "30 Min." },
+      { "title": "Seiten- und Foto-Session", "body": "Der Gründer besucht Ihr Restaurant, fotografiert Ihre Gerichte und Ihren Gastraum mit professioneller Ausrüstung und schreibt Ihre dreisprachige Restaurantseite vor Ort. Sie geben sie vor der Veröffentlichung frei.", "badge": "60–90 Min." },
+      { "title": "Mitarbeiterschulung", "body": "Ihre Gastgeber und Manager gehen das Partnerportal gemeinsam mit uns durch, bis sie sich sicher fühlen.", "badge": "30 Min." },
+      { "title": "Parallelbetrieb", "body": "Lassen Sie Ihr altes System im ersten Monat neben Tavli laufen. Wechseln Sie, wenn Sie bereit sind, nicht wenn wir es sagen.", "badge": "30 Tage" },
+      { "title": "Die ersten drei Kampagnen live eingerichtet", "body": "Wir setzen uns mit Ihnen zusammen und gestalten Ihre Willkommensserie, Ihre erste Reaktivierung verlorener Gäste und Ihre erste Themenkampagne — gemeinsam, mit Ihren Daten.", "badge": "Nur Pro", "proOnly": true }
+    ],
+    "quote": "Drei Monate gratis sind keine Testphase. Sie sind ein Einrichtungsfenster. Der Gründer investiert persönlich Zeit in Ihren Start, bevor Sie uns je einen Euro zahlen.",
+    "quoteAttribution": "Das Tavli-Einrichtungsversprechen"
+  },
+  "enterprise": {
+    "heading": "Führen Sie fünf oder mehr Standorte?",
+    "body": "Die beiden öffentlichen Tarife sind für unabhängige Restaurants und kleine Gruppen (1–3 Standorte). Wenn Sie fünf oder mehr führen oder eine Kette mit gemeinsamem Back-Office sind, schreiben Sie uns, und wir entwerfen etwas Passendes. Wir machen keine aufgeblähten „Enterprise“-Preise. Wir machen „Sagen Sie uns, was Sie wirklich brauchen“-Preise.",
+    "cta": "Schreiben Sie an hello@tavli.ro",
+    "email": "hello@tavli.ro"
+  },
+  "faq": {
+    "heading": "Häufige Fragen",
+    "items": [
+      { "label": "Wann wird meine Karte belastet?", "body": "An Tag 91 Ihrer Testphase. Wir senden Erinnerungen an Tag 60, 75 und 85; kündigen Sie jederzeit während der Testphase, und die Karte wird nie belastet." },
+      { "label": "Wird die Karte während der Testphase belastet?", "body": "Nein. Wir hinterlegen die Karte bei der Anmeldung, aber die erste Abbuchung erfolgt erst an Tag 91. Bis dahin schulden Sie uns nichts." },
+      { "label": "Was passiert, wenn ich kündige?", "body": "Die Kündigung ist ein Klick in der App — kein Ticket, kein Halte-Anruf. Wir übergeben Ihnen einen vollständigen CSV-Export all Ihrer Daten." },
+      { "label": "Kann ich zwischen monatlich und jährlich wechseln?", "body": "Ja, jederzeit. Die Jahreszahlung bringt Ihnen 2 Gratismonate. Wenn Sie jährlich zahlen und es sich anders überlegen, erstatten wir die ungenutzten Monate anteilig." },
+      { "label": "Wie funktioniert die MwSt.?", "body": "Die angezeigten Preise sind in EUR, ohne MwSt. Die MwSt.-Behandlung hängt von Ihrem Kundentyp ab — siehe das MwSt.-Panel oben. Stripe Tax berechnet und erhebt korrekt." },
+      { "label": "Was, wenn ich mehr als einen Standort führe?", "body": "Tavli Pro umfasst bis zu 3 Standorte. Jeder weitere Standort kostet €15/Monat. Für fünf oder mehr schreiben Sie an hello@tavli.ro." },
+      { "label": "Was ist der Unterschied zwischen Tavli und Tavli Pro?", "body": "Tavli, wenn Sie ein einzelnes Lokal ohne Firmenevents sind. Tavli Pro, wenn Sie Privatevents veranstalten, Marketingkampagnen wünschen oder mehrere Lokale führen." }
+    ]
+  },
+  "ron": {
+    "prefix": "~",
+    "footnote": "RON zum BNR-Referenzkurs des Tages, 1 EUR ≈ {rate} RON (Stand {date}). Wir rechnen in EUR ab.",
+    "staleOneDay": "Dieser Kurs ist von gestern — die BNR hat noch keinen neueren veröffentlicht.",
+    "staleWarn": "Dieser Kurs ist nicht mehr aktuell — die BNR hat keine neuen Aktualisierungen veröffentlicht."
+  },
+  "waitlist": {
+    "cta": "Auf die Warteliste",
+    "modalTitle": "Auf die Warteliste",
+    "modalBody": "Tavli startet Stadt für Stadt. Hinterlassen Sie Ihre E-Mail, und wir benachrichtigen Sie, sobald wir die Anmeldung in Ihrer Region öffnen.",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "sie@ihrrestaurant.de",
+    "orgLabel": "Name des Restaurants (optional)",
+    "orgPlaceholder": "Bistro Lipscani",
+    "submit": "Eintragen",
+    "success": "Sie stehen auf der Liste. Wir schreiben, sobald wir in Ihrer Region öffnen.",
+    "close": "Schließen",
+    "errorDuplicate": "Diese E-Mail steht bereits auf der Liste. Wir melden uns bald.",
+    "errorInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    "errorRateLimited": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  }
+}
