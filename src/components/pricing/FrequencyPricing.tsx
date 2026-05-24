@@ -67,10 +67,20 @@ export function FrequencyPricing({
   const { frequency } = messages;
   const [freq, setFreq] = useState<Frequency>("monthly");
   const wrapRef = useRef<HTMLDivElement>(null);
+  // audit #7 — only an actual user toggle may write the URL hash. On mount the
+  // projection effect must NOT rewrite the hash, or it clobbers deep-links like
+  // /pricing#faq (the "cancel anytime" anchor) and stamps a spurious #monthly.
+  const userToggled = useRef(false);
+
+  function choose(next: Frequency) {
+    userToggled.current = true;
+    setFreq(next);
+  }
 
   // Init from deep-link hash on mount. This must be an effect (not a useState
   // initializer): the URL hash isn't sent to the server, so reading it during
-  // SSR is impossible — the client reconciles after hydration.
+  // SSR is impossible — the client reconciles after hydration. This is a
+  // programmatic sync, not a user toggle, so it never writes the hash back.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe deep-link read; see above
     if (window.location.hash === "#annual") setFreq("annual");
@@ -78,9 +88,13 @@ export function FrequencyPricing({
 
   // Project the choice onto the URL hash + the signup CTAs.
   useEffect(() => {
-    const hash = freq === "annual" ? "#annual" : "#monthly";
-    if (window.location.hash !== hash) {
-      window.history.replaceState(null, "", hash);
+    // Hash is written only after the user toggles — never on mount / deep-link
+    // sync, so an unrelated existing hash (#faq, …) is preserved.
+    if (userToggled.current) {
+      const hash = freq === "annual" ? "#annual" : "#monthly";
+      if (window.location.hash !== hash) {
+        window.history.replaceState(null, "", hash);
+      }
     }
     const ctas = wrapRef.current?.querySelectorAll<HTMLAnchorElement>("a[data-cta]");
     ctas?.forEach((a) => {
@@ -103,14 +117,14 @@ export function FrequencyPricing({
           <FrequencyOption
             active={freq === "monthly"}
             label={frequency.monthly}
-            onSelect={() => setFreq("monthly")}
+            onSelect={() => choose("monthly")}
           />
           <FrequencyOption
             active={freq === "annual"}
             label={frequency.annual}
             badge={frequency.annualBadge}
             tooltip={frequency.annualTooltip}
-            onSelect={() => setFreq("annual")}
+            onSelect={() => choose("annual")}
           />
         </div>
       </div>
