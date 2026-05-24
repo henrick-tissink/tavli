@@ -13,13 +13,14 @@
  */
 
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { handleMarketingSuppressions } from "./handlers/marketing-suppressions";
 import { handleMarketingConsents } from "./handlers/marketing-consents";
 import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notifications-phase1";
 import { handleDiners } from "./handlers/diners";
+import { handleMarketingSends } from "./handlers/marketing-sends";
 import { handleAuditLogs } from "./handlers/audit-logs";
-import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs } from "@/lib/db/schema";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -169,6 +170,26 @@ async function verifyAuditLogsRedacted({ db }: VerifyDeps): Promise<Verification
   };
 }
 
+async function verifyMarketingSendsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  // A send row belonging to a pseudonymised diner must not retain its
+  // plaintext email/phone. Join to diners.redacted_at — the diner row is the
+  // erasure marker (marketing_sends has no redacted_at of its own).
+  const rows = await db
+    .select({ id: marketingSends.id })
+    .from(marketingSends)
+    .innerJoin(diners, eq(diners.id, marketingSends.dinerId))
+    .where(sql`${diners.redactedAt} IS NOT NULL
+            AND (${marketingSends.email} IS NOT NULL
+                 OR ${marketingSends.phone} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "marketing_sends",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -261,13 +282,12 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   },
   {
     tableName: "marketing_sends",
-    shipped: false,
-    handler: null,
-    verificationQuery: null,
+    shipped: true,
+    handler: handleMarketingSends,
+    verificationQuery: verifyMarketingSendsRedacted,
     twoPhase: false,
     piiColumns: ["email", "phone"],
     defaultReason: "gdpr_art_17",
-    // TODO Wave 7 — ship marketing_sends + handler
   },
   {
     tableName: "customer_consents",

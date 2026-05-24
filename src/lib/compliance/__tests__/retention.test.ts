@@ -135,11 +135,42 @@ describe("runRetentionPurge", () => {
     expect(d.sentryAlert).toHaveBeenCalled();
   });
 
-  it("anonymise stub — failed + sentry warn", async () => {
+  it("anonymise — nulls PII columns on marketing_sends (chunked UPDATE), returns purged", async () => {
+    let updateCalls = 0;
+    const executeMock = jest.fn().mockImplementation(async (q: any) => {
+      const s = JSON.stringify(q);
+      if (s.includes("to_regclass")) return [{ exists: true }];
+      if (s.includes("UPDATE")) {
+        updateCalls += 1;
+        // First pass returns 2 rows, second pass returns 0 → loop terminates.
+        return updateCalls === 1 ? [{ id: "ms-1" }, { id: "ms-2" }] : [];
+      }
+      return [];
+    });
+    const d = makeDeps({
+      db: {
+        select: jest.fn().mockReturnValue({
+          from: jest.fn().mockResolvedValue([
+            makePolicy({ scopeTable: "marketing_sends", actionOnExpiry: "anonymise" }),
+          ]),
+        }),
+        execute: executeMock,
+      },
+    });
+    const subject = makeRunRetentionPurge(d);
+    const results = await subject();
+
+    expect(results[0].status).toBe("purged");
+    expect(results[0].rowsAffected).toBe(2);
+    expect(d.recordAudit).toHaveBeenCalledTimes(1);
+    expect(d.sentryAlert).not.toHaveBeenCalled();
+  });
+
+  it("anonymise without a column map — failed + sentry warn", async () => {
     const d = makeDeps({
       db: makeDb({
-        loadPolicies: [makePolicy({ scopeTable: "marketing_sends", actionOnExpiry: "anonymise" })],
-        tableExists: { marketing_sends: true },
+        loadPolicies: [makePolicy({ scopeTable: "audit_logs", actionOnExpiry: "anonymise" })],
+        tableExists: { audit_logs: true },
       }),
     });
     const subject = makeRunRetentionPurge(d);

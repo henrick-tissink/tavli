@@ -58,6 +58,18 @@ interface Deps {
 const CHUNK_SIZE = 5000;
 const IDENT_RX = /^[a-z_][a-z0-9_]*$/;
 
+/**
+ * Columns nulled by the `anonymise` retention action, per scope_table. This
+ * map is code-controlled (NOT user/seed-derived), so the column names are
+ * trusted identifiers safe to splice. A scope_table with an `anonymise`
+ * policy but no entry here fails loudly rather than silently no-op'ing.
+ */
+const ANONYMISE_COLUMNS: Record<string, string[]> = {
+  // audit #4 — strip the contact identifiers copied onto each send row,
+  // keeping the row for analytics/attribution.
+  marketing_sends: ["email", "phone"],
+};
+
 export function makeRunRetentionPurge(deps: Deps) {
   return async function runRetentionPurge(): Promise<PolicyResult[]> {
     const policies = (await deps.db.select().from(retentionPolicies)) as unknown as RetentionPolicy[];
@@ -109,7 +121,8 @@ async function processPolicy(policy: RetentionPolicy, deps: Deps): Promise<Polic
         rowsAffected = await runHardDelete(policy, deps);
         break;
       case "anonymise":
-        throw new Error(`anonymise not implemented for scope_table='${policy.scopeTable}' — Wave 7 ships marketing_sends + the columns-to-null registry`);
+        rowsAffected = await runAnonymise(policy, deps);
+        break;
       case "archive_offline":
         throw new Error(`archive_offline not implemented for scope_table='${policy.scopeTable}' — no v1 consumer`);
       default: {
@@ -155,6 +168,43 @@ async function runHardDelete(policy: RetentionPolicy, deps: Deps): Promise<numbe
        WHERE id IN (
          SELECT id FROM ${tableId}
           WHERE ${columnId} < (now() - (${days} || ' days')::interval)
+          ORDER BY ${columnId} ASC
+          LIMIT ${CHUNK_SIZE}
+       )
+       RETURNING id;
+    `);
+    const rows = updated as unknown as Array<{ id: string }>;
+    if (rows.length === 0) break;
+    total += rows.length;
+    if (rows.length < CHUNK_SIZE) break;
+  }
+  return total;
+}
+
+async function runAnonymise(policy: RetentionPolicy, deps: Deps): Promise<number> {
+  // scope_table + applies_to_column validated as PG identifiers above. The
+  // columns-to-null come from the code-controlled ANONYMISE_COLUMNS map, so
+  // splicing them is safe; cutoff value is parameterised.
+  const columns = ANONYMISE_COLUMNS[policy.scopeTable];
+  if (!columns || columns.length === 0) {
+    throw new Error(
+      `anonymise has no column map for scope_table='${policy.scopeTable}' — add it to ANONYMISE_COLUMNS`,
+    );
+  }
+  const tableId = sql.raw(`"${policy.scopeTable}"`);
+  const columnId = sql.raw(`"${policy.appliesToColumn}"`);
+  const setClause = sql.raw(columns.map((c) => `"${c}" = NULL`).join(", "));
+  const stillHasPii = sql.raw(columns.map((c) => `"${c}" IS NOT NULL`).join(" OR "));
+  const days = policy.retentionPeriodDays;
+
+  let total = 0;
+  while (true) {
+    const updated = await deps.db.execute<{ id: string }>(sql`
+      UPDATE ${tableId} SET ${setClause}
+       WHERE id IN (
+         SELECT id FROM ${tableId}
+          WHERE ${columnId} < (now() - (${days} || ' days')::interval)
+            AND (${stillHasPii})
           ORDER BY ${columnId} ASC
           LIMIT ${CHUNK_SIZE}
        )
