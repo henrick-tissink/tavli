@@ -6,6 +6,7 @@ import { restaurants, restaurantTables, restaurantTableSections } from "@/lib/db
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { TablesList } from "./_components/TablesList";
 import { SectionsManager } from "./_components/SectionsManager";
+import { FloorPlanCanvas } from "./_components/FloorPlanCanvas";
 
 export const dynamic = "force-dynamic";
 
@@ -96,11 +97,29 @@ export default async function TablesPage() {
           </h1>
           <p className="text-sm text-text-secondary mt-1">
             Configurează mesele și secțiunile pentru{" "}
-            <span className="font-medium">{venue.name}</span>. Drag-drop va fi
-            disponibil în curând — deocamdată editează pozițiile numeric.
+            <span className="font-medium">{venue.name}</span>. Trage mesele pe plan
+            pentru a le aranja; detaliile le editezi din listă.
           </p>
         </div>
       </header>
+
+      <div className="mb-8 max-w-3xl">
+        <FloorPlanCanvas
+          restaurantId={restaurantId}
+          organizationId={organizationId}
+          tables={tableRows.map((t) => ({
+            id: t.id,
+            label: t.label,
+            positionX: t.positionX,
+            positionY: t.positionY,
+            width: t.width,
+            height: t.height,
+            shape: t.shape,
+            sectionId: t.sectionId,
+          }))}
+          sectionColors={Object.fromEntries(sectionRows.map((s) => [s.id, s.color]))}
+        />
+      </div>
 
       <div className="max-w-3xl space-y-6">
         <SectionsManager
