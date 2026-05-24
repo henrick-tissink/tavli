@@ -445,6 +445,10 @@ export const reservations = pgTable("reservations", {
   tableId: uuid("table_id"),
   combinationId: uuid("combination_id"),
   autoAssigned: boolean("auto_assigned").notNull().default(false),
+  // §11 Wave 7 — marketing attribution. Column owned here (§02 never added it);
+  // FK → marketing_campaigns added in migration 0043 (no .references() to avoid
+  // a circular type-inference cycle with the later marketing tables).
+  campaignId: uuid("campaign_id"),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -862,6 +866,8 @@ export const organizations = pgTable("organizations", {
   brandSecondary: varchar("brand_secondary", { length: 7 }),
   // §12 §4.1a — Tavli-admin grant of a second free trial in good-faith cases.
   reTrialGranted: boolean("re_trial_granted").notNull().default(false),
+  // §11 §10.2 — per-org global marketing frequency cap (messages/diner/month).
+  marketingFrequencyCapPerMonth: integer("marketing_frequency_cap_per_month").notNull().default(4),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -1317,6 +1323,12 @@ export const marketingConsents = pgTable(
       .default(sql`now()`),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     context: jsonb("context").notNull().default(sql`'{}'::jsonb`),
+    // §11 Wave 7 — legal-provenance columns (ANPC/GDPR demonstrability). Nullable;
+    // populated when marketing consent is captured via recordConsent.
+    sourceSurfaceUrl: text("source_surface_url"),
+    sourceIp: inet("source_ip"),
+    consentCopyShown: text("consent_copy_shown"),
+    consentLocale: char("consent_locale", { length: 2 }),
   },
   (t) => ({
     dinerChannelIdx: index("marketing_consents_diner_channel").on(
@@ -1326,7 +1338,7 @@ export const marketingConsents = pgTable(
     ),
     channelValidCheck: check(
       "marketing_consents_channel_valid",
-      sql`${t.channel} IN ('email_marketing', 'sms_marketing', 'sms_transactional', 'email_transactional')`,
+      sql`${t.channel} IN ('email_marketing', 'sms_marketing', 'whatsapp_marketing', 'sms_transactional', 'email_transactional')`,
     ),
   }),
 );
@@ -1350,6 +1362,11 @@ export const marketingSuppressions = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),
+    // §11 Wave 7 — unsuppressed_at set only on diner re-opt-in; source_send_id
+    // links the suppression back to the send that triggered it (no .references()
+    // here — marketing_sends is defined later; FK added in the migration SQL).
+    unsuppressedAt: timestamp("unsuppressed_at", { withTimezone: true }),
+    sourceSendId: uuid("source_send_id"),
   },
   (t) => ({
     channelIdUnique: uniqueIndex(
@@ -1357,7 +1374,7 @@ export const marketingSuppressions = pgTable(
     ).on(t.channel, sql`lower(${t.identifier})`),
     channelValidCheck: check(
       "marketing_suppressions_channel_valid",
-      sql`${t.channel} IN ('email', 'sms')`,
+      sql`${t.channel} IN ('email', 'sms', 'whatsapp')`,
     ),
   }),
 );
@@ -1954,4 +1971,193 @@ export const restaurantExportJobs = pgTable("restaurant_export_jobs", {
 }, (t) => [
   index("restaurant_export_jobs_org").on(t.organizationId, t.createdAt.desc()),
   index("restaurant_export_jobs_status").on(t.status).where(sql`status in ('queued','running')`),
+]);
+
+// ═══ §11 Marketing suite (Wave 7, migration 0043) ═══════════════════════
+export const marketingChannel = pgEnum("marketing_channel", ["email", "sms", "whatsapp", "in_confirmation"]);
+export const marketingCampaignKind = pgEnum("marketing_campaign_kind", ["triggered", "one_off"]);
+export const marketingCampaignStatus = pgEnum("marketing_campaign_status", [
+  "draft", "active", "paused", "archived", "scheduled", "sending", "sent", "cancelled",
+]);
+export const marketingSendStatus = pgEnum("marketing_send_status", [
+  "queued", "sent", "delivered", "bounced", "complained", "failed",
+  "skipped_cap", "skipped_suppressed", "skipped_quiet_hours", "skipped_quota",
+  "unsubscribed", "opened", "clicked",
+]);
+export const consentSource = pgEnum("consent_source", [
+  "booking_flow", "qr_tent", "venue_page", "walk_in_manual", "csv_import", "review_flow", "admin",
+]);
+export const segmentCombinator = pgEnum("segment_combinator", ["and", "or"]);
+
+// Per-venue marketing config (§11 §4.2).
+export const restaurantMarketingSettings = pgTable("restaurant_marketing_settings", {
+  restaurantId: uuid("restaurant_id").primaryKey().references(() => restaurants.id, { onDelete: "cascade" }),
+  emailSenderName: varchar("email_sender_name", { length: 120 }),
+  emailReplyTo: varchar("email_reply_to", { length: 255 }),
+  smsEnabled: boolean("sms_enabled").notNull().default(false),
+  smsSenderId: varchar("sms_sender_id", { length: 20 }),
+  smsStopShortcode: varchar("sms_stop_shortcode", { length: 20 }),
+  whatsappEnabled: boolean("whatsapp_enabled").notNull().default(false),
+  whatsappBusinessAccountId: varchar("whatsapp_business_account_id", { length: 80 }),
+  whatsappPhoneNumberId: varchar("whatsapp_phone_number_id", { length: 80 }),
+  confirmationPromoEnabled: boolean("confirmation_promo_enabled").notNull().default(true),
+  quietHoursStartLocal: time("quiet_hours_start_local").notNull().default("21:00"),
+  quietHoursEndLocal: time("quiet_hours_end_local").notNull().default("10:00"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Campaign definition (§11 §4.3). segment_id FK added in SQL (segments defined after).
+export const marketingCampaigns = pgTable("marketing_campaigns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  kind: marketingCampaignKind("kind").notNull(),
+  triggeredCampaignKey: varchar("triggered_campaign_key", { length: 40 }),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  status: marketingCampaignStatus("status").notNull().default("draft"),
+  channel: marketingChannel("channel").notNull(),
+  subjectTemplate: jsonb("subject_template").notNull(),
+  bodyTemplate: jsonb("body_template").notNull(),
+  previewText: jsonb("preview_text"),
+  whatsappTemplateNamespace: varchar("whatsapp_template_namespace", { length: 80 }),
+  whatsappTemplateName: varchar("whatsapp_template_name", { length: 80 }),
+  triggerOffsetSeconds: integer("trigger_offset_seconds"),
+  triggerEvent: varchar("trigger_event", { length: 40 }),
+  scheduledSendAt: timestamp("scheduled_send_at", { withTimezone: true }),
+  sendInRestaurantTz: boolean("send_in_restaurant_tz").notNull().default(true),
+  segmentId: uuid("segment_id"),
+  recipientCountEstimate: integer("recipient_count_estimate"),
+  tokensUsed: text("tokens_used").array().notNull().default(sql`'{}'::text[]`),
+  createdByUserId: uuid("created_by_user_id").references(() => authUsers.id),
+  lastEditedByUserId: uuid("last_edited_by_user_id").references(() => authUsers.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
+}, (t) => [
+  index("marketing_campaigns_org_status").on(t.organizationId, t.status),
+  index("marketing_campaigns_scheduled").on(t.scheduledSendAt).where(sql`status = 'scheduled'`),
+]);
+
+// Snapshot of campaign content per edit (§11 §4.4).
+export const marketingCampaignVersions = pgTable("marketing_campaign_versions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  campaignId: uuid("campaign_id").notNull().references(() => marketingCampaigns.id, { onDelete: "cascade" }),
+  versionNumber: integer("version_number").notNull(),
+  subjectTemplate: jsonb("subject_template").notNull(),
+  bodyTemplate: jsonb("body_template").notNull(),
+  previewText: jsonb("preview_text"),
+  editedByUserId: uuid("edited_by_user_id").references(() => authUsers.id),
+  editedAt: timestamp("edited_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("marketing_campaign_versions_unique").on(t.campaignId, t.versionNumber),
+]);
+
+// Saved segment (§11 §4.5).
+export const marketingSegments = pgTable("marketing_segments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  filterDsl: jsonb("filter_dsl").notNull(),
+  combinator: segmentCombinator("combinator").notNull().default("and"),
+  isSnapshot: boolean("is_snapshot").notNull().default(false),
+  snapshotDinerIds: uuid("snapshot_diner_ids").array(),
+  estimatedSize: integer("estimated_size"),
+  lastEstimatedAt: timestamp("last_estimated_at", { withTimezone: true }),
+  createdByUserId: uuid("created_by_user_id").references(() => authUsers.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("marketing_segments_org").on(t.organizationId),
+]);
+
+// Per-recipient send record (§11 §4.6).
+export const marketingSends = pgTable("marketing_sends", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  campaignId: uuid("campaign_id").notNull().references(() => marketingCampaigns.id, { onDelete: "cascade" }),
+  campaignVersionId: uuid("campaign_version_id").references(() => marketingCampaignVersions.id, { onDelete: "set null" }),
+  dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  channel: marketingChannel("channel").notNull(),
+  locale: char("locale", { length: 2 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  status: marketingSendStatus("status").notNull().default("queued"),
+  statusUpdatedAt: timestamp("status_updated_at", { withTimezone: true }),
+  scheduledSendAt: timestamp("scheduled_send_at", { withTimezone: true }),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  openedAt: timestamp("opened_at", { withTimezone: true }),
+  firstClickedAt: timestamp("first_clicked_at", { withTimezone: true }),
+  clickCount: integer("click_count").notNull().default(0),
+  unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+  bouncedAt: timestamp("bounced_at", { withTimezone: true }),
+  complainedAt: timestamp("complained_at", { withTimezone: true }),
+  resendMessageId: varchar("resend_message_id", { length: 80 }),
+  twilioMessageSid: varchar("twilio_message_sid", { length: 80 }),
+  failureCode: varchar("failure_code", { length: 60 }),
+  failureMessage: text("failure_message"),
+  attributedReservationId: uuid("attributed_reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+  attributionWindowExpiresAt: timestamp("attribution_window_expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("marketing_sends_campaign").on(t.campaignId, t.status),
+  index("marketing_sends_diner").on(t.dinerId, t.sentAt.desc()),
+  index("marketing_sends_resend").on(t.resendMessageId).where(sql`resend_message_id is not null`),
+  index("marketing_sends_twilio").on(t.twilioMessageSid).where(sql`twilio_message_sid is not null`),
+]);
+
+// Per-org per-month per-channel usage (§11 §4.9).
+export const marketingQuotaUsage = pgTable("marketing_quota_usage", {
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  yearMonth: date("year_month").notNull(),
+  channel: marketingChannel("channel").notNull(),
+  sentCount: integer("sent_count").notNull().default(0),
+  deliveredCount: integer("delivered_count").notNull().default(0),
+  bouncedCount: integer("bounced_count").notNull().default(0),
+  complainedCount: integer("complained_count").notNull().default(0),
+  includedAllowance: integer("included_allowance").notNull(),
+  overageCount: integer("overage_count").notNull().default(0),
+  overageBilledCents: integer("overage_billed_cents").notNull().default(0),
+  lastAlertThreshold: smallint("last_alert_threshold").notNull().default(0),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.organizationId, t.yearMonth, t.channel] }),
+]);
+
+// Click tracking (§11 §4.10).
+export const marketingLinkClicks = pgTable("marketing_link_clicks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sendId: uuid("send_id").notNull().references(() => marketingSends.id, { onDelete: "cascade" }),
+  linkToken: varchar("link_token", { length: 20 }).notNull(),
+  destinationUrl: text("destination_url").notNull(),
+  clickedAt: timestamp("clicked_at", { withTimezone: true }).notNull().defaultNow(),
+  ip: inet("ip"),
+  userAgent: varchar("user_agent", { length: 500 }),
+}, (t) => [
+  index("marketing_link_clicks_send").on(t.sendId, t.clickedAt.desc()),
+]);
+
+// Append-only consent legal trail (§11 §4.11). Two-column diner/org id (stable
+// snapshot survives anonymisation) like billing_audit_log.
+export const marketingConsentAudit = pgTable("marketing_consent_audit", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  dinerId: uuid("diner_id").references(() => diners.id, { onDelete: "set null" }),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "set null" }),
+  dinerIdAtEvent: uuid("diner_id_at_event").notNull(),
+  organizationIdAtEvent: uuid("organization_id_at_event").notNull(),
+  channel: marketingChannel("channel").notNull(),
+  eventType: varchar("event_type", { length: 40 }).notNull(),
+  reason: varchar("reason", { length: 60 }),
+  actorUserId: uuid("actor_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  context: jsonb("context"),
+}, (t) => [
+  index("marketing_consent_audit_diner").on(t.dinerId, t.occurredAt.desc()),
+  index("marketing_consent_audit_org").on(t.organizationId, t.occurredAt.desc()),
 ]);
