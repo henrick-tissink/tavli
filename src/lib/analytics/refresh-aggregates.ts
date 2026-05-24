@@ -60,15 +60,29 @@ export function makeRefreshAggregates(deps: Deps) {
 
     for (const r of restaurants) {
       const businessDate = computeBusinessDate(r.timezone, now());
-      await upsertDaily(deps.db, r.id, businessDate);
-      await updateLeadTime(deps.db, r.id, businessDate, r.timezone);
-      await upsertHourly(deps.db, r.id, businessDate);
+      await refreshRestaurantDay(deps.db, r.id, businessDate, r.timezone);
       await refreshForecast(deps.db, r.id, businessDate);
     }
   };
 }
 
 export const refreshAggregates = makeRefreshAggregates({ db: dbAdmin });
+
+/**
+ * Recompute one venue-local day's daily + lead-time + hourly aggregates.
+ * Shared by the nightly job and the backfill job (forecast runs once per
+ * restaurant, not per backfilled day, so it stays out of this helper).
+ */
+export async function refreshRestaurantDay(
+  db: typeof dbAdmin,
+  restaurantId: string,
+  businessDate: string,
+  timezone: string,
+): Promise<void> {
+  await upsertDaily(db, restaurantId, businessDate);
+  await updateLeadTime(db, restaurantId, businessDate, timezone);
+  await upsertHourly(db, restaurantId, businessDate);
+}
 
 // ── daily upsert ──────────────────────────────────────────────────────────
 async function upsertDaily(db: typeof dbAdmin, restaurantId: string, businessDate: string) {
@@ -234,7 +248,7 @@ async function upsertHourly(db: typeof dbAdmin, restaurantId: string, businessDa
 }
 
 // ── 28-day cover forecast (Pro) ─────────────────────────────────────────────
-async function refreshForecast(db: typeof dbAdmin, restaurantId: string, businessDate: string) {
+export async function refreshForecast(db: typeof dbAdmin, restaurantId: string, businessDate: string) {
   // Pull recent per-day covers (summed across service labels) and bucket by
   // weekday in JS; the trimmed-mean estimator needs the raw observations.
   const history = (await db.execute(sql`
