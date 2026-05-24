@@ -146,13 +146,13 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: §12 overage billing (closes the loop). Final cross-domain integration of the diner / comms / billing / analytics surfaces.*
 
-- [ ] §11 `marketing_campaigns` + `segments` + `sends` + `suppressions` + `consents` + `quotas`
-- [ ] §11 fan-out job mesh: scheduled + triggered + per-recipient (§11 §14)
-- [ ] §11 RFC 8058 unsubscribe + STOP suffix (foundations §6.5, §7.1)
-- [ ] §11 WhatsApp Meta-verification gate — `TV904` (§11)
-- [ ] §11 monthly overage feed → `JOBS.billing.reportMarketingOverage` (§12 §9.1)
-- [ ] §11 `reservations.campaign_id` FK constraint (column owned by §02; constraint owned by §11)
-- [ ] §11 cross-domain audit-key mapping (§11 §11.2 table)
+- [x] §11 `marketing_campaigns` + `segments` + `sends` + `suppressions` + `consents` + `quotas` *(shipped 2026-05-24 — Wave 7 sub-unit A; migration 0043: 6 enums + 8 new tables (settings/campaigns/versions/segments/sends/quota_usage/link_clicks/consent_audit) + extend existing marketing_consents (single canonical consent table — +legal-provenance cols +whatsapp_marketing; NO customer_consents) + extend marketing_suppressions (+whatsapp/unsuppressed_at/source_send_id) + organizations.marketing_frequency_cap_per_month + RLS. recordConsent + suppression cores (B).)*
+- [x] §11 fan-out job mesh: scheduled + triggered + per-recipient (§11 §14) *(shipped 2026-05-24 — Wave 7 sub-unit D; compileSegmentFilter (5-dim DSL→SQL) + fan-out-campaign (chunked 500, re-enqueues self, 50k cap, campaign_sent audit) + send-message leaf (loads joined send/campaign/settings → channel sender, re-runs policy) + fire-triggered-campaign. Per-recipient policy stack (C): suppression→consent→freq-cap→quota→quiet-hours.)*
+- [x] §11 RFC 8058 unsubscribe + STOP suffix (foundations §6.5, §7.1) *(shipped 2026-05-24 — Wave 7 sub-units C+E; appendStopSuffix (RO/EN/DE) in the SMS sender; /u/[sendId]/[token] (GET confirm prefetch-safe, POST revokes+suppresses+audits, List-Unsubscribe-Post) + /c click tracking + HMAC tokens.)*
+- [x] §11 WhatsApp Meta-verification gate — `TV904` (§11) *(shipped 2026-05-24 — Wave 7 sub-unit C; sendMarketingWhatsapp hard-fails TV904 until whatsapp_enabled + WABA id + phone-number id all set (Meta verification). Defence-in-depth at the sender boundary.)*
+- [x] §11 monthly overage feed → `JOBS.billing.reportMarketingOverage` (§12 §9.1) *(shipped 2026-05-24 — Wave 7 sub-unit F; monthly-overage-billing computes prior-month per-(org,channel) overage cents (SMS €0.06/WhatsApp €0.03/email free), persists on marketing_quota_usage, enqueues billing.report-marketing-overage per org. + usage-alert (80/100%) + compute-attribution.)*
+- [x] §11 `reservations.campaign_id` FK constraint (column owned by §02; constraint owned by §11) *(shipped 2026-05-24 — Wave 7 sub-unit A; §02 never added the column — Wave 7 adds BOTH the column AND the FK → marketing_campaigns (on delete set null) in migration 0043. compute-attribution (F) populates it.)*
+- [x] §11 cross-domain audit-key mapping (§11 §11.2 table) *(shipped 2026-05-24 — Wave 7; AUDIT.marketing.* (10 keys) were already registered — Wave 7 wires the keys the built mechanics fire: consent_captured/revoked (recordConsent + unsubscribe), suppression_added, campaign_sent (fan-out). campaign CRUD audits land with the deferred builder UI.)*
 
 ## Wave 8 — Setup tooling + pricing page (parallel-friendly within wave)
 
