@@ -3,10 +3,19 @@
  *
  * Unit tests for mergeDinersAction + splitDinerAction per Wave 3 §03 §5.3
  * sub-unit D (tasks D1 + D2).
+ *
+ * Authorization (audit #1): both actions are org-scoped destructive
+ * mutations. They MUST gate on `can(session, 'diner.merge'|'diner.split',
+ * { kind: 'organization', id })` — being signed in is not enough. The
+ * "rejects unauthorized caller" tests below are the regression guard for
+ * the cross-tenant IDOR the adversarial audit found.
  */
 
-jest.mock("@/lib/db/server", () => ({
-  createSupabaseServerClient: jest.fn(),
+jest.mock("@/lib/auth/session", () => ({
+  getCurrentSession: jest.fn(),
+}));
+jest.mock("@/lib/authz/can", () => ({
+  can: jest.fn(),
 }));
 jest.mock("@/lib/db/admin", () => ({
   dbAdmin: {
@@ -25,17 +34,27 @@ jest.mock("@/lib/auth/current-actor", () => ({
 import { mergeDinersAction, splitDinerAction } from "../actions";
 import { dbAdmin } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
-import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 import { currentActor } from "@/lib/auth/current-actor";
 
-function mockSupabaseAuth(userId: string | null) {
-  return {
-    auth: {
-      getUser: jest
-        .fn()
-        .mockResolvedValue({ data: { user: userId ? { id: userId } : null } }),
-    },
-  };
+function mockSession(userId: string | null) {
+  (getCurrentSession as jest.Mock).mockResolvedValue(
+    userId
+      ? {
+          userId,
+          userEmail: `${userId}@example.com`,
+          profile: {
+            id: userId,
+            role: "restaurant_owner",
+            fullName: null,
+            email: null,
+            locale: "ro",
+            defaultOrganizationId: null,
+          },
+        }
+      : null,
+  );
 }
 
 /**
@@ -51,6 +70,9 @@ function mockSelectReturning(rows: unknown[]) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Default: authorized. Individual tests override with false to exercise
+  // the IDOR guard.
+  (can as jest.Mock).mockResolvedValue(true);
   // Default actor — overridden per-test for impersonator scenarios.
   (currentActor as jest.Mock).mockImplementation(async (id: string) => ({
     actorUserId: id,
@@ -60,9 +82,7 @@ beforeEach(() => {
 
 describe("mergeDinersAction", () => {
   it("returns ok=false when not signed in", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth(null),
-    );
+    mockSession(null);
     const r = await mergeDinersAction({ sourceId: "s", targetId: "t" });
     expect(r).toEqual({
       ok: false,
@@ -72,9 +92,7 @@ describe("mergeDinersAction", () => {
   });
 
   it("rejects when source diner is missing", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectReturning([]));
     const r = await mergeDinersAction({ sourceId: "s", targetId: "t" });
     expect(r.ok).toBe(false);
@@ -82,10 +100,46 @@ describe("mergeDinersAction", () => {
     expect(recordAudit).not.toHaveBeenCalled();
   });
 
-  it("rejects cross-org merge", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
+  it("rejects unauthorized caller (cross-tenant IDOR) without mutating", async () => {
+    mockSession("attacker");
+    (can as jest.Mock).mockResolvedValue(false);
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(
+      mockSelectReturning([
+        {
+          id: "s",
+          organizationId: "org-a",
+          allergies: [],
+          occasionTags: [],
+          dietaryPreferences: [],
+          seatingPreferences: {},
+          internalNotes: null,
+        },
+        {
+          id: "t",
+          organizationId: "org-a",
+          allergies: [],
+          occasionTags: [],
+          dietaryPreferences: [],
+          seatingPreferences: {},
+          internalNotes: null,
+        },
+      ]),
     );
+    const r = await mergeDinersAction({ sourceId: "s", targetId: "t" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/forbidden/i);
+    // can() must be checked against the diners' organization.
+    expect(can).toHaveBeenCalledWith(
+      expect.anything(),
+      "diner.merge",
+      { kind: "organization", id: "org-a" },
+    );
+    expect(dbAdmin.transaction).not.toHaveBeenCalled();
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("rejects cross-org merge", async () => {
+    mockSession("u1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(
       mockSelectReturning([
         {
@@ -116,9 +170,7 @@ describe("mergeDinersAction", () => {
   });
 
   it("happy path: updates target + deletes source + writes audit with impersonator threading", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("admin-1"),
-    );
+    mockSession("admin-1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(
       mockSelectReturning([
         {
@@ -172,9 +224,7 @@ describe("mergeDinersAction", () => {
   });
 
   it("uses longer of two internalNotes during merge", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(
       mockSelectReturning([
         {
@@ -220,9 +270,7 @@ describe("mergeDinersAction", () => {
 
 describe("splitDinerAction", () => {
   it("returns ok=false when not signed in", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth(null),
-    );
+    mockSession(null);
     const r = await splitDinerAction({
       sourceId: "src",
       reservationIds: ["r1"],
@@ -233,9 +281,7 @@ describe("splitDinerAction", () => {
   });
 
   it("rejects when new diner has neither phone nor email", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     const r = await splitDinerAction({
       sourceId: "src",
       reservationIds: ["r1"],
@@ -246,9 +292,7 @@ describe("splitDinerAction", () => {
   });
 
   it("rejects when no reservations are selected", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     const r = await splitDinerAction({
       sourceId: "src",
       reservationIds: [],
@@ -259,9 +303,7 @@ describe("splitDinerAction", () => {
   });
 
   it("rejects when source diner is missing", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectReturning([]));
     const r = await splitDinerAction({
       sourceId: "missing",
@@ -272,10 +314,39 @@ describe("splitDinerAction", () => {
     if (!r.ok) expect(r.error).toMatch(/source diner not found/i);
   });
 
-  it("rejects identity collision when new phone matches source phone", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
+  it("rejects unauthorized caller (cross-tenant IDOR) without mutating", async () => {
+    mockSession("attacker");
+    (can as jest.Mock).mockResolvedValue(false);
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(
+      mockSelectReturning([
+        {
+          id: "src",
+          organizationId: "org-a",
+          phone: "+40700111222",
+          email: null,
+          locale: "ro",
+          acquisitionRestaurantId: null,
+        },
+      ]),
     );
+    const r = await splitDinerAction({
+      sourceId: "src",
+      reservationIds: ["r1"],
+      newDiner: { fullName: "Bob", phone: "+40700999888" },
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/forbidden/i);
+    expect(can).toHaveBeenCalledWith(
+      expect.anything(),
+      "diner.split",
+      { kind: "organization", id: "org-a" },
+    );
+    expect(dbAdmin.transaction).not.toHaveBeenCalled();
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("rejects identity collision when new phone matches source phone", async () => {
+    mockSession("u1");
     (dbAdmin.select as jest.Mock).mockReturnValueOnce(
       mockSelectReturning([
         {
@@ -298,9 +369,7 @@ describe("splitDinerAction", () => {
   });
 
   it("rejects when a selected reservation is not owned by source", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock)
       .mockReturnValueOnce(
         mockSelectReturning([
@@ -330,9 +399,7 @@ describe("splitDinerAction", () => {
   });
 
   it("rejects when some reservations are not found", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock)
       .mockReturnValueOnce(
         mockSelectReturning([
@@ -357,9 +424,7 @@ describe("splitDinerAction", () => {
   });
 
   it("maps partial-unique-index violations to a friendly error", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("u1"),
-    );
+    mockSession("u1");
     (dbAdmin.select as jest.Mock)
       .mockReturnValueOnce(
         mockSelectReturning([
@@ -389,9 +454,7 @@ describe("splitDinerAction", () => {
   });
 
   it("happy path: inserts new diner, moves reservations + reviews, writes audit", async () => {
-    (createSupabaseServerClient as jest.Mock).mockResolvedValue(
-      mockSupabaseAuth("admin-1"),
-    );
+    mockSession("admin-1");
     (dbAdmin.select as jest.Mock)
       .mockReturnValueOnce(
         mockSelectReturning([

@@ -27,6 +27,9 @@ export type Action =
   | "staff.invite.venue"
   | "staff.remove"
   | "staff.role.change"
+  // diners (org-scoped CRM)
+  | "diner.merge"
+  | "diner.split"
   // reservations
   | "reservation.create"
   | "reservation.read"
@@ -137,6 +140,12 @@ export const PERMISSION_MATRIX: Record<Action, MatrixRow> = {
   "staff.invite.venue": row("org_owner", "org_admin", "venue_owner"),
   "staff.remove":       row("org_owner", "org_admin", "venue_owner"),
   "staff.role.change":  row("org_owner"), // §4.3 clarification: venue_owner is intentionally excluded
+
+  // diners (org-scoped CRM) — merge deletes a diner row, split forks one;
+  // both repoint org-wide reservation/review history, so they require an
+  // org-level role (the org-scope resolver only returns org-level roles).
+  "diner.merge": row("org_owner", "org_admin", "org_manager"),
+  "diner.split": row("org_owner", "org_admin", "org_manager"),
 
   // reservations
   "reservation.read":                       row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager", "venue_host"),

@@ -17,12 +17,13 @@
  */
 
 import { eq, inArray } from "drizzle-orm";
-import { createSupabaseServerClient } from "@/lib/db/server";
 import { dbAdmin } from "@/lib/db/admin";
 import { diners, reservations, reviews } from "@/lib/db/schema";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { currentActor } from "@/lib/auth/current-actor";
+import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 
 export type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -55,11 +56,8 @@ function mergeNotes(
 export async function mergeDinersAction(
   input: MergeDinersInput,
 ): Promise<ActionResult<{ targetDinerId: string }>> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
 
   // Load both rows in a single query so we can validate cross-org + presence
   // without two round-trips.
@@ -80,6 +78,19 @@ export async function mergeDinersAction(
   const target = rows.find((r) => r.id === input.targetId);
 
   if (!source || !target) return { ok: false, error: "Diner not found." };
+
+  // Authorization (audit #1): being signed in is NOT enough — the caller
+  // must hold an org-level role in the diners' organization. Without this
+  // any authenticated user could merge/delete another org's diners.
+  if (
+    !(await can(session, "diner.merge", {
+      kind: "organization",
+      id: source.organizationId,
+    }))
+  ) {
+    return { ok: false, error: "Forbidden." };
+  }
+
   if (source.organizationId !== target.organizationId) {
     return { ok: false, error: "Cross-org merge not permitted." };
   }
@@ -130,7 +141,7 @@ export async function mergeDinersAction(
     await tx.delete(diners).where(eq(diners.id, input.sourceId));
   });
 
-  const actor = await currentActor(user.id);
+  const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.diner.merged,
     subjectType: "diner",
@@ -174,11 +185,8 @@ export interface SplitDinerInput {
 export async function splitDinerAction(
   input: SplitDinerInput,
 ): Promise<ActionResult<{ newDinerId: string }>> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
 
   // Identity requirement matches the diners CHECK constraint.
   if (!input.newDiner.phone && !input.newDiner.email) {
@@ -201,6 +209,18 @@ export async function splitDinerAction(
     .where(eq(diners.id, input.sourceId));
   const source = sourceRows[0];
   if (!source) return { ok: false, error: "Source diner not found." };
+
+  // Authorization (audit #1): the caller must hold an org-level role in the
+  // source diner's organization. Without this any authenticated user could
+  // fork another org's diner + reservation history onto a new row.
+  if (
+    !(await can(session, "diner.split", {
+      kind: "organization",
+      id: source.organizationId,
+    }))
+  ) {
+    return { ok: false, error: "Forbidden." };
+  }
 
   // Cheap pre-check before the DB throws a unique-violation. The DB
   // partial-unique index is still the source of truth (other diners in
@@ -283,7 +303,7 @@ export async function splitDinerAction(
     throw e;
   }
 
-  const actor = await currentActor(user.id);
+  const actor = await currentActor(session.userId);
   await recordAudit({
     action: AUDIT.diner.split,
     subjectType: "diner",

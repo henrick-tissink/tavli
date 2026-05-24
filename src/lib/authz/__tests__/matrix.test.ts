@@ -29,6 +29,10 @@ const SPEC: Array<{ action: Action; grants: MatrixRole[] }> = [
   { action: "staff.remove",       grants: ["org_owner", "org_admin", "venue_owner"] },
   { action: "staff.role.change",  grants: ["org_owner"] }, // §4.3 clarification
 
+  // diners (org-scoped CRM) — destructive, org-level roles only
+  { action: "diner.merge", grants: ["org_owner", "org_admin", "org_manager"] },
+  { action: "diner.split", grants: ["org_owner", "org_admin", "org_manager"] },
+
   // reservations
   { action: "reservation.read",                     grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager", "venue_host"] },
   { action: "reservation.create",                   grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager", "venue_host"] },
