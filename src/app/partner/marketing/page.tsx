@@ -118,9 +118,34 @@ export default async function PartnerMarketingPage() {
   const sms = usage("sms");
   const whatsapp = usage("whatsapp");
 
+  // §11 v1.5 — quota alert at 80% / 100% of the included allowance.
+  const channelsAtRisk = [
+    { label: "Email", u: email },
+    { label: "SMS", u: sms },
+    { label: "WhatsApp", u: whatsapp },
+  ].filter(({ u }) => u.allowance > 0 && u.sent / u.allowance >= 0.8);
+  const overChannels = channelsAtRisk.filter(({ u }) => u.sent >= u.allowance);
+
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-12">
       <Header />
+
+      {channelsAtRisk.length > 0 && (
+        <div
+          className={`rounded-card border p-5 ${
+            overChannels.length > 0 ? "border-error/40 bg-error/5" : "border-amber-300 bg-amber-50"
+          }`}
+        >
+          <p className={`text-sm font-semibold ${overChannels.length > 0 ? "text-error" : "text-amber-900"}`}>
+            {overChannels.length > 0
+              ? `Ai depășit alocarea inclusă pe ${overChannels.map((c) => c.label).join(", ")}.`
+              : `Aproape de limită pe ${channelsAtRisk.map((c) => c.label).join(", ")}.`}
+          </p>
+          <p className="mt-1 text-sm text-text-secondary">
+            Trimiterile peste alocare se facturează la suprataxă (€0,06/SMS, €0,03/WhatsApp; email gratuit).
+          </p>
+        </div>
+      )}
 
       <section>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
@@ -132,6 +157,13 @@ export default async function PartnerMarketingPage() {
           <StatCard label="WhatsApp" value={`${whatsapp.sent} / ${whatsapp.allowance}`} icon={Phone} hint="incluse" />
         </div>
       </section>
+
+      <Link
+        href="/partner/marketing/segments"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary-dark hover:underline"
+      >
+        Construiește segmente de public →
+      </Link>
 
       <MarketingManager organizationId={organizationId} campaigns={campaigns} />
     </div>

@@ -3,13 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
-import {
-  createOneOffCampaignAction,
-  setCampaignStatusAction,
-  sendCampaignAction,
-} from "../actions";
-
-type Channel = "email" | "sms" | "whatsapp" | "in_confirmation";
+import { setCampaignStatusAction, sendCampaignAction } from "../actions";
+import { NewCampaignForm } from "./NewCampaignForm";
 
 interface Campaign {
   id: string;
@@ -64,29 +59,6 @@ export function MarketingManager({
     });
   }
 
-  function createCampaign(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    startTransition(async () => {
-      const res = await createOneOffCampaignAction({
-        organizationId,
-        name: String(form.get("name") ?? ""),
-        channel: String(form.get("channel") ?? "email") as Channel,
-        subject: String(form.get("subject") ?? ""),
-        body: String(form.get("body") ?? ""),
-      });
-      if (res.ok) {
-        toast.success("Campanie creată (ciornă).");
-        setShowForm(false);
-        router.refresh();
-      } else {
-        toast.error("Crearea campaniei nu a reușit.");
-      }
-    });
-  }
-
-  const inputCls =
-    "w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30";
 
   return (
     <div className="space-y-12">
@@ -154,23 +126,7 @@ export function MarketingManager({
         </div>
 
         {showForm && (
-          <form onSubmit={createCampaign} className="mt-4 space-y-3 rounded-card border border-border bg-surface-white p-5">
-            <input name="name" required placeholder="Numele campaniei" className={inputCls} />
-            <select name="channel" defaultValue="email" className={inputCls} aria-label="Canal">
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-              <option value="whatsapp">WhatsApp</option>
-            </select>
-            <input name="subject" placeholder="Subiect (email)" className={inputCls} />
-            <textarea name="body" required rows={4} placeholder="Mesajul…" className={`${inputCls} resize-none`} />
-            <button
-              type="submit"
-              disabled={pending}
-              className="inline-flex min-h-[44px] items-center rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              Salvează ciorna
-            </button>
-          </form>
+          <NewCampaignForm organizationId={organizationId} onCreated={() => setShowForm(false)} />
         )}
 
         <ul className="mt-4 divide-y divide-border overflow-hidden rounded-card border border-border bg-surface-white">
