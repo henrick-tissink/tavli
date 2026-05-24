@@ -449,6 +449,9 @@ export const reservations = pgTable("reservations", {
   // FK → marketing_campaigns added in migration 0043 (no .references() to avoid
   // a circular type-inference cycle with the later marketing tables).
   campaignId: uuid("campaign_id"),
+  // §14 Wave 8 — migration-import provenance for rollback. Owned by §02 per doc;
+  // added in 0044. FK → migration_imports added in SQL (table defined later).
+  migrationImportId: uuid("migration_import_id"),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -2160,4 +2163,92 @@ export const marketingConsentAudit = pgTable("marketing_consent_audit", {
 }, (t) => [
   index("marketing_consent_audit_diner").on(t.dinerId, t.occurredAt.desc()),
   index("marketing_consent_audit_org").on(t.organizationId, t.occurredAt.desc()),
+]);
+
+// ═══ §14 Setup tooling (Wave 8, migration 0044) ═════════════════════════
+export const setupStepKey = pgEnum("setup_step_key", [
+  "migration", "page_and_photos", "staff_training", "parallel_run", "first_campaigns",
+]);
+export const setupStepStatus = pgEnum("setup_step_status", [
+  "not_started", "scheduled", "in_progress", "completed", "skipped",
+]);
+export const migrationSource = pgEnum("migration_source", [
+  "tavli_csv_template", "opentable", "sevenrooms", "resy", "ialoc", "manual", "none",
+]);
+
+// §14 §4.2 — one row per (org, restaurant, step). Seeded by a trigger on
+// restaurant insert (4 base steps; first_campaigns is Pro, added app-side).
+export const setupProgress = pgTable("setup_progress", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  restaurantId: uuid("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  stepKey: setupStepKey("step_key").notNull(),
+  status: setupStepStatus("status").notNull().default("not_started"),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  skippedReason: varchar("skipped_reason", { length: 120 }),
+  notes: text("notes"),
+  context: jsonb("context").notNull().default(sql`'{}'::jsonb`),
+  assignedFounderUserId: uuid("assigned_founder_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("setup_progress_org_restaurant_step").on(t.organizationId, t.restaurantId, t.stepKey),
+  index("setup_progress_org").on(t.organizationId),
+  index("setup_progress_status").on(t.status, t.scheduledAt).where(sql`status in ('not_started','scheduled')`),
+]);
+
+// §14 §4.3 — each CSV migration run (re-runnable; dedup'd).
+export const migrationImports = pgTable("migration_imports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  source: migrationSource("source").notNull(),
+  sourceFileStoragePath: text("source_file_storage_path"),
+  status: varchar("status", { length: 20 }).notNull().default("queued"),
+  reservationsImported: integer("reservations_imported").notNull().default(0),
+  reservationsSkipped: integer("reservations_skipped").notNull().default(0),
+  reservationsFailed: integer("reservations_failed").notNull().default(0),
+  dinersImported: integer("diners_imported").notNull().default(0),
+  dinersMerged: integer("diners_merged").notNull().default(0),
+  errorLog: jsonb("error_log"),
+  importedByUserId: uuid("imported_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("migration_imports_restaurant").on(t.restaurantId, t.createdAt.desc()),
+]);
+
+// ═══ §15 Pricing (Wave 8, migration 0045) ═══════════════════════════════
+// §15 §4.1 — BNR daily EUR/RON reference rate (+ admin manual override).
+export const currencyReferenceRates = pgTable("currency_reference_rates", {
+  source: varchar("source", { length: 20 }).notNull(),
+  effectiveDate: date("effective_date").notNull(),
+  rate: numeric("rate", { precision: 10, scale: 6 }).notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+  fetchedByUserId: uuid("fetched_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  overrideExpiresAt: timestamp("override_expires_at", { withTimezone: true }),
+}, (t) => [
+  primaryKey({ columns: [t.source, t.effectiveDate] }),
+  check("chk_admin_manual_has_owner", sql`${t.source} <> 'admin_manual' OR (${t.fetchedByUserId} IS NOT NULL AND ${t.overrideExpiresAt} IS NOT NULL)`),
+]);
+
+// §15 §18 OQ8 — pre-launch wait-list when PARTNER_SIGNUP_ENABLED=false.
+export const prospectWaitlist = pgTable("prospect_waitlist", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }).notNull(),
+  organizationNameHint: varchar("organization_name_hint", { length: 200 }),
+  cityId: uuid("city_id").references(() => cities.id, { onDelete: "set null" }),
+  notes: text("notes"),
+  source: varchar("source", { length: 40 }).notNull().default("pricing_page"),
+  sourceLocale: char("source_locale", { length: 2 }).notNull(),
+  sourceIp: inet("source_ip"),
+  invitedAt: timestamp("invited_at", { withTimezone: true }),
+  invitedByUserId: uuid("invited_by_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+  invitationId: uuid("invitation_id").references(() => invitations.id, { onDelete: "set null" }),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
+}, (t) => [
+  uniqueIndex("prospect_waitlist_email_unique").on(sql`lower(${t.email})`).where(sql`invited_at is null and redacted_at is null`),
 ]);

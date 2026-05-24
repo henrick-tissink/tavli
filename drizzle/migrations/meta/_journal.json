@@ -309,6 +309,13 @@
       "when": 1779583000000,
       "tag": "0043_marketing_substrate",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1779586000000,
+      "tag": "0044_setup_tooling",
+      "breakpoints": true
     }
   ]
 }

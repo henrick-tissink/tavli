@@ -65,7 +65,12 @@ export type Action =
   | "gdpr.verify_identity"
   | "gdpr.approve_erasure"
   | "gdpr.reject"
-  | "gdpr.extend_deadline";
+  | "gdpr.extend_deadline"
+  // §14 setup tooling
+  | "setup_step.transition"
+  | "migration.import"
+  | "migration.rollback"
+  | "admin.setups.view";
 
 /**
  * Roles that appear in the matrix (excluding tavli_admin, which is
@@ -179,6 +184,12 @@ export const PERMISSION_MATRIX: Record<Action, MatrixRow> = {
   "gdpr.approve_erasure": row(),
   "gdpr.reject":          row(),
   "gdpr.extend_deadline": row(),
+
+  // §14 setup tooling
+  "setup_step.transition": row("org_owner", "org_admin", "venue_owner"),
+  "migration.import":      row("org_owner", "org_admin"),
+  "migration.rollback":    row("org_owner", "org_admin"),
+  "admin.setups.view":     row(), // tavli_admin only (early-return shortcut applies)
 };
 
 export { ALL_ROLES };
