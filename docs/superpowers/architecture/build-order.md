@@ -136,11 +136,11 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: §11 (segmentation reads cohorts), §12 (overage reporting reads usage).*
 
-- [ ] §07 aggregate + cohort tables
-- [ ] §07 `JOBS.analytics.runExport` ZIP generation
-- [ ] §07 Pro dashboards
-- [ ] §07 PII access audit logging on every export (§07 §5a)
-- [ ] §07 `analytics.weeklySummary` digest job
+- [x] §07 aggregate + cohort tables *(shipped 2026-05-24 — Wave 6 sub-unit A; migration 0042: restaurants.timezone + reservation_daily/hourly_aggregates + diner_cohort_aggregates + restaurant_forecasts + restaurant_export_jobs + private `exports` bucket + analytics_service_label_for_hour() + RLS. refresh-aggregates (daily/lead-time/hourly/forecast) + refresh-cohorts (org, past-month-immutable) + backfill + purge-stale-hourly jobs, worker-wired. Pure cores: service-label/source-fold(9→7)/cancel-reason/forecast/cohort.)*
+- [x] §07 `JOBS.analytics.runExport` ZIP generation *(shipped 2026-05-24 — Wave 6 sub-unit B; run-export streaming ZIP (archiver@7) → private bucket → 24h signed URL → ExportReadyEmail. requestAnalyticsExport create-action (analytics.export + campaign.read gate). enqueueBypassExport (§8.3) wired into cancel-subscription data-export seam. expire-stale-exports cleanup. TV503/TV504.)*
+- [x] §07 Pro dashboards *(shipped 2026-05-24 — Wave 6 sub-unit D; query layer (makeAnalyticsQueries, venue-local 12-month floor for Base) + editorial Recharts dashboard `/partner/(dashboard)/analytics` (Base: covers-per-service/no-show/party-mix/cancellations; Pro tier-gated: heat-map/cohort-triangle/lead-time/channel/forecast) + ExportModal + org rollup `/partner/org/[orgId]/analytics`. Hardcoded RO, Tavli house style. **Visual + runtime review deferred** (next build blocked by a pre-existing unrelated cookie-consent "use server" factory error — NOT Wave 6 code).)*
+- [x] §07 PII access audit logging on every export (§07 §5a) *(shipped 2026-05-24 — Wave 6 sub-unit B; run-export writes AUDIT.diner.pii_accessed (job-keyed, IDs/counts only — no PII, satisfies 4KB/PII-key constraint) + AUDIT.analytics.export_run (with bypass_tier_limit_reason) on every export.)*
+- [x] §07 `analytics.weeklySummary` digest job *(shipped 2026-05-24 — Wave 6 sub-unit C; per-live-restaurant Sunday digest (week totals + WoW deltas + reviews from aggregates, Pro forecast section), owner/admin/manager audience, WeeklySummaryEmail RO/EN/DE, weekly_summary_sent audit, cron 0 18 * * 0.)*
 
 ## Wave 7 — Marketing suite
 
