@@ -35,6 +35,12 @@ import {
   handleTrialReminderDay85,
 } from "@/lib/jobs/handlers/billing";
 import { changePlanActions } from "@/lib/billing/change-plan";
+import { enforceDunningTier } from "@/lib/billing/dunning";
+import {
+  expireOrphanIncomplete,
+  archiveCancelledOrgs,
+  syncStripeSubscription,
+} from "@/lib/billing/billing-lifecycle";
 
 async function main(): Promise<void> {
   if (process.env.WORKER_MODE !== "true") {
@@ -128,6 +134,27 @@ async function main(): Promise<void> {
     await changePlanActions.applyPendingFrequencyChanges();
   });
   await boss.schedule(JOBS.billing.applyPendingFrequencyChanges, "*/30 * * * *");
+
+  // Wave 5 sub-unit G: §11.5 dunning + §13 lifecycle jobs.
+  await boss.work(JOBS.billing.enforceDunningTier, async () => {
+    await enforceDunningTier();
+  });
+  await boss.schedule(JOBS.billing.enforceDunningTier, "0 */6 * * *"); // every 6h
+
+  await boss.work(JOBS.billing.expireOrphanIncomplete, async () => {
+    await expireOrphanIncomplete();
+  });
+  await boss.schedule(JOBS.billing.expireOrphanIncomplete, "0 * * * *"); // hourly
+
+  await boss.work(JOBS.billing.archiveCancelledOrgs, async () => {
+    await archiveCancelledOrgs();
+  });
+  await boss.schedule(JOBS.billing.archiveCancelledOrgs, "0 1 * * *"); // nightly 01:00
+
+  await boss.work(JOBS.billing.syncStripeSubscription, async () => {
+    await syncStripeSubscription();
+  });
+  await boss.schedule(JOBS.billing.syncStripeSubscription, "0 3 * * *"); // nightly 03:00
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
