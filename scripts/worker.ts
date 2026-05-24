@@ -34,6 +34,7 @@ import {
   handleTrialReminderDay75,
   handleTrialReminderDay85,
 } from "@/lib/jobs/handlers/billing";
+import { changePlanActions } from "@/lib/billing/change-plan";
 
 async function main(): Promise<void> {
   if (process.env.WORKER_MODE !== "true") {
@@ -120,6 +121,13 @@ async function main(): Promise<void> {
   await boss.work(JOBS.billing.sendReminderDay85, async ([job]) => {
     await handleTrialReminderDay85(job.data as { organizationId: string });
   });
+
+  // Wave 5 sub-unit F: §8.3 apply queued monthly↔annual frequency switches at
+  // period end (every 30 min).
+  await boss.work(JOBS.billing.applyPendingFrequencyChanges, async () => {
+    await changePlanActions.applyPendingFrequencyChanges();
+  });
+  await boss.schedule(JOBS.billing.applyPendingFrequencyChanges, "*/30 * * * *");
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
