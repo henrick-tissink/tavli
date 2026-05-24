@@ -43,6 +43,14 @@ import { purgeStaleHourlyWindows } from "@/lib/analytics/purge-hourly";
 import { runExport } from "@/lib/analytics/run-export";
 import { expireStaleExports } from "@/lib/analytics/expire-stale-exports";
 import { weeklySummary } from "@/lib/analytics/weekly-summary";
+import { fanOutCampaign } from "@/lib/marketing/fan-out";
+import { fireTriggeredCampaign } from "@/lib/marketing/fire-triggered";
+import { sendMessageHandler } from "@/lib/marketing/send/production-senders";
+import { computeAttribution } from "@/lib/marketing/jobs/attribution";
+import { monthlyOverageBilling } from "@/lib/marketing/jobs/monthly-overage";
+import { makeUsageAlert } from "@/lib/marketing/jobs/usage-alert";
+import { purgeOldLinkClicks } from "@/lib/marketing/jobs/purge-link-clicks";
+import { dbAdmin } from "@/lib/db/admin";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -199,6 +207,41 @@ async function main(): Promise<void> {
   await boss.schedule(JOBS.analytics.weeklySummary, "0 18 * * 0");
 
   console.log("[worker] analytics handlers registered + refreshAggregates (0 1 * * *), refreshCohorts (30 1 * * *), purgeStaleHourlyWindows (0 5 * * 1), expireStaleExports (0 4 * * *), weeklySummary (0 18 * * 0) scheduled; runExport on-demand");
+
+  // §11 marketing (Wave 7). Fan-out + leaf send + triggered fire are on-demand;
+  // attribution every 5 min; overage 1st of month 02:00; usage-alert hourly;
+  // link-click purge nightly.
+  await boss.work(JOBS.marketing.fanOut, async ([job]) => {
+    await fanOutCampaign(job.data as { campaignId: string; offset?: number });
+  });
+  await boss.work(JOBS.marketing.sendMessage, async ([job]) => {
+    await sendMessageHandler(job.data as { sendId: string });
+  });
+  await boss.work(JOBS.marketing.fireTriggeredCampaign, async ([job]) => {
+    await fireTriggeredCampaign(job.data as { triggerEvent: string; dinerId: string; organizationId: string; restaurantId?: string });
+  });
+  await boss.work(JOBS.marketing.computeAttribution, async () => {
+    await computeAttribution();
+  });
+  await boss.schedule(JOBS.marketing.computeAttribution, "*/5 * * * *");
+  await boss.work(JOBS.marketing.monthlyOverageBilling, async () => {
+    await monthlyOverageBilling();
+  });
+  await boss.schedule(JOBS.marketing.monthlyOverageBilling, "0 2 1 * *");
+  await boss.work(JOBS.marketing.usageAlert, async () => {
+    await makeUsageAlert({
+      db: dbAdmin,
+      sendAlert: async ({ organizationId, channel, threshold }) =>
+        console.log(`[marketing] quota alert org=${organizationId} ${channel} at ${threshold}%`),
+    })();
+  });
+  await boss.schedule(JOBS.marketing.usageAlert, "0 * * * *");
+  await boss.work(JOBS.marketing.purgeOldLinkClicks, async () => {
+    await purgeOldLinkClicks();
+  });
+  await boss.schedule(JOBS.marketing.purgeOldLinkClicks, "45 4 * * *");
+
+  console.log("[worker] marketing handlers registered + computeAttribution (*/5), monthlyOverageBilling (0 2 1 * *), usageAlert (0 * * * *), purgeOldLinkClicks (45 4 * * *) scheduled; fanOut/sendMessage/fireTriggered on-demand");
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
