@@ -59,6 +59,10 @@ export interface TierContent {
 }
 
 export interface PricingMessages {
+  a11y: {
+    /** sr-only prefix paired with the ✓ on tier-card bullets (§10a item 2). */
+    included: string;
+  };
   meta: {
     title: string;
     description: string;
