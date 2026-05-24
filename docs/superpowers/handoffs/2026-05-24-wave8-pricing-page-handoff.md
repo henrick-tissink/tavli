@@ -7,6 +7,19 @@
 > surface (frontend-design mandatory; "plain-table fallback is a failure state" §15 §3.5)
 > and needs visual iteration.
 
+## 0. Cold-start sequence (do in order)
+1. Read `MEMORY.md` (top line = Wave 8 in progress; this handoff is named there).
+2. Read this handoff fully + `docs/superpowers/architecture/15-public-pricing-page.md` (§6 composition,
+   §6.4.1 VAT, §7 tier content, §7.4 day-91, §8 setup, §9 promises, §10 cost table, §13 SEO).
+3. Read the plan §P3–P5: `docs/superpowers/plans/2026-05-24-wave8-setup-pricing.md`.
+4. Skim what's already built (§2 below) — the page only consumes it; don't rebuild.
+5. Invoke `frontend-design` BEFORE writing the pricing components (the editorial bar is the point).
+6. Build P3 → P4 → P5; then `npx next build` (now unblocked) + visual review.
+- **Verify start state:** `git log --oneline -1` → `a8822b3`; `npx tsc --noEmit` → 0; `npm test` → 13
+  failed suites = baseline (11 DB-drift + restaurant-card/time-slot-pills flaky; NOT regressions).
+- Conventions are identical to Waves 5–8 (DI-mocked, lib throws/app wraps, TDD per piece, commit per
+  piece tagged `(§15 Wave 8 sub-unit P#.N)`). All work is on `main`, **local/unpushed**.
+
 ## 1. Current state
 - **Branch `main`**, all local/unpushed. `npx tsc --noEmit` clean; new prod files lint-clean.
 - Waves 1–7 shipped; Wave 8 §14 (S1–S5) + §15 P1–P2 shipped. **`next build` succeeds (exit 0)** — the
