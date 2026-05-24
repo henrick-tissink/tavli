@@ -29,6 +29,11 @@ import {
 import { runErasureVerification } from "@/lib/compliance/verify";
 import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
+import {
+  handleTrialReminderDay60,
+  handleTrialReminderDay75,
+  handleTrialReminderDay85,
+} from "@/lib/jobs/handlers/billing";
 
 async function main(): Promise<void> {
   if (process.env.WORKER_MODE !== "true") {
@@ -103,6 +108,18 @@ async function main(): Promise<void> {
   });
 
   await boss.schedule(JOBS.multilocation.reconcileVenueCount, "0 2 * * *");
+
+  // Wave 5 sub-unit C: §12 trial reminders. NO schedule — these fire from the
+  // startAfter enqueue in startSubscription (day 60/75/85 of the trial).
+  await boss.work(JOBS.billing.sendReminderDay60, async ([job]) => {
+    await handleTrialReminderDay60(job.data as { organizationId: string });
+  });
+  await boss.work(JOBS.billing.sendReminderDay75, async ([job]) => {
+    await handleTrialReminderDay75(job.data as { organizationId: string });
+  });
+  await boss.work(JOBS.billing.sendReminderDay85, async ([job]) => {
+    await handleTrialReminderDay85(job.data as { organizationId: string });
+  });
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
