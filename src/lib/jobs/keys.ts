@@ -54,6 +54,11 @@ export const JOBS = {
   analytics: {
     weeklySummary: "analytics.weekly-summary",
     refreshCohorts: "analytics.refresh-cohorts",
+    refreshAggregates: "analytics.refresh-aggregates",
+    backfillAggregates: "analytics.backfill-aggregates",
+    runExport: "analytics.run-export",
+    expireStaleExports: "analytics.expire-stale-exports",
+    purgeStaleHourlyWindows: "analytics.purge-stale-hourly-windows",
   },
   storage: {
     imageProcess: "storage.image-process",
