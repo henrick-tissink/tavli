@@ -108,9 +108,17 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] §06 reviews polish: `redacted_at`, `include_in_aggregate_rating`, `aggregate_consent_at` *(shipped 2026-05-23 — migration 0038 adds is_hidden + hidden_* + updated_at + revision + include_in_aggregate_rating + aggregate_consent_at columns to reviews + CHECK constraint reviews_gdpr_takedown_attribution; REPLACEs reviews_recompute_aggregate trigger to filter `is_hidden = false AND redacted_at IS NULL AND include_in_aggregate_rating = true`; src/lib/reviews/aggregate.ts exports setAggregateConsent. redacted_at already shipped in sub-unit A.T2. 4 new tests.)*
 - [x] §06 DSA notice-and-action hooks (§15a.5) *(shipped 2026-05-23 — migration 0039 review_reports table; src/lib/reviews/moderation.ts (submitReport + upholdReport + dismissReport — tavli-admin only for resolve); POST /api/reviews/[id]/report rate-limited (5/IP/hour via review_report scope); minimal admin queue UI at /admin/(gated)/reviews/reports; AUDIT.review.report_* + TV406 registered. ReviewRemovedStatementEmail + internal-review surface + partner-portal review surface deferred post-v1. 12 new tests.)*
 
-## Wave 5 — Multi-location + billing
+## Wave 5 — Multi-location + billing — ✅ COMPLETE (2026-05-24)
 
 *Unblocks: §07, §11, §14, §15 (all need the billing-tier signal from `loadActiveSubscription`).*
+
+> **Wave 5 closed 2026-05-24** — sub-units A–G shipped (§09 substrate; §12 billing
+> foundation, startSubscription, webhook router, mutations, dunning + lifecycle).
+> Built without live Stripe keys (injected/mocked); migrations 0040+0041 on local.
+> Deferred (not Wave 5 lines): billing/cancel/change-plan UI + banners (§15/W5-E),
+> per-action soft-lock wiring (consuming domains), data-export-on-cancel (§07/§13),
+> `org_status='archived'` hard-delete (§13 retention). USER actions before live:
+> seed Stripe prices + set STRIPE_PRICE_* envs; prod-apply migrations 0033–0041.
 
 - [x] §09 `organizations.brand_primary` / `brand_secondary` columns *(shipped 2026-05-24 — Wave 5 sub-unit A; migration 0040 also added `max_venues` + `current_venue_count` app-managed counter)*
 - [x] §09 `restaurants.archived_at` rollup + venue archival flow *(shipped 2026-05-24 — Wave 5 sub-unit A; `addVenueToOrg`/`removeVenueFromOrg`/`reactivateVenue` lib actions + app wrappers, `venue_addition_log` table, nightly `multilocation.reconcile-venue-count` job, forward-declared §12 billing-hook seam (`src/lib/billing/venue-hooks.ts`). archived_at read-path retrofit deferred to the venue-archival-UI wave; §09 §6 UX surfaces (org dashboard, venue switcher, add-venue wizard) not yet scheduled.)*
@@ -121,7 +129,7 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] §12 cancellation + pro-rata annual refund (§12 §10) *(shipped 2026-05-24 — Wave 5 sub-unit F; `cancel-subscription.ts` period_end/immediate + computeProRataRefundCents + refund audit. UI deferred; data-export-on-cancel is a §07/§13 TODO seam.)*
 - [x] §12 tier swap (Base ↔ Pro) + frequency switch deferred to period-end (§12 §8.2, §8.3) *(shipped 2026-05-24 — Wave 5 sub-unit F; `change-plan.ts` upgrade/downgrade (TV1005 venue-count block) + requestFrequencyChange/cancelPending + applyPendingFrequencyChanges cron (every 30 min, worker-wired). UI deferred.)*
 - [x] §12 per-additional-location quantity sync hook from §09 (§12 §8.1) *(shipped 2026-05-24 — Wave 5 sub-unit F; `sync-extra-location.ts` + venue-hooks.ts now delegates onVenueAdded/Removed → syncExtraLocationQuantity (was a W5-A no-op seam).)*
-- [ ] §12 tiered dunning — day 0–6 full / day 7 soft-lock / day 21 read-only (§12 §11.5)
+- [x] §12 tiered dunning — day 0–6 full / day 7 soft-lock / day 21 read-only (§12 §11.5) *(shipped 2026-05-24 — Wave 5 sub-unit G; `dunning.ts` computeBillingAccess (full/soft_lock/read_only) + loadBillingAccess (cache-memoized, consumed incrementally by operator-write paths) + enforceDunningTier cron (6h, past_due≥21d→unpaid). Plus §13 lifecycle jobs (`billing-lifecycle.ts`): expireOrphanIncomplete (hourly), archiveCancelledOrgs→suspended (nightly), syncStripeSubscription reconcile (nightly). Banners + per-action soft-lock wiring deferred to §15/W5-E + consuming domains.)*
 - [x] §12 `loadActiveSubscription` helper with React `cache()` memoization (§12 §3.5) *(shipped 2026-05-24 — Wave 5 sub-unit B; `src/lib/billing/load-subscription.ts` reads the subscriptions mirror, returns ActiveSubscriptionState|null, defensive (null on error, never throws). Replaced the Wave 4 subscription-stub; consumers (photos cap, venue-actions tier gate) updated to null→base. Returns null for every org until W5-C creates rows.)*
 
 ## Wave 6 — Analytics
