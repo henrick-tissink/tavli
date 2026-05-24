@@ -116,10 +116,24 @@ export async function sendCampaignAction(
   const { error } = await gate(organizationId, "campaign.send");
   if (error) return error;
   try {
-    await dbAdmin
+    // audit #13 — only a draft campaign may be sent. The status='draft'
+    // predicate makes the flip atomic: a sent/sending campaign matches no row
+    // (so the fan-out, which re-inserts every marketing_sends, never re-runs),
+    // and of two concurrent calls only one flips draft→sending and enqueues.
+    const res = await dbAdmin
       .update(marketingCampaigns)
       .set({ status: "sending", sentAt: new Date(), updatedAt: new Date() })
-      .where(and(eq(marketingCampaigns.id, campaignId), eq(marketingCampaigns.organizationId, organizationId)));
+      .where(
+        and(
+          eq(marketingCampaigns.id, campaignId),
+          eq(marketingCampaigns.organizationId, organizationId),
+          eq(marketingCampaigns.status, "draft"),
+        ),
+      );
+    const flipped = (res as { rowCount?: number }).rowCount ?? 0;
+    if (flipped === 0) {
+      return fail("invalid_input", "campaign_not_sendable");
+    }
     await enqueue(JOBS.marketing.fanOut, { campaignId });
     revalidatePath("/partner/marketing");
     return ok(undefined);
