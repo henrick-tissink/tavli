@@ -54,6 +54,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { runMigrationImport } from "@/lib/migration/run-import";
 import { sendDay7Checkin, sendDay30Checkin, sendDay60Checkin } from "@/lib/setup/checkins";
 import { flagAtRiskOrgs } from "@/lib/setup/flag-at-risk";
+import { refreshCurrencyRates } from "@/lib/pricing/refresh-rate";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -256,6 +257,10 @@ async function main(): Promise<void> {
   await boss.schedule(JOBS.setup.sendDay60Checkin, "20 8 * * *");
   await boss.work(JOBS.setup.flagAtRiskOrgs, async () => { await flagAtRiskOrgs(); });
   await boss.schedule(JOBS.setup.flagAtRiskOrgs, "0 9 * * *");
+
+  // §15 pricing — daily BNR EUR/RON refresh (14:30 EEST ≈ 11:30 UTC summer).
+  await boss.work(JOBS.pricing.refreshCurrencyRates, async () => { await refreshCurrencyRates(); });
+  await boss.schedule(JOBS.pricing.refreshCurrencyRates, "30 11 * * *");
 
   console.log("[worker] marketing handlers registered + computeAttribution (*/5), monthlyOverageBilling (0 2 1 * *), usageAlert (0 * * * *), purgeOldLinkClicks (45 4 * * *) scheduled; fanOut/sendMessage/fireTriggered on-demand");
 
