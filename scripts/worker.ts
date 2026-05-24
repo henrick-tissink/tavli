@@ -36,6 +36,10 @@ import {
 } from "@/lib/jobs/handlers/billing";
 import { changePlanActions } from "@/lib/billing/change-plan";
 import { enforceDunningTier } from "@/lib/billing/dunning";
+import { refreshAggregates } from "@/lib/analytics/refresh-aggregates";
+import { refreshCohorts } from "@/lib/analytics/refresh-cohorts";
+import { backfillAggregates } from "@/lib/analytics/backfill-aggregates";
+import { purgeStaleHourlyWindows } from "@/lib/analytics/purge-hourly";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -155,6 +159,29 @@ async function main(): Promise<void> {
     await syncStripeSubscription();
   });
   await boss.schedule(JOBS.billing.syncStripeSubscription, "0 3 * * *"); // nightly 03:00
+
+  // §07 analytics (Wave 6). Nightly at 01:00 UTC (~03:00/04:00 Bucharest,
+  // safely past close); each handler derives venue-local business_date from
+  // restaurants.timezone. Cohorts run after aggregates.
+  await boss.work(JOBS.analytics.refreshAggregates, async ([job]) => {
+    await refreshAggregates((job.data ?? {}) as { restaurantId?: string });
+  });
+  await boss.schedule(JOBS.analytics.refreshAggregates, "0 1 * * *");
+  await boss.work(JOBS.analytics.refreshCohorts, async ([job]) => {
+    await refreshCohorts((job.data ?? {}) as { organizationId?: string });
+  });
+  await boss.schedule(JOBS.analytics.refreshCohorts, "30 1 * * *");
+  // Backfill is on-demand only (no schedule).
+  await boss.work(JOBS.analytics.backfillAggregates, async ([job]) => {
+    await backfillAggregates((job.data ?? {}) as { restaurantId?: string });
+  });
+  // Weekly hourly-window purge, Mondays 05:00 UTC.
+  await boss.work(JOBS.analytics.purgeStaleHourlyWindows, async () => {
+    await purgeStaleHourlyWindows();
+  });
+  await boss.schedule(JOBS.analytics.purgeStaleHourlyWindows, "0 5 * * 1");
+
+  console.log("[worker] analytics handlers registered + refreshAggregates (0 1 * * *), refreshCohorts (30 1 * * *), purgeStaleHourlyWindows (0 5 * * 1) scheduled");
 
   console.log("[worker] compliance handlers registered + erasureVerify scheduled (0 3 * * *); purgePseudonymised scheduled (0 4 * * *); retentionPurge scheduled (30 4 * * *); purgeRateLimits scheduled (0 5 * * *); purgeCookieConsents scheduled (30 5 * * *)");
 
