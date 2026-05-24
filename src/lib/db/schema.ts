@@ -274,6 +274,10 @@ export const restaurants = pgTable("restaurants", {
   acceptsStanding: boolean("accepts_standing").notNull().default(false),
   proPlanActive: boolean("pro_plan_active").notNull().default(false),
   transactionalSmsEnabled: boolean("transactional_sms_enabled").notNull().default(false),
+  // §07 — IANA timezone for venue-local analytics date math (business_date,
+  // retention windows, nightly-job scheduling). All v1 venues are Bucharest;
+  // forward-compatible for expansion. Added Wave 6 (migration 0042).
+  timezone: varchar("timezone", { length: 64 }).notNull().default("Europe/Bucharest"),
   // §09 §4.1a — soft-delete marker. archived_at IS NULL = live venue. This is
   // the canonical "is this venue active" check across all domains.
   archivedAt: timestamp("archived_at", { withTimezone: true }),
@@ -1814,3 +1818,140 @@ export const restaurantPhotoTranslations = pgTable(
     primaryKey({ columns: [t.photoId, t.locale] }),
   ],
 );
+
+// ─── §07 Analytics aggregates (Wave 6, migration 0042) ──────────────────
+// Pre-computed daily aggregates powering Base + Pro dashboards. PK
+// (restaurant_id, business_date, service_label). business_date is the
+// restaurant-LOCAL date (computed from restaurants.timezone). Refreshed
+// nightly by analytics.refresh-aggregates; idempotent ON CONFLICT.
+export const reservationDailyAggregates = pgTable("reservation_daily_aggregates", {
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  businessDate: date("business_date").notNull(),
+  serviceLabel: varchar("service_label", { length: 40 }).notNull().default("all_day"),
+  // Counts
+  bookingsCreated: integer("bookings_created").notNull().default(0),
+  bookingsForDate: integer("bookings_for_date").notNull().default(0),
+  confirmedCount: integer("confirmed_count").notNull().default(0),
+  seatedCount: integer("seated_count").notNull().default(0),
+  completedCount: integer("completed_count").notNull().default(0),
+  noShowCount: integer("no_show_count").notNull().default(0),
+  cancelledCount: integer("cancelled_count").notNull().default(0),
+  // Covers (sum of party_size)
+  coversForDate: integer("covers_for_date").notNull().default(0),
+  coversCompleted: integer("covers_completed").notNull().default(0),
+  coversNoShow: integer("covers_no_show").notNull().default(0),
+  // Party-size buckets
+  partySize_1_2: integer("party_size_1_2").notNull().default(0),
+  partySize_3_4: integer("party_size_3_4").notNull().default(0),
+  partySize_5_6: integer("party_size_5_6").notNull().default(0),
+  partySize_7Plus: integer("party_size_7_plus").notNull().default(0),
+  // Cancellation reasons
+  cancelReasonRestaurantClosed: integer("cancel_reason_restaurant_closed").notNull().default(0),
+  cancelReasonOverbooked: integer("cancel_reason_overbooked").notNull().default(0),
+  cancelReasonKitchenIssue: integer("cancel_reason_kitchen_issue").notNull().default(0),
+  cancelReasonPrivateEvent: integer("cancel_reason_private_event").notNull().default(0),
+  cancelReasonOther: integer("cancel_reason_other").notNull().default(0),
+  cancelReasonDiner: integer("cancel_reason_diner").notNull().default(0),
+  // Booking-type buckets
+  bookingTypeStandard: integer("booking_type_standard").notNull().default(0),
+  bookingTypePrivateEvent: integer("booking_type_private_event").notNull().default(0),
+  bookingTypeStanding: integer("booking_type_standing").notNull().default(0),
+  // Lead time (minutes)
+  leadTimeP50Min: integer("lead_time_p50_min"),
+  leadTimeP90Min: integer("lead_time_p90_min"),
+  leadTimeAvgMin: integer("lead_time_avg_min"),
+  // Channel attribution (9→7 fold; see src/lib/analytics/source-fold.ts)
+  sourceWidget: integer("source_widget").notNull().default(0),
+  sourceVenuePage: integer("source_venue_page").notNull().default(0),
+  sourceEditorial: integer("source_editorial").notNull().default(0),
+  sourceCorporate: integer("source_corporate").notNull().default(0),
+  sourceWalkIn: integer("source_walk_in").notNull().default(0),
+  sourceManual: integer("source_manual").notNull().default(0),
+  sourceUnknown: integer("source_unknown").notNull().default(0),
+  // New vs returning (Pro)
+  newDiners: integer("new_diners").notNull().default(0),
+  returningDiners: integer("returning_diners").notNull().default(0),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.restaurantId, t.businessDate, t.serviceLabel] }),
+  index("reservation_daily_aggregates_date").on(t.businessDate.desc()),
+  index("reservation_daily_aggregates_restaurant").on(t.restaurantId, t.businessDate.desc()),
+]);
+
+// Pro no-show heat map: day-of-week × hour-of-day over a 90-day rolling
+// window. A new row per refresh (window_end_date changes daily); old
+// windows purged after 90d by analytics.purge-stale-hourly-windows.
+export const reservationHourlyAggregates = pgTable("reservation_hourly_aggregates", {
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  dayOfWeek: smallint("day_of_week").notNull(),
+  hourOfDay: smallint("hour_of_day").notNull(),
+  windowStartDate: date("window_start_date").notNull(),
+  windowEndDate: date("window_end_date").notNull(),
+  totalBookings: integer("total_bookings").notNull().default(0),
+  noShowCount: integer("no_show_count").notNull().default(0),
+  noShowRate: numeric("no_show_rate", { precision: 5, scale: 4 }),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.restaurantId, t.dayOfWeek, t.hourOfDay, t.windowEndDate] }),
+  check("reservation_hourly_dow_chk", sql`${t.dayOfWeek} between 0 and 6`),
+  check("reservation_hourly_hour_chk", sql`${t.hourOfDay} between 0 and 23`),
+]);
+
+// Pro cohort retention — ORG-scoped (a Pro chain wants org-level retention,
+// not per-venue). Current cohort_month recomputed nightly; past months
+// immutable (see analytics.refresh-cohorts ON CONFLICT guard).
+export const dinerCohortAggregates = pgTable("diner_cohort_aggregates", {
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  cohortMonth: date("cohort_month").notNull(),
+  monthOffset: smallint("month_offset").notNull(),
+  cohortSize: integer("cohort_size").notNull(),
+  retainedCount: integer("retained_count").notNull(),
+  retentionRate: numeric("retention_rate", { precision: 5, scale: 4 }),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.organizationId, t.cohortMonth, t.monthOffset] }),
+  check("diner_cohort_offset_chk", sql`${t.monthOffset} between 0 and 24`),
+]);
+
+// Pro 4-week rolling cover forecast (trimmed-mean over last 12 same-weekday
+// observations; see src/lib/analytics/forecast.ts). One row per future date.
+export const restaurantForecasts = pgTable("restaurant_forecasts", {
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  forecastDate: date("forecast_date").notNull(),
+  coversPredicted: integer("covers_predicted").notNull(),
+  coversLow: integer("covers_low").notNull(),
+  coversHigh: integer("covers_high").notNull(),
+  bookingsAlreadyConfirmed: integer("bookings_already_confirmed").notNull().default(0),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.restaurantId, t.forecastDate] }),
+]);
+
+// Async CSV/ZIP export jobs. The create-action gates permissions; the
+// analytics.run-export job trusts this row. Files land in the private
+// `exports` bucket with a 24h signed URL.
+export const restaurantExportJobs = pgTable("restaurant_export_jobs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  requestedByUserId: uuid("requested_by_user_id").notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+  requestedRestaurants: uuid("requested_restaurants").array().notNull().default(sql`'{}'::uuid[]`),
+  format: varchar("format", { length: 20 }).notNull().default("csv"),
+  dateFrom: date("date_from"),
+  dateTo: date("date_to"),
+  tables: text("tables").array().notNull().default(sql`array['reservations','diners','reviews']::text[]`),
+  // Internal-only bypass of the Base 12-month tier limit (§8.3). Never set
+  // from user input; only by cancel-subscription / GDPR DSAR / admin callers.
+  bypassTierLimitReason: varchar("bypass_tier_limit_reason", { length: 40 }),
+  status: varchar("status", { length: 20 }).notNull().default("queued"),
+  storagePath: text("storage_path"),
+  signedUrlExpiresAt: timestamp("signed_url_expires_at", { withTimezone: true }),
+  rowCount: integer("row_count"),
+  sizeBytes: integer("size_bytes"),
+  failureReason: text("failure_reason"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  readyAt: timestamp("ready_at", { withTimezone: true }),
+  expiredAt: timestamp("expired_at", { withTimezone: true }),
+}, (t) => [
+  index("restaurant_export_jobs_org").on(t.organizationId, t.createdAt.desc()),
+  index("restaurant_export_jobs_status").on(t.status).where(sql`status in ('queued','running')`),
+]);

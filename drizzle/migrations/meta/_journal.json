@@ -295,6 +295,13 @@
       "when": 1779576418330,
       "tag": "0041_billing_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1779580000000,
+      "tag": "0042_analytics_substrate",
+      "breakpoints": true
     }
   ]
 }
