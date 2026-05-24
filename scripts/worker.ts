@@ -52,6 +52,8 @@ import { makeUsageAlert } from "@/lib/marketing/jobs/usage-alert";
 import { purgeOldLinkClicks } from "@/lib/marketing/jobs/purge-link-clicks";
 import { dbAdmin } from "@/lib/db/admin";
 import { runMigrationImport } from "@/lib/migration/run-import";
+import { sendDay7Checkin, sendDay30Checkin, sendDay60Checkin } from "@/lib/setup/checkins";
+import { flagAtRiskOrgs } from "@/lib/setup/flag-at-risk";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -242,10 +244,18 @@ async function main(): Promise<void> {
   });
   await boss.schedule(JOBS.marketing.purgeOldLinkClicks, "45 4 * * *");
 
-  // §14 setup — CSV migration import (on demand).
+  // §14 setup — CSV migration import (on demand) + check-in sweeps + at-risk flag.
   await boss.work(JOBS.setup.runMigrationImport, async ([job]) => {
     await runMigrationImport(job.data as { importId: string });
   });
+  await boss.work(JOBS.setup.sendDay7Checkin, async () => { await sendDay7Checkin(); });
+  await boss.work(JOBS.setup.sendDay30Checkin, async () => { await sendDay30Checkin(); });
+  await boss.work(JOBS.setup.sendDay60Checkin, async () => { await sendDay60Checkin(); });
+  await boss.schedule(JOBS.setup.sendDay7Checkin, "0 8 * * *");
+  await boss.schedule(JOBS.setup.sendDay30Checkin, "10 8 * * *");
+  await boss.schedule(JOBS.setup.sendDay60Checkin, "20 8 * * *");
+  await boss.work(JOBS.setup.flagAtRiskOrgs, async () => { await flagAtRiskOrgs(); });
+  await boss.schedule(JOBS.setup.flagAtRiskOrgs, "0 9 * * *");
 
   console.log("[worker] marketing handlers registered + computeAttribution (*/5), monthlyOverageBilling (0 2 1 * *), usageAlert (0 * * * *), purgeOldLinkClicks (45 4 * * *) scheduled; fanOut/sendMessage/fireTriggered on-demand");
 
