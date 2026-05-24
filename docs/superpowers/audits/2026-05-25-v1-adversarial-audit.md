@@ -7,6 +7,38 @@
 > compile and pass tests. **Triage before fixing.** Items marked **[DECISION]** need a
 > product/architecture call, not just a code change.
 
+## Remediation status (2026-05-25)
+
+**All 8 CRITICAL + all 10 HIGH findings are fixed** (TDD, each with a regression
+test, committed individually on `main`, local/unpushed). Two product decisions
+taken with the user: **#8 → turn-time occupancy** (90-min default), **#16 →
+`drizzle-kit generate` banned** (schema.ts descriptive-only).
+
+| # | Fix commit summary |
+|---|---|
+| 1 | diner merge/split gated on `can(org)` + matrix perms |
+| 2 | rollback verifies import↔restaurant + scoped DELETE |
+| 3 | webhook populates currentPeriodStart/annualPaidThrough |
+| 4 | marketing_sends handler + verify + retention anonymise |
+| 5 | prospect_waitlist handler + verify + retention (mig 0046) |
+| 6 | chk_admin_manual_has_owner relaxed (mig 0048) |
+| 7 | pricing toggle hash guarded behind userToggled |
+| 8+9 | turn-time occupancy trigger, fires on INSERT OR UPDATE (mig 0049) |
+| 10 | statusSyncedAt only stamped on status change |
+| 11 | wasEventApplied guard on invoice/refund/dispute/setup_intent |
+| 12 | event_requests handler + verify + redacted_at + retention (mig 0047) |
+| 13 | sendCampaignAction status='draft' atomic gate |
+| 14 | freq-cap counts in-flight (queued/sending) sends |
+| 15 | fan-out keyset pagination (afterId) over live segment |
+| 16 | db:generate disabled + AGENTS.md migrations doc |
+| 17 | per-segment en/de layouts set lang |
+| 18 | marketing toggle aria-label |
+
+Migrations 0046–0049 applied to the local DB; pending prod apply (additive).
+Full suite green (1359 passed); tsc clean; 0 new prod lint errors.
+
+**Not yet addressed:** the MEDIUM + LOW items below remain as the cleanup pass.
+
 ## CRITICAL — fix before any public launch
 
 1. **Cross-tenant IDOR in diner merge/split** — `src/app/partner/(dashboard)/diners/actions.ts`
