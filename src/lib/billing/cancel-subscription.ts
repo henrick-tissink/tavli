@@ -143,3 +143,30 @@ export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
     return { refundCents };
   };
 }
+
+// Production-bound singleton (lazy Stripe — getStripe() throws without a key,
+// so resolution is deferred to call-time, mirroring change-plan.ts).
+import { getStripe } from "@/lib/stripe/client";
+
+const lazyStripe: Pick<Stripe, "subscriptions" | "refunds" | "invoices"> = {
+  subscriptions: {
+    update: ((...a: Parameters<Stripe["subscriptions"]["update"]>) =>
+      getStripe().subscriptions.update(...a)) as Stripe["subscriptions"]["update"],
+    cancel: ((...a: Parameters<Stripe["subscriptions"]["cancel"]>) =>
+      getStripe().subscriptions.cancel(...a)) as Stripe["subscriptions"]["cancel"],
+  } as Stripe["subscriptions"],
+  refunds: {
+    create: ((...a: Parameters<Stripe["refunds"]["create"]>) =>
+      getStripe().refunds.create(...a)) as Stripe["refunds"]["create"],
+  } as Stripe["refunds"],
+  invoices: {
+    list: ((...a: Parameters<Stripe["invoices"]["list"]>) =>
+      getStripe().invoices.list(...a)) as Stripe["invoices"]["list"],
+  } as Stripe["invoices"],
+};
+
+export const cancelSubscription = makeCancelSubscription({
+  db: dbAdmin,
+  stripe: lazyStripe,
+  recordBillingAudit: defaultRecordBillingAudit,
+});
