@@ -63,6 +63,8 @@ export const ERROR_CODES = {
   // §07 Analytics (TV500–TV599)
   TV501: { domain: "07", slug: "export_too_large" },
   TV502: { domain: "07", slug: "no_data_in_window" },
+  TV503: { domain: "07", slug: "export_not_found" },
+  TV504: { domain: "07", slug: "export_no_tables_selected" },
 
   // §08 Tables (TV600–TV699)
   TV601: { domain: "08", slug: "invalid_transition" },
