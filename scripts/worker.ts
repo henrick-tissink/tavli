@@ -51,6 +51,7 @@ import { monthlyOverageBilling } from "@/lib/marketing/jobs/monthly-overage";
 import { makeUsageAlert } from "@/lib/marketing/jobs/usage-alert";
 import { purgeOldLinkClicks } from "@/lib/marketing/jobs/purge-link-clicks";
 import { dbAdmin } from "@/lib/db/admin";
+import { runMigrationImport } from "@/lib/migration/run-import";
 import {
   expireOrphanIncomplete,
   archiveCancelledOrgs,
@@ -240,6 +241,11 @@ async function main(): Promise<void> {
     await purgeOldLinkClicks();
   });
   await boss.schedule(JOBS.marketing.purgeOldLinkClicks, "45 4 * * *");
+
+  // §14 setup — CSV migration import (on demand).
+  await boss.work(JOBS.setup.runMigrationImport, async ([job]) => {
+    await runMigrationImport(job.data as { importId: string });
+  });
 
   console.log("[worker] marketing handlers registered + computeAttribution (*/5), monthlyOverageBilling (0 2 1 * *), usageAlert (0 * * * *), purgeOldLinkClicks (45 4 * * *) scheduled; fanOut/sendMessage/fireTriggered on-demand");
 
