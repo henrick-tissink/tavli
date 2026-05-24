@@ -19,10 +19,14 @@ export function TheSetupSection({ messages }: { messages: PricingMessages }) {
       <p className="mt-3 max-w-2xl text-text-secondary">{setup.intro}</p>
 
       <ol className="relative mt-14 grid gap-10 md:grid-cols-5 md:gap-6">
-        {/* connector rail (desktop) */}
+        {/* connector rail — horizontal on desktop, vertical on mobile */}
         <div
           aria-hidden
           className="absolute left-[7%] right-[7%] top-7 hidden h-px bg-border md:block"
+        />
+        <div
+          aria-hidden
+          className="absolute left-7 top-7 bottom-7 w-px bg-border md:hidden"
         />
         {setup.steps.map((step, i) => (
           <li key={i} className="relative flex gap-5 md:flex-col md:gap-0">
