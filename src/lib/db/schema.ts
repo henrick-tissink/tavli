@@ -668,6 +668,8 @@ export const eventRequests = pgTable("event_requests", {
   trackingToken: varchar("tracking_token", { length: 64 }).notNull().unique(),
   lastNudgeAt: timestamp("last_nudge_at", { withTimezone: true }),
   privateSpaceId: uuid("private_space_id").references(() => restaurantPrivateSpaces.id, { onDelete: "set null" }),
+  // audit #12 — GDPR erasure marker (migration 0047). Set by handleEventRequests.
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [

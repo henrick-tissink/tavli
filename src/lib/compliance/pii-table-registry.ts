@@ -20,8 +20,9 @@ import { handlePartnerNotificationsPhase1 } from "./handlers/partner-notificatio
 import { handleDiners } from "./handlers/diners";
 import { handleMarketingSends } from "./handlers/marketing-sends";
 import { handleProspectWaitlist, REDACTED_EMAIL } from "./handlers/prospect-waitlist";
+import { handleEventRequests, REDACTED_EMAIL as EVENT_REDACTED_EMAIL, REDACTED_NAME as EVENT_REDACTED_NAME } from "./handlers/event-requests";
 import { handleAuditLogs } from "./handlers/audit-logs";
-import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist } from "@/lib/db/schema";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist, eventRequests } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -207,6 +208,24 @@ async function verifyProspectWaitlistRedacted({ db }: VerifyDeps): Promise<Verif
   };
 }
 
+async function verifyEventRequestsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: eventRequests.id })
+    .from(eventRequests)
+    .where(sql`${eventRequests.redactedAt} IS NOT NULL
+            AND (${eventRequests.guestEmail} != ${EVENT_REDACTED_EMAIL}
+                 OR ${eventRequests.guestName} != ${EVENT_REDACTED_NAME}
+                 OR ${eventRequests.guestPhone} IS NOT NULL
+                 OR ${eventRequests.dietaryNotes} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "event_requests",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -292,6 +311,17 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyProspectWaitlistRedacted,
     twoPhase: false,
     piiColumns: ["email", "source_ip", "notes", "organization_name_hint"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    // audit #12 — corporate event intake. DSR path matches captured diner
+    // email/phone; time-based purge is the 0047 retention policy.
+    tableName: "event_requests",
+    shipped: true,
+    handler: handleEventRequests,
+    verificationQuery: verifyEventRequestsRedacted,
+    twoPhase: false,
+    piiColumns: ["guest_name", "guest_email", "guest_phone", "dietary_notes", "additional_notes"],
     defaultReason: "gdpr_art_17",
   },
   // ─── Future-Wave stubs (spec §3.2) ────────────────────────────────────────
