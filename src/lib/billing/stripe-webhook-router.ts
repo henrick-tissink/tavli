@@ -38,6 +38,20 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     return typeof v === "number" ? new Date(v * 1000) : null;
   }
 
+  // NEW-1: stripe@22 (API 2026-04-22.dahlia) removed current_period_start/end
+  // from the Subscription object — they now live on each subscription item.
+  // Read from the first item. Reading sub.current_period_* (as the code did)
+  // returned undefined → null, which silently killed the annual pro-rata
+  // refund (#3) and the pending-frequency-change effective date.
+  function periodFromSub(sub: Obj): { start: Date | null; end: Date | null } {
+    const items = (sub.items as { data?: Array<Record<string, unknown>> } | undefined)?.data ?? [];
+    const item = items[0];
+    return {
+      start: tsToDate(item?.current_period_start),
+      end: tsToDate(item?.current_period_end),
+    };
+  }
+
   async function onSubscriptionUpdated(event: Stripe.Event): Promise<void> {
     if (await deps.wasEventApplied(event.id)) return;
     const sub = event.data.object as unknown as Obj;
@@ -53,14 +67,14 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     // dunning clock (read as pastDueSince), so only re-stamp it on an actual
     // status transition — otherwise the day-7/day-21 counter never advances.
     const statusChanged = after !== row.status;
-    const periodEnd = tsToDate(sub.current_period_end);
+    const { start: periodStart, end: periodEnd } = periodFromSub(sub);
     await deps.db
       .update(subscriptions)
       .set({
         status: after,
         // #3 — populate the columns the §10.2 pro-rata refund branch reads.
         // For an annual prepay, current_period_end IS the paid-through date.
-        currentPeriodStart: tsToDate(sub.current_period_start),
+        currentPeriodStart: periodStart,
         currentPeriodEnd: periodEnd,
         ...(row.frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
         cancelAtPeriodEnd: Boolean(sub.cancel_at_period_end),
@@ -80,7 +94,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     const resolvedOrg = orgId ?? (await orgByCustomer(sub.customer));
     if (!resolvedOrg) return;
     const frequency = ((sub.metadata as Obj | undefined)?.frequency as "monthly" | "annual") ?? "monthly";
-    const periodEnd = tsToDate(sub.current_period_end);
+    const { start: periodStart, end: periodEnd } = periodFromSub(sub);
     // UPSERT — idempotent against the row W5-C startSubscription already inserted.
     await deps.db
       .insert(subscriptions)
@@ -94,7 +108,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         trialStartedAt: tsToDate(sub.trial_start) ?? new Date(),
         trialEndsAt: tsToDate(sub.trial_end) ?? new Date(),
         // #3 — seed the period columns the refund branch reads.
-        currentPeriodStart: tsToDate(sub.current_period_start),
+        currentPeriodStart: periodStart,
         currentPeriodEnd: periodEnd,
         ...(frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
       })

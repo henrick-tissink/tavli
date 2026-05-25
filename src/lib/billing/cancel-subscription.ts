@@ -86,13 +86,23 @@ export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
           subscription: sub.stripeSubscriptionId,
           status: "paid",
           limit: 1,
+          // NEW-1c: stripe@22 moved the PaymentIntent off the top-level Invoice
+          // onto invoice.payments[].payment; expand it so we can find the
+          // refund target. The old top-level field is kept as a fallback.
+          expand: ["data.payments"],
         });
-        // payment_intent isn't on the stripe@17 Invoice type (it can be a
-        // string id or an expanded object); read it defensively.
         const invoice = paid.data[0] as
-          | { payment_intent?: string | { id: string }; amount_paid?: number }
+          | {
+              payment_intent?: string | { id: string };
+              payments?: {
+                data?: Array<{ payment?: { payment_intent?: string | { id: string } } }>;
+              };
+              amount_paid?: number;
+            }
           | undefined;
-        const piRaw = invoice?.payment_intent;
+        const piRaw =
+          invoice?.payment_intent ??
+          invoice?.payments?.data?.[0]?.payment?.payment_intent;
         const paymentIntent = typeof piRaw === "string" ? piRaw : piRaw?.id;
         const amountPaid = invoice?.amount_paid ?? 0;
         refundCents = computeProRataRefundCents({

@@ -162,10 +162,9 @@ describe("stripe-webhook-router", () => {
         id: "sub_1",
         status: "active",
         customer: "cus_1",
-        current_period_start: 1_777_000_000,
-        current_period_end: 1_808_536_000,
         cancel_at_period_end: false,
-        items: { data: [] },
+        // stripe@22: current_period_* live on the item, not the subscription.
+        items: { data: [{ current_period_start: 1_777_000_000, current_period_end: 1_808_536_000 }] },
       }),
     );
     const payload = setCalls[0];
@@ -183,9 +182,7 @@ describe("stripe-webhook-router", () => {
         id: "sub_1",
         status: "active",
         customer: "cus_1",
-        current_period_start: 1_777_000_000,
-        current_period_end: 1_779_592_000,
-        items: { data: [] },
+        items: { data: [{ current_period_start: 1_777_000_000, current_period_end: 1_779_592_000 }] },
       }),
     );
     expect("annualPaidThrough" in setCalls[0]).toBe(false);
