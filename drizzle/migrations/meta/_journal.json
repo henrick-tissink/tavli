@@ -365,6 +365,13 @@
       "when": 1779595000000,
       "tag": "0051_diners_identity_allow_redacted",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1779596000000,
+      "tag": "0052_walkin_queue_erasure",
+      "breakpoints": true
     }
   ]
 }

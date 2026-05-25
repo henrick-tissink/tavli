@@ -1733,6 +1733,9 @@ export const walkinQueue = pgTable(
     leftAt: timestamp("left_at", { withTimezone: true }),
     seatedTableId: uuid("seated_table_id").references(() => restaurantTables.id, { onDelete: "set null" }),
     seatedReservationId: uuid("seated_reservation_id").references(() => reservations.id, { onDelete: "set null" }),
+    // 0052 — GDPR erasure marker (Phase B1). Set when the DSR cascade
+    // pseudonymises a walk-in guest's name/phone.
+    redactedAt: timestamp("redacted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
   },

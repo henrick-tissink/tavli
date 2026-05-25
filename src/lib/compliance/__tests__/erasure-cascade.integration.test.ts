@@ -44,6 +44,7 @@ import {
   dataSubjectRequests,
   prospectWaitlist,
   eventRequests,
+  walkinQueue,
 } from "@/lib/db/schema";
 import {
   makeHandleErasureExecute,
@@ -68,6 +69,7 @@ const EMAIL = "integration-test@example.invalid";
 const NONDINER_DSR_ID = "77777777-aaaa-aaaa-aaaa-777777777777";
 const NONDINER_EVENT_ID = "88888888-aaaa-aaaa-aaaa-888888888888";
 const NONDINER_PROSPECT_ID = "99999999-aaaa-aaaa-aaaa-999999999999";
+const NONDINER_WALKIN_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 const NONDINER_EMAIL = "nondiner-prospect@example.invalid";
 const NONDINER_PHONE = "+40712349999";
 
@@ -125,6 +127,7 @@ async function cleanup() {
   // Phase C non-diner fixtures (matched by email, no diner FK).
   await dbAdmin.execute(sql`DELETE FROM marketing_suppressions WHERE reason = ${"dsr:" + NONDINER_DSR_ID}`);
   await dbAdmin.execute(sql`DELETE FROM event_requests WHERE id = ${NONDINER_EVENT_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM walkin_queue WHERE id = ${NONDINER_WALKIN_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM prospect_waitlist WHERE id = ${NONDINER_PROSPECT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM transactional_email_log WHERE diner_id = ${DINER_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM marketing_consents WHERE diner_id = ${DINER_ID}::uuid`);
@@ -353,6 +356,10 @@ async function cleanup() {
       )
     `);
     await dbAdmin.execute(sql`
+      INSERT INTO walkin_queue (id, restaurant_id, guest_name, guest_phone, party_size, status, position, notes)
+      VALUES (${NONDINER_WALKIN_ID}::uuid, ${RESTAURANT_ID}::uuid, 'Bob Walkin', ${NONDINER_PHONE}, 3, 'left', 1, 'window seat pls')
+    `);
+    await dbAdmin.execute(sql`
       INSERT INTO data_subject_requests (
         id, identifier_phone, identifier_email,
         request_kind, request_source, legal_deadline_at,
@@ -518,6 +525,16 @@ async function cleanup() {
     expect(er.guestPhone).toBeNull();
     expect(er.dietaryNotes).toBeNull();
     expect(er.redactedAt).not.toBeNull();
+
+    // walkin_queue redacted (matched by guest_phone → name sentinel, phone/notes nulled).
+    const [w] = await dbAdmin
+      .select()
+      .from(walkinQueue)
+      .where(eq(walkinQueue.id, NONDINER_WALKIN_ID));
+    expect(w.guestName).toBe("Redacted");
+    expect(w.guestPhone).toBeNull();
+    expect(w.notes).toBeNull();
+    expect(w.redactedAt).not.toBeNull();
 
     // marketing_suppressions written for the subject's email + phone.
     const supResult = await dbAdmin.execute(sql`

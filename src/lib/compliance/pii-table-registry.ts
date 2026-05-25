@@ -21,6 +21,7 @@ import { handleDiners } from "./handlers/diners";
 import { handleMarketingSends } from "./handlers/marketing-sends";
 import { handleProspectWaitlist, REDACTED_EMAIL } from "./handlers/prospect-waitlist";
 import { handleEventRequests, REDACTED_EMAIL as EVENT_REDACTED_EMAIL, REDACTED_NAME as EVENT_REDACTED_NAME } from "./handlers/event-requests";
+import { handleWalkinQueue, verifyWalkinQueueRedacted } from "./handlers/walkin-queue";
 import { handleAuditLogs } from "./handlers/audit-logs";
 import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist, eventRequests } from "@/lib/db/schema";
 
@@ -368,14 +369,15 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     // TODO Wave 7 — ship marketing_consent_audit + handler with predicate-AST engine
   },
   {
+    // B1 — §08 walk-in queue. DSR path matches captured diner phone; time-based
+    // purge is the 0052 retention policy (hard-delete after 90 days).
     tableName: "walkin_queue",
-    shipped: false,
-    handler: null,
-    verificationQuery: null,
+    shipped: true,
+    handler: handleWalkinQueue,
+    verificationQuery: verifyWalkinQueueRedacted,
     twoPhase: false,
-    piiColumns: ["guest_name", "guest_phone"],
+    piiColumns: ["guest_name", "guest_phone", "notes"],
     defaultReason: "gdpr_art_17",
-    // TODO Wave 4 §08 — ship walkin_queue + handler
   },
   {
     tableName: "corporate_lead_intents",
