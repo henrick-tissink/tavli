@@ -4,6 +4,7 @@ import { render } from "@react-email/render";
 import { dbAdmin } from "@/lib/db/admin";
 import { organizations } from "@/lib/db/schema";
 import { loadActiveSubscription as defaultLoadActiveSubscription } from "@/lib/billing/load-subscription";
+import { stripeOverageReporter } from "@/lib/billing/overage-reporter";
 import {
   sendTransactionalEmail as defaultSendEmail,
   type SendTransactionalEmailInput,
@@ -143,4 +144,7 @@ export function makeReportMarketingOverageHandler(deps: ReportOverageDeps) {
 
 export const handleReportMarketingOverage = makeReportMarketingOverageHandler({
   recordBillingAudit: defaultRecordBillingAudit,
+  // F9: actually bill the overage once a live key is present (adds an invoice
+  // item to the org's next invoice). No key (dev/pre-launch) → records + warns.
+  reportToStripe: process.env.STRIPE_SECRET_KEY ? stripeOverageReporter : undefined,
 });
