@@ -29,6 +29,7 @@ import {
 import { runErasureVerification } from "@/lib/compliance/verify";
 import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
+import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
 import {
   handleTrialReminderDay60,
   handleTrialReminderDay75,
@@ -128,6 +129,12 @@ async function main(): Promise<void> {
   });
 
   await boss.schedule(JOBS.compliance.purgeCookieConsents, "30 5 * * *");
+
+  // §01 §6.3/§10: expire stale staff invitations daily at 03:00 UTC.
+  await boss.work(JOBS.identity.expireStaleInvitations, async () => {
+    await expireStaleInvitations();
+  });
+  await boss.schedule(JOBS.identity.expireStaleInvitations, "0 3 * * *");
 
   // Wave 5 sub-unit A: §09 nightly venue-count reconcile (drift backstop).
   await boss.work(JOBS.multilocation.reconcileVenueCount, async () => {
