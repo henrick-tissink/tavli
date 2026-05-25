@@ -31,6 +31,18 @@ describe("recordBillingAudit", () => {
     );
   });
 
+  it("rejects a sensitive PII key in context — keeps the 7yr fiscal log PII-free (NEW-7)", async () => {
+    const values = jest.fn().mockResolvedValue(undefined);
+    const executor = { insert: jest.fn().mockReturnValue({ values }) } as never;
+    await expect(
+      recordBillingAudit(
+        { organizationId: "o1", eventType: "billing.subscription_cancelled", context: { email: "x@y.com" } },
+        executor,
+      ),
+    ).rejects.toThrow(/sensitive/i);
+    expect((executor as { insert: jest.Mock }).insert).not.toHaveBeenCalled();
+  });
+
   it("defaults actorUserId to null when omitted", async () => {
     const values = jest.fn().mockResolvedValue(undefined);
     const executor = { insert: jest.fn().mockReturnValue({ values }) } as never;

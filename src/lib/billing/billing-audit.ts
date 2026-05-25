@@ -1,6 +1,9 @@
 import "server-only";
 import { dbAdmin } from "@/lib/db/admin";
 import { billingAuditLog } from "@/lib/db/schema";
+import { isSensitiveKey } from "@/lib/pii/keys";
+
+const CONTEXT_BYTE_LIMIT = 4096;
 
 /**
  * Canonical AUDIT.billing.* event keys (§12 §6.3.2). The union prevents
@@ -40,6 +43,24 @@ export async function recordBillingAudit(
   input: RecordBillingAuditInput,
   executor: BillingAuditExecutor = dbAdmin,
 ): Promise<void> {
+  // NEW-7: billing_audit_log is retained 7 years (RO Codul Fiscal) and is NOT
+  // reachable by the diner GDPR cascade (org/actor-keyed, no diner_id). So PII
+  // must never enter it in the first place — apply the same no-sensitive-keys
+  // discipline + 4KB cap that recordAudit enforces on the general audit log.
+  for (const key of Object.keys(input.context)) {
+    if (isSensitiveKey(key)) {
+      throw new Error(
+        `recordBillingAudit: context key '${key}' is sensitive (PII) and is not ` +
+          `allowed in the 7-year billing_audit_log (eventType=${input.eventType}). ` +
+          `Pass FK ids / scalars only — see src/lib/pii/keys.ts.`,
+      );
+    }
+  }
+  if (Buffer.byteLength(JSON.stringify(input.context), "utf8") > CONTEXT_BYTE_LIMIT) {
+    throw new Error(
+      `recordBillingAudit: context exceeds ${CONTEXT_BYTE_LIMIT} bytes (eventType=${input.eventType}).`,
+    );
+  }
   await executor.insert(billingAuditLog).values({
     organizationId: input.organizationId,
     organizationIdAtEvent: input.organizationId,
