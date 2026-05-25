@@ -24,6 +24,7 @@ import { AUDIT } from "@/lib/audit/actions";
 import { currentActor } from "@/lib/auth/current-actor";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
+import { isOrgBillingLocked } from "@/lib/billing/require-billing-access";
 
 export type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -93,6 +94,11 @@ export async function mergeDinersAction(
 
   if (source.organizationId !== target.organizationId) {
     return { ok: false, error: "Cross-org merge not permitted." };
+  }
+
+  // NEW-5: dunning soft-lock / read-only pauses operator data writes.
+  if (await isOrgBillingLocked(source.organizationId)) {
+    return { ok: false, error: "billing_locked" };
   }
 
   // Profile merge: union arrays + shallow-merge jsonb (target wins on key
@@ -220,6 +226,11 @@ export async function splitDinerAction(
     }))
   ) {
     return { ok: false, error: "Forbidden." };
+  }
+
+  // NEW-5: dunning soft-lock / read-only pauses operator data writes.
+  if (await isOrgBillingLocked(source.organizationId)) {
+    return { ok: false, error: "billing_locked" };
   }
 
   // Cheap pre-check before the DB throws a unique-violation. The DB

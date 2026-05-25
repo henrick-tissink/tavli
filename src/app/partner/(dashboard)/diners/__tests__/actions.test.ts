@@ -30,6 +30,11 @@ jest.mock("@/lib/audit/record", () => ({ recordAudit: jest.fn() }));
 jest.mock("@/lib/auth/current-actor", () => ({
   currentActor: jest.fn(),
 }));
+// Billing guard is orthogonal to merge/split logic — default to unlocked so it
+// doesn't consume the sequenced dbAdmin mock.
+jest.mock("@/lib/billing/require-billing-access", () => ({
+  isOrgBillingLocked: jest.fn().mockResolvedValue(false),
+}));
 
 import { mergeDinersAction, splitDinerAction } from "../actions";
 import { dbAdmin } from "@/lib/db/admin";

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -29,6 +30,7 @@ export async function createSection(formData: FormData): Promise<Ok> {
 
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
   const { data: existing } = await supabase
@@ -68,6 +70,7 @@ export async function updateSection(
 
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -84,6 +87,7 @@ export async function updateSection(
 export async function deleteSection(sectionId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -121,6 +125,7 @@ export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
 
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
   if (!payload.name.trim()) return { ok: false, error: "Numele este obligatoriu." };
   if (payload.priceLei < 0) return { ok: false, error: "Prețul trebuie să fie ≥ 0." };
 
@@ -174,6 +179,7 @@ export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
 export async function deleteItem(itemId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase

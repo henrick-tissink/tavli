@@ -6,6 +6,7 @@ import { hoursToSchedule, type DayHours } from "@/lib/onboarding";
 import { hoursToAvailabilityRows } from "@/lib/availability";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -34,6 +35,7 @@ export async function savePartnerHours(
   if (!restaurantId) {
     return { ok: false, error: "Niciun restaurant asociat acestui cont." };
   }
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const schedule = hoursToSchedule(hours);
   const { error: scheduleError } = await supabase

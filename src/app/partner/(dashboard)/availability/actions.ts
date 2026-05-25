@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 
 async function ownerRestaurantId(): Promise<string | null> {
   const session = await getCurrentSession();
@@ -24,6 +25,7 @@ export async function addSlot(
 ): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   if (dayOfWeek < 0 || dayOfWeek > 6)
     return { ok: false, error: "Zi invalidă." };
@@ -55,6 +57,7 @@ export async function updateSlot(
 ): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
   if (slotStart >= slotEnd)
     return { ok: false, error: "Ora de sfârșit trebuie să fie după ora de început." };
   if (capacity < 1) return { ok: false, error: "Capacitatea trebuie să fie ≥ 1." };
@@ -74,6 +77,7 @@ export async function updateSlot(
 export async function deleteSlot(slotId: string): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
@@ -90,6 +94,7 @@ export async function deleteSlot(slotId: string): Promise<Ok> {
 export async function seedDefaultAvailability(capacity: number): Promise<Ok> {
   const restaurantId = await ownerRestaurantId();
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
   if (capacity < 1) return { ok: false, error: "Capacitatea trebuie să fie ≥ 1." };
 
   const supabase = await createSupabaseServerClient();

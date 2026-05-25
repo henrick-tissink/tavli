@@ -8,6 +8,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurantTranslations } from "@/lib/db/schema";
 
@@ -36,6 +37,7 @@ export async function saveTranslation(
   if (locale !== "en" && locale !== "de") return { ok: false, error: "Limbă invalidă." };
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const row = {
     tagline: clean(fields.tagline),

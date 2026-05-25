@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { geocode } from "@/lib/geocoding";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 import { normalizePhone } from "@/lib/phone/normalize";
 
 export interface SaveProfileResult {
@@ -22,6 +23,7 @@ export async function savePartnerProfile(
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const profile = {
     name: String(formData.get("name") ?? "").trim(),
