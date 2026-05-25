@@ -9,6 +9,7 @@ export function OrgTabs({ orgId }: { orgId: string }) {
   const tabs = [
     { href: base, label: "Prezentare", match: (p: string) => p === base },
     { href: `${base}/venues`, label: "Locații", match: (p: string) => p.startsWith(`${base}/venues`) },
+    { href: `${base}/members`, label: "Echipă", match: (p: string) => p.startsWith(`${base}/members`) },
     { href: `${base}/analytics`, label: "Analize", match: (p: string) => p.startsWith(`${base}/analytics`) },
   ];
   return (
