@@ -100,6 +100,7 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
   }
 
   async function onSubscriptionCreated(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return; // A5 — replay guard (was missing)
     const sub = event.data.object as unknown as Obj;
     const orgId = (sub.metadata as Obj | undefined)?.organization_id as string | undefined;
     const resolvedOrg = orgId ?? (await orgByCustomer(sub.customer));

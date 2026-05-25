@@ -15,7 +15,12 @@ import { makeSuppression } from "@/lib/marketing/suppression";
 import { makeConsent } from "@/lib/marketing/consent";
 
 export type SkipStatus = "skipped_suppressed" | "skipped_cap" | "skipped_quota" | "skipped_quiet_hours";
-export type PolicyResult = { allow: true } | { allow: false; skip: SkipStatus };
+export type PolicyResult =
+  | { allow: true }
+  | { allow: false; skip: SkipStatus }
+  // §11 §10.3 — quiet hours DEFER (not drop): the send is re-enqueued for the
+  // window end rather than terminally skipped.
+  | { allow: false; deferUntil: Date };
 
 interface Deps {
   db: typeof dbAdmin;
@@ -62,6 +67,40 @@ export function inQuietHours(now: Date, timezone: string, startLocal: string, en
   return t >= start || t < end;
 }
 
+/**
+ * The next UTC instant at which quiet hours END in the venue timezone — i.e. the
+ * earliest moment strictly after `now` when the local wall clock reads
+ * `endLocal`. Used to DEFER (re-enqueue) a quiet-hours send instead of dropping
+ * it. The tz offset is sampled at `now`; a DST shift during the window can move
+ * the result by an hour, which is benign for a marketing-send defer.
+ */
+export function nextQuietHoursEnd(
+  now: Date,
+  timeZone: string,
+  endLocal: string,
+): Date {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  const hour = get("hour") === 24 ? 0 : get("hour");
+  // The local wall-clock of `now`, expressed as a UTC timestamp.
+  const localAsUtc = Date.UTC(get("year"), get("month") - 1, get("day"), hour, get("minute"), get("second"));
+  const offsetMs = localAsUtc - now.getTime(); // localAsUtc = realNow + offset
+  const [eh, em] = endLocal.split(":").map(Number);
+  let endAsUtc = Date.UTC(get("year"), get("month") - 1, get("day"), eh, em, 0);
+  if (endAsUtc <= localAsUtc) endAsUtc += 24 * 60 * 60 * 1000; // already past today → next day
+  // Convert the local end back to a real UTC instant.
+  return new Date(endAsUtc - offsetMs);
+}
+
 export function makeMarketingPolicy(deps: Deps) {
   const now = deps.now ?? (() => new Date());
 
@@ -99,12 +138,16 @@ export function makeMarketingPolicy(deps: Deps) {
     const sent = quotaRows[0]?.sent_count ?? 0;
     if (sent >= input.includedAllowance * input.overageBuffer) return { allow: false, skip: "skipped_quota" };
 
-    // Quiet hours — SMS/WhatsApp only (email has none).
+    // Quiet hours — SMS/WhatsApp only (email has none). §11 §10.3: defer to the
+    // window end rather than dropping the send.
     if (
       (input.channel === "sms" || input.channel === "whatsapp") &&
       inQuietHours(now(), input.timezone, input.quietStartLocal, input.quietEndLocal)
     ) {
-      return { allow: false, skip: "skipped_quiet_hours" };
+      return {
+        allow: false,
+        deferUntil: nextQuietHoursEnd(now(), input.timezone, input.quietEndLocal),
+      };
     }
 
     return { allow: true };

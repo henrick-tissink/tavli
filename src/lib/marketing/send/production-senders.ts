@@ -10,6 +10,8 @@ import { makeMarketingPolicy } from "@/lib/marketing/send/policy";
 import { makeSendMessageHandler } from "@/lib/marketing/send-message-handler";
 import { suppression } from "@/lib/marketing/suppression";
 import { consent } from "@/lib/marketing/consent";
+import { enqueue } from "@/lib/jobs/enqueue";
+import type { JobKey } from "@/lib/jobs/keys";
 
 interface ResendLike {
   emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
@@ -58,6 +60,7 @@ const policy = makeMarketingPolicy({ db: dbAdmin, suppression, consent });
 export const marketingSenders = makeMarketingSenders({
   db: dbAdmin,
   policy,
+  enqueue: (key, data, options) => enqueue(key as JobKey, data, options),
   resend: getResend(),
   twilio: getTwilio(),
   emailFrom: process.env.MARKETING_FROM_EMAIL ?? "hello@tavli.ro",

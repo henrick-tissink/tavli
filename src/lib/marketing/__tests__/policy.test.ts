@@ -84,11 +84,37 @@ describe("marketing policy evaluate", () => {
     const r = await makeMarketingPolicy(deps({ quotaSent: 5000 }) as never)(baseInput);
     expect(r).toMatchObject({ allow: false, skip: "skipped_quota" });
   });
-  test("sms during quiet hours → skipped_quiet_hours", async () => {
-    // now 23:00 Bucharest-quiet via a late UTC time.
+  test("sms during quiet hours → DEFER to window end (not drop)", async () => {
+    // now 23:30 UTC → 02:30 Bucharest (EEST, UTC+3) → inside 21:00→10:00 quiet.
     const d = deps({});
-    d.now = () => new Date("2026-05-17T23:30:00Z"); // ~02:30 Bucharest
+    d.now = () => new Date("2026-05-17T23:30:00Z");
     const r = await makeMarketingPolicy(d as never)({ ...baseInput, channel: "sms", identifier: "+40712345678" });
-    expect(r).toMatchObject({ allow: false, skip: "skipped_quiet_hours" });
+    expect(r).toMatchObject({ allow: false });
+    expect(r).not.toHaveProperty("skip");
+    // Window ends at 10:00 Bucharest on May 18 → 07:00:00Z.
+    expect((r as { deferUntil: Date }).deferUntil.toISOString()).toBe("2026-05-18T07:00:00.000Z");
+  });
+});
+
+describe("nextQuietHoursEnd", () => {
+  // (imported lazily to keep the inQuietHours import block above intact)
+  const { nextQuietHoursEnd } = jest.requireActual("@/lib/marketing/send/policy");
+
+  test("wrapping window, currently past midnight → end is later the same local day", () => {
+    // 02:30 Bucharest → next 10:00 is the same local day.
+    const end = nextQuietHoursEnd(new Date("2026-05-17T23:30:00Z"), "Europe/Bucharest", "10:00");
+    expect(end.toISOString()).toBe("2026-05-18T07:00:00.000Z");
+  });
+
+  test("wrapping window, evening before midnight → end rolls to next local day", () => {
+    // 22:00 Bucharest May 17 → next 10:00 is May 18 (07:00Z).
+    const end = nextQuietHoursEnd(new Date("2026-05-17T19:00:00Z"), "Europe/Bucharest", "10:00");
+    expect(end.toISOString()).toBe("2026-05-18T07:00:00.000Z");
+  });
+
+  test("non-wrapping window → end is later the same local day", () => {
+    // 03:00 UTC, window 01:00→06:00 → end 06:00Z same day.
+    const end = nextQuietHoursEnd(new Date("2026-05-17T03:00:00Z"), "UTC", "06:00");
+    expect(end.toISOString()).toBe("2026-05-17T06:00:00.000Z");
   });
 });

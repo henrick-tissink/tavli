@@ -23,15 +23,16 @@ const emailInput: MarketingSendInput = {
   policyConfig,
 };
 
-function harness(policyResult: { allow: boolean; skip?: string }) {
+function harness(policyResult: { allow: boolean; skip?: string; deferUntil?: Date }) {
   const db = {
     execute: jest.fn(async (_q: unknown) => [] as unknown[]),
   };
   const policy = jest.fn(async () => policyResult);
+  const enqueue = jest.fn(async () => "job-1");
   const resend = { emails: { send: jest.fn(async () => ({ data: { id: "re_1" }, error: null })) } };
   const twilio = { messages: { create: jest.fn(async (_o: { to: string; from: string; body: string }) => ({ sid: "SM1" })) } };
-  const senders = makeMarketingSenders({ db: db as never, policy: policy as never, resend, twilio, emailFrom: "hello@tavli.ro", smsFrom: "+10000000000" });
-  return { db, policy, resend, twilio, senders };
+  const senders = makeMarketingSenders({ db: db as never, policy: policy as never, enqueue, resend, twilio, emailFrom: "hello@tavli.ro", smsFrom: "+10000000000" });
+  return { db, policy, enqueue, resend, twilio, senders };
 }
 
 describe("marketing senders", () => {
@@ -58,6 +59,25 @@ describe("marketing senders", () => {
     expect(h.resend.emails.send).not.toHaveBeenCalled();
     expect(h.db.execute.mock.calls.length).toBe(1); // just the status UPDATE
     expect(JSON.stringify(h.db.execute.mock.calls[0][0])).not.toContain("INSERT INTO marketing_sends");
+  });
+
+  test("quiet-hours defer: re-enqueues the leaf for the window end, leaves row queued, no provider call", async () => {
+    const deferUntil = new Date("2026-05-18T07:00:00.000Z");
+    const h = harness({ allow: false, deferUntil });
+    const r = await h.senders.sendSms({ ...emailInput, channel: "sms", identifier: "+40712345678", body: "Salut" });
+    expect(r.status).toBe("deferred");
+    expect(h.twilio.messages.create).not.toHaveBeenCalled();
+    expect(h.enqueue).toHaveBeenCalledWith(
+      "marketing.send-message",
+      { sendId: "s1" },
+      { startAfter: deferUntil },
+    );
+    // No terminal skip status written — only a status_updated_at touch.
+    const writes = h.db.execute.mock.calls.map(([q]) => JSON.stringify(q));
+    for (const w of writes) {
+      expect(w).not.toContain("skipped_quiet_hours");
+      expect(w).not.toContain("INSERT INTO marketing_sends");
+    }
   });
 
   test("sms appends STOP suffix to the delivered body", async () => {

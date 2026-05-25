@@ -10,6 +10,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import type { MarketingChannel } from "@/lib/marketing/channel";
 import type { makeMarketingPolicy, EvaluateInput } from "@/lib/marketing/send/policy";
 import { appendStopSuffix } from "@/lib/marketing/send/stop-suffix";
+import { JOBS } from "@/lib/jobs/keys";
 
 interface ResendLike {
   emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
@@ -46,6 +47,9 @@ export interface MarketingSendResult {
 interface Deps {
   db: typeof dbAdmin;
   policy: ReturnType<typeof makeMarketingPolicy>;
+  // Re-enqueue the leaf job for quiet-hours defer. Injected (not imported) so
+  // the senders module stays free of the pg-boss dependency.
+  enqueue: (key: string, data: object, options: { startAfter?: Date }) => Promise<unknown>;
   now?: () => Date;
 }
 
@@ -69,6 +73,15 @@ async function dispatch(
   const sendId = input.sendId;
 
   if (!ev.allow) {
+    // §11 §10.3 — quiet hours: DEFER (re-enqueue for the window end), don't drop.
+    // The row stays 'queued' so the re-run picks it up; no terminal skip.
+    if ("deferUntil" in ev) {
+      await deps.enqueue(JOBS.marketing.sendMessage, { sendId }, { startAfter: ev.deferUntil });
+      await deps.db.execute(sql`
+        UPDATE marketing_sends SET status_updated_at = now() WHERE id = ${sendId}
+      `);
+      return { sendId, status: "deferred" };
+    }
     await deps.db.execute(sql`
       UPDATE marketing_sends SET status = ${ev.skip}, status_updated_at = now() WHERE id = ${sendId}
     `);

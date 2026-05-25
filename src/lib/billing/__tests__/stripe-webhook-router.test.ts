@@ -109,6 +109,39 @@ describe("stripe-webhook-router", () => {
     expect(d.recordBillingAudit).not.toHaveBeenCalled();
   });
 
+  it("customer.subscription.created upserts the subscription row", async () => {
+    const { db, insertValues } = captureDb([[{ organizationId: "org-1" }]]);
+    const router = makeStripeWebhookRouter(deps({ db }) as never);
+    await router.handle(
+      evt("customer.subscription.created", {
+        id: "sub_new",
+        status: "trialing",
+        customer: "cus_1",
+        metadata: { organization_id: "org-1", tier: "pro", frequency: "monthly" },
+        items: { data: [] },
+      }),
+    );
+    expect(insertValues.find((v) => v.stripeSubscriptionId === "sub_new")).toBeDefined();
+  });
+
+  it("A5: customer.subscription.created short-circuits on replay (no upsert)", async () => {
+    const { db, insertValues } = captureDb([[{ organizationId: "org-1" }]]);
+    const d = deps({ db });
+    (d.wasEventApplied as jest.Mock).mockResolvedValue(true);
+    const router = makeStripeWebhookRouter(d as never);
+    await router.handle(
+      evt("customer.subscription.created", {
+        id: "sub_new",
+        status: "active",
+        customer: "cus_1",
+        metadata: { organization_id: "org-1", tier: "pro", frequency: "monthly" },
+        items: { data: [] },
+      }),
+    );
+    expect(insertValues).toHaveLength(0);
+    expect(db.insert).not.toHaveBeenCalled();
+  });
+
   it("invoice.paid audits payment_succeeded", async () => {
     const d = deps({ q: [[{ organizationId: "org-1" }]] });
     const router = makeStripeWebhookRouter(d as never);
