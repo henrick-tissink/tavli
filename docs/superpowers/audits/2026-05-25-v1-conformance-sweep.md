@@ -7,11 +7,13 @@
 > findings below were independently re-verified by hand. **Triage before fixing.**
 
 ## Remediation progress (2026-05-25)
-**3 verified criticals FIXED + committed** (TDD, full suite green at 1363 passed): NEW-3 table IDOR
-(`43ca23c`), NEW-1 Stripe current_period drift incl. refund payment-intent + pending-frequency cascade
-(`134e286`), NEW-2 marketing double-insert (`7a8b6ce`). **Remaining:** HIGH conformance (NEW-4–11),
-the three feature builds (signup/invite, triggered campaigns+SMS, §08 table-ops), MED/LOW cleanup +
-non-diner DSR — all confirmed in v1 scope by the user; the feature builds warrant their own planned sessions.
+**10 fixes FIXED + committed** (TDD, full suite green at 1372 passed, tsc clean, 0 new prod lint errors):
+- Criticals: NEW-3 table IDOR (`43ca23c`), NEW-1 Stripe current_period drift + refund PI + pending-freq cascade (`134e286`), NEW-2 marketing double-insert (`7a8b6ce`).
+- HIGH: NEW-4 AAL2 on GDPR admin actions (`323a5b8`), NEW-11 getDinerProfile self-audits PII reveal (`20a9589`), NEW-8 marketing cross-channel dedup (`7bf6966`), NEW-6 SCA→incomplete + invoice.subscription new-shape (`0149bcf`), NEW-7 billing_audit_log PII guard (`c6ab9b1`), NEW-9 overage feed consumed (`15f3257`), NEW-5 (partial) cancelled-access fix + marketing-send dunning enforcement (`3814aa6`).
+
+**Auditor corrections found during fixing:** NEW-4 was OVERSTATED (the proxy already forces admin MFA enrolment + AAL2 for navigation, and impersonation checks AAL2 — the real residual was server-action-level, now fixed on the GDPR crown jewels). NEW-11 over-lumped searchDiners (it's masked-safe; only getDinerProfile reveals). NEW-1/NEW-6 surfaced a SYSTEMIC stripe@22 shape drift (current_period_*, invoice.subscription, invoice.payment_intent all moved) — §12 needs a full reconcile vs the installed .d.ts.
+
+**Remaining:** NEW-5 broader write-path enforcement (settings/photo/floor-plan — only the marketing-send chokepoint is wired); the three FEATURE builds (operator signup/invite §01 §5/§6, triggered campaigns+SMS+STOP §11 §6, §08 table-ops) — each a planned multi-file session; MED/LOW cleanup pass + non-diner DSR (task list #30). All confirmed in v1 scope by the user.
 
 ## Re-verification of the 18 prior fixes
 
