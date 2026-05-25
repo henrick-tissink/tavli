@@ -1,7 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { firstNameFrom } from "@/lib/repos/reviews-repo";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
+import { recordAudit } from "@/lib/audit/record";
+import { AUDIT } from "@/lib/audit/actions";
 
 export interface SubmitReviewInput {
   rating: number;
@@ -17,10 +21,18 @@ export interface SubmitReviewInput {
 export interface SubmitReviewResult {
   ok: boolean;
   error?: string;
-  errorCode?: "NOT_FOUND" | "INELIGIBLE" | "ALREADY_REVIEWED" | "OTHER";
+  errorCode?:
+    | "NOT_FOUND"
+    | "INELIGIBLE"
+    | "WINDOW_EXPIRED"
+    | "RATE_LIMITED"
+    | "ALREADY_REVIEWED"
+    | "OTHER";
 }
 
 const MAX_COMMENT = 500;
+// §06 §4.1 — a review may be submitted only after the visit and within 30 days.
+const REVIEW_WINDOW_DAYS = 30;
 
 export async function submitReviewByToken(
   token: string,
@@ -42,6 +54,18 @@ export async function submitReviewByToken(
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
     return { ok: false, error: "Platform not configured.", errorCode: "OTHER" };
+  }
+
+  // §06 §4.1 — rate-limit the anonymous-token endpoint per IP (5 / hour).
+  const ip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await enforceRateLimit({ scope: "review_submit", key: ip });
+  if (!rl.allowed) {
+    return {
+      ok: false,
+      error: "Prea multe încercări. Încearcă din nou mai târziu.",
+      errorCode: "RATE_LIMITED",
+    };
   }
 
   const includeInAggregate = input.includeInAggregate === true;
@@ -66,7 +90,28 @@ export async function submitReviewByToken(
     };
   }
 
-  const { error } = await admin
+  // §06 §4.1 — only after the visit, and within the 30-day window (UTC date
+  // math per foundations §11.5). reservation_date is a NOT-NULL `date`.
+  const today = new Date().toISOString().slice(0, 10);
+  if (resv.reservation_date && resv.reservation_date > today) {
+    return {
+      ok: false,
+      error: "Poți lăsa o recenzie după vizita ta.",
+      errorCode: "INELIGIBLE",
+    };
+  }
+  const windowStart = new Date(Date.now() - REVIEW_WINDOW_DAYS * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  if (resv.reservation_date && resv.reservation_date < windowStart) {
+    return {
+      ok: false,
+      error: "Perioada în care puteai lăsa o recenzie a expirat.",
+      errorCode: "WINDOW_EXPIRED",
+    };
+  }
+
+  const { data: inserted, error } = await admin
     .from("reviews")
     .insert({
       reservation_id: resv.id,
@@ -97,6 +142,17 @@ export async function submitReviewByToken(
     console.error("[submitReviewByToken] insert failed", error);
     return { ok: false, error: "Could not save review.", errorCode: "OTHER" };
   }
+
+  // §06 §4.1 step 9 — audit the submission (operational fields only, no PII).
+  const reviewId = (inserted as Array<{ id: string }> | null)?.[0]?.id;
+  await recordAudit({
+    action: AUDIT.review.submitted,
+    subjectType: "review",
+    subjectId: reviewId ?? resv.id,
+    actorRole: "diner",
+    restaurantId: resv.restaurant_id,
+    context: { rating: input.rating, locale: "ro", aggregate_consent: includeInAggregate },
+  });
 
   return { ok: true };
 }
