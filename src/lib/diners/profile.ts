@@ -13,7 +13,7 @@
  */
 
 import "server-only";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { diners, reservations, restaurants } from "@/lib/db/schema";
 import { revealPiiBatch as defaultRevealPiiBatch } from "./reveal-pii-batch";
@@ -71,8 +71,15 @@ export function makeGetDinerProfile(deps: Deps) {
       accessKind: "reveal",
       surface: input.surface ?? "diner_profile",
       accessedField: "phone,email,full_name",
+      // NEW-B: scope the unmasked load to the caller's org so a foreign-org
+      // diner id can never return PII (dbAdmin bypasses RLS; the page's
+      // post-load org check is too late). A mismatch yields 0 rows → null.
       loader: (ids) =>
-        deps.db.select().from(diners).where(eq(diners.id, ids[0])).limit(1),
+        deps.db
+          .select()
+          .from(diners)
+          .where(and(eq(diners.id, ids[0]), eq(diners.organizationId, input.organizationId)))
+          .limit(1),
     });
     if (!dinerRows[0]) return null;
 

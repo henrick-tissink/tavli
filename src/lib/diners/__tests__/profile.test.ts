@@ -7,7 +7,13 @@
  * the caller).
  */
 
+jest.mock("drizzle-orm", () => {
+  const actual = jest.requireActual("drizzle-orm");
+  return { ...actual, eq: jest.fn(actual.eq), and: jest.fn(actual.and) };
+});
+
 import { makeGetDinerProfile } from "../profile";
+import { eq, and } from "drizzle-orm";
 
 function buildSelectMock(results: Array<unknown[]>) {
   return jest.fn().mockImplementation(() => {
@@ -46,6 +52,29 @@ describe("getDinerProfile", () => {
         accessKind: "reveal",
       }),
     );
+  });
+
+  it("scopes the diner load to the caller's organization (NEW-B cross-org PII read)", async () => {
+    (eq as jest.Mock).mockClear();
+    (and as jest.Mock).mockClear();
+    const dinerBuilder = {
+      from: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ id: "d1", organizationId: "o1" }]),
+    };
+    const visitsBuilder = {
+      from: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([]),
+    };
+    let call = 0;
+    const fn = profileFn(jest.fn(() => (++call === 1 ? dinerBuilder : visitsBuilder)));
+    await fn({ ...ACTOR, dinerId: "d1" });
+    // the diner loader must filter by organization_id (and the id), not id alone
+    expect(and).toHaveBeenCalled();
+    expect((eq as jest.Mock).mock.calls.some((c) => c[1] === "o1")).toBe(true);
   });
 
   it("returns null when the diner does not exist", async () => {
