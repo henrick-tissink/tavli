@@ -88,13 +88,15 @@ describe("joinWaitlist", () => {
     );
   });
 
-  it("skips the per-ip check when no ip is supplied", async () => {
+  it("still applies the per-ip cap with a coarse bucket when no ip is supplied (B3)", async () => {
     const { deps, enforceRateLimit } = makeDeps();
     const join = makeJoinWaitlist(deps);
     await join({ email: "a@b.ro", locale: "en" });
-    expect(enforceRateLimit).toHaveBeenCalledTimes(1);
+    // per-email + per-ip (coarse "unknown" key) — the cap can't be bypassed by
+    // stripping x-forwarded-for.
+    expect(enforceRateLimit).toHaveBeenCalledTimes(2);
     expect(enforceRateLimit).toHaveBeenCalledWith(
-      expect.objectContaining({ scope: "pricing_waitlist_join_per_email" }),
+      expect.objectContaining({ scope: "pricing_waitlist_join_per_ip", key: "waitlist-ip:unknown" }),
     );
   });
 });

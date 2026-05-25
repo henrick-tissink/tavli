@@ -113,3 +113,17 @@ body {
 .animate-pricing-rise {
   animation: pricing-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* B3 — WCAG 2.2 (2.3.3 / 2.2.2): honour the user's reduced-motion preference.
+   Site-wide guard so every animation/transition is neutralised at the source
+   rather than per-component. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

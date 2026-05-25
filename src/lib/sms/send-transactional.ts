@@ -269,10 +269,11 @@ function buildTwilioClient(): TwilioClient {
     return {
       messages: {
         create: async (opts) => {
+          // B3: never log the recipient phone or message body in plaintext.
           console.log(
-            "[transactional-sms-dev] to=%s body=%s",
-            opts.to,
-            opts.body,
+            "[transactional-sms-dev] to=***%s body=(%d chars)",
+            opts.to.slice(-4),
+            opts.body.length,
           );
           return { sid: `dev-${Date.now()}` };
         },

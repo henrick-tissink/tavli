@@ -44,7 +44,8 @@ function getTwilio(): TwilioClient {
     return {
       messages: {
         create: async (o) => {
-          console.log(`[marketing:dev] sms/wa → ${o.to}: ${o.body.slice(0, 40)}…`);
+          // B3: never log the recipient phone or message body in plaintext.
+          console.log(`[marketing:dev] sms/wa → ***${o.to.slice(-4)} (${o.body.length} chars)`);
           return { sid: `dev-${Date.now()}` };
         },
       },

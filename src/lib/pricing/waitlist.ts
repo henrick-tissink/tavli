@@ -55,13 +55,14 @@ export function makeJoinWaitlist(deps: Deps) {
     });
     if (!perEmail.allowed) throw new WaitlistError("rate_limited");
 
-    if (input.ip) {
-      const perIp = await deps.enforceRateLimit({
-        key: `waitlist-ip:${input.ip}`,
-        scope: "pricing_waitlist_join_per_ip",
-      });
-      if (!perIp.allowed) throw new WaitlistError("rate_limited");
-    }
+    // B3: apply the per-IP cap even when the IP is missing (no x-forwarded-for).
+    // IP-less requests share a single coarse bucket so the cap can't be bypassed
+    // simply by stripping the header.
+    const perIp = await deps.enforceRateLimit({
+      key: `waitlist-ip:${input.ip || "unknown"}`,
+      scope: "pricing_waitlist_join_per_ip",
+    });
+    if (!perIp.allowed) throw new WaitlistError("rate_limited");
 
     let id: string;
     try {
