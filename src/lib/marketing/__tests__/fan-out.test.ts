@@ -89,6 +89,27 @@ describe("makeFanOutCampaign", () => {
     expect(insertQuery).toContain("ver-1");
   });
 
+  test("no segment (one-off send-to-all): does not throw, selects all diners with no segment filter (C1)", async () => {
+    const noSegment = { ...campaignRow, filter_dsl: null, combinator: null, is_snapshot: null, snapshot_diner_ids: null };
+    let dinersQuery = "";
+    const recipients = [{ id: "d0", email: "a@x.com", phone: null, locale: "ro" }];
+    const db = {
+      execute: jest.fn(async (q: unknown) => {
+        const t = JSON.stringify(q);
+        if (t.includes("FROM marketing_campaigns")) return [noSegment];
+        if (t.includes("FROM diners d")) { dinersQuery = t; return recipients; }
+        if (t.includes("INSERT INTO marketing_sends")) return recipients.map((r) => ({ id: `s_${r.id}` }));
+        return [];
+      }),
+    };
+    const enqueue = jest.fn(async (_k: string, _d?: unknown) => "j");
+    const fanOut = makeFanOutCampaign({ db: db as never, enqueue: enqueue as never, recordAudit: (jest.fn(async () => {})) as never });
+    await expect(fanOut({ campaignId: "c1" })).resolves.toBeUndefined();
+    expect(enqueue.mock.calls.filter((c) => c[0] === "marketing.send-message")).toHaveLength(1);
+    // no segment ⇒ "true" predicate, not a thrown TV900; consent is enforced per-recipient in policy.
+    expect(dinersQuery.toLowerCase()).toContain("true");
+  });
+
   test("continuation (afterId set) does not re-fire campaign_sent audit", async () => {
     const h = harness(0);
     await h.fanOut({ campaignId: "c1", afterId: "d499", processed: 500 });

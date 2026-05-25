@@ -84,9 +84,16 @@ export function makeFanOutCampaign(deps: Deps) {
       });
     }
 
+    // No segment (one-off "send to all") ⇒ every diner; a snapshot ⇒ the frozen
+    // id list; otherwise the saved/ad-hoc segment DSL. Consent / suppression /
+    // freq-cap / quota are all enforced per-recipient downstream in the policy
+    // stack, so an unsegmented campaign safely targets the whole opted-in base.
+    // (C1: compileSegmentFilter([]) throws TV900 — never call it with no conditions.)
     const where: SQL = c.is_snapshot && c.snapshot_diner_ids
       ? sql`d.id = ANY(${c.snapshot_diner_ids}::uuid[])`
-      : sql`${compileSegmentFilter(c.filter_dsl?.conditions ?? [], c.combinator ?? "and")}`;
+      : c.filter_dsl?.conditions?.length
+        ? compileSegmentFilter(c.filter_dsl.conditions, c.combinator ?? "and")
+        : sql`true`;
 
     // NEW-8: cross-channel dedup (§11 §8.4 step 6 — "one human, one message").
     // Two diner records sharing the channel identifier (email, or phone for
