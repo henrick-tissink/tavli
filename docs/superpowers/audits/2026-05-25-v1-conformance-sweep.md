@@ -6,6 +6,13 @@
 > completeness vs build-order, (4) fresh adversarial code review. The three top-severity NEW
 > findings below were independently re-verified by hand. **Triage before fixing.**
 
+## Remediation progress (2026-05-25)
+**3 verified criticals FIXED + committed** (TDD, full suite green at 1363 passed): NEW-3 table IDOR
+(`43ca23c`), NEW-1 Stripe current_period drift incl. refund payment-intent + pending-frequency cascade
+(`134e286`), NEW-2 marketing double-insert (`7a8b6ce`). **Remaining:** HIGH conformance (NEW-4–11),
+the three feature builds (signup/invite, triggered campaigns+SMS, §08 table-ops), MED/LOW cleanup +
+non-diner DSR — all confirmed in v1 scope by the user; the feature builds warrant their own planned sessions.
+
 ## Re-verification of the 18 prior fixes
 
 **17 of 18 HOLD.** One regressed — not by my change, but by a Stripe SDK shape the original code never matched:
