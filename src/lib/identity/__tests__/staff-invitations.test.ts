@@ -11,6 +11,7 @@ jest.mock("@/lib/db/schema", () => ({
   organizationMembers: {},
   restaurantStaff: {},
   restaurants: { id: "r.id", organizationId: "r.orgId" },
+  profiles: { id: "p.id", role: "p.role" },
 }));
 jest.mock("drizzle-orm", () => ({
   eq: jest.fn((a, b) => ({ eq: [a, b] })),
@@ -146,6 +147,22 @@ describe("acceptStaffInvitation", () => {
     const r = await makeStaffInvitations(d as never).acceptStaffInvitation({ token: "x", userId: "u1", userEmail: "invitee@x.com" });
     expect(r.ok).toBe(true);
     expect(d.recordAudit).toHaveBeenCalledWith(expect.objectContaining({ action: "restaurant.staff_added" }));
+  });
+
+  it("promotes the claimant's profile role to restaurant_owner so they can reach the partner portal (C4)", async () => {
+    const d = withLookup(baseDeps(), [inviteRow()]);
+    const setSpy = jest.fn(() => ({ where: jest.fn().mockResolvedValue(undefined) }));
+    d.db.transaction = jest.fn(async (cb: (tx: unknown) => unknown) =>
+      cb({
+        insert: jest.fn(() => ({ values: jest.fn().mockResolvedValue(undefined) })),
+        update: jest.fn(() => ({ set: setSpy })),
+      }),
+    ) as never;
+    const r = await makeStaffInvitations(d as never).acceptStaffInvitation({ token: "x", userId: "u1", userEmail: "invitee@x.com" });
+    expect(r.ok).toBe(true);
+    // Inside the claim transaction, the profile role hint is bumped so the
+    // partner gate (role === "restaurant_owner") admits the new member.
+    expect(setSpy).toHaveBeenCalledWith(expect.objectContaining({ role: "restaurant_owner" }));
   });
 });
 

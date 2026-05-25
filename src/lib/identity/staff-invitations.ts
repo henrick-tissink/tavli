@@ -20,6 +20,7 @@ import {
   organizationMembers,
   restaurantStaff,
   restaurants,
+  profiles,
 } from "@/lib/db/schema";
 import { can as defaultCan } from "@/lib/authz/can";
 import { recordAudit as defaultRecordAudit } from "@/lib/audit/record";
@@ -188,6 +189,16 @@ export function makeStaffInvitations(deps: StaffInvitationsDeps) {
         .update(staffInvitations)
         .set({ status: "claimed", claimedAt: new Date(), claimedByUserId: input.userId, updatedAt: new Date() })
         .where(eq(staffInvitations.id, inv.id));
+
+      // C4: bump the coarse profile role hint so the partner gate (which
+      // requires role === "restaurant_owner") admits the new member. Only
+      // promote a "consumer" — never downgrade a tavli_admin or touch an
+      // existing partner. Fine-grained authority still comes from can() over
+      // the membership tables, not this hint.
+      await tx
+        .update(profiles)
+        .set({ role: "restaurant_owner" })
+        .where(and(eq(profiles.id, input.userId), eq(profiles.role, "consumer")));
     });
 
     await deps.recordAudit({
