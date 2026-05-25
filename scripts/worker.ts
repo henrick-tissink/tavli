@@ -38,6 +38,7 @@ import {
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
 import { sendReminders } from "@/lib/reservations/jobs/send-reminders";
+import { autoMarkNoShow } from "@/lib/reservations/jobs/auto-mark-no-show";
 import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
 import {
   handleTrialReminderDay60,
@@ -141,6 +142,13 @@ async function main(): Promise<void> {
     await sendReminders();
   });
   await boss.schedule(JOBS.reservation.sendReminder24h, "0 * * * *");
+
+  // §02 §6 / §08 §10 — auto-mark-no-show (opt-in per venue), hourly sweep;
+  // atomically frees the table via validateOrClearTableAssignment.
+  await boss.work(JOBS.reservation.autoMarkNoShow, async () => {
+    await autoMarkNoShow();
+  });
+  await boss.schedule(JOBS.reservation.autoMarkNoShow, "30 * * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.

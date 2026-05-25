@@ -393,6 +393,13 @@
       "when": 1779599000000,
       "tag": "0055_reservation_reminder_sent_at",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1779600000000,
+      "tag": "0056_restaurant_auto_no_show",
+      "breakpoints": true
     }
   ]
 }

@@ -279,6 +279,8 @@ export const restaurants = pgTable("restaurants", {
   acceptsStanding: boolean("accepts_standing").notNull().default(false),
   proPlanActive: boolean("pro_plan_active").notNull().default(false),
   transactionalSmsEnabled: boolean("transactional_sms_enabled").notNull().default(false),
+  // §02 §6 — opt-in auto-mark-no-show (migration 0056).
+  autoNoShow: boolean("auto_no_show").notNull().default(false),
   // §07 — IANA timezone for venue-local analytics date math (business_date,
   // retention windows, nightly-job scheduling). All v1 venues are Bucharest;
   // forward-compatible for expansion. Added Wave 6 (migration 0042).

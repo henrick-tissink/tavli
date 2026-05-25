@@ -18,6 +18,7 @@ import { AUDIT } from "@/lib/audit/actions";
 import { getActorRole } from "@/lib/audit/actor-role";
 import { currentActor } from "@/lib/auth/current-actor";
 import { enqueue } from "@/lib/jobs/enqueue";
+import { validateOrClearTableAssignment } from "@/lib/tables/validate-or-clear-table-assignment";
 import { JOBS } from "@/lib/jobs/keys";
 
 export type NewStatus = "seated" | "no_show" | "completed";
@@ -56,6 +57,15 @@ export async function updateReservationStatus(
     .eq("restaurant_id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
+
+  // §08 §4.7 invariant — a no_show booking must release its table.
+  if (nextStatus === "no_show") {
+    try {
+      await validateOrClearTableAssignment(reservationId, "no_show");
+    } catch (e) {
+      console.error("[updateReservationStatus] table clear failed", e);
+    }
+  }
 
   // §02 audit: capture status transition. Org id is best-effort — partner may
   // operate a venue not yet linked to an org. Context payload is FK ids +
@@ -196,6 +206,13 @@ export async function cancelReservation(
 
   if (updateError) {
     return { ok: false, error: updateError.message };
+  }
+
+  // §08 §4.7 invariant — a cancelled booking must release its table.
+  try {
+    await validateOrClearTableAssignment(reservationId, "cancelled");
+  } catch (e) {
+    console.error("[cancelReservation] table clear failed", e);
   }
 
   // Resolve org id once — used by both the transactional email log row
