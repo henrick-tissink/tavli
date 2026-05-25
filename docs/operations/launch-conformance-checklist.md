@@ -61,8 +61,8 @@
 | Requirement | Implementation | Status |
 |-------------|----------------|--------|
 | Document language set | `<html lang>` in `app/layout.tsx` (per-locale) | 🟡 (verify per-locale routes) |
-| Keyboard nav / focus order / visible focus | component-level; axe sweep `e2e/a11y.spec.ts` | 🟡 (axe pass done; `nested-interactive`/`target-size` open on RestaurantCard — see a11y-axe-report.md) |
-| Colour contrast AA | design tokens; axe sweep | 🟡 (brand orange retoned `#F97316→#C2410C` + muted-grey `#A8A29E→#6E6862` → AA; residual opacity/overlay de-emphasis (dimmed table rows, card badges over photos) is a design pass — a11y-axe-report.md §known-open) |
+| Keyboard nav / focus order / visible focus | axe sweep `e2e/a11y.spec.ts`; RestaurantCard restructured to stretched-link | ✅ (audited public surfaces — `nested-interactive`/`target-size` fixed) |
+| Colour contrast AA | design tokens retoned (orange `#C2410C`, greys `#6B6560`/`#6E6862`); active-row highlight replaces opacity dim; card badge fixes | ✅ (audited public surfaces — axe 4/4, zero disabled rules) |
 | Reduced motion respected | global `prefers-reduced-motion` guard in `globals.css` (B3) | ✅ |
 | Form labels / ARIA | component-level; axe sweep (no violations) | ✅ (on audited public surfaces) |
 

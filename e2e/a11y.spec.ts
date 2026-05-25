@@ -38,40 +38,23 @@ async function auditWcagAA(page: Page, disableRules: string[] = []) {
 test("home page passes WCAG 2.2 AA", async ({ page }) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
-  // KNOWN-OPEN on the home feed (tracked in docs/operations/a11y-axe-report.md):
-  //   - color-contrast: RestaurantCard status badges / rating chips over photos
-  //     + opacity-60 closed-card dimming (an overlay/opacity design pass, not a
-  //     token swap). The brand-orange palette WAS retoned to AA.
-  //   - nested-interactive + target-size: the card is a role=button container
-  //     with a nested save button + slot pills (structural refactor).
-  expect(
-    await auditWcagAA(page, ["color-contrast", "nested-interactive", "target-size"]),
-  ).toEqual([]);
+  expect(await auditWcagAA(page)).toEqual([]);
 });
-
-// KNOWN-OPEN on pricing (tracked in docs/operations/a11y-axe-report.md): the
-// brand-orange + muted-grey TEXT was retoned to AA, but two opacity-based
-// de-emphasis patterns remain — the inactive-billing-frequency table rows are
-// dimmed to opacity 0.45 (drops text-primary below 4.5:1), and text-secondary
-// sits at ~4.47:1 on the warm-cream (#fcf7e5) section backgrounds. Both are a
-// design pass (opacity levels / a hair-darker secondary on cream), not blind
-// token swaps. Everything else on these pages is AA-clean.
-const PRICING_KNOWN_OPEN = ["color-contrast"];
 
 test("RO pricing page passes WCAG 2.2 AA", async ({ page }) => {
   await page.goto("/pricing");
   await page.waitForLoadState("networkidle");
-  expect(await auditWcagAA(page, PRICING_KNOWN_OPEN)).toEqual([]);
+  expect(await auditWcagAA(page)).toEqual([]);
 });
 
 test("EN pricing page passes WCAG 2.2 AA", async ({ page }) => {
   await page.goto("/en/pricing");
   await page.waitForLoadState("networkidle");
-  expect(await auditWcagAA(page, PRICING_KNOWN_OPEN)).toEqual([]);
+  expect(await auditWcagAA(page)).toEqual([]);
 });
 
 test("DE pricing page passes WCAG 2.2 AA", async ({ page }) => {
   await page.goto("/de/pricing");
   await page.waitForLoadState("networkidle");
-  expect(await auditWcagAA(page, PRICING_KNOWN_OPEN)).toEqual([]);
+  expect(await auditWcagAA(page)).toEqual([]);
 });

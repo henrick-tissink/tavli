@@ -19,9 +19,11 @@
 
   /* Text colors */
   --color-text-primary: #1C1917;
-  --color-text-secondary: #78716C;
-  /* Retoned for WCAG AA: the old muted #A8A29E was ~2.3:1 on the light surface
-     (fails small-text 4.5:1). #6E6862 is ~5.2:1. */
+  /* Retoned for WCAG AA. The old greys failed 4.5:1 — secondary #78716C was
+     4.47:1 on the warm-cream (#fcf7e5) section backgrounds, muted #A8A29E was
+     ~2.3:1. These pass on both the cream and neutral surfaces while keeping the
+     primary > secondary > muted lightness order. */
+  --color-text-secondary: #6B6560;
   --color-text-muted: #6E6862;
 
   /* Semantic colors */
@@ -106,11 +108,14 @@ body {
 [data-frequency="annual"] [data-when="monthly"] {
   display: none;
 }
-/* Year-one table de-emphasises rows for the non-selected billing cadence. */
-[data-frequency="monthly"] tr[data-freq="annual"] > *,
-[data-frequency="annual"] tr[data-freq="monthly"] > * {
-  opacity: 0.45;
-  transition: opacity 200ms ease;
+/* Year-one table: highlight the SELECTED billing cadence's rows rather than
+   dimming the others with opacity. Opacity-dimming dropped the row text below
+   the WCAG AA 4.5:1 contrast threshold; a soft background tint emphasises the
+   active rows while every row stays fully readable. */
+[data-frequency="monthly"] tr[data-freq="monthly"] > *,
+[data-frequency="annual"] tr[data-freq="annual"] > * {
+  background-color: var(--color-brand-primary-soft);
+  transition: background-color 200ms ease;
 }
 
 @keyframes pricing-rise {

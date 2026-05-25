@@ -39,7 +39,7 @@ export function TimeSlotPills({
       <div className="text-center py-3">
         <button
           type="button"
-          className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1"
+          className="text-brand-primary text-sm font-semibold inline-flex min-h-[24px] items-center gap-1 px-1 py-1"
           onClick={onMore}
         >
           Rezervă pentru altă zi →

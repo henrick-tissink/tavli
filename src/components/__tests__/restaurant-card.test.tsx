@@ -120,11 +120,21 @@ describe("RestaurantCard", () => {
     expect(onSave).toHaveBeenCalledWith("r1");
   });
 
-  it("has role=button and is keyboard accessible", () => {
+  it("exposes a keyboard-accessible primary action (stretched button), not a nested-interactive card", () => {
     const { container } = render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
     const card = container.firstChild as HTMLElement;
-    expect(card).toHaveAttribute("role", "button");
-    expect(card).toHaveAttribute("tabindex", "0");
+    // a11y fix: the card container is no longer role=button (which nested the
+    // save button + slot pills inside an interactive). The primary action is a
+    // real <button> that's keyboard-focusable.
+    expect(card).not.toHaveAttribute("role", "button");
+    expect(screen.getByLabelText("Vezi La Mama")).toBeInTheDocument();
+  });
+
+  it("invokes onClick via the stretched primary action", async () => {
+    const onClick = jest.fn();
+    render(<RestaurantCard restaurant={baseRestaurant} onClick={onClick} onSlotSelect={jest.fn()} />);
+    await userEvent.click(screen.getByLabelText("Vezi La Mama"));
+    expect(onClick).toHaveBeenCalledWith(expect.objectContaining({ id: "r1" }));
   });
 
   it("time slot click does not propagate to card onClick", async () => {
