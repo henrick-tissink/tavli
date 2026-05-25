@@ -56,7 +56,10 @@ export function makeLoadBillingAccess(deps: LoadBillingAccessDeps) {
         .where(
           and(
             eq(subscriptions.organizationId, organizationId),
-            inArray(subscriptions.status, ["trialing", "active", "past_due", "unpaid"]),
+            // NEW-5: include 'cancelled' — an immediate-cancelled org gets the
+            // §10.3 30-day read-only grace, not full access (computeBillingAccess
+            // maps cancelled→read_only). Omitting it returned "full".
+            inArray(subscriptions.status, ["trialing", "active", "past_due", "unpaid", "cancelled"]),
           ),
         );
       const row = rows[0];

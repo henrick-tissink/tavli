@@ -19,6 +19,7 @@ import {
   type Combinator,
 } from "@/lib/marketing/segment-compile";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadBillingAccess } from "@/lib/billing/dunning";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 import { ok, fail, unauthenticated, forbidden, type ActionResult } from "@/lib/server-action";
@@ -115,6 +116,12 @@ export async function sendCampaignAction(
 ): Promise<ActionResult<void>> {
   const { error } = await gate(organizationId, "campaign.send");
   if (error) return error;
+  // NEW-5 / §11.5: dunning soft-lock (day 7+) and read-only (day 21+ / cancelled)
+  // pause campaign sends. Diner-facing bookings are never gated (§11.6) — this
+  // applies to operator marketing writes only.
+  if ((await loadBillingAccess(organizationId)) !== "full") {
+    return fail("forbidden", "billing_locked");
+  }
   try {
     // audit #13 — only a draft campaign may be sent. The status='draft'
     // predicate makes the flip atomic: a sent/sending campaign matches no row

@@ -13,6 +13,7 @@ jest.mock("@/lib/auth/current-actor", () => ({ currentActor: jest.fn() }));
 jest.mock("@/lib/restaurants/current-user", () => ({ currentUserPrimaryRestaurant: jest.fn() }));
 jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
 jest.mock("@/lib/billing/load-subscription", () => ({ loadActiveSubscription: jest.fn() }));
+jest.mock("@/lib/billing/dunning", () => ({ loadBillingAccess: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/jobs/keys", () => ({ JOBS: { marketing: { fanOut: "marketing.fanOut" } } }));
 jest.mock("@/lib/db/admin", () => ({ dbAdmin: { update: jest.fn() } }));
@@ -24,6 +25,7 @@ import { can } from "@/lib/authz/can";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { dbAdmin } from "@/lib/db/admin";
+import { loadBillingAccess } from "@/lib/billing/dunning";
 
 function mockUpdateRowCount(rowCount: number) {
   (dbAdmin.update as jest.Mock).mockReturnValue({
@@ -39,6 +41,7 @@ beforeEach(() => {
   (currentUserPrimaryRestaurant as jest.Mock).mockResolvedValue("rest-1");
   (can as jest.Mock).mockResolvedValue(true);
   (loadActiveSubscription as jest.Mock).mockResolvedValue({ tier: "pro" });
+  (loadBillingAccess as jest.Mock).mockResolvedValue("full");
 });
 
 describe("sendCampaignAction", () => {
@@ -48,6 +51,15 @@ describe("sendCampaignAction", () => {
     expect(r.ok).toBe(true);
     expect(enqueue).toHaveBeenCalledTimes(1);
     expect(enqueue).toHaveBeenCalledWith("marketing.fanOut", { campaignId: "camp-1" });
+  });
+
+  it("refuses to send under dunning soft-lock/read-only (NEW-5) — no enqueue", async () => {
+    (loadBillingAccess as jest.Mock).mockResolvedValue("soft_lock");
+    mockUpdateRowCount(1);
+    const r = await sendCampaignAction("org-1", "camp-1");
+    expect(r.ok).toBe(false);
+    expect(enqueue).not.toHaveBeenCalled();
+    expect(dbAdmin.update).not.toHaveBeenCalled();
   });
 
   it("does NOT enqueue when no draft row matched (already sent / concurrent loser)", async () => {
