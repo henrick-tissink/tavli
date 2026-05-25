@@ -18,6 +18,9 @@ export const RATE_LIMIT_SCOPES = {
   // §15 §18 OQ8 — pricing-page wait-list join. 1/email/day, 10/ip/day.
   pricing_waitlist_join_per_email: { limit: 1, windowSeconds: 86400 },
   pricing_waitlist_join_per_ip: { limit: 10, windowSeconds: 86400 },
+  // §01 §5.2/§5.3 — operator self-serve sign-up + verification resend.
+  partner_signup_per_ip: { limit: 5, windowSeconds: 3600 },
+  auth_resend_verification: { limit: 3, windowSeconds: 600 },
 } as const;
 
 export type RateLimitScope = keyof typeof RATE_LIMIT_SCOPES;

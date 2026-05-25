@@ -30,6 +30,7 @@ import { runErasureVerification } from "@/lib/compliance/verify";
 import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
+import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
 import {
   handleTrialReminderDay60,
   handleTrialReminderDay75,
@@ -135,6 +136,12 @@ async function main(): Promise<void> {
     await expireStaleInvitations();
   });
   await boss.schedule(JOBS.identity.expireStaleInvitations, "0 3 * * *");
+
+  // §01 §5.3: hard-delete orgs stuck in pending_verification >30d, daily 04:00 UTC.
+  await boss.work(JOBS.identity.purgeStaleUnverifiedOrgs, async () => {
+    await purgeStaleUnverifiedOrgs();
+  });
+  await boss.schedule(JOBS.identity.purgeStaleUnverifiedOrgs, "0 4 * * *");
 
   // Wave 5 sub-unit A: §09 nightly venue-count reconcile (drift backstop).
   await boss.work(JOBS.multilocation.reconcileVenueCount, async () => {
