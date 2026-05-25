@@ -4,7 +4,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurants, restaurantTables, restaurantTableSections } from "@/lib/db/schema";
+import { restaurants, restaurantTables, restaurantTableSections, reservations } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { walkinQueueOps } from "@/lib/tables/walkin";
 import { LiveFloor } from "../_components/LiveFloor";
@@ -62,6 +62,26 @@ export default async function LiveFloorPage() {
     walkinQueueOps.listActive(venue.id),
   ]);
 
+  // §08 §6.2 — today's confirmed bookings not yet assigned to a table.
+  const today = new Date().toISOString().slice(0, 10);
+  const unassigned = await dbAdmin
+    .select({
+      id: reservations.id,
+      guestName: reservations.guestName,
+      partySize: reservations.partySize,
+      time: reservations.reservationTime,
+    })
+    .from(reservations)
+    .where(
+      and(
+        eq(reservations.restaurantId, venue.id),
+        eq(reservations.status, "confirmed"),
+        isNull(reservations.tableId),
+        eq(reservations.reservationDate, today),
+      ),
+    )
+    .orderBy(asc(reservations.reservationTime));
+
   const freeCount = tables.filter((t) => t.currentStatus === "free").length;
 
   return (
@@ -97,6 +117,12 @@ export default async function LiveFloorPage() {
           status: w.status,
           position: w.position,
           estimatedWaitMinutes: w.estimatedWaitMinutes,
+        }))}
+        reservations={unassigned.map((r) => ({
+          id: r.id,
+          guestName: r.guestName,
+          partySize: r.partySize,
+          time: String(r.time).slice(0, 5),
         }))}
       />
     </div>

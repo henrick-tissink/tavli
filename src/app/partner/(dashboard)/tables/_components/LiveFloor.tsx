@@ -11,6 +11,7 @@ import {
   callWalkinAction,
   seatWalkinAction,
   markWalkinLeftAction,
+  assignReservationToTableAction,
 } from "../live-actions";
 
 interface TableVM {
@@ -21,6 +22,12 @@ interface TableVM {
   currentCombinationId: string | null;
   capacityMin: number;
   capacityMax: number;
+}
+interface ReservationVM {
+  id: string;
+  guestName: string;
+  partySize: number;
+  time: string; // HH:MM
 }
 interface WalkinVM {
   id: string;
@@ -56,11 +63,13 @@ export function LiveFloor({
   sections,
   tables,
   walkins,
+  reservations,
 }: {
   restaurantId: string;
   sections: { id: string; name: string }[];
   tables: TableVM[];
   walkins: WalkinVM[];
+  reservations: ReservationVM[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -203,8 +212,75 @@ export function LiveFloor({
         </div>
       </div>
 
-      <WalkinPanel restaurantId={restaurantId} walkins={walkins} pending={pending} run={run} />
+      <div className="space-y-6">
+        <ReservationsPanel
+          reservations={reservations}
+          freeTables={tables.filter((t) => t.currentStatus === "free")}
+          pending={pending}
+          run={run}
+        />
+        <WalkinPanel restaurantId={restaurantId} walkins={walkins} pending={pending} run={run} />
+      </div>
     </div>
+  );
+}
+
+/** §08 §6.2 — assign today's unseated bookings to a free table. */
+function ReservationsPanel({
+  reservations,
+  freeTables,
+  pending,
+  run,
+}: {
+  reservations: ReservationVM[];
+  freeTables: TableVM[];
+  pending: boolean;
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
+}) {
+  const [pick, setPick] = useState<Record<string, string>>({});
+  return (
+    <section className="rounded-card border border-border bg-surface-white p-4">
+      <h2 className="font-display text-lg font-bold text-text-primary mb-3">Rezervări de azi</h2>
+      {reservations.length === 0 ? (
+        <p className="text-sm text-text-muted">Nicio rezervare neasezată.</p>
+      ) : (
+        <ul className="space-y-3">
+          {reservations.map((r) => (
+            <li key={r.id} className="rounded-lg border border-border p-3">
+              <p className="text-sm font-semibold text-text-primary">
+                {r.time} · {r.guestName}
+              </p>
+              <p className="text-xs text-text-muted mb-2">
+                {r.partySize} {r.partySize === 1 ? "persoană" : "persoane"}
+              </p>
+              <div className="flex items-center gap-2">
+                <select
+                  aria-label={`Alege masa pentru ${r.guestName}`}
+                  value={pick[r.id] ?? ""}
+                  onChange={(e) => setPick((p) => ({ ...p, [r.id]: e.target.value }))}
+                  className="flex-1 rounded border border-border p-1.5 text-sm"
+                >
+                  <option value="">Alege masa…</option>
+                  {freeTables.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label} ({t.capacityMin}–{t.capacityMax})
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  disabled={pending || !pick[r.id]}
+                  onClick={() => run(() => assignReservationToTableAction({ reservationId: r.id, tableId: pick[r.id] }))}
+                  className="rounded bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Asează
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

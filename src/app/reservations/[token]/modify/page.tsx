@@ -42,6 +42,8 @@ export default async function ModifyReservationPage({
   // UX gate (the action re-checks authoritatively in the venue timezone): only a
   // confirmed booking more than 24h out can be modified online.
   const slotMs = new Date(`${data.reservation_date}T${data.reservation_time}`).getTime();
+  // force-dynamic server page; the clock read is intentional and the action re-checks authoritatively.
+  // eslint-disable-next-line react-hooks/purity
   const canModify = data.status === "confirmed" && slotMs - Date.now() > MODIFY_CUTOFF_MS;
 
   if (!canModify) {
