@@ -23,7 +23,10 @@ interface Deps {
 }
 
 export interface AddSuppressionInput {
-  organizationId: string;
+  // Nullable: an inbound STOP (§04 §5.3) suppresses globally and may not resolve
+  // to an org (a cold STOP from someone with no prior send). The row's org is
+  // provenance only; the unique index is global per (channel, identifier).
+  organizationId: string | null;
   channel: MarketingChannel;
   identifier: string; // email (any case) or E.164 phone
   reason: "unsubscribed" | "bounce" | "complaint" | "stop_keyword" | "admin" | "gdpr_request";
