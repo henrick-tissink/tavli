@@ -18,6 +18,8 @@ import { recordAudit as defaultRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { can as defaultCan } from "@/lib/authz/can";
 import { getCurrentSession as defaultGetCurrentSession } from "@/lib/auth/session";
+import { createSupabaseServerClient } from "@/lib/db/server";
+import { requireAAL2 } from "@/lib/auth/aal";
 import { currentActor as defaultCurrentActor } from "@/lib/auth/current-actor";
 import { enqueue as defaultEnqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
@@ -49,9 +51,17 @@ interface Deps {
   getCurrentSession: typeof defaultGetCurrentSession;
   currentActor: typeof defaultCurrentActor;
   enqueue: typeof defaultEnqueue;
+  // NEW-4: admin GDPR mutations require an AAL2 (MFA-verified) session, not just
+  // the admin role. The proxy enforces AAL2 for navigation, but Server Action
+  // POSTs bypass the proxy, so a stolen/pre-enrolment AAL1 admin session could
+  // otherwise invoke the erasure cascade directly. Defaults to the real check.
+  requireAal2?: () => Promise<boolean>;
 }
 
 export function makeDsrActions(deps: Deps) {
+  const requireAal2 =
+    deps.requireAal2 ??
+    (async () => requireAAL2(await createSupabaseServerClient()));
   async function loadSessionAndCheck(
     action:
       | "gdpr.create_dsr"
@@ -65,6 +75,7 @@ export function makeDsrActions(deps: Deps) {
     if (!session) throw new Error("unauthenticated");
     const allowed = await deps.can(session, action, { kind: "global" });
     if (!allowed) throw new Error(`forbidden: ${action}`);
+    if (!(await requireAal2())) throw new Error(`forbidden: aal2_required for ${action}`);
     const { impersonatorUserId } = await deps.currentActor(session.userId);
     return { session, impersonatorUserId };
   }

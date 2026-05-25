@@ -7,6 +7,8 @@ jest.mock("@/lib/db/admin", () => ({ dbAdmin: {} }));
 jest.mock("@/lib/audit/record", () => ({ recordAudit: jest.fn() }));
 jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
+jest.mock("@/lib/db/server", () => ({ createSupabaseServerClient: jest.fn() }));
+jest.mock("@/lib/auth/aal", () => ({ requireAAL2: jest.fn().mockResolvedValue(true) }));
 jest.mock("@/lib/auth/current-actor", () => ({ currentActor: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/db/schema", () => ({ dataSubjectRequests: {} }));
@@ -37,9 +39,24 @@ describe("createDsr", () => {
       }),
       currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin-1", impersonatorUserId: null }),
       enqueue: jest.fn().mockResolvedValue(undefined),
+      requireAal2: jest.fn().mockResolvedValue(true),
       ...override,
     };
   }
+
+  it("rejects the GDPR crown-jewel action when the admin session is not AAL2 (NEW-4)", async () => {
+    const d = deps({ requireAal2: jest.fn().mockResolvedValue(false) });
+    const actions = makeDsrActions(d);
+    await expect(
+      actions.createDsr({
+        identifier_phone: "+40712345678",
+        identifier_email: "alice@example.ro",
+        request_kind: "erasure",
+        request_source: "email",
+      }),
+    ).rejects.toThrow(/aal2/i);
+    expect(d.recordAudit).not.toHaveBeenCalled();
+  });
 
   it("creates a DSR with legal_deadline_at = now + 30 days + records audit", async () => {
     const d = deps();
