@@ -164,12 +164,12 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 - [x] §14 day-7 / day-30 / day-60 check-in emails *(shipped 2026-05-24 — Wave 8 S3; SetupCheckinEmail RO/EN/DE + daily-sweep sendDayNCheckin (created N days ago) + flagAtRiskOrgs. Worker-wired.)*
 - [x] §14 parallel-run consolidation flow + banner UI *(shipped 2026-05-24 — Wave 8 S4; consolidateParallelRun (mark step completed + audit) + ParallelRunBanner. Operational-only, no data mirror.)*
 - [x] §15 `currency_reference_rates` + BNR XML fetcher + manual-override path *(shipped 2026-05-24 — Wave 8 P1+P2; migration 0045 (currency_reference_rates public-read + prospect_waitlist) + parseBnrXml (fast-xml-parser) + loadPricingPrimitives (BNR→admin_manual fallback + staleness) + refreshBnrRate job (30 11 * * *) + setManualRate admin override.)*
-- [ ] §15 pricing page components (RO + EN + DE) *(Wave 8 P3 — NOT YET; editorial trilingual page deferred to a focused session with the frontend-design skill. Data layer (rate + primitives + tier config) is ready.)*
-- [ ] §15 VAT disclosure panel (B2B / B2C / EU outside RO / outside EU) *(Wave 8 P3 — with the pricing page.)*
-- [ ] §15 day-91 card-on-file disclosure block *(Wave 8 P3 — with the pricing page.)*
-- [ ] §15 `prospect_waitlist` + wait-list mode toggle via `PARTNER_SIGNUP_ENABLED` *(table shipped (P1); joinWaitlist action + CTA toggle = Wave 8 P4.)*
-- [ ] §15 SEO + JSON-LD + hreflang per-locale *(Wave 8 P4 — with the pricing page.)*
-- [ ] §15 `frontend-design`-skill aesthetic pass (the editorial bar) *(Wave 8 P5 — the editorial pass.)*
+- [x] §15 pricing page components (RO + EN + DE) *(shipped 2026-05-24 — editorial trilingual `/pricing` + `/en/pricing` + `/de/pricing` → shared PricingPage + 13 components in src/components/pricing/.)*
+- [x] §15 VAT disclosure panel (B2B / B2C / EU outside RO / outside EU) *(shipped — VatDisclosureBlock.tsx, §6.4.1.)*
+- [x] §15 day-91 card-on-file disclosure block *(shipped — CardOnFileDisclosure.tsx, §7.4.)*
+- [x] §15 `prospect_waitlist` + wait-list mode toggle via `PARTNER_SIGNUP_ENABLED` *(shipped — lib/pricing/waitlist.ts + app/pricing/actions.ts + WaitlistButton.tsx.)*
+- [x] §15 SEO + JSON-LD + hreflang per-locale *(shipped — lib/pricing/seo.ts (hreflang ro/en/de + x-default→RO, self-canonical) + PricingPageJsonLd.tsx.)*
+- [x] §15 `frontend-design`-skill aesthetic pass (the editorial bar) *(shipped — Hero/SixPromises/TheSetupSection editorial pass.)*
 
 ## Wave 9 — Closure
 
@@ -211,6 +211,8 @@ When the doc updates, bump the date at the bottom and note the reason in a `## R
 ---
 
 ## Revisions
+
+- **2026-05-25** — Wave 8 §15 P3–P5 (pricing page components, VAT panel, card-on-file block, waitlist + signup toggle, SEO/JSON-LD/hreflang, editorial pass) marked `[x]` — all shipped 2026-05-24 but the checkboxes were never updated. Waves 1–8 are feature-complete. **Wave 9 (closure) is genuinely 0/8 and is the real launch gate** — none of the compliance/ops items (sub-processor DPAs, Lighthouse/axe, ANPC/GDPR/PSD2/DSA/WCAG checklist, DKIM/SPF/DMARC, Stripe Tax RO, end-to-end erasure integration test in CI, final smoke) are done. The 2026-05-25 conformance sweep (`docs/superpowers/audits/2026-05-25-v1-conformance-sweep.md`) found NEW criticals (Stripe SDK field drift re-killing the annual refund; marketing double-insert; a missed table-mutation IDOR) on top of these.
 
 - **2026-05-20** — Wave 1 unit `audit_logs` table + `recordAudit` helper shipped together with the `AUDIT` typed registry. Reason: §16.2 specifies the helper's TypeScript signature is keyed by the registry, so they cannot ship apart cleanly. The other two Wave 1 items (`ERROR_CODES`, `JOBS`) remain independent and stay as separate units.
 - **2026-05-21** — Wave 2 unit "§01 organizations + restaurant_staff" split: the three new tables (§3.2/§3.3/§3.4) + org-aware resolver shipped in migration 0013; §3.6 modifications (restaurants.organization_id, drop owner_user_id, profiles.default_organization_id) deferred to a follow-up unit because they require a backfill decision that's distinct from the new-table additions. Until §3.6 lands, the orgResolver covers venue scope via restaurant_staff and organization scope via organization_members but does not yet grant cross-scope access (org member → all org venues).
