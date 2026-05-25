@@ -37,7 +37,7 @@ function buildAdminMock(opts: {
     error: opts.insertError ?? null,
   });
   const reviewsChain = {
-    insert: jest.fn(() => ({ select: insertSelect })),
+    insert: jest.fn((_row: Record<string, unknown>) => ({ select: insertSelect })),
   };
   (createSupabaseAdminClient as jest.Mock).mockReturnValue({
     from: jest.fn((tbl: string) =>
@@ -108,6 +108,8 @@ describe("submitReviewByToken", () => {
       first_name: "Ana",
       party_size: 2,
       reservation_date: "2026-04-29",
+      include_in_aggregate_rating: false,
+      aggregate_consent_at: null,
     });
   });
 
@@ -144,6 +146,47 @@ describe("submitReviewByToken", () => {
     expect(reviewsChain.insert).toHaveBeenCalledWith(
       expect.objectContaining({ diner_id: "diner-42" }),
     );
+  });
+
+  test("records aggregate consent when the diner opts in (C3)", async () => {
+    const { reviewsChain } = buildAdminMock({
+      reservation: {
+        id: "res-1",
+        restaurant_id: "rest-1",
+        guest_name: "Ana Pop",
+        status: "completed",
+        party_size: 2,
+        reservation_date: "2026-04-29",
+        diner_id: null,
+      },
+    });
+    const r = await submitReviewByToken("tok", {
+      rating: 5,
+      includeInAggregate: true,
+    });
+    expect(r.ok).toBe(true);
+    const payload = reviewsChain.insert.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.include_in_aggregate_rating).toBe(true);
+    expect(typeof payload.aggregate_consent_at).toBe("string");
+  });
+
+  test("defaults to no aggregate consent (published but not counted) (C3)", async () => {
+    const { reviewsChain } = buildAdminMock({
+      reservation: {
+        id: "res-1",
+        restaurant_id: "rest-1",
+        guest_name: "Ana Pop",
+        status: "completed",
+        party_size: 2,
+        reservation_date: "2026-04-29",
+        diner_id: null,
+      },
+    });
+    const r = await submitReviewByToken("tok", { rating: 5 });
+    expect(r.ok).toBe(true);
+    const payload = reviewsChain.insert.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.include_in_aggregate_rating).toBe(false);
+    expect(payload.aggregate_consent_at).toBeNull();
   });
 
   test("returns ALREADY_REVIEWED on UNIQUE violation", async () => {

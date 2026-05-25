@@ -28,7 +28,19 @@ describe("ReviewSubmitForm", () => {
     expect(submit).toHaveBeenCalledWith("tok", {
       rating: 3,
       comment: "Great food",
+      includeInAggregate: false,
     });
+  });
+
+  test("passes aggregate consent when the checkbox is ticked (C3)", async () => {
+    render(<ReviewSubmitForm token="tok" initialRating={5} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: /nota medie/i }));
+    fireEvent.click(screen.getByRole("button", { name: /trimite/i }));
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    expect(submit).toHaveBeenCalledWith(
+      "tok",
+      expect.objectContaining({ includeInAggregate: true }),
+    );
   });
 
   test("renders success state after ok response", async () => {

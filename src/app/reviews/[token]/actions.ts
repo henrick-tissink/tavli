@@ -6,6 +6,12 @@ import { firstNameFrom } from "@/lib/repos/reviews-repo";
 export interface SubmitReviewInput {
   rating: number;
   comment?: string;
+  /**
+   * §05 §4.5 / §06 §3.5 — explicit opt-in: include this review in the venue's
+   * public aggregate rating. Default false (review is published but not
+   * counted unless the diner ticks the consent box).
+   */
+  includeInAggregate?: boolean;
 }
 
 export interface SubmitReviewResult {
@@ -38,6 +44,7 @@ export async function submitReviewByToken(
     return { ok: false, error: "Platform not configured.", errorCode: "OTHER" };
   }
 
+  const includeInAggregate = input.includeInAggregate === true;
   const admin = createSupabaseAdminClient();
 
   const { data: resv } = await admin
@@ -72,6 +79,10 @@ export async function submitReviewByToken(
       first_name: firstNameFrom(resv.guest_name),
       party_size: resv.party_size,
       reservation_date: resv.reservation_date,
+      // C3: only opt-in reviews feed the public aggregate (trigger filters on
+      // include_in_aggregate_rating = true); stamp consent time as evidence.
+      include_in_aggregate_rating: includeInAggregate,
+      aggregate_consent_at: includeInAggregate ? new Date().toISOString() : null,
     })
     .select("id");
 

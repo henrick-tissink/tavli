@@ -15,6 +15,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     initialRating >= 1 && initialRating <= 5 ? initialRating : 0,
   );
   const [comment, setComment] = useState("");
+  const [includeInAggregate, setIncludeInAggregate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +28,11 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     }
     setSubmitting(true);
     setError(null);
-    const r = await submitReviewByToken(token, { rating, comment });
+    const r = await submitReviewByToken(token, {
+      rating,
+      comment,
+      includeInAggregate,
+    });
     setSubmitting(false);
     if (r.ok) {
       setDone(true);
@@ -96,6 +101,19 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
         />
         <span id="review-comment-count" className="text-xs text-text-muted">
           {comment.length}/{MAX_COMMENT}
+        </span>
+      </label>
+      <label className="flex items-start gap-3 rounded-lg border border-border bg-brand-primary-soft p-3">
+        <input
+          type="checkbox"
+          checked={includeInAggregate}
+          onChange={(e) => setIncludeInAggregate(e.target.checked)}
+          className="mt-0.5 h-4 w-4 accent-brand-primary"
+        />
+        <span className="text-sm text-text-secondary">
+          Include recenzia mea în <strong>nota medie publică</strong> a
+          restaurantului. Recenzia ta apare oricum; bifează doar dacă vrei să
+          conteze și în media afișată.
         </span>
       </label>
       {error && (
