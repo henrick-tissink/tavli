@@ -400,6 +400,13 @@
       "when": 1779600000000,
       "tag": "0056_restaurant_auto_no_show",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1779601000000,
+      "tag": "0057_diner_processing_restricted",
+      "breakpoints": true
     }
   ]
 }

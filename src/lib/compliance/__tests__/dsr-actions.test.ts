@@ -12,7 +12,10 @@ jest.mock("@/lib/auth/aal", () => ({ requireAAL2: jest.fn().mockResolvedValue(tr
 jest.mock("@/lib/auth/current-actor", () => ({ currentActor: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/db/schema", () => ({ dataSubjectRequests: {} }));
-jest.mock("drizzle-orm", () => ({ eq: jest.fn() }));
+jest.mock("drizzle-orm", () => ({
+  eq: jest.fn(),
+  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({ __sql: strings.join("?"), values }),
+}));
 
 import { makeDsrActions } from "../dsr-actions";
 
@@ -230,6 +233,54 @@ describe("approveDsrErasure", () => {
     const dsr = { id: "dsr-1", status: "received", identityVerified: true, requestKind: "access" };
     const actions = makeActionsForApprove(dsr);
     await expect(actions.approveDsrErasure({ dsrId: "dsr-1" })).rejects.toThrow(/erasure/);
+  });
+});
+
+describe("approveDsrRestriction (F13)", () => {
+  function makeActions(dsr: any, execute: any = jest.fn().mockResolvedValue([])) {
+    const db = {
+      select: jest.fn().mockReturnValue({
+        from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([dsr]) }) }),
+      }),
+      update: jest.fn().mockReturnValue({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([]) }) }),
+      execute,
+      insert: jest.fn(),
+    };
+    const actions = makeDsrActions({
+      db: db as any,
+      recordAudit: jest.fn().mockResolvedValue(undefined),
+      can: jest.fn().mockResolvedValue(true),
+      getCurrentSession: jest.fn().mockResolvedValue({ userId: "admin", profile: { role: "admin" } }),
+      currentActor: jest.fn().mockResolvedValue({ actorUserId: "admin", impersonatorUserId: null }),
+      enqueue: jest.fn().mockResolvedValue(undefined),
+      requireAal2: jest.fn().mockResolvedValue(true),
+    });
+    return { actions, execute };
+  }
+
+  it("restrict_processing flags the diner (processing_restricted = true)", async () => {
+    const dsr = { id: "dsr-1", status: "received", identityVerified: true, requestKind: "restrict_processing", dinerId: "d1", organizationId: "o1" };
+    const { actions, execute } = makeActions(dsr);
+    await actions.approveDsrRestriction({ dsrId: "dsr-1" });
+    expect(execute.mock.calls.some((c: any) => JSON.stringify(c[0]).includes("processing_restricted = true"))).toBe(true);
+  });
+
+  it("object suppresses the diner's contacts + revokes all marketing consents", async () => {
+    const execute = jest.fn(async (q: unknown) =>
+      JSON.stringify(q).includes("SELECT email, phone") ? [{ email: "a@b.com", phone: "+40712345678" }] : [],
+    );
+    const dsr = { id: "dsr-1", status: "received", identityVerified: true, requestKind: "object", dinerId: "d1", organizationId: "o1" };
+    const { actions } = makeActions(dsr, execute);
+    await actions.approveDsrRestriction({ dsrId: "dsr-1" });
+    const qs = execute.mock.calls.map((c: any) => JSON.stringify(c[0]));
+    expect(qs.some((q) => q.includes("INSERT INTO marketing_suppressions"))).toBe(true);
+    expect(qs.some((q) => q.includes("UPDATE marketing_consents SET revoked_at"))).toBe(true);
+  });
+
+  it("rejects a non-restriction request kind", async () => {
+    const dsr = { id: "dsr-1", status: "received", identityVerified: true, requestKind: "erasure", dinerId: "d1" };
+    const { actions } = makeActions(dsr);
+    await expect(actions.approveDsrRestriction({ dsrId: "dsr-1" })).rejects.toThrow(/restrict_processing/);
   });
 });
 

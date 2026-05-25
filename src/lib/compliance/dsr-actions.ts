@@ -13,6 +13,7 @@
 import "server-only";
 import { eq } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { sql } from "drizzle-orm";
 import { dataSubjectRequests } from "@/lib/db/schema";
 import { recordAudit as defaultRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
@@ -198,6 +199,70 @@ export function makeDsrActions(deps: Deps) {
     });
   }
 
+  // §13 §6.6 / Art 18 + 21 — fulfil a restrict_processing or object DSR.
+  // restrict_processing flags the diner (marketing excludes; operator writes
+  // fail TV1104; reservations still process). object = full marketing
+  // unsubscribe: permanent suppression of the diner's contacts + consent revoke.
+  async function approveDsrRestriction(input: { dsrId: string }): Promise<void> {
+    const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.approve_erasure");
+
+    const rows = await deps.db
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, input.dsrId))
+      .limit(1);
+    const dsr = rows[0];
+    if (!dsr) throw new Error(`TV1100 dsr_not_found: ${input.dsrId}`);
+    if (dsr.status !== "received") throw new Error(`TV1105 dsr_wrong_status: ${dsr.status}`);
+    if (!dsr.identityVerified) throw new Error("TV1101 dsr_not_verified");
+    if (dsr.requestKind !== "restrict_processing" && dsr.requestKind !== "object") {
+      throw new Error("approveDsrRestriction: only restrict_processing / object DSRs");
+    }
+    if (!dsr.dinerId) throw new Error("TV1108 dsr_diner_not_resolved");
+
+    if (dsr.requestKind === "restrict_processing") {
+      await deps.db.execute(sql`UPDATE diners SET processing_restricted = true WHERE id = ${dsr.dinerId}`);
+    } else {
+      // object → unsubscribe everywhere: suppress the diner's contacts on every
+      // channel (global per channel+identifier) + revoke all marketing consents.
+      const contactRows = (await deps.db.execute(sql`
+        SELECT email, phone FROM diners WHERE id = ${dsr.dinerId}
+      `)) as unknown as Array<{ email: string | null; phone: string | null }>;
+      const c = contactRows[0];
+      const targets: Array<{ channel: string; identifier: string }> = [];
+      if (c?.email) targets.push({ channel: "email", identifier: c.email });
+      if (c?.phone) {
+        targets.push({ channel: "sms", identifier: c.phone });
+        targets.push({ channel: "whatsapp", identifier: c.phone });
+      }
+      for (const t of targets) {
+        await deps.db.execute(sql`
+          INSERT INTO marketing_suppressions (channel, identifier, source, reason, organization_id)
+          VALUES (${t.channel}, ${t.identifier}, 'marketing', 'gdpr_request', ${dsr.organizationId ?? null})
+          ON CONFLICT (channel, lower(identifier)) DO UPDATE SET unsuppressed_at = NULL, reason = 'gdpr_request'
+        `);
+      }
+      await deps.db.execute(sql`
+        UPDATE marketing_consents SET revoked_at = now() WHERE diner_id = ${dsr.dinerId} AND revoked_at IS NULL
+      `);
+    }
+
+    await deps.db
+      .update(dataSubjectRequests)
+      .set({ status: "completed", approvedByUserId: session.userId, approvedAt: new Date(), updatedAt: new Date() })
+      .where(eq(dataSubjectRequests.id, input.dsrId));
+
+    await deps.recordAudit({
+      action: AUDIT.compliance.dsr_approved,
+      subjectType: "data_subject_request",
+      subjectId: input.dsrId,
+      actorUserId: session.userId,
+      impersonatorUserId,
+      actorRole: "tavli_admin",
+      context: { kind: dsr.requestKind },
+    });
+  }
+
   async function rejectDsr(input: { dsrId: string; reason: string }): Promise<void> {
     const { session, impersonatorUserId } = await loadSessionAndCheck("gdpr.reject");
 
@@ -291,7 +356,7 @@ export function makeDsrActions(deps: Deps) {
     // dsr_cascade_executed or dsr_cascade_failed.
   }
 
-  return { createDsr, resolveDinerForDsr, verifyDsrIdentity, approveDsrErasure, rejectDsr, extendDsrDeadline, retryErasureCascade };
+  return { createDsr, resolveDinerForDsr, verifyDsrIdentity, approveDsrErasure, approveDsrRestriction, rejectDsr, extendDsrDeadline, retryErasureCascade };
 }
 
 export const dsrActions = makeDsrActions({

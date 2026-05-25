@@ -65,12 +65,16 @@ export async function updateDinerAction(
   if (!session) return { ok: false, error: "Not signed in." };
 
   const [diner] = await dbAdmin
-    .select({ organizationId: diners.organizationId, redactedAt: diners.redactedAt })
+    .select({ organizationId: diners.organizationId, redactedAt: diners.redactedAt, processingRestricted: diners.processingRestricted })
     .from(diners)
     .where(eq(diners.id, input.dinerId))
     .limit(1);
   if (!diner) return { ok: false, error: "Diner not found." };
   if (diner.redactedAt) return { ok: false, error: "Diner has been erased." };
+  // §13 §6.6 / Art 18 — a processing-restricted diner cannot be edited (TV1104).
+  if (diner.processingRestricted) {
+    return { ok: false, error: "processing_restricted" };
+  }
 
   if (!(await can(session, "diner.update", { kind: "organization", id: diner.organizationId }))) {
     return { ok: false, error: "Forbidden." };

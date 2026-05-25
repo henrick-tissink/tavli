@@ -30,6 +30,11 @@ export async function approveErasureAction(dsrId: string) {
   revalidatePath(`/admin/gdpr-requests/${dsrId}`);
 }
 
+export async function approveRestrictionAction(dsrId: string) {
+  await dsrActions.approveDsrRestriction({ dsrId });
+  revalidatePath(`/admin/gdpr-requests/${dsrId}`);
+}
+
 export async function rejectDsrAction(dsrId: string, reason: string) {
   await dsrActions.rejectDsr({ dsrId, reason });
   revalidatePath(`/admin/gdpr-requests/${dsrId}`);

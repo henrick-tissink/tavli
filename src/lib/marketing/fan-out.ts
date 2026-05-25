@@ -111,7 +111,8 @@ export function makeFanOutCampaign(deps: Deps) {
 
     const recipients = (await deps.db.execute(sql`
       SELECT d.id, d.email, d.phone, d.locale FROM diners d
-      WHERE d.organization_id = ${c.organization_id} AND d.redacted_at IS NULL AND ${where}
+      WHERE d.organization_id = ${c.organization_id} AND d.redacted_at IS NULL
+        AND d.processing_restricted = false AND ${where}
         ${dedup}
         ${afterId ? sql`AND d.id > ${afterId}::uuid` : sql``}
       ORDER BY d.id LIMIT ${CHUNK}

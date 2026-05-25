@@ -1187,6 +1187,10 @@ export const diners = pgTable(
     birthdayDate: date("birthday_date"),
     anniversaryDate: date("anniversary_date"),
     internalNotes: text("internal_notes"),
+    // §13 §6.6 / Art 18 — GDPR processing restriction (migration 0057). Driven
+    // by the restrict_processing DSR cascade; marketing excludes these diners,
+    // operator writes fail TV1104, but reservations still process (Art 18(2)).
+    processingRestricted: boolean("processing_restricted").notNull().default(false),
     acquisitionSource: dinerAcquisitionSource("acquisition_source"),
     acquisitionRestaurantId: uuid("acquisition_restaurant_id").references(
       () => restaurants.id,
