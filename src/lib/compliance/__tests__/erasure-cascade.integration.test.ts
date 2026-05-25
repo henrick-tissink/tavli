@@ -41,6 +41,7 @@ import {
   reviews,
   transactionalEmailLog,
   marketingConsents,
+  marketingSends,
   dataSubjectRequests,
   prospectWaitlist,
   eventRequests,
@@ -52,6 +53,7 @@ import {
   resolveDinersProd,
 } from "@/lib/jobs/handlers/compliance";
 import { PII_TABLE_REGISTRY } from "@/lib/compliance/pii-table-registry";
+import { makeRunErasureVerification } from "@/lib/compliance/verify";
 
 // ─── Deterministic test UUIDs ───────────────────────────────────────────────
 const CITY_ID = "00000000-aaaa-aaaa-aaaa-000000000001";
@@ -61,6 +63,8 @@ const ADMIN_USER_ID = "33333333-aaaa-aaaa-aaaa-333333333333";
 const DINER_ID = "44444444-aaaa-aaaa-aaaa-444444444444";
 const DSR_ID = "55555555-aaaa-aaaa-aaaa-555555555555";
 const RESERVATION_ID = "66666666-aaaa-aaaa-aaaa-666666666666";
+const CAMPAIGN_ID = "66666666-bbbb-aaaa-aaaa-666666666666";
+const MARKETING_SEND_ID = "66666666-cccc-aaaa-aaaa-666666666666";
 const PHONE = "+40712340000";
 const EMAIL = "integration-test@example.invalid";
 
@@ -113,6 +117,17 @@ const handleErasureExecuteTest = makeHandleErasureExecute({
   resolveDinerLocale: async () => "ro",
 });
 
+// Production verification sweep wired with a capturing sentryAlert + no-op audit,
+// so the test can assert zero residual PII without real Sentry/audit side-effects.
+const sentryAlerts: Array<{ msg: string; ctx: unknown }> = [];
+const runVerificationTest = makeRunErasureVerification({
+  registry: PII_TABLE_REGISTRY,
+  recordAudit: async () => {},
+  sentryAlert: (msg, ctx) => {
+    sentryAlerts.push({ msg, ctx });
+  },
+});
+
 // ─── Seed + cleanup helpers ─────────────────────────────────────────────────
 
 async function cleanup() {
@@ -131,6 +146,9 @@ async function cleanup() {
   await dbAdmin.execute(sql`DELETE FROM prospect_waitlist WHERE id = ${NONDINER_PROSPECT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM transactional_email_log WHERE diner_id = ${DINER_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM marketing_consents WHERE diner_id = ${DINER_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM marketing_sends WHERE id = ${MARKETING_SEND_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM marketing_campaigns WHERE id = ${CAMPAIGN_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM review_revisions WHERE review_id IN (SELECT id FROM reviews WHERE reservation_id = ${RESERVATION_ID}::uuid)`);
   await dbAdmin.execute(sql`DELETE FROM reviews WHERE reservation_id = ${RESERVATION_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM reservations WHERE id = ${RESERVATION_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM restaurant_availability WHERE restaurant_id = ${RESTAURANT_ID}::uuid`);
@@ -282,6 +300,52 @@ async function cleanup() {
         'email_marketing',
         true,
         'web_signup'
+      )
+    `);
+
+    // Marketing campaign (FK parent for the send row).
+    await dbAdmin.execute(sql`
+      INSERT INTO marketing_campaigns (id, organization_id, kind, name, channel, subject_template, body_template)
+      VALUES (
+        ${CAMPAIGN_ID}::uuid,
+        ${ORG_ID}::uuid,
+        'one_off',
+        'Integration Test Campaign',
+        'email',
+        '{"ro":"Subject"}'::jsonb,
+        '{"ro":"Body"}'::jsonb
+      )
+    `);
+
+    // marketing_send — fan-out copies the diner's plaintext contact onto the
+    // send row; the cascade (handleMarketingSends) must null email + phone.
+    await dbAdmin.execute(sql`
+      INSERT INTO marketing_sends (id, campaign_id, diner_id, organization_id, restaurant_id, channel, locale, email, phone, status)
+      VALUES (
+        ${MARKETING_SEND_ID}::uuid,
+        ${CAMPAIGN_ID}::uuid,
+        ${DINER_ID}::uuid,
+        ${ORG_ID}::uuid,
+        ${RESTAURANT_ID}::uuid,
+        'email',
+        'ro',
+        ${EMAIL},
+        ${PHONE},
+        'sent'
+      )
+    `);
+
+    // review_revision — prior_body holds the diner's earlier review text (F11);
+    // pseudonymiseDiner must null it for the diner's reviews.
+    await dbAdmin.execute(sql`
+      INSERT INTO review_revisions (review_id, revision, prior_body, prior_rating, prior_locale, edited_at)
+      VALUES (
+        (SELECT id FROM reviews WHERE reservation_id = ${RESERVATION_ID}::uuid),
+        1,
+        'My earlier, more candid review text',
+        4,
+        'ro',
+        now()
       )
     `);
 
@@ -439,6 +503,27 @@ async function cleanup() {
       expect(r.revokedAt).not.toBeNull();
     }
 
+    // ── marketing_sends — plaintext contact nulled (handleMarketingSends) ────
+    const [send] = await dbAdmin
+      .select()
+      .from(marketingSends)
+      .where(eq(marketingSends.id, MARKETING_SEND_ID));
+    expect(send.email).toBeNull();
+    expect(send.phone).toBeNull();
+    // Non-PII columns survive (channel-status / attribution stay intact).
+    expect(send.status).toBe("sent");
+
+    // ── review_revisions — prior_body nulled by pseudonymiseDiner (F11) ──────
+    const revResult = await dbAdmin.execute(sql`
+      SELECT prior_body FROM review_revisions
+       WHERE review_id IN (SELECT id FROM reviews WHERE reservation_id = ${RESERVATION_ID}::uuid)
+    `);
+    const revRows = revResult as unknown as Array<{ prior_body: string | null }>;
+    expect(revRows.length).toBeGreaterThan(0);
+    for (const r of revRows) {
+      expect(r.prior_body).toBeNull();
+    }
+
     // ── marketing_suppressions — rows for both phone + email ─────────────────
     const supResult = await dbAdmin.execute(sql`
       SELECT channel FROM marketing_suppressions WHERE reason = ${"dsr:" + DSR_ID}
@@ -549,5 +634,73 @@ async function cleanup() {
       .from(dataSubjectRequests)
       .where(eq(dataSubjectRequests.id, NONDINER_DSR_ID));
     expect(finalDsr.status).toBe("completed");
+  }, 60_000);
+
+  // Handlers are designed to be idempotent (orchestrator comment, step 5): a
+  // retried cascade must not corrupt already-redacted rows or duplicate the
+  // additive ones. Simulate a retry the way retryErasureCascade does — reset
+  // the DSR to in_progress (the TV1105 status guard otherwise blocks re-runs).
+  it("is idempotent — a retried cascade is a safe no-op", async () => {
+    await dbAdmin
+      .update(dataSubjectRequests)
+      .set({ status: "in_progress" })
+      .where(eq(dataSubjectRequests.id, DSR_ID));
+
+    await expect(handleErasureExecuteTest({ requestId: DSR_ID })).resolves.toBeUndefined();
+    await expect(
+      handleErasurePartnerNotificationsPhase2({ requestId: DSR_ID }),
+    ).resolves.toBeUndefined();
+
+    // Diner is still redacted, not re-corrupted.
+    const [d] = await dbAdmin.select().from(diners).where(eq(diners.id, DINER_ID));
+    expect(d.redactedAt).not.toBeNull();
+    expect(d.email).toBeNull();
+    expect(d.fullName).toBeNull();
+
+    // marketing_suppressions did NOT duplicate — still exactly email + sms
+    // (handler INSERTs are ON CONFLICT DO NOTHING).
+    const supResult = await dbAdmin.execute(sql`
+      SELECT channel FROM marketing_suppressions WHERE reason = ${"dsr:" + DSR_ID}
+    `);
+    const supRows = supResult as unknown as Array<{ channel: string }>;
+    expect(supRows.map((r) => r.channel).sort()).toEqual(["email", "sms"]);
+
+    // marketing_send contact stays null (handler skips rows already clean).
+    const [send] = await dbAdmin
+      .select()
+      .from(marketingSends)
+      .where(eq(marketingSends.id, MARKETING_SEND_ID));
+    expect(send.email).toBeNull();
+    expect(send.phone).toBeNull();
+  }, 60_000);
+
+  // The capstone: run the PRODUCTION nightly verification sweep (verify.ts) and
+  // assert it finds zero residual PII across every shipped registry table. This
+  // is the system's own definition of "erasure complete" — a row marked
+  // redacted_at that still carries plaintext PII. After the cascades above, the
+  // only redacted rows in the DB are our fixtures, so a clean sweep proves the
+  // cascade (and every handler it drives) left nothing behind.
+  it("the production verification sweep reports zero residual PII", async () => {
+    sentryAlerts.length = 0;
+    const { rowsScannedByTable, residual } = await runVerificationTest();
+
+    // No table flagged a redacted-but-still-PII row; no Sentry alert raised.
+    expect(residual).toEqual([]);
+    expect(sentryAlerts).toEqual([]);
+
+    // The sweep actually exercised the shipped verification queries (guards
+    // against a registry regression silently skipping a table).
+    expect(Object.keys(rowsScannedByTable)).toEqual(
+      expect.arrayContaining([
+        "diners",
+        "reservations",
+        "reviews",
+        "transactional_email_log",
+        "audit_logs",
+        "marketing_sends",
+        "prospect_waitlist",
+        "event_requests",
+      ]),
+    );
   }, 60_000);
 });
