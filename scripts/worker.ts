@@ -39,6 +39,7 @@ import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
 import { sendReminders } from "@/lib/reservations/jobs/send-reminders";
 import { autoMarkNoShow } from "@/lib/reservations/jobs/auto-mark-no-show";
+import { sendPostVisitReviews } from "@/lib/reservations/jobs/send-post-visit-reviews";
 import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
 import {
   handleTrialReminderDay60,
@@ -149,6 +150,13 @@ async function main(): Promise<void> {
     await autoMarkNoShow();
   });
   await boss.schedule(JOBS.reservation.autoMarkNoShow, "30 * * * *");
+
+  // §06 / §02 §6 — post-visit review request, hourly sweep (migrated off the
+  // legacy /api/cron route; now venue-tz-correct).
+  await boss.work(JOBS.reservation.sendPostVisitReview, async () => {
+    await sendPostVisitReviews();
+  });
+  await boss.schedule(JOBS.reservation.sendPostVisitReview, "15 * * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.
