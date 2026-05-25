@@ -5,7 +5,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { subscriptions, restaurants } from "@/lib/db/schema";
 import { recordBillingAudit as defaultRecordBillingAudit } from "@/lib/billing/billing-audit";
 import { loadActiveSubscription as defaultLoadActiveSubscription } from "@/lib/billing/load-subscription";
-import { priceIdForTierFrequency } from "@/lib/billing/price-ids";
+import { priceIdForTierFrequency, priceIdForExtraLocation } from "@/lib/billing/price-ids";
 import { syncExtraLocationQuantity as defaultSync } from "@/lib/billing/sync-extra-location";
 
 type Frequency = "monthly" | "annual";
@@ -118,10 +118,22 @@ export function makeChangePlanActions(deps: ChangePlanDeps) {
       const newFreq = row.pendingFrequencyChange as Frequency;
       const sub = await deps.loadActiveSubscription(row.organizationId);
       if (!sub) continue;
-      const item = baseItemId(sub);
-      if (item) {
+      // §8.3 step 4 — swap BOTH the base_tier AND the extra_location items to
+      // the new frequency's price IDs. The extra_location price is itself
+      // frequency-specific; omitting it (MED-2) left a Pro org with extra
+      // venues paying the monthly extra-location rate alongside an annual base.
+      const baseItem = sub.items.find((i) => i.kind === "base_tier");
+      const extraItem = sub.items.find((i) => i.kind === "extra_location");
+      const items: Array<{ id: string; price: string; quantity?: number }> = [];
+      if (baseItem) {
+        items.push({ id: baseItem.stripeSubscriptionItemId, price: priceIdForTierFrequency(sub.tier, newFreq) });
+      }
+      if (extraItem) {
+        items.push({ id: extraItem.stripeSubscriptionItemId, price: priceIdForExtraLocation(newFreq), quantity: extraItem.quantity });
+      }
+      if (items.length > 0) {
         await deps.stripe.subscriptions.update(row.stripeSubscriptionId, {
-          items: [{ id: item, price: priceIdForTierFrequency(sub.tier, newFreq) }],
+          items,
           proration_behavior: "none",
         });
       }

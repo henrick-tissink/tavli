@@ -5,7 +5,10 @@ jest.mock("server-only", () => ({}));
 jest.mock("@/lib/db/admin", () => ({ dbAdmin: {} }));
 jest.mock("@/lib/db/schema", () => ({ subscriptions: {}, restaurants: {} }));
 jest.mock("drizzle-orm", () => ({ eq: jest.fn(), and: jest.fn(), isNull: jest.fn(), isNotNull: jest.fn(), lte: jest.fn(), count: jest.fn(), sql: Object.assign(jest.fn(), { raw: jest.fn() }) }));
-jest.mock("@/lib/billing/price-ids", () => ({ priceIdForTierFrequency: jest.fn((t, f) => `price_${t}_${f}`) }));
+jest.mock("@/lib/billing/price-ids", () => ({
+  priceIdForTierFrequency: jest.fn((t, f) => `price_${t}_${f}`),
+  priceIdForExtraLocation: jest.fn((f) => `price_extra_${f}`),
+}));
 
 import { makeChangePlanActions } from "../change-plan";
 
@@ -80,5 +83,25 @@ describe("applyPendingFrequencyChanges (cron)", () => {
     await a.applyPendingFrequencyChanges();
     expect(d.stripe.subscriptions.update).toHaveBeenCalled();
     expect(d.recordBillingAudit).toHaveBeenCalledWith(expect.objectContaining({ eventType: "billing.frequency_changed" }));
+  });
+
+  it("re-prices the extra_location item to the new frequency too (MED-2)", async () => {
+    const proWithExtra = {
+      ...BASE_SUB,
+      tier: "pro",
+      frequency: "monthly",
+      items: [
+        { id: "i1", stripeSubscriptionItemId: "si_base", kind: "base_tier", quantity: 1 },
+        { id: "i2", stripeSubscriptionItemId: "si_extra", kind: "extra_location", quantity: 2 },
+      ],
+    };
+    const pending = [{ id: "local-1", organizationId: "org-1", stripeSubscriptionId: "sub_1", pendingFrequencyChange: "annual" }];
+    const d = deps({ db: makeDb(pending), loadActiveSubscription: jest.fn().mockResolvedValue(proWithExtra) });
+    const a = makeChangePlanActions(d as never);
+    await a.applyPendingFrequencyChanges();
+    const arg = d.stripe.subscriptions.update.mock.calls[0][1] as { items: Array<{ id: string }> };
+    const ids = arg.items.map((i) => i.id);
+    expect(ids).toContain("si_base");
+    expect(ids).toContain("si_extra"); // the extra_location price must move to annual too
   });
 });
