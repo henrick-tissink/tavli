@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { editReview as editReviewLib } from "@/lib/reviews/edit";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { firstNameFrom } from "@/lib/repos/reviews-repo";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
@@ -143,6 +144,7 @@ export async function submitReviewByToken(
     return { ok: false, error: "Could not save review.", errorCode: "OTHER" };
   }
 
+  // (editReviewByToken below — §06 §4.1a 14-day edit flow.)
   // §06 §4.1 step 9 — audit the submission (operational fields only, no PII).
   const reviewId = (inserted as Array<{ id: string }> | null)?.[0]?.id;
   await recordAudit({
@@ -155,4 +157,20 @@ export async function submitReviewByToken(
   });
 
   return { ok: true };
+}
+
+/**
+ * §06 §4.1a — diner edits their own review within 14 days (thin wrapper over the
+ * editReview lib, which owns the window/hidden checks + revision snapshot).
+ */
+export async function editReviewByToken(
+  token: string,
+  input: { rating: number; comment?: string },
+): Promise<SubmitReviewResult> {
+  const r = await editReviewLib({ token, rating: input.rating, comment: input.comment ?? "" });
+  if (r.ok) return { ok: true };
+  const msg = r.message ?? "";
+  if (msg.includes("TV403")) return { ok: false, error: "Perioada de editare (14 zile) a expirat.", errorCode: "WINDOW_EXPIRED" };
+  if (msg.includes("TV404")) return { ok: false, error: "Recenzia a fost ascunsă și nu mai poate fi editată.", errorCode: "INELIGIBLE" };
+  return { ok: false, error: msg || "Recenzia nu a putut fi editată.", errorCode: "OTHER" };
 }

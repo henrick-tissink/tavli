@@ -60,6 +60,7 @@ export type Action =
   // events
   | "event_request.read"
   | "event_request.respond"
+  | "review.respond"
   | "event_request.quote"
   // analytics
   | "analytics.read"
@@ -185,6 +186,8 @@ export const PERMISSION_MATRIX: Record<Action, MatrixRow> = {
   "event_request.read":    row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),
   "event_request.respond": row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),
   "event_request.quote":   row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),
+  // §06 §4.2 — owner response to a review (staff who manage the venue).
+  "review.respond":        row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),
 
   // analytics
   "analytics.read":   row("org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"),

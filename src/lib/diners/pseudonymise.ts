@@ -32,7 +32,7 @@
  */
 
 import "server-only";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import {
   diners,
@@ -150,6 +150,14 @@ export function makePseudonymiseDiner(deps: Deps) {
         .update(reviews)
         .set({ firstName: REDACTED_PLACEHOLDER, redactedAt: now })
         .where(eq(reviews.dinerId, input.dinerId));
+
+      // 3b. Cascade into review_revisions (F11) — prior_body holds the diner's
+      //     earlier review text, which would otherwise survive erasure (reviews
+      //     are redacted, not deleted). Null it for the diner's reviews.
+      await tx.execute(sql`
+        UPDATE review_revisions SET prior_body = NULL
+        WHERE review_id IN (SELECT id FROM reviews WHERE diner_id = ${input.dinerId})
+      `);
 
       // 4. Cascade into transactional_email_log — null contact details +
       //    stamp the row's own redacted_at so per-row freshness queries can

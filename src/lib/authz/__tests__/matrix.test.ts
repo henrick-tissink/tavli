@@ -68,6 +68,7 @@ const SPEC: Array<{ action: Action; grants: MatrixRole[] }> = [
   // events
   { action: "event_request.read",    grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"] },
   { action: "event_request.respond", grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"] },
+  { action: "review.respond", grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"] },
   { action: "event_request.quote",   grants: ["org_owner", "org_admin", "org_manager", "venue_owner", "venue_manager"] },
 
   // analytics

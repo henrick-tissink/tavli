@@ -66,7 +66,10 @@ function makeTx() {
       }),
     };
   });
-  return { tx: { select, update, insert }, calls };
+  // F11: review_revisions redaction runs via tx.execute(sql`...`); a no-op that
+  // is NOT recorded in `calls`, so the ordered update/insert assertions hold.
+  const execute = jest.fn(() => Promise.resolve([]));
+  return { tx: { select, update, insert, execute }, calls };
 }
 
 beforeEach(() => {
@@ -337,6 +340,7 @@ describe("pseudonymiseDiner", () => {
         insert: jest
           .fn()
           .mockReturnValue({ values: jest.fn().mockResolvedValue([]) }),
+        execute: jest.fn().mockResolvedValue([]),
       };
       await callback(tx);
     });
