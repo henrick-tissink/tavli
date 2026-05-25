@@ -31,12 +31,13 @@ import { sendTransactionalEmail } from "@/lib/email/send-transactional";
  */
 async function defaultNotifyAuthorOfRemoval(reviewId: string, reason: string): Promise<void> {
   const rows = (await dbAdmin.execute(sql`
-    SELECT r.first_name, res.guest_email, res.guest_name, rest.name AS restaurant_name
+    SELECT r.first_name, r.restaurant_id, res.guest_email, res.guest_name,
+           rest.name AS restaurant_name, rest.organization_id
     FROM reviews r
     JOIN reservations res ON res.id = r.reservation_id
     JOIN restaurants rest ON rest.id = r.restaurant_id
     WHERE r.id = ${reviewId}
-  `)) as unknown as Array<{ first_name: string | null; guest_email: string | null; guest_name: string | null; restaurant_name: string }>;
+  `)) as unknown as Array<{ first_name: string | null; restaurant_id: string; guest_email: string | null; guest_name: string | null; restaurant_name: string; organization_id: string | null }>;
   const row = rows[0];
   if (!row?.guest_email) return;
   const { render } = await import("@react-email/render");
@@ -53,7 +54,7 @@ async function defaultNotifyAuthorOfRemoval(reviewId: string, reason: string): P
     subject: `Recenzia ta pentru ${row.restaurant_name} a fost retrasă`,
     html: await render(node),
     text: await render(node, { plainText: true }),
-    context: { review_id: reviewId },
+    context: { restaurant_id: row.restaurant_id, organization_id: row.organization_id ?? undefined },
   });
 }
 

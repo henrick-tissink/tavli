@@ -226,9 +226,10 @@ export function makeDsrActions(deps: Deps) {
       // object → unsubscribe everywhere: suppress the diner's contacts on every
       // channel (global per channel+identifier) + revoke all marketing consents.
       const contactRows = (await deps.db.execute(sql`
-        SELECT email, phone FROM diners WHERE id = ${dsr.dinerId}
-      `)) as unknown as Array<{ email: string | null; phone: string | null }>;
+        SELECT email, phone, organization_id FROM diners WHERE id = ${dsr.dinerId}
+      `)) as unknown as Array<{ email: string | null; phone: string | null; organization_id: string | null }>;
       const c = contactRows[0];
+      const orgId = c?.organization_id ?? null;
       const targets: Array<{ channel: string; identifier: string }> = [];
       if (c?.email) targets.push({ channel: "email", identifier: c.email });
       if (c?.phone) {
@@ -238,7 +239,7 @@ export function makeDsrActions(deps: Deps) {
       for (const t of targets) {
         await deps.db.execute(sql`
           INSERT INTO marketing_suppressions (channel, identifier, source, reason, organization_id)
-          VALUES (${t.channel}, ${t.identifier}, 'marketing', 'gdpr_request', ${dsr.organizationId ?? null})
+          VALUES (${t.channel}, ${t.identifier}, 'marketing', 'gdpr_request', ${orgId})
           ON CONFLICT (channel, lower(identifier)) DO UPDATE SET unsuppressed_at = NULL, reason = 'gdpr_request'
         `);
       }
