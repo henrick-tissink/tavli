@@ -61,10 +61,10 @@
 | Requirement | Implementation | Status |
 |-------------|----------------|--------|
 | Document language set | `<html lang>` in `app/layout.tsx` (per-locale) | 🟡 (verify per-locale routes) |
-| Keyboard nav / focus order / visible focus | component-level | ⬜ **(D3 — automated axe pass pending)** |
-| Colour contrast AA | design tokens | ⬜ **(D3)** |
-| Reduced motion respected | partial (`prefers-reduced-motion` audit is Phase B3) | 🟡 |
-| Form labels / ARIA | component-level | ⬜ **(D3 — axe sweep)** |
+| Keyboard nav / focus order / visible focus | component-level; axe sweep `e2e/a11y.spec.ts` | 🟡 (axe pass done; `nested-interactive`/`target-size` open on RestaurantCard — see a11y-axe-report.md) |
+| Colour contrast AA | design tokens; axe sweep | 🟡 (orange TEXT labels fixed → `#C2410C`; filled-orange CTAs + muted-gray token need design sign-off — a11y-axe-report.md §known-open) |
+| Reduced motion respected | global `prefers-reduced-motion` guard in `globals.css` (B3) | ✅ |
+| Form labels / ARIA | component-level; axe sweep (no violations) | ✅ (on audited public surfaces) |
 
 ## ePrivacy / cookies
 

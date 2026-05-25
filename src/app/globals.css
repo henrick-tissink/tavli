@@ -6,6 +6,10 @@
   --color-brand-primary: #F97316;
   --color-brand-primary-soft: #FFF7ED;
   --color-brand-primary-dark: #EA580C;
+  /* WCAG AA: #F97316 (and -dark) fail 4.5:1 as text on the light surface.
+     This deeper orange (~5:1 on --color-surface-bg) is used for brand-orange
+     TEXT on light backgrounds (logo, eyebrow labels) so it meets AA. */
+  --color-brand-primary-accessible: #C2410C;
 
   /* Surface colors */
   --color-surface-white: #FFFFFF;
