@@ -22,6 +22,16 @@ import { dbAdmin } from "@/lib/db/admin";
 import { diners, restaurants, cities } from "@/lib/db/schema";
 import { normalizePhone } from "@/lib/phone/normalize";
 
+/** Postgres `unique_violation` SQLSTATE — surfaced as `err.code` by node-postgres. */
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: unknown }).code === "23505"
+  );
+}
+
 export const DINER_ACQUISITION_SOURCES = [
   "widget",
   "venue_page",
@@ -110,40 +120,63 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
         }
       : {};
 
-    // 4. Phone-first path — the unique index on (org_id, phone) makes this
-    //    the canonical identity for repeat diners.
+    // 4. Atomic upsert. SELECT-then-INSERT raced: two concurrent first
+    //    bookings for the same identity both miss the SELECT, then one INSERT
+    //    fails on the partial unique index and the reservation flow throws.
+    //    Instead we let the index resolve the race — INSERT ... ON CONFLICT
+    //    DO UPDATE applies the same soft-update (never overwrite populated
+    //    fields) and returns the surviving row either way. `(xmax = 0)` is the
+    //    standard Postgres idiom for "this RETURNING row came from the INSERT,
+    //    not the conflicting UPDATE" → drives `isNew`.
+    const insertValues = {
+      organizationId: input.organizationId,
+      phone: phoneE164,
+      phoneRaw,
+      email,
+      fullName,
+      locale: input.locale ?? "ro",
+      acquisitionSource: input.acquisitionSource,
+      acquisitionRestaurantId: input.restaurantId,
+      occasionTags: occasion ? [occasion] : [],
+      birthdayDate: occasion === "birthday" ? occasionDate : null,
+      anniversaryDate: occasion === "anniversary" ? occasionDate : null,
+    };
+
     if (phoneE164) {
-      const existing = await deps.db
-        .select({ id: diners.id })
-        .from(diners)
-        .where(
-          and(
-            eq(diners.organizationId, input.organizationId),
-            eq(diners.phone, phoneE164),
-            isNull(diners.redactedAt),
-          ),
-        )
-        .limit(1);
-      if (existing[0]) {
-        // Soft-update missing fields only — never overwrite populated data.
-        await deps.db
-          .update(diners)
-          .set({
+      // Phone-first identity — conflict target is the (org, phone) partial
+      // unique index. email/name soft-updated; occasion tag/date filled.
+      const inserted = await deps.db
+        .insert(diners)
+        .values(insertValues)
+        .onConflictDoUpdate({
+          target: [diners.organizationId, diners.phone],
+          targetWhere: sql`${diners.phone} IS NOT NULL AND ${diners.redactedAt} IS NULL`,
+          set: {
             email: sql`COALESCE(${diners.email}, ${email})`,
             fullName: sql`COALESCE(${diners.fullName}, ${fullName})`,
             ...occasionSoftUpdate,
             updatedAt: new Date(),
-          })
-          .where(eq(diners.id, existing[0].id));
-        return { dinerId: existing[0].id, isNew: false };
-      }
+          },
+        })
+        .returning({ id: diners.id, isNew: sql<boolean>`(xmax = 0)` });
+      return { dinerId: inserted[0].id, isNew: inserted[0].isNew };
     }
 
-    // 5. Email-only path — only consulted when no phone was provided. We
-    //    intentionally do NOT collapse phone-having and email-only diners
-    //    onto the same row (matches the partial unique index where
-    //    phone IS NULL).
-    if (!phoneE164 && email) {
+    // Email-only path — phone is NULL (guaranteed: the guard rejected empty
+    // input and the phone branch returned above). The matching partial unique
+    // index `diners_org_email_unique` is on an EXPRESSION — (org, lower(email))
+    // WHERE phone IS NULL — which Drizzle's typed ON CONFLICT target cannot
+    // express (it only accepts plain columns). So instead of SELECT-then-INSERT
+    // we still let the index arbitrate the race: optimistic INSERT, and on the
+    // unique violation recover by reading + soft-updating the surviving row.
+    try {
+      const inserted = await deps.db
+        .insert(diners)
+        .values(insertValues)
+        .returning({ id: diners.id });
+      return { dinerId: inserted[0].id, isNew: true };
+    } catch (err) {
+      if (!isUniqueViolation(err)) throw err;
       const existing = await deps.db
         .select({ id: diners.id })
         .from(diners)
@@ -156,37 +189,18 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
           ),
         )
         .limit(1);
-      if (existing[0]) {
-        await deps.db
-          .update(diners)
-          .set({
-            fullName: sql`COALESCE(${diners.fullName}, ${fullName})`,
-            ...occasionSoftUpdate,
-            updatedAt: new Date(),
-          })
-          .where(eq(diners.id, existing[0].id));
-        return { dinerId: existing[0].id, isNew: false };
-      }
+      // The losing INSERT only conflicts against a live (non-redacted) row, so
+      // a match is guaranteed here; soft-update missing fields, never overwrite.
+      await deps.db
+        .update(diners)
+        .set({
+          fullName: sql`COALESCE(${diners.fullName}, ${fullName})`,
+          ...occasionSoftUpdate,
+          updatedAt: new Date(),
+        })
+        .where(eq(diners.id, existing[0].id));
+      return { dinerId: existing[0].id, isNew: false };
     }
-
-    // 6. Insert new diner.
-    const inserted = await deps.db
-      .insert(diners)
-      .values({
-        organizationId: input.organizationId,
-        phone: phoneE164,
-        phoneRaw,
-        email,
-        fullName,
-        locale: input.locale ?? "ro",
-        acquisitionSource: input.acquisitionSource,
-        acquisitionRestaurantId: input.restaurantId,
-        occasionTags: occasion ? [occasion] : [],
-        birthdayDate: occasion === "birthday" ? occasionDate : null,
-        anniversaryDate: occasion === "anniversary" ? occasionDate : null,
-      })
-      .returning({ id: diners.id });
-    return { dinerId: inserted[0].id, isNew: true };
   };
 }
 

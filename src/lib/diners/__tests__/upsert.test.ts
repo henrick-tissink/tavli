@@ -3,8 +3,11 @@
  *
  * Unit tests for findOrCreateDinerForReservation per Wave 3 §03 §5.2
  * sub-unit A.3. Drives a mocked Drizzle service-role client to validate
- * the phone-first / email-fallback / insert paths plus the
- * identity-required guard.
+ * the identity-required guard plus the atomic INSERT ... ON CONFLICT
+ * DO UPDATE phone-first / email-only paths. `isNew` is derived from the
+ * `(xmax = 0)` expression in RETURNING, so the race between two concurrent
+ * first-bookings is resolved by the partial unique index rather than a
+ * SELECT-then-INSERT check.
  */
 
 jest.mock("@/lib/phone/normalize");
@@ -19,14 +22,47 @@ beforeEach(() => {
   }));
 });
 
+// Builds a db mock. The first select() resolves the restaurant country lookup;
+// further select() calls resolve `selectRows.shift()` (used by the email-path
+// unique-violation recovery). insert().values() exposes BOTH `onConflictDoUpdate`
+// (phone path) and `returning` (email path). `returning` resolves to `row`
+// unless `returningError` is set, in which case it rejects with that error.
+function makeDb(
+  row: unknown[],
+  opts: { returningError?: unknown; selectRows?: unknown[][] } = {},
+) {
+  const countryRow = [{ countryCode: "RO" }];
+  const selectQueue = [countryRow, ...(opts.selectRows ?? [])];
+  const select = jest.fn().mockImplementation(() => ({
+    from: jest.fn().mockReturnThis(),
+    innerJoin: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockResolvedValue(selectQueue.shift()),
+  }));
+
+  const returning = opts.returningError
+    ? jest.fn().mockRejectedValue(opts.returningError)
+    : jest.fn().mockResolvedValue(row);
+  const onConflictDoUpdate = jest.fn().mockReturnValue({ returning });
+  const values = jest.fn().mockReturnValue({ onConflictDoUpdate, returning });
+  const insert = jest.fn().mockReturnValue({ values });
+
+  const updateWhere = jest.fn().mockResolvedValue(undefined);
+  const updateSet = jest.fn().mockReturnValue({ where: updateWhere });
+  const update = jest.fn().mockReturnValue({ set: updateSet });
+
+  return {
+    db: { select, insert, update },
+    insert,
+    values,
+    onConflictDoUpdate,
+    update,
+  };
+}
+
 describe("findOrCreateDinerForReservation", () => {
   it("rejects when neither phone nor email is provided", async () => {
-    const select = jest.fn();
-    const db = {
-      select,
-      insert: jest.fn(),
-      update: jest.fn(),
-    };
+    const db = { select: jest.fn(), insert: jest.fn(), update: jest.fn() };
     const fn = makeFindOrCreateDinerForReservation({ db: db as never });
     await expect(
       fn({
@@ -38,27 +74,41 @@ describe("findOrCreateDinerForReservation", () => {
     ).rejects.toThrow(/phone or email/i);
   });
 
-  it("returns existing diner on phone match + soft-updates email/name", async () => {
-    const updateSet = jest.fn().mockReturnThis();
-    const updateWhere = jest.fn().mockResolvedValue(undefined);
-    const update = jest.fn().mockReturnValue({ set: updateSet, where: updateWhere });
-    updateSet.mockReturnValue({ where: updateWhere });
-
-    const limitResults: Array<unknown[]> = [
-      [{ countryCode: "RO" }], // restaurant country lookup
-      [{ id: "diner-existing" }], // phone match
-    ];
-    const select = jest.fn().mockImplementation(() => {
-      const builder = {
-        from: jest.fn().mockReturnThis(),
-        innerJoin: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(limitResults.shift()),
-      };
-      return builder;
+  it("upserts via the phone conflict target and inserts a new diner", async () => {
+    const { db, values, onConflictDoUpdate } = makeDb([
+      { id: "diner-new", isNew: true },
+    ]);
+    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
+    const result = await fn({
+      organizationId: "org-1",
+      restaurantId: "rest-1",
+      guestName: "Bob",
+      guestPhone: "712345679",
+      guestEmail: "bob@example.com",
+      acquisitionSource: "widget",
     });
+    expect(result).toEqual({ dinerId: "diner-new", isNew: true });
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: "org-1",
+        phone: "+40712345679",
+        phoneRaw: "712345679",
+        fullName: "Bob",
+        acquisitionSource: "widget",
+      }),
+    );
+    expect(onConflictDoUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: expect.anything(),
+        targetWhere: expect.anything(),
+      }),
+    );
+  });
 
-    const db = { select, update, insert: jest.fn() };
+  it("resolves the concurrent-booking race: conflict returns the surviving row with isNew=false", async () => {
+    // Simulates the losing side of a race — the partial unique index fired,
+    // DO UPDATE ran, and RETURNING reports (xmax = 0) false.
+    const { db } = makeDb([{ id: "diner-existing", isNew: false }]);
     const fn = makeFindOrCreateDinerForReservation({ db: db as never });
     const result = await fn({
       organizationId: "org-1",
@@ -69,60 +119,10 @@ describe("findOrCreateDinerForReservation", () => {
       acquisitionSource: "widget",
     });
     expect(result).toEqual({ dinerId: "diner-existing", isNew: false });
-    expect(update).toHaveBeenCalled();
-  });
-
-  it("inserts new diner on no phone match", async () => {
-    const limitResults: Array<unknown[]> = [
-      [{ countryCode: "RO" }], // restaurant country
-      [], // no existing diner
-    ];
-    const select = jest.fn().mockImplementation(() => {
-      const builder = {
-        from: jest.fn().mockReturnThis(),
-        innerJoin: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(limitResults.shift()),
-      };
-      return builder;
-    });
-
-    const insertReturning = jest.fn().mockResolvedValue([{ id: "diner-new" }]);
-    const insertValues = jest.fn().mockReturnValue({ returning: insertReturning });
-    const insert = jest.fn().mockReturnValue({ values: insertValues });
-
-    const db = { select, insert, update: jest.fn() };
-    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
-    const result = await fn({
-      organizationId: "org-1",
-      restaurantId: "rest-1",
-      guestName: "Bob",
-      guestPhone: "712345679",
-      acquisitionSource: "widget",
-    });
-    expect(result).toEqual({ dinerId: "diner-new", isNew: true });
-    expect(insertValues).toHaveBeenCalledWith(
-      expect.objectContaining({
-        organizationId: "org-1",
-        phone: "+40712345679",
-        phoneRaw: "712345679",
-        fullName: "Bob",
-        acquisitionSource: "widget",
-      }),
-    );
   });
 
   it("persists a captured birthday occasion onto a new diner", async () => {
-    const limitResults: Array<unknown[]> = [[{ countryCode: "RO" }], []];
-    const select = jest.fn().mockImplementation(() => ({
-      from: jest.fn().mockReturnThis(),
-      innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockResolvedValue(limitResults.shift()),
-    }));
-    const insertValues = jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: "d-new" }]) });
-    const insert = jest.fn().mockReturnValue({ values: insertValues });
-    const db = { select, insert, update: jest.fn() };
+    const { db, values } = makeDb([{ id: "d-new", isNew: true }]);
     const fn = makeFindOrCreateDinerForReservation({ db: db as never });
     await fn({
       organizationId: "org-1",
@@ -133,22 +133,17 @@ describe("findOrCreateDinerForReservation", () => {
       occasion: "birthday",
       occasionDate: "1990-03-15",
     });
-    expect(insertValues).toHaveBeenCalledWith(
-      expect.objectContaining({ occasionTags: ["birthday"], birthdayDate: "1990-03-15", anniversaryDate: null }),
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        occasionTags: ["birthday"],
+        birthdayDate: "1990-03-15",
+        anniversaryDate: null,
+      }),
     );
   });
 
   it("ignores a malformed occasion date", async () => {
-    const limitResults: Array<unknown[]> = [[{ countryCode: "RO" }], []];
-    const select = jest.fn().mockImplementation(() => ({
-      from: jest.fn().mockReturnThis(),
-      innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockResolvedValue(limitResults.shift()),
-    }));
-    const insertValues = jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: "d-new" }]) });
-    const insert = jest.fn().mockReturnValue({ values: insertValues });
-    const db = { select, insert, update: jest.fn() };
+    const { db, values } = makeDb([{ id: "d-new", isNew: true }]);
     const fn = makeFindOrCreateDinerForReservation({ db: db as never });
     await fn({
       organizationId: "org-1",
@@ -159,31 +154,13 @@ describe("findOrCreateDinerForReservation", () => {
       occasion: "birthday",
       occasionDate: "not-a-date",
     });
-    expect(insertValues).toHaveBeenCalledWith(
+    expect(values).toHaveBeenCalledWith(
       expect.objectContaining({ occasionTags: ["birthday"], birthdayDate: null }),
     );
   });
 
-  it("falls back to email-only path when no phone provided", async () => {
-    const limitResults: Array<unknown[]> = [
-      [{ countryCode: "RO" }],
-      [{ id: "diner-via-email" }],
-    ];
-    const select = jest.fn().mockImplementation(() => {
-      const builder = {
-        from: jest.fn().mockReturnThis(),
-        innerJoin: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(limitResults.shift()),
-      };
-      return builder;
-    });
-    const updateSet = jest.fn().mockReturnThis();
-    const updateWhere = jest.fn().mockResolvedValue(undefined);
-    const update = jest.fn().mockReturnValue({ set: updateSet, where: updateWhere });
-    updateSet.mockReturnValue({ where: updateWhere });
-
-    const db = { select, update, insert: jest.fn() };
+  it("optimistically inserts on the email-only path (no phone provided)", async () => {
+    const { db, values, onConflictDoUpdate } = makeDb([{ id: "diner-via-email" }]);
     const fn = makeFindOrCreateDinerForReservation({ db: db as never });
     const result = await fn({
       organizationId: "org-1",
@@ -192,6 +169,43 @@ describe("findOrCreateDinerForReservation", () => {
       guestEmail: "Carol@Example.com",
       acquisitionSource: "widget",
     });
-    expect(result).toEqual({ dinerId: "diner-via-email", isNew: false });
+    expect(result).toEqual({ dinerId: "diner-via-email", isNew: true });
+    // email lower-cased + phone null in the insert values; the email path does
+    // NOT use ON CONFLICT (the index is on an expression drizzle can't target).
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({ phone: null, email: "carol@example.com" }),
+    );
+    expect(onConflictDoUpdate).not.toHaveBeenCalled();
+  });
+
+  it("recovers from a unique violation on the email path (race) → soft-updates the survivor", async () => {
+    const { db, update } = makeDb([], {
+      returningError: { code: "23505" }, // Postgres unique_violation
+      selectRows: [[{ id: "diner-existing-email" }]],
+    });
+    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
+    const result = await fn({
+      organizationId: "org-1",
+      restaurantId: "rest-1",
+      guestName: "Carol",
+      guestEmail: "carol@example.com",
+      acquisitionSource: "widget",
+    });
+    expect(result).toEqual({ dinerId: "diner-existing-email", isNew: false });
+    expect(update).toHaveBeenCalled();
+  });
+
+  it("rethrows a non-unique-violation insert error on the email path", async () => {
+    const { db } = makeDb([], { returningError: { code: "23502" } }); // not_null_violation
+    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
+    await expect(
+      fn({
+        organizationId: "org-1",
+        restaurantId: "rest-1",
+        guestName: "Carol",
+        guestEmail: "carol@example.com",
+        acquisitionSource: "widget",
+      }),
+    ).rejects.toEqual({ code: "23502" });
   });
 });
