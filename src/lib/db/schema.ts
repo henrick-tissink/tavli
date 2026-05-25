@@ -451,6 +451,10 @@ export const reservations = pgTable("reservations", {
   }),
   // §02 §6 — 24h reminder double-fire guard (migration 0055).
   reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
+  // §02 §3.1/§4.5 — optimistic locking + modify metadata (migration 0060).
+  version: integer("version").notNull().default(0),
+  modifiedAt: timestamp("modified_at", { withTimezone: true }),
+  modifiedByUserId: uuid("modified_by_user_id"),
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
   // §08 Table assignment columns. FK constraints live in the DB (migration
   // 0035); omitting .references() here breaks the circular type-inference

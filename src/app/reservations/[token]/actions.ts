@@ -3,10 +3,39 @@
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
+import { modifyReservationByToken } from "@/lib/reservations/modify-by-token";
 
 export interface CancelResult {
   ok: boolean;
   error?: string;
+}
+
+export interface ModifyResult {
+  ok: boolean;
+  error?: string;
+  errorCode?: "WINDOW_CLOSED" | "TERMINAL" | "SLOT_FULL" | "CONFLICT" | "OTHER";
+}
+
+/**
+ * §02 §4.3 — diner modify via the secure link (thin wrapper over the lib, which
+ * owns the 24h cutoff + optimistic-lock + capacity recheck).
+ */
+export async function modifyReservationByTokenAction(input: {
+  token: string;
+  version: number;
+  date: string;
+  time: string;
+  partySize: number;
+  notes?: string;
+}): Promise<ModifyResult> {
+  const r = await modifyReservationByToken(input);
+  if (r.ok) return { ok: true };
+  const msg = r.message ?? "";
+  if (msg.includes("TV003")) return { ok: false, error: "Modificarea e permisă doar cu peste 24h înainte. Contactează restaurantul.", errorCode: "WINDOW_CLOSED" };
+  if (msg.includes("TV007")) return { ok: false, error: "Rezervarea nu mai poate fi modificată.", errorCode: "TERMINAL" };
+  if (msg.includes("TV002")) return { ok: false, error: "Intervalul ales este plin. Alege altul.", errorCode: "SLOT_FULL" };
+  if (r.code === "conflict") return { ok: false, error: "Rezervarea s-a schimbat între timp. Reîncarcă pagina.", errorCode: "CONFLICT" };
+  return { ok: false, error: msg || "Modificarea nu a putut fi efectuată.", errorCode: "OTHER" };
 }
 
 export async function cancelReservationByToken(

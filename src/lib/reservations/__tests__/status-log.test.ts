@@ -9,7 +9,7 @@ import { makeLogReservationStatus } from "../status-log";
 
 describe("logReservationStatus", () => {
   it("inserts a reservation_status_log row capturing the transition", async () => {
-    const execute = jest.fn(async () => []);
+    const execute = jest.fn(async (_q: unknown) => []);
     await makeLogReservationStatus({ db: { execute } as never })({
       reservationId: "res-1",
       restaurantId: "rest-1",
