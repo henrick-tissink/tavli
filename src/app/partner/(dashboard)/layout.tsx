@@ -26,6 +26,12 @@ export default async function PartnerGatedLayout({
   }
 
   const supabase = await createSupabaseServerClient();
+  // §01 §5.3 — email-verification gate. An authenticated-but-unconfirmed user
+  // cannot use the portal until they verify their email.
+  const { data: authData } = await supabase.auth.getUser();
+  if (authData?.user && !authData.user.email_confirmed_at) {
+    redirect("/partner/verify-email");
+  }
   const [restaurantId, venues] = await Promise.all([
     currentUserPrimaryRestaurant(session),
     listAccessibleVenues(session),
