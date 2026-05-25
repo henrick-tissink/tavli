@@ -14,9 +14,13 @@ import type { TableStatus } from "@/lib/tables/state-machine";
 export type Res = { ok: true } | { ok: false; error: string };
 
 /**
- * Authorize `floor_plan.edit` on a restaurant, deriving the org server-side so a
- * client can't smuggle a restaurantId it doesn't own. Returns the session (with
- * userId for the status-log actor) or null.
+ * Authorize an OPERATIONAL live-view mutation (status / combine / walk-in) on a
+ * restaurant, deriving the org server-side so a client can't smuggle a
+ * restaurantId it doesn't own. Per §08 §4.9 these gate on `table.update`
+ * ("every venue staff including hosts") — NOT `floor_plan.edit`, which the
+ * matrix denies to venue_host and which governs only config (restaurant_tables)
+ * edits in the editor (actions.ts). Returns the session (with userId for the
+ * status-log actor) or null.
  */
 async function authzRestaurant(restaurantId: string): Promise<{ userId: string } | null> {
   const session = await getCurrentSession();
@@ -27,7 +31,7 @@ async function authzRestaurant(restaurantId: string): Promise<{ userId: string }
     .where(eq(restaurants.id, restaurantId))
     .limit(1);
   const orgId = (r as { orgId: string | null } | undefined)?.orgId ?? "";
-  const ok = await can(session, "floor_plan.edit", { kind: "restaurant", id: restaurantId, organization_id: orgId });
+  const ok = await can(session, "table.update", { kind: "restaurant", id: restaurantId, organization_id: orgId });
   return ok ? { userId: session.userId } : null;
 }
 
