@@ -232,6 +232,36 @@ describe("stripe-webhook-router", () => {
     expect(d.recordBillingAudit).not.toHaveBeenCalled();
   });
 
+  it("#6 invoice.payment_action_required sets the subscription incomplete (SCA), not past_due", async () => {
+    const { db, setCalls } = captureDb([[{ organizationId: "org-1", status: "active" }]]);
+    const router = makeStripeWebhookRouter(deps({ db }) as never);
+    await router.handle(
+      evt("invoice.payment_action_required", {
+        id: "in_sca",
+        customer: "cus_1",
+        // stripe@22: subscription id lives under parent.subscription_details.
+        parent: { subscription_details: { subscription: "sub_1" } },
+      }),
+    );
+    expect(setCalls[0].status).toBe("incomplete");
+  });
+
+  it("#6 invoice.payment_failed reads subscription id from the new parent shape", async () => {
+    const { db, setCalls } = captureDb([[{ organizationId: "org-1" }]]);
+    const router = makeStripeWebhookRouter(deps({ db }) as never);
+    await router.handle(
+      evt("invoice.payment_failed", {
+        id: "in_pf",
+        customer: "cus_1",
+        status: "open",
+        amount_due: 6000,
+        currency: "eur",
+        parent: { subscription_details: { subscription: "sub_1" } },
+      }),
+    );
+    expect(setCalls.some((c) => c.status === "past_due")).toBe(true);
+  });
+
   it("unknown event types are a no-op", async () => {
     const d = deps();
     const router = makeStripeWebhookRouter(d as never);

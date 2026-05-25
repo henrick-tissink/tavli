@@ -52,6 +52,17 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
     };
   }
 
+  // NEW-6: stripe@22 moved Invoice.subscription to
+  // invoice.parent.subscription_details.subscription. The old top-level field is
+  // kept as a fallback. (The previous code read only inv.subscription, so
+  // invoice.payment_failed silently never set past_due in this SDK.)
+  function subscriptionIdFromInvoice(inv: Obj): string | null {
+    if (typeof inv.subscription === "string") return inv.subscription;
+    const parent = inv.parent as { subscription_details?: { subscription?: unknown } } | undefined;
+    const s = parent?.subscription_details?.subscription;
+    return typeof s === "string" ? s : null;
+  }
+
   async function onSubscriptionUpdated(event: Stripe.Event): Promise<void> {
     if (await deps.wasEventApplied(event.id)) return;
     const sub = event.data.object as unknown as Obj;
@@ -173,13 +184,15 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         context: { stripe_event_id: event.id, stripe_invoice_id: inv.id, amount_paid_cents: inv.amount_paid },
       });
     } else if (event.type === "invoice.payment_failed") {
-      // §7.3 step 3: authentication_required → incomplete (needs PI expansion to
-      // detect reliably; default to past_due otherwise). Dunning emails + lockout are W5-G.
-      if (typeof inv.subscription === "string") {
+      // Hard decline → past_due. SCA step-up (authentication_required) is a
+      // SEPARATE event (invoice.payment_action_required → incomplete, §7.3 step 3,
+      // see onInvoicePaymentActionRequired). Dunning emails + lockout are W5-G.
+      const subId = subscriptionIdFromInvoice(inv);
+      if (subId) {
         await deps.db
           .update(subscriptions)
           .set({ status: "past_due", statusSyncedAt: sql`now()` })
-          .where(eq(subscriptions.stripeSubscriptionId, inv.subscription));
+          .where(eq(subscriptions.stripeSubscriptionId, subId));
       }
       await deps.recordBillingAudit({
         organizationId: orgId,
@@ -187,6 +200,32 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         context: { stripe_event_id: event.id, stripe_invoice_id: inv.id, failure_reason: inv.last_finalization_error ?? null },
       });
     }
+  }
+
+  // NEW-6 / §7.3 step 3 — a subscription invoice that needs customer SCA action
+  // (e.g. the day-91 MIT charge requiring 3DS) → 'incomplete', NOT 'past_due'.
+  // computeBillingAccess maps incomplete→full, so the operator keeps access
+  // while they complete the 3DS hosted-invoice flow.
+  async function onInvoicePaymentActionRequired(event: Stripe.Event): Promise<void> {
+    if (await deps.wasEventApplied(event.id)) return;
+    const inv = event.data.object as unknown as Obj;
+    const subId = subscriptionIdFromInvoice(inv);
+    if (!subId) return;
+    const rows = await deps.db
+      .select({ organizationId: subscriptions.organizationId, status: subscriptions.status })
+      .from(subscriptions)
+      .where(eq(subscriptions.stripeSubscriptionId, subId));
+    const row = rows[0];
+    if (!row) return;
+    await deps.db
+      .update(subscriptions)
+      .set({ status: "incomplete", statusSyncedAt: sql`now()` })
+      .where(eq(subscriptions.stripeSubscriptionId, subId));
+    await deps.recordBillingAudit({
+      organizationId: row.organizationId,
+      eventType: "billing.subscription_updated",
+      context: { stripe_event_id: event.id, before_status: row.status, after_status: "incomplete", reason: "payment_action_required" },
+    });
   }
 
   async function onPaymentMethodAttached(event: Stripe.Event): Promise<void> {
@@ -323,6 +362,8 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         case "invoice.payment_failed":
         case "invoice.voided":
           return onInvoice(event);
+        case "invoice.payment_action_required":
+          return onInvoicePaymentActionRequired(event);
         case "payment_method.attached":
           return onPaymentMethodAttached(event);
         case "payment_method.detached":
