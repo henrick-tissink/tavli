@@ -386,6 +386,13 @@
       "when": 1779598000000,
       "tag": "0054_capacity_advisory_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1779599000000,
+      "tag": "0055_reservation_reminder_sent_at",
+      "breakpoints": true
     }
   ]
 }

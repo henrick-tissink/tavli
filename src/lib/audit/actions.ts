@@ -53,6 +53,8 @@ export const AUDIT = {
     cancelled: "reservation.cancelled",
     capacity_overridden: "reservation.capacity_overridden",
     table_auto_cleared: "reservation.table_auto_cleared",
+    reminder_sent: "reservation.reminder_sent",
+    no_show: "reservation.no_show",
   },
   diner: {
     updated: "diner.updated",

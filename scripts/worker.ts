@@ -37,6 +37,7 @@ import {
 } from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
+import { sendReminders } from "@/lib/reservations/jobs/send-reminders";
 import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
 import {
   handleTrialReminderDay60,
@@ -134,6 +135,12 @@ async function main(): Promise<void> {
     await handleBirthdayScan();
   });
   await boss.schedule(JOBS.diner.birthdayScan, "0 3 * * *");
+
+  // §02 §6 — 24h pre-arrival reminder, hourly sweep (claim-before-send guard).
+  await boss.work(JOBS.reservation.sendReminder24h, async () => {
+    await sendReminders();
+  });
+  await boss.schedule(JOBS.reservation.sendReminder24h, "0 * * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.
