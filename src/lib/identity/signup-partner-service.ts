@@ -17,6 +17,7 @@ import { makeStartSubscription } from "@/lib/billing/start-subscription";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { appOrigin } from "@/lib/app-origin";
 import { PartnerWelcomeEmail, getSubject } from "@/emails/PartnerWelcomeEmail";
+import { seedTriggeredCampaigns } from "@/lib/marketing/triggered-defaults";
 import { makeSignupPartner, type SignupAuthAdmin } from "./signup-partner";
 
 const authAdmin: SignupAuthAdmin = {
@@ -73,4 +74,6 @@ export const signupPartner = makeSignupPartner({
     makeStartSubscription({ stripe: getStripe(), db: dbAdmin, enqueue, recordBillingAudit })(input),
   recordAudit,
   sendWelcomeEmail,
+  seedTriggeredCampaigns: (organizationId, db) =>
+    seedTriggeredCampaigns(organizationId, db as Parameters<typeof seedTriggeredCampaigns>[1]),
 });

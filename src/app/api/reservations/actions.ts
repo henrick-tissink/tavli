@@ -13,6 +13,8 @@ import { normalizePhone } from "@/lib/phone/normalize";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
 import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
+import { enqueue } from "@/lib/jobs/enqueue";
+import { JOBS } from "@/lib/jobs/keys";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -146,7 +148,7 @@ export async function createReservation(
   let resolvedDinerId: string | undefined;
   if (restaurant?.organization_id) {
     try {
-      const { dinerId } = await findOrCreateDinerForReservation({
+      const { dinerId, isNew } = await findOrCreateDinerForReservation({
         organizationId: restaurant.organization_id,
         restaurantId: data.restaurant_id,
         guestName: input.guestName.trim(),
@@ -159,6 +161,21 @@ export async function createReservation(
         .update({ diner_id: dinerId })
         .eq("id", data.id);
       resolvedDinerId = dinerId;
+
+      // §11 §6 — fire the welcome triggered campaign for a brand-new diner.
+      // singletonKey dedups; best-effort (inside the surrounding try/catch).
+      if (isNew) {
+        await enqueue(
+          JOBS.marketing.fireTriggeredCampaign,
+          {
+            triggerEvent: "diner.created",
+            dinerId,
+            organizationId: restaurant.organization_id,
+            restaurantId: data.restaurant_id,
+          },
+          { singletonKey: `trig:diner.created:${dinerId}` },
+        );
+      }
     } catch (e) {
       console.error("[createReservation] diner upsert failed", e);
     }

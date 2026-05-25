@@ -85,6 +85,8 @@ export interface SignupPartnerDeps {
     fullName: string;
     restaurantName: string;
   }) => Promise<unknown>;
+  /** §11 §6 — seed the org's default triggered campaigns inside the signup tx. */
+  seedTriggeredCampaigns: (organizationId: string, db: unknown) => Promise<unknown>;
   now?: () => Date;
   genSlugSuffix?: () => string;
 }
@@ -174,6 +176,10 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
             status: "pending_verification",
           })
           .returning({ id: organizations.id });
+
+        // §11 §6 — every new org gets the default triggered campaigns, atomic
+        // with org creation.
+        await deps.seedTriggeredCampaigns(org.id, tx);
 
         const [venue] = await tx
           .insert(restaurants)

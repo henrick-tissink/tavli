@@ -16,6 +16,8 @@ import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { getActorRole } from "@/lib/audit/actor-role";
 import { currentActor } from "@/lib/auth/current-actor";
+import { enqueue } from "@/lib/jobs/enqueue";
+import { JOBS } from "@/lib/jobs/keys";
 
 export type NewStatus = "seated" | "no_show" | "completed";
 
@@ -66,6 +68,32 @@ export async function updateReservationStatus(
       next_status: nextStatus,
     },
   });
+
+  // §11 §6 — fire triggered marketing campaigns (post-visit / no-show). The
+  // singletonKey dedups job retries + status re-transitions; per-reservation
+  // keying preserves per-visit semantics. Best-effort — never blocks the status
+  // update, and only fires when the reservation is linked to a diner.
+  if (nextStatus === "completed" || nextStatus === "no_show") {
+    try {
+      const { data: resRow } = await supabase
+        .from("reservations")
+        .select("diner_id")
+        .eq("id", reservationId)
+        .maybeSingle();
+      const dinerId = (resRow as { diner_id?: string | null } | null)?.diner_id ?? null;
+      if (dinerId && orgRow?.organization_id) {
+        const triggerEvent =
+          nextStatus === "completed" ? "reservation.completed" : "reservation.no_show";
+        await enqueue(
+          JOBS.marketing.fireTriggeredCampaign,
+          { triggerEvent, dinerId, organizationId: orgRow.organization_id, restaurantId },
+          { singletonKey: `trig:${triggerEvent}:${reservationId}` },
+        );
+      }
+    } catch (e) {
+      console.error("[updateReservationStatus] triggered-campaign enqueue failed", e);
+    }
+  }
 
   revalidatePath("/partner/reservations");
   revalidatePath("/partner");

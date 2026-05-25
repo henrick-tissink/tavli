@@ -82,21 +82,23 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
   const startSubscription = jest.fn(async () => ({ stripeCheckoutUrl: "https://stripe/checkout" }));
   const sendWelcomeEmail = jest.fn(async () => {});
   const recordAudit = jest.fn(async () => {});
+  const seedTriggeredCampaigns = jest.fn(async () => 5);
   const deps = {
     db,
     authAdmin,
     startSubscription,
     sendWelcomeEmail,
     recordAudit,
+    seedTriggeredCampaigns,
     genSlugSuffix: () => "abc123",
     ...overrides,
   } as Parameters<typeof makeSignupPartner>[0];
-  return { deps, authAdmin, startSubscription, sendWelcomeEmail, recordAudit, inserts };
+  return { deps, authAdmin, startSubscription, sendWelcomeEmail, recordAudit, seedTriggeredCampaigns, inserts };
 }
 
 describe("signupPartner", () => {
   it("happy path: creates user + rows, starts subscription, returns checkout url", async () => {
-    const { deps, authAdmin, startSubscription, inserts } = makeDeps();
+    const { deps, authAdmin, startSubscription, seedTriggeredCampaigns, inserts } = makeDeps();
     const res = await makeSignupPartner(deps)(BASE_INPUT);
 
     expect(res.ok).toBe(true);
@@ -131,6 +133,8 @@ describe("signupPartner", () => {
     expect(org.values).toMatchObject({ status: "pending_verification", name: "Tom Yum Group", taxId: "RO123" });
     expect(inserts.find((i) => i.table === "organizationMembers")!.values).toMatchObject({ role: "owner" });
     expect(inserts.find((i) => i.table === "restaurantStaff")!.values).toMatchObject({ role: "owner" });
+    // §11 §6 — default triggered campaigns seeded inside the signup tx
+    expect(seedTriggeredCampaigns).toHaveBeenCalledWith("org-1", expect.anything());
   });
 
   it("defers billing when customer_type is not yet supplied", async () => {
