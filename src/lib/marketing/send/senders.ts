@@ -10,10 +10,28 @@ import { dbAdmin } from "@/lib/db/admin";
 import type { MarketingChannel } from "@/lib/marketing/channel";
 import type { makeMarketingPolicy, EvaluateInput } from "@/lib/marketing/send/policy";
 import { appendStopSuffix } from "@/lib/marketing/send/stop-suffix";
+import { signSendToken } from "@/lib/marketing/tokens";
+import { appOrigin } from "@/lib/app-origin";
 import { JOBS } from "@/lib/jobs/keys";
 
 interface ResendLike {
-  emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
+  emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string; headers?: Record<string, string> }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
+}
+
+/**
+ * §11 §5.2 — rewrite every absolute http(s) `<a href>` in a marketing email
+ * body to the /c click-tracking redirect (carrying the original URL base64url'd
+ * in `dst`). mailto:, in-page anchors, and relative links are left alone. Pure,
+ * so it's unit-tested in isolation.
+ */
+export function wrapTrackingLinks(
+  html: string,
+  opts: { base: string; sendId: string; token: string },
+): string {
+  return html.replace(/href="(https?:\/\/[^"]+)"/gi, (_m, url: string) => {
+    const dst = Buffer.from(url, "utf8").toString("base64url");
+    return `href="${opts.base}/c/${opts.sendId}/${opts.token}?dst=${dst}"`;
+  });
 }
 interface TwilioClient {
   messages: { create: (o: { to: string; from: string; body: string }) => Promise<{ sid: string }> };
@@ -127,12 +145,21 @@ export function makeMarketingSenders(deps: Deps & { resend: ResendLike; twilio: 
   return {
     sendEmail(input: MarketingSendInput): Promise<MarketingSendResult> {
       return dispatch(deps, input, async () => {
+        // §11 §5.2 / §11.3: mint the send-bound HMAC token, wrap body links for
+        // click tracking, and attach the RFC 8058 one-click List-Unsubscribe
+        // header pointing at /u/<sendId>/<token>. (signSendToken's only producer.)
+        const token = signSendToken(input.sendId, { campaignId: input.campaignId, dinerId: input.dinerId });
+        const base = appOrigin();
         const res = await deps.resend.emails.send({
           from: deps.emailFrom,
           to: input.identifier,
           subject: input.subject,
-          html: input.body,
+          html: wrapTrackingLinks(input.body, { base, sendId: input.sendId, token }),
           text: input.text ?? "",
+          headers: {
+            "List-Unsubscribe": `<${base}/u/${input.sendId}/${token}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
         });
         if (res.error) throw new Error(res.error.message);
         return { resendId: res.data?.id };

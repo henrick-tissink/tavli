@@ -1,5 +1,28 @@
 import { appendStopSuffix } from "@/lib/marketing/send/stop-suffix";
-import { makeMarketingSenders, type MarketingSendInput } from "@/lib/marketing/send/senders";
+import { makeMarketingSenders, wrapTrackingLinks, type MarketingSendInput } from "@/lib/marketing/send/senders";
+
+describe("wrapTrackingLinks", () => {
+  test("rewrites http(s) hrefs through the /c click-tracking redirect", () => {
+    const html = wrapTrackingLinks('<a href="https://example.com/x?y=1">Go</a>', {
+      base: "https://tavli.ro",
+      sendId: "s1",
+      token: "tok",
+    });
+    expect(html).toContain("https://tavli.ro/c/s1/tok?dst=");
+    expect(html).not.toContain('href="https://example.com/x?y=1"');
+    expect(html).toContain(Buffer.from("https://example.com/x?y=1").toString("base64url"));
+  });
+
+  test("leaves mailto / anchor / relative hrefs untouched", () => {
+    const html = wrapTrackingLinks('<a href="mailto:a@b.com">m</a><a href="#x">a</a>', {
+      base: "https://tavli.ro",
+      sendId: "s1",
+      token: "tok",
+    });
+    expect(html).toContain('href="mailto:a@b.com"');
+    expect(html).toContain('href="#x"');
+  });
+});
 
 describe("appendStopSuffix", () => {
   test("appends per locale", () => {
@@ -29,7 +52,16 @@ function harness(policyResult: { allow: boolean; skip?: string; deferUntil?: Dat
   };
   const policy = jest.fn(async () => policyResult);
   const enqueue = jest.fn(async () => "job-1");
-  const resend = { emails: { send: jest.fn(async () => ({ data: { id: "re_1" }, error: null })) } };
+  const resend = {
+    emails: {
+      send: jest.fn(
+        async (_i: { from: string; to: string; subject: string; html: string; text: string; headers?: Record<string, string> }) => ({
+          data: { id: "re_1" },
+          error: null,
+        }),
+      ),
+    },
+  };
   const twilio = { messages: { create: jest.fn(async (_o: { to: string; from: string; body: string }) => ({ sid: "SM1" })) } };
   const senders = makeMarketingSenders({ db: db as never, policy: policy as never, enqueue, resend, twilio, emailFrom: "hello@tavli.ro", smsFrom: "+10000000000" });
   return { db, policy, enqueue, resend, twilio, senders };
@@ -49,6 +81,15 @@ describe("marketing senders", () => {
     for (const [q] of h.db.execute.mock.calls) {
       expect(JSON.stringify(q)).not.toContain("INSERT INTO marketing_sends");
     }
+  });
+
+  test("email sets RFC 8058 List-Unsubscribe headers + wraps body links for click tracking", async () => {
+    const h = harness({ allow: true });
+    await h.senders.sendEmail({ ...emailInput, body: '<a href="https://example.com/m">Menu</a>' });
+    const sent = h.resend.emails.send.mock.calls[0][0];
+    expect(sent.headers?.["List-Unsubscribe"]).toMatch(/^<.*\/u\/s1\/.+>$/);
+    expect(sent.headers?.["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    expect(sent.html).toContain("/c/s1/");
   });
 
   test("policy skip: marks the existing row skipped, never calls the provider", async () => {

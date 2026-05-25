@@ -14,7 +14,7 @@ import { enqueue } from "@/lib/jobs/enqueue";
 import type { JobKey } from "@/lib/jobs/keys";
 
 interface ResendLike {
-  emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
+  emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string; headers?: Record<string, string> }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
 }
 interface TwilioClient {
   messages: { create: (o: { to: string; from: string; body: string }) => Promise<{ sid: string }> };

@@ -6,8 +6,14 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 function secret(): string {
-  // Dev fallback so the module never throws at import without a key.
-  return process.env.LINK_TRACKING_SECRET ?? "dev-link-tracking-secret";
+  const s = process.env.LINK_TRACKING_SECRET;
+  if (s) return s;
+  // Fail closed in production: a missing secret would make unsubscribe / click
+  // tokens forgeable. Only fall back to the dev placeholder outside production.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("LINK_TRACKING_SECRET is required in production");
+  }
+  return "dev-link-tracking-secret";
 }
 
 export interface TokenPayload {
