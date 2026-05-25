@@ -44,6 +44,11 @@ export interface FindOrCreateDinerInput {
   guestEmail?: string;
   locale?: string;
   acquisitionSource: DinerAcquisitionSource;
+  // §11 §6.3 — optional special occasion captured at booking. occasionDate is
+  // ISO yyyy-mm-dd; persisted to birthday_date / anniversary_date + tagged so
+  // the birthday/anniversary triggered campaigns can fire.
+  occasion?: "birthday" | "anniversary";
+  occasionDate?: string;
 }
 
 export interface FindOrCreateDinerResult {
@@ -88,6 +93,23 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
     const email = input.guestEmail?.trim().toLowerCase() ?? null;
     const fullName = input.guestName.trim() || null;
 
+    // §11 §6.3 — occasion capture. Only a well-formed date is persisted.
+    const occasion = input.occasion ?? null;
+    const occasionDate =
+      input.occasionDate && /^\d{4}-\d{2}-\d{2}$/.test(input.occasionDate)
+        ? input.occasionDate
+        : null;
+    // Soft-update fragment for an EXISTING diner: append the tag if missing,
+    // and only fill the date when it isn't already set (never overwrite).
+    const occasionSoftUpdate: Record<string, unknown> = occasion
+      ? {
+          occasionTags: sql`CASE WHEN ${occasion}::text = ANY(${diners.occasionTags}) THEN ${diners.occasionTags} ELSE array_append(${diners.occasionTags}, ${occasion}::text) END`,
+          ...(occasion === "birthday"
+            ? { birthdayDate: sql`COALESCE(${diners.birthdayDate}, ${occasionDate}::date)` }
+            : { anniversaryDate: sql`COALESCE(${diners.anniversaryDate}, ${occasionDate}::date)` }),
+        }
+      : {};
+
     // 4. Phone-first path — the unique index on (org_id, phone) makes this
     //    the canonical identity for repeat diners.
     if (phoneE164) {
@@ -109,6 +131,7 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
           .set({
             email: sql`COALESCE(${diners.email}, ${email})`,
             fullName: sql`COALESCE(${diners.fullName}, ${fullName})`,
+            ...occasionSoftUpdate,
             updatedAt: new Date(),
           })
           .where(eq(diners.id, existing[0].id));
@@ -138,6 +161,7 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
           .update(diners)
           .set({
             fullName: sql`COALESCE(${diners.fullName}, ${fullName})`,
+            ...occasionSoftUpdate,
             updatedAt: new Date(),
           })
           .where(eq(diners.id, existing[0].id));
@@ -157,6 +181,9 @@ export function makeFindOrCreateDinerForReservation(deps: Deps) {
         locale: input.locale ?? "ro",
         acquisitionSource: input.acquisitionSource,
         acquisitionRestaurantId: input.restaurantId,
+        occasionTags: occasion ? [occasion] : [],
+        birthdayDate: occasion === "birthday" ? occasionDate : null,
+        anniversaryDate: occasion === "anniversary" ? occasionDate : null,
       })
       .returning({ id: diners.id });
     return { dinerId: inserted[0].id, isNew: true };

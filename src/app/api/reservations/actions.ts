@@ -28,6 +28,11 @@ export interface CreateReservationInput {
   guestPhone: string;
   guestEmail?: string;
   notes?: string;
+  // §11 §6.3 — optional special occasion captured at booking; occasionDate is
+  // ISO yyyy-mm-dd. Persisted onto the diner so the birthday/anniversary
+  // triggered campaigns can fire.
+  occasion?: "birthday" | "anniversary";
+  occasionDate?: string;
 }
 
 export interface CreateReservationResult {
@@ -155,6 +160,8 @@ export async function createReservation(
         guestPhone: input.guestPhone,
         guestEmail: input.guestEmail?.trim() || undefined,
         acquisitionSource: "widget",
+        occasion: input.occasion,
+        occasionDate: input.occasionDate,
       });
       await admin
         .from("reservations")

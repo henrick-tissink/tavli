@@ -54,6 +54,8 @@ function makeInitialForm(preSelectedSlot?: string): ReservationFormState {
     phone: "",
     email: "",
     notes: "",
+    occasion: "",
+    occasionDate: "",
   };
 }
 
@@ -103,6 +105,9 @@ export function ReservationSheetV2({
 
   const patch = (p: Partial<ReservationFormState>) =>
     setForm((f) => ({ ...f, ...p }));
+  // StepIdentity's onChange is string-typed; occasion is a union, so cast here.
+  const patchField = (field: string, value: string) =>
+    patch({ [field]: value } as Partial<ReservationFormState>);
 
   // Fetch slots whenever the user picks/changes a date. The API returns every
   // slot for that day-of-week; we filter past slots HERE using the client's
@@ -206,6 +211,8 @@ export function ReservationSheetV2({
         guestPhone: form.phone,
         guestEmail: form.email || undefined,
         notes: form.notes || undefined,
+        occasion: form.occasion || undefined,
+        occasionDate: form.occasionDate || undefined,
       });
       if (result.ok) {
         setReservationId(result.reservationId ?? null);
@@ -319,7 +326,9 @@ export function ReservationSheetV2({
                 phone={form.phone}
                 email={form.email}
                 notes={form.notes}
-                onChange={(field, value) => patch({ [field]: value })}
+                occasion={form.occasion}
+                occasionDate={form.occasionDate}
+                onChange={patchField}
                 errors={errors}
               />
               {submitError && (

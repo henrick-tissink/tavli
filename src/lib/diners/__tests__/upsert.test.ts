@@ -112,6 +112,58 @@ describe("findOrCreateDinerForReservation", () => {
     );
   });
 
+  it("persists a captured birthday occasion onto a new diner", async () => {
+    const limitResults: Array<unknown[]> = [[{ countryCode: "RO" }], []];
+    const select = jest.fn().mockImplementation(() => ({
+      from: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue(limitResults.shift()),
+    }));
+    const insertValues = jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: "d-new" }]) });
+    const insert = jest.fn().mockReturnValue({ values: insertValues });
+    const db = { select, insert, update: jest.fn() };
+    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
+    await fn({
+      organizationId: "org-1",
+      restaurantId: "rest-1",
+      guestName: "Bob",
+      guestPhone: "712345679",
+      acquisitionSource: "widget",
+      occasion: "birthday",
+      occasionDate: "1990-03-15",
+    });
+    expect(insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({ occasionTags: ["birthday"], birthdayDate: "1990-03-15", anniversaryDate: null }),
+    );
+  });
+
+  it("ignores a malformed occasion date", async () => {
+    const limitResults: Array<unknown[]> = [[{ countryCode: "RO" }], []];
+    const select = jest.fn().mockImplementation(() => ({
+      from: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue(limitResults.shift()),
+    }));
+    const insertValues = jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: "d-new" }]) });
+    const insert = jest.fn().mockReturnValue({ values: insertValues });
+    const db = { select, insert, update: jest.fn() };
+    const fn = makeFindOrCreateDinerForReservation({ db: db as never });
+    await fn({
+      organizationId: "org-1",
+      restaurantId: "rest-1",
+      guestName: "Bob",
+      guestPhone: "712345679",
+      acquisitionSource: "widget",
+      occasion: "birthday",
+      occasionDate: "not-a-date",
+    });
+    expect(insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({ occasionTags: ["birthday"], birthdayDate: null }),
+    );
+  });
+
   it("falls back to email-only path when no phone provided", async () => {
     const limitResults: Array<unknown[]> = [
       [{ countryCode: "RO" }],

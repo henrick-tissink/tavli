@@ -11,11 +11,21 @@ function makeProps(overrides = {}) {
     phone: "",
     email: "",
     notes: "",
+    occasion: "" as const,
+    occasionDate: "",
     onChange: jest.fn(),
     errors: {},
     ...overrides,
   };
 }
+
+test("selecting a birthday occasion reveals a date field + calls onChange", () => {
+  const onChange = jest.fn();
+  render(<StepIdentity {...makeProps({ occasion: "birthday", onChange })} />);
+  expect(screen.getByLabelText(/Data nașterii/i)).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText(/Sărbătorești ceva/i), { target: { value: "anniversary" } });
+  expect(onChange).toHaveBeenCalledWith("occasion", "anniversary");
+});
 
 test("preview card shows formatted summary", () => {
   render(<StepIdentity {...makeProps()} />);

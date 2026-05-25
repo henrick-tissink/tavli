@@ -1,6 +1,7 @@
 "use client";
 
 import { RO_DATE_FORMAT, localDateFromIso } from "./helpers";
+import type { OccasionKind } from "./types";
 
 interface StepIdentityProps {
   // Selection summary, displayed in a preview card at top
@@ -14,8 +15,10 @@ interface StepIdentityProps {
   phone: string;
   email: string;
   notes: string;
+  occasion: OccasionKind;
+  occasionDate: string;
   onChange: (
-    field: "name" | "phone" | "email" | "notes",
+    field: "name" | "phone" | "email" | "notes" | "occasion" | "occasionDate",
     value: string,
   ) => void;
 
@@ -44,6 +47,8 @@ export function StepIdentity({
   phone,
   email,
   notes,
+  occasion,
+  occasionDate,
   onChange,
   errors,
 }: StepIdentityProps) {
@@ -136,6 +141,40 @@ export function StepIdentity({
         />
         {errors.email && (
           <p className="text-xs text-error">{errors.email}</p>
+        )}
+      </div>
+
+      {/* Special occasion (optional) — feeds the birthday/anniversary campaigns */}
+      <div className="space-y-1">
+        <label
+          htmlFor="identity-occasion"
+          className="text-sm font-semibold text-text-primary"
+        >
+          Sărbătorești ceva? (opțional)
+        </label>
+        <select
+          id="identity-occasion"
+          value={occasion}
+          onChange={(e) => onChange("occasion", e.target.value)}
+          className="rounded-button border border-border px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-colors"
+        >
+          <option value="">Nu, mulțumesc</option>
+          <option value="birthday">Zi de naștere</option>
+          <option value="anniversary">Aniversare</option>
+        </select>
+        {occasion !== "" && (
+          <div className="pt-1">
+            <label htmlFor="identity-occasion-date" className="text-xs text-text-muted">
+              {occasion === "birthday" ? "Data nașterii" : "Data aniversării"}
+            </label>
+            <input
+              id="identity-occasion-date"
+              type="date"
+              value={occasionDate}
+              onChange={(e) => onChange("occasionDate", e.target.value)}
+              className="rounded-button border border-border px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-colors"
+            />
+          </div>
         )}
       </div>
 
