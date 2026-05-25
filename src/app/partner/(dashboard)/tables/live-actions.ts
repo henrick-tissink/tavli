@@ -5,11 +5,21 @@ import { eq } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurantTables, restaurants, walkinQueue } from "@/lib/db/schema";
+import { restaurantTables, restaurants, walkinQueue, reservations } from "@/lib/db/schema";
 import { transitionTableStatus } from "@/lib/tables/transitions";
 import { combineTables, dissolveCombination } from "@/lib/tables/combine";
 import { walkinQueueOps } from "@/lib/tables/walkin";
+import { validateOrClearTableAssignment } from "@/lib/tables/validate-or-clear-table-assignment";
 import type { TableStatus } from "@/lib/tables/state-machine";
+
+async function restaurantIdOfReservation(reservationId: string): Promise<string | null> {
+  const [r] = await dbAdmin
+    .select({ restaurantId: reservations.restaurantId })
+    .from(reservations)
+    .where(eq(reservations.id, reservationId))
+    .limit(1);
+  return (r as { restaurantId: string } | undefined)?.restaurantId ?? null;
+}
 
 export type Res = { ok: true } | { ok: false; error: string };
 
@@ -66,6 +76,59 @@ export async function updateTableStatusAction(input: {
   } catch (e) {
     const msg = (e as Error)?.message ?? "";
     if (msg.includes("invalid_transition")) return { ok: false, error: "invalid_transition" };
+    return { ok: false, error: "failed" };
+  }
+  revalidatePath(REFRESH);
+  return { ok: true };
+}
+
+/**
+ * §08 §6.2 — assign a booking to a physical table from the live view. Scope is
+ * derived from the table itself; the reservation must belong to the same
+ * restaurant (no cross-tenant assignment). Sets the table 'booked' (state
+ * machine + status log) and stamps reservations.table_id.
+ */
+export async function assignReservationToTableAction(input: {
+  reservationId: string;
+  tableId: string;
+}): Promise<Res> {
+  const restaurantId = await restaurantIdOfTable(input.tableId);
+  if (!restaurantId) return { ok: false, error: "not_found" };
+  const auth = await authzRestaurant(restaurantId);
+  if (!auth) return { ok: false, error: "forbidden" };
+  // The reservation must be in the same restaurant as the table.
+  if ((await restaurantIdOfReservation(input.reservationId)) !== restaurantId) {
+    return { ok: false, error: "forbidden" };
+  }
+  try {
+    await transitionTableStatus({
+      tableId: input.tableId,
+      toStatus: "booked",
+      reservationId: input.reservationId,
+      changedByUserId: auth.userId,
+    });
+    await dbAdmin
+      .update(reservations)
+      .set({ tableId: input.tableId, autoAssigned: false })
+      .where(eq(reservations.id, input.reservationId));
+  } catch (e) {
+    const msg = (e as Error)?.message ?? "";
+    if (msg.includes("invalid_transition")) return { ok: false, error: "invalid_transition" };
+    return { ok: false, error: "failed" };
+  }
+  revalidatePath(REFRESH);
+  return { ok: true };
+}
+
+/** §08 §6.2 — clear a booking's table assignment (frees the table). */
+export async function unassignReservationAction(reservationId: string): Promise<Res> {
+  const restaurantId = await restaurantIdOfReservation(reservationId);
+  if (!restaurantId) return { ok: false, error: "not_found" };
+  const auth = await authzRestaurant(restaurantId);
+  if (!auth) return { ok: false, error: "forbidden" };
+  try {
+    await validateOrClearTableAssignment(reservationId, "unassigned");
+  } catch {
     return { ok: false, error: "failed" };
   }
   revalidatePath(REFRESH);
