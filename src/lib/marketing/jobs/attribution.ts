@@ -15,7 +15,12 @@ interface Deps {
 export function makeComputeAttribution(deps: Deps) {
   return async function computeAttribution(): Promise<void> {
     // For each just-created, unattributed reservation, find the diner's most
-    // recent clicked send still inside its 14-day attribution window.
+    // recent clicked send still inside its 14-day attribution window, then
+    // attribute BOTH directions to that ONE send. Single statement with
+    // modifying CTEs so the send attribution targets exactly the chosen
+    // recent.send_id — the old second UPDATE matched EVERY send sharing the
+    // campaign_id, stamping one reservation onto all of a diner's campaign
+    // sends and inflating conversion counts.
     await deps.db.execute(sql`
       WITH recent AS (
         SELECT r.id AS reservation_id, r.diner_id,
@@ -28,20 +33,22 @@ export function makeComputeAttribution(deps: Deps) {
         WHERE r.campaign_id IS NULL
           AND r.diner_id IS NOT NULL
           AND r.created_at > now() - interval '10 minutes'
+      ),
+      attributed AS (
+        SELECT recent.reservation_id, recent.send_id, ms.campaign_id
+        FROM recent JOIN marketing_sends ms ON ms.id = recent.send_id
+      ),
+      upd_res AS (
+        UPDATE reservations res
+        SET campaign_id = a.campaign_id
+        FROM attributed a
+        WHERE res.id = a.reservation_id
+        RETURNING res.id
       )
-      UPDATE reservations res
-      SET campaign_id = ms.campaign_id
-      FROM recent, marketing_sends ms
-      WHERE res.id = recent.reservation_id AND recent.send_id = ms.id
-    `);
-    await deps.db.execute(sql`
       UPDATE marketing_sends ms
-      SET attributed_reservation_id = r.id
-      FROM reservations r
-      WHERE r.campaign_id = ms.campaign_id
-        AND r.diner_id = ms.diner_id
-        AND ms.attributed_reservation_id IS NULL
-        AND r.created_at > now() - interval '10 minutes'
+      SET attributed_reservation_id = a.reservation_id
+      FROM attributed a
+      WHERE ms.id = a.send_id AND ms.attributed_reservation_id IS NULL
     `);
   };
 }
