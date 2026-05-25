@@ -6,16 +6,17 @@
  * expected volume (~hundreds of diners per restaurant in year 1) a plain
  * indexed scan + join is faster than maintaining derived state.
  *
- * This helper exposes the unmasked diner row including phone/email. The
- * page that renders it (admin diner detail, deferred to a later sub-unit)
- * MUST wrap the call in `revealPiiBatch` so the access lands in
- * `diner_pii_access_log` (§03 §5.5 / sub-unit B).
+ * This helper exposes the unmasked diner row including phone/email, so it
+ * routes the load through `revealPiiBatch` itself (NEW-11) — the access lands
+ * in `diner_pii_access_log` (§03 §5.5) by construction, rather than relying on
+ * the calling page to remember to wrap it. Callers must supply actor context.
  */
 
 import "server-only";
 import { eq, desc } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { diners, reservations, restaurants } from "@/lib/db/schema";
+import { revealPiiBatch as defaultRevealPiiBatch } from "./reveal-pii-batch";
 
 export interface DinerProfileVisit {
   reservationId: string;
@@ -33,6 +34,14 @@ export interface DinerProfileResult {
 
 interface Deps {
   db: typeof dbAdmin;
+  revealPiiBatch?: typeof defaultRevealPiiBatch;
+}
+
+export interface GetDinerProfileInput {
+  dinerId: string;
+  actorUserId: string;
+  organizationId: string;
+  surface?: string;
 }
 
 /**
@@ -49,14 +58,22 @@ function combineDateTime(date: string, time: string): string {
 }
 
 export function makeGetDinerProfile(deps: Deps) {
+  const revealPiiBatch = deps.revealPiiBatch ?? defaultRevealPiiBatch;
   return async function getDinerProfile(
-    dinerId: string,
+    input: GetDinerProfileInput,
   ): Promise<DinerProfileResult | null> {
-    const dinerRows = await deps.db
-      .select()
-      .from(diners)
-      .where(eq(diners.id, dinerId))
-      .limit(1);
+    const { dinerId } = input;
+    // NEW-11: log the PII access BEFORE the unmasked row is returned (§5.5).
+    const dinerRows = await revealPiiBatch<typeof diners.$inferSelect>({
+      dinerIds: [dinerId],
+      organizationId: input.organizationId,
+      actorUserId: input.actorUserId,
+      accessKind: "reveal",
+      surface: input.surface ?? "diner_profile",
+      accessedField: "phone,email,full_name",
+      loader: (ids) =>
+        deps.db.select().from(diners).where(eq(diners.id, ids[0])).limit(1),
+    });
     if (!dinerRows[0]) return null;
 
     const visitRows = await deps.db

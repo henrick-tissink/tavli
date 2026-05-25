@@ -2,6 +2,9 @@
  * @jest-environment node
  *
  * Unit tests for getDinerProfile per Wave 3 §03 §5.1 sub-unit A.4.
+ * NEW-11: getDinerProfile self-audits the unmasked PII reveal through
+ * revealPiiBatch (the §5.5 control is enforced by construction, not left to
+ * the caller).
  */
 
 import { makeGetDinerProfile } from "../profile";
@@ -19,22 +22,42 @@ function buildSelectMock(results: Array<unknown[]>) {
   });
 }
 
+// passthrough that runs the loader so the select-mock still drives results,
+// while letting us assert the PII-access audit metadata.
+const passthroughReveal = jest.fn(async (input: any) => input.loader(input.dinerIds));
+const ACTOR = { actorUserId: "admin-1", organizationId: "o1" };
+
+function profileFn(select: unknown) {
+  return makeGetDinerProfile({ db: { select } as never, revealPiiBatch: passthroughReveal as never });
+}
+
 describe("getDinerProfile", () => {
+  beforeEach(() => passthroughReveal.mockClear());
+
+  it("audits the PII reveal before returning the unmasked diner (NEW-11)", async () => {
+    const dinerRow = { id: "d1", organizationId: "o1", fullName: "Alice", phone: "+40700111222" };
+    const fn = profileFn(buildSelectMock([[dinerRow], []]));
+    await fn({ ...ACTOR, dinerId: "d1" });
+    expect(passthroughReveal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dinerIds: ["d1"],
+        actorUserId: "admin-1",
+        organizationId: "o1",
+        accessKind: "reveal",
+      }),
+    );
+  });
+
   it("returns null when the diner does not exist", async () => {
-    const select = buildSelectMock([[]]);
-    const db = { select };
-    const fn = makeGetDinerProfile({ db: db as never });
-    const result = await fn("missing-diner");
+    const fn = profileFn(buildSelectMock([[]]));
+    const result = await fn({ ...ACTOR, dinerId: "missing-diner" });
     expect(result).toBeNull();
-    expect(select).toHaveBeenCalledTimes(1);
   });
 
   it("returns diner + empty visits list when no reservations are linked", async () => {
     const dinerRow = { id: "d1", organizationId: "o1", fullName: "Alice" };
-    const select = buildSelectMock([[dinerRow], []]);
-    const db = { select };
-    const fn = makeGetDinerProfile({ db: db as never });
-    const result = await fn("d1");
+    const fn = profileFn(buildSelectMock([[dinerRow], []]));
+    const result = await fn({ ...ACTOR, dinerId: "d1" });
     expect(result).not.toBeNull();
     expect(result!.diner).toBe(dinerRow);
     expect(result!.visits).toEqual([]);
@@ -62,10 +85,8 @@ describe("getDinerProfile", () => {
         partySize: 2,
       },
     ];
-    const select = buildSelectMock([[dinerRow], visitRows]);
-    const db = { select };
-    const fn = makeGetDinerProfile({ db: db as never });
-    const result = await fn("d1");
+    const fn = profileFn(buildSelectMock([[dinerRow], visitRows]));
+    const result = await fn({ ...ACTOR, dinerId: "d1" });
     expect(result!.visits).toEqual([
       {
         reservationId: "r2",
@@ -105,9 +126,8 @@ describe("getDinerProfile", () => {
       call += 1;
       return call === 1 ? dinerBuilder : visitsBuilder;
     });
-    const db = { select };
-    const fn = makeGetDinerProfile({ db: db as never });
-    await fn("d1");
+    const fn = profileFn(select);
+    await fn({ ...ACTOR, dinerId: "d1" });
     expect(visitsBuilder.limit).toHaveBeenCalledWith(100);
   });
 });
