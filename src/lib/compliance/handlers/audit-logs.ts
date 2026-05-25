@@ -32,10 +32,19 @@ export function makeHandleAuditLogs(_deps: Deps) {
 
     let total = 0;
 
-    total += await runChunkedPass(d, sql`subject_type = 'diner' AND subject_id = ANY(${d.dinerIds}::uuid[])`);
+    // Build a real Postgres uuid[] literal. Interpolating the JS array directly
+    // (`${d.dinerIds}::uuid[]`) makes drizzle expand it into bare params, so a
+    // single id casts as a scalar → "malformed array literal". ARRAY[$1,$2,…]
+    // is the correct form. dinerIds is non-empty here (guarded above).
+    const dinerUuidArray = sql`ARRAY[${sql.join(
+      d.dinerIds.map((id) => sql`${id}`),
+      sql`, `,
+    )}]::uuid[]`;
+
+    total += await runChunkedPass(d, sql`subject_type = 'diner' AND subject_id = ANY(${dinerUuidArray})`);
     total += await runChunkedPass(
       d,
-      sql`subject_type = 'reservation' AND subject_id IN (SELECT id FROM reservations WHERE diner_id = ANY(${d.dinerIds}::uuid[]))`,
+      sql`subject_type = 'reservation' AND subject_id IN (SELECT id FROM reservations WHERE diner_id = ANY(${dinerUuidArray}))`,
     );
 
     return {

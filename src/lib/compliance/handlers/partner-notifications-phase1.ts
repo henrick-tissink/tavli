@@ -32,6 +32,19 @@ export function makeHandlePartnerNotificationsPhase1(_deps: Deps) {
       return { tableName: "partner_notifications", rowsRedacted: 0, skipped: true };
     }
 
+    // Build real Postgres array literals. Interpolating the JS array directly
+    // makes drizzle expand it into bare params, so a single id casts as a
+    // scalar → "malformed array literal". ARRAY[$1,$2,…] is the correct form.
+    // dinerIds is non-empty here (guarded above).
+    const dinerUuidArray = sql`ARRAY[${sql.join(
+      d.dinerIds.map((id) => sql`${id}`),
+      sql`, `,
+    )}]::uuid[]`;
+    const dinerTextArray = sql`ARRAY[${sql.join(
+      d.dinerIds.map((id) => sql`${id}`),
+      sql`, `,
+    )}]::text[]`;
+
     const result = await d.db.execute<{ id: string }>(sql`
       UPDATE partner_notifications pn
          SET pending_erasure_at = now(),
@@ -42,11 +55,11 @@ export function makeHandlePartnerNotificationsPhase1(_deps: Deps) {
              FROM partner_notifications pn1
              JOIN reservations r
                ON r.id::text = (pn1.payload->>'reservation_id')
-            WHERE r.diner_id = ANY(${d.dinerIds}::uuid[])
+            WHERE r.diner_id = ANY(${dinerUuidArray})
            UNION
            SELECT pn2.id
              FROM partner_notifications pn2
-            WHERE (pn2.payload->>'diner_id') = ANY(${d.dinerIds}::text[])
+            WHERE (pn2.payload->>'diner_id') = ANY(${dinerTextArray})
          )
        RETURNING id;
     `);

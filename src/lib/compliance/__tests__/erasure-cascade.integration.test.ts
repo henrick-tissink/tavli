@@ -19,6 +19,12 @@
  */
 
 jest.mock("server-only", () => ({}));
+// @react-email/render uses an internal dynamic import jest's node env rejects.
+// The orchestrator renders the confirmation email before the handler sweep;
+// these assertions don't care about the HTML, only the cascade — stub it.
+jest.mock("@react-email/render", () => ({
+  render: jest.fn().mockResolvedValue("<rendered/>"),
+}));
 
 const SKIP = !process.env.TEST_DATABASE_URL;
 
@@ -36,10 +42,13 @@ import {
   transactionalEmailLog,
   marketingConsents,
   dataSubjectRequests,
+  prospectWaitlist,
+  eventRequests,
 } from "@/lib/db/schema";
 import {
   makeHandleErasureExecute,
   handleErasurePartnerNotificationsPhase2,
+  resolveDinersProd,
 } from "@/lib/jobs/handlers/compliance";
 import { PII_TABLE_REGISTRY } from "@/lib/compliance/pii-table-registry";
 
@@ -53,6 +62,14 @@ const DSR_ID = "55555555-aaaa-aaaa-aaaa-555555555555";
 const RESERVATION_ID = "66666666-aaaa-aaaa-aaaa-666666666666";
 const PHONE = "+40712340000";
 const EMAIL = "integration-test@example.invalid";
+
+// Phase C — a pure non-diner data subject (prospect + event-request guest with
+// NO diner row). Distinct ids/email so it never collides with the diner case.
+const NONDINER_DSR_ID = "77777777-aaaa-aaaa-aaaa-777777777777";
+const NONDINER_EVENT_ID = "88888888-aaaa-aaaa-aaaa-888888888888";
+const NONDINER_PROSPECT_ID = "99999999-aaaa-aaaa-aaaa-999999999999";
+const NONDINER_EMAIL = "nondiner-prospect@example.invalid";
+const NONDINER_PHONE = "+40712349999";
 
 // Orchestrator wired with no-op enqueue deps so pg-boss is never touched.
 const handleErasureExecuteTest = makeHandleErasureExecute({
@@ -72,37 +89,9 @@ const handleErasureExecuteTest = makeHandleErasureExecute({
       .limit(1);
     return rows[0] ?? null;
   },
-  resolveDiners: async (dsr) => {
-    const { eq: eqFn, or, inArray } = await import("drizzle-orm");
-    const idSet = new Set<string>();
-    if (dsr.dinerId) idSet.add(dsr.dinerId);
-
-    const orClauses = [
-      dsr.identifierPhone ? eqFn(diners.phone, dsr.identifierPhone) : undefined,
-      dsr.identifierEmail ? eqFn(diners.email, dsr.identifierEmail) : undefined,
-    ].filter((c): c is NonNullable<typeof c> => c !== undefined);
-
-    if (orClauses.length > 0) {
-      const matches = await dbAdmin
-        .select({ id: diners.id })
-        .from(diners)
-        .where(or(...orClauses));
-      for (const m of matches) idSet.add(m.id);
-    }
-
-    const dinerIds = [...idSet];
-    if (dinerIds.length === 0) return { dinerIds: [], capturedIdentifiers: [] };
-
-    const rows = await dbAdmin
-      .select({ id: diners.id, phone: diners.phone, email: diners.email })
-      .from(diners)
-      .where(inArray(diners.id, dinerIds));
-
-    return {
-      dinerIds,
-      capturedIdentifiers: rows.map((r) => ({ dinerId: r.id, phone: r.phone, email: r.email })),
-    };
-  },
+  // Use the REAL resolver (the prior inline copy used a dynamic import that
+  // jest's node env rejects, and we want to exercise the actual Phase C logic).
+  resolveDiners: resolveDinersProd,
   registry: PII_TABLE_REGISTRY,
   updateDsrCompleted: async (id) => {
     await dbAdmin
@@ -132,11 +121,16 @@ async function cleanup() {
   await dbAdmin.execute(sql`DELETE FROM partner_notifications WHERE pending_erasure_request_id = ${DSR_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM partner_notifications WHERE restaurant_id = ${RESTAURANT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM marketing_suppressions WHERE reason = ${"dsr:" + DSR_ID}`);
-  await dbAdmin.execute(sql`DELETE FROM data_subject_requests WHERE id = ${DSR_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM data_subject_requests WHERE id IN (${DSR_ID}::uuid, ${NONDINER_DSR_ID}::uuid)`);
+  // Phase C non-diner fixtures (matched by email, no diner FK).
+  await dbAdmin.execute(sql`DELETE FROM marketing_suppressions WHERE reason = ${"dsr:" + NONDINER_DSR_ID}`);
+  await dbAdmin.execute(sql`DELETE FROM event_requests WHERE id = ${NONDINER_EVENT_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM prospect_waitlist WHERE id = ${NONDINER_PROSPECT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM transactional_email_log WHERE diner_id = ${DINER_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM marketing_consents WHERE diner_id = ${DINER_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM reviews WHERE reservation_id = ${RESERVATION_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM reservations WHERE id = ${RESERVATION_ID}::uuid`);
+  await dbAdmin.execute(sql`DELETE FROM restaurant_availability WHERE restaurant_id = ${RESTAURANT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM diners WHERE id = ${DINER_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM restaurants WHERE id = ${RESTAURANT_ID}::uuid`);
   await dbAdmin.execute(sql`DELETE FROM organizations WHERE id = ${ORG_ID}::uuid`);
@@ -196,6 +190,15 @@ async function cleanup() {
         ${CITY_ID}::uuid
       )
       ON CONFLICT (id) DO NOTHING
+    `);
+
+    // Availability for every weekday covering 00:00–23:59 with ample capacity,
+    // so the reservations_check_capacity trigger (0049) accepts the seeded
+    // reservation regardless of which day-of-week the suite runs on.
+    await dbAdmin.execute(sql`
+      INSERT INTO restaurant_availability (restaurant_id, day_of_week, slot_start, slot_end, capacity)
+      SELECT ${RESTAURANT_ID}::uuid, d, '00:00:00', '23:59:00', 1000
+      FROM generate_series(0, 6) AS d
     `);
 
     // Diner with PII (phone + email)
@@ -331,6 +334,38 @@ async function cleanup() {
         now()
       )
     `);
+
+    // ── Phase C non-diner fixtures ───────────────────────────────────────────
+    // A prospect + event-request guest with NO diner row, matched by email only.
+    await dbAdmin.execute(sql`
+      INSERT INTO prospect_waitlist (id, email, source_locale, source_ip, notes)
+      VALUES (${NONDINER_PROSPECT_ID}::uuid, ${NONDINER_EMAIL}, 'ro', '203.0.113.7', 'wants a demo')
+    `);
+    await dbAdmin.execute(sql`
+      INSERT INTO event_requests (
+        id, restaurant_id, guest_name, guest_email, guest_phone,
+        occasion, event_date, party_size, tracking_token, dietary_notes
+      )
+      VALUES (
+        ${NONDINER_EVENT_ID}::uuid, ${RESTAURANT_ID}::uuid,
+        'Bob Prospect', ${NONDINER_EMAIL}, ${NONDINER_PHONE},
+        'corporate_dinner', current_date + 30, 12, 'nondiner-event-token', 'two vegan'
+      )
+    `);
+    await dbAdmin.execute(sql`
+      INSERT INTO data_subject_requests (
+        id, identifier_phone, identifier_email,
+        request_kind, request_source, legal_deadline_at,
+        identity_verified, identity_verification_method, identity_verified_by_user_id,
+        status, approved_by_user_id, approved_at
+      )
+      VALUES (
+        ${NONDINER_DSR_ID}::uuid, ${NONDINER_PHONE}, ${NONDINER_EMAIL},
+        'erasure', 'email', now() + interval '30 days',
+        true, 'tavli_admin_manual', ${ADMIN_USER_ID}::uuid,
+        'in_progress', ${ADMIN_USER_ID}::uuid, now()
+      )
+    `);
   }, 30_000);
 
   afterAll(async () => {
@@ -455,5 +490,47 @@ async function cleanup() {
       .where(eq(dataSubjectRequests.id, DSR_ID));
     expect(finalDsr.status).toBe("completed");
     expect(finalDsr.completedAt).not.toBeNull();
+  }, 60_000);
+
+  // Phase C — a data subject with NO diner row (pure prospect + event-request
+  // guest). Their PII was previously unreachable; the resolver now appends the
+  // DSR's own identifier so the identifier-keyed handlers erase these rows.
+  it("erases a non-diner subject (prospect_waitlist + event_requests) via identifier", async () => {
+    await handleErasureExecuteTest({ requestId: NONDINER_DSR_ID });
+
+    // prospect_waitlist redacted (email → sentinel, source_ip/notes nulled).
+    const [p] = await dbAdmin
+      .select()
+      .from(prospectWaitlist)
+      .where(eq(prospectWaitlist.id, NONDINER_PROSPECT_ID));
+    expect(p.email).toBe("redacted@redacted.invalid");
+    expect(p.sourceIp).toBeNull();
+    expect(p.notes).toBeNull();
+    expect(p.redactedAt).not.toBeNull();
+
+    // event_requests redacted (name/email → sentinels, phone/dietary nulled).
+    const [er] = await dbAdmin
+      .select()
+      .from(eventRequests)
+      .where(eq(eventRequests.id, NONDINER_EVENT_ID));
+    expect(er.guestName).toBe("Redacted");
+    expect(er.guestEmail).toBe("redacted@redacted.invalid");
+    expect(er.guestPhone).toBeNull();
+    expect(er.dietaryNotes).toBeNull();
+    expect(er.redactedAt).not.toBeNull();
+
+    // marketing_suppressions written for the subject's email + phone.
+    const supResult = await dbAdmin.execute(sql`
+      SELECT channel FROM marketing_suppressions WHERE reason = ${"dsr:" + NONDINER_DSR_ID}
+    `);
+    const supRows = supResult as unknown as Array<{ channel: string }>;
+    expect(supRows.map((r) => r.channel).sort()).toEqual(["email", "sms"]);
+
+    // DSR completed even though no diner row matched.
+    const [finalDsr] = await dbAdmin
+      .select()
+      .from(dataSubjectRequests)
+      .where(eq(dataSubjectRequests.id, NONDINER_DSR_ID));
+    expect(finalDsr.status).toBe("completed");
   }, 60_000);
 });

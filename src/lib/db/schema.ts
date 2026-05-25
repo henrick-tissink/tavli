@@ -1227,9 +1227,11 @@ export const diners = pgTable(
     lastVisitedIdx: index("diners_last_visited")
       .on(t.organizationId, sql`${t.lastVisitedAt} DESC`)
       .where(sql`${t.redactedAt} IS NULL`),
+    // 0051: redacted (pseudonymised) diners are exempt — erasure nulls phone +
+    // email, so a live diner needs an identity but an erased one may have none.
     identityRequiredCheck: check(
       "diners_identity_required",
-      sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL`,
+      sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL OR ${t.redactedAt} IS NOT NULL`,
     ),
   }),
 );

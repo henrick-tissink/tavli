@@ -33,6 +33,12 @@ export const HARD_DELETE_ELIGIBLE_KINDS = [
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+// The scheduled phase-2 job has no acting user; the wrapper passes this
+// all-zeros sentinel to satisfy HandlerDeps.actorUserId (typed string). It is
+// NOT a real auth.users row, so it must be stored as NULL in erasure_log
+// (actor_user_id FK → auth.users) — otherwise the insert violates the FK.
+const SYSTEM_ACTOR_SENTINEL = "00000000-0000-0000-0000-000000000000";
+
 export function makeHandlePartnerNotificationsPhase2(_deps: Deps) {
   return async function handlePartnerNotificationsPhase2(d: HandlerDeps): Promise<HandlerResult> {
     // Load all rows marked by phase 1 for this DSR.
@@ -60,13 +66,17 @@ export function makeHandlePartnerNotificationsPhase2(_deps: Deps) {
       }
     }
 
+    // ARRAY[$1,$2,…]::uuid[] — interpolating the JS array directly makes drizzle
+    // expand it into bare params, so a single id casts as a scalar → "malformed
+    // array literal". Each branch below is guarded non-empty.
+    const uuidArray = (ids: string[]) =>
+      sql`ARRAY[${sql.join(ids.map((id) => sql`${id}`), sql`, `)}]::uuid[]`;
+
     if (toDelete.length > 0) {
-      const ids = toDelete.map((r) => r.id);
-      await d.db.execute(sql`DELETE FROM partner_notifications WHERE id = ANY(${ids}::uuid[])`);
+      await d.db.execute(sql`DELETE FROM partner_notifications WHERE id = ANY(${uuidArray(toDelete.map((r) => r.id))})`);
     }
 
     if (toReplace.length > 0) {
-      const ids = toReplace.map((r) => r.id);
       await d.db.execute(sql`
         UPDATE partner_notifications
            SET redacted_at = now(),
@@ -75,18 +85,20 @@ export function makeHandlePartnerNotificationsPhase2(_deps: Deps) {
                  'dsr_id', ${d.dsrId}::uuid,
                  'original_kind', kind
                )
-         WHERE id = ANY(${ids}::uuid[])
+         WHERE id = ANY(${uuidArray(toReplace.map((r) => r.id))})
       `);
     }
 
-    // One erasure_log row per affected row.
+    // One erasure_log row per affected row. The system sentinel actor maps to
+    // NULL (it is not a real auth.users row — see SYSTEM_ACTOR_SENTINEL).
+    const actorUserId = d.actorUserId === SYSTEM_ACTOR_SENTINEL ? null : d.actorUserId;
     await d.db.insert(erasureLog).values(
       rows.map((r) => ({
         subjectType: "partner_notification",
         subjectId: r.id,
         reason: "gdpr_art_17",
         redactedColumns: toDelete.includes(r) ? ["row_deleted"] : ["payload"],
-        actorUserId: d.actorUserId,
+        actorUserId,
         impersonatorUserId: d.impersonatorUserId,
         context: { dsrId: d.dsrId, phase: 2, kind: r.kind },
       })),

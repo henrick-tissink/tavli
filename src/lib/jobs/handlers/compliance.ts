@@ -209,7 +209,9 @@ async function loadDsrProd(id: string): Promise<DsrRow | null> {
   return rows[0] ?? null;
 }
 
-async function resolveDinersProd(dsr: DsrRow): Promise<ResolveDinersResult> {
+// Exported for the erasure-cascade integration test (D1) so the non-diner
+// Phase C path is exercised through the real resolver, not a test copy.
+export async function resolveDinersProd(dsr: DsrRow): Promise<ResolveDinersResult> {
   const idSet = new Set<string>();
   if (dsr.dinerId) idSet.add(dsr.dinerId);
 
@@ -227,17 +229,42 @@ async function resolveDinersProd(dsr: DsrRow): Promise<ResolveDinersResult> {
   }
 
   const dinerIds = [...idSet];
-  if (dinerIds.length === 0) return { dinerIds: [], capturedIdentifiers: [] };
 
-  const rows = await dbAdmin
-    .select({ id: diners.id, phone: diners.phone, email: diners.email })
-    .from(diners)
-    .where(inArray(diners.id, dinerIds));
+  const captured: Array<{ dinerId: string; phone: string | null; email: string | null }> =
+    dinerIds.length === 0
+      ? []
+      : (
+          await dbAdmin
+            .select({ id: diners.id, phone: diners.phone, email: diners.email })
+            .from(diners)
+            .where(inArray(diners.id, dinerIds))
+        ).map((r) => ({ dinerId: r.id, phone: r.phone, email: r.email }));
 
-  return {
-    dinerIds,
-    capturedIdentifiers: rows.map((r) => ({ dinerId: r.id, phone: r.phone, email: r.email })),
-  };
+  // Phase C (§13 non-diner DSR): the identifier-keyed handlers (prospect_waitlist,
+  // event_requests, marketing_suppressions) match on capturedIdentifiers' raw
+  // email/phone. A pure prospect / event-request guest has NO diner row, so
+  // without this their data was unreachable on a subject request. Append the
+  // DSR's own identifier(s) so those handlers erase non-diner rows too. The
+  // diner-keyed handlers ignore capturedIdentifiers (they early-return on an
+  // empty dinerIds), so this never over-matches diner-scoped tables.
+  const haveEmail = new Set(captured.map((c) => c.email?.trim().toLowerCase()).filter(Boolean));
+  const havePhone = new Set(captured.map((c) => c.phone?.trim()).filter(Boolean));
+  const subjectEmail = dsr.identifierEmail?.trim().toLowerCase() || null;
+  const subjectPhone = dsr.identifierPhone?.trim() || null;
+  if (
+    (subjectEmail && !haveEmail.has(subjectEmail)) ||
+    (subjectPhone && !havePhone.has(subjectPhone))
+  ) {
+    captured.push({
+      // Sentinel dinerId — identifier-keyed handlers don't read it, and
+      // resolveDinerLocale ignores it. Not a real diner row.
+      dinerId: "00000000-0000-0000-0000-000000000000",
+      phone: subjectPhone && !havePhone.has(subjectPhone) ? subjectPhone : null,
+      email: subjectEmail && !haveEmail.has(subjectEmail) ? subjectEmail : null,
+    });
+  }
+
+  return { dinerIds, capturedIdentifiers: captured };
 }
 
 async function resolveDinerLocaleProd(dinerId: string): Promise<Locale> {
