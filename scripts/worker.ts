@@ -33,6 +33,7 @@ import {
   handleTrialReminderDay60,
   handleTrialReminderDay75,
   handleTrialReminderDay85,
+  handleReportMarketingOverage,
 } from "@/lib/jobs/handlers/billing";
 import { changePlanActions } from "@/lib/billing/change-plan";
 import { enforceDunningTier } from "@/lib/billing/dunning";
@@ -145,6 +146,14 @@ async function main(): Promise<void> {
   });
   await boss.work(JOBS.billing.sendReminderDay85, async ([job]) => {
     await handleTrialReminderDay85(job.data as { organizationId: string });
+  });
+
+  // NEW-9: consume marketing overage feed (records the overage owed + reports
+  // to Stripe metered billing via the configured seam).
+  await boss.work(JOBS.billing.reportMarketingOverage, async ([job]) => {
+    await handleReportMarketingOverage(
+      job.data as Parameters<typeof handleReportMarketingOverage>[0],
+    );
   });
 
   // Wave 5 sub-unit F: §8.3 apply queued monthly↔annual frequency switches at

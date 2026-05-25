@@ -21,7 +21,8 @@ export type BillingAuditEventType =
   | "billing.refund_issued"
   | "billing.setup_intent_succeeded"
   | "billing.psd2_consent_captured"
-  | "billing.dispute_opened";
+  | "billing.dispute_opened"
+  | "billing.overage_reported";
 
 export interface RecordBillingAuditInput {
   organizationId: string;
