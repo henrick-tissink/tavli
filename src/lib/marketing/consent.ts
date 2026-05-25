@@ -112,6 +112,56 @@ export function makeConsent(deps: Deps) {
       return { changed: true };
     },
 
+    /**
+     * §04 §6.2 — capture consent for TRANSACTIONAL SMS (booking confirmations /
+     * reminders). sendTransactionalSms gates on a marketing_consents row with
+     * channel='sms_transactional' (TV202) which recordConsent can't emit (it
+     * only writes the '*_marketing' channels). Without this writer the SMS path
+     * was a dead end. Opt-out is via the global STOP suppression (§04 §5.3), so
+     * no suppression cascade here.
+     */
+    async recordTransactionalSmsConsent(input: {
+      dinerId: string;
+      organizationId: string;
+      optIn: boolean;
+      copyShown: string;
+      locale: string;
+      sourceSurfaceUrl?: string | null;
+      ip?: string | null;
+    }): Promise<{ changed: boolean }> {
+      const currentRows = (await deps.db.execute(sql`
+        SELECT consent_given FROM marketing_consents
+        WHERE organization_id = ${input.organizationId} AND diner_id = ${input.dinerId}
+          AND channel = 'sms_transactional' AND revoked_at IS NULL
+        ORDER BY given_at DESC LIMIT 1
+      `)) as unknown as Array<{ consent_given: boolean }>;
+      if (currentRows[0] && currentRows[0].consent_given === input.optIn) return { changed: false };
+
+      await deps.db.execute(sql`
+        UPDATE marketing_consents SET revoked_at = now()
+        WHERE organization_id = ${input.organizationId} AND diner_id = ${input.dinerId}
+          AND channel = 'sms_transactional' AND revoked_at IS NULL
+      `);
+      await deps.db.execute(sql`
+        INSERT INTO marketing_consents (
+          diner_id, organization_id, channel, consent_given, source, given_at,
+          source_surface_url, source_ip, consent_copy_shown, consent_locale
+        ) VALUES (
+          ${input.dinerId}, ${input.organizationId}, 'sms_transactional', ${input.optIn}, 'booking_flow', now(),
+          ${input.sourceSurfaceUrl ?? null}, ${input.ip ?? null}, ${input.copyShown}, ${input.locale}
+        )
+      `);
+      await deps.recordAudit({
+        action: input.optIn ? AUDIT.marketing.consent_captured : AUDIT.marketing.consent_revoked,
+        subjectType: "marketing_consent",
+        subjectId: input.dinerId,
+        actorRole: "diner",
+        organizationId: input.organizationId,
+        context: { channel: "sms_transactional", source: "booking_flow", locale: input.locale },
+      });
+      return { changed: true };
+    },
+
     async hasConsent(dinerId: string, organizationId: string, channel: MarketingChannel): Promise<boolean> {
       const consentCh = marketingConsentChannel(channel);
       const rows = (await deps.db.execute(sql`

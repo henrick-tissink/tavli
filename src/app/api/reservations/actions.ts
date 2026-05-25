@@ -13,6 +13,7 @@ import { normalizePhone } from "@/lib/phone/normalize";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
 import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
+import { consent } from "@/lib/marketing/consent";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 
@@ -33,6 +34,10 @@ export interface CreateReservationInput {
   // triggered campaigns can fire.
   occasion?: "birthday" | "anniversary";
   occasionDate?: string;
+  // §04 §6.2 — optional opt-in for transactional SMS (confirmation/reminder).
+  // Captured as a marketing_consents 'sms_transactional' row so the SMS path can
+  // actually fire once the venue enables it.
+  smsConsent?: boolean;
 }
 
 export interface CreateReservationResult {
@@ -168,6 +173,21 @@ export async function createReservation(
         .update({ diner_id: dinerId })
         .eq("id", data.id);
       resolvedDinerId = dinerId;
+
+      // §04 §6.2 — persist transactional-SMS consent when the guest opted in.
+      if (input.smsConsent) {
+        try {
+          await consent.recordTransactionalSmsConsent({
+            dinerId,
+            organizationId: restaurant.organization_id,
+            optIn: true,
+            copyShown: "Vreau memento prin SMS pentru rezervarea mea.",
+            locale: "ro",
+          });
+        } catch (e) {
+          console.error("[createReservation] sms consent capture failed", e);
+        }
+      }
 
       // §11 §6 — fire the welcome triggered campaign for a brand-new diner.
       // singletonKey dedups; best-effort (inside the surrounding try/catch).

@@ -16,6 +16,27 @@ function deps(current: { consent_given: boolean } | null, contact = { email: "a@
 
 const base = { dinerId: "d1", organizationId: "o1", channel: "email" as const, source: "booking_flow" as const, copyShown: "Vrei noutăți?", locale: "ro" };
 
+describe("recordTransactionalSmsConsent (F8)", () => {
+  test("writes a sms_transactional consent row + audit so the SMS path can fire", async () => {
+    const d = deps(null);
+    const r = await makeConsent(d as never).recordTransactionalSmsConsent({
+      dinerId: "d1", organizationId: "o1", optIn: true, copyShown: "Memento SMS?", locale: "ro",
+    });
+    expect(r.changed).toBe(true);
+    const inserts = d.db.execute.mock.calls.map((c) => JSON.stringify(c[0]));
+    expect(inserts.some((q) => q.includes("INSERT INTO marketing_consents") && q.includes("sms_transactional"))).toBe(true);
+    expect(d.recordAudit.mock.calls[0][0].action).toBe("marketing.consent_captured");
+  });
+
+  test("idempotent when consent already matches", async () => {
+    const d = deps({ consent_given: true });
+    const r = await makeConsent(d as never).recordTransactionalSmsConsent({
+      dinerId: "d1", organizationId: "o1", optIn: true, copyShown: "x", locale: "ro",
+    });
+    expect(r.changed).toBe(false);
+  });
+});
+
 describe("recordConsent", () => {
   test("opt-in when no prior consent → writes + consent_captured audit, no suppression", async () => {
     const d = deps(null);
