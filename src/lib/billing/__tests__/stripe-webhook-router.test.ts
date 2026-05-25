@@ -240,6 +240,20 @@ describe("stripe-webhook-router", () => {
     expect("annualPaidThrough" in setCalls[0]).toBe(false);
   });
 
+  it("MED-1 subscription.updated with empty items does NOT null the annual refund columns", async () => {
+    const { db, setCalls } = captureDb([[{ organizationId: "org-1", status: "active", frequency: "annual" }]]);
+    const router = makeStripeWebhookRouter(deps({ db }) as never);
+    await router.handle(
+      evt("customer.subscription.updated", { id: "sub_1", status: "active", customer: "cus_1", items: { data: [] } }),
+    );
+    const payload = setCalls[0];
+    // A sparse event (no item period data) must not overwrite a known-good
+    // paid-through with null — cancel-subscription reads these for the refund.
+    expect("currentPeriodEnd" in payload).toBe(false);
+    expect("currentPeriodStart" in payload).toBe(false);
+    expect("annualPaidThrough" in payload).toBe(false);
+  });
+
   it("#10 subscription.updated does NOT reset statusSyncedAt when status is unchanged", async () => {
     const { db, setCalls } = captureDb([[{ organizationId: "org-1", status: "past_due", frequency: "monthly" }]]);
     const router = makeStripeWebhookRouter(deps({ db }) as never);

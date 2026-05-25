@@ -85,9 +85,18 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         status: after,
         // #3 — populate the columns the §10.2 pro-rata refund branch reads.
         // For an annual prepay, current_period_end IS the paid-through date.
-        currentPeriodStart: periodStart,
-        currentPeriodEnd: periodEnd,
-        ...(row.frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
+        // MED-1 — but ONLY when the event actually carries item period data.
+        // Stripe emits many sparse subscription.updated events (cancel flag,
+        // metadata, card change) with empty items.data; deriving null from those
+        // and writing it would clobber a known-good paid-through and silently
+        // refund €0 on a later annual cancel. Never overwrite with null.
+        ...(periodEnd
+          ? {
+              currentPeriodStart: periodStart,
+              currentPeriodEnd: periodEnd,
+              ...(row.frequency === "annual" ? { annualPaidThrough: periodEnd } : {}),
+            }
+          : {}),
         cancelAtPeriodEnd: Boolean(sub.cancel_at_period_end),
         ...(statusChanged ? { statusSyncedAt: sql`now()` } : {}),
       })
