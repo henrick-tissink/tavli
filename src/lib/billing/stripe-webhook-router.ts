@@ -162,7 +162,12 @@ export function makeStripeWebhookRouter(deps: StripeWebhookRouterDeps) {
         status: (inv.status as string) ?? "draft",
         amountDueCents: (inv.amount_due as number) ?? 0,
         amountPaidCents: (inv.amount_paid as number) ?? 0,
-        taxAmountCents: (inv.tax as number) ?? 0,
+        // stripe@22 (API 2026-04-22.dahlia) removed the top-level Invoice.tax;
+        // tax now lives in total_taxes[].amount. Sum them.
+        taxAmountCents: ((inv.total_taxes as Array<{ amount?: number }> | undefined) ?? []).reduce(
+          (s, t) => s + (t.amount ?? 0),
+          0,
+        ),
         currency: ((inv.currency as string) ?? "eur").toUpperCase().slice(0, 3),
         hostedInvoiceUrl: (inv.hosted_invoice_url as string) ?? null,
         invoicePdfUrl: (inv.invoice_pdf as string) ?? null,

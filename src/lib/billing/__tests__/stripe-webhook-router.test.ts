@@ -116,6 +116,25 @@ describe("stripe-webhook-router", () => {
     expect(d.recordBillingAudit).toHaveBeenCalledWith(expect.objectContaining({ eventType: "billing.payment_succeeded" }));
   });
 
+  it("invoice.paid mirrors tax by summing total_taxes (stripe@22 removed Invoice.tax)", async () => {
+    const { db, insertValues } = captureDb([[{ organizationId: "org-1" }]]);
+    const router = makeStripeWebhookRouter(deps({ db }) as never);
+    await router.handle(
+      evt("invoice.paid", {
+        id: "in_tax",
+        customer: "cus_1",
+        status: "paid",
+        amount_paid: 6000,
+        amount_due: 6000,
+        currency: "eur",
+        // legacy top-level `tax` is gone; tax lives in total_taxes[].amount
+        total_taxes: [{ amount: 900 }, { amount: 240 }],
+      }),
+    );
+    const row = insertValues.find((v) => v.stripeInvoiceId === "in_tax");
+    expect(row?.taxAmountCents).toBe(1140);
+  });
+
   it("invoice.payment_failed sets past_due + audits payment_failed", async () => {
     const d = deps({ q: [[{ organizationId: "org-1" }]] });
     const router = makeStripeWebhookRouter(d as never);
