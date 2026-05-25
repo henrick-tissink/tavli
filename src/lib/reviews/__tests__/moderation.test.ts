@@ -140,6 +140,14 @@ describe("upholdReport", () => {
     await expect(actions.upholdReport({ reportId: "missing", hiddenReason: "spam" })).rejects.toThrow(/TV406/);
   });
 
+  it("sends the DSA statement-of-reasons to the author on uphold (F12)", async () => {
+    const report = { id: "report-1", reviewId: "review-9" };
+    const notify = jest.fn().mockResolvedValue(undefined);
+    const actions = makeActions(report, undefined, { notifyAuthorOfRemoval: notify });
+    await actions.upholdReport({ reportId: "report-1", hiddenReason: "fake" });
+    expect(notify).toHaveBeenCalledWith("review-9", "fake");
+  });
+
   it("throws forbidden when session role is not admin", async () => {
     const session = { userId: "u-1", profile: { role: "restaurant_owner" } };
     const actions = makeActions({}, session);
