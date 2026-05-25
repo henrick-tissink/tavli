@@ -19,6 +19,7 @@ jest.mock("drizzle-orm", () => ({
 jest.mock("@/lib/audit/record", () => ({ recordAudit: jest.fn() }));
 jest.mock("@/lib/audit/actions", () => ({
   AUDIT: {
+    user: { created: "user.created" },
     organization: { created: "organization.created" },
     restaurant: { created: "restaurant.created" },
   },
@@ -81,7 +82,7 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
   };
   const startSubscription = jest.fn(async () => ({ stripeCheckoutUrl: "https://stripe/checkout" }));
   const sendWelcomeEmail = jest.fn(async () => {});
-  const recordAudit = jest.fn(async () => {});
+  const recordAudit = jest.fn(async (_i: { action: string }) => {});
   const seedTriggeredCampaigns = jest.fn(async () => 5);
   const deps = {
     db,
@@ -135,6 +136,15 @@ describe("signupPartner", () => {
     expect(inserts.find((i) => i.table === "restaurantStaff")!.values).toMatchObject({ role: "owner" });
     // §11 §6 — default triggered campaigns seeded inside the signup tx
     expect(seedTriggeredCampaigns).toHaveBeenCalledWith("org-1", expect.anything());
+  });
+
+  it("audits user.created alongside organization/restaurant (M2 — §12 audit hooks)", async () => {
+    const { deps, recordAudit } = makeDeps();
+    await makeSignupPartner(deps)(BASE_INPUT);
+    const actions = recordAudit.mock.calls.map((c) => c[0].action);
+    expect(actions).toContain("user.created");
+    expect(actions).toContain("organization.created");
+    expect(actions).toContain("restaurant.created");
   });
 
   it("defers billing when customer_type is not yet supplied", async () => {

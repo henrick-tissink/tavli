@@ -231,6 +231,16 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
 
     // Audit the identity creation (best-effort; never blocks the signup result).
     try {
+      // §12 audit hooks — signupPartner emits user + organization + restaurant.
+      await deps.recordAudit({
+        action: AUDIT.user.created,
+        subjectType: "user",
+        subjectId: userId,
+        actorUserId: userId,
+        actorRole: "org_owner",
+        organizationId,
+        context: { source: "signup" },
+      });
       await deps.recordAudit({
         action: AUDIT.organization.created,
         subjectType: "organization",
