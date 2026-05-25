@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, gte, sql, count } from "drizzle-orm";
+import { and, eq, gte, sql, count, inArray } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import {
   organizations,
@@ -146,12 +146,13 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     const session = await requireSession();
 
     const venueRows = await deps.db
-      .select({ organizationId: restaurants.organizationId })
+      .select({ organizationId: restaurants.organizationId, timezone: restaurants.timezone })
       .from(restaurants)
       .where(eq(restaurants.id, input.restaurantId));
     const venue = venueRows[0];
     if (!venue) throw new Error("not_found: restaurant");
     const orgId = venue.organizationId;
+    const venueTz = venue.timezone;
 
     const allowed = await deps.can(session, "restaurant.delete", {
       kind: "restaurant",
@@ -161,15 +162,17 @@ export function makeVenueActions(deps: VenueActionsDeps) {
     if (!allowed) throw new Error("forbidden: restaurant.delete");
 
     // Future-reservation guard (§09 §5.2 step 2). The full cancel-and-notify
-    // flow stays in §02; here we only block.
+    // flow stays in §02; here we only block. B3: count seated (in-progress) as
+    // well as confirmed, and compute "today" in the VENUE's local timezone
+    // (current_date is the DB's UTC date — wrong near midnight for the venue).
     const futureRows = await deps.db
       .select({ futureCount: count() })
       .from(reservations)
       .where(
         and(
           eq(reservations.restaurantId, input.restaurantId),
-          eq(reservations.status, "confirmed"),
-          gte(reservations.reservationDate, sql`current_date`),
+          inArray(reservations.status, ["confirmed", "seated"]),
+          gte(reservations.reservationDate, sql`(now() AT TIME ZONE ${venueTz})::date`),
         ),
       );
     if (Number(futureRows[0]?.futureCount ?? 0) > 0) {
@@ -182,9 +185,14 @@ export function makeVenueActions(deps: VenueActionsDeps) {
         .set({ archivedAt: sql`now()` })
         .where(eq(restaurants.id, input.restaurantId));
 
+      // B3: recount active venues rather than blindly decrementing — a ±1 drifts
+      // if the counter is ever inconsistent; the recount is authoritative and
+      // runs in-tx AFTER the archive above (matches the nightly reconcile job).
       const updated = await tx
         .update(organizations)
-        .set({ currentVenueCount: sql`${organizations.currentVenueCount} - 1` })
+        .set({
+          currentVenueCount: sql`(select count(*)::int from ${restaurants} where ${restaurants.organizationId} = ${orgId} and ${restaurants.archivedAt} is null)`,
+        })
         .where(eq(organizations.id, orgId))
         .returning({ count: organizations.currentVenueCount });
       const venueCountAfter = updated[0].count;

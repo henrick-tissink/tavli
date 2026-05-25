@@ -20,6 +20,7 @@ jest.mock("drizzle-orm", () => ({
   isNull: jest.fn(),
   gte: jest.fn(),
   count: jest.fn(),
+  inArray: jest.fn(),
   sql: Object.assign(jest.fn(), { raw: jest.fn() }),
 }));
 
@@ -147,8 +148,8 @@ describe("addVenueToOrg", () => {
 describe("removeVenueFromOrg", () => {
   it("archives the venue + decrements counter + logs on the happy path", async () => {
     const d = deps({
-      // 1st select: venue org lookup; 2nd select: future-reservation count (0)
-      selectQueue: [[{ organizationId: ORG_ID }], [{ futureCount: 0 }]],
+      // 1st select: venue org+tz lookup; 2nd select: future-reservation count (0)
+      selectQueue: [[{ organizationId: ORG_ID, timezone: "Europe/Bucharest" }], [{ futureCount: 0 }]],
     });
     const actions = makeVenueActions(d);
     const result = await actions.removeVenueFromOrg({ restaurantId: REST_ID, reason: "closed" });
@@ -164,9 +165,9 @@ describe("removeVenueFromOrg", () => {
     );
   });
 
-  it("rejects with TV703 when the venue has future confirmed reservations", async () => {
+  it("rejects with TV703 when the venue has future confirmed/seated reservations", async () => {
     const d = deps({
-      selectQueue: [[{ organizationId: ORG_ID }], [{ futureCount: 3 }]],
+      selectQueue: [[{ organizationId: ORG_ID, timezone: "Europe/Bucharest" }], [{ futureCount: 3 }]],
     });
     const actions = makeVenueActions(d);
     await expect(
