@@ -25,6 +25,7 @@ import {
   handleRetentionPurge,
   handlePurgeRateLimits,
   handlePurgeCookieConsents,
+  handlePurgePiiAccessLog,
 } from "@/lib/jobs/handlers/compliance";
 import { runErasureVerification } from "@/lib/compliance/verify";
 import {
@@ -157,6 +158,14 @@ async function main(): Promise<void> {
   });
 
   await boss.schedule(JOBS.compliance.purgeCookieConsents, "30 5 * * *");
+
+  // §03 §5.5/§8.1: purge diner PII access-log rows older than 24 months,
+  // nightly at 06:00 UTC (after the other compliance purges to avoid
+  // vacuum/lock contention).
+  await boss.work(JOBS.compliance.purgePiiAccessLog, async () => {
+    await handlePurgePiiAccessLog();
+  });
+  await boss.schedule(JOBS.compliance.purgePiiAccessLog, "0 6 * * *");
 
   // §01 §6.3/§10: expire stale staff invitations daily at 03:00 UTC.
   await boss.work(JOBS.identity.expireStaleInvitations, async () => {

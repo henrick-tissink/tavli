@@ -46,6 +46,7 @@ import type { HandlerDeps as Phase2HandlerDeps } from "@/lib/compliance/pii-tabl
 import { runRetentionPurge } from "@/lib/compliance/retention";
 import { purgeRateLimits } from "@/lib/rate-limit/cleanup";
 import { purgeCookieConsents } from "@/lib/cookie-consent/cleanup";
+import { purgePiiAccessLog } from "@/lib/compliance/purge-pii-access-log";
 
 export interface ErasureExecutePayload {
   requestId: string;
@@ -303,4 +304,10 @@ export async function handlePurgeRateLimits(): Promise<void> {
 
 export async function handlePurgeCookieConsents(): Promise<void> {
   await purgeCookieConsents();
+}
+
+// ─── PII access-log purge wrapper ─────────────────────────────────────────────
+
+export async function handlePurgePiiAccessLog(): Promise<void> {
+  await purgePiiAccessLog();
 }

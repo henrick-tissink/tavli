@@ -99,6 +99,7 @@ export const JOBS = {
     flagOverdueRequests: "compliance.flag-overdue-requests",
     purgeRateLimits: "compliance.purge-rate-limits",
     purgeCookieConsents: "compliance.purge-cookie-consents",
+    purgePiiAccessLog: "compliance.purge-pii-access-log",
     gdprOtpVerify: "compliance.gdpr-otp-verify",
     retryAuthDeletion: "compliance.retry-auth-deletion",
   },
