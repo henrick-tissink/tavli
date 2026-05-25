@@ -43,7 +43,7 @@ export async function submitReviewByToken(
   const { data: resv } = await admin
     .from("reservations")
     .select(
-      "id, restaurant_id, guest_name, status, party_size, reservation_date",
+      "id, restaurant_id, diner_id, guest_name, status, party_size, reservation_date",
     )
     .eq("confirmation_token", token)
     .maybeSingle();
@@ -64,6 +64,9 @@ export async function submitReviewByToken(
     .insert({
       reservation_id: resv.id,
       restaurant_id: resv.restaurant_id,
+      // C2: link the review to its diner so the §03 erasure cascade
+      // (redacts reviews WHERE diner_id = $erasedDiner) can reach it.
+      diner_id: resv.diner_id ?? null,
       rating: input.rating,
       comment: comment || null,
       first_name: firstNameFrom(resv.guest_name),

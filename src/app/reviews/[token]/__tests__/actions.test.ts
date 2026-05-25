@@ -102,12 +102,48 @@ describe("submitReviewByToken", () => {
     expect(reviewsChain.insert).toHaveBeenCalledWith({
       reservation_id: "res-1",
       restaurant_id: "rest-1",
+      diner_id: null,
       rating: 4,
       comment: "Lovely",
       first_name: "Ana",
       party_size: 2,
       reservation_date: "2026-04-29",
     });
+  });
+
+  test("selects diner_id from the reservation (C2)", async () => {
+    const { reservationsChain } = buildAdminMock({
+      reservation: {
+        id: "res-1",
+        restaurant_id: "rest-1",
+        guest_name: "Ana Pop",
+        status: "completed",
+        party_size: 2,
+        reservation_date: "2026-04-29",
+        diner_id: "diner-42",
+      },
+    });
+    await submitReviewByToken("tok", { rating: 5, comment: "" });
+    expect(reservationsChain.select.mock.calls[0][0]).toContain("diner_id");
+  });
+
+  test("stamps the reservation's diner_id onto the review (C2 — GDPR reachability)", async () => {
+    const { reviewsChain } = buildAdminMock({
+      reservation: {
+        id: "res-1",
+        restaurant_id: "rest-1",
+        guest_name: "Ana Pop",
+        status: "completed",
+        party_size: 2,
+        reservation_date: "2026-04-29",
+        diner_id: "diner-42",
+      },
+    });
+    const r = await submitReviewByToken("tok", { rating: 4, comment: "" });
+    expect(r.ok).toBe(true);
+    expect(reviewsChain.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ diner_id: "diner-42" }),
+    );
   });
 
   test("returns ALREADY_REVIEWED on UNIQUE violation", async () => {
