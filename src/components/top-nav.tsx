@@ -33,7 +33,7 @@ export function TopNav({
               <path d="M 56 64 L 56 192 L 108 128 Z" fill="#FFFFFF" />
               <path d="M 200 64 L 200 192 L 148 128 Z" fill="#FFFFFF" />
             </svg>
-            <span className="font-display text-2xl font-bold tracking-tight text-brand-primary-accessible leading-none">
+            <span className="font-display text-2xl font-bold tracking-tight text-brand-primary leading-none">
               Tavli
             </span>
           </div>

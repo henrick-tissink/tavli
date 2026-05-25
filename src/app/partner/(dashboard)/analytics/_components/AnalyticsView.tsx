@@ -60,7 +60,7 @@ export function AnalyticsView({ data }: { data: AnalyticsViewData }) {
       {/* Masthead */}
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-primary-accessible">Analize</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-primary">Analize</p>
           <h1 className="font-display text-[34px] font-bold leading-tight text-text-primary">{data.scopeLabel}</h1>
           <p className="mt-1 text-sm text-text-secondary">
             {isPro ? "Plan Pro — istoric complet și panouri avansate." : "Ultimele 12 luni de activitate."}

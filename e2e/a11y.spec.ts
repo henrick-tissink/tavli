@@ -27,6 +27,8 @@ async function auditWcagAA(page: Page, disableRules: string[] = []) {
       nodes: v.nodes.length,
       help: v.help,
       example: v.nodes[0]?.target?.join(" "),
+      // contrast nodes carry fg/bg/ratio here — handy when triaging failures.
+      data: v.nodes[0]?.any?.[0]?.data,
     }));
     console.log(`\naxe violations (${results.violations.length}):\n` + JSON.stringify(summary, null, 2));
   }
@@ -36,27 +38,24 @@ async function auditWcagAA(page: Page, disableRules: string[] = []) {
 test("home page passes WCAG 2.2 AA", async ({ page }) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
-  // Three KNOWN-OPEN items on the home feed, all tracked in
-  // docs/operations/a11y-axe-report.md (each needs a design decision / visual
-  // verification, so not fixed blind here):
-  //   - color-contrast: white text on the brand-orange slot pills (the systemic
-  //     #F97316-as-filled-CTA issue → recommended #C2410C, brand-wide sign-off).
-  //   - nested-interactive + target-size: the RestaurantCard is a role=button
-  //     container with a nested save button + slot pills.
-  // The guard still catches every OTHER WCAG AA regression on the home feed.
+  // KNOWN-OPEN on the home feed (tracked in docs/operations/a11y-axe-report.md):
+  //   - color-contrast: RestaurantCard status badges / rating chips over photos
+  //     + opacity-60 closed-card dimming (an overlay/opacity design pass, not a
+  //     token swap). The brand-orange palette WAS retoned to AA.
+  //   - nested-interactive + target-size: the card is a role=button container
+  //     with a nested save button + slot pills (structural refactor).
   expect(
     await auditWcagAA(page, ["color-contrast", "nested-interactive", "target-size"]),
   ).toEqual([]);
 });
 
-// color-contrast is KNOWN-OPEN on the pricing pages: it traces entirely to two
-// design-TOKEN decisions tracked in docs/operations/a11y-axe-report.md —
-//   - brand orange #F97316 as a filled CTA bg with white text (~2.8:1), and
-//   - the muted-gray text token #A8A29E for small labels (~2.3:1).
-// Both are brand-wide re-tone decisions needing design sign-off + visual review,
-// so they're not changed blind here (the clearly-safe brand-orange TEXT labels
-// WERE darkened to --color-brand-primary-accessible). Re-enable color-contrast
-// once the token decisions land. The guard still enforces every other AA rule.
+// KNOWN-OPEN on pricing (tracked in docs/operations/a11y-axe-report.md): the
+// brand-orange + muted-grey TEXT was retoned to AA, but two opacity-based
+// de-emphasis patterns remain — the inactive-billing-frequency table rows are
+// dimmed to opacity 0.45 (drops text-primary below 4.5:1), and text-secondary
+// sits at ~4.47:1 on the warm-cream (#fcf7e5) section backgrounds. Both are a
+// design pass (opacity levels / a hair-darker secondary on cream), not blind
+// token swaps. Everything else on these pages is AA-clean.
 const PRICING_KNOWN_OPEN = ["color-contrast"];
 
 test("RO pricing page passes WCAG 2.2 AA", async ({ page }) => {

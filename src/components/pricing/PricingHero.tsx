@@ -18,13 +18,13 @@ export function PricingHero({ messages }: { messages: PricingMessages }) {
         }}
       />
       <div className="mx-auto max-w-5xl px-6 pt-20 pb-14 md:pt-28 md:pb-20">
-        <p className="animate-pricing-rise text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary-accessible">
+        <p className="animate-pricing-rise text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
           {hero.eyebrow}
         </p>
         <h1 className="animate-pricing-rise mt-5 font-display text-[clamp(3rem,9vw,6rem)] font-bold leading-[0.95] tracking-tight text-text-primary [animation-delay:60ms]">
           {hero.title}
           <br />
-          <span className="relative inline-block italic text-brand-primary-accessible">
+          <span className="relative inline-block italic text-brand-primary">
             {hero.titleAccent}
             <svg
               aria-hidden

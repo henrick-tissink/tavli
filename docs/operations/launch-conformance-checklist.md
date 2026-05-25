@@ -62,7 +62,7 @@
 |-------------|----------------|--------|
 | Document language set | `<html lang>` in `app/layout.tsx` (per-locale) | 🟡 (verify per-locale routes) |
 | Keyboard nav / focus order / visible focus | component-level; axe sweep `e2e/a11y.spec.ts` | 🟡 (axe pass done; `nested-interactive`/`target-size` open on RestaurantCard — see a11y-axe-report.md) |
-| Colour contrast AA | design tokens; axe sweep | 🟡 (orange TEXT labels fixed → `#C2410C`; filled-orange CTAs + muted-gray token need design sign-off — a11y-axe-report.md §known-open) |
+| Colour contrast AA | design tokens; axe sweep | 🟡 (brand orange retoned `#F97316→#C2410C` + muted-grey `#A8A29E→#6E6862` → AA; residual opacity/overlay de-emphasis (dimmed table rows, card badges over photos) is a design pass — a11y-axe-report.md §known-open) |
 | Reduced motion respected | global `prefers-reduced-motion` guard in `globals.css` (B3) | ✅ |
 | Form labels / ARIA | component-level; axe sweep (no violations) | ✅ (on audited public surfaces) |
 

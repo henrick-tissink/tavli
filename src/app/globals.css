@@ -3,13 +3,14 @@
 
 @theme inline {
   /* Brand colors */
-  --color-brand-primary: #F97316;
+  /* Brand orange, retoned for WCAG AA: the old #F97316 failed 4.5:1 both as
+     text on the light surface (~2.6:1) and as a filled CTA bg with white text
+     (~2.8:1). #C2410C is ~5:1 on the light surface and ~5.2:1 under white text,
+     while reading as the same orange. -dark stays a step deeper to preserve the
+     soft → primary → dark scale (e.g. text-on-soft chips). */
+  --color-brand-primary: #C2410C;
   --color-brand-primary-soft: #FFF7ED;
-  --color-brand-primary-dark: #EA580C;
-  /* WCAG AA: #F97316 (and -dark) fail 4.5:1 as text on the light surface.
-     This deeper orange (~5:1 on --color-surface-bg) is used for brand-orange
-     TEXT on light backgrounds (logo, eyebrow labels) so it meets AA. */
-  --color-brand-primary-accessible: #C2410C;
+  --color-brand-primary-dark: #9A3412;
 
   /* Surface colors */
   --color-surface-white: #FFFFFF;
@@ -19,7 +20,9 @@
   /* Text colors */
   --color-text-primary: #1C1917;
   --color-text-secondary: #78716C;
-  --color-text-muted: #A8A29E;
+  /* Retoned for WCAG AA: the old muted #A8A29E was ~2.3:1 on the light surface
+     (fails small-text 4.5:1). #6E6862 is ~5.2:1. */
+  --color-text-muted: #6E6862;
 
   /* Semantic colors */
   --color-border: #E7E5E4;
