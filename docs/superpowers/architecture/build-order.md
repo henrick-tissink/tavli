@@ -175,8 +175,8 @@ Also missing from foundations: `audit_logs` table, pg-boss, Stripe SDK, Twilio S
 
 *Unblocks: launch.*
 
-- [ ] §13 erasure-cascade verification — every domain handler integration-tested end-to-end
-- [ ] Full integration sweep across audit cascade + dunning + GDPR + WhatsApp gate
+- [x] §13 erasure-cascade verification — every domain handler integration-tested end-to-end *(shipped 2026-05-25 — `src/lib/compliance/__tests__/erasure-cascade.integration.test.ts` extended to 4 cases: diner cascade, non-diner (Phase C) cascade, idempotent-retry, and a capstone running the production verification sweep (`verify.ts`) asserting zero residual PII. Now seeds/asserts all 12 shipped registry handlers — added the previously-missing `marketing_sends` + `review_revisions`. Runs green against the live local 0060 schema via `TEST_DATABASE_URL`; skipped by default in CI. Commit `066464b`.)*
+- [x] Full integration sweep across audit cascade + dunning + GDPR + WhatsApp gate *(shipped 2026-05-25 — the four subsystems run green together: GDPR = the DB-backed erasure integration test above; dunning = `dunning.test.ts` + `require-billing-access.test.ts`; WhatsApp gate (TV904) = `senders.test.ts` + `send-message-handler.test.ts`; audit cascade = `pseudonymise.test.ts` + per-domain action tests. Sweep: 62/62 across 7 suites with `TEST_DATABASE_URL` set; full suite 1561 passed / 0 failed. Note: dunning is pure date-math + the TV904 gate is a pure boundary check — both are fully unit-covered, so no DB round-trip was added for them; the GDPR cascade is the one needing real-DB integration coverage and now has it.)*
 - [ ] Lighthouse + axe-core + cross-browser pass on all public surfaces (§15a.7)
 - [ ] ANPC + GDPR + PSD2 + DSA + WCAG 2.2 AA conformance audit checklist
 - [ ] DKIM / SPF / DMARC warmup on the transactional sending domain
@@ -211,6 +211,8 @@ When the doc updates, bump the date at the bottom and note the reason in a `## R
 ---
 
 ## Revisions
+
+- **2026-05-25** — Wave 9 **engineering** half closed: the two code items (erasure-cascade verification + the cross-subsystem integration sweep) are now `[x]`. The remaining **6 Wave 9 items are operator/ops** (Lighthouse/axe, conformance checklist, DKIM/SPF/DMARC, sub-processor DPAs, Stripe Tax RO, final prod smoke) and gate launch — Claude cannot do these without keys/DNS/legal access + a prod redeploy. So Wave 9 is now 2/8; the launch gate is the operator runbook in `docs/superpowers/handoffs/2026-05-25-v1-round3-and-features-handoff.md`.
 
 - **2026-05-25** — Wave 8 §15 P3–P5 (pricing page components, VAT panel, card-on-file block, waitlist + signup toggle, SEO/JSON-LD/hreflang, editorial pass) marked `[x]` — all shipped 2026-05-24 but the checkboxes were never updated. Waves 1–8 are feature-complete. **Wave 9 (closure) is genuinely 0/8 and is the real launch gate** — none of the compliance/ops items (sub-processor DPAs, Lighthouse/axe, ANPC/GDPR/PSD2/DSA/WCAG checklist, DKIM/SPF/DMARC, Stripe Tax RO, end-to-end erasure integration test in CI, final smoke) are done. The 2026-05-25 conformance sweep (`docs/superpowers/audits/2026-05-25-v1-conformance-sweep.md`) found NEW criticals (Stripe SDK field drift re-killing the annual refund; marketing double-insert; a missed table-mutation IDOR) on top of these.
 
