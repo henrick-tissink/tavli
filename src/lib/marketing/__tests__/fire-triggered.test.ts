@@ -3,18 +3,21 @@
  */
 import { makeFireTriggeredCampaign } from "@/lib/marketing/fire-triggered";
 
-function harness(campaigns: Array<{ id: string; channel: string; trigger_offset_seconds?: number | null }>) {
+function harness(
+  campaigns: Array<{ id: string; channel: string; trigger_offset_seconds?: number | null; campaign_version_id?: string | null }>,
+) {
+  let insertQuery = "";
   const db = {
     execute: jest.fn(async (q: unknown) => {
       const t = JSON.stringify(q);
       if (t.includes("FROM diners")) return [{ email: "a@b.com", phone: "+40712345678", locale: "ro" }];
       if (t.includes("FROM marketing_campaigns")) return campaigns;
-      if (t.includes("INSERT INTO marketing_sends")) return [{ id: "s1" }];
+      if (t.includes("INSERT INTO marketing_sends")) { insertQuery = t; return [{ id: "s1" }]; }
       return [];
     }),
   };
   const enqueue = jest.fn(async (_k: string, _d?: unknown, _o?: unknown) => "j");
-  return { db, enqueue, fire: makeFireTriggeredCampaign({ db: db as never, enqueue: enqueue as never }) };
+  return { db, enqueue, getInsertQuery: () => insertQuery, fire: makeFireTriggeredCampaign({ db: db as never, enqueue: enqueue as never }) };
 }
 
 describe("makeFireTriggeredCampaign", () => {
@@ -34,6 +37,13 @@ describe("makeFireTriggeredCampaign", () => {
     const h = harness([{ id: "c1", channel: "email", trigger_offset_seconds: -604800 }]);
     await h.fire({ triggerEvent: "diner.birthday", dinerId: "d1", organizationId: "o1" });
     expect(h.enqueue).toHaveBeenCalledWith("marketing.send-message", { sendId: "s1" }, {});
+  });
+
+  test("stamps the campaign's content-version snapshot on the send (§11 §4.4)", async () => {
+    const h = harness([{ id: "c1", channel: "email", trigger_offset_seconds: 0, campaign_version_id: "ver-7" }]);
+    await h.fire({ triggerEvent: "reservation.completed", dinerId: "d1", organizationId: "o1", restaurantId: "r1" });
+    expect(h.getInsertQuery()).toContain("campaign_version_id");
+    expect(h.getInsertQuery()).toContain("ver-7");
   });
 
   test("no matching campaign → no enqueue", async () => {

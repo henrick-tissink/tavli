@@ -38,6 +38,7 @@ export interface FanOutPayload {
 
 interface CampaignRow {
   id: string;
+  campaign_version_id: string | null;
   organization_id: string;
   restaurant_id: string | null;
   channel: string;
@@ -62,7 +63,9 @@ export function makeFanOutCampaign(deps: Deps) {
 
     const campaignRows = (await deps.db.execute(sql`
       SELECT c.id, c.organization_id, c.restaurant_id, c.channel, c.recipient_count_estimate,
-             s.filter_dsl, s.combinator, s.is_snapshot, s.snapshot_diner_ids
+             s.filter_dsl, s.combinator, s.is_snapshot, s.snapshot_diner_ids,
+             (SELECT v.id FROM marketing_campaign_versions v
+               WHERE v.campaign_id = c.id ORDER BY v.version_number DESC LIMIT 1) AS campaign_version_id
       FROM marketing_campaigns c
       LEFT JOIN marketing_segments s ON s.id = c.segment_id
       WHERE c.id = ${payload.campaignId}
@@ -110,10 +113,10 @@ export function makeFanOutCampaign(deps: Deps) {
     if (recipients.length > 0) {
       const identifier = (r: Recipient) => (c.channel === "sms" || c.channel === "whatsapp" ? r.phone : r.email);
       const values: SQL[] = recipients.map(
-        (r) => sql`(${c.id}, ${r.id}, ${c.organization_id}, ${c.restaurant_id}, ${c.channel}::marketing_channel, ${r.locale}, ${identifier(r)}, 'queued'::marketing_send_status)`,
+        (r) => sql`(${c.id}, ${c.campaign_version_id ?? null}, ${r.id}, ${c.organization_id}, ${c.restaurant_id}, ${c.channel}::marketing_channel, ${r.locale}, ${identifier(r)}, 'queued'::marketing_send_status)`,
       );
       const inserted = (await deps.db.execute(sql`
-        INSERT INTO marketing_sends (campaign_id, diner_id, organization_id, restaurant_id, channel, locale,
+        INSERT INTO marketing_sends (campaign_id, campaign_version_id, diner_id, organization_id, restaurant_id, channel, locale,
           ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status)
         VALUES ${sql.join(values, sql`, `)}
         RETURNING id

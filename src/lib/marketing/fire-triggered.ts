@@ -33,19 +33,25 @@ export function makeFireTriggeredCampaign(deps: Deps) {
     const diner = diners[0];
     if (!diner) return;
 
+    // §11 §4.4 — resolve the campaign's content-version snapshot (the triggered
+    // seed creates version 1) so each send is attributable to the exact content.
     const campaigns = (await deps.db.execute(sql`
-      SELECT id, channel, trigger_offset_seconds FROM marketing_campaigns
+      SELECT id, channel, trigger_offset_seconds,
+             (SELECT v.id FROM marketing_campaign_versions v
+               WHERE v.campaign_id = marketing_campaigns.id
+               ORDER BY v.version_number DESC LIMIT 1) AS campaign_version_id
+      FROM marketing_campaigns
       WHERE organization_id = ${payload.organizationId}
         AND kind = 'triggered' AND status = 'active' AND trigger_event = ${payload.triggerEvent}
         AND (restaurant_id IS NULL OR restaurant_id = ${payload.restaurantId ?? null})
-    `)) as unknown as Array<{ id: string; channel: string; trigger_offset_seconds: number | null }>;
+    `)) as unknown as Array<{ id: string; channel: string; trigger_offset_seconds: number | null; campaign_version_id: string | null }>;
 
     for (const c of campaigns) {
       const identifier = c.channel === "sms" || c.channel === "whatsapp" ? diner.phone : diner.email;
       const rows = (await deps.db.execute(sql`
-        INSERT INTO marketing_sends (campaign_id, diner_id, organization_id, restaurant_id, channel, locale,
+        INSERT INTO marketing_sends (campaign_id, campaign_version_id, diner_id, organization_id, restaurant_id, channel, locale,
           ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status)
-        VALUES (${c.id}, ${payload.dinerId}, ${payload.organizationId}, ${payload.restaurantId ?? null},
+        VALUES (${c.id}, ${c.campaign_version_id ?? null}, ${payload.dinerId}, ${payload.organizationId}, ${payload.restaurantId ?? null},
           ${c.channel}::marketing_channel, ${diner.locale}, ${identifier}, 'queued'::marketing_send_status)
         RETURNING id
       `)) as unknown as Array<{ id: string }>;

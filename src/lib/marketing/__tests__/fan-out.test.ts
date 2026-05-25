@@ -4,7 +4,7 @@
 import { makeFanOutCampaign } from "@/lib/marketing/fan-out";
 
 const campaignRow = {
-  id: "c1", organization_id: "o1", restaurant_id: "r1", channel: "email", recipient_count_estimate: 2,
+  id: "c1", campaign_version_id: "ver-1", organization_id: "o1", restaurant_id: "r1", channel: "email", recipient_count_estimate: 2,
   filter_dsl: { conditions: [{ dimension: "frequency", bucket: "regular" }] }, combinator: "and",
   is_snapshot: false, snapshot_diner_ids: null,
 };
@@ -68,6 +68,25 @@ describe("makeFanOutCampaign", () => {
     // identifier with a lower-id diner; null-identifier diners are excluded.
     expect(dinersQuery.toLowerCase()).toContain("not exists");
     expect(dinersQuery.toLowerCase()).toContain("lower(d2.email)");
+  });
+
+  test("stamps campaign_version_id (resolved snapshot) on every inserted send (§11 §4.4)", async () => {
+    let insertQuery = "";
+    const recipients = [{ id: "d0", email: "a@x.com", phone: null, locale: "ro" }];
+    const db = {
+      execute: jest.fn(async (q: unknown) => {
+        const t = JSON.stringify(q);
+        if (t.includes("FROM marketing_campaigns")) return [campaignRow];
+        if (t.includes("FROM diners d")) return recipients;
+        if (t.includes("INSERT INTO marketing_sends")) { insertQuery = t; return recipients.map((r) => ({ id: `s_${r.id}` })); }
+        return [];
+      }),
+    };
+    const fanOut = makeFanOutCampaign({ db: db as never, enqueue: (jest.fn(async () => "j")) as never, recordAudit: (jest.fn(async () => {})) as never });
+    await fanOut({ campaignId: "c1" });
+    expect(insertQuery).toContain("campaign_version_id");
+    // the resolved version id is bound as a value in the multi-row VALUES
+    expect(insertQuery).toContain("ver-1");
   });
 
   test("continuation (afterId set) does not re-fire campaign_sent audit", async () => {

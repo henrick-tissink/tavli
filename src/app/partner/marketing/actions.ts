@@ -12,7 +12,7 @@ import { currentActor } from "@/lib/auth/current-actor";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
-import { marketingCampaigns, marketingSegments } from "@/lib/db/schema";
+import { marketingCampaigns, marketingCampaignVersions, marketingSegments } from "@/lib/db/schema";
 import {
   compileSegmentFilter,
   type SegmentCondition,
@@ -114,7 +114,7 @@ export async function sendCampaignAction(
   organizationId: string,
   campaignId: string,
 ): Promise<ActionResult<void>> {
-  const { error } = await gate(organizationId, "campaign.send");
+  const { error, session } = await gate(organizationId, "campaign.send");
   if (error) return error;
   // NEW-5 / §11.5: dunning soft-lock (day 7+) and read-only (day 21+ / cancelled)
   // pause campaign sends. Diner-facing bookings are never gated (§11.6) — this
@@ -127,6 +127,7 @@ export async function sendCampaignAction(
     // predicate makes the flip atomic: a sent/sending campaign matches no row
     // (so the fan-out, which re-inserts every marketing_sends, never re-runs),
     // and of two concurrent calls only one flips draft→sending and enqueues.
+    // RETURNING the content so we can snapshot the version actually sent.
     const res = await dbAdmin
       .update(marketingCampaigns)
       .set({ status: "sending", sentAt: new Date(), updatedAt: new Date() })
@@ -136,11 +137,32 @@ export async function sendCampaignAction(
           eq(marketingCampaigns.organizationId, organizationId),
           eq(marketingCampaigns.status, "draft"),
         ),
-      );
-    const flipped = (res as { rowCount?: number }).rowCount ?? 0;
-    if (flipped === 0) {
+      )
+      .returning({
+        subjectTemplate: marketingCampaigns.subjectTemplate,
+        bodyTemplate: marketingCampaigns.bodyTemplate,
+        previewText: marketingCampaigns.previewText,
+      });
+    if (res.length === 0) {
       return fail("invalid_input", "campaign_not_sendable");
     }
+    // §11 §4.4 — snapshot the content version this send used (version 1 for the
+    // v1 no-edit flow), so every marketing_sends row the fan-out inserts can be
+    // attributed to it. Idempotent: the unique (campaign_id, version_number)
+    // index + ON CONFLICT make the once-only draft→sending flip safe to re-snapshot.
+    const camp = res[0];
+    const actor = await currentActor(session!.userId);
+    await dbAdmin
+      .insert(marketingCampaignVersions)
+      .values({
+        campaignId,
+        versionNumber: 1,
+        subjectTemplate: camp.subjectTemplate,
+        bodyTemplate: camp.bodyTemplate,
+        previewText: camp.previewText,
+        editedByUserId: actor.actorUserId,
+      })
+      .onConflictDoNothing();
     await enqueue(JOBS.marketing.fanOut, { campaignId });
     revalidatePath("/partner/marketing");
     return ok(undefined);
