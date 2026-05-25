@@ -21,8 +21,12 @@ import { PII_TABLE_REGISTRY } from "../pii-table-registry";
 // Column-name patterns that denote personal data of a *data subject*. JSONB
 // PII (payload/context) is intentionally NOT matched here — those tables are
 // caught by the registry's own column declarations, not column-name scanning.
+// Includes free-text columns (notes/comment/message) — these are the "silent
+// omission" class the guard exists to catch: a table whose ONLY personal data
+// lives in operator/diner free text would otherwise slip past name/contact
+// column scanning.
 const PII_COLUMN_PATTERN =
-  /(^|_)(phone|email|full_name|first_name|last_name|guest_name|address|birthday|anniversary)$|phone_raw|^guest_|_ip$|^ip$|source_ip|dietary/;
+  /(^|_)(phone|email|full_name|first_name|last_name|guest_name|address|birthday|anniversary|notes|comment|message)$|phone_raw|^guest_|_ip$|^ip$|source_ip|dietary/;
 
 // Tables that carry PII-looking columns but are deliberately NOT diner/data-
 // subject erasure targets. Each MUST have a reason — this is a compliance
@@ -47,6 +51,10 @@ const INTENTIONALLY_EXCLUDED: Record<string, string> = {
   data_subject_requests: "the erasure request record; must persist as evidence",
   // False positive — restaurant menu metadata, not personal data.
   menu_items: "menu dietary tags, not personal data",
+  // Operator/system free-text `notes`, not a data subject's personal data.
+  retention_policies: "config table; notes describe the policy, not a person",
+  setup_progress: "operator onboarding notes, not data-subject PII",
+  table_status_log: "operational status-change notes; rolls into §08 audit retention",
 };
 
 function piiTablesInSchema(): Map<string, string[]> {
