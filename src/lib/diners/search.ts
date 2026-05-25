@@ -11,7 +11,7 @@
  */
 
 import "server-only";
-import { and, eq, isNull, ilike, or } from "drizzle-orm";
+import { and, eq, isNull, ilike, or, desc, sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { diners } from "@/lib/db/schema";
 import { maskPhone, maskEmail } from "./mask";
@@ -83,3 +83,39 @@ export function makeSearchDiners(deps: Deps) {
 }
 
 export const searchDiners = makeSearchDiners({ db: dbAdmin });
+
+/**
+ * Recent diners for the org (most-recently-visited first, NULLs last), masked
+ * like searchDiners. Powers the diners list landing when there's no query.
+ */
+export function makeListRecentDiners(deps: Deps) {
+  return async function listRecentDiners(input: {
+    orgId: string;
+    limit?: number;
+  }): Promise<SearchDinersResult[]> {
+    const rows = await deps.db
+      .select({
+        id: diners.id,
+        fullName: diners.fullName,
+        phone: diners.phone,
+        email: diners.email,
+        lastVisitedAt: diners.lastVisitedAt,
+        visitCount: diners.visitCount,
+      })
+      .from(diners)
+      .where(and(eq(diners.organizationId, input.orgId), isNull(diners.redactedAt)))
+      .orderBy(sql`${diners.lastVisitedAt} DESC NULLS LAST`, desc(diners.createdAt))
+      .limit(input.limit ?? 50);
+
+    return rows.map((r) => ({
+      id: r.id,
+      fullName: r.fullName,
+      phoneMasked: maskPhone(r.phone),
+      emailMasked: maskEmail(r.email),
+      lastVisitedAt: r.lastVisitedAt?.toISOString() ?? null,
+      visitCount: r.visitCount,
+    }));
+  };
+}
+
+export const listRecentDiners = makeListRecentDiners({ db: dbAdmin });

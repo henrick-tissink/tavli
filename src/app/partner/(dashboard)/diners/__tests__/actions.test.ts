@@ -36,7 +36,8 @@ jest.mock("@/lib/billing/require-billing-access", () => ({
   isOrgBillingLocked: jest.fn().mockResolvedValue(false),
 }));
 
-import { mergeDinersAction, splitDinerAction } from "../actions";
+import { mergeDinersAction, splitDinerAction, updateDinerAction } from "../actions";
+import { isOrgBillingLocked } from "@/lib/billing/require-billing-access";
 import { dbAdmin } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -522,5 +523,73 @@ describe("splitDinerAction", () => {
         }),
       }),
     );
+  });
+});
+
+describe("updateDinerAction", () => {
+  function mockSelectLimit(rows: unknown[]) {
+    return {
+      from: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue(rows),
+    };
+  }
+  function mockUpdate() {
+    const where = jest.fn().mockResolvedValue(undefined);
+    const set = jest.fn().mockReturnValue({ where });
+    return { update: jest.fn().mockReturnValue({ set }), set };
+  }
+
+  it("rejects when not signed in", async () => {
+    mockSession(null);
+    const r = await updateDinerAction({ dinerId: "d1" });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects an unauthorized caller without mutating", async () => {
+    mockSession("attacker");
+    (can as jest.Mock).mockResolvedValue(false);
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectLimit([{ organizationId: "org-a", redactedAt: null }]));
+    const r = await updateDinerAction({ dinerId: "d1", internalNotes: "x" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/forbidden/i);
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("blocks when billing is locked", async () => {
+    mockSession("u1");
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectLimit([{ organizationId: "org-a", redactedAt: null }]));
+    (isOrgBillingLocked as jest.Mock).mockResolvedValueOnce(true);
+    const r = await updateDinerAction({ dinerId: "d1", internalNotes: "x" });
+    expect(r).toEqual({ ok: false, error: "billing_locked" });
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("updates only provided fields + audits field names (no values)", async () => {
+    mockSession("u1");
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectLimit([{ organizationId: "org-a", redactedAt: null }]));
+    const upd = mockUpdate();
+    (dbAdmin.update as jest.Mock).mockImplementation(upd.update);
+    const r = await updateDinerAction({ dinerId: "d1", birthdayDate: "1990-03-15", occasionTags: ["birthday", " birthday "] });
+    expect(r.ok).toBe(true);
+    const set = upd.set.mock.calls[0][0];
+    expect(set.birthdayDate).toBe("1990-03-15");
+    expect(set.occasionTags).toEqual(["birthday"]); // trimmed + deduped
+    expect("anniversaryDate" in set).toBe(false); // untouched
+    expect(recordAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "diner.updated", organizationId: "org-a" }),
+    );
+    const auditCtx = (recordAudit as jest.Mock).mock.calls[0][0].context;
+    expect(auditCtx.fields).toEqual(expect.arrayContaining(["birthdayDate", "occasionTags"]));
+  });
+
+  it("ignores a malformed birthday date (stored null)", async () => {
+    mockSession("u1");
+    (dbAdmin.select as jest.Mock).mockReturnValueOnce(mockSelectLimit([{ organizationId: "org-a", redactedAt: null }]));
+    const upd = mockUpdate();
+    (dbAdmin.update as jest.Mock).mockImplementation(upd.update);
+    const r = await updateDinerAction({ dinerId: "d1", birthdayDate: "nope" });
+    expect(r.ok).toBe(true);
+    expect(upd.set.mock.calls[0][0].birthdayDate).toBeNull();
   });
 });

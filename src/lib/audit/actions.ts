@@ -55,6 +55,7 @@ export const AUDIT = {
     table_auto_cleared: "reservation.table_auto_cleared",
   },
   diner: {
+    updated: "diner.updated",
     merged: "diner.merged",
     split: "diner.split",
     pii_accessed: "diner.pii_accessed",

@@ -30,6 +30,88 @@ export type ActionResult<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function cleanTags(tags: string[] | undefined): string[] | undefined {
+  if (!tags) return undefined;
+  return Array.from(new Set(tags.map((t) => t.trim()).filter(Boolean))).slice(0, 24);
+}
+
+function cleanDate(v: string | null | undefined): string | null | undefined {
+  if (v === undefined) return undefined;
+  if (!v) return null;
+  return DATE_RE.test(v) ? v : null;
+}
+
+// ─── updateDinerAction ──────────────────────────────────────────────────
+// Edit a diner's CRM fields (occasion/birthday/anniversary/allergies/dietary/
+// notes). Org-scoped: gated on diner.update + dunning write-access. Only
+// provided fields are touched.
+
+export interface UpdateDinerInput {
+  dinerId: string;
+  birthdayDate?: string | null;
+  anniversaryDate?: string | null;
+  occasionTags?: string[];
+  allergies?: string[];
+  dietaryPreferences?: string[];
+  internalNotes?: string | null;
+}
+
+export async function updateDinerAction(
+  input: UpdateDinerInput,
+): Promise<ActionResult<{ dinerId: string }>> {
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Not signed in." };
+
+  const [diner] = await dbAdmin
+    .select({ organizationId: diners.organizationId, redactedAt: diners.redactedAt })
+    .from(diners)
+    .where(eq(diners.id, input.dinerId))
+    .limit(1);
+  if (!diner) return { ok: false, error: "Diner not found." };
+  if (diner.redactedAt) return { ok: false, error: "Diner has been erased." };
+
+  if (!(await can(session, "diner.update", { kind: "organization", id: diner.organizationId }))) {
+    return { ok: false, error: "Forbidden." };
+  }
+  if (await isOrgBillingLocked(diner.organizationId)) {
+    return { ok: false, error: "billing_locked" };
+  }
+
+  const set: Record<string, unknown> = { updatedAt: new Date() };
+  const birthday = cleanDate(input.birthdayDate);
+  if (birthday !== undefined) set.birthdayDate = birthday;
+  const anniversary = cleanDate(input.anniversaryDate);
+  if (anniversary !== undefined) set.anniversaryDate = anniversary;
+  const occasionTags = cleanTags(input.occasionTags);
+  if (occasionTags !== undefined) set.occasionTags = occasionTags;
+  const allergies = cleanTags(input.allergies);
+  if (allergies !== undefined) set.allergies = allergies;
+  const dietary = cleanTags(input.dietaryPreferences);
+  if (dietary !== undefined) set.dietaryPreferences = dietary;
+  if (input.internalNotes !== undefined) {
+    set.internalNotes = input.internalNotes?.trim() ? input.internalNotes.trim().slice(0, 2000) : null;
+  }
+
+  await dbAdmin.update(diners).set(set).where(eq(diners.id, input.dinerId));
+
+  const actor = await currentActor(session.userId);
+  await recordAudit({
+    action: AUDIT.diner.updated,
+    subjectType: "diner",
+    subjectId: input.dinerId,
+    actorUserId: actor.actorUserId,
+    impersonatorUserId: actor.impersonatorUserId ?? undefined,
+    actorRole: "org_owner",
+    organizationId: diner.organizationId,
+    // Field NAMES only — never values (no PII into audit_logs.context).
+    context: { fields: Object.keys(set).filter((k) => k !== "updatedAt") },
+  });
+
+  return { ok: true, data: { dinerId: input.dinerId } };
+}
+
 // ─── mergeDinersAction ──────────────────────────────────────────────────
 
 export interface MergeDinersInput {
