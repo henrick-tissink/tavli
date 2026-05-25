@@ -14,6 +14,7 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
 import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
 import { consent } from "@/lib/marketing/consent";
+import { logReservationStatus } from "@/lib/reservations/status-log";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 
@@ -235,6 +236,19 @@ export async function createReservation(
       reservation_time: input.time,
     },
   });
+
+  // §02 §3.3 — seed the status history with the initial confirmed state.
+  try {
+    await logReservationStatus({
+      reservationId: data.id,
+      restaurantId: data.restaurant_id,
+      fromStatus: null,
+      toStatus: "confirmed",
+      changedByUserId: actor.actorUserId,
+    });
+  } catch (e) {
+    console.error("[createReservation] status log failed", e);
+  }
 
   const cancelUrl = `${appOrigin()}/reservations/${confirmationToken}`;
 

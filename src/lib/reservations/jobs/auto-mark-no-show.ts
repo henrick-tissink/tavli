@@ -52,6 +52,12 @@ export function makeAutoMarkNoShow(deps: Deps) {
       // Free the table the booking was holding (idempotent; no-op if unassigned).
       await deps.clearTableAssignment(r.id, "no_show");
 
+      // §02 §3.3 — log the confirmed→no_show transition (system actor).
+      await deps.db.execute(sql`
+        INSERT INTO reservation_status_log (reservation_id, restaurant_id, from_status, to_status, reason)
+        VALUES (${r.id}, ${r.restaurant_id}, 'confirmed', 'no_show', 'auto_no_show')
+      `);
+
       await deps.recordAudit({
         action: AUDIT.reservation.no_show,
         subjectType: "reservation",

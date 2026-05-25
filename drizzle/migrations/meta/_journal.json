@@ -414,6 +414,13 @@
       "when": 1779602000000,
       "tag": "0058_review_responses_revisions",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1779603000000,
+      "tag": "0059_reservation_status_log",
+      "breakpoints": true
     }
   ]
 }

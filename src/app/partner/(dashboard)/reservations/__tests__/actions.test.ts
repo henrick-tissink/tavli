@@ -393,13 +393,17 @@ function setupSupabaseForUpdate(
       if (table === "reservations") {
         const chain: Record<string, unknown> = {
           update: jest.fn().mockReturnThis(),
+          select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
+          // F5 status-log: the prior-status read calls .select("status")…maybeSingle().
+          maybeSingle: jest.fn().mockResolvedValue({ data: { status: "confirmed" } }),
           then: (
             resolve: (v: { error: Error | null }) => unknown,
             reject: (e: unknown) => unknown,
           ) => Promise.resolve({ error: updateError }).then(resolve, reject),
         };
         (chain.update as jest.Mock).mockReturnValue(chain);
+        (chain.select as jest.Mock).mockReturnValue(chain);
         (chain.eq as jest.Mock).mockReturnValue(chain);
         return chain;
       }

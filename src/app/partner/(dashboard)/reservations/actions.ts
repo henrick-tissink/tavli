@@ -19,6 +19,7 @@ import { getActorRole } from "@/lib/audit/actor-role";
 import { currentActor } from "@/lib/auth/current-actor";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { validateOrClearTableAssignment } from "@/lib/tables/validate-or-clear-table-assignment";
+import { logReservationStatus } from "@/lib/reservations/status-log";
 import { JOBS } from "@/lib/jobs/keys";
 
 export type NewStatus = "seated" | "no_show" | "completed";
@@ -50,6 +51,14 @@ export async function updateReservationStatus(
     return { ok: false, error: "Nu ai permisiunea pentru această acțiune." };
   }
 
+  // Read the current status first so the §3.3 status-log captures the transition.
+  const { data: priorRow } = await supabase
+    .from("reservations")
+    .select("status")
+    .eq("id", reservationId)
+    .eq("restaurant_id", restaurantId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("reservations")
     .update({ status: nextStatus })
@@ -57,6 +66,19 @@ export async function updateReservationStatus(
     .eq("restaurant_id", restaurantId);
 
   if (error) return { ok: false, error: error.message };
+
+  // §02 §3.3 — append the status transition to the operational history.
+  try {
+    await logReservationStatus({
+      reservationId,
+      restaurantId,
+      fromStatus: (priorRow as { status?: string } | null)?.status ?? null,
+      toStatus: nextStatus,
+      changedByUserId: session.userId,
+    });
+  } catch (e) {
+    console.error("[updateReservationStatus] status log failed", e);
+  }
 
   // §08 §4.7 invariant — a no_show booking must release its table.
   if (nextStatus === "no_show") {
@@ -213,6 +235,20 @@ export async function cancelReservation(
     await validateOrClearTableAssignment(reservationId, "cancelled");
   } catch (e) {
     console.error("[cancelReservation] table clear failed", e);
+  }
+
+  // §02 §3.3 — log the cancellation transition.
+  try {
+    await logReservationStatus({
+      reservationId,
+      restaurantId: ownerRestaurantId,
+      fromStatus: reservation.status,
+      toStatus: "cancelled",
+      changedByUserId: session.userId,
+      reason: key,
+    });
+  } catch (e) {
+    console.error("[cancelReservation] status log failed", e);
   }
 
   // Resolve org id once — used by both the transactional email log row
