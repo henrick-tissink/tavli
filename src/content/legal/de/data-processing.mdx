@@ -1,0 +1,76 @@
+import { Placeholder } from "@/components/legal/placeholder";
+
+# Auftragsverarbeitungsvertrag (AVV)
+
+*Zuletzt aktualisiert: 23. Mai 2026*
+
+## 1. Parteien
+
+Der **Verantwortliche** ist das Partnerrestaurant, das die Dienste von Tavli nutzt.
+
+Der **Auftragsverarbeiter** ist <Placeholder name="name" />, mit eingetragenem Sitz in <Placeholder name="address" />, Steuernummer <Placeholder name="cui" />, eingetragen im Handelsregister unter der Nummer <Placeholder name="jNumber" /> (nachfolgend „Tavli").
+
+## 2. Gegenstand der Verarbeitung
+
+Tavli verarbeitet personenbezogene Daten der Kunden des Restaurants im Auftrag des Verantwortlichen zu folgenden Zwecken:
+
+- Bestätigung, Verwaltung und Stornierung von Reservierungen
+- Versand transaktionaler Benachrichtigungen (Reservierungsbestätigung, Erinnerung, Nachfassen nach dem Besuch)
+- Erstellung aggregierter Berichte und Statistiken für das Restaurant
+- Verwaltung von Kundenbewertungen
+
+## 3. Kategorien der verarbeiteten Daten
+
+- Identifikationsdaten: Vorname, Nachname, E-Mail-Adresse, Telefonnummer
+- Reservierungsdaten: Datum, Uhrzeit, Personenzahl, Hinweise/Vorlieben
+- Bewertungsdaten: Inhalt, Note, Vorname
+- Technische Daten: IP-Adresse (zur Sicherheit)
+
+## 4. Dauer der Verarbeitung
+
+Die Verarbeitung erfolgt für die Dauer des Dienstleistungsvertrags zwischen dem Restaurant und Tavli. Mit Beendigung des Vertrags bewahrt Tavli Reservierungsdaten 36 Monate auf (gesetzliche Pflicht) und löscht oder anonymisiert sie anschließend.
+
+## 5. Pflichten von Tavli (Auftragsverarbeiter)
+
+Tavli verpflichtet sich:
+
+- Daten **ausschließlich auf dokumentierte Weisung** des Verantwortlichen zu verarbeiten
+- sicherzustellen, dass zur Verarbeitung befugte Personen sich zur Vertraulichkeit verpflichtet haben
+- **geeignete technische und organisatorische Maßnahmen** gemäß Art. 32 DSGVO umzusetzen: TLS-Verschlüsselung bei der Übertragung, Verschlüsselung im Ruhezustand, rollenbasierte Zugriffskontrolle, Mehr-Faktor-Authentifizierung für Administratoren, Audit-Protokolle
+- den Verantwortlichen unverzüglich und in jedem Fall **innerhalb von 72 Stunden** über eine die verarbeiteten Daten betreffende Sicherheitsverletzung zu benachrichtigen (Art. 33 DSGVO)
+- den Verantwortlichen bei der Beantwortung von Anträgen zur Ausübung der DSGVO-Rechte zu unterstützen (Auskunft, Berichtigung, Löschung, Übertragbarkeit, Einschränkung)
+- dem Verantwortlichen alle Informationen bereitzustellen, die zum Nachweis der Einhaltung von Art. 28 DSGVO erforderlich sind
+
+## 6. Unterauftragsverarbeiter
+
+Tavli setzt die folgenden genehmigten Unterauftragsverarbeiter ein:
+
+| Unterauftragsverarbeiter | Rolle | Standort |
+| --- | --- | --- |
+| Supabase Inc. | Datenbank und Authentifizierung | USA (SVK + EU-US DPF) |
+| Resend | Transaktionale E-Mail | USA (SVK) |
+| Twilio Inc. | Transaktionale SMS | USA (SVK) |
+| Hetzner Online GmbH | Anwendungs-Hosting | Deutschland |
+| Sentry | Fehlerüberwachung | USA (SVK) |
+
+Der Verantwortliche erteilt die vorherige Genehmigung für den Einsatz dieser Unterauftragsverarbeiter. Tavli benachrichtigt den Verantwortlichen **mindestens 30 Tage vor** jeder Änderung (Hinzufügung oder Ersetzung). Der Verantwortliche kann innerhalb dieser Frist schriftlich widersprechen.
+
+## 7. Internationale Datenübermittlungen
+
+Bestimmte Unterauftragsverarbeiter (Supabase, Resend, Twilio, Sentry) verarbeiten Daten in den Vereinigten Staaten. Diese Übermittlungen stützen sich auf von der Europäischen Kommission genehmigte Standardvertragsklauseln und, sofern zutreffend, die EU-US-Data-Privacy-Framework-Zertifizierung.
+
+## 8. Rückgabe und Löschung von Daten
+
+Auf Verlangen des Verantwortlichen oder bei Beendigung des Vertrags wird Tavli:
+
+- einen Export der Reservierungsdaten im CSV-Format innerhalb von 30 Tagen bereitstellen
+- alle im Auftrag des Verantwortlichen verarbeiteten Daten löschen oder anonymisieren, sofern keine Aufbewahrung nach geltendem Recht erforderlich ist
+- die Löschung schriftlich bestätigen
+
+## 9. Auditrecht
+
+Der Verantwortliche hat das Recht, mit einer Frist von 30 Tagen einmal jährlich Audits zur Einhaltung dieses Vertrags durchzuführen. Tavli kann dieser Anforderung durch Vorlage von Konformitätsberichten genügen, die von einem unabhängigen Prüfer zertifiziert sind.
+
+## 10. Kontakt zum Datenschutzbeauftragten
+
+Für alle Angelegenheiten im Zusammenhang mit der Datenverarbeitung: <Placeholder name="email" />

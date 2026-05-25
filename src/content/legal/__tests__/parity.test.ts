@@ -13,15 +13,22 @@ function extractHeadingLevels(mdxPath: string): string[] {
   return levels;
 }
 
-describe("legal content RO/EN structural parity", () => {
+describe("legal content RO/EN/DE structural parity", () => {
   it.each(DOCS)(
     "%s: RO and EN have identical heading-level sequences",
     (doc) => {
-      const roPath = resolve(__dirname, `../ro/${doc}.mdx`);
-      const enPath = resolve(__dirname, `../en/${doc}.mdx`);
-      const ro = extractHeadingLevels(roPath);
-      const en = extractHeadingLevels(enPath);
+      const ro = extractHeadingLevels(resolve(__dirname, `../ro/${doc}.mdx`));
+      const en = extractHeadingLevels(resolve(__dirname, `../en/${doc}.mdx`));
       expect(en).toEqual(ro);
+    },
+  );
+
+  it.each(DOCS)(
+    "%s: RO and DE have identical heading-level sequences",
+    (doc) => {
+      const ro = extractHeadingLevels(resolve(__dirname, `../ro/${doc}.mdx`));
+      const de = extractHeadingLevels(resolve(__dirname, `../de/${doc}.mdx`));
+      expect(de).toEqual(ro);
     },
   );
 });
