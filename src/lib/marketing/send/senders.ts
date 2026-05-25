@@ -19,6 +19,11 @@ interface TwilioClient {
 }
 
 export interface MarketingSendInput {
+  // NEW-2: the marketing_sends row is pre-inserted (queued) by fan-out /
+  // fire-triggered, which mints the link tokens against this id and enqueues the
+  // leaf job. The sender UPDATES this row in place — it must NOT insert a new one
+  // (doing so orphaned the queued row + poisoned cap/quota/analytics).
+  sendId: string;
   campaignId: string;
   campaignVersionId?: string | null;
   dinerId: string;
@@ -59,26 +64,16 @@ async function dispatch(
     ...input.policyConfig,
   });
 
-  const baseCols = sql`
-    campaign_id, campaign_version_id, diner_id, organization_id, restaurant_id, channel, locale,
-    ${input.channel === "email" || input.channel === "in_confirmation" ? sql`email` : sql`phone`}, status, status_updated_at
-  `;
-  const baseVals = (status: string) => sql`
-    ${input.campaignId}, ${input.campaignVersionId ?? null}, ${input.dinerId}, ${input.organizationId},
-    ${input.restaurantId}, ${input.channel}, ${input.locale}, ${input.identifier}, ${status}, now()
-  `;
+  // NEW-2: the row already exists (queued, pre-inserted by fan-out/fire-triggered).
+  // We UPDATE it in place by sendId — never INSERT a second row.
+  const sendId = input.sendId;
 
   if (!ev.allow) {
-    const skipRows = (await deps.db.execute(sql`
-      INSERT INTO marketing_sends (${baseCols}) VALUES (${baseVals(ev.skip)}) RETURNING id
-    `)) as unknown as Array<{ id: string }>;
-    return { sendId: skipRows[0]?.id ?? "", status: ev.skip };
+    await deps.db.execute(sql`
+      UPDATE marketing_sends SET status = ${ev.skip}, status_updated_at = now() WHERE id = ${sendId}
+    `);
+    return { sendId, status: ev.skip };
   }
-
-  const rows = (await deps.db.execute(sql`
-    INSERT INTO marketing_sends (${baseCols}) VALUES (${baseVals("queued")}) RETURNING id
-  `)) as unknown as Array<{ id: string }>;
-  const sendId = rows[0]!.id;
 
   try {
     const r = await deliver();

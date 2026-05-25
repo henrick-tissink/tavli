@@ -64,6 +64,7 @@ export function makeSendMessageHandler(deps: Deps) {
     if (!s || !s.identifier) return;
 
     const input = {
+      sendId: s.send_id, // NEW-2: sender UPDATES this pre-inserted row
       campaignId: s.campaign_id,
       dinerId: s.diner_id,
       organizationId: s.organization_id,

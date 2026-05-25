@@ -17,6 +17,7 @@ const policyConfig = {
   quietStartLocal: "21:00", quietEndLocal: "10:00", timezone: "Europe/Bucharest",
 };
 const emailInput: MarketingSendInput = {
+  sendId: "s1",
   campaignId: "c1", dinerId: "d1", organizationId: "o1", restaurantId: "r1",
   channel: "email", locale: "ro", identifier: "a@b.com", subject: "Sub", body: "<p>Hi</p>", text: "Hi",
   policyConfig,
@@ -24,7 +25,7 @@ const emailInput: MarketingSendInput = {
 
 function harness(policyResult: { allow: boolean; skip?: string }) {
   const db = {
-    execute: jest.fn(async (q: unknown) => (JSON.stringify(q).includes("RETURNING id") ? [{ id: "s1" }] : [])),
+    execute: jest.fn(async (_q: unknown) => [] as unknown[]),
   };
   const policy = jest.fn(async () => policyResult);
   const resend = { emails: { send: jest.fn(async () => ({ data: { id: "re_1" }, error: null })) } };
@@ -38,17 +39,25 @@ describe("marketing senders", () => {
     const h = harness({ allow: true });
     const r = await h.senders.sendEmail(emailInput);
     expect(r.status).toBe("sent");
+    expect(r.sendId).toBe("s1"); // NEW-2: operates on the pre-inserted row
     expect(h.resend.emails.send).toHaveBeenCalledTimes(1);
-    // insert queued + update sent + quota upsert = 3 execute calls.
-    expect(h.db.execute.mock.calls.length).toBe(3);
+    // NEW-2: UPDATE the pre-inserted row to sent + quota upsert = 2 execute calls
+    // (NO second INSERT — the fan-out already created the row).
+    expect(h.db.execute.mock.calls.length).toBe(2);
+    // every db statement must target the existing row, never INSERT a new send.
+    for (const [q] of h.db.execute.mock.calls) {
+      expect(JSON.stringify(q)).not.toContain("INSERT INTO marketing_sends");
+    }
   });
 
-  test("policy skip: writes the skip row, never calls the provider", async () => {
+  test("policy skip: marks the existing row skipped, never calls the provider", async () => {
     const h = harness({ allow: false, skip: "skipped_cap" });
     const r = await h.senders.sendEmail(emailInput);
     expect(r.status).toBe("skipped_cap");
+    expect(r.sendId).toBe("s1");
     expect(h.resend.emails.send).not.toHaveBeenCalled();
-    expect(h.db.execute.mock.calls.length).toBe(1); // just the skip-row insert
+    expect(h.db.execute.mock.calls.length).toBe(1); // just the status UPDATE
+    expect(JSON.stringify(h.db.execute.mock.calls[0][0])).not.toContain("INSERT INTO marketing_sends");
   });
 
   test("sms appends STOP suffix to the delivered body", async () => {
