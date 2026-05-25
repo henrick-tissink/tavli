@@ -33,6 +33,17 @@ export interface ActiveSubscriptionState {
   }>;
 }
 
+/**
+ * §12 §3.5 — whether an org may use Pro-tier features RIGHT NOW. loadActiveSubscription
+ * intentionally returns past_due/unpaid subscriptions (dunning needs them), so a
+ * bare `tier === "pro"` check would still grant Pro features to a delinquent org.
+ * Pro features require Pro tier AND a paying/trialing status; dunning + read-only
+ * lockout handle the rest.
+ */
+export function isProFeatureActive(sub: ActiveSubscriptionState | null): boolean {
+  return sub?.tier === "pro" && (sub.status === "active" || sub.status === "trialing");
+}
+
 export interface LoadSubscriptionDeps {
   db: Pick<typeof dbAdmin, "select">;
 }

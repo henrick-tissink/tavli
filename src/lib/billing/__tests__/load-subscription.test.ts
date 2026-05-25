@@ -6,7 +6,27 @@ jest.mock("@/lib/db/admin", () => ({ dbAdmin: {} }));
 jest.mock("@/lib/db/schema", () => ({ subscriptions: {}, subscriptionItems: {}, organizations: {} }));
 jest.mock("drizzle-orm", () => ({ eq: jest.fn(), and: jest.fn(), inArray: jest.fn() }));
 
-import { makeLoadActiveSubscription } from "../load-subscription";
+import { makeLoadActiveSubscription, isProFeatureActive } from "../load-subscription";
+
+describe("isProFeatureActive", () => {
+  const pro = { tier: "pro", status: "active" } as Parameters<typeof isProFeatureActive>[0];
+  it("true for an active Pro", () => {
+    expect(isProFeatureActive({ ...pro!, status: "active" } as never)).toBe(true);
+  });
+  it("true for a trialing Pro", () => {
+    expect(isProFeatureActive({ ...pro!, status: "trialing" } as never)).toBe(true);
+  });
+  it("false for a past_due Pro (a delinquent org keeps no Pro features)", () => {
+    expect(isProFeatureActive({ ...pro!, status: "past_due" } as never)).toBe(false);
+  });
+  it("false for an unpaid Pro", () => {
+    expect(isProFeatureActive({ ...pro!, status: "unpaid" } as never)).toBe(false);
+  });
+  it("false for Base tier and for null", () => {
+    expect(isProFeatureActive({ ...pro!, tier: "base" } as never)).toBe(false);
+    expect(isProFeatureActive(null)).toBe(false);
+  });
+});
 
 const ACTIVE_ROW = {
   id: "sub-1",

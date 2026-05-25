@@ -6,7 +6,7 @@ import { PHOTO_BUCKET } from "@/lib/storage";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { stripExif } from "@/lib/photos/strip-exif";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, isProFeatureActive } from "@/lib/billing/load-subscription";
 
 export interface UploadResult {
   ok: boolean;
@@ -75,9 +75,11 @@ export async function uploadRestaurantPhoto(
     return { ok: false, error: "Nu este restaurantul tău." };
   }
 
-  // Enforce per-restaurant photo cap (tier-aware). §05 §3.5.
+  // Enforce per-restaurant photo cap (tier-aware). §05 §3.5. A past_due/unpaid
+  // Pro org does NOT keep the unlimited cap — isProFeatureActive gates on a
+  // paying/trialing status, not bare tier.
   const subscription = await loadActiveSubscription(restaurantRow.organization_id);
-  const isProActive = subscription?.tier === "pro";
+  const isProActive = isProFeatureActive(subscription);
   const PHOTO_CAP_BASE = 20;
 
   if (!isProActive) {

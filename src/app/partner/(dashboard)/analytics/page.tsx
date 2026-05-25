@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, isProFeatureActive } from "@/lib/billing/load-subscription";
 import {
   analyticsQueries,
   toPartyMixSeries,
@@ -65,7 +65,9 @@ export default async function PartnerAnalyticsPage() {
   if (!venue) return <NoVenue />;
 
   const sub = await loadActiveSubscription(venue.organizationId);
-  const tier: "base" | "pro" = sub?.tier === "pro" && sub.status === "active" ? "pro" : "base";
+  // Pro analytics require Pro tier AND a paying/trialing status — trialing Pro
+  // orgs (90-day trial) get Pro features; past_due/unpaid fall back to Base.
+  const tier: "base" | "pro" = isProFeatureActive(sub) ? "pro" : "base";
 
   const q = analyticsQueries;
   const [coversRows, noShowRows, partyRows, cancelRow, channelRow, overview] = await Promise.all([
