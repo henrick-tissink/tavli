@@ -3,7 +3,7 @@
  */
 import { makeFireTriggeredCampaign } from "@/lib/marketing/fire-triggered";
 
-function harness(campaigns: Array<{ id: string; channel: string }>) {
+function harness(campaigns: Array<{ id: string; channel: string; trigger_offset_seconds?: number | null }>) {
   const db = {
     execute: jest.fn(async (q: unknown) => {
       const t = JSON.stringify(q);
@@ -13,15 +13,27 @@ function harness(campaigns: Array<{ id: string; channel: string }>) {
       return [];
     }),
   };
-  const enqueue = jest.fn(async (_k: string, _d?: unknown) => "j");
+  const enqueue = jest.fn(async (_k: string, _d?: unknown, _o?: unknown) => "j");
   return { db, enqueue, fire: makeFireTriggeredCampaign({ db: db as never, enqueue: enqueue as never }) };
 }
 
 describe("makeFireTriggeredCampaign", () => {
-  test("matching campaign → creates send + enqueues send-message", async () => {
-    const h = harness([{ id: "c1", channel: "email" }]);
+  test("matching campaign with no offset → enqueues send-message immediately", async () => {
+    const h = harness([{ id: "c1", channel: "email", trigger_offset_seconds: 0 }]);
     await h.fire({ triggerEvent: "reservation.completed", dinerId: "d1", organizationId: "o1", restaurantId: "r1" });
-    expect(h.enqueue).toHaveBeenCalledWith("marketing.send-message", { sendId: "s1" });
+    expect(h.enqueue).toHaveBeenCalledWith("marketing.send-message", { sendId: "s1" }, {});
+  });
+
+  test("campaign offset is applied as the leaf startAfter (seconds)", async () => {
+    const h = harness([{ id: "c1", channel: "email", trigger_offset_seconds: 7200 }]);
+    await h.fire({ triggerEvent: "reservation.completed", dinerId: "d1", organizationId: "o1", restaurantId: "r1" });
+    expect(h.enqueue).toHaveBeenCalledWith("marketing.send-message", { sendId: "s1" }, { startAfter: 7200 });
+  });
+
+  test("negative offset clamps to immediate", async () => {
+    const h = harness([{ id: "c1", channel: "email", trigger_offset_seconds: -604800 }]);
+    await h.fire({ triggerEvent: "diner.birthday", dinerId: "d1", organizationId: "o1" });
+    expect(h.enqueue).toHaveBeenCalledWith("marketing.send-message", { sendId: "s1" }, {});
   });
 
   test("no matching campaign → no enqueue", async () => {

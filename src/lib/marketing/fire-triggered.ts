@@ -34,11 +34,11 @@ export function makeFireTriggeredCampaign(deps: Deps) {
     if (!diner) return;
 
     const campaigns = (await deps.db.execute(sql`
-      SELECT id, channel FROM marketing_campaigns
+      SELECT id, channel, trigger_offset_seconds FROM marketing_campaigns
       WHERE organization_id = ${payload.organizationId}
         AND kind = 'triggered' AND status = 'active' AND trigger_event = ${payload.triggerEvent}
         AND (restaurant_id IS NULL OR restaurant_id = ${payload.restaurantId ?? null})
-    `)) as unknown as Array<{ id: string; channel: string }>;
+    `)) as unknown as Array<{ id: string; channel: string; trigger_offset_seconds: number | null }>;
 
     for (const c of campaigns) {
       const identifier = c.channel === "sms" || c.channel === "whatsapp" ? diner.phone : diner.email;
@@ -49,7 +49,16 @@ export function makeFireTriggeredCampaign(deps: Deps) {
           ${c.channel}::marketing_channel, ${diner.locale}, ${identifier}, 'queued'::marketing_send_status)
         RETURNING id
       `)) as unknown as Array<{ id: string }>;
-      if (rows[0]) await deps.enqueue(JOBS.marketing.sendMessage, { sendId: rows[0].id });
+      if (!rows[0]) continue;
+      // The per-campaign offset is applied here (not at the emitter) so one
+      // event can serve several campaigns with different delays. pg-boss
+      // startAfter takes seconds; negatives (e.g. birthday −7d) clamp to 0.
+      const delay = Math.max(0, c.trigger_offset_seconds ?? 0);
+      await deps.enqueue(
+        JOBS.marketing.sendMessage,
+        { sendId: rows[0].id },
+        delay > 0 ? { startAfter: delay } : {},
+      );
     }
   };
 }
