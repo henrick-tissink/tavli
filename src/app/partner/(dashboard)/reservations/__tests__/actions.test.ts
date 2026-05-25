@@ -28,6 +28,12 @@ jest.mock("@/lib/auth/session", () => ({
 jest.mock("@/lib/restaurants/current-user", () => ({
   currentUserPrimaryRestaurant: jest.fn(),
 }));
+// §01 §4 least-privilege: the mutations now gate on can(). The lazy default
+// resolver hits the DB, which this mocked-supabase suite has no access to —
+// stub can() to allow by default; denial tests flip it per-call.
+jest.mock("@/lib/authz/can", () => ({
+  can: jest.fn().mockResolvedValue(true),
+}));
 // §02 audit retrofit: the mutation sites now call recordAudit() + getActorRole.
 // Both hit dbAdmin against the real local DB which isn't available in this
 // suite's mocked supabase context — stub them out so the business-logic
@@ -51,6 +57,7 @@ jest.mock("@/lib/auth/current-actor", () => ({
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 interface ReservationFixture {
@@ -176,6 +183,7 @@ function fixture(overrides: Partial<ReservationFixture> = {}): ReservationFixtur
 beforeEach(() => {
   jest.clearAllMocks();
   (sendTransactionalEmail as jest.Mock).mockResolvedValue({ ok: true });
+  (can as jest.Mock).mockResolvedValue(true);
 });
 
 describe("cancelReservation", () => {
@@ -223,6 +231,25 @@ describe("cancelReservation", () => {
     const result = await cancelReservation("res-1", "overbooked");
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/nu a fost găsită/i);
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
+  });
+
+  test("denies when the role lacks reservation.cancel", async () => {
+    setupSupabase({
+      user: { id: "u1" },
+      ownerRestaurantId: "r1",
+      reservation: fixture(),
+    });
+    (can as jest.Mock).mockResolvedValueOnce(false);
+    const result = await cancelReservation("res-1", "overbooked");
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/permisiunea/i);
+    expect(can).toHaveBeenCalledWith(
+      expect.anything(),
+      "reservation.cancel",
+      { kind: "reservation", restaurant_id: "r1" },
+    );
+    // Denied before any write / email side-effect.
     expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
@@ -397,6 +424,30 @@ function setupSupabaseForUpdate(
 }
 
 describe("updateReservationStatus", () => {
+  test("denies when the role lacks the status-transition permission", async () => {
+    setupSupabaseForUpdate("r1");
+    (can as jest.Mock).mockResolvedValueOnce(false);
+    const result = await updateReservationStatus("res-1", "no_show");
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/permisiunea/i);
+    expect(can).toHaveBeenCalledWith(
+      expect.anything(),
+      "reservation.mark_no_show",
+      { kind: "reservation", restaurant_id: "r1" },
+    );
+  });
+
+  test("uses reservation.modify for seated/completed transitions", async () => {
+    setupSupabaseForUpdate("r1");
+    const result = await updateReservationStatus("res-1", "seated");
+    expect(result.ok).toBe(true);
+    expect(can).toHaveBeenCalledWith(
+      expect.anything(),
+      "reservation.modify",
+      { kind: "reservation", restaurant_id: "r1" },
+    );
+  });
+
   test("threads impersonatorUserId when impersonation is active", async () => {
     setupSupabaseForUpdate("r1");
     const { currentActor } = jest.requireMock("@/lib/auth/current-actor");

@@ -11,6 +11,7 @@ import {
 } from "@/lib/cancel-reasons";
 import { PartnerCancelledEmail } from "@/emails/PartnerCancelledEmail";
 import { getCurrentSession } from "@/lib/auth/session";
+import { can } from "@/lib/authz/can";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
@@ -36,6 +37,17 @@ export async function updateReservationStatus(
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+
+  // §01 §4 least-privilege: ownership (currentUserPrimaryRestaurant) is not
+  // enough — the matrix gates each status transition. A no-show is its own
+  // permission; seated/completed fall under reservation.modify.
+  const action =
+    nextStatus === "no_show"
+      ? "reservation.mark_no_show"
+      : "reservation.modify";
+  if (!(await can(session, action, { kind: "reservation", restaurant_id: restaurantId }))) {
+    return { ok: false, error: "Nu ai permisiunea pentru această acțiune." };
+  }
 
   const { error } = await supabase
     .from("reservations")
@@ -127,6 +139,16 @@ export async function cancelReservation(
   const ownerRestaurantId = await currentUserPrimaryRestaurant(session);
   if (!ownerRestaurantId) {
     return { ok: false, error: "Niciun restaurant asociat." };
+  }
+
+  // §01 §4 least-privilege: gate on the cancel permission, not just ownership.
+  if (
+    !(await can(session, "reservation.cancel", {
+      kind: "reservation",
+      restaurant_id: ownerRestaurantId,
+    }))
+  ) {
+    return { ok: false, error: "Nu ai permisiunea de a anula rezervări." };
   }
 
   const { data: reservationRow } = await supabase
