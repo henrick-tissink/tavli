@@ -27,7 +27,12 @@ import {
   handlePurgeCookieConsents,
 } from "@/lib/jobs/handlers/compliance";
 import { runErasureVerification } from "@/lib/compliance/verify";
-import { handlePurgePseudonymised } from "@/lib/jobs/handlers/diners";
+import {
+  handlePurgePseudonymised,
+  handleRecomputeDinerAggregates,
+  handleFrequencyBucketRebalance,
+  handleLapsedScan,
+} from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
 import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
@@ -106,6 +111,23 @@ async function main(): Promise<void> {
   // startAfter:30d invocation per diner, but the daily sweep is the
   // reliable safety net + the only thing that picks up legacy pseudonymisations.
   await boss.schedule(JOBS.diner.purgePseudonymised, "0 4 * * *");
+
+  // §03 §5.3 — diner aggregate refresh. recomputeAggregates is on-demand
+  // (enqueued from reservation completion); frequencyBucketRebalance recomputes
+  // visit-count buckets nightly; lapsedScan emits diner.lapsed_60d on the 60-day
+  // boundary (feeds the §11 §6.4 lapsed campaign). These power Pro segmentation,
+  // which read empty frequency_bucket/visit_count until now.
+  await boss.work(JOBS.diner.recomputeAggregates, async ([job]) => {
+    await handleRecomputeDinerAggregates(job.data as { dinerId: string });
+  });
+  await boss.work(JOBS.diner.frequencyBucketRebalance, async () => {
+    await handleFrequencyBucketRebalance();
+  });
+  await boss.schedule(JOBS.diner.frequencyBucketRebalance, "15 2 * * *");
+  await boss.work(JOBS.diner.lapsedScan, async () => {
+    await handleLapsedScan();
+  });
+  await boss.schedule(JOBS.diner.lapsedScan, "45 2 * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.

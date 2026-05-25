@@ -89,6 +89,11 @@ export async function updateReservationStatus(
           { triggerEvent, dinerId, organizationId: orgRow.organization_id, restaurantId },
           { singletonKey: `trig:${triggerEvent}:${reservationId}` },
         );
+        // §03 §5.3 — a completed visit changes the diner's visit_count +
+        // last_visited_at; refresh the aggregates that power segmentation.
+        if (nextStatus === "completed") {
+          await enqueue(JOBS.diner.recomputeAggregates, { dinerId });
+        }
       }
     } catch (e) {
       console.error("[updateReservationStatus] triggered-campaign enqueue failed", e);

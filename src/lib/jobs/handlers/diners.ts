@@ -27,11 +27,13 @@
  */
 
 import "server-only";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { diners, reservations } from "@/lib/db/schema";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
+import { enqueue as realEnqueue } from "@/lib/jobs/enqueue";
+import { JOBS } from "@/lib/jobs/keys";
 
 export interface RecomputeAggregatesPayload {
   dinerId: string;
@@ -42,11 +44,12 @@ interface Deps {
 }
 
 /**
- * Recompute aggregates for a single diner. The aggregate set here is the
- * "easy half" — visit_count + last_visited_at from a single reservations
- * scan. covers_total / no_show_count / cancellation_count / frequency
- * movement land when partner UI surfaces them per the §03 §5.3 deferral
- * note ("Aggregates are visible-zero in v1 until UI surfaces them").
+ * Recompute aggregates for a single diner: visit_count + last_visited_at from
+ * the diner's COMPLETED reservations only. Counting completed (not all)
+ * reservations keeps the semantics honest — a cancelled/no-show/future-confirmed
+ * booking is not a visit, and last_visited_at must not be polluted by a future
+ * confirmed date (the lapsed scan depends on it). covers_total / no_show_count /
+ * cancellation_count land when partner UI surfaces them (§03 §5.3 deferral).
  */
 export function makeHandleRecomputeDinerAggregates(deps: Deps) {
   return async function handleRecomputeDinerAggregates(
@@ -58,7 +61,12 @@ export function makeHandleRecomputeDinerAggregates(deps: Deps) {
         lastVisited: sql<Date | null>`max(${reservations.reservationDate})`,
       })
       .from(reservations)
-      .where(eq(reservations.dinerId, payload.dinerId));
+      .where(
+        and(
+          eq(reservations.dinerId, payload.dinerId),
+          eq(reservations.status, "completed"),
+        ),
+      );
 
     const stats = rows[0];
     if (!stats) return;
@@ -103,6 +111,49 @@ export function makeHandleFrequencyBucketRebalance(deps: Deps) {
 
 export const handleFrequencyBucketRebalance =
   makeHandleFrequencyBucketRebalance({ db: dbAdmin });
+
+/**
+ * Nightly lapsed scan — §11 §6.4. Finds diners whose last completed visit was
+ * exactly 60 days ago (the day they cross the lapsed threshold) and enqueues the
+ * `diner.lapsed_60d` triggered campaign for each. Date-equality on the 60-day
+ * boundary fires once per lapse episode; the singletonKey (diner + date) makes
+ * a same-day retry idempotent, and the campaign's own frequency cap is the
+ * second line. restaurantId is null → matches the org-level lapsed campaign.
+ */
+interface LapsedScanDeps {
+  db: typeof dbAdmin;
+  enqueue: typeof realEnqueue;
+}
+
+export function makeHandleLapsedScan(deps: LapsedScanDeps) {
+  return async function handleLapsedScan(): Promise<void> {
+    const rows = (await deps.db.execute(sql`
+      SELECT id, organization_id FROM diners
+      WHERE redacted_at IS NULL
+        AND last_visited_at IS NOT NULL
+        AND last_visited_at::date = (now() - interval '60 days')::date
+    `)) as unknown as Array<{ id: string; organization_id: string }>;
+
+    const today = new Date().toISOString().slice(0, 10);
+    for (const d of rows) {
+      await deps.enqueue(
+        JOBS.marketing.fireTriggeredCampaign,
+        {
+          triggerEvent: "diner.lapsed_60d",
+          dinerId: d.id,
+          organizationId: d.organization_id,
+          restaurantId: null,
+        },
+        { singletonKey: `trig:diner.lapsed_60d:${d.id}:${today}` },
+      );
+    }
+  };
+}
+
+export const handleLapsedScan = makeHandleLapsedScan({
+  db: dbAdmin,
+  enqueue: realEnqueue,
+});
 
 /**
  * Hard-delete diners pseudonymised > 30 days ago. The 30-day window is

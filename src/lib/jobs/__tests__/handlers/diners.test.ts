@@ -16,11 +16,19 @@ jest.mock("@/lib/db/admin", () => ({
   createSupabaseAdminClient: jest.fn(),
 }));
 
+// Avoid pulling pg-boss at import time (the singleton handlers wire the real
+// enqueue); the DI'd handlers under test receive their own enqueue mock.
+jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
+jest.mock("@/lib/jobs/keys", () => ({
+  JOBS: { marketing: { fireTriggeredCampaign: "marketing.fire-triggered-campaign" } },
+}));
+
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import {
   makeHandleRecomputeDinerAggregates,
   makeHandleFrequencyBucketRebalance,
+  makeHandleLapsedScan,
   makeHandlePurgePseudonymised,
 } from "../../handlers/diners";
 
@@ -109,6 +117,37 @@ describe("handleFrequencyBucketRebalance", () => {
     expect(flat).toContain("'occasional'");
     expect(flat).toContain("'first_timer'");
     expect(flat).toContain("redacted_at IS NULL");
+  });
+});
+
+describe("handleLapsedScan", () => {
+  it("enqueues diner.lapsed_60d for each 60-day-boundary diner with a dedup singletonKey", async () => {
+    const execute = jest.fn().mockResolvedValue([
+      { id: "d1", organization_id: "o1" },
+      { id: "d2", organization_id: "o2" },
+    ]);
+    const enqueue = jest.fn().mockResolvedValue("j");
+    const fn = makeHandleLapsedScan({ db: { execute } as never, enqueue: enqueue as never });
+    await fn();
+
+    expect(enqueue).toHaveBeenCalledTimes(2);
+    const [key, payload, opts] = enqueue.mock.calls[0];
+    expect(key).toBe("marketing.fire-triggered-campaign");
+    expect(payload).toMatchObject({
+      triggerEvent: "diner.lapsed_60d",
+      dinerId: "d1",
+      organizationId: "o1",
+      restaurantId: null,
+    });
+    expect((opts as { singletonKey: string }).singletonKey).toMatch(/^trig:diner\.lapsed_60d:d1:/);
+  });
+
+  it("no-ops when no diners cross the boundary", async () => {
+    const execute = jest.fn().mockResolvedValue([]);
+    const enqueue = jest.fn();
+    const fn = makeHandleLapsedScan({ db: { execute } as never, enqueue: enqueue as never });
+    await fn();
+    expect(enqueue).not.toHaveBeenCalled();
   });
 });
 

@@ -7,11 +7,11 @@
  * and does NOT substitute personalisation tokens (see send-message-handler.ts),
  * so any `{{token}}` would render literally. tokens_used stays empty.
  *
- * Status: the event-driven trio (post_visit_review / no_show_followup /
- * welcome_series) is active; birthday_anniversary + lapsed_60 are paused
- * (blocked on §03 birthday columns and the diner-aggregate jobs respectively).
- * welcome_series ships as a single welcome email — the M+7/M+30 drip needs a
- * sequence engine, deferred past v1.
+ * Status: post_visit_review / no_show_followup / welcome_series / lapsed_60 are
+ * active (lapsed_60 is driven by the nightly diner.lapsed-scan job).
+ * birthday_anniversary stays paused — blocked on §03 birthday/anniversary
+ * columns. welcome_series ships as a single welcome email — the M+7/M+30 drip
+ * needs a sequence engine, deferred past v1.
  */
 
 type Loc = { ro: string; en: string; de: string };
@@ -118,7 +118,9 @@ export const TRIGGERED_CAMPAIGN_DEFAULTS: TriggeredCampaignDefault[] = [
     channel: "email",
     triggerEvent: "diner.lapsed_60d",
     triggerOffsetSeconds: 0,
-    status: "paused",
+    // Active: the nightly diner.lapsed-scan job (handlers/diners.ts) now emits
+    // diner.lapsed_60d on the 60-day boundary.
+    status: "active",
     subject: { ro: "Ne e dor de tine", en: "We miss you", de: "Wir vermissen Sie" },
     body: {
       ro: "A trecut ceva timp de la ultima ta vizită și ne e dor de tine. Te așteptăm cu drag — rezervă o masă când îți dorești.",
