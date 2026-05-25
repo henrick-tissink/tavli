@@ -43,7 +43,8 @@ export function makeConsent(deps: Deps) {
 
       const currentRows = (await deps.db.execute(sql`
         SELECT consent_given FROM marketing_consents
-        WHERE diner_id = ${input.dinerId} AND channel = ${consentCh} AND revoked_at IS NULL
+        WHERE organization_id = ${input.organizationId} AND diner_id = ${input.dinerId}
+          AND channel = ${consentCh} AND revoked_at IS NULL
         ORDER BY given_at DESC LIMIT 1
       `)) as unknown as Array<{ consent_given: boolean }>;
       const current = currentRows[0];
@@ -51,10 +52,13 @@ export function makeConsent(deps: Deps) {
       // Idempotent: state already matches.
       if (current && current.consent_given === input.optIn) return { changed: false };
 
-      // Revoke any active row, then insert the new state.
+      // Revoke any active row, then insert the new state. The
+      // marketing_consents_active_unique index (0050) enforces at most one
+      // active row per (org, diner, channel) so this revoke+insert is safe.
       await deps.db.execute(sql`
         UPDATE marketing_consents SET revoked_at = now()
-        WHERE diner_id = ${input.dinerId} AND channel = ${consentCh} AND revoked_at IS NULL
+        WHERE organization_id = ${input.organizationId} AND diner_id = ${input.dinerId}
+          AND channel = ${consentCh} AND revoked_at IS NULL
       `);
       await deps.db.execute(sql`
         INSERT INTO marketing_consents (
@@ -108,11 +112,12 @@ export function makeConsent(deps: Deps) {
       return { changed: true };
     },
 
-    async hasConsent(dinerId: string, _organizationId: string, channel: MarketingChannel): Promise<boolean> {
+    async hasConsent(dinerId: string, organizationId: string, channel: MarketingChannel): Promise<boolean> {
       const consentCh = marketingConsentChannel(channel);
       const rows = (await deps.db.execute(sql`
         SELECT consent_given FROM marketing_consents
-        WHERE diner_id = ${dinerId} AND channel = ${consentCh} AND revoked_at IS NULL
+        WHERE organization_id = ${organizationId} AND diner_id = ${dinerId}
+          AND channel = ${consentCh} AND revoked_at IS NULL
         ORDER BY given_at DESC LIMIT 1
       `)) as unknown as Array<{ consent_given: boolean }>;
       return rows[0]?.consent_given === true;

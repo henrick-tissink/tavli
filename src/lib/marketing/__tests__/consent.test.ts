@@ -54,4 +54,27 @@ describe("recordConsent", () => {
     expect(await makeConsent(deps({ consent_given: false }) as never).hasConsent("d1", "o1", "email")).toBe(false);
     expect(await makeConsent(deps(null) as never).hasConsent("d1", "o1", "email")).toBe(false);
   });
+
+  // A3 — the consent lookup must be scoped by organization_id so the
+  // marketing_consents_active_unique (org, diner, channel) row is read
+  // deterministically and a diner shared across orgs can't cross consent state.
+  test("hasConsent scopes the lookup by organization_id", async () => {
+    const d = deps({ consent_given: true });
+    await makeConsent(d as never).hasConsent("d1", "o1", "email");
+    const consentQuery = d.db.execute.mock.calls
+      .map((c) => JSON.stringify(c[0]))
+      .find((t) => t.includes("FROM marketing_consents"));
+    expect(consentQuery).toContain("organization_id");
+  });
+
+  test("recordConsent scopes its current-state read + revoke by organization_id", async () => {
+    const d = deps({ consent_given: false });
+    await makeConsent(d as never).recordConsent({ ...base, optIn: true });
+    const consentQueries = d.db.execute.mock.calls
+      .map((c) => JSON.stringify(c[0]))
+      .filter((t) => t.includes("marketing_consents") && !t.includes("marketing_consent_audit"));
+    // SELECT current + UPDATE revoke + INSERT — the read + revoke must be scoped.
+    const scoped = consentQueries.filter((t) => t.includes("organization_id"));
+    expect(scoped.length).toBeGreaterThanOrEqual(2);
+  });
 });

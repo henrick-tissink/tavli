@@ -1350,6 +1350,11 @@ export const marketingConsents = pgTable(
       t.channel,
       sql`${t.givenAt} DESC`,
     ),
+    // 0050: at most one ACTIVE (not-yet-revoked) consent per (org, diner,
+    // channel). History rows carry revoked_at and are excluded by the predicate.
+    activeUnique: uniqueIndex("marketing_consents_active_unique")
+      .on(t.organizationId, t.dinerId, t.channel)
+      .where(sql`${t.revokedAt} IS NULL`),
     channelValidCheck: check(
       "marketing_consents_channel_valid",
       sql`${t.channel} IN ('email_marketing', 'sms_marketing', 'whatsapp_marketing', 'sms_transactional', 'email_transactional')`,
@@ -2205,6 +2210,9 @@ export const setupProgress = pgTable("setup_progress", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
+  // 0050: this index is NULLS NOT DISTINCT in the live DB so org-level steps
+  // (restaurant_id IS NULL) dedup via the trigger's ON CONFLICT. Drizzle 0.45.2
+  // can't express NULLS NOT DISTINCT — descriptive only; SQL is the source.
   uniqueIndex("setup_progress_org_restaurant_step").on(t.organizationId, t.restaurantId, t.stepKey),
   index("setup_progress_org").on(t.organizationId),
   index("setup_progress_status").on(t.status, t.scheduledAt).where(sql`status in ('not_started','scheduled')`),
