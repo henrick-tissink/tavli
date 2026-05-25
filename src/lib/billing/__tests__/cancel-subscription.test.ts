@@ -63,6 +63,21 @@ describe("cancelSubscription", () => {
     expect(d.recordBillingAudit).toHaveBeenCalledWith(expect.objectContaining({ eventType: "billing.subscription_cancelled" }));
   });
 
+  it("does NOT write free-text feedback into the 7-year billing_audit_log (MED-3 PII)", async () => {
+    const d = deps();
+    const cancel = makeCancelSubscription(d as never);
+    await cancel({
+      organizationId: "org-1",
+      mode: "period_end",
+      reason: "too_expensive",
+      feedback: "call me on 0722 123 456, ana@example.com",
+    });
+    const cancelAudit = (d.recordBillingAudit as jest.Mock).mock.calls
+      .map((c) => c[0])
+      .find((a) => a.eventType === "billing.subscription_cancelled");
+    expect("feedback" in cancelAudit.context).toBe(false);
+  });
+
   it("immediate (monthly) cancels with no refund", async () => {
     const d = deps();
     const cancel = makeCancelSubscription(d as never);

@@ -131,7 +131,11 @@ export function makeCancelSubscription(deps: CancelSubscriptionDeps) {
       organizationId: input.organizationId,
       eventType: "billing.subscription_cancelled",
       actorUserId: input.actorUserId,
-      context: { reason: input.reason ?? null, feedback: input.feedback ?? null, mode: input.mode, pro_rata_refund_cents: refundCents },
+      // MED-3: keep the categorical cancellation `reason` (also persisted on
+      // subscriptions.cancellationReason) but NOT the free-text `feedback` —
+      // billing_audit_log is a 7-year fiscal record outside the diner GDPR
+      // cascade, and operator/diner free-text can carry PII (names, phones).
+      context: { reason: input.reason ?? null, mode: input.mode, pro_rata_refund_cents: refundCents },
     });
 
     // §07 §8.3 — final data-export-on-cancel (contractual portability). Only
