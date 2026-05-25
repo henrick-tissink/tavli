@@ -32,6 +32,7 @@ import {
   handleRecomputeDinerAggregates,
   handleFrequencyBucketRebalance,
   handleLapsedScan,
+  handleBirthdayScan,
 } from "@/lib/jobs/handlers/diners";
 import { reconcileVenueCount } from "@/lib/multi-location/reconcile";
 import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitations";
@@ -128,6 +129,10 @@ async function main(): Promise<void> {
     await handleLapsedScan();
   });
   await boss.schedule(JOBS.diner.lapsedScan, "45 2 * * *");
+  await boss.work(JOBS.diner.birthdayScan, async () => {
+    await handleBirthdayScan();
+  });
+  await boss.schedule(JOBS.diner.birthdayScan, "0 3 * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.

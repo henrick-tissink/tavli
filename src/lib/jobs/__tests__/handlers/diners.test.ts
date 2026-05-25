@@ -29,6 +29,7 @@ import {
   makeHandleRecomputeDinerAggregates,
   makeHandleFrequencyBucketRebalance,
   makeHandleLapsedScan,
+  makeHandleBirthdayScan,
   makeHandlePurgePseudonymised,
 } from "../../handlers/diners";
 
@@ -146,6 +147,29 @@ describe("handleLapsedScan", () => {
     const execute = jest.fn().mockResolvedValue([]);
     const enqueue = jest.fn();
     const fn = makeHandleLapsedScan({ db: { execute } as never, enqueue: enqueue as never });
+    await fn();
+    expect(enqueue).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleBirthdayScan", () => {
+  it("enqueues diner.birthday for each diner 7 days out, with a per-year dedup key", async () => {
+    const execute = jest.fn().mockResolvedValue([{ id: "d1", organization_id: "o1" }]);
+    const enqueue = jest.fn().mockResolvedValue("j");
+    const fn = makeHandleBirthdayScan({ db: { execute } as never, enqueue: enqueue as never });
+    await fn();
+
+    expect(enqueue).toHaveBeenCalledTimes(1);
+    const [key, payload, opts] = enqueue.mock.calls[0];
+    expect(key).toBe("marketing.fire-triggered-campaign");
+    expect(payload).toMatchObject({ triggerEvent: "diner.birthday", dinerId: "d1", organizationId: "o1", restaurantId: null });
+    expect((opts as { singletonKey: string }).singletonKey).toMatch(/^trig:diner\.birthday:d1:\d{4}$/);
+  });
+
+  it("no-ops when no birthdays are 7 days out", async () => {
+    const execute = jest.fn().mockResolvedValue([]);
+    const enqueue = jest.fn();
+    const fn = makeHandleBirthdayScan({ db: { execute } as never, enqueue: enqueue as never });
     await fn();
     expect(enqueue).not.toHaveBeenCalled();
   });

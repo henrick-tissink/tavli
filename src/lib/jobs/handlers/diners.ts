@@ -156,6 +156,43 @@ export const handleLapsedScan = makeHandleLapsedScan({
 });
 
 /**
+ * Nightly birthday scan — §11 §6.3. Finds diners whose birthday (month/day) is
+ * exactly 7 days out and enqueues the `diner.birthday` triggered campaign, which
+ * sends immediately (the −7d lead time lives here, not in the campaign offset —
+ * the consumer clamps negative offsets to 0). singletonKey (diner + year) makes
+ * it fire once per birthday season. restaurantId null → org-level campaign.
+ */
+export function makeHandleBirthdayScan(deps: LapsedScanDeps) {
+  return async function handleBirthdayScan(): Promise<void> {
+    const rows = (await deps.db.execute(sql`
+      SELECT id, organization_id FROM diners
+      WHERE redacted_at IS NULL
+        AND birthday_date IS NOT NULL
+        AND to_char(birthday_date, 'MM-DD') = to_char((now() + interval '7 days'), 'MM-DD')
+    `)) as unknown as Array<{ id: string; organization_id: string }>;
+
+    const season = new Date(Date.now() + 7 * 86_400_000).getUTCFullYear();
+    for (const d of rows) {
+      await deps.enqueue(
+        JOBS.marketing.fireTriggeredCampaign,
+        {
+          triggerEvent: "diner.birthday",
+          dinerId: d.id,
+          organizationId: d.organization_id,
+          restaurantId: null,
+        },
+        { singletonKey: `trig:diner.birthday:${d.id}:${season}` },
+      );
+    }
+  };
+}
+
+export const handleBirthdayScan = makeHandleBirthdayScan({
+  db: dbAdmin,
+  enqueue: realEnqueue,
+});
+
+/**
  * Hard-delete diners pseudonymised > 30 days ago. The 30-day window is
  * §03 §8.2 — long enough that a venue owner who pseudonymised by mistake
  * has a chance to notice (and re-create the diner from a future booking,

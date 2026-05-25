@@ -70,7 +70,7 @@ describe("seedTriggeredCampaigns", () => {
     expect(byKey.no_show_followup.status).toBe("active");
     expect(byKey.welcome_series.status).toBe("active");
     expect(byKey.lapsed_60.status).toBe("active");
-    expect(byKey.birthday_anniversary.status).toBe("paused");
+    expect(byKey.birthday_anniversary.status).toBe("active");
     // versions carry version 1 + the same content
     expect(versionInserts.every((v) => v.versionNumber === 1)).toBe(true);
   });

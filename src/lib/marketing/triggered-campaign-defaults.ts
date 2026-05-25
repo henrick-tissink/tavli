@@ -7,11 +7,11 @@
  * and does NOT substitute personalisation tokens (see send-message-handler.ts),
  * so any `{{token}}` would render literally. tokens_used stays empty.
  *
- * Status: post_visit_review / no_show_followup / welcome_series / lapsed_60 are
- * active (lapsed_60 is driven by the nightly diner.lapsed-scan job).
- * birthday_anniversary stays paused — blocked on §03 birthday/anniversary
- * columns. welcome_series ships as a single welcome email — the M+7/M+30 drip
- * needs a sequence engine, deferred past v1.
+ * All five default campaigns ship active: post_visit_review / no_show_followup
+ * (reservation events), welcome_series (diner.created), lapsed_60 (nightly
+ * diner.lapsed-scan), birthday_anniversary (nightly diner.birthday-scan; fires
+ * for diners with a captured birthday_date). welcome_series ships as a single
+ * welcome email — the M+7/M+30 drip needs a sequence engine, deferred past v1.
  */
 
 type Loc = { ro: string; en: string; de: string };
@@ -102,8 +102,12 @@ export const TRIGGERED_CAMPAIGN_DEFAULTS: TriggeredCampaignDefault[] = [
     name: "La mulți ani",
     channel: "email",
     triggerEvent: "diner.birthday",
-    triggerOffsetSeconds: -7 * DAY,
-    status: "paused",
+    // Sends immediately; the −7-day lead time is applied by the nightly
+    // diner.birthday-scan job (which emits 7 days before the birthday).
+    triggerOffsetSeconds: 0,
+    // Active: the birthday scan emits diner.birthday for diners with a
+    // captured birthday_date (booking-widget occasion field or diner editor).
+    status: "active",
     subject: { ro: "La mulți ani de la noi", en: "Happy birthday from us", de: "Alles Gute zum Geburtstag" },
     body: {
       ro: "Se apropie ziua ta — la mulți ani din partea noastră! Ne-ar bucura să sărbătorești cu noi; rezervă o masă oricând.",

@@ -58,6 +58,7 @@ export const JOBS = {
     recomputeAggregates: "diner.recompute-aggregates",
     frequencyBucketRebalance: "diner.frequency-bucket-rebalance",
     lapsedScan: "diner.lapsed-scan",
+    birthdayScan: "diner.birthday-scan",
     purgePseudonymised: "diner.purge-pseudonymised",
   },
   analytics: {
