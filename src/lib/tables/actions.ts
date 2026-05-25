@@ -1,5 +1,5 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurantTables, restaurantTableSections } from "@/lib/db/schema";
 import { can as defaultCan } from "@/lib/authz/can";
@@ -111,7 +111,9 @@ export function makeTableActions(deps: Deps) {
     await deps.db
       .update(restaurantTables)
       .set({ ...input.changes, updatedAt: new Date() })
-      .where(eq(restaurantTables.id, input.id));
+      // NEW-3: scope by restaurant_id so a foreign table id can't be edited
+      // cross-tenant (authz only checks the client-supplied restaurantId).
+      .where(and(eq(restaurantTables.id, input.id), eq(restaurantTables.restaurantId, input.restaurantId)));
     await deps.recordAudit({
       action: AUDIT.table.updated,
       subjectType: "restaurant_table",
@@ -138,7 +140,8 @@ export function makeTableActions(deps: Deps) {
     await deps.db
       .update(restaurantTables)
       .set({ archivedAt: new Date(), updatedAt: new Date() })
-      .where(eq(restaurantTables.id, input.id));
+      // NEW-3: scope by restaurant_id (cross-tenant guard).
+      .where(and(eq(restaurantTables.id, input.id), eq(restaurantTables.restaurantId, input.restaurantId)));
     await deps.recordAudit({
       action: AUDIT.table.archived,
       subjectType: "restaurant_table",
@@ -196,7 +199,8 @@ export function makeTableActions(deps: Deps) {
     await deps.db
       .update(restaurantTableSections)
       .set({ ...input.changes, updatedAt: new Date() })
-      .where(eq(restaurantTableSections.id, input.id));
+      // NEW-3: scope by restaurant_id (cross-tenant guard).
+      .where(and(eq(restaurantTableSections.id, input.id), eq(restaurantTableSections.restaurantId, input.restaurantId)));
     await deps.recordAudit({
       action: AUDIT.table.section_updated,
       subjectType: "restaurant_table_section",
@@ -221,7 +225,8 @@ export function makeTableActions(deps: Deps) {
     // Member tables get section_id = NULL via FK ON DELETE SET NULL.
     await deps.db
       .delete(restaurantTableSections)
-      .where(eq(restaurantTableSections.id, input.id));
+      // NEW-3: scope by restaurant_id (cross-tenant guard).
+      .where(and(eq(restaurantTableSections.id, input.id), eq(restaurantTableSections.restaurantId, input.restaurantId)));
     await deps.recordAudit({
       action: AUDIT.table.section_deleted,
       subjectType: "restaurant_table_section",

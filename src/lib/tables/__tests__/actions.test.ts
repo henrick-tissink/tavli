@@ -8,12 +8,17 @@ jest.mock("@/lib/audit/record", () => ({ recordAudit: jest.fn() }));
 jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("@/lib/db/schema", () => ({
-  restaurantTables: {},
-  restaurantTableSections: {},
+  restaurantTables: { id: "rt.id", restaurantId: "rt.restaurantId" },
+  restaurantTableSections: { id: "rts.id", restaurantId: "rts.restaurantId" },
 }));
-jest.mock("drizzle-orm", () => ({ eq: jest.fn() }));
+jest.mock("drizzle-orm", () => ({
+  eq: jest.fn((a, b) => ({ eq: [a, b] })),
+  and: jest.fn((...xs) => ({ and: xs })),
+}));
 
 import { makeTableActions } from "../actions";
+import { eq } from "drizzle-orm";
+import { restaurantTables, restaurantTableSections } from "@/lib/db/schema";
 
 const RESTAURANT_ID = "rest-uuid-1";
 const ORG_ID = "org-uuid-1";
@@ -220,6 +225,54 @@ describe("archiveTable", () => {
     await expect(
       actions.archiveTable({ id: "t1", restaurantId: RESTAURANT_ID, organizationId: ORG_ID }),
     ).rejects.toThrow(/forbidden/);
+  });
+});
+
+// ─── cross-tenant scoping (NEW-3) ────────────────────────────────────────────
+// Each mutator authorizes a client-supplied restaurantId; the write MUST also be
+// scoped by restaurant_id so a foreign row id can't be mutated cross-tenant.
+
+describe("cross-tenant write scoping (NEW-3)", () => {
+  it("updateTable scopes the UPDATE by restaurant_id", async () => {
+    (eq as jest.Mock).mockClear();
+    await makeTableActions(deps()).updateTable({
+      id: "table-from-another-venue",
+      restaurantId: RESTAURANT_ID,
+      organizationId: ORG_ID,
+      changes: { label: "x" },
+    });
+    expect(eq).toHaveBeenCalledWith(restaurantTables.restaurantId, RESTAURANT_ID);
+  });
+
+  it("archiveTable scopes the UPDATE by restaurant_id", async () => {
+    (eq as jest.Mock).mockClear();
+    await makeTableActions(deps()).archiveTable({
+      id: "table-from-another-venue",
+      restaurantId: RESTAURANT_ID,
+      organizationId: ORG_ID,
+    });
+    expect(eq).toHaveBeenCalledWith(restaurantTables.restaurantId, RESTAURANT_ID);
+  });
+
+  it("updateSection scopes the UPDATE by restaurant_id", async () => {
+    (eq as jest.Mock).mockClear();
+    await makeTableActions(deps()).updateSection({
+      id: "section-from-another-venue",
+      restaurantId: RESTAURANT_ID,
+      organizationId: ORG_ID,
+      changes: { name: "x" },
+    });
+    expect(eq).toHaveBeenCalledWith(restaurantTableSections.restaurantId, RESTAURANT_ID);
+  });
+
+  it("archiveSection scopes the DELETE by restaurant_id", async () => {
+    (eq as jest.Mock).mockClear();
+    await makeTableActions(deps()).archiveSection({
+      id: "section-from-another-venue",
+      restaurantId: RESTAURANT_ID,
+      organizationId: ORG_ID,
+    });
+    expect(eq).toHaveBeenCalledWith(restaurantTableSections.restaurantId, RESTAURANT_ID);
   });
 });
 
