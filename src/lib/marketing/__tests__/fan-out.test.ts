@@ -45,6 +45,31 @@ describe("makeFanOutCampaign", () => {
     expect(selfCall?.[1]).toMatchObject({ campaignId: "c1", afterId: "d499", processed: 500 });
   });
 
+  test("dedups recipients by shared identifier — one human, one message (NEW-8)", async () => {
+    let dinersQuery = "";
+    const recipients = [{ id: "d0", email: "a@x.com", phone: null, locale: "ro" }];
+    const db = {
+      execute: jest.fn(async (q: unknown) => {
+        const t = JSON.stringify(q);
+        if (t.includes("FROM marketing_campaigns")) return [campaignRow];
+        if (t.includes("FROM diners d")) {
+          dinersQuery = t;
+          return recipients;
+        }
+        if (t.includes("INSERT INTO marketing_sends")) return recipients.map((r) => ({ id: `s_${r.id}` }));
+        return [];
+      }),
+    };
+    const enqueue = jest.fn(async () => "j");
+    const recordAudit = jest.fn(async () => {});
+    const fanOut = makeFanOutCampaign({ db: db as never, enqueue: enqueue as never, recordAudit: recordAudit as never });
+    await fanOut({ campaignId: "c1" });
+    // email channel → dedup on lower(email), skipping any diner that shares an
+    // identifier with a lower-id diner; null-identifier diners are excluded.
+    expect(dinersQuery.toLowerCase()).toContain("not exists");
+    expect(dinersQuery.toLowerCase()).toContain("lower(d2.email)");
+  });
+
   test("continuation (afterId set) does not re-fire campaign_sent audit", async () => {
     const h = harness(0);
     await h.fanOut({ campaignId: "c1", afterId: "d499", processed: 500 });

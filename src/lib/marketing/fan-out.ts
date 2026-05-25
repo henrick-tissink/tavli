@@ -85,9 +85,24 @@ export function makeFanOutCampaign(deps: Deps) {
       ? sql`d.id = ANY(${c.snapshot_diner_ids}::uuid[])`
       : sql`${compileSegmentFilter(c.filter_dsl?.conditions ?? [], c.combinator ?? "and")}`;
 
+    // NEW-8: cross-channel dedup (§11 §8.4 step 6 — "one human, one message").
+    // Two diner records sharing the channel identifier (email, or phone for
+    // sms/whatsapp) must yield ONE send. Keep only the lowest-id diner per
+    // identifier — a global predicate, so it dedups across keyset chunks too —
+    // and drop diners with no identifier for this channel (can't contact them).
+    const isPhoneChannel = c.channel === "sms" || c.channel === "whatsapp";
+    const dedup: SQL = isPhoneChannel
+      ? sql`AND d.phone IS NOT NULL AND NOT EXISTS (
+          SELECT 1 FROM diners d2 WHERE d2.organization_id = d.organization_id
+            AND d2.redacted_at IS NULL AND d2.id < d.id AND d2.phone = d.phone)`
+      : sql`AND d.email IS NOT NULL AND NOT EXISTS (
+          SELECT 1 FROM diners d2 WHERE d2.organization_id = d.organization_id
+            AND d2.redacted_at IS NULL AND d2.id < d.id AND lower(d2.email) = lower(d.email))`;
+
     const recipients = (await deps.db.execute(sql`
       SELECT d.id, d.email, d.phone, d.locale FROM diners d
       WHERE d.organization_id = ${c.organization_id} AND d.redacted_at IS NULL AND ${where}
+        ${dedup}
         ${afterId ? sql`AND d.id > ${afterId}::uuid` : sql``}
       ORDER BY d.id LIMIT ${CHUNK}
     `)) as unknown as Recipient[];
