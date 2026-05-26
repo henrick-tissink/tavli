@@ -12,8 +12,7 @@
  */
 import type { Metadata } from "next";
 import type { Locale, PricingMessages } from "@/lib/i18n/load-messages";
-
-const ORIGIN = "https://tavli.ro";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const PRICING_PATHS: Record<Locale, string> = {
   ro: "/pricing",
@@ -21,24 +20,30 @@ export const PRICING_PATHS: Record<Locale, string> = {
   de: "/de/pricing",
 };
 
-const LANGUAGE_ALTERNATES: Record<string, string> = {
-  ro: `${ORIGIN}/pricing`,
-  en: `${ORIGIN}/en/pricing`,
-  de: `${ORIGIN}/de/pricing`,
-  "x-default": `${ORIGIN}/pricing`,
-};
+function languageAlternates(origin: string): Record<string, string> {
+  return {
+    ro: `${origin}/pricing`,
+    en: `${origin}/en/pricing`,
+    de: `${origin}/de/pricing`,
+    "x-default": `${origin}/pricing`,
+  };
+}
 
 export function buildPricingMetadata(
   locale: Locale,
   messages: PricingMessages,
 ): Metadata {
-  const url = `${ORIGIN}${PRICING_PATHS[locale]}`;
+  // Origin is env-driven (getSiteUrl) so the live site emits tavli.ro canonicals
+  // while the demo deployment stays self-consistent under noindex — never a
+  // hardcoded origin, which would cross-link the two environments.
+  const origin = getSiteUrl();
+  const url = `${origin}${PRICING_PATHS[locale]}`;
   return {
     title: messages.meta.title,
     description: messages.meta.description,
     alternates: {
       canonical: url,
-      languages: LANGUAGE_ALTERNATES,
+      languages: languageAlternates(origin),
     },
     openGraph: {
       title: messages.meta.ogTitle,

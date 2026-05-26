@@ -281,4 +281,36 @@ describe("proxy", () => {
     const res = await proxy(req);
     expect(res.headers.get("location")).toBeNull();
   });
+
+  describe("DEMO_MODE noindex", () => {
+    const originalDemo = process.env.DEMO_MODE;
+    afterEach(() => {
+      if (originalDemo === undefined) delete process.env.DEMO_MODE;
+      else process.env.DEMO_MODE = originalDemo;
+    });
+
+    it("sets X-Robots-Tag: noindex on consumer pages when DEMO_MODE=true", async () => {
+      process.env.DEMO_MODE = "true";
+      const req = mockRequest({ pathname: "/" });
+      const res = await proxy(req);
+      expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    });
+
+    it("does NOT set X-Robots-Tag when DEMO_MODE is unset", async () => {
+      delete process.env.DEMO_MODE;
+      const req = mockRequest({ pathname: "/" });
+      const res = await proxy(req);
+      expect(res.headers.get("x-robots-tag")).toBeNull();
+    });
+
+    it("sets X-Robots-Tag even on early-return paths (e.g. server actions)", async () => {
+      process.env.DEMO_MODE = "true";
+      const req = mockRequest({
+        pathname: "/partner/reservations",
+        nextAction: "some-action-id",
+      });
+      const res = await proxy(req);
+      expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    });
+  });
 });

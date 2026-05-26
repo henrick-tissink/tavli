@@ -4,6 +4,7 @@ import {
   readImpersonationReturnCookie,
   IMPERSONATION_COOKIE_NAME,
 } from "@/lib/auth/impersonation-cookie";
+import { isDemoMode } from "@/lib/demo-mode";
 
 /**
  * Route-protection + session-refresh middleware.
@@ -28,6 +29,14 @@ import {
  */
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
+
+  // Demo deployment (demo.tavli.ro): emit a site-wide noindex header. Set on the
+  // base response at creation so it rides every pass-through path below
+  // (consumer pages, server-action POSTs, missing-env early-out). Auth redirects
+  // build their own responses but point at sign-in pages, which are non-content.
+  if (isDemoMode()) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
