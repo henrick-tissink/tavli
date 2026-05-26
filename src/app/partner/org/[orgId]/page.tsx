@@ -55,7 +55,7 @@ export default async function OrgDashboardPage({ params }: { params: Promise<{ o
     SELECT COALESCE(SUM(party_size), 0)::int AS covers, COUNT(*)::int AS bookings
     FROM reservations
     WHERE restaurant_id IN (SELECT id FROM restaurants WHERE organization_id = ${orgId} AND archived_at IS NULL)
-      AND date = CURRENT_DATE
+      AND reservation_date = CURRENT_DATE
       AND status IN ('confirmed', 'seated', 'completed')
   `)) as unknown as Array<{ covers: number; bookings: number }>;
 
