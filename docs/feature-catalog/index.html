@@ -105,7 +105,10 @@
     html.js .reveal{opacity:1!important;transform:none!important;transition:none!important}
     body::before{display:none}
     .card,figure.card,.sec-head,.closing,.hero .meta{break-inside:avoid}
-    .card:hover{transform:none;box-shadow:var(--shadow-soft)}
+    /* Flatten cards for PDF: no box-shadow / rounded-clip → screenshots embed as
+       plain images with no soft-mask, which every PDF viewer renders reliably. */
+    .card,.card:hover{box-shadow:none!important;transform:none!important;border-radius:0!important;overflow:visible;border:1px solid var(--line-strong)}
+    .frame,.shot{border-radius:0!important}
     .hero{padding-top:30px}
     a{color:inherit;text-decoration:none}
   }
