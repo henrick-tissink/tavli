@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tavli — Feature Catalog</title>
+<script>document.documentElement.className='js';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F6F1E7;
+    --paper-2:#FCFAF4;
+    --ink:#221B15;
+    --ink-2:#6E6359;
+    --brand:#BC5B3C;
+    --brand-deep:#8E4026;
+    --forest:#33483B;
+    --line:rgba(34,27,21,.12);
+    --line-strong:rgba(34,27,21,.22);
+    --shadow:0 22px 60px -28px rgba(34,27,21,.38);
+    --shadow-soft:0 12px 36px -22px rgba(34,27,21,.30);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 32px}
+  .serif{font-family:'Fraunces',Georgia,serif}
+
+  /* ── Top rule ── */
+  .topbar{display:flex;justify-content:space-between;align-items:center;
+    padding:22px 32px;max-width:1180px;margin:0 auto;font-size:13px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);position:relative;z-index:1}
+  .topbar .mark{font-family:'Fraunces',serif;font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--ink);text-transform:none}
+
+  /* ── Hero ── */
+  .hero{padding:70px 0 64px;position:relative}
+  .hero .eyebrow{font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--brand-deep);font-weight:600;margin-bottom:26px}
+  .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(46px,8vw,104px);line-height:.96;letter-spacing:-.02em;max-width:14ch}
+  .hero h1 em{font-style:italic;color:var(--brand)}
+  .hero .lede{margin-top:30px;font-size:clamp(18px,2.2vw,22px);max-width:56ch;color:var(--ink-2)}
+  .hero .meta{margin-top:46px;display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .hero .meta div{flex:1 1 160px;padding:22px 26px 22px 0;border-right:1px solid var(--line)}
+  .hero .meta div:last-child{border-right:none}
+  .hero .meta .n{font-family:'Fraunces',serif;font-size:38px;font-weight:600;line-height:1;color:var(--ink)}
+  .hero .meta .l{margin-top:8px;font-size:13px;letter-spacing:.04em;color:var(--ink-2)}
+
+  /* ── Section ── */
+  section.feat{padding:64px 0;border-top:1px solid var(--line)}
+  .sec-head{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:baseline;margin-bottom:48px}
+  .sec-num{font-family:'Fraunces',serif;font-style:italic;font-size:24px;color:var(--brand);font-weight:500}
+  .sec-title{font-family:'Fraunces',serif;font-size:clamp(30px,4.6vw,52px);font-weight:600;letter-spacing:-.015em;line-height:1.02}
+  .sec-lede{grid-column:2;font-size:18px;color:var(--ink-2);max-width:60ch;margin-top:18px}
+  .sec-tier{display:inline-block;margin-left:14px;vertical-align:middle;font-family:'Inter';font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--forest);border:1px solid var(--forest);border-radius:999px;padding:3px 11px}
+
+  /* ── Cards ── */
+  .grid{display:grid;gap:34px;grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+  .grid.one{grid-template-columns:1fr}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-soft);transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s}
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .frame{background:#EFE8DA;border-bottom:1px solid var(--line)}
+  .frame .bar{display:flex;align-items:center;gap:8px;padding:12px 16px}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--line-strong)}
+  .dot.r{background:#D98E7E}.dot.y{background:#E2C088}.dot.g{background:#A7C0A0}
+  .frame .url{margin-left:10px;flex:1;font-size:12px;color:var(--ink-2);background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:5px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter'}
+  .shot{display:block;width:100%;height:380px;object-fit:cover;object-position:top center;background:#fff}
+  .shot.full{height:auto;max-height:none}
+  .cap{padding:24px 26px 28px}
+  .cap h3{font-family:'Fraunces',serif;font-size:24px;font-weight:600;letter-spacing:-.01em}
+  .cap p{margin-top:10px;color:var(--ink-2);font-size:15.5px}
+  .tags{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+  .tag{font-size:11.5px;letter-spacing:.03em;color:var(--brand-deep);background:rgba(188,91,60,.09);border:1px solid rgba(188,91,60,.22);border-radius:999px;padding:4px 11px}
+
+  /* full-width feature (analytics) */
+  .spotlight{display:grid;grid-template-columns:1fr;gap:0}
+  .spotlight .shot.full{border-radius:0}
+
+  /* ── Closing ── */
+  .closing{padding:80px 0 30px;border-top:1px solid var(--line)}
+  .closing h2{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:600;letter-spacing:-.015em;max-width:20ch}
+  .pillrow{margin-top:38px;display:flex;flex-wrap:wrap;gap:12px}
+  .pill{font-size:13px;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:9px 17px;display:flex;align-items:center;gap:9px}
+  .pill b{font-weight:600}
+  footer{margin-top:70px;padding:30px 0 60px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2)}
+  footer .mark{font-family:'Fraunces',serif;font-weight:700;color:var(--ink);font-size:16px}
+
+  /* reveal — JS-gated so content is always visible without JS, in print, or with reduced motion */
+  html.js .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+  html.js .reveal.in{opacity:1;transform:none}
+  @media print{html.js .reveal{opacity:1!important;transform:none!important}}
+  @media (prefers-reduced-motion:reduce){html.js .reveal{opacity:1!important;transform:none!important}}
+
+  @media(max-width:760px){
+    .wrap,.topbar{padding-left:20px;padding-right:20px}
+    .sec-head{grid-template-columns:1fr;gap:8px}
+    .sec-lede{grid-column:1}
+    .grid{grid-template-columns:1fr;gap:24px}
+    .shot{height:300px}
+    .hero .meta div{border-right:none;border-bottom:1px solid var(--line);flex-basis:48%}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="mark">Tavli</span>
+  <span>Feature Catalog · 2026</span>
+</div>
+
+<header class="hero wrap">
+  <p class="eyebrow reveal">The dining platform, in full</p>
+  <h1 class="reveal">Every table.<br>Every guest.<br><em>One craft.</em></h1>
+  <p class="lede reveal">Tavli is a reservations &amp; guest-relationship platform for restaurants — an editorial booking experience for diners, and a complete back-of-house operating system for the people who run the room. This is a tour of what it does, captured live.</p>
+  <div class="meta reveal">
+    <div><div class="n">2</div><div class="l">consumer surfaces<br>discover &amp; book</div></div>
+    <div><div class="n">12+</div><div class="l">operator tools<br>floor to forecast</div></div>
+    <div><div class="n">RO·EN·DE</div><div class="l">trilingual<br>by design</div></div>
+    <div><div class="n">EU</div><div class="l">GDPR · ANPC · PSD2<br>built-in</div></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 01 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">The Diner Experience</h2>
+      <p class="sec-lede">Discovery that feels like a city guide, not a directory — and a four-step booking that never asks for an account.</p>
+    </div>
+    <div class="grid">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">tavli.ro/bucuresti</span></div></div>
+        <img class="shot" src="img/cat-consumer-home.png" alt="Tavli city discovery page" loading="lazy" />
+        <figcaption class="cap"><h3>City discovery</h3><p>Browse a city by mood — open now, late-night, cuisine, neighbourhood, price — with editorial collections like “Popular this week” and “New on Tavli”.</p><div class="tags"><span class="tag">Smart filters</span><span class="tag">Live availability</span><span class="tag">Save for later</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">tavli.ro/bucuresti/atelier-floreasca</span></div></div>
+        <img class="shot" src="img/cat-consumer-detail.png" alt="Restaurant detail page" loading="lazy" />
+        <figcaption class="cap"><h3>The venue page</h3><p>A magazine-grade profile: gallery, chef’s picks with prices, “what people love”, real reviews, hours and one-tap directions.</p><div class="tags"><span class="tag">Editorial layout</span><span class="tag">Aggregate rating</span><span class="tag">SEO + JSON-LD</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">…/atelier-floreasca/menu</span></div></div>
+        <img class="shot" src="img/cat-consumer-menu.png" alt="Public menu page" loading="lazy" />
+        <figcaption class="cap"><h3>Living menu &amp; QR</h3><p>A seasonal menu with sections, dietary filters and chef recommendations — printable as a QR code for the table.</p><div class="tags"><span class="tag">Dietary tags</span><span class="tag">QR-ready</span><span class="tag">Edits go live instantly</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Rezervare · pas 1 / 4</span></div></div>
+        <img class="shot" src="img/cat-booking.png" alt="Booking flow dialog" loading="lazy" />
+        <figcaption class="cap"><h3>Four-step booking</h3><p>Date, party, time, details — capacity-aware to the slot, no account required, instant confirmation with a manage-your-booking link.</p><div class="tags"><span class="tag">No-login booking</span><span class="tag">Capacity-safe</span><span class="tag">Self-service manage</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Reservations &amp; Floor</h2>
+      <p class="sec-lede">The shift, at a glance — and a floor plan you arrange by dragging tables where they really are.</p>
+    </div>
+    <div class="grid">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/reservations</span></div></div>
+        <img class="shot" src="img/cat-reservations.png" alt="Reservations management" loading="lazy" />
+        <figcaption class="cap"><h3>Reservation book</h3><p>Today, upcoming and past in one place. Seat a table, mark a no-show, or cancel — guests are emailed automatically.</p><div class="tags"><span class="tag">Status workflow</span><span class="tag">Auto guest email</span><span class="tag">CSV export</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/tables</span></div></div>
+        <img class="shot" src="img/cat-floorplan.png" alt="Floor plan editor" loading="lazy" />
+        <figcaption class="cap"><h3>Floor plan &amp; live room</h3><p>Drag-and-drop tables across sections, combine them for big parties, run a live waitlist and watch the room turn in real time.</p><div class="tags"><span class="tag">Drag-to-arrange</span><span class="tag">Table combinations</span><span class="tag">Waitlist</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">The Guest CRM</h2>
+      <p class="sec-lede">Every booking quietly builds a guest book — visit history, preferences and VIPs, with privacy designed in.</p>
+    </div>
+    <div class="grid one">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/diners</span></div></div>
+        <img class="shot full" src="img/cat-diners.png" alt="Diner CRM" loading="lazy" />
+        <figcaption class="cap"><h3>Guest database</h3><p>An organisation-wide guest base with visit counts, last-visit and frequency. Contact details are masked in the list and every reveal is logged — GDPR access control by construction. Merge duplicates or split shared profiles in a click.</p><div class="tags"><span class="tag">Visit history &amp; VIPs</span><span class="tag">Masked PII + access log</span><span class="tag">Merge / split</span><span class="tag">Right-to-erasure cascade</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">Analytics <span class="sec-tier">Pro</span></h2>
+      <p class="sec-lede">From “covers tonight” to a 28-day forecast — the numbers a restaurateur actually runs the business on, refreshed nightly.</p>
+    </div>
+    <div class="grid one">
+      <figure class="card reveal spotlight">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/analytics</span></div></div>
+        <img class="shot full" src="img/cat-analytics.png" alt="Pro analytics dashboard" loading="lazy" />
+        <figcaption class="cap"><h3>The analytics studio</h3><p>Covers per service, no-show rate, party mix and cancellation reasons — then the Pro panels: a day-by-hour no-show heat-map, a cohort-retention triangle, booking lead-time, channel attribution and a covers forecast. One click exports the lot to CSV.</p><div class="tags"><span class="tag">No-show heat-map</span><span class="tag">Cohort retention</span><span class="tag">Lead-time</span><span class="tag">Source attribution</span><span class="tag">28-day forecast</span><span class="tag">CSV export</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 05 + 06 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">Reputation &amp; Marketing</h2>
+      <p class="sec-lede">Turn a good night into the next booking — verified reviews, and a multi-channel campaign engine that respects the rules.</p>
+    </div>
+    <div class="grid">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/reviews</span></div></div>
+        <img class="shot" src="img/cat-reviews.png" alt="Reviews" loading="lazy" />
+        <figcaption class="cap"><h3>Reviews &amp; reputation</h3><p>Post-visit reviews from real reservations roll into an aggregate rating, with a DSA-compliant report-and-moderate path for anything unfair.</p><div class="tags"><span class="tag">Verified reviews</span><span class="tag">Aggregate rating</span><span class="tag">DSA notice-&amp;-action</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/marketing <b style="color:var(--forest)">· Pro</b></span></div></div>
+        <img class="shot" src="img/cat-marketing.png" alt="Marketing suite" loading="lazy" />
+        <figcaption class="cap"><h3>Marketing suite <span class="sec-tier">Pro</span></h3><p>Email, SMS and WhatsApp campaigns — automated win-backs or one-off broadcasts — to six-dimension audience segments, with monthly quotas and one-tap unsubscribe.</p><div class="tags"><span class="tag">Email · SMS · WhatsApp</span><span class="tag">Segment builder</span><span class="tag">Quota caps</span><span class="tag">RFC 8058 unsubscribe</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 07 + 08 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">06</span>
+      <h2 class="sec-title">Groups &amp; Growth</h2>
+      <p class="sec-lede">One brand or twenty — and a front door for the private events that fill the quiet nights.</p>
+    </div>
+    <div class="grid">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/org</span></div></div>
+        <img class="shot" src="img/cat-org.png" alt="Multi-location dashboard" loading="lazy" />
+        <figcaption class="cap"><h3>Multi-location</h3><p>An organisation rollup across venues — today’s covers, plan, and a venue roster — with per-location billing handled automatically.</p><div class="tags"><span class="tag">Org rollup</span><span class="tag">Venue management</span><span class="tag">Per-venue billing</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/corporate</span></div></div>
+        <img class="shot" src="img/cat-corporate.png" alt="Corporate events" loading="lazy" />
+        <figcaption class="cap"><h3>Corporate &amp; events</h3><p>Take requests for weddings, birthdays and corporate dinners with a 24-hour response promise, quoting, and a corporate-client book.</p><div class="tags"><span class="tag">Private-event requests</span><span class="tag">Quotes</span><span class="tag">Corporate clients</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 09 + 10 -->
+  <section class="feat">
+    <div class="sec-head reveal">
+      <span class="sec-num">07</span>
+      <h2 class="sec-title">Menu, Plans &amp; Pricing</h2>
+      <p class="sec-lede">Own the content and the commercials — a live menu editor, a fair three-month trial, and a pricing page that sells on its own terms.</p>
+    </div>
+    <div class="grid">
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/menu</span></div></div>
+        <img class="shot" src="img/cat-menu-mgmt.png" alt="Menu management" loading="lazy" />
+        <figcaption class="cap"><h3>Menu management</h3><p>Sections, dishes, prices, dietary tags and chef’s picks — with translations to EN and DE, and photo handling that strips EXIF on upload.</p><div class="tags"><span class="tag">Sections &amp; dishes</span><span class="tag">RO · EN · DE</span><span class="tag">EXIF-stripped photos</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">partner.tavli.ro/billing</span></div></div>
+        <img class="shot" src="img/cat-billing.png" alt="Billing" loading="lazy" />
+        <figcaption class="cap"><h3>Plans &amp; billing</h3><p>A genuine three-month free trial, Base and Pro tiers, Stripe-backed subscriptions with tiered dunning and PSD2/SCA-correct conversion.</p><div class="tags"><span class="tag">3-month trial</span><span class="tag">Base / Pro</span><span class="tag">Stripe · PSD2/SCA</span></div></figcaption>
+      </figure>
+      <figure class="card reveal">
+        <div class="frame"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">tavli.ro/pricing</span></div></div>
+        <img class="shot" src="img/cat-pricing.png" alt="Public pricing page" loading="lazy" />
+        <figcaption class="cap"><h3>Public pricing</h3><p>An editorial, trilingual pricing page — monthly or annual, EUR with RON reference, VAT made plain, and the offer stated on its own terms.</p><div class="tags"><span class="tag">Trilingual</span><span class="tag">EUR + RON</span><span class="tag">VAT clarity</span></div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Closing -->
+  <section class="closing reveal">
+    <h2>Built for Romania, to European standard.</h2>
+    <div class="pillrow">
+      <span class="pill"><b>GDPR</b> erasure cascade &amp; consent</span>
+      <span class="pill"><b>ANPC + EU&nbsp;ODR</b> consumer links</span>
+      <span class="pill"><b>PSD2 / SCA</b> compliant billing</span>
+      <span class="pill"><b>DSA</b> review notice-&amp;-action</span>
+      <span class="pill"><b>WCAG 2.2 AA</b> accessibility</span>
+      <span class="pill"><b>EU-hosted</b> data residency</span>
+      <span class="pill"><b>RO · EN · DE</b> end to end</span>
+    </div>
+  </section>
+
+  <footer>
+    <span class="mark">Tavli</span>
+    <span>Feature catalog · captured live from the demo environment · 2026</span>
+  </footer>
+</main>
+
+<script>
+  var nodes = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    nodes.forEach(function(el,i){ el.style.transitionDelay=(Math.min(i%4,3)*90)+'ms'; io.observe(el); });
+  } else {
+    nodes.forEach(function(el){ el.classList.add('in'); });
+  }
+</script>
+</body>
+</html>
