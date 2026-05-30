@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurants, restaurantTables, restaurantTableSections } from "@/lib/db/schema";
+import { restaurants, restaurantTables, restaurantTableSections, reservations } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
-import { TablesList } from "./_components/TablesList";
 import { SectionsManager } from "./_components/SectionsManager";
-import { FloorPlanCanvas } from "./_components/FloorPlanCanvas";
+import { FloorPlanEditor } from "./_components/FloorPlanEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +58,30 @@ export default async function TablesPage() {
       .orderBy(asc(restaurantTables.label)),
   ]);
 
+  // Tonight's reservations (today, still-active) for the Diseară view. Tables
+  // carrying an assignment show as booked; the rest are listed in the panel.
+  const today = new Date().toISOString().slice(0, 10);
+  const tonight =
+    tables.length === 0
+      ? []
+      : await dbAdmin
+          .select({
+            id: reservations.id,
+            guestName: reservations.guestName,
+            time: reservations.reservationTime,
+            partySize: reservations.partySize,
+            tableId: reservations.tableId,
+          })
+          .from(reservations)
+          .where(
+            and(
+              eq(reservations.restaurantId, restaurantId),
+              eq(reservations.reservationDate, today),
+              inArray(reservations.status, ["confirmed", "seated"]),
+            ),
+          )
+          .orderBy(asc(reservations.reservationTime));
+
   const sectionRows = sections.map((s) => ({
     id: s.id,
     restaurantId: s.restaurantId,
@@ -96,43 +119,45 @@ export default async function TablesPage() {
             Plan sală
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Configurează mesele și secțiunile pentru{" "}
-            <span className="font-medium">{venue.name}</span>. Trage mesele pe plan
-            pentru a le aranja; detaliile le editezi din listă.
+            Aranjează mesele și secțiunile pentru{" "}
+            <span className="font-medium">{venue.name}</span> vizual. Trage pe plan
+            ca să rearanjezi; editează detaliile în panou.
           </p>
         </div>
       </header>
 
-      <div className="mb-8 max-w-3xl">
-        <FloorPlanCanvas
+      <div className="mb-8 max-w-[1040px]">
+        <FloorPlanEditor
           restaurantId={restaurantId}
           organizationId={organizationId}
           tables={tableRows.map((t) => ({
             id: t.id,
             label: t.label,
+            sectionId: t.sectionId,
+            capacityTypical: t.capacityTypical ?? t.capacityMin ?? 2,
+            shape: t.shape,
             positionX: t.positionX,
             positionY: t.positionY,
             width: t.width,
             height: t.height,
-            shape: t.shape,
-            sectionId: t.sectionId,
+            isBookableOnline: t.isBookableOnline,
           }))}
-          sectionColors={Object.fromEntries(sectionRows.map((s) => [s.id, s.color]))}
+          sections={sectionRows.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
+          tonight={tonight.map((r) => ({
+            id: r.id,
+            guestName: r.guestName,
+            time: r.time,
+            partySize: r.partySize,
+            tableId: r.tableId,
+          }))}
         />
       </div>
 
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl">
         <SectionsManager
           restaurantId={restaurantId}
           organizationId={organizationId}
           sections={sectionRows}
-        />
-
-        <TablesList
-          restaurantId={restaurantId}
-          organizationId={organizationId}
-          sections={sectionRows}
-          tables={tableRows}
         />
       </div>
     </div>
