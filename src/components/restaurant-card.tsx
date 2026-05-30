@@ -54,11 +54,18 @@ export function RestaurantCard({
           />
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center p-4 ${isClosed ? "opacity-60" : ""}`}>
-            <span className="text-white text-2xl font-bold text-center">
+            <span className="font-display text-white text-2xl font-bold text-center">
               {restaurant.name}
             </span>
           </div>
         )}
+
+        {/* Soft scrim for legibility of the overlaid badges (design system). */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"
+          style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0) 38%)" }}
+        />
 
         {/* Top-left badges (decorative — sit below the stretched action so a
             click anywhere over them still opens the card; no dead zones) */}
@@ -114,7 +121,7 @@ export function RestaurantCard({
         {/* Row 1: Name + inline rating. The capability tag (events pages) sits
             on its own line below so it never squeezes / truncates the name. */}
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-text-primary truncate text-[17px] min-w-0">
+          <h3 className="font-display font-bold text-text-primary truncate text-[19px] tracking-[-0.01em] min-w-0">
             {restaurant.name}
           </h3>
           <RatingChip
