@@ -11,6 +11,10 @@
   --color-brand-primary: #C2410C;
   --color-brand-primary-soft: #FFF7ED;
   --color-brand-primary-dark: #9A3412;
+  /* Brighter "logo orange" — reserved for the logo mark (standalone SVGs
+     hardcode this literal since they can't read CSS vars). Tokenized here for
+     parity with the design system. */
+  --color-brand-logo-orange: #F97316;
 
   /* Surface colors */
   --color-surface-white: #FFFFFF;

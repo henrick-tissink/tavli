@@ -19,9 +19,10 @@ export function EmptyState({ illustration, title, body, action }: EmptyStateProp
       <Image
         src={illustration}
         alt={title}
-        width={120}
-        height={120}
-        className="mb-5 opacity-90"
+        width={208}
+        height={144}
+        className="mb-5 h-32 w-auto object-contain opacity-90"
+        unoptimized
       />
       <h2 className="font-display text-xl font-bold text-text-primary">{title}</h2>
       <p className="text-sm text-text-secondary mt-2 max-w-sm">{body}</p>

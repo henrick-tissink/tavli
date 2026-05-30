@@ -51,8 +51,9 @@ export function OccasionEntryGrid() {
             <Image
               src={e.illustration}
               alt=""
-              width={48}
-              height={48}
+              width={104}
+              height={64}
+              className="h-16 w-auto object-contain"
               aria-hidden
               unoptimized
             />

@@ -46,9 +46,9 @@ export function OccasionCard({
       <Image
         src={illustration}
         alt=""
-        width={64}
+        width={104}
         height={64}
-        className="mb-3"
+        className="mb-3 h-16 w-auto object-contain"
         aria-hidden
         unoptimized
       />

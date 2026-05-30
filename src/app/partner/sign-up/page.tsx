@@ -32,12 +32,13 @@ export default async function PartnerSignUpPage() {
             <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">Partner</p>
           </div>
           <Image
-            src="/illustrations/auth-partner.svg"
+            src="/illustrations/partner-dining.svg"
             alt=""
-            width={280}
-            height={280}
-            className="mt-8"
+            width={300}
+            height={218}
+            className="mt-8 w-[300px] max-w-full h-auto object-contain"
             aria-hidden="true"
+            unoptimized
           />
           <h2 className="font-display text-2xl font-bold text-text-primary mt-6 self-start">
             Pune restaurantul tău în fața oaspeților potriviți.

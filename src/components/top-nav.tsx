@@ -30,8 +30,10 @@ export function TopNav({
               aria-hidden="true"
             >
               <rect width="256" height="256" rx="56" fill="#F97316" />
-              <path d="M 56 64 L 56 192 L 108 128 Z" fill="#FFFFFF" />
-              <path d="M 200 64 L 200 192 L 148 128 Z" fill="#FFFFFF" />
+              <path d="M56 70 L92 70 L74 150 Z" fill="#FFFFFF" />
+              <path d="M92 186 L128 186 L110 106 Z" fill="#FFE0C2" />
+              <path d="M128 70 L164 70 L146 150 Z" fill="#FFFFFF" />
+              <path d="M164 186 L200 186 L182 106 Z" fill="#FFE0C2" />
             </svg>
             <span className="font-display text-2xl font-bold tracking-tight text-brand-primary leading-none">
               Tavli
