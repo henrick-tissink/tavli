@@ -17,11 +17,11 @@ export default async function OnboardingProfilePage({
   return (
     <OnboardingShell currentStepIndex={1} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Tell us about the restaurant
+        Spune-ne despre restaurant
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        These basics show on your listing and menu. You can edit everything
-        later from the partner dashboard.
+        Aceste informații de bază apar pe pagina și pe meniul tău. Le poți
+        modifica oricând din panoul de partener.
       </p>
       <ProfileForm token={token} initialValues={state.payload.profile ?? {}} />
     </OnboardingShell>

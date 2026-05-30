@@ -22,11 +22,11 @@ export default async function OnboardingHoursPage({
   return (
     <OnboardingShell currentStepIndex={2} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        When are you open?
+        Când ești deschis?
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        Set your weekly opening hours. You can change these anytime — and set
-        special-date exceptions later in the dashboard.
+        Setează-ți programul săptămânal. Îl poți schimba oricând — iar
+        excepțiile pentru zile speciale le adaugi mai târziu din panou.
       </p>
       <HoursForm token={token} initialHours={initialHours} />
     </OnboardingShell>

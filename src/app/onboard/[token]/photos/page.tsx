@@ -43,12 +43,12 @@ export default async function OnboardingPhotosPage({
   return (
     <OnboardingShell currentStepIndex={3} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Add some photos
+        Adaugă câteva fotografii
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        One hero photo + a few gallery shots is plenty for now. You can add
-        more anytime from the dashboard. Mark your best shot as the hero —
-        it&apos;s what diners see first.
+        O fotografie principală + câteva pentru galerie sunt suficiente acum.
+        Poți adăuga mai multe oricând din panou. Marchează cea mai bună
+        fotografie drept principală — e prima pe care o văd oaspeții.
       </p>
 
       <PhotoUploader restaurantId={state.restaurantId} initialPhotos={photos} />
@@ -58,10 +58,10 @@ export default async function OnboardingPhotosPage({
           href={`/onboard/${token}/hours`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Back
+          ← Înapoi
         </Link>
         <form action={continueAction}>
-          <Button type="submit">Continue</Button>
+          <Button type="submit">Continuă</Button>
         </form>
       </div>
     </OnboardingShell>

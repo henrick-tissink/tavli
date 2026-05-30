@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/button";
 import { Pill } from "@/components/pill";
+import { cuisineLabel } from "@/lib/types";
 import {
   saveProfile,
   type SaveProfileResult,
@@ -58,18 +59,18 @@ export function ProfileForm({ token, initialValues }: Props) {
 
   return (
     <form action={dispatch} className="space-y-5">
-      <Field label="Restaurant name" name="name" required defaultValue={initialValues.name} placeholder="Casa Veche" />
+      <Field label="Numele restaurantului" name="name" required defaultValue={initialValues.name} placeholder="Casa Veche" />
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">
-          Cuisines <span className="text-error">*</span>
+          Bucătării <span className="text-error">*</span>
         </label>
-        <p className="text-xs text-text-muted">Pick one or more.</p>
+        <p className="text-xs text-text-muted">Alege una sau mai multe.</p>
         <div className="flex flex-wrap gap-2">
           {CUISINES.map((c) => (
             <Pill
               key={c}
-              label={c}
+              label={cuisineLabel(c)}
               active={selectedCuisines.includes(c)}
               onToggle={() => toggleCuisine(c)}
             />
@@ -81,14 +82,14 @@ export function ProfileForm({ token, initialValues }: Props) {
       </div>
 
       <Field
-        label="Zone / neighbourhood"
+        label="Zonă / cartier"
         name="zone"
         placeholder="Centru Vechi"
         defaultValue={initialValues.zone}
       />
 
       <Field
-        label="Full address"
+        label="Adresă completă"
         name="address"
         required
         defaultValue={initialValues.address}
@@ -96,13 +97,13 @@ export function ProfileForm({ token, initialValues }: Props) {
       />
 
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
-        <Field label="Phone" name="phone" type="tel" defaultValue={initialValues.phone} placeholder="+40 7xx xxx xxx" />
-        <Field label="Website" name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl} placeholder="https://…" />
+        <Field label="Telefon" name="phone" type="tel" defaultValue={initialValues.phone} placeholder="+40 7xx xxx xxx" />
+        <Field label="Site web" name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl} placeholder="https://…" />
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="heroNote">
-          One-line story
+          Povestea într-o frază
         </label>
         <textarea
           id="heroNote"
@@ -110,11 +111,11 @@ export function ProfileForm({ token, initialValues }: Props) {
           rows={2}
           maxLength={160}
           defaultValue={initialValues.heroNote}
-          placeholder="Grandmother's recipes from the heart of Centru Vechi."
+          placeholder="Rețete de la bunica, din inima Centrului Vechi."
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
         />
         <p className="text-xs text-text-muted">
-          Shows as the italic line on your menu hero. Max 160 chars.
+          Apare ca rândul italic de pe meniul tău. Maxim 160 de caractere.
         </p>
       </div>
 
@@ -126,7 +127,7 @@ export function ProfileForm({ token, initialValues }: Props) {
 
       <div className="pt-2">
         <Button fullWidth disabled={pending} type="submit">
-          {pending ? "Saving…" : "Save & continue to hours"}
+          {pending ? "Se salvează…" : "Salvează și continuă la program"}
         </Button>
       </div>
     </form>

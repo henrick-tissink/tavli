@@ -26,27 +26,28 @@ export default async function OnboardingMenuPage({
   return (
     <OnboardingShell currentStepIndex={4} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Menu — up to you
+        Meniul — cum vrei tu
       </h1>
       <p className="text-sm text-text-secondary mt-2 leading-relaxed">
-        You can add your menu right now, or skip this step and use the full
-        menu editor from your dashboard — most partners skip and fill it in
-        later.
+        Poți adăuga meniul chiar acum sau poți sări peste acest pas și folosi
+        editorul complet din panou — majoritatea partenerilor sar peste și îl
+        completează mai târziu.
       </p>
 
       <div className="bg-surface-white rounded-card border border-border p-6 mt-8">
         <h2 className="font-display text-lg font-bold text-text-primary">
-          Full editor in the dashboard
+          Editor complet în panou
         </h2>
         <p className="text-sm text-text-secondary mt-1 leading-relaxed">
-          The partner menu editor lets you build sections, add dishes with
-          photos, tag vegetarian / gluten-free / spicy, and mark chef&apos;s
-          picks — all with autosave.
+          Editorul de meniu pentru parteneri îți permite să creezi secțiuni, să
+          adaugi feluri cu fotografii, să marchezi vegetarian / fără gluten /
+          picant și să evidențiezi recomandările bucătarului — totul cu salvare
+          automată.
         </p>
         <p className="text-xs text-text-muted mt-3">
-          For beta, the editor arrives alongside the partner dashboard (M10).
-          Your listing can go live without a menu — diners see
-          &quot;Menu coming soon&quot; on the detail page.
+          În beta, editorul vine odată cu panoul de partener (M10). Pagina ta
+          poate fi publicată și fără meniu — oaspeții văd „Meniu în curând” pe
+          pagina restaurantului.
         </p>
       </div>
 
@@ -55,10 +56,10 @@ export default async function OnboardingMenuPage({
           href={`/onboard/${token}/photos`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Back
+          ← Înapoi
         </Link>
         <form action={continueAction}>
-          <Button type="submit">Skip & continue to review</Button>
+          <Button type="submit">Sari peste și mergi la verificare</Button>
         </form>
       </div>
     </OnboardingShell>

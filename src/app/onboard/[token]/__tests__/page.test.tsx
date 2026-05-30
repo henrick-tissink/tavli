@@ -35,7 +35,7 @@ function mockInvitation(invitation: Record<string, unknown> | null) {
 }
 
 describe("OnboardingLandingPage copy", () => {
-  it('says "in a few minutes" — not "in about 10 minutes"', async () => {
+  it('says "în câteva minute" — not "în 10 minute"', async () => {
     mockInvitation({
       email: "alin@example.com",
       status: "pending",
@@ -48,7 +48,7 @@ describe("OnboardingLandingPage copy", () => {
     const ui = await OnboardingLandingPage({ params });
     const { container } = render(ui);
 
-    expect(container.textContent).toContain("in a few minutes");
-    expect(container.textContent).not.toContain("10 minutes");
+    expect(container.textContent).toContain("în câteva minute");
+    expect(container.textContent).not.toContain("10 minute");
   });
 });

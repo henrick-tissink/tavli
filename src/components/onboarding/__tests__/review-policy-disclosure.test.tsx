@@ -4,12 +4,12 @@ import { ReviewPolicyDisclosure } from "@/components/onboarding/review-policy-di
 describe("ReviewPolicyDisclosure", () => {
   test("communicates the no-deletion policy", () => {
     render(<ReviewPolicyDisclosure />);
-    expect(screen.getByText(/don't remove or edit/i)).toBeInTheDocument();
+    expect(screen.getByText(/nu ștergem și nu edităm/i)).toBeInTheDocument();
   });
 
   test("explains verified-reservation model", () => {
     render(<ReviewPolicyDisclosure />);
-    expect(screen.getByText(/verified/i)).toBeInTheDocument();
-    expect(screen.getByText(/real reservation/i)).toBeInTheDocument();
+    expect(screen.getByText(/verificate/i)).toBeInTheDocument();
+    expect(screen.getByText(/rezervare reală/i)).toBeInTheDocument();
   });
 });

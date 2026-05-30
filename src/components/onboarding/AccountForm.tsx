@@ -26,7 +26,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="fullName">
-          Your name
+          Numele tău
         </label>
         <input
           id="fullName"
@@ -34,7 +34,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           type="text"
           autoComplete="name"
           required
-          placeholder={proposedName ? `Manager at ${proposedName}` : "Andrei Popescu"}
+          placeholder={proposedName ? `Manager la ${proposedName}` : "Andrei Popescu"}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
@@ -53,13 +53,13 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
         <p className="text-xs text-text-muted">
-          Must match the email the invitation was sent to.
+          Trebuie să fie aceeași adresă la care a fost trimisă invitația.
         </p>
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="password">
-          Password
+          Parolă
         </label>
         <PasswordInput
           id="password"
@@ -68,7 +68,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           required
           minLength={8}
         />
-        <p className="text-xs text-text-muted">At least 8 characters.</p>
+        <p className="text-xs text-text-muted">Cel puțin 8 caractere.</p>
       </div>
 
       {state?.error && (
@@ -78,12 +78,12 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
       )}
 
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Creating account…" : "Create account & continue"}
+        {pending ? "Se creează contul…" : "Creează contul și continuă"}
       </Button>
 
       <p className="text-xs text-text-muted text-center">
-        By continuing you agree to Tavli&apos;s partner terms and our privacy
-        policy.
+        Continuând, ești de acord cu termenii pentru parteneri Tavli și cu
+        politica noastră de confidențialitate.
       </p>
     </form>
   );

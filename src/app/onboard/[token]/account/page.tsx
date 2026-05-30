@@ -35,11 +35,11 @@ export default async function OnboardingAccountPage({
   return (
     <OnboardingShell currentStepIndex={0} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Create your account
+        Creează-ți contul
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        One account is all you need. We&apos;ll use this email for reservation
-        alerts and any important platform notices.
+        Un singur cont e tot ce-ți trebuie. Folosim această adresă pentru
+        alertele de rezervare și pentru anunțurile importante de pe platformă.
       </p>
       <AccountForm
         token={token}

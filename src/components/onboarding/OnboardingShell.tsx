@@ -22,19 +22,19 @@ export function OnboardingShell({ children, currentStepIndex, token }: Props) {
             Tavli
           </Link>
           <p className="text-xs text-text-muted tracking-[0.2em] uppercase">
-            Partner onboarding
+            Înrolare partener
           </p>
         </div>
         <div className="max-w-2xl mx-auto px-4 desktop:px-6 pb-5">
           <div className="flex items-center justify-between mb-2 text-xs">
             <span className="font-semibold text-text-primary">
-              Step {currentStepIndex + 1} of {STEPS.length}:{" "}
+              Pasul {currentStepIndex + 1} din {STEPS.length}:{" "}
               <span className="text-brand-primary">
                 {STEPS[currentStepIndex]?.label}
               </span>
             </span>
             <span className="text-text-muted">
-              {Math.round(percent)}% complete
+              {Math.round(percent)}% finalizat
             </span>
           </div>
           <div className="flex gap-1.5">
@@ -51,7 +51,7 @@ export function OnboardingShell({ children, currentStepIndex, token }: Props) {
                         ? "bg-brand-primary-soft border border-brand-primary"
                         : "bg-border"
                   }`}
-                  aria-label={`${step.label}${done ? " (completed)" : active ? " (current)" : ""}`}
+                  aria-label={`${step.label}${done ? " (finalizat)" : active ? " (curent)" : ""}`}
                 />
               );
             })}

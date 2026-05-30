@@ -24,7 +24,7 @@ export function PublishButton() {
         </p>
       )}
       <Button fullWidth type="submit" disabled={pending}>
-        {pending ? "Publishing…" : "Publish & go live"}
+        {pending ? "Se publică…" : "Publică și pornește"}
       </Button>
     </form>
   );

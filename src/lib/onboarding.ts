@@ -5,14 +5,16 @@
 
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/db/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 
 export const STEPS = [
-  { key: "account", label: "Account", index: 0 },
-  { key: "profile", label: "Profile", index: 1 },
-  { key: "hours", label: "Hours", index: 2 },
-  { key: "photos", label: "Photos", index: 3 },
-  { key: "menu", label: "Menu", index: 4 },
-  { key: "review", label: "Review", index: 5 },
+  { key: "account", label: "Cont", index: 0 },
+  { key: "profile", label: "Profil", index: 1 },
+  { key: "hours", label: "Program", index: 2 },
+  { key: "photos", label: "Fotografii", index: 3 },
+  { key: "menu", label: "Meniu", index: 4 },
+  { key: "review", label: "Verificare", index: 5 },
 ] as const;
 
 export type StepKey = (typeof STEPS)[number]["key"];
@@ -57,15 +59,18 @@ export async function getOnboardingState(): Promise<OnboardingState | null> {
 
   if (!draft) return null;
 
-  const { data: restaurant } = await supabase
-    .from("restaurants")
-    .select("id")
-    .eq("owner_user_id", user.id)
-    .maybeSingle();
+  // Resolve the restaurant via the canonical org/staff resolver. The old
+  // `restaurants.owner_user_id` column was dropped in the org-ownership
+  // refactor, so a direct lookup here errored and always yielded null —
+  // which silently bounced the photos + review steps back to /profile.
+  const session = await getCurrentSession();
+  const restaurantId = session
+    ? await currentUserPrimaryRestaurant(session)
+    : null;
 
   return {
     userId: user.id,
-    restaurantId: restaurant?.id ?? null,
+    restaurantId,
     currentStep: draft.current_step as StepKey,
     payload: (draft.payload ?? {}) as DraftPayload,
   };
@@ -111,10 +116,12 @@ export const DEFAULT_HOURS: DayHours[] = [
 /**
  * Convert editor hours into the display `schedule` JSONB written to
  * restaurants.schedule (grouping contiguous ranges of identical hours
- * into the human-readable "Mon–Fri / 12:00 – 23:00" format).
+ * into the human-readable "Lun–Vin / 12:00 – 23:00" format).
  */
 export function hoursToSchedule(hours: DayHours[]): { days: string; hours: string }[] {
-  const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  // Romanian day names, indexed by dayOfWeek (0=Sun..6=Sat). Full forms +
+  // " – " ranges to match the convention stored for existing venues.
+  const DAY_NAMES = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
   const ordered = [...hours].sort((a, b) => {
     const order = [1, 2, 3, 4, 5, 6, 0];
     return order.indexOf(a.dayOfWeek) - order.indexOf(b.dayOfWeek);
@@ -129,7 +136,7 @@ export function hoursToSchedule(hours: DayHours[]): { days: string; hours: strin
         out.push(flush(groupStart, groupEnd, DAY_NAMES));
         groupStart = null;
       }
-      out.push({ days: DAY_NAMES[row.dayOfWeek]!, hours: "Closed" });
+      out.push({ days: DAY_NAMES[row.dayOfWeek]!, hours: "Închis" });
       continue;
     }
     if (
@@ -153,7 +160,7 @@ function flush(start: DayHours, end: DayHours, names: string[]): { days: string;
   const daysLabel =
     start.dayOfWeek === end.dayOfWeek
       ? names[start.dayOfWeek]!
-      : `${names[start.dayOfWeek]}–${names[end.dayOfWeek]}`;
+      : `${names[start.dayOfWeek]} – ${names[end.dayOfWeek]}`;
   return {
     days: daysLabel,
     hours: `${start.openAt} – ${end.closeAt}`,

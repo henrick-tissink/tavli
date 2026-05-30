@@ -60,29 +60,29 @@ export default async function OnboardingLandingPage({
           Tavli
         </p>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Partner onboarding
+          Înrolare partener
         </p>
 
         {result.kind === "valid" && (
           <>
             <h1 className="font-display text-[32px] font-bold text-text-primary mt-6 leading-tight">
-              Welcome to Tavli.
+              Bun venit la Tavli.
             </h1>
             <p className="text-sm text-text-secondary mt-3 leading-relaxed">
-              We&apos;ve saved this invitation for{" "}
+              Am păstrat această invitație pentru{" "}
               <strong>{result.invitation.email}</strong>
-              {result.invitation.cityName ? ` in ${result.invitation.cityName}` : ""}
-              . Set up your profile, hours, photos, and menu in a few minutes.
+              {result.invitation.cityName ? ` în ${result.invitation.cityName}` : ""}
+              . Îți configurezi profilul, programul, fotografiile și meniul în câteva minute.
             </p>
             <div className="mt-8">
               <Link href={`/onboard/${token}/account`}>
-                <Button fullWidth>Start onboarding</Button>
+                <Button fullWidth>Începe configurarea</Button>
               </Link>
             </div>
             <p className="text-xs text-text-muted mt-4 text-center">
-              Already have a Tavli account?{" "}
+              Ai deja un cont Tavli?{" "}
               <Link href={`/partner/sign-in?invite=${token}`} className="text-brand-primary font-semibold">
-                Sign in instead
+                Conectează-te
               </Link>
             </p>
           </>
@@ -90,32 +90,32 @@ export default async function OnboardingLandingPage({
 
         {result.kind === "expired" && (
           <ErrorState
-            title="This invitation has expired"
-            body="Invitation links are valid for 14 days. Ask your Tavli contact for a new one."
+            title="Invitația a expirat"
+            body="Linkurile de invitație sunt valabile 14 zile. Cere-i persoanei tale de contact de la Tavli una nouă."
           />
         )}
         {result.kind === "claimed" && (
           <ErrorState
-            title="Already accepted"
-            body="This invitation has already been used. If you need to access your partner dashboard, sign in at /partner/sign-in."
+            title="Deja acceptată"
+            body="Această invitație a fost deja folosită. Dacă vrei să accesezi panoul de partener, conectează-te la /partner/sign-in."
           />
         )}
         {result.kind === "revoked" && (
           <ErrorState
-            title="Invitation revoked"
-            body="This invitation is no longer active. Contact the Tavli team if you think this is a mistake."
+            title="Invitație revocată"
+            body="Această invitație nu mai este activă. Contactează echipa Tavli dacă crezi că este o greșeală."
           />
         )}
         {result.kind === "not_found" && (
           <ErrorState
-            title="Invitation not found"
-            body="This link isn't recognised. It may have been typed incorrectly — copy and paste the full URL from the email."
+            title="Invitație negăsită"
+            body="Acest link nu este recunoscut. Poate a fost scris greșit — copiază și lipește adresa completă din email."
           />
         )}
         {result.kind === "config_missing" && (
           <ErrorState
-            title="Platform not configured"
-            body="Tavli is still setting up. Please try again in a few minutes, or contact us if the issue persists."
+            title="Platformă neconfigurată"
+            body="Tavli încă se configurează. Încearcă din nou în câteva minute sau contactează-ne dacă problema persistă."
           />
         )}
       </div>

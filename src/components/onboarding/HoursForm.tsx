@@ -37,10 +37,10 @@ export function HoursForm({ token, initialHours }: Props) {
           href={`/onboard/${token}/profile`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Back
+          ← Înapoi
         </a>
         <Button disabled={pending} type="submit">
-          {pending ? "Saving…" : "Save & continue"}
+          {pending ? "Se salvează…" : "Salvează și continuă"}
         </Button>
       </div>
     </form>
