@@ -26,7 +26,7 @@ export function SignInForm({
             className="block text-sm font-medium text-text-primary"
             htmlFor="mfa_code"
           >
-            6-digit code from your authenticator
+            Codul de 6 cifre din aplicația de autentificare
           </label>
           <input
             id="mfa_code"
@@ -48,13 +48,13 @@ export function SignInForm({
         )}
 
         <Button fullWidth disabled={pending} type="submit">
-          {pending ? "Verifying…" : "Verify and sign in"}
+          {pending ? "Se verifică…" : "Verifică și conectează-te"}
         </Button>
 
         {state.hasRecoveryCodes && (
           <details className="text-sm">
             <summary className="cursor-pointer text-text-secondary hover:text-text-primary">
-              Use a recovery code instead
+              Folosește un cod de recuperare
             </summary>
             <div className="mt-3 space-y-3">
               <input
@@ -64,8 +64,8 @@ export function SignInForm({
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <p className="text-xs text-text-muted">
-                Using a recovery code removes your authenticator. You&apos;ll set
-                up a new one after signing in.
+                Folosirea unui cod de recuperare îți elimină autentificatorul.
+                Vei configura unul nou după conectare.
               </p>
               <Button
                 fullWidth
@@ -73,7 +73,7 @@ export function SignInForm({
                 disabled={pending}
                 type="submit"
               >
-                Use recovery code
+                Folosește codul de recuperare
               </Button>
             </div>
           </details>
@@ -100,7 +100,7 @@ export function SignInForm({
 
       <div className="space-y-1">
         <label className="block text-sm font-medium text-text-primary" htmlFor="password">
-          Password
+          Parolă
         </label>
         <PasswordInput
           id="password"
@@ -117,12 +117,12 @@ export function SignInForm({
       )}
 
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Se conectează…" : "Conectează-te"}
       </Button>
 
       <p className="text-xs text-text-muted text-center">
-        Admin accounts are provisioned by the Tavli team. Contact ops if you need
-        access.
+        Conturile de administrator sunt create de echipa Tavli. Contactează
+        echipa de ops dacă ai nevoie de acces.
       </p>
     </form>
   );

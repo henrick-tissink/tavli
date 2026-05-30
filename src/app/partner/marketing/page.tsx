@@ -8,7 +8,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, marketingCampaigns, marketingQuotaUsage } from "@/lib/db/schema";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { StatCard } from "@/components/admin/StatCard";
-import { Mail, MessageSquare, Phone } from "lucide-react";
+import { ArrowLeft, Mail, MessageSquare, Phone } from "lucide-react";
 import { MarketingManager } from "./_components/MarketingManager";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,13 @@ const DEFAULT_ALLOWANCE: Record<string, number> = { email: 1000, sms: 250, whats
 function Header() {
   return (
     <header>
-      <p className="text-xs uppercase tracking-[0.2em] text-text-muted">Cont</p>
+      <Link
+        href="/partner"
+        className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary"
+      >
+        <ArrowLeft size={15} aria-hidden /> Înapoi la panou
+      </Link>
+      <p className="mt-4 text-xs uppercase tracking-[0.2em] text-text-muted">Cont</p>
       <h1 className="mt-2 font-display text-4xl text-text-primary">Marketing</h1>
     </header>
   );

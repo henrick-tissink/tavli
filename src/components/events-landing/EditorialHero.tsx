@@ -19,7 +19,7 @@ export function EditorialHero({
         60 de secunde.
       </p>
       <p className="text-xs text-text-muted mt-6">
-        {venueCount} locații verificate · răspuns garantat în 24h
+        {venueCount} {venueCount === 1 ? "locație verificată" : "locații verificate"} · răspuns garantat în 24h
       </p>
     </header>
   );

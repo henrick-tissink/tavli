@@ -4,15 +4,29 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { EditorialHero } from "@/components/events-landing/EditorialHero";
 import { OccasionEntryGrid } from "@/components/events-landing/OccasionEntryGrid";
 
+const CITY_DISPLAY_NAMES: Record<string, string> = {
+  bucuresti: "București",
+  cluj: "Cluj",
+  timisoara: "Timișoara",
+  brasov: "Brașov",
+  iasi: "Iași",
+  istanbul: "Istanbul",
+};
+
+function formatCityName(slug: string): string {
+  return CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ city: string }>;
 }) {
   const { city } = await params;
+  const cityName = formatCityName(city);
   return {
-    title: `Locații pentru evenimente private în ${city} | Tavli`,
-    description: `Descoperă restaurante și cafenele din ${city} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate.`,
+    title: `Locații pentru evenimente private în ${cityName} | Tavli`,
+    description: `Descoperă restaurante și cafenele din ${cityName} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate.`,
     alternates: { canonical: `/${city}/events` },
   };
 }
@@ -29,7 +43,7 @@ export default async function CityEventsPage({
     limit: 60,
   });
   if (!rows) notFound();
-  const cityCapitalised = city.charAt(0).toUpperCase() + city.slice(1);
+  const cityCapitalised = formatCityName(city);
   return (
     <main className="max-w-6xl mx-auto p-6">
       <EditorialHero city={cityCapitalised} venueCount={rows.length} />

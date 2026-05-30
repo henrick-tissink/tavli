@@ -111,24 +111,23 @@ export function RestaurantCard({
       {/* Info section — sits below the stretched action; clicks on the text
           open the card. Only the interactive slot pills opt back in (z-10). */}
       <div className="p-3 flex flex-col gap-1.5">
-        {/* Row 1: Name + inline rating */}
+        {/* Row 1: Name + inline rating. The capability tag (events pages) sits
+            on its own line below so it never squeezes / truncates the name. */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <h3 className="font-bold text-text-primary truncate text-[17px]">
-              {restaurant.name}
-            </h3>
-            {highlightCapability === "events" && (
-              <span className="shrink-0 text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                Eveniment privat
-              </span>
-            )}
-          </div>
+          <h3 className="font-bold text-text-primary truncate text-[17px] min-w-0">
+            {restaurant.name}
+          </h3>
           <RatingChip
             rating={restaurant.rating}
             voteCount={restaurant.voteCount}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
+            className="inline-flex shrink-0 items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-sm bg-brand-primary-soft text-brand-primary-dark"
           />
         </div>
+        {highlightCapability === "events" && (
+          <span className="self-start text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+            Eveniment privat
+          </span>
+        )}
 
         {/* Row 2: Cuisine · Price · Zone */}
         <p className="text-xs text-text-secondary truncate">

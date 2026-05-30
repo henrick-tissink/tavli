@@ -10,9 +10,18 @@ import { MenuPageClient } from "./MenuPageClient";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ city: string; slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const restaurant = await getRestaurantBySlug(slug);
+  return {
+    title: restaurant ? `Meniu — ${restaurant.name} | Tavli` : "Meniu | Tavli",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function DinerMenuPage({
   params,

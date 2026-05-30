@@ -264,7 +264,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                     )}
                   </div>
                   <div className="p-3">
-                    <h3 className="font-display font-bold text-[15px] text-text-primary truncate">
+                    <h3 className="font-display font-bold text-[15px] text-text-primary line-clamp-2 leading-snug">
                       {item.name}
                     </h3>
                     <p className="text-xs text-text-secondary line-clamp-2 mt-0.5 leading-snug">

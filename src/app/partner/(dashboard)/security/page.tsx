@@ -38,14 +38,14 @@ export default async function PartnerSecurityPage() {
           friendlyName: f.friendlyName,
           createdAt: f.createdAt,
         }))}
-        actions={partnerActions}
+        actions={{ ...partnerActions }}
       />
 
       {factors.length > 0 && (
-        <RecoveryCodesSection remaining={remaining} actions={partnerActions} />
+        <RecoveryCodesSection remaining={remaining} actions={{ ...partnerActions }} />
       )}
-      <PasswordSection actions={partnerActions} />
-      <SessionsSection actions={partnerActions} />
+      <PasswordSection actions={{ ...partnerActions }} />
+      <SessionsSection actions={{ ...partnerActions }} />
     </div>
   );
 }

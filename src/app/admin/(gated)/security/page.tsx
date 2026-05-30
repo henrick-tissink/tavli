@@ -56,14 +56,14 @@ export default async function AdminSecurityPage({
           friendlyName: f.friendlyName,
           createdAt: f.createdAt,
         }))}
-        actions={adminActions}
+        actions={{ ...adminActions }}
       />
 
       {factors.length > 0 && (
-        <RecoveryCodesSection remaining={remaining} actions={adminActions} />
+        <RecoveryCodesSection remaining={remaining} actions={{ ...adminActions }} />
       )}
-      <PasswordSection actions={adminActions} />
-      <SessionsSection actions={adminActions} />
+      <PasswordSection actions={{ ...adminActions }} />
+      <SessionsSection actions={{ ...adminActions }} />
     </div>
   );
 }

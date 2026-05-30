@@ -62,7 +62,8 @@ export function CorporateOverview({ capabilities, onToggle }: Props) {
                 <p className="text-sm text-zinc-600 mt-1">{c.blurb}</p>
                 {state.openCount !== undefined && state.openCount > 0 && (
                   <p className="text-xs mt-2 text-emerald-700">
-                    {state.openCount} solicitări active
+                    {state.openCount}{" "}
+                    {state.openCount === 1 ? "solicitare activă" : "solicitări active"}
                   </p>
                 )}
               </div>
