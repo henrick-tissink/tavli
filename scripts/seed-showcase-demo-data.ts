@@ -2,7 +2,9 @@
  * Idempotent showcase demo-data seeder for "Atelier Floreasca" (demo.tavli.ro).
  *
  * Fills the showcase restaurant with realistic floor plan, diners, ~13 months
- * of reservations, marketing, and corporate data so the partner dashboards
+ * of past reservations + ~3 months of upcoming (sparse, with gaps so a live
+ * demo can always book a new table), marketing, and corporate data so the
+ * partner dashboards
  * (Reservations / Diners / Analytics / Marketing / Corporate / Sala / Tables)
  * show real functionality instead of empty states. After seeding it rebuilds
  * the analytics aggregates + cohorts for this restaurant/org so the Analytics
@@ -361,7 +363,7 @@ async function seedDiners(db: Db, orgId: string, restaurantId: string): Promise<
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Phase 3 — reservations (~500 over ~13 months + a few upcoming)
+// Phase 3 — reservations (~480 historical over ~13 months + ~3 months upcoming)
 // ════════════════════════════════════════════════════════════════════════════
 async function seedReservations(
   db: Db,
@@ -453,34 +455,43 @@ async function seedReservations(
   }
   console.log(`  ✓ ${histInserted} historical reservations (completed/no_show/cancelled)`);
 
-  // ── upcoming confirmed/seated: these HIT the capacity trigger. Keep modest and
-  // aligned to availability so we never exceed the 38-cover slot. Build a
-  // per-(date,window) running total and stop well under capacity.
+  // ── upcoming confirmed/seated across the next ~3 months. These HIT the
+  // capacity trigger, so each (date, 90-min window) is kept well under the slot
+  // capacity — every seeded day stays mostly open so a live demo can always
+  // book a new table. Some open days are left empty on purpose for clear gaps.
   const upcoming: ResInsert[] = [];
   const windowLoad = new Map<string, number>(); // key date|hourBucket -> covers
   const TURN_BUCKET = 90; // minutes; align rough overlap window to 90-min blocks
-  let upcomingTarget = 22;
+  const FORWARD_DAYS = 90; // ~3 months of forward availability for the demo
 
-  for (let dayOffset = 0; dayOffset <= 6 && upcomingTarget > 0; dayOffset++) {
+  for (let dayOffset = 0; dayOffset <= FORWARD_DAYS; dayOffset++) {
     const date = new Date(now.getTime() + dayOffset * 86_400_000);
     const dow = date.getUTCDay();
     const hours = SERVICE_HOURS[dow];
-    if (!hours) continue;
+    if (!hours) continue; // closed (Mon)
+
+    // leave ~30% of open days completely empty (beyond the first few) so the
+    // demo shows obvious gaps and quiet days, not a wall of bookings.
+    if (dayOffset > 3 && chance(0.3)) continue;
+
     const avail = availByDow.get(dow);
     const capacity = avail?.capacity ?? 38;
 
-    // a handful of bookings per upcoming day, spread across lunch + dinner
-    const perDay = randInt(2, 4);
-    for (let k = 0; k < perDay && upcomingTarget > 0; k++) {
+    // weekends + the next two weeks run a little busier; far-out days stay sparse.
+    const weekend = dow === 5 || dow === 6 || dow === 0;
+    const near = dayOffset <= 14;
+    const perDay = randInt(1, (weekend ? 3 : 2) + (near ? 2 : 1));
+
+    for (let k = 0; k < perDay; k++) {
       // bias toward dinner; keep within slot_start..slot_end-1
       const hour = chance(0.7)
         ? randInt(Math.max(hours.start, 18), Math.max(hours.start + 1, hours.end - 1))
         : randInt(hours.start, hours.start + 2);
       const minute = pick([0, 30]);
-      const ps = Math.min(partySize(), 4); // keep upcoming parties modest
+      const ps = Math.min(partySize(), 6); // upcoming parties stay modest
       const bucketKey = `${ymd(date)}|${Math.floor((hour * 60 + minute) / TURN_BUCKET)}`;
       const load = windowLoad.get(bucketKey) ?? 0;
-      // stay comfortably below capacity (cap our seeded load at ~40% of slot)
+      // never exceed ~40% of the slot capacity → always room left to book live
       if (load + ps > Math.floor(capacity * 0.4)) continue;
       windowLoad.set(bucketKey, load + ps);
 
@@ -502,7 +513,6 @@ async function seedReservations(
         dinerId: diner.id,
         confirmationToken: token(),
       });
-      upcomingTarget--;
     }
   }
 
