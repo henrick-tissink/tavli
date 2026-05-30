@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Search, Heart, User } from "lucide-react";
 import { CitySelector } from "@/components/city-selector";
 
@@ -23,7 +24,11 @@ export function TopNav({
       <div className="flex items-center justify-between max-w-[var(--container-content)] mx-auto px-6 w-full">
         {/* Left: Logo + City */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2" aria-label="Tavli">
+          <Link
+            href={`/${currentCity}`}
+            className="flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+            aria-label="Tavli — acasă"
+          >
             <svg
               viewBox="0 0 256 256"
               className="w-7 h-7 rounded-[6px]"
@@ -38,7 +43,7 @@ export function TopNav({
             <span className="font-display text-2xl font-bold tracking-tight text-brand-primary leading-none">
               Tavli
             </span>
-          </div>
+          </Link>
           <CitySelector currentCity={currentCity} onSelect={onCityChange} />
         </div>
 
