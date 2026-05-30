@@ -1,4 +1,4 @@
-# Masaro — A Better ialoc.ro
+# Tavli — A Better ialoc.ro
 
 > **masă** (Romanian) = table | **ro** = Romania
 > "Find your table in Romania."
@@ -9,9 +9,9 @@ ialoc.ro is Romania's leading online restaurant reservation platform. It lets us
 
 **Tagline:** "Rezervă online o masă în oraș. Fără să suni." (Book a table in the city online. Without calling.)
 
-## What is Masaro?
+## What is Tavli?
 
-Masaro is a **much more beautiful, vibrant, and feature-rich** reimagination of ialoc.ro. Same core concept — online restaurant reservations in Romania — but with:
+Tavli is a **much more beautiful, vibrant, and feature-rich** reimagination of ialoc.ro. Same core concept — online restaurant reservations in Romania — but with:
 
 - Stunning, modern UI/UX (ialoc feels dated and generic)
 - Richer discovery experience (maps, AI recommendations, social features)
@@ -43,5 +43,5 @@ Masaro is a **much more beautiful, vibrant, and feature-rich** reimagination of 
 | `05-RESTAURANT-DETAIL-PAGE.md` | Everything on a restaurant profile page |
 | `06-RESERVATION-FLOW.md` | The booking/reservation UX flow |
 | `07-CONTENT-AND-BLOG.md` | Blog, podcast, newsletter, and content strategy |
-| `08-DESIGN-CRITIQUE.md` | What ialoc does poorly — opportunities for Masaro |
-| `09-MASARO-VISION.md` | Our vision, name rationale, and differentiation strategy |
+| `08-DESIGN-CRITIQUE.md` | What ialoc does poorly — opportunities for Tavli |
+| `09-TAVLI-VISION.md` | Our vision, name rationale, and differentiation strategy |

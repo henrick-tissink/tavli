@@ -846,7 +846,7 @@ Expected: top two lines are the two new commits (commit B then commit A); the ot
 
 - [ ] **Step 8: Update memory `project_v1_build_phase.md`**
 
-Edit `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md` — add a row in the Wave-1 spirit under a new "Wave 2 — IN PROGRESS" section. One-line entry: unit name, files, commit SHAs (run `git log --oneline -2` to grab), migration number. This keeps future-Claude oriented.
+Edit `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md` — add a row in the Wave-1 spirit under a new "Wave 2 — IN PROGRESS" section. One-line entry: unit name, files, commit SHAs (run `git log --oneline -2` to grab), migration number. This keeps future-Claude oriented.
 
 ---
 

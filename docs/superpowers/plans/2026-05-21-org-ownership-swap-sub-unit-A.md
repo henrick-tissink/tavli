@@ -627,7 +627,7 @@ Expected: top two lines are the two new commits (commit B then commit A); third 
 
 - [ ] **Step 1: Update `project_v1_build_phase.md` memory**
 
-Use the Edit tool to update `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md`. Find the existing "Units shipped" table under "Wave 2 — IN PROGRESS (2026-05-21)" and append a new row:
+Use the Edit tool to update `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md`. Find the existing "Units shipped" table under "Wave 2 — IN PROGRESS (2026-05-21)" and append a new row:
 
 ```
 | §01 §3.6 sub-unit A — `restaurants.organization_id` + `profiles.default_organization_id` + backfill + resolver cross-scope grant | `src/lib/db/schema.ts`, `src/lib/authz/resolvers/org.ts`, `src/lib/authz/resolvers/__tests__/org.test.ts`, `docs/superpowers/architecture/01-identity-and-accounts.md` §3.6, `docs/superpowers/architecture/build-order.md` | `<commit-A-SHA>` (schema + backfill migration) + `<commit-B-SHA>` (resolver wiring + tests + doc updates) | 0014 (not yet applied — user-triggered) |

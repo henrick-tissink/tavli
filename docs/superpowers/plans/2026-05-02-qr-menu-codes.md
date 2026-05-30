@@ -38,7 +38,7 @@
 
 - [ ] **Step 1: Install the dependency**
 
-Run from `/Users/henricktissink/Sauce/masaro`:
+Run from `/Users/henricktissink/Sauce/tavli`:
 ```bash
 npm install qr-code-styling@^1.6.0
 ```

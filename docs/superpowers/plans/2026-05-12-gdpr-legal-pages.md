@@ -61,7 +61,7 @@
 
 - [ ] **Step 1: Install the dependencies**
 
-Run from `/Users/henricktissink/Sauce/masaro`:
+Run from `/Users/henricktissink/Sauce/tavli`:
 ```bash
 npm install @next/mdx@^16 @mdx-js/loader@^3 @mdx-js/react@^3
 npm install --save-dev @types/mdx@^2 @tailwindcss/typography@^0.5

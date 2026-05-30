@@ -1,7 +1,7 @@
 # Tavli — Marketing & Go-to-Market Strategy (v2)
 
 > *"Find your table in Romania."*
-> Brand: **Tavli** (codename `masaro` in repo). Domain: tavli.ro.
+> Brand: **Tavli**. Domain: tavli.ro.
 > Date: 2026-05-13. Author: founder + Claude (brainstorm session).
 > v1 → v2 revision in same session: shifted from editorial-led + AI-concierge ("The Curator") to SaaS-led + editorial-as-distribution ("The Underminer + hybrid quality bar").
 

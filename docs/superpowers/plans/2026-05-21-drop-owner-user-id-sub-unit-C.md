@@ -521,7 +521,7 @@ EOF
 
 - [ ] **Step 4: Update memory**
 
-Use the Edit tool against `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md`:
+Use the Edit tool against `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md`:
 - Add a new row in the "Wave 2 — IN PROGRESS" / "Units shipped" table:
 
 ```

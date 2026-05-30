@@ -105,7 +105,7 @@ These came up in the brainstorm and were considered but not included. If they re
 
 - `docs/superpowers/specs/2026-05-18-pricing-tiers-design.md` — the working draft (not committed)
 - `docs/superpowers/pricing-tiers-RESUME.md` — this doc (not committed)
-- `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/feedback_pricing_no_competitor_naming.md` — feedback memory saved during the session
+- `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/feedback_pricing_no_competitor_naming.md` — feedback memory saved during the session
 
 ---
 

@@ -980,7 +980,7 @@ EOF
 
 - [ ] **Step 3: Update memory + build-order**
 
-Update `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md` Wave 2 "Units shipped" table with a new row:
+Update `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md` Wave 2 "Units shipped" table with a new row:
 
 ```
 | §01 §3.6 sub-unit B — owner_user_id callsite refactor | src/lib/restaurants/current-user.ts (new), src/lib/auth/session.ts, ~20 partner/onboard sites, src/app/api/event-requests/actions.ts, src/app/api/photos/actions.ts, src/app/admin/(gated)/restaurants/[id]/page.tsx, test fixtures | <commit-SHA> (single commit) | — (no migration) |

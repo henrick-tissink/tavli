@@ -135,7 +135,7 @@ export const retentionPolicies = pgTable(
 
 ### 2.3 Drizzle bookkeeping
 
-After applying migration 0032 to prod via the manual `psql -f` convention, insert the bookkeeping row per `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/deploy_setup.md`.
+After applying migration 0032 to prod via the manual `psql -f` convention, insert the bookkeeping row per `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/deploy_setup.md`.
 
 ---
 

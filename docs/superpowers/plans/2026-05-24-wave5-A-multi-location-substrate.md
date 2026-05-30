@@ -1212,7 +1212,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 **Files:**
 - Modify: `docs/superpowers/architecture/build-order.md`
-- Modify: `/Users/henricktissink/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md` (+ `MEMORY.md` pointer if the one-liner changes)
+- Modify: `/Users/henricktissink/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md` (+ `MEMORY.md` pointer if the one-liner changes)
 
 > **Deferred follow-up to record (do NOT implement here):** the `archived_at`
 > read-path retrofit. When the venue-archival UI lands (the wave that wires

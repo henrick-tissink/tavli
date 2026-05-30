@@ -572,7 +572,7 @@ EOF
 
 - [ ] **Step 4: Update memory + build-order**
 
-Edit `~/.claude/projects/-Users-henricktissink-Sauce-masaro/memory/project_v1_build_phase.md`:
+Edit `~/.claude/projects/-Users-henricktissink-Sauce-tavli/memory/project_v1_build_phase.md`:
 - Append a new row to the Wave 2 "Units shipped" table:
   ```
   | §02 audit retrofit — recordAudit() on every reservation mutation | src/lib/audit/actor-role.ts (new helper), src/lib/audit/__tests__/actor-role.test.ts, 5 mutation files (public reservations, partner reservations actions, public cancel by token, corporate event-requests actions, corporate event-requests repo) | `<commit-SHA>` (single commit) | — (no migration) |

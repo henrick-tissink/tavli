@@ -1,25 +1,25 @@
-# Masaro — Vision & Differentiation
+# Tavli — Vision & Differentiation
 
 ## The Name
 
-**Masaro** = **masă** (Romanian for "table") + **ro** (Romania)
+**Tavli** = **masă** (Romanian for "table") + **ro** (Romania)
 
 - Rolls off the tongue, easy to pronounce internationally
 - Evokes the core experience: finding your table
 - Sounds warm, inviting, slightly Italian (resonates with dining culture)
-- Domain potential: masaro.ro, masaro.app
-- Works as a verb: "Let's Masaro tonight" / "Masaro it"
+- Domain potential: tavli.ro, tavli.app
+- Works as a verb: "Let's Tavli tonight" / "Tavli it"
 
 ### Alternative Names Considered
 | Name | Meaning | Notes |
 |------|---------|-------|
-| **Masaro** | masă + ro | Winner. Warm, memorable, international |
+| **Tavli** | masă + ro | Winner. Warm, memorable, international |
 | Gustaro | gust (taste) + ro | Good but sounds like a snack brand |
 | Locanda | Italian for "inn" | Elegant but too Italian-sounding for a Romanian brand |
 | Terasa | Romanian for "terrace" | Limits the brand to outdoor dining |
 | Masa.ro | Direct "table" | Too literal, hard to brand |
 
-## What Makes Masaro Different from ialoc
+## What Makes Tavli Different from ialoc
 
 ### 1. Visual-First Discovery
 - **Map-based browsing** — interactive map as a primary discovery mode (like Airbnb)
@@ -72,7 +72,7 @@
 
 ## Competitive Landscape in Romania
 
-| Platform | Positioning | Gap Masaro Fills |
+| Platform | Positioning | Gap Tavli Fills |
 |----------|------------|------------------|
 | ialoc.ro | Market leader, functional but dated | Beautiful UX, modern features, personalization |
 | Restograf.ro | Reviews-focused (like TripAdvisor) | Integrated reservation + discovery |
@@ -81,4 +81,4 @@
 
 ## Summary
 
-Masaro isn't just a prettier ialoc.ro — it's a reimagination of how Romanians discover, book, and experience dining out. Where ialoc is a utility (search > filter > book), Masaro is an experience (discover > fall in love > share > return).
+Tavli isn't just a prettier ialoc.ro — it's a reimagination of how Romanians discover, book, and experience dining out. Where ialoc is a utility (search > filter > book), Tavli is an experience (discover > fall in love > share > return).

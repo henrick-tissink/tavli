@@ -20,7 +20,7 @@
 - [ ] **Step 1: Initialize the project**
 
 ```bash
-cd /Users/henricktissink/Sauce/masaro
+cd /Users/henricktissink/Sauce/tavli
 npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm
 ```
 
