@@ -3,6 +3,9 @@ import { listRestaurants } from "@/lib/repos/restaurants-repo";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { EditorialHero } from "@/components/events-landing/EditorialHero";
 import { OccasionEntryGrid } from "@/components/events-landing/OccasionEntryGrid";
+import { buildAlternates } from "@/lib/i18n/hreflang";
+import { getSiteUrl } from "@/lib/site-url";
+import { isLocale } from "@/lib/i18n/locale";
 
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
@@ -20,21 +23,21 @@ function formatCityName(slug: string): string {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
-  const { city } = await params;
+  const { lang, city } = await params;
   const cityName = formatCityName(city);
   return {
     title: `Locații pentru evenimente private în ${cityName} | Tavli`,
     description: `Descoperă restaurante și cafenele din ${cityName} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate.`,
-    alternates: { canonical: `/${city}/events` },
+    alternates: buildAlternates(`/${city}/events`, isLocale(lang) ? lang : "ro", getSiteUrl()),
   };
 }
 
 export default async function CityEventsPage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
   const { city } = await params;
   const rows = await listRestaurants({

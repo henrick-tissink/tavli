@@ -72,7 +72,7 @@ const menuFixture = {
 
 async function renderPage(citySlug = "bucuresti", slug = "trattoria-roma") {
   const Page = (await DinerMenuPage({
-    params: Promise.resolve({ city: citySlug, slug }),
+    params: Promise.resolve({ lang: "ro", city: citySlug, slug }),
   })) as React.ReactElement;
   return render(Page);
 }

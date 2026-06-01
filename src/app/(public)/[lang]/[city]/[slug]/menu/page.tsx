@@ -6,6 +6,9 @@ import {
   getRestaurantBySlug,
   getRestaurantDetail,
 } from "@/lib/repos/restaurants-repo";
+import { buildAlternates } from "@/lib/i18n/hreflang";
+import { getSiteUrl } from "@/lib/site-url";
+import { isLocale } from "@/lib/i18n/locale";
 import { MenuPageClient } from "./MenuPageClient";
 
 export const dynamic = "force-dynamic";
@@ -13,20 +16,21 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { lang, city, slug } = await params;
   const restaurant = await getRestaurantBySlug(slug);
   return {
     title: restaurant ? `Meniu — ${restaurant.name} | Tavli` : "Meniu | Tavli",
     robots: { index: false, follow: false },
+    alternates: buildAlternates(`/${city}/${slug}/menu`, isLocale(lang) ? lang : "ro", getSiteUrl()),
   };
 }
 
 export default async function DinerMenuPage({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 }) {
   const { city, slug } = await params;
 

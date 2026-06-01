@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import {
   getRestaurants,
   getTrendingRestaurants,
   getNewRestaurants,
 } from "@/lib/repos/restaurants-repo";
+import { buildAlternates } from "@/lib/i18n/hreflang";
+import { getSiteUrl } from "@/lib/site-url";
+import { isLocale } from "@/lib/i18n/locale";
 import { FeedPageClient } from "./FeedPageClient";
 
 export const dynamic = "force-dynamic";
@@ -22,10 +26,21 @@ function formatCityName(slug: string): string {
   );
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string; city: string }>;
+}): Promise<Metadata> {
+  const { lang, city } = await params;
+  return {
+    alternates: buildAlternates(`/${city}`, isLocale(lang) ? lang : "ro", getSiteUrl()),
+  };
+}
+
 export default async function DiscoverFeedPage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
   const { city } = await params;
   const displayCity = formatCityName(city);

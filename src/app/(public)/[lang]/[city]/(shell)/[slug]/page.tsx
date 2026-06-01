@@ -9,6 +9,9 @@ import {
   buildRestaurantJsonLd,
   serializeJsonLd,
 } from "@/lib/seo/restaurant-jsonld";
+import { buildAlternates } from "@/lib/i18n/hreflang";
+import { getSiteUrl } from "@/lib/site-url";
+import { isLocale } from "@/lib/i18n/locale";
 import { DetailPageClient } from "./DetailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +19,22 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 }): Promise<Metadata> {
-  const { city, slug } = await params;
+  const { lang, city, slug } = await params;
   const restaurant = await getRestaurantDetail(slug);
   if (!restaurant) return {};
-  return buildRestaurantMetadata(restaurant, city);
+  const base = buildRestaurantMetadata(restaurant, city);
+  return {
+    ...base,
+    alternates: buildAlternates(`/${city}/${slug}`, isLocale(lang) ? lang : "ro", getSiteUrl()),
+  };
 }
 
 export default async function RestaurantDetailPage({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ lang: string; city: string; slug: string }>;
 }) {
   const { city, slug } = await params;
   const [restaurant, seo] = await Promise.all([

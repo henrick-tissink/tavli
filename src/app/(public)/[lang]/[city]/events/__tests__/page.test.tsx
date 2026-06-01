@@ -24,7 +24,7 @@ jest.mock("@/lib/repos/restaurants-repo", () => ({
 describe("CityEventsPage", () => {
   it("renders editorial hero, occasion grid and listing", async () => {
     const ui = await CityEventsPage({
-      params: Promise.resolve({ city: "bucuresti" }),
+      params: Promise.resolve({ lang: "ro", city: "bucuresti" }),
     });
     render(ui);
     expect(
