@@ -1,0 +1,13 @@
+{
+  "languageName": "Română",
+  "switchLanguage": "Schimbă limba",
+  "locales": { "ro": "Română", "en": "Engleză", "de": "Germană" },
+  "cities": {
+    "bucuresti": "București",
+    "cluj": "Cluj",
+    "timisoara": "Timișoara",
+    "brasov": "Brașov",
+    "iasi": "Iași",
+    "istanbul": "Istanbul"
+  }
+}
