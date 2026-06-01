@@ -35,7 +35,7 @@ function formatCityName(slug: string): string {
 export default function ProfilePage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
   const { city } = use(params);
   const router = useRouter();

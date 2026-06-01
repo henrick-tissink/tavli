@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function MapPage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
   const { city } = await params;
   const allRestaurants = await getRestaurants();
