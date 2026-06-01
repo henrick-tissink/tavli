@@ -1,7 +1,7 @@
 # Design: Full EN/DE Localization for Tavli
 
 **Date:** 2026-06-01
-**Status:** Approved (design) — pending spec review
+**Status:** Approved & self-reviewed — ready for Phase 0 implementation planning
 **Author:** brainstormed with Henric
 
 ---
@@ -46,6 +46,8 @@ default, across **all three surfaces**:
 - **No RTL.** ro/en/de are all LTR.
 - **No new locales beyond ro/en/de** in this work (the infra is generic, but we
   ship exactly three).
+- **No localized URL slugs.** City and restaurant slugs stay canonical (RO) across
+  locales; only display names and content localize.
 
 ---
 
@@ -91,41 +93,47 @@ Next.js you know — read `node_modules/next/dist/docs/` before writing code").
 
 ```
 app/
-  (public)/                 ← root layout #1: <html lang={lang}>, per-locale static
-    [lang]/
-      layout.tsx            ← generateStaticParams → [{lang:'ro'},{lang:'en'},{lang:'de'}]
-      [city]/(shell)/…      ← consumer storefront (moved here)
-      [city]/[slug]/menu/…
-      events/…
-      pricing/…             ← folded in from app/(en|de)/pricing + app/pricing
-      (legal)/…             ← folded in from app/(legal)/(en|de|ro)
-    reservations/[token]/…  ← token flows (locale resolved per §6.3, see note)
+  (public)/[lang]/            ← ROOT LAYOUT #1 lives here: <html lang={lang}>
+    layout.tsx                ← root layout; generateStaticParams → ro|en|de; dynamicParams=false
+    page.tsx                  ← home (served at /ro after proxy rewrites bare /)
+    [city]/(shell)/…          ← consumer storefront (moved here)
+    [city]/[slug]/menu/…
+    events/…
+    reservations/[token]/…    ← token flows: email links carry the /<lang>/ prefix
     reviews/[token]/…
     event-requests/[token]/…
-  (app)/                    ← root layout #2: <html lang={profileLocale}>, dynamic
-    partner/…
+    pricing/…                 ← folded in from app/(en|de)/pricing + app/pricing
+    (legal)/…                 ← folded in from app/(legal)/(en|de|ro)
+  (app)/                      ← ROOT LAYOUT #2: <html lang={resolvedLocale}>, always dynamic
+    layout.tsx
+    partner/…                 ← incl. pre-auth sign-in / sign-up / verify-email / onboard
     admin/…
-  api/…                     ← unchanged (no <html>; route handlers)
-  auth/, c/, u/             ← unchanged or assigned to a group as needed
+  api/…, auth/…, c/…, u/…     ← route handlers (no <html>, no layout) — remain top-level, unaffected
 ```
 
-- **No top-level `app/layout.tsx`.** Shared `<head>`/font/`<body>` setup is
-  extracted into a shared component used by both group root layouts. The home
-  route `/` lives in `(public)`.
-- **`(public)` root layout** sets real `<html lang={lang}>` and is statically
-  generated per locale — correct SEO/accessibility, supersedes the audit-#17
-  `display:contents` hack for the public site.
-- **`(app)` root layout** reads the session's `profiles.locale` (these routes are
-  already authenticated/dynamic) and sets `<html lang={profileLocale}>`. No URL
-  prefix.
-
-> **Token flows note.** `/reservations/[token]` etc. are public but not
-> city-scoped and have no logged-in session. Locale is resolved from, in order:
-> (1) an explicit `?lang=` param embedded in the email link, (2) the
-> `NEXT_LOCALE` cookie, (3) RO default. They live directly under `(public)` (not
-> under `[lang]`) and read the resolved locale via a small server helper rather
-> than a route param. The email that generates the link stamps `?lang=` with the
-> diner's locale.
+- **No top-level `app/layout.tsx`.** Two root layouts via route groups (supported;
+  full reload when crossing them — fine, they are different apps). Shared
+  `<head>`/font/`<body>` scaffolding is factored into a shared component imported
+  by both roots.
+- **ALL public routes live under `(public)/[lang]/`**, including the token flows.
+  The root layout is `app/(public)/[lang]/layout.tsx`; it reads `lang` from the
+  route **param** and sets real `<html lang={lang}>`. There is exactly one,
+  uniform locale source for the whole public tree. Token-flow **email links embed
+  the locale as a path prefix** (`/en/reservations/<token>`); old unprefixed links
+  (`/reservations/<token>`) still resolve as RO via the proxy rewrite, so existing
+  emails keep working.
+- **`lang` is a route param, not `headers()`** — so static pages (pricing, legal)
+  keep their per-locale static/ISR generation. This is exactly what the audit-#17
+  `headers()` concern blocked; the `[lang]` param sidesteps it. DB-backed consumer
+  pages stay dynamic (they are already `force-dynamic`) and render correct
+  per-locale SSR. `dynamicParams = false` → only ro/en/de are valid; any other
+  prefix 404s.
+- **`(app)` root layout** is always dynamic (authenticated / non-indexed) and
+  resolves `<html lang>` via the precedence in §3.3 (session profile → cookie →
+  Accept-Language → RO) — correct for both post-auth pages AND pre-auth pages
+  (sign-in, sign-up, verify-email, onboarding). No URL prefix.
+- **Superseded** for the public site: the audit-#17 `display:contents` `lang`
+  wrappers (we now emit a real `<html lang>`).
 
 ### 3.2 `proxy.ts` (locale routing + detection)
 
@@ -142,17 +150,41 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
   again (deep links and crawlers always get the locale the URL asks for).
 - Locale matching uses `Intl`/`Negotiator`-style parsing of `Accept-Language`
   (small hand-rolled matcher over three locales; no dependency required).
+- **Bare `/` and the root.** `/` (and any unprefixed public path) is rewritten to
+  its `/ro/…` equivalent in the proxy before routing, so
+  `app/(public)/[lang]/page.tsx` serves it with `lang=ro`. **Phase-0 validation
+  gate:** confirm Next 16 serves the home route purely via proxy rewrite with no
+  literal top-level `/` page (this as-needed-prefix behavior is the single most
+  unproven piece, since we hand-roll what next-intl normally provides).
+  **Documented fallback** if it proves brittle: switch to `localePrefix: always`
+  — RO is also prefixed at `/ro`, with a permanent `/ → /ro` redirect. That keeps
+  the entire rest of the design intact and only changes the RO URL shape.
 
-### 3.3 Locale switching & persistence
+### 3.3 Locale resolution, switching & persistence
 
-- **Switcher component** (`<LocaleSwitcher>`), placed in consumer nav and in the
-  partner/admin shells.
-  - **Consumer**: navigates to the same route under the chosen locale prefix
-    (RO → strip prefix) and sets `NEXT_LOCALE`.
-  - **Partner/admin**: a server action updates `profiles.locale` (and
-    `NEXT_LOCALE`), then refreshes. No URL change.
-- **Persistence precedence**: logged-in user → `profiles.locale`; otherwise
-  `NEXT_LOCALE` cookie; otherwise detected; otherwise RO.
+**`(public)` (consumer)** — the **URL is authoritative**. The `[lang]` segment
+decides the language, so an `/en/…` link is shareable and crawlable. The proxy
+only *chooses* the prefix on first entry (§3.2); it never overrides an explicit
+prefix afterwards.
+
+**`(app)` (partner/admin)** — resolved server-side in the root layout, in order:
+1. authenticated session's `profiles.locale`,
+2. `NEXT_LOCALE` cookie,
+3. `Accept-Language` best match,
+4. RO.
+This single precedence covers post-auth pages and pre-auth pages
+(sign-in / sign-up / verify-email / onboarding) uniformly.
+
+**Switcher (`<LocaleSwitcher>`)** in the consumer nav and the partner/admin shells:
+- **Consumer**: client navigation to the same route under the chosen prefix
+  (RO → strip prefix); always sets `NEXT_LOCALE`; **also updates `profiles.locale`
+  when a diner is logged in**, so the choice sticks across devices.
+- **Partner/admin**: server action updates `profiles.locale` **if logged in**,
+  else just `NEXT_LOCALE` (pre-auth); then refresh. No URL change.
+
+**Login sync**: on any successful sign-in, set `NEXT_LOCALE` from the user's
+`profiles.locale` so the consumer experience and outbound emails immediately match
+their saved preference.
 
 ---
 
@@ -184,6 +216,10 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
   (`FeedPageClient`, reservation sheets, editors) where prop-drilling strings
   would be unworkable. Only the namespaces a route needs are passed to the
   provider, keeping client payload minimal.
+- **Prefer server-side `t`.** Server components/actions call `getMessages`
+  directly (zero client cost); the provider exists only for genuinely-client
+  components, so the diner's JS payload carries only the strings rendered
+  client-side.
 
 ### 4.3 `t()` and formatting — native `Intl`
 
@@ -202,6 +238,11 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
     `Intl.NumberFormat` (correct decimal/grouping per locale; lei/EUR/TRY).
 - Locale → BCP-47 mapping for `Intl`: `ro→ro-RO`, `en→en-GB`, `de→de-DE`
   (centralized so we can tune, e.g. en-US vs en-GB, in one place).
+- **Currency code mapping**: the app's currency *labels* (`lei`/`EUR`/`TRY`) are
+  mapped to ISO 4217 for `Intl.NumberFormat` (`lei → RON`, `EUR → EUR`,
+  `TRY → TRY`) — `Intl` rejects non-ISO codes. Prices stay in their native
+  currency (no FX conversion): an EN/DE diner sees the same lei the venue charges,
+  formatted per their locale.
 
 ---
 
@@ -216,22 +257,34 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
 - Partner-side **Translations editor already writes** these tables — no change
   needed there beyond ensuring all translatable fields are covered.
 - Photo alt text: wire `restaurantPhotoTranslations` where alt text is rendered.
+- **Slugs stay canonical** (the existing RO city/restaurant slugs) across all
+  locales — slugs are identifiers, not translated content, so we avoid
+  localized-slug routing/redirect complexity. Only the **city display name** is
+  localized (`bucuresti` → "București" / "Bucharest" / "Bukarest"); the current
+  hardcoded `formatCityName` map moves into the `common`/`nav` catalogue.
 
 ---
 
 ## 6. Emails & notifications (diner- and partner-facing)
 
+- **Persisted locale (requires a migration).** Reminders and post-visit emails are
+  sent later by background jobs with **no request context**, so the diner's locale
+  must be stored, not re-derived. Add a `locale` column to `reservations` and
+  `event_requests` (default `'ro'`), set from the active request locale at
+  creation. This is a **hand-authored migration** per AGENTS.md (drizzle-kit
+  generate is banned): new `drizzle/migrations/NNNN_*.sql` + `_journal.json` entry
+  + descriptive `schema.ts` update; additive only.
 - **Diner-facing emails** (confirmation, 24h reminder, post-visit review request,
-  event-request OTP / quote / expiry) render in the **diner's locale**, captured
-  at creation time from the active request locale (booking/event flows already run
-  under a known locale) and persisted on the row where one isn't already stored.
+  event-request OTP / quote / expiry) render in the **diner's locale** read from
+  that persisted column (booking/event flows run under a known locale at creation).
 - **Partner-facing emails** (new-booking alert, partner-cancelled, event nudges)
   render in the **partner's `profiles.locale`**.
 - Mechanism: `sendTransactionalEmail` already takes `locale`; replace hardcoded
   `"ro"` at call sites with the resolved locale. Email React templates read from
   the `emails` namespace via `getMessages(locale, "emails")`.
-- Links embedded in emails carry `?lang=<locale>` so the landed token page renders
-  in the same language (see §3.1 token-flow note).
+- Token links in emails carry the `/<lang>/` **path prefix** (§3.1), so the landed
+  confirmation / cancel / review / event page renders in the diner's language;
+  unprefixed legacy links fall back to RO via the proxy rewrite.
 
 ---
 
@@ -262,26 +315,39 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
 - **Restaurant-content fallback test**: missing EN row → RO value returned.
 
 ### 8.2 Regression guard
-- A test (or lightweight lint rule) that scans `(public)`/`(app)` JSX for
-  **hardcoded Romanian-looking literals** (heuristic: Latin text containing RO
-  diacritics `ă â î ș ț` or known RO stopwords in JSX text/`aria-*`/`placeholder`)
-  and fails CI, so new code can't reintroduce inline RO strings. Allowlist for
-  unavoidable cases. Tuned to minimize false positives.
+- **Primary — `no-literal-string` lint rule** (i18next-style) scoped to JSX text,
+  `aria-*`, `placeholder`, `alt`, and `title` in the localized trees, with a small
+  allowlist. Forces new UI strings through `t()` and catches even diacritic-free
+  Romanian (e.g. "Meniu", "Salut"), which a diacritic scan would miss.
+- **Complement — diacritic/stopword scan** flagging RO diacritics (`ă â î ș ț`) or
+  known RO stopwords, as a backstop for literals the lint allowlist lets through.
+- **Honest limitation**: neither is airtight; the lint rule is the real guard and
+  the scan is a safety net. Both run in CI.
 
 ### 8.3 Translation register (style guide, in the spec)
 - **Tone**: warm, concise, restaurant-hospitality voice.
 - **German**: formal **Sie** (standard for restaurant/booking context).
 - **Romanian**: informal **tu** (matches the existing copy's voice).
 - **English**: neutral, friendly; `en-GB` spelling.
-- EN/DE catalogue strings must be **native-quality reviewed**, not raw machine
-  output. Initial drafts are authored as part of extraction and flagged for human
-  review before each phase ships.
+- **Authoring & review (realistic):** initial EN/DE strings are authored to a high
+  standard during extraction, following the register + glossary. A
+  **native-speaker review pass is recommended before each phase's public launch**
+  (especially German formal register); the product ships functional translations
+  in the meantime and improves via glossary-pinned terms. Build-time key-parity
+  guarantees no string is ever silently missing — at worst a key is imperfectly
+  translated, never absent.
 - A short glossary pins product terms (e.g. "rezervare"→"reservation"/"Reservierung",
   "masă"→"table"/"Tisch", "oaspete"→"guest"/"Gast") for consistency.
 
 ---
 
 ## 9. Phasing (each phase independently shippable)
+
+> **Sizing.** This is a multi-phase program touching 200+ files. Each phase is a
+> substantial body of work and gets its **own implementation plan** — we do not
+> plan all four at once. Phase 0 is the critical-path foundation that must be
+> proven before the rest; Phases 1–3 are large but largely mechanical (string
+> extraction + translation) and parallelizable within a phase.
 
 - **Phase 0 — i18n core & foundation**
   - `Locale` infra generalized out of `load-messages.ts`; `getMessages`,
@@ -322,9 +388,11 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
 |---|---|
 | Route-group split is broad and could break routing/auth/layout assumptions | Phase 0 proves it on pricing/legal first (already translated); full test pass + manual smoke before Phase 1. Read the Next 16 docs for `proxy`, route-groups, `generateStaticParams`, `PageProps`/`LayoutProps` before coding. |
 | String-extraction volume (200+ files) | Mechanical and parallelizable; per-namespace; regression guard prevents backslide; phased so value ships incrementally. |
-| Translation quality | Native-quality review gate per phase; glossary + register guide; key-parity enforced at build. |
+| Translation quality | Native-speaker review pass recommended per phase; glossary + register guide; key-parity enforced at build (no missing strings, ever). |
 | Static generation regressions from new root layouts | `generateStaticParams` over the three locales; verify pricing/legal still SSG/ISR in Phase 0. |
-| Token-flow locale (no session/param) | Email links stamp `?lang=`; cookie + RO fallback otherwise. |
+| Token flows live under `[lang]` | Email links stamp the `/<lang>/` path prefix; old unprefixed links still resolve as RO via the proxy rewrite (backward compatible). |
+| Bare `/` under as-needed prefix is unproven hand-rolled behavior | Phase-0 validation gate; documented `localePrefix: always` fallback (§3.2) that leaves the rest of the design intact. |
+| Email-locale persistence needs a schema change | Hand-authored additive migration (`locale` on `reservations`/`event_requests`) per the banned-drizzle-generate process; default `'ro'` so existing rows are safe. |
 | `proxy.ts` redirect loops / crawler issues | Detect-once + cookie; serve URL locale as-is afterward; matcher excludes app/api/_next/assets; explicit tests. |
 
 ---
@@ -334,11 +402,12 @@ A single `proxy.ts` at the project root handles the **consumer** surface only
 - **New**: `proxy.ts`; `src/lib/i18n/` (`get-messages.ts`, `messages-provider.tsx`,
   `t.ts`, `format.ts`, `locale.ts` generalized); `src/messages/{ro,en,de}/<ns>.json`
   (many); `<LocaleSwitcher>`; menu-translation loader; hreflang/sitemap helpers;
-  tests + regression guard.
+  tests + regression guard; **a hand-authored migration** adding `locale` to
+  `reservations` and `event_requests` (`drizzle/migrations/NNNN_*.sql` +
+  `_journal.json` + descriptive `schema.ts`).
 - **Moved**: consumer routes → `app/(public)/[lang]/…`; partner/admin →
   `app/(app)/…`; pricing/legal folded into `(public)/[lang]`.
 - **Changed**: root layout split; `sendTransactionalEmail` call sites (locale);
   email templates (read `emails` namespace); `profiles.locale` write path;
   `restaurants-repo`/menu rendering to consume content translations.
 - **Superseded**: audit-#17 `display:contents` `lang` wrappers for the public site.
-```
