@@ -36,4 +36,9 @@ describe("locale core", () => {
   it("respects q-value ordering over header order", () => {
     expect(matchLocale("en;q=0.3, de;q=0.9")).toBe("de");
   });
+
+  it("treats a malformed q-value (NaN) as lowest priority", () => {
+    // "de;q=abc" parses to NaN → falls back to 0, so "en;q=0.5" wins
+    expect(matchLocale("de;q=abc, en;q=0.5")).toBe("en");
+  });
 });

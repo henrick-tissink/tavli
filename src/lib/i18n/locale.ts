@@ -28,6 +28,8 @@ export function toIsoCurrency(label: string): string {
       return "EUR";
     case "TRY":
       return "TRY";
+    // Caller must pass a valid ISO 4217 code; unknown labels are forwarded
+    // as-is and Intl.NumberFormat will throw at render if the code is invalid.
     default:
       return label.toUpperCase();
   }
@@ -40,7 +42,8 @@ export function matchLocale(acceptLanguage: string | null | undefined): Locale {
     .split(",")
     .map((part) => {
       const [tag, q] = part.trim().split(";q=");
-      return { tag: tag.toLowerCase(), q: q ? Number.parseFloat(q) : 1 };
+      const parsed = q ? Number.parseFloat(q) : 1;
+      return { tag: tag.toLowerCase(), q: Number.isNaN(parsed) ? 0 : parsed };
     })
     .filter((x) => x.tag)
     .sort((a, b) => b.q - a.q);

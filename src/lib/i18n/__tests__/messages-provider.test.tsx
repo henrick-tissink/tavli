@@ -19,6 +19,26 @@ describe("MessagesProvider + useT", () => {
     expect(screen.getByText("Sprache ändern")).toBeInTheDocument();
   });
 
+  it("resolves a plural form via useT (count=20 → 'other' form)", () => {
+    function PluralProbe() {
+      const t = useT("common");
+      return <span>{t("tables", { count: 20 })}</span>;
+    }
+    render(
+      <MessagesProvider
+        locale="ro"
+        bundle={{
+          common: {
+            tables: { one: "{count} masă", few: "{count} mese", other: "{count} de mese" },
+          },
+        }}
+      >
+        <PluralProbe />
+      </MessagesProvider>,
+    );
+    expect(screen.getByText("20 de mese")).toBeInTheDocument();
+  });
+
   it("returns the key itself when missing, and interpolates vars", () => {
     function Probe2() {
       const t = useT("common");
