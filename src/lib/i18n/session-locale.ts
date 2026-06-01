@@ -9,7 +9,11 @@ import { getCurrentSession } from "@/lib/auth/session";
  * through to cookie/Accept-Language.
  */
 export async function getSessionLocale(): Promise<Locale | null> {
-  const session = await getCurrentSession();
-  const locale = session?.profile.locale;
-  return locale && isLocale(locale) ? locale : null;
+  try {
+    const session = await getCurrentSession();
+    const locale = session?.profile.locale;
+    return locale && isLocale(locale) ? locale : null;
+  } catch {
+    return null;
+  }
 }

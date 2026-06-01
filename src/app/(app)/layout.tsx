@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import {
   DEFAULT_LOCALE,
@@ -8,17 +7,10 @@ import {
 } from "@/lib/i18n/locale";
 import { RootScaffold } from "@/components/RootScaffold";
 import { getSessionLocale } from "@/lib/i18n/session-locale";
+import { siteMetadata } from "@/lib/site-metadata";
 import "@/app/globals.css";
 
-// Preserve the original site-wide metadata (incl. the Google Search Console
-// verification token) lifted from the deleted top-level app/layout.tsx.
-export const metadata: Metadata = {
-  title: "Tavli — Găsește-ți masa",
-  description: "Descoperă și rezervă restaurante din România",
-  verification: {
-    google: "qv3pydAGHoDHw7x-3LSbJRM99HuuBxD5HCVpvMROJmE",
-  },
-};
+export { siteMetadata as metadata };
 
 export default async function AppRootLayout({
   children,
