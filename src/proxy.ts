@@ -50,11 +50,13 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // i18n: as-needed locale prefixing for the public localized routes only
-  // (pricing + explicit /en, /de). Scoped so it can NEVER touch /[city], /partner,
-  // etc. — those keep their unprefixed URLs until Phase 1.
+  // Phase 1a: the whole public site lives under [lang]. Apply as-needed locale
+  // prefixing to every public path except the authenticated apps, API, auth
+  // callback, tracking handlers, and asset/internal paths.
+  const NON_LOCALE_PREFIXES = ["/admin", "/partner", "/api", "/auth", "/c/", "/u/", "/_next"];
   const isLocalePath =
-    pathname === "/pricing" || /^\/(en|de)(\/|$)/.test(pathname);
+    !NON_LOCALE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p)) &&
+    !/\.[a-z0-9]+$/i.test(pathname); // skip files with an extension
   if (isLocalePath) {
     const localeAction = decideLocaleAction({
       pathname,

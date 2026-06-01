@@ -345,17 +345,106 @@ describe("proxy", () => {
       expect(res.cookies.get("NEXT_LOCALE")?.value).toBeUndefined();
     });
 
-    it("never touches the storefront (/bucuresti) — no rewrite to /ro/...", async () => {
+    // Phase 1a: storefront paths are now locale-handled by the broadened isLocalePath
+    it("rewrites /bucuresti to /ro/bucuresti for an RO visitor with no cookie", async () => {
+      const req = mockRequest({
+        pathname: "/bucuresti",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      // RO ⇒ internal rewrite (200, no Location redirect).
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toMatch(/\/ro\/bucuresti$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("ro");
+    });
+
+    it("redirects /bucuresti to /de/bucuresti for a German visitor with no cookie", async () => {
       const req = mockRequest({
         pathname: "/bucuresti",
         acceptLanguage: "de-DE,de;q=0.9",
       });
       const res = await proxy(req);
+      expect([307, 308]).toContain(res.status);
+      expect(res.headers.get("location")).toMatch(/\/de\/bucuresti$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("de");
+    });
+
+    it("redirects /bucuresti to /en/bucuresti when NEXT_LOCALE=en cookie is set", async () => {
+      const req = mockRequest({
+        pathname: "/bucuresti",
+        cookies: { NEXT_LOCALE: "en" },
+      });
+      const res = await proxy(req);
+      expect([307, 308]).toContain(res.status);
+      expect(res.headers.get("location")).toMatch(/\/en\/bucuresti$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+    });
+
+    it("rewrites bare / to /ro for an RO visitor with no cookie", async () => {
+      const req = mockRequest({
+        pathname: "/",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toMatch(/\/ro$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("ro");
+    });
+
+    it("does not rewrite or redirect an already-prefixed /en/bucuresti", async () => {
+      const req = mockRequest({ pathname: "/en/bucuresti" });
+      const res = await proxy(req);
       expect(res.headers.get("location")).toBeNull();
       const rewrite = res.headers.get("x-middleware-rewrite");
       expect(rewrite == null || !/\/ro\//.test(rewrite)).toBe(true);
-      // Storefront is non-admin/partner/public ⇒ no Supabase call.
       expect(createServerClient).not.toHaveBeenCalled();
+    });
+
+    it("rewrites unprefixed /reservations/abc123 to /ro/reservations/abc123 for RO visitor", async () => {
+      const req = mockRequest({
+        pathname: "/reservations/abc123",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toMatch(/\/ro\/reservations\/abc123$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("ro");
+    });
+
+    it("GUARD: /partner/sign-in is NOT locale-rewritten", async () => {
+      const sb = mockSupabase({ user: null });
+      (createServerClient as jest.Mock).mockReturnValue(sb);
+      const req = mockRequest({
+        pathname: "/partner/sign-in",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      // No locale rewrite to /ro/partner/sign-in
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\/partner/.test(rewrite)).toBe(true);
+      // Should NOT redirect to a locale-prefixed partner URL
+      const location = res.headers.get("location");
+      expect(location == null || !/\/ro\/partner/.test(location)).toBe(true);
+    });
+
+    it("GUARD: /admin is NOT locale-rewritten", async () => {
+      const sb = mockSupabase({ user: null });
+      (createServerClient as jest.Mock).mockReturnValue(sb);
+      const req = mockRequest({
+        pathname: "/admin",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      // No locale rewrite to /ro/admin
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\/admin/.test(rewrite)).toBe(true);
+      // Auth gate may redirect to /admin/sign-in, but NOT to /ro/admin
+      const location = res.headers.get("location");
+      expect(location == null || !/\/ro\/admin/.test(location)).toBe(true);
     });
   });
 
