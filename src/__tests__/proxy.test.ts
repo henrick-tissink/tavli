@@ -330,6 +330,21 @@ describe("proxy", () => {
       expect(createServerClient).not.toHaveBeenCalled();
     });
 
+    it("redirects /pricing to /en/pricing when NEXT_LOCALE=en cookie is set", async () => {
+      const req = mockRequest({
+        pathname: "/pricing",
+        cookies: { NEXT_LOCALE: "en" },
+      });
+      const res = await proxy(req);
+      expect([307, 308]).toContain(res.status);
+      expect(res.headers.get("location")).toMatch(/\/en\/pricing$/);
+      // No /ro/ rewrite should occur.
+      expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+      expect(createServerClient).not.toHaveBeenCalled();
+      // Cookie is already set; no new cookie should be written.
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBeUndefined();
+    });
+
     it("never touches the storefront (/bucuresti) — no rewrite to /ro/...", async () => {
       const req = mockRequest({
         pathname: "/bucuresti",

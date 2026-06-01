@@ -58,7 +58,7 @@ export async function proxy(request: NextRequest) {
   if (isLocalePath) {
     const localeAction = decideLocaleAction({
       pathname,
-      hasCookie: request.cookies.has(LOCALE_COOKIE),
+      cookieLocale: request.cookies.get(LOCALE_COOKIE)?.value,
       accept: request.headers.get("accept-language"),
     });
     if (localeAction.type !== "next") {

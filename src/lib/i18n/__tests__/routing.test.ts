@@ -12,33 +12,45 @@ describe("localeFromPathname", () => {
 });
 
 describe("decideLocaleAction", () => {
-  it("rewrites unprefixed paths to the RO internal segment when cookie/RO", () => {
-    expect(
-      decideLocaleAction({ pathname: "/bucuresti", hasCookie: true, accept: "en" }),
-    ).toEqual({ type: "rewrite", to: "/ro/bucuresti", setCookie: undefined });
-  });
-
-  it("redirects an unprefixed first-visit to a non-RO detected locale", () => {
-    expect(
-      decideLocaleAction({ pathname: "/bucuresti", hasCookie: false, accept: "de-DE,de;q=0.9" }),
-    ).toEqual({ type: "redirect", to: "/de/bucuresti", setCookie: "de" });
-  });
-
-  it("rewrites + sets cookie when first-visit detects RO", () => {
-    expect(
-      decideLocaleAction({ pathname: "/bucuresti", hasCookie: false, accept: "ro-RO" }),
-    ).toEqual({ type: "rewrite", to: "/ro/bucuresti", setCookie: "ro" });
-  });
-
   it("passes through an already-prefixed path untouched", () => {
     expect(
-      decideLocaleAction({ pathname: "/en/bucuresti", hasCookie: false, accept: "ro" }),
+      decideLocaleAction({ pathname: "/en/bucuresti", cookieLocale: null, accept: "ro" }),
     ).toEqual({ type: "next", to: undefined, setCookie: undefined });
   });
 
-  it("handles the bare root", () => {
+  it("rewrites unprefixed path to RO internal when cookieLocale is 'ro'", () => {
     expect(
-      decideLocaleAction({ pathname: "/", hasCookie: true, accept: "en" }),
+      decideLocaleAction({ pathname: "/bucuresti", cookieLocale: "ro", accept: "en" }),
+    ).toEqual({ type: "rewrite", to: "/ro/bucuresti", setCookie: undefined });
+  });
+
+  it("redirects to /en/... when cookieLocale is 'en' (honors preference)", () => {
+    expect(
+      decideLocaleAction({ pathname: "/bucuresti", cookieLocale: "en", accept: "ro" }),
+    ).toEqual({ type: "redirect", to: "/en/bucuresti", setCookie: undefined });
+  });
+
+  it("redirects an unprefixed first-visit to a non-RO detected locale (no cookie)", () => {
+    expect(
+      decideLocaleAction({ pathname: "/bucuresti", cookieLocale: null, accept: "de-DE,de;q=0.9" }),
+    ).toEqual({ type: "redirect", to: "/de/bucuresti", setCookie: "de" });
+  });
+
+  it("rewrites + sets cookie when first-visit detects RO (no cookie)", () => {
+    expect(
+      decideLocaleAction({ pathname: "/bucuresti", cookieLocale: null, accept: "ro-RO" }),
+    ).toEqual({ type: "rewrite", to: "/ro/bucuresti", setCookie: "ro" });
+  });
+
+  it("treats an invalid cookie value as no cookie and falls back to Accept-Language", () => {
+    expect(
+      decideLocaleAction({ pathname: "/bucuresti", cookieLocale: "fr", accept: "en" }),
+    ).toEqual({ type: "redirect", to: "/en/bucuresti", setCookie: "en" });
+  });
+
+  it("handles the bare root with cookieLocale 'ro'", () => {
+    expect(
+      decideLocaleAction({ pathname: "/", cookieLocale: "ro", accept: "en" }),
     ).toEqual({ type: "rewrite", to: "/ro", setCookie: undefined });
   });
 });
