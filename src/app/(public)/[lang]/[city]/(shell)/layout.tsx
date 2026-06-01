@@ -1,4 +1,6 @@
 import { getRestaurants } from "@/lib/repos/restaurants-repo";
+import { getMessages } from "@/lib/i18n/messages";
+import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
 import { CityShell } from "./CityShell";
 
 export const dynamic = "force-dynamic";
@@ -25,13 +27,18 @@ export default async function CityShellLayout({
   children: React.ReactNode;
   params: Promise<{ lang: string; city: string }>;
 }) {
-  const { lang, city } = await params;
+  const { lang: rawLang, city } = await params;
+  const lang: Locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const displayCity = formatCityName(city);
   const restaurants = await getRestaurants();
+  const bundle: Record<string, Record<string, unknown>> = {
+    common: getMessages(lang, "common") as unknown as Record<string, unknown>,
+  };
 
   return (
     <CityShell
       lang={lang}
+      bundle={bundle}
       city={city}
       displayCity={displayCity}
       restaurants={restaurants}
