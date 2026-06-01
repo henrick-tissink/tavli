@@ -1,4 +1,4 @@
-import { type Locale, LOCALES, DEFAULT_LOCALE, isLocale, matchLocale } from "./locale";
+import { type Locale, DEFAULT_LOCALE, isLocale, matchLocale } from "./locale";
 
 export interface PathLocale {
   locale: Locale;
@@ -13,7 +13,7 @@ export function localeFromPathname(pathname: string): PathLocale {
 }
 
 export type LocaleAction =
-  | { type: "next"; to: undefined; setCookie: Locale | undefined }
+  | { type: "next"; to: undefined; setCookie: undefined }
   | { type: "rewrite"; to: string; setCookie: Locale | undefined }
   | { type: "redirect"; to: string; setCookie: Locale };
 
@@ -49,5 +49,3 @@ export function decideLocaleAction(input: DecideInput): LocaleAction {
   const prefixed = `/${detected}${input.pathname === "/" ? "" : input.pathname}`;
   return { type: "redirect", to: prefixed, setCookie: detected };
 }
-
-export { LOCALES };
