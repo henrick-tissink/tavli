@@ -5,6 +5,8 @@ import {
   IMPERSONATION_COOKIE_NAME,
 } from "@/lib/auth/impersonation-cookie";
 import { isDemoMode } from "@/lib/demo-mode";
+import { decideLocaleAction } from "@/lib/i18n/routing";
+import { LOCALE_COOKIE } from "@/lib/i18n/cookie";
 
 /**
  * Route-protection + session-refresh middleware.
@@ -38,12 +40,6 @@ export async function proxy(request: NextRequest) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
-    return response;
-  }
-
   // Server actions must always pass through — Next.js sets `next-action`
   // on every Server Action POST. Without this bypass, AAL/forced-enrol gates
   // would intercept POSTs to pages the user can't reach as GETs (sign-out,
@@ -53,6 +49,46 @@ export async function proxy(request: NextRequest) {
   }
 
   const pathname = request.nextUrl.pathname;
+
+  // i18n: as-needed locale prefixing for the public localized routes only
+  // (pricing + explicit /en, /de). Scoped so it can NEVER touch /[city], /partner,
+  // etc. — those keep their unprefixed URLs until Phase 1.
+  const isLocalePath =
+    pathname === "/pricing" || /^\/(en|de)(\/|$)/.test(pathname);
+  if (isLocalePath) {
+    const localeAction = decideLocaleAction({
+      pathname,
+      cookieLocale: request.cookies.get(LOCALE_COOKIE)?.value,
+      accept: request.headers.get("accept-language"),
+    });
+    if (localeAction.type !== "next") {
+      const target = request.nextUrl.clone();
+      target.pathname = localeAction.to;
+      const localeResponse =
+        localeAction.type === "redirect"
+          ? NextResponse.redirect(target)
+          : NextResponse.rewrite(target);
+      if (localeAction.setCookie) {
+        localeResponse.cookies.set(LOCALE_COOKIE, localeAction.setCookie, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
+      if (isDemoMode()) {
+        localeResponse.headers.set("X-Robots-Tag", "noindex, nofollow");
+      }
+      return localeResponse;
+    }
+    // type === "next" (already-prefixed, e.g. /en/pricing): fall through.
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    return response;
+  }
 
   const publicRoutes = [
     "/admin/sign-in",
@@ -80,7 +116,10 @@ export async function proxy(request: NextRequest) {
           request.cookies.set(name, value);
         }
         for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, {
+            ...options,
+            secure: process.env.NODE_ENV === "production",
+          });
         }
       },
     },

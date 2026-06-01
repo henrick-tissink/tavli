@@ -8,7 +8,7 @@ import { cuisineLabel } from "@/lib/types";
 import {
   savePartnerProfile,
   type SaveProfileResult,
-} from "@/app/partner/(dashboard)/profile/actions";
+} from "@/app/(app)/partner/(dashboard)/profile/actions";
 
 interface Props {
   initialValues: {

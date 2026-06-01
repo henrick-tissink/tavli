@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { toast } from "@/components/toast";
 import { CANCEL_REASONS, type CancelReasonKey } from "@/lib/cancel-reasons";
-import { cancelReservation } from "@/app/partner/(dashboard)/reservations/actions";
+import { cancelReservation } from "@/app/(app)/partner/(dashboard)/reservations/actions";
 
 interface ReservationSummary {
   id: string;

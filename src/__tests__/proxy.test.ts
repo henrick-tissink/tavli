@@ -33,12 +33,21 @@ import { proxy } from "../proxy";
 interface MockRequestOpts {
   pathname?: string;
   nextAction?: string | null;
+  acceptLanguage?: string;
+  cookies?: Record<string, string>;
 }
 
 function mockRequest(opts: MockRequestOpts = {}): NextRequest {
   const url = `http://localhost${opts.pathname ?? "/"}`;
   const headers = new Headers();
   if (opts.nextAction) headers.set("next-action", opts.nextAction);
+  if (opts.acceptLanguage) headers.set("accept-language", opts.acceptLanguage);
+  if (opts.cookies) {
+    const cookie = Object.entries(opts.cookies)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("; ");
+    headers.set("cookie", cookie);
+  }
   return new NextRequest(url, { headers });
 }
 
@@ -280,6 +289,74 @@ describe("proxy", () => {
     const req = mockRequest({ pathname: "/admin/sign-in" });
     const res = await proxy(req);
     expect(res.headers.get("location")).toBeNull();
+  });
+
+  describe("i18n locale routing", () => {
+    it("rewrites /pricing to /ro/pricing for an RO visitor with no cookie", async () => {
+      const req = mockRequest({
+        pathname: "/pricing",
+        acceptLanguage: "ro",
+      });
+      const res = await proxy(req);
+      // RO ⇒ internal rewrite (200, no Location redirect).
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toMatch(/\/ro\/pricing$/);
+      // Supabase is never consulted for locale paths.
+      expect(createServerClient).not.toHaveBeenCalled();
+      // Locale cookie is set to ro.
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("ro");
+    });
+
+    it("redirects /pricing to /de/pricing for a German visitor with no cookie", async () => {
+      const req = mockRequest({
+        pathname: "/pricing",
+        acceptLanguage: "de-DE,de;q=0.9",
+      });
+      const res = await proxy(req);
+      expect([307, 308]).toContain(res.status);
+      expect(res.headers.get("location")).toMatch(/\/de\/pricing$/);
+      expect(createServerClient).not.toHaveBeenCalled();
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("de");
+    });
+
+    it("does not rewrite or redirect an already-prefixed /en/pricing", async () => {
+      const req = mockRequest({ pathname: "/en/pricing" });
+      const res = await proxy(req);
+      // Already-prefixed ⇒ locale block falls through; not admin/partner/public
+      // ⇒ the existing logic returns the base next() response.
+      expect(res.headers.get("location")).toBeNull();
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\//.test(rewrite)).toBe(true);
+      expect(createServerClient).not.toHaveBeenCalled();
+    });
+
+    it("redirects /pricing to /en/pricing when NEXT_LOCALE=en cookie is set", async () => {
+      const req = mockRequest({
+        pathname: "/pricing",
+        cookies: { NEXT_LOCALE: "en" },
+      });
+      const res = await proxy(req);
+      expect([307, 308]).toContain(res.status);
+      expect(res.headers.get("location")).toMatch(/\/en\/pricing$/);
+      // No /ro/ rewrite should occur.
+      expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+      expect(createServerClient).not.toHaveBeenCalled();
+      // Cookie is already set; no new cookie should be written.
+      expect(res.cookies.get("NEXT_LOCALE")?.value).toBeUndefined();
+    });
+
+    it("never touches the storefront (/bucuresti) — no rewrite to /ro/...", async () => {
+      const req = mockRequest({
+        pathname: "/bucuresti",
+        acceptLanguage: "de-DE,de;q=0.9",
+      });
+      const res = await proxy(req);
+      expect(res.headers.get("location")).toBeNull();
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\//.test(rewrite)).toBe(true);
+      // Storefront is non-admin/partner/public ⇒ no Supabase call.
+      expect(createServerClient).not.toHaveBeenCalled();
+    });
   });
 
   describe("DEMO_MODE noindex", () => {

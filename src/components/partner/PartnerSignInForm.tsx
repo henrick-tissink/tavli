@@ -6,7 +6,7 @@ import { PasswordInput } from "@/components/password-input";
 import {
   signInPartner,
   type PartnerSignInResult,
-} from "@/app/partner/sign-in/actions";
+} from "@/app/(app)/partner/sign-in/actions";
 
 export function PartnerSignInForm({
   initialState,

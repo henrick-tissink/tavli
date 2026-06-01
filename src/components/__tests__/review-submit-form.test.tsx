@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ReviewSubmitForm } from "@/components/review-submit-form";
 
 const submit = jest.fn();
-jest.mock("@/app/reviews/[token]/actions", () => ({
+jest.mock("@/app/(app)/reviews/[token]/actions", () => ({
   submitReviewByToken: (...args: unknown[]) => submit(...args),
 }));
 

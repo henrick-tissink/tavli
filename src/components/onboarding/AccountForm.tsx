@@ -6,7 +6,7 @@ import { PasswordInput } from "@/components/password-input";
 import {
   createAccount,
   type CreateAccountResult,
-} from "@/app/onboard/[token]/account/actions";
+} from "@/app/(app)/onboard/[token]/account/actions";
 
 interface Props {
   token: string;

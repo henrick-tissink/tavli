@@ -7,7 +7,7 @@ import { toast } from "@/components/toast";
 import {
   savePartnerHours,
   type SaveHoursResult,
-} from "@/app/partner/(dashboard)/hours/actions";
+} from "@/app/(app)/partner/(dashboard)/hours/actions";
 import type { DayHours } from "@/lib/onboarding";
 
 export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] }) {

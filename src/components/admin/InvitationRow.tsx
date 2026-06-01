@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { resendInvitation, revokeInvitation } from "@/app/admin/(gated)/invitations/actions";
+import { resendInvitation, revokeInvitation } from "@/app/(app)/admin/(gated)/invitations/actions";
 import { toast } from "@/components/toast";
 
 const STATUS_STYLES: Record<string, string> = {

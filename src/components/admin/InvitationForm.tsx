@@ -7,7 +7,7 @@ import { toast } from "@/components/toast";
 import {
   createInvitation,
   type CreateInvitationResult,
-} from "@/app/admin/(gated)/invitations/actions";
+} from "@/app/(app)/admin/(gated)/invitations/actions";
 
 interface City {
   id: string;

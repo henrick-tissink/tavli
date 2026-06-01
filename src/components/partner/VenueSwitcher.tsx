@@ -9,7 +9,7 @@ import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronsUpDown, Check, Building2 } from "lucide-react";
-import { setActiveVenueAction } from "@/app/partner/(dashboard)/active-venue-actions";
+import { setActiveVenueAction } from "@/app/(app)/partner/(dashboard)/active-venue-actions";
 
 export function VenueSwitcher({
   venues,

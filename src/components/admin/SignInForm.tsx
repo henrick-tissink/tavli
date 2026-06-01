@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/button";
 import { PasswordInput } from "@/components/password-input";
-import { signInAdmin, type SignInResult } from "@/app/admin/sign-in/actions";
+import { signInAdmin, type SignInResult } from "@/app/(app)/admin/sign-in/actions";
 
 export function SignInForm({
   initialState,

@@ -13,7 +13,9 @@ import roPricing from "@/messages/ro/pricing.json";
 import enPricing from "@/messages/en/pricing.json";
 import dePricing from "@/messages/de/pricing.json";
 
-export type Locale = "ro" | "en" | "de";
+// was: export type Locale = "ro" | "en" | "de"; … (and LOCALES/DEFAULT_LOCALE/isLocale)
+export { type Locale, LOCALES, DEFAULT_LOCALE, isLocale } from "./locale";
+import { type Locale, DEFAULT_LOCALE, isLocale } from "./locale";
 
 /** Identifies a Year-One cost-table row so JSON labels zip to computed totals. */
 export type YearOneRowKey =
@@ -23,13 +25,6 @@ export type YearOneRowKey =
   | "pro_annual"
   | "pro5_monthly"
   | "pro5_annual";
-
-export const LOCALES: readonly Locale[] = ["ro", "en", "de"];
-export const DEFAULT_LOCALE: Locale = "ro";
-
-export function isLocale(value: string): value is Locale {
-  return (LOCALES as readonly string[]).includes(value);
-}
 
 /** A {label, body} pair — used by VAT rows, promises, FAQ entries, etc. */
 export interface LabelBody {

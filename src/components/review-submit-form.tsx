@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { submitReviewByToken } from "@/app/reviews/[token]/actions";
+import { submitReviewByToken } from "@/app/(app)/reviews/[token]/actions";
 
 interface Props {
   token: string;

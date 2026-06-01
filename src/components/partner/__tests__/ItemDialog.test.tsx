@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ItemDialog, type EditableItem } from "../ItemDialog";
 
-jest.mock("@/app/partner/(dashboard)/menu/actions", () => ({
+jest.mock("@/app/(app)/partner/(dashboard)/menu/actions", () => ({
   saveItem: jest.fn(async (payload) => ({ ok: true, payload })),
 }));
 
-import { saveItem } from "@/app/partner/(dashboard)/menu/actions";
+import { saveItem } from "@/app/(app)/partner/(dashboard)/menu/actions";
 
 function blankItem(overrides: Partial<EditableItem> = {}): EditableItem {
   return {

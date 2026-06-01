@@ -8,7 +8,7 @@ import { CancelReservationSheet } from "@/components/partner/CancelReservationSh
 import {
   updateReservationStatus,
   type NewStatus,
-} from "@/app/partner/(dashboard)/reservations/actions";
+} from "@/app/(app)/partner/(dashboard)/reservations/actions";
 
 export interface ReservationRow {
   id: string;
