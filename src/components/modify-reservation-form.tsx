@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { modifyReservationByTokenAction } from "@/app/reservations/[token]/actions";
+import { modifyReservationByTokenAction } from "@/app/(app)/reservations/[token]/actions";
 
 interface Props {
   token: string;

@@ -8,7 +8,7 @@ import {
   addSlot,
   deleteSlot,
   seedDefaultAvailability,
-} from "@/app/partner/(dashboard)/availability/actions";
+} from "@/app/(app)/partner/(dashboard)/availability/actions";
 
 const DAY_LABELS = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon..Sun

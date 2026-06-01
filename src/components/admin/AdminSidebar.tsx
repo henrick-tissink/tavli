@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Store, Mail, LogOut, Menu, X } from "lucide-react";
-import { signOutAdmin } from "@/app/admin/sign-in/actions";
+import { signOutAdmin } from "@/app/(app)/admin/sign-in/actions";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },

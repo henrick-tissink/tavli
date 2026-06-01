@@ -26,7 +26,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { signOutPartner } from "@/app/partner/sign-in/actions";
+import { signOutPartner } from "@/app/(app)/partner/sign-in/actions";
 import { VenueSwitcher } from "./VenueSwitcher";
 
 const NAV = [

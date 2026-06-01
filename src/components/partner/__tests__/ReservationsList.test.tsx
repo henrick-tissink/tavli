@@ -12,7 +12,7 @@ jest.mock("@/components/toast", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
 
-jest.mock("@/app/partner/(dashboard)/reservations/actions", () => ({
+jest.mock("@/app/(app)/partner/(dashboard)/reservations/actions", () => ({
   updateReservationStatus: jest.fn().mockResolvedValue({ ok: true }),
   cancelReservation: jest.fn().mockResolvedValue({ ok: true, emailSent: true }),
 }));

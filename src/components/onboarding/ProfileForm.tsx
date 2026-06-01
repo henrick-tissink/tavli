@@ -7,7 +7,7 @@ import { cuisineLabel } from "@/lib/types";
 import {
   saveProfile,
   type SaveProfileResult,
-} from "@/app/onboard/[token]/profile/actions";
+} from "@/app/(app)/onboard/[token]/profile/actions";
 
 interface Props {
   token: string;

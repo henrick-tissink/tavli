@@ -6,7 +6,7 @@ import { Button } from "@/components/button";
 import {
   saveItem,
   type SaveItemPayload,
-} from "@/app/partner/(dashboard)/menu/actions";
+} from "@/app/(app)/partner/(dashboard)/menu/actions";
 
 export interface EditableItem {
   id?: string;

@@ -5,7 +5,7 @@ import { Button } from "@/components/button";
 import {
   publishRestaurant,
   type PublishResult,
-} from "@/app/onboard/[token]/review/actions";
+} from "@/app/(app)/onboard/[token]/review/actions";
 
 export function PublishButton() {
   const [state, action, pending] = useActionState<

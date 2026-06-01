@@ -9,12 +9,12 @@ jest.mock("@/components/toast", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
 
-jest.mock("@/app/partner/(dashboard)/reservations/actions", () => ({
+jest.mock("@/app/(app)/partner/(dashboard)/reservations/actions", () => ({
   cancelReservation: jest.fn(),
 }));
 
 import { toast } from "@/components/toast";
-import { cancelReservation } from "@/app/partner/(dashboard)/reservations/actions";
+import { cancelReservation } from "@/app/(app)/partner/(dashboard)/reservations/actions";
 
 const reservation = {
   id: "res-1",

@@ -10,7 +10,7 @@ import {
   deleteSection,
   deleteItem,
   updateSection,
-} from "@/app/partner/(dashboard)/menu/actions";
+} from "@/app/(app)/partner/(dashboard)/menu/actions";
 
 export interface MenuSectionData {
   id: string;

@@ -7,7 +7,7 @@
  */
 import { useEffect, useId, useRef, useState } from "react";
 import type { PricingMessages } from "@/lib/i18n/load-messages";
-import { joinWaitlist } from "@/app/pricing/actions";
+import { joinWaitlist } from "@/app/(public)/[lang]/pricing/actions";
 
 type Status = "idle" | "submitting" | "success" | "error";
 

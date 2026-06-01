@@ -6,7 +6,7 @@ import { HoursEditor } from "./HoursEditor";
 import {
   saveHours,
   type SaveHoursResult,
-} from "@/app/onboard/[token]/hours/actions";
+} from "@/app/(app)/onboard/[token]/hours/actions";
 import type { DayHours } from "@/lib/onboarding";
 
 interface Props {
