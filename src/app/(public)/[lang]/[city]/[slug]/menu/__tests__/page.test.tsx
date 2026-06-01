@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import DinerMenuPage from "@/app/(app)/[city]/[slug]/menu/page";
+import DinerMenuPage from "@/app/(public)/[lang]/[city]/[slug]/menu/page";
 
 const notFoundMock = jest.fn(() => {
   throw new Error("NEXT_NOT_FOUND");
@@ -18,7 +18,7 @@ jest.mock("@/lib/repos/restaurants-repo", () => ({
 }));
 
 const menuClientMock = jest.fn();
-jest.mock("@/app/(app)/[city]/[slug]/menu/MenuPageClient", () => ({
+jest.mock("@/app/(public)/[lang]/[city]/[slug]/menu/MenuPageClient", () => ({
   MenuPageClient: (props: Record<string, unknown>) => {
     menuClientMock(props);
     return <div data-testid="menu-page-client" />;

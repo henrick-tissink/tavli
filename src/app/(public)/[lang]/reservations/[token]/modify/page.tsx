@@ -18,7 +18,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 export default async function ModifyReservationPage({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ lang: string; token: string }>;
 }) {
   const { token } = await params;
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {

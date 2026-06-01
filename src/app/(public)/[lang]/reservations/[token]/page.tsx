@@ -98,7 +98,7 @@ async function loadReservation(token: string): Promise<Result> {
 export default async function ReservationPage({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ lang: string; token: string }>;
 }) {
   const { token } = await params;
   const result = await loadReservation(token);

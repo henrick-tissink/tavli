@@ -16,6 +16,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { SavedProvider } from "@/lib/saved-context";
 
 interface CityShellProps {
+  lang: string;
   city: string;
   displayCity: string;
   restaurants: Restaurant[];
@@ -23,6 +24,9 @@ interface CityShellProps {
 }
 
 function Inner({
+  // `lang` is forwarded for the locale switcher (consumed in Task 3); accepted
+  // here so it threads through without breaking existing behavior.
+  lang: _lang,
   city,
   displayCity,
   restaurants,

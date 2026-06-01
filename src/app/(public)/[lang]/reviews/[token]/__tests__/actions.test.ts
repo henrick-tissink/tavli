@@ -19,7 +19,7 @@ jest.mock("@/lib/audit/record", () => ({
   recordAudit: jest.fn(async () => {}),
 }));
 
-import { submitReviewByToken } from "@/app/(app)/reviews/[token]/actions";
+import { submitReviewByToken } from "@/app/(public)/[lang]/reviews/[token]/actions";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { headers } from "next/headers";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";

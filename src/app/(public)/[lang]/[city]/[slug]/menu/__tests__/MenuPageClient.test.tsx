@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { MenuPageClient } from "@/app/(app)/[city]/[slug]/menu/MenuPageClient";
+import { MenuPageClient } from "@/app/(public)/[lang]/[city]/[slug]/menu/MenuPageClient";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),

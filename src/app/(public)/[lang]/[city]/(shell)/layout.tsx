@@ -23,14 +23,19 @@ export default async function CityShellLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ city: string }>;
+  params: Promise<{ lang: string; city: string }>;
 }) {
-  const { city } = await params;
+  const { lang, city } = await params;
   const displayCity = formatCityName(city);
   const restaurants = await getRestaurants();
 
   return (
-    <CityShell city={city} displayCity={displayCity} restaurants={restaurants}>
+    <CityShell
+      lang={lang}
+      city={city}
+      displayCity={displayCity}
+      restaurants={restaurants}
+    >
       {children}
     </CityShell>
   );

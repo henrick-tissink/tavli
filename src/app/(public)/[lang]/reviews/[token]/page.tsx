@@ -65,7 +65,7 @@ export default async function ReviewSubmitPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ lang: string; token: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const [{ token }, sp] = await Promise.all([params, searchParams]);

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/button";
-import { cancelReservationByToken } from "@/app/(app)/reservations/[token]/actions";
+import { cancelReservationByToken } from "@/app/(public)/[lang]/reservations/[token]/actions";
 
 export function ReservationCancelForm({
   token,

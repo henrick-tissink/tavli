@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function EventRequestTrackingPage({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ lang: string; token: string }>;
 }) {
   const { token } = await params;
   const er = await getByTrackingToken(token);

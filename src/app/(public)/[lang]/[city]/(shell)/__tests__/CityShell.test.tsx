@@ -23,6 +23,7 @@ jest.mock("@/lib/db/client", () => ({
 }));
 
 const baseProps = {
+  lang: "ro",
   city: "bucuresti",
   displayCity: "București",
   restaurants: [],
