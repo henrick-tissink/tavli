@@ -14,3 +14,15 @@ describe("LocaleSwitcher (consumer)", () => {
     expect(screen.getByRole("link", { name: /English/i })).toHaveAttribute("aria-current", "true");
   });
 });
+
+describe("LocaleSwitcher (preference)", () => {
+  it("renders 3 buttons and marks the active locale with aria-current", () => {
+    render(<LocaleSwitcher mode="preference" current="ro" />);
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(3);
+    const roButton = screen.getByRole("button", { name: /Română/i });
+    expect(roButton).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: /English/i })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("button", { name: /Deutsch/i })).not.toHaveAttribute("aria-current");
+  });
+});

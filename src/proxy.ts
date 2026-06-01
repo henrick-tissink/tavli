@@ -80,7 +80,10 @@ export async function proxy(request: NextRequest) {
           request.cookies.set(name, value);
         }
         for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, {
+            ...options,
+            secure: process.env.NODE_ENV === "production",
+          });
         }
       },
     },

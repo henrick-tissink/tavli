@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import {
@@ -11,6 +10,8 @@ import {
 } from "@/lib/auth/mfa";
 import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 import { stopImpersonationSession } from "@/lib/auth/impersonation-session";
+import { isLocale } from "@/lib/i18n/locale";
+import { setLocaleCookie } from "@/lib/i18n/cookie";
 
 export type PartnerSignInResult =
   | { ok: false; error: string }
@@ -56,6 +57,13 @@ export async function signInPartner(
       };
     }
 
+    // Fetch locale once for both MFA success branches (best-effort; skip if unavailable).
+    const { data: mfaProfile } = await supabase
+      .from("profiles")
+      .select("locale")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+
     if (mfaCode) {
       const challenge = await supabase.auth.mfa.challenge({ factorId });
       if (challenge.error || !challenge.data) {
@@ -82,16 +90,9 @@ export async function signInPartner(
         };
       }
       // Sync locale cookie on successful MFA sign-in.
-      const { data: mfaProfile } = await supabase
-        .from("profiles")
-        .select("locale")
-        .eq("id", userData.user.id)
-        .maybeSingle();
-      (await cookies()).set("NEXT_LOCALE", mfaProfile?.locale ?? "ro", {
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-        sameSite: "lax",
-      });
+      if (mfaProfile?.locale && isLocale(mfaProfile.locale)) {
+        await setLocaleCookie(mfaProfile.locale);
+      }
       redirect("/partner");
     } else if (recoveryCode) {
       const adminClient = createSupabaseAdminClient();
@@ -111,16 +112,9 @@ export async function signInPartner(
         };
       }
       // Sync locale cookie on successful recovery-code sign-in.
-      const { data: rcProfile } = await supabase
-        .from("profiles")
-        .select("locale")
-        .eq("id", userData.user.id)
-        .maybeSingle();
-      (await cookies()).set("NEXT_LOCALE", rcProfile?.locale ?? "ro", {
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-        sameSite: "lax",
-      });
+      if (mfaProfile?.locale && isLocale(mfaProfile.locale)) {
+        await setLocaleCookie(mfaProfile.locale);
+      }
       redirect("/partner/security?enrol=recommended");
     }
   }
@@ -164,11 +158,9 @@ export async function signInPartner(
   }
 
   // Sync locale cookie from profile on successful sign-in (additive — no MFA path).
-  (await cookies()).set("NEXT_LOCALE", profile.locale ?? "ro", {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
+  if (profile.locale && isLocale(profile.locale)) {
+    await setLocaleCookie(profile.locale);
+  }
   redirect("/partner");
 }
 
