@@ -357,11 +357,15 @@ their saved preference.
   - `proxy.ts` (as-needed prefix + detect-once + cookie).
   - `<LocaleSwitcher>` + `profiles.locale` server action.
   - hreflang/canonical/sitemap infra.
-  - Fold existing `/en/pricing`, `/de/pricing`, `(legal)` locale trees into
-    `(public)/[lang]`. Pricing/legal already have translations → first proof the
-    foundation works end-to-end.
-  - **Acceptance**: pricing + legal fully work under the new routing in all three
-    locales with detection, switching, hreflang, and static generation intact.
+  - Fold existing `/en/pricing`, `/de/pricing` into `(public)/[lang]`. Pricing
+    already has translations and the clean `<PricingPage locale>` shape → first
+    proof the foundation works end-to-end. (The `(legal)` tree moves into `(app)`
+    unchanged for now and folds into `(public)/[lang]` in **Phase 1** alongside the
+    storefront — folding six legal page-trios adds no foundation-proving value in
+    Phase 0. Likewise the proxy matcher is scoped to `/pricing` + `/en`,`/de` in
+    Phase 0 and expands in Phase 1.)
+  - **Acceptance**: pricing fully works under the new routing in all three locales
+    with detection, switching, hreflang, and static generation intact.
 
 - **Phase 1 — consumer storefront**
   - Extract all consumer UI strings into namespaces; translate.
