@@ -720,11 +720,18 @@ git commit -m "feat(i18n): client MessagesProvider + useT"
 **Files:**
 - Create: `src/lib/i18n/routing.ts`
 - Test: `src/lib/i18n/__tests__/routing.test.ts`
-- Create: `proxy.ts` (repo root)
+- Modify: `src/proxy.ts` (the EXISTING active middleware — see note)
 
-> The pure decision logic is unit-tested; the thin `NextRequest`/`NextResponse`
-> wiring in `proxy.ts` is verified by the build + manual smoke in Task 10
-> (jest can't easily exercise edge middleware).
+> **CORRECTION (discovered during execution):** This project already has an active
+> middleware at **`src/proxy.ts`** (auth/session-refresh: admin/partner gating,
+> AAL2/MFA, impersonation, demo noindex). Because the project uses a `src/` dir,
+> Next 16 uses `src/proxy.ts` and a root `proxy.ts` is IGNORED. So the locale logic
+> is **merged into `src/proxy.ts`** (a path-scoped block for `/pricing`,`/en/*`,`/de/*`
+> inserted after the server-action bypass, before the Supabase-env early-out),
+> NOT a new root file. The pure decision logic (`routing.ts`) is unit-tested; the
+> locale block in `src/proxy.ts` is covered by added cases in
+> `src/__tests__/proxy.test.ts` (including a guard that `/bucuresti` is never
+> rewritten). The existing broad matcher is reused (no matcher change needed).
 
 - [ ] **Step 1: Write the failing test**
 
