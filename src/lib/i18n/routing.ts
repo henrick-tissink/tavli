@@ -1,4 +1,6 @@
-import { type Locale, DEFAULT_LOCALE, isLocale, matchLocale } from "./locale";
+import { type Locale, LOCALES, DEFAULT_LOCALE, isLocale, matchLocale } from "./locale";
+
+export { LOCALES };
 
 export interface PathLocale {
   locale: Locale;
@@ -48,4 +50,14 @@ export function decideLocaleAction(input: DecideInput): LocaleAction {
   }
   const prefixed = `/${detected}${input.pathname === "/" ? "" : input.pathname}`;
   return { type: "redirect", to: prefixed, setCookie: detected };
+}
+
+/** Swap the locale prefix on a pathname for the consumer switcher. RO ⇒ no prefix. */
+export function withLocale(pathname: string, target: Locale): string {
+  const { hasPrefix } = localeFromPathname(pathname);
+  const rest = hasPrefix
+    ? "/" + pathname.split("/").slice(2).join("/")
+    : pathname;
+  const clean = rest === "/" ? "" : rest;
+  return target === DEFAULT_LOCALE ? clean || "/" : `/${target}${clean}`;
 }

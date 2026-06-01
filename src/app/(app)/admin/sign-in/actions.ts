@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import {
@@ -82,6 +83,17 @@ export async function signInAdmin(
           error: "Incorrect code.",
         };
       }
+      // Sync locale cookie on successful MFA sign-in.
+      const { data: mfaProfile } = await supabase
+        .from("profiles")
+        .select("locale")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+      (await cookies()).set("NEXT_LOCALE", mfaProfile?.locale ?? "ro", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
       redirect("/admin");
     } else if (recoveryCode) {
       const adminClient = createSupabaseAdminClient();
@@ -100,6 +112,17 @@ export async function signInAdmin(
           error: "Recovery code invalid.",
         };
       }
+      // Sync locale cookie on successful recovery-code sign-in.
+      const { data: rcProfile } = await supabase
+        .from("profiles")
+        .select("locale")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+      (await cookies()).set("NEXT_LOCALE", rcProfile?.locale ?? "ro", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
       redirect("/admin/security?enrol=required");
     }
   }
@@ -122,7 +145,7 @@ export async function signInAdmin(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, locale")
     .eq("id", data.user.id)
     .maybeSingle();
 
@@ -142,6 +165,12 @@ export async function signInAdmin(
     };
   }
 
+  // Sync locale cookie from profile on successful sign-in (additive — no MFA path).
+  (await cookies()).set("NEXT_LOCALE", profile.locale ?? "ro", {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
   redirect("/admin");
 }
 

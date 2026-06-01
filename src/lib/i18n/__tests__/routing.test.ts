@@ -1,4 +1,4 @@
-import { localeFromPathname, decideLocaleAction } from "@/lib/i18n/routing";
+import { localeFromPathname, decideLocaleAction, withLocale } from "@/lib/i18n/routing";
 
 describe("localeFromPathname", () => {
   it("extracts an explicit locale prefix", () => {
@@ -40,5 +40,14 @@ describe("decideLocaleAction", () => {
     expect(
       decideLocaleAction({ pathname: "/", hasCookie: true, accept: "en" }),
     ).toEqual({ type: "rewrite", to: "/ro", setCookie: undefined });
+  });
+});
+
+describe("withLocale", () => {
+  it("adds/strips the prefix correctly", () => {
+    expect(withLocale("/en/bucuresti", "ro")).toBe("/bucuresti");
+    expect(withLocale("/bucuresti", "de")).toBe("/de/bucuresti");
+    expect(withLocale("/en", "ro")).toBe("/");
+    expect(withLocale("/", "en")).toBe("/en");
   });
 });
