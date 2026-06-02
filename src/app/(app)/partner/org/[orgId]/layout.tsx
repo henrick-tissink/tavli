@@ -35,7 +35,13 @@ export default async function OrgLayout({
 
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "partner.org");
-  const bundle = buildBundle(locale, ["partner.common", "partner.org"]);
+  // partner.analytics is required because org/[orgId]/analytics renders the
+  // shared AnalyticsView (+ ExportModal), which read useT("partner.analytics").
+  const bundle = buildBundle(locale, [
+    "partner.common",
+    "partner.org",
+    "partner.analytics",
+  ]);
 
   return (
     <MessagesProvider locale={locale} bundle={bundle}>
