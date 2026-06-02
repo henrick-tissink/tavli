@@ -1,6 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { HorizontalSection } from "../horizontal-section";
 import type { Restaurant } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 const mockRestaurant: Restaurant = {
   id: "1",
@@ -25,14 +35,14 @@ const mockRestaurants = [
 
 describe("HorizontalSection", () => {
   it("renders the title", () => {
-    render(
+    renderWithProvider(
       <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
     );
     expect(screen.getByText("Trending Now")).toBeInTheDocument();
   });
 
   it("renders restaurant cards", () => {
-    render(
+    renderWithProvider(
       <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
     );
     expect(screen.getAllByText("Test Restaurant").length).toBeGreaterThan(0);
@@ -40,7 +50,7 @@ describe("HorizontalSection", () => {
   });
 
   it("cards are in a scroll container", () => {
-    const { container } = render(
+    const { container } = renderWithProvider(
       <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
     );
     const scrollContainer = container.querySelector(".overflow-x-auto");

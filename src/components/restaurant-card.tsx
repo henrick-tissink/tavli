@@ -7,6 +7,7 @@ import { PRICE_LABELS, formatCuisines } from "@/lib/types";
 import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -31,6 +32,7 @@ export function RestaurantCard({
   onClick,
   highlightCapability,
 }: RestaurantCardProps) {
+  const t = useT("discovery");
   const isClosed = restaurant.status === "closed";
 
   const hasReviewIntelligence =
@@ -86,7 +88,7 @@ export function RestaurantCard({
         {/* Save button top-right */}
         <button
           type="button"
-          aria-label={`Salvează ${restaurant.name}`}
+          aria-label={t("card.saveAriaLabel", { name: restaurant.name })}
           className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-black/55 backdrop-blur-sm flex items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
@@ -110,7 +112,7 @@ export function RestaurantCard({
       {/* Stretched primary action — the only card-level interactive element. */}
       <button
         type="button"
-        aria-label={`Vezi ${restaurant.name}`}
+        aria-label={t("card.viewAriaLabel", { name: restaurant.name })}
         className="absolute inset-0 z-0 cursor-pointer rounded-card"
         onClick={() => onClick?.(restaurant)}
       />
@@ -121,7 +123,7 @@ export function RestaurantCard({
         {/* Row 1: Name + inline rating. The capability tag (events pages) sits
             on its own line below so it never squeezes / truncates the name. */}
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-display font-bold text-text-primary truncate text-[19px] tracking-[-0.01em] min-w-0">
+          <h3 className="font-display font-bold text-text-primary truncate text-[17px] tracking-[-0.01em] min-w-0">
             {restaurant.name}
           </h3>
           <RatingChip
@@ -132,7 +134,7 @@ export function RestaurantCard({
         </div>
         {highlightCapability === "events" && (
           <span className="self-start text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-            Eveniment privat
+            {t("card.privateEventBadge")}
           </span>
         )}
 
@@ -145,13 +147,15 @@ export function RestaurantCard({
         {/* Row 3: Review intelligence or fallback */}
         {hasReviewIntelligence ? (
           <p className="text-xs text-text-secondary truncate">
-            🔥 &ldquo;{restaurant.reviewSnippet}&rdquo; · {restaurant.topDimensionPercent}%
-            au adorat {restaurant.topDimensionLabel}
+            🔥 &ldquo;{restaurant.reviewSnippet}&rdquo; · {t("card.topDimension", {
+              percent: restaurant.topDimensionPercent!,
+              dimension: restaurant.topDimensionLabel!,
+            })}
           </p>
         ) : (
           restaurant.voteCount > 0 && (
             <p className="text-xs text-text-muted">
-              {restaurant.voteCount} {restaurant.voteCount === 1 ? "recenzie" : "recenzii"}
+              {t("card.reviews", { count: restaurant.voteCount })}
             </p>
           )
         )}

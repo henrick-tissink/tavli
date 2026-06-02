@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import CityEventsPage from "../page";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
 
 jest.mock("@/lib/repos/restaurants-repo", () => ({
   listRestaurants: jest.fn().mockResolvedValue([
@@ -26,7 +28,11 @@ describe("CityEventsPage", () => {
     const ui = await CityEventsPage({
       params: Promise.resolve({ lang: "ro", city: "bucuresti" }),
     });
-    render(ui);
+    render(
+      <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+        {ui}
+      </MessagesProvider>,
+    );
     expect(
       screen.getByText(/Momente memorabile, găzduite în Bucuresti/),
     ).toBeInTheDocument();

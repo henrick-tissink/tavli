@@ -1,0 +1,119 @@
+{
+  "search": {
+    "placeholder": "Caută restaurante, bucătării…",
+    "back": "Înapoi",
+    "recentTitle": "Căutări recente",
+    "clearAll": "Șterge tot",
+    "trendingTitle": "Tendințe în București",
+    "categoriesTitle": "Categorii rapide",
+    "resultsRestaurants": "Restaurante",
+    "resultsCuisines": "Bucătării",
+    "noResults": "Niciun restaurant găsit pentru '{query}'",
+    "cuisineCount": {
+      "one": "{count} loc",
+      "few": "{count} locuri",
+      "other": "{count} locuri"
+    },
+    "trending": {
+      "bbq": "BBQ coreean",
+      "rooftop": "Rooftop",
+      "brunch": "Brunch de duminică",
+      "newOpenings": "Noi deschideri"
+    },
+    "categories": {
+      "pizza": "Pizza",
+      "japanese": "Japoneză",
+      "steak": "Friptură",
+      "vegan": "Vegan",
+      "coffee": "Cafea",
+      "cocktails": "Cocktailuri",
+      "burgers": "Burgeri",
+      "fish": "Pește"
+    }
+  },
+  "filters": {
+    "all": "Toate",
+    "openNow": "Deschis acum",
+    "privateEvent": "Eveniment privat",
+    "cuisine": "Bucătărie",
+    "price": "Preț",
+    "neighborhood": "Cartier",
+    "more": "Filtre",
+    "moreAriaLabel": "Mai multe filtre",
+    "title": "Filtre",
+    "reset": "Resetează",
+    "minRating": "Rating minim",
+    "ratingAny": "Oricare",
+    "noResults": "Niciun rezultat",
+    "showResults": {
+      "one": "Arată {count} rezultat",
+      "few": "Arată {count} rezultate",
+      "other": "Arată {count} rezultate"
+    },
+    "priceAccessible": "$ Accesibil",
+    "priceModerate": "$$ Moderat",
+    "pricePremium": "$$$ Premium",
+    "priceExclusive": "$$$$ Exclusivist"
+  },
+  "feed": {
+    "noMatchTitle": "Niciun restaurant nu se potrivește",
+    "noMatchBody": "Încearcă să relaxezi filtrele active pentru a vedea mai multe locuri.",
+    "resetFilters": "Resetează filtrele",
+    "trendingTitle": "Populare în {city}",
+    "trendingSubtitle": "Cele mai rezervate în această săptămână.",
+    "availableTodayTitle": "Disponibile astăzi",
+    "availableTodaySubtitle": "Locurile cu masă în următoarele ore.",
+    "newTitle": "Noi pe Tavli",
+    "newSubtitle": "Locuri proaspăt deschise sau abia listate.",
+    "weekRestaurant": "✦ Restaurantul săptămânii",
+    "availableToday": "Disponibil astăzi",
+    "viewRestaurant": "Vezi restaurantul"
+  },
+  "map": {
+    "searchPlaceholder": "Caută restaurante…",
+    "filters": "Filtre",
+    "closeMap": "Închide harta"
+  },
+  "card": {
+    "saveAriaLabel": "Salvează {name}",
+    "viewAriaLabel": "Vezi {name}",
+    "privateEventBadge": "Eveniment privat",
+    "reviews": {
+      "one": "{count} recenzie",
+      "few": "{count} recenzii",
+      "other": "{count} recenzii"
+    },
+    "topDimension": "{percent}% au adorat {dimension}"
+  },
+  "cover": {
+    "tagline": "la masă.",
+    "availableCount": {
+      "one": "{count} loc disponibil",
+      "few": "{count} locuri disponibile",
+      "other": "{count} de locuri disponibile"
+    },
+    "availableIntro": "Avem {available} pentru diseară.",
+    "searchCta": "Caută o masă"
+  },
+  "dietary": {
+    "vegan": "Vegan",
+    "vegetarian": "Vegetarian",
+    "glutenFree": "Fără gluten",
+    "spicy": "Picant",
+    "clear": "Șterge"
+  },
+  "tabs": {
+    "discover": "Descoperă",
+    "map": "Hartă",
+    "search": "Caută",
+    "saved": "Salvate",
+    "profile": "Profil",
+    "navAriaLabel": "Navigare principală"
+  },
+  "nav": {
+    "logoAriaLabel": "Tavli — acasă",
+    "searchPlaceholder": "Caută restaurante, bucătării…",
+    "savedAriaLabel": "Restaurante salvate",
+    "profileAriaLabel": "Profil"
+  }
+}

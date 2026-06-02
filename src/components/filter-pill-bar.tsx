@@ -8,6 +8,8 @@ import { PillPopover } from "@/components/pill-popover";
 import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
 import { cuisineLabel } from "@/lib/types";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface FilterPillBarProps {
   restaurants: Restaurant[];
@@ -36,6 +38,8 @@ export function FilterPillBar({
     resetFilters,
     activeFilterCount,
   } = useFilters();
+  const t = useT("discovery");
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams<{ city?: string }>();
@@ -43,8 +47,8 @@ export function FilterPillBar({
   // Capability pills navigate to the dedicated capability route on click.
   // Active state is derived from the URL — no client-side filter state.
   const eventsActive = pathname?.endsWith("/events") ?? false;
-  const goToCity = () => citySlug && router.push(`/${citySlug}`);
-  const goToEvents = () => citySlug && router.push(`/${citySlug}/events`);
+  const goToCity = () => citySlug && router.push(localizedHref(`/${citySlug}`, locale));
+  const goToEvents = () => citySlug && router.push(localizedHref(`/${citySlug}/events`, locale));
 
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
   const priceBtnRef = useRef<HTMLButtonElement>(null);
@@ -109,7 +113,7 @@ export function FilterPillBar({
           </svg>
         </div>
         <Pill
-          label="Toate"
+          label={t("filters.all")}
           active={nothingSelected}
           onToggle={() => {
             resetFilters();
@@ -119,13 +123,13 @@ export function FilterPillBar({
         />
 
         <Pill
-          label="Deschis acum"
+          label={t("filters.openNow")}
           active={filters.openNow}
           onToggle={() => setFilter("openNow", !filters.openNow)}
         />
 
         <Pill
-          label="Eveniment privat"
+          label={t("filters.privateEvent")}
           active={eventsActive}
           onToggle={() => (eventsActive ? goToCity() : goToEvents())}
         />
@@ -150,7 +154,7 @@ export function FilterPillBar({
           <PopoverPill
             buttonRef={cuisineBtnRef}
             popoverId={cuisinePopoverId}
-            label="Bucătărie"
+            label={t("filters.cuisine")}
             count={cuisineCount}
             open={openPopover === "cuisine"}
             onToggle={() => togglePopover("cuisine")}
@@ -160,7 +164,7 @@ export function FilterPillBar({
         <PopoverPill
           buttonRef={priceBtnRef}
           popoverId={pricePopoverId}
-          label="Preț"
+          label={t("filters.price")}
           count={priceCount}
           open={openPopover === "price"}
           onToggle={() => togglePopover("price")}
@@ -170,7 +174,7 @@ export function FilterPillBar({
           <PopoverPill
             buttonRef={zoneBtnRef}
             popoverId={zonePopoverId}
-            label="Cartier"
+            label={t("filters.neighborhood")}
             count={zoneCount}
             open={openPopover === "zone"}
             onToggle={() => togglePopover("zone")}
@@ -180,7 +184,7 @@ export function FilterPillBar({
         <button
           type="button"
           onClick={onOpenAdvanced}
-          aria-label="Mai multe filtre"
+          aria-label={t("filters.moreAriaLabel")}
           className={[
             "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1.5",
             advancedActive
@@ -189,7 +193,7 @@ export function FilterPillBar({
           ].join(" ")}
         >
           <SlidersHorizontal size={14} />
-          Filtre
+          {t("filters.more")}
           {advancedActive && (
             <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-white/25 text-[10px] font-bold">
               1
@@ -209,7 +213,7 @@ export function FilterPillBar({
         open={openPopover === "cuisine"}
         onClose={() => setOpenPopover(null)}
         anchorRef={cuisineBtnRef}
-        title="Bucătărie"
+        title={t("filters.cuisine")}
         onClear={
           cuisineCount > 0 ? () => setFilter("cuisines", []) : undefined
         }
@@ -226,7 +230,7 @@ export function FilterPillBar({
         open={openPopover === "price"}
         onClose={() => setOpenPopover(null)}
         anchorRef={priceBtnRef}
-        title="Preț"
+        title={t("filters.price")}
         onClear={
           priceCount > 0 ? () => setFilter("priceRange", []) : undefined
         }
@@ -243,7 +247,7 @@ export function FilterPillBar({
         open={openPopover === "zone"}
         onClose={() => setOpenPopover(null)}
         anchorRef={zoneBtnRef}
-        title="Cartier"
+        title={t("filters.neighborhood")}
         onClear={
           zoneCount > 0 ? () => setFilter("neighborhoods", []) : undefined
         }

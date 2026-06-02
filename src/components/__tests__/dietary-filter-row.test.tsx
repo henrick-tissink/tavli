@@ -1,10 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DietaryFilterRow, type DietaryFilter } from "../dietary-filter-row";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("DietaryFilterRow", () => {
   it("renders all 4 filter pills in order", () => {
-    const { container } = render(
+    const { container } = renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set()}
         onToggle={jest.fn()}
@@ -20,7 +30,7 @@ describe("DietaryFilterRow", () => {
   });
 
   it("renders active filters with active styling", () => {
-    render(
+    renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set<DietaryFilter>(["vegan"])}
         onToggle={jest.fn()}
@@ -39,7 +49,7 @@ describe("DietaryFilterRow", () => {
   it("clicking a pill calls onToggle with that filter", async () => {
     const user = userEvent.setup();
     const handleToggle = jest.fn();
-    render(
+    renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set()}
         onToggle={handleToggle}
@@ -54,7 +64,7 @@ describe("DietaryFilterRow", () => {
   });
 
   it("does not render Clear button when activeFilters is empty", () => {
-    render(
+    renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set()}
         onToggle={jest.fn()}
@@ -65,7 +75,7 @@ describe("DietaryFilterRow", () => {
   });
 
   it("renders Clear button when at least one filter is active", () => {
-    render(
+    renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set<DietaryFilter>(["vegetarian"])}
         onToggle={jest.fn()}
@@ -78,7 +88,7 @@ describe("DietaryFilterRow", () => {
   it("clicking Clear calls onClear", async () => {
     const user = userEvent.setup();
     const handleClear = jest.fn();
-    render(
+    renderWithProvider(
       <DietaryFilterRow
         activeFilters={new Set<DietaryFilter>(["vegan", "spicy"])}
         onToggle={jest.fn()}

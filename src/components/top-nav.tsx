@@ -5,6 +5,8 @@ import { Search, Heart, User } from "lucide-react";
 import { CitySelector } from "@/components/city-selector";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { type Locale } from "@/lib/i18n/locale";
+import { useT } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface TopNavProps {
   lang: Locale;
@@ -25,15 +27,17 @@ export function TopNav({
   onSavedClick,
   onProfileClick,
 }: TopNavProps) {
+  const t = useT("discovery");
+
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-surface-white border-b border-border hidden desktop:flex z-50">
       <div className="flex items-center justify-between max-w-[var(--container-content)] mx-auto px-6 w-full">
         {/* Left: Logo + City */}
         <div className="flex items-center gap-4">
           <Link
-            href={`/${currentCity}`}
+            href={localizedHref(`/${currentCity}`, lang)}
             className="flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-            aria-label="Tavli — acasă"
+            aria-label={t("nav.logoAriaLabel")}
           >
             <svg
               viewBox="0 0 256 256"
@@ -60,7 +64,7 @@ export function TopNav({
             <input
               type="text"
               readOnly
-              placeholder="Caută restaurante, bucătării…"
+              placeholder={t("nav.searchPlaceholder")}
               className="w-full pl-9 pr-4 py-2 rounded-button border border-border bg-surface-bg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-primary cursor-pointer"
               onFocus={onSearchFocus}
             />
@@ -73,7 +77,7 @@ export function TopNav({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label="Restaurante salvate"
+              aria-label={t("nav.savedAriaLabel")}
               className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
               onClick={onSavedClick}
             >
@@ -81,7 +85,7 @@ export function TopNav({
             </button>
             <button
               type="button"
-              aria-label="Profil"
+              aria-label={t("nav.profileAriaLabel")}
               className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
               onClick={onProfileClick}
             >

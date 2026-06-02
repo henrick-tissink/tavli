@@ -1,0 +1,119 @@
+{
+  "search": {
+    "placeholder": "Search restaurants, cuisines…",
+    "back": "Back",
+    "recentTitle": "Recent searches",
+    "clearAll": "Clear all",
+    "trendingTitle": "Trending in Bucharest",
+    "categoriesTitle": "Quick categories",
+    "resultsRestaurants": "Restaurants",
+    "resultsCuisines": "Cuisines",
+    "noResults": "No restaurants found for '{query}'",
+    "cuisineCount": {
+      "one": "{count} venue",
+      "few": "{count} venues",
+      "other": "{count} venues"
+    },
+    "trending": {
+      "bbq": "Korean BBQ",
+      "rooftop": "Rooftop",
+      "brunch": "Sunday brunch",
+      "newOpenings": "New openings"
+    },
+    "categories": {
+      "pizza": "Pizza",
+      "japanese": "Japanese",
+      "steak": "Steak",
+      "vegan": "Vegan",
+      "coffee": "Coffee",
+      "cocktails": "Cocktails",
+      "burgers": "Burgers",
+      "fish": "Fish"
+    }
+  },
+  "filters": {
+    "all": "All",
+    "openNow": "Open now",
+    "privateEvent": "Private event",
+    "cuisine": "Cuisine",
+    "price": "Price",
+    "neighborhood": "Neighbourhood",
+    "more": "Filters",
+    "moreAriaLabel": "More filters",
+    "title": "Filters",
+    "reset": "Reset",
+    "minRating": "Minimum rating",
+    "ratingAny": "Any",
+    "noResults": "No results",
+    "showResults": {
+      "one": "Show {count} result",
+      "few": "Show {count} results",
+      "other": "Show {count} results"
+    },
+    "priceAccessible": "$ Budget",
+    "priceModerate": "$$ Moderate",
+    "pricePremium": "$$$ Premium",
+    "priceExclusive": "$$$$ Exclusive"
+  },
+  "feed": {
+    "noMatchTitle": "No restaurants match",
+    "noMatchBody": "Try relaxing the active filters to see more venues.",
+    "resetFilters": "Reset filters",
+    "trendingTitle": "Popular in {city}",
+    "trendingSubtitle": "Most booked this week.",
+    "availableTodayTitle": "Available today",
+    "availableTodaySubtitle": "Venues with a table in the coming hours.",
+    "newTitle": "New on Tavli",
+    "newSubtitle": "Freshly opened or just listed.",
+    "weekRestaurant": "✦ Restaurant of the week",
+    "availableToday": "Available today",
+    "viewRestaurant": "View restaurant"
+  },
+  "map": {
+    "searchPlaceholder": "Search restaurants…",
+    "filters": "Filters",
+    "closeMap": "Close map"
+  },
+  "card": {
+    "saveAriaLabel": "Save {name}",
+    "viewAriaLabel": "View {name}",
+    "privateEventBadge": "Private event",
+    "reviews": {
+      "one": "{count} review",
+      "few": "{count} reviews",
+      "other": "{count} reviews"
+    },
+    "topDimension": "{percent}% loved {dimension}"
+  },
+  "cover": {
+    "tagline": "at the table.",
+    "availableCount": {
+      "one": "{count} venue available",
+      "few": "{count} venues available",
+      "other": "{count} venues available"
+    },
+    "availableIntro": "We have {available} for tonight.",
+    "searchCta": "Find a table"
+  },
+  "dietary": {
+    "vegan": "Vegan",
+    "vegetarian": "Vegetarian",
+    "glutenFree": "Gluten-free",
+    "spicy": "Spicy",
+    "clear": "Clear"
+  },
+  "tabs": {
+    "discover": "Discover",
+    "map": "Map",
+    "search": "Search",
+    "saved": "Saved",
+    "profile": "Profile",
+    "navAriaLabel": "Main navigation"
+  },
+  "nav": {
+    "logoAriaLabel": "Tavli — home",
+    "searchPlaceholder": "Search restaurants, cuisines…",
+    "savedAriaLabel": "Saved restaurants",
+    "profileAriaLabel": "Profile"
+  }
+}

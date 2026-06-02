@@ -4,12 +4,110 @@ import roCommon from "@/messages/ro/common.json";
 import enCommon from "@/messages/en/common.json";
 import deCommon from "@/messages/de/common.json";
 
+import roDiscovery from "@/messages/ro/discovery.json";
+import enDiscovery from "@/messages/en/discovery.json";
+import deDiscovery from "@/messages/de/discovery.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
   switchLanguage: string;
   locales: Record<Locale, string>;
   cities: Record<string, string>;
+}
+
+/** Structural contract for the `discovery` namespace. */
+export interface DiscoveryMessages {
+  search: {
+    placeholder: string;
+    back: string;
+    recentTitle: string;
+    clearAll: string;
+    trendingTitle: string;
+    categoriesTitle: string;
+    resultsRestaurants: string;
+    resultsCuisines: string;
+    noResults: string;
+    cuisineCount: { one: string; few: string; other: string };
+    trending: { bbq: string; rooftop: string; brunch: string; newOpenings: string };
+    categories: {
+      pizza: string; japanese: string; steak: string; vegan: string;
+      coffee: string; cocktails: string; burgers: string; fish: string;
+    };
+  };
+  filters: {
+    all: string;
+    openNow: string;
+    privateEvent: string;
+    cuisine: string;
+    price: string;
+    neighborhood: string;
+    more: string;
+    moreAriaLabel: string;
+    title: string;
+    reset: string;
+    minRating: string;
+    ratingAny: string;
+    noResults: string;
+    showResults: { one: string; few: string; other: string };
+    priceAccessible: string;
+    priceModerate: string;
+    pricePremium: string;
+    priceExclusive: string;
+  };
+  feed: {
+    noMatchTitle: string;
+    noMatchBody: string;
+    resetFilters: string;
+    trendingTitle: string;
+    trendingSubtitle: string;
+    availableTodayTitle: string;
+    availableTodaySubtitle: string;
+    newTitle: string;
+    newSubtitle: string;
+    weekRestaurant: string;
+    availableToday: string;
+    viewRestaurant: string;
+  };
+  map: {
+    searchPlaceholder: string;
+    filters: string;
+    closeMap: string;
+  };
+  card: {
+    saveAriaLabel: string;
+    viewAriaLabel: string;
+    privateEventBadge: string;
+    reviews: { one: string; few: string; other: string };
+    topDimension: string;
+  };
+  cover: {
+    tagline: string;
+    availableCount: { one: string; few: string; other: string };
+    availableIntro: string;
+    searchCta: string;
+  };
+  dietary: {
+    vegan: string;
+    vegetarian: string;
+    glutenFree: string;
+    spicy: string;
+    clear: string;
+  };
+  tabs: {
+    discover: string;
+    map: string;
+    search: string;
+    saved: string;
+    profile: string;
+    navAriaLabel: string;
+  };
+  nav: {
+    logoAriaLabel: string;
+    searchPlaceholder: string;
+    savedAriaLabel: string;
+    profileAriaLabel: string;
+  };
 }
 
 /**
@@ -21,6 +119,10 @@ const CATALOGS = {
   common: { ro: roCommon, en: enCommon, de: deCommon } as Record<
     Locale,
     CommonMessages
+  >,
+  discovery: { ro: roDiscovery, en: enDiscovery, de: deDiscovery } as Record<
+    Locale,
+    DiscoveryMessages
   >,
 } as const;
 

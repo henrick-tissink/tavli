@@ -18,6 +18,8 @@ import { TimeSlotPills } from "@/components/time-slot-pills";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
 import { useSaved } from "@/lib/saved-context";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface Props {
   city: string;
@@ -39,6 +41,8 @@ export function FeedPageClient({
   const { resetFilters, activeFilterCount, applyFilters } = useFilters();
   const timeContext = useTimeContext();
   const { isSaved, toggleSave } = useSaved();
+  const t = useT("discovery");
+  const locale = useLocale();
 
   const filteredRestaurants = useMemo(
     () => applyFilters(allRestaurants),
@@ -71,6 +75,8 @@ export function FeedPageClient({
     [timeContext.pullQuote, displayCity],
   );
 
+  const navigate = (path: string) => router.push(localizedHref(path, locale));
+
   return (
     <>
       <FilterPillBar
@@ -95,10 +101,10 @@ export function FeedPageClient({
           <div className="mt-12 flex flex-col items-center text-center">
             <div className="text-4xl mb-3" aria-hidden>🔍</div>
             <h2 className="text-lg font-bold text-text-primary">
-              Niciun restaurant nu se potrivește
+              {t("feed.noMatchTitle")}
             </h2>
             <p className="text-sm text-text-secondary mt-2 max-w-sm">
-              Încearcă să relaxezi filtrele active pentru a vedea mai multe locuri.
+              {t("feed.noMatchBody")}
             </p>
             {activeFilterCount > 0 && (
               <button
@@ -106,7 +112,7 @@ export function FeedPageClient({
                 onClick={resetFilters}
                 className="mt-4 rounded-button px-4 py-2 bg-brand-primary text-white text-sm font-semibold"
               >
-                Resetează filtrele
+                {t("feed.resetFilters")}
               </button>
             )}
           </div>
@@ -114,12 +120,8 @@ export function FeedPageClient({
           <div className="mt-8">
             <RestaurantSpotlight
               restaurant={filteredRestaurants[0]}
-              onClick={() =>
-                router.push(`/${city}/${filteredRestaurants[0].slug}`)
-              }
-              onSlotSelect={() =>
-                router.push(`/${city}/${filteredRestaurants[0].slug}`)
-              }
+              onClick={() => navigate(`/${city}/${filteredRestaurants[0].slug}`)}
+              onSlotSelect={() => navigate(`/${city}/${filteredRestaurants[0].slug}`)}
             />
           </div>
         ) : (
@@ -127,15 +129,15 @@ export function FeedPageClient({
             {trendingRestaurants.length > 0 && (
               <div className="mt-8">
                 <HorizontalSection
-                  title={`Populare în ${displayCity}`}
-                  subtitle="Cele mai rezervate în această săptămână."
+                  title={t("feed.trendingTitle", { city: displayCity })}
+                  subtitle={t("feed.trendingSubtitle")}
                   restaurants={trendingRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
-                  onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+                  onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
                   onSlotSelect={(_id) => {
                     const target = trendingRestaurants.find((r) => r.id === _id);
-                    if (target) router.push(`/${city}/${target.slug}`);
+                    if (target) navigate(`/${city}/${target.slug}`);
                   }}
                 />
               </div>
@@ -150,8 +152,8 @@ export function FeedPageClient({
               <>
                 <div className="mt-8">
                   <SectionHeader
-                    title="Disponibile astăzi"
-                    subtitle="Locurile cu masă în următoarele ore."
+                    title={t("feed.availableTodayTitle")}
+                    subtitle={t("feed.availableTodaySubtitle")}
                   />
                 </div>
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
@@ -161,10 +163,8 @@ export function FeedPageClient({
                       restaurant={restaurant}
                       saved={isSaved(restaurant.id)}
                       onSave={() => toggleSave(restaurant.id)}
-                      onClick={(r) => router.push(`/${city}/${r.slug}`)}
-                      onSlotSelect={() =>
-                        router.push(`/${city}/${restaurant.slug}`)
-                      }
+                      onClick={(r) => navigate(`/${city}/${r.slug}`)}
+                      onSlotSelect={() => navigate(`/${city}/${restaurant.slug}`)}
                     />
                   ))}
                 </div>
@@ -178,15 +178,15 @@ export function FeedPageClient({
             {newRestaurants.length > 0 && (
               <div className="mt-8">
                 <HorizontalSection
-                  title="Noi pe Tavli"
-                  subtitle="Locuri proaspăt deschise sau abia listate."
+                  title={t("feed.newTitle")}
+                  subtitle={t("feed.newSubtitle")}
                   restaurants={newRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
-                  onCardClick={(r) => router.push(`/${city}/${r.slug}`)}
+                  onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
                   onSlotSelect={(_id) => {
                     const target = newRestaurants.find((r) => r.id === _id);
-                    if (target) router.push(`/${city}/${target.slug}`);
+                    if (target) navigate(`/${city}/${target.slug}`);
                   }}
                 />
               </div>
@@ -198,10 +198,8 @@ export function FeedPageClient({
                   restaurant={restaurant}
                   saved={isSaved(restaurant.id)}
                   onSave={() => toggleSave(restaurant.id)}
-                  onClick={(r) => router.push(`/${city}/${r.slug}`)}
-                  onSlotSelect={() =>
-                    router.push(`/${city}/${restaurant.slug}`)
-                  }
+                  onClick={(r) => navigate(`/${city}/${r.slug}`)}
+                  onSlotSelect={() => navigate(`/${city}/${restaurant.slug}`)}
                 />
               ))}
             </div>
@@ -230,11 +228,13 @@ function RestaurantSpotlight({
   onClick: () => void;
   onSlotSelect: () => void;
 }) {
+  const t = useT("discovery");
+
   return (
     <div className="rounded-card overflow-hidden bg-surface-white border border-border shadow-card">
       <div className="flex items-center justify-between mb-0 px-4 desktop:px-6 pt-4">
         <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-brand-primary">
-          ✦ Restaurantul săptămânii
+          {t("feed.weekRestaurant")}
         </span>
       </div>
 
@@ -280,7 +280,7 @@ function RestaurantSpotlight({
           )}
           {restaurant.availableSlots.length > 0 && (
             <span className="text-xs text-text-muted">
-              Disponibil astăzi
+              {t("feed.availableToday")}
             </span>
           )}
         </div>
@@ -300,7 +300,7 @@ function RestaurantSpotlight({
             onClick={onClick}
             className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-primary hover:underline"
           >
-            Vezi restaurantul <ArrowRight size={16} />
+            {t("feed.viewRestaurant")} <ArrowRight size={16} />
           </button>
         )}
       </div>

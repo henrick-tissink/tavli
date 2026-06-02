@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { FilterPillBar } from "../filter-pill-bar";
 import { FilterProvider, useFilters } from "@/lib/filter-context";
 import { getRestaurants } from "@/lib/mock-data";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn() }),
@@ -20,14 +22,16 @@ function renderBar(
   props: Partial<React.ComponentProps<typeof FilterPillBar>> = {},
 ) {
   return render(
-    <FilterProvider>
-      <CtxSpy />
-      <FilterPillBar
-        restaurants={getRestaurants()}
-        injectedPills={props.injectedPills}
-        onOpenAdvanced={props.onOpenAdvanced ?? jest.fn()}
-      />
-    </FilterProvider>,
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      <FilterProvider>
+        <CtxSpy />
+        <FilterPillBar
+          restaurants={getRestaurants()}
+          injectedPills={props.injectedPills}
+          onOpenAdvanced={props.onOpenAdvanced ?? jest.fn()}
+        />
+      </FilterProvider>
+    </MessagesProvider>,
   );
 }
 

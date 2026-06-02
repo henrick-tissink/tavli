@@ -7,6 +7,7 @@ import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
 import { cuisineLabel } from "@/lib/types";
 import { useMemo } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface FilterSheetProps {
   open: boolean;
@@ -15,21 +16,6 @@ interface FilterSheetProps {
   restaurants?: Restaurant[];
 }
 
-const PRICE_OPTIONS = [
-  { value: 1, label: "$ Accesibil" },
-  { value: 2, label: "$$ Moderat" },
-  { value: 3, label: "$$$ Premium" },
-  { value: 4, label: "$$$$ Exclusivist" },
-];
-
-const RATING_OPTIONS = [
-  { value: 0, label: "Oricare" },
-  { value: 3, label: "3+" },
-  { value: 4, label: "4+" },
-  { value: 4.5, label: "4.5+" },
-  { value: 5, label: "5" },
-];
-
 export function FilterSheet({
   open,
   onClose,
@@ -37,6 +23,22 @@ export function FilterSheet({
   restaurants = [],
 }: FilterSheetProps) {
   const { filters, toggleArrayFilter, setFilter, resetFilters, activeFilterCount } = useFilters();
+  const t = useT("discovery");
+
+  const PRICE_OPTIONS = [
+    { value: 1, label: t("filters.priceAccessible") },
+    { value: 2, label: t("filters.priceModerate") },
+    { value: 3, label: t("filters.pricePremium") },
+    { value: 4, label: t("filters.priceExclusive") },
+  ];
+
+  const RATING_OPTIONS = [
+    { value: 0, label: t("filters.ratingAny") },
+    { value: 3, label: "3+" },
+    { value: 4, label: "4+" },
+    { value: 4.5, label: "4.5+" },
+    { value: 5, label: "5" },
+  ];
 
   const cuisines = useMemo(() => {
     const all = restaurants.flatMap((r) => r.cuisines);
@@ -50,25 +52,30 @@ export function FilterSheet({
     return [...new Set(all)].sort((a, b) => a.localeCompare(b, "ro"));
   }, [restaurants]);
 
+  const showResultsLabel =
+    resultCount === 0
+      ? t("filters.noResults")
+      : t("filters.showResults", { count: resultCount });
+
   return (
     <BottomSheet open={open} onClose={onClose}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-text-primary">Filtre</h2>
+        <h2 className="text-lg font-bold text-text-primary">{t("filters.title")}</h2>
         {activeFilterCount > 0 && (
           <button
             type="button"
             onClick={resetFilters}
             className="text-sm font-semibold text-brand-primary"
           >
-            Resetează
+            {t("filters.reset")}
           </button>
         )}
       </div>
 
       {/* Cuisine */}
       <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Bucătărie</h3>
+        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">{t("filters.cuisine")}</h3>
         <div className="flex flex-wrap gap-2">
           {cuisines.map((cuisine) => (
             <Pill
@@ -83,7 +90,7 @@ export function FilterSheet({
 
       {/* Price */}
       <div className="space-y-3 mb-6">
-        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Preț</h3>
+        <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">{t("filters.price")}</h3>
         <div className="grid grid-cols-2 gap-2">
           {PRICE_OPTIONS.map(({ value, label }) => {
             const isOn = filters.priceRange.includes(value);
@@ -110,7 +117,7 @@ export function FilterSheet({
       {/* Neighborhood */}
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Cartier
+          {t("filters.neighborhood")}
         </h3>
         <div className="flex flex-wrap gap-2">
           {neighborhoods.map((zone) => (
@@ -127,7 +134,7 @@ export function FilterSheet({
       {/* Rating */}
       <div className="space-y-3 mb-6">
         <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-          Rating minim
+          {t("filters.minRating")}
         </h3>
         <div className="flex flex-wrap gap-2">
           {RATING_OPTIONS.map(({ value, label }) => (
@@ -144,7 +151,7 @@ export function FilterSheet({
       {/* Sticky bottom button */}
       <div className="sticky bottom-0 bg-surface-white pt-3 pb-1">
         <Button fullWidth onClick={onClose} disabled={resultCount === 0}>
-          {resultCount === 0 ? "Niciun rezultat" : `Arată ${resultCount} ${resultCount === 1 ? "rezultat" : "rezultate"}`}
+          {showResultsLabel}
         </Button>
       </div>
     </BottomSheet>

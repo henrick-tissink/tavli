@@ -2,14 +2,7 @@
 
 import { Home, Map, Search, Heart, User } from "lucide-react";
 import type { ReactNode } from "react";
-
-const TABS: { id: string; label: string; icon: ReactNode }[] = [
-  { id: "discover", label: "Descoperă", icon: <Home size={20} /> },
-  { id: "map", label: "Hartă", icon: <Map size={20} /> },
-  { id: "search", label: "Caută", icon: <Search size={20} /> },
-  { id: "saved", label: "Salvate", icon: <Heart size={20} /> },
-  { id: "profile", label: "Profil", icon: <User size={20} /> },
-];
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface TabBarProps {
   activeTab: string;
@@ -17,9 +10,19 @@ interface TabBarProps {
 }
 
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
+  const t = useT("discovery");
+
+  const TABS: { id: string; label: string; icon: ReactNode }[] = [
+    { id: "discover", label: t("tabs.discover"), icon: <Home size={20} /> },
+    { id: "map", label: t("tabs.map"), icon: <Map size={20} /> },
+    { id: "search", label: t("tabs.search"), icon: <Search size={20} /> },
+    { id: "saved", label: t("tabs.saved"), icon: <Heart size={20} /> },
+    { id: "profile", label: t("tabs.profile"), icon: <User size={20} /> },
+  ];
+
   return (
     <nav
-      aria-label="Navigare principală"
+      aria-label={t("tabs.navAriaLabel")}
       className="fixed bottom-0 left-0 right-0 bg-surface-white border-t border-border h-16 pb-[env(safe-area-inset-bottom)] desktop:hidden z-50"
     >
       <div className="flex items-center justify-around h-full">

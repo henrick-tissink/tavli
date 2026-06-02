@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MenuViewer } from "../menu-viewer";
 import type { Menu, Restaurant } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
 
 // JSDOM lacks IntersectionObserver
 class IOMock {
@@ -66,15 +68,23 @@ const menu: Menu = {
   ],
 };
 
+function renderViewer(props: React.ComponentProps<typeof MenuViewer>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      <MenuViewer {...props} />
+    </MessagesProvider>,
+  );
+}
+
 describe("MenuViewer", () => {
   it("renders all sections with counts", () => {
-    render(<MenuViewer restaurant={restaurant} menu={menu} onBack={jest.fn()} />);
+    renderViewer({ restaurant, menu, onBack: jest.fn() });
     expect(screen.getByRole("button", { name: /Antipasti \(1\)/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Primi \(2\)/ })).toBeInTheDocument();
   });
 
   it("renders all items", () => {
-    render(<MenuViewer restaurant={restaurant} menu={menu} onBack={jest.fn()} />);
+    renderViewer({ restaurant, menu, onBack: jest.fn() });
     expect(screen.getByText("Bruschetta")).toBeInTheDocument();
     expect(screen.getByText("Carbonara")).toBeInTheDocument();
     expect(screen.getByText("Cacio e Pepe")).toBeInTheDocument();
@@ -83,13 +93,13 @@ describe("MenuViewer", () => {
   it("fires onBack when back button clicked", async () => {
     const onBack = jest.fn();
     const user = userEvent.setup();
-    render(<MenuViewer restaurant={restaurant} menu={menu} onBack={onBack} />);
+    renderViewer({ restaurant, menu, onBack });
     await user.click(screen.getByRole("button", { name: "Înapoi" }));
     expect(onBack).toHaveBeenCalled();
   });
 
   it("shows item count in header", () => {
-    render(<MenuViewer restaurant={restaurant} menu={menu} onBack={jest.fn()} />);
+    renderViewer({ restaurant, menu, onBack: jest.fn() });
     expect(screen.getByText(/3 feluri/)).toBeInTheDocument();
   });
 });
