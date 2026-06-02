@@ -4,6 +4,8 @@ import {
   listVerifiedTotpFactors,
   countUnconsumedRecoveryCodes,
 } from "@/lib/auth/mfa";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { TwoFactorSection } from "./_components/TwoFactorSection";
 import { RecoveryCodesSection } from "./_components/RecoveryCodesSection";
 import { PasswordSection } from "./_components/PasswordSection";
@@ -19,6 +21,9 @@ export default async function PartnerSecurityPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/partner/sign-in");
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.staffSecurity").security;
+
   const factors = await listVerifiedTotpFactors(supabase);
   const remaining =
     factors.length > 0 ? await countUnconsumedRecoveryCodes(user.id) : 0;
@@ -27,9 +32,9 @@ export default async function PartnerSecurityPage() {
     <div className="max-w-2xl mx-auto py-12 px-4 space-y-12">
       <header>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase">
-          Account
+          {m.page.eyebrow}
         </p>
-        <h1 className="font-display text-4xl mt-2 text-text-primary">Security</h1>
+        <h1 className="font-display text-4xl mt-2 text-text-primary">{m.page.title}</h1>
       </header>
 
       <TwoFactorSection

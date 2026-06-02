@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { ActionResult } from "../actions";
 
 export interface RecoveryCodesActions {
@@ -14,6 +15,7 @@ export function RecoveryCodesSection({
   remaining: number;
   actions: RecoveryCodesActions;
 }) {
+  const t = useT("partner.staffSecurity");
   const [codes, setCodes] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -21,8 +23,8 @@ export function RecoveryCodesSection({
   function handleRegenerate() {
     const confirmed = window.confirm(
       remaining > 0
-        ? `This will invalidate your existing ${remaining} unused code(s). Continue?`
-        : "Generate 10 fresh recovery codes?",
+        ? t("security.recovery.confirmInvalidate", { remaining })
+        : t("security.recovery.confirmFresh"),
     );
     if (!confirmed) return;
     startTransition(async () => {
@@ -31,7 +33,7 @@ export function RecoveryCodesSection({
         setCodes(result.data.codes);
         setError(null);
       } else {
-        setError(result.error ?? "Could not generate codes.");
+        setError(result.error ?? t("security.recovery.errorGenerate"));
       }
     });
   }
@@ -49,14 +51,12 @@ export function RecoveryCodesSection({
 
   return (
     <section className="space-y-4">
-      <h2 className="font-display text-2xl text-text-primary">Recovery codes</h2>
+      <h2 className="font-display text-2xl text-text-primary">{t("security.recovery.title")}</h2>
       <p className="text-text-secondary">
-        Codes you save in a safe place. Each one signs you in once if you lose
-        your authenticator. Using a recovery code disables your authenticator
-        and prompts you to set up a new one.
+        {t("security.recovery.intro")}
       </p>
       <p className="text-sm text-text-muted">
-        {remaining} of 10 codes remaining.
+        {t("security.recovery.remaining", { remaining })}
       </p>
 
       {codes ? (
@@ -67,13 +67,13 @@ export function RecoveryCodesSection({
             ))}
           </div>
           <p className="text-sm text-yellow-700">
-            These codes will not be shown again. Save them now.
+            {t("security.recovery.warning")}
           </p>
           <button
             onClick={downloadTxt}
             className="rounded-button border border-border px-4 py-2 text-sm font-medium hover:bg-surface-bg"
           >
-            Download as .txt
+            {t("security.recovery.download")}
           </button>
         </div>
       ) : (
@@ -82,7 +82,7 @@ export function RecoveryCodesSection({
           disabled={isPending}
           className="rounded-button border border-border px-4 py-2 text-sm font-medium hover:bg-surface-bg disabled:opacity-50"
         >
-          {isPending ? "Generating…" : "Generate new codes"}
+          {isPending ? t("security.recovery.generating") : t("security.recovery.generate")}
         </button>
       )}
       {error && (

@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { BCP47 } from "@/lib/i18n/locale";
 import type { ActionResult } from "../actions";
 
 export interface TwoFactorActions {
@@ -25,13 +27,14 @@ export interface TwoFactorActions {
 
 function VerifyButton() {
   const { pending } = useFormStatus();
+  const t = useT("partner.staffSecurity");
   return (
     <button
       type="submit"
       disabled={pending}
       className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
     >
-      {pending ? "Verifying…" : "Verify and enable"}
+      {pending ? t("security.twoFactor.enrol.verifying") : t("security.twoFactor.enrol.verify")}
     </button>
   );
 }
@@ -49,6 +52,8 @@ export function TwoFactorSection({
   factors: Factor[];
   actions: TwoFactorActions;
 }) {
+  const t = useT("partner.staffSecurity");
+  const locale = useLocale();
   const [enrolment, setEnrolment] = useState<{
     factorId: string;
     qrCodeSvg: string;
@@ -62,7 +67,7 @@ export function TwoFactorSection({
     startTransition(async () => {
       const result = await actions.startTotpEnrolment();
       if (!result.ok || !result.data) {
-        setVerifyError(result.error ?? "Could not start enrolment.");
+        setVerifyError(result.error ?? t("security.twoFactor.enrol.errorStart"));
         return;
       }
       setEnrolment({
@@ -78,7 +83,7 @@ export function TwoFactorSection({
     formData.set("factor_id", enrolment.factorId);
     const result = await actions.verifyTotpStep({ ok: false }, formData);
     if (!result.ok) {
-      setVerifyError(result.error ?? "Incorrect code.");
+      setVerifyError(result.error ?? t("security.twoFactor.enrol.errorIncorrect"));
       return;
     }
     setEnrolment(null);
@@ -91,7 +96,7 @@ export function TwoFactorSection({
     startTransition(async () => {
       const result = await actions.unenrolFactorAction({ ok: false }, fd);
       if (!result.ok) {
-        setUnenrolError(result.error ?? "Could not remove factor.");
+        setUnenrolError(result.error ?? t("security.twoFactor.errorRemove"));
       } else {
         window.location.reload();
       }
@@ -102,23 +107,22 @@ export function TwoFactorSection({
     return (
       <section className="space-y-6">
         <h2 className="font-display text-2xl text-text-primary">
-          Set up your authenticator
+          {t("security.twoFactor.enrol.title")}
         </h2>
         <p className="text-sm text-text-secondary">
-          Scan this QR code with your authenticator app (Google Authenticator,
-          1Password, Authy, etc.) and enter the 6-digit code it shows.
+          {t("security.twoFactor.enrol.intro")}
         </p>
         <div
           className="bg-surface-white p-4 inline-block rounded-card border border-border"
           dangerouslySetInnerHTML={{ __html: enrolment.qrCodeSvg }}
         />
         <p className="text-sm text-text-secondary">
-          Or enter this code into your app:{" "}
+          {t("security.twoFactor.enrol.secretIntro")}{" "}
           <code className="font-mono text-text-primary">{enrolment.secret}</code>
         </p>
         <form action={submitVerify} className="space-y-3 max-w-xs">
           <label className="block text-sm text-text-secondary">
-            6-digit code
+            {t("security.twoFactor.enrol.codeLabel")}
             <input
               name="code"
               inputMode="numeric"
@@ -144,11 +148,10 @@ export function TwoFactorSection({
     return (
       <section className="space-y-4">
         <h2 className="font-display text-2xl text-text-primary">
-          Two-factor authentication
+          {t("security.twoFactor.title")}
         </h2>
         <p className="text-text-secondary">
-          A second factor on your account means a stolen password isn&apos;t enough
-          to sign in. We recommend using an authenticator app on your phone.
+          {t("security.twoFactor.introDisabled")}
         </p>
         {verifyError && (
           <p className="text-sm text-error" role="alert">
@@ -160,7 +163,7 @@ export function TwoFactorSection({
           disabled={isPending}
           className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
         >
-          {isPending ? "Setting up…" : "Set up authenticator"}
+          {isPending ? t("security.twoFactor.settingUp") : t("security.twoFactor.setUp")}
         </button>
       </section>
     );
@@ -169,10 +172,10 @@ export function TwoFactorSection({
   return (
     <section className="space-y-4">
       <h2 className="font-display text-2xl text-text-primary">
-        Two-factor authentication
+        {t("security.twoFactor.title")}
       </h2>
       <p className="text-text-secondary">
-        Enabled. Sign-in requires a code from your app.
+        {t("security.twoFactor.enabledText")}
       </p>
       {factors.map((f) => (
         <div
@@ -181,10 +184,12 @@ export function TwoFactorSection({
         >
           <div>
             <div className="font-medium text-text-primary">
-              {f.friendlyName ?? "Authenticator"}
+              {f.friendlyName ?? t("security.twoFactor.factorFallback")}
             </div>
             <div className="text-sm text-text-muted">
-              Added {new Date(f.createdAt).toLocaleDateString()}
+              {t("security.twoFactor.added", {
+                date: new Date(f.createdAt).toLocaleDateString(BCP47[locale]),
+              })}
             </div>
           </div>
           <button
@@ -192,7 +197,7 @@ export function TwoFactorSection({
             disabled={isPending}
             className="text-sm text-error hover:underline disabled:opacity-50"
           >
-            Remove
+            {t("security.twoFactor.remove")}
           </button>
         </div>
       ))}

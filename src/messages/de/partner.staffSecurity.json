@@ -1,0 +1,115 @@
+{
+  "staff": {
+    "page": {
+      "title": "Team",
+      "subtitlePrefix": "Personal mit Zugriff auf ",
+      "subtitleSuffix": ".",
+      "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
+    },
+    "roles": {
+      "owner": "Inhaber",
+      "manager": "Manager",
+      "host": "Empfang"
+    },
+    "active": {
+      "title": "Aktives Personal",
+      "colPerson": "Person",
+      "colRole": "Rolle",
+      "colSince": "Seit",
+      "empty": "Noch keine Mitglieder."
+    },
+    "invite": {
+      "title": "Personal einladen",
+      "hint": "Senden Sie eine Einladung per E-Mail. Der Link läuft in 14 Tagen ab.",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "kollege@beispiel.de",
+      "roleLabel": "Rolle",
+      "roleManager": "Manager — verwaltet Reservierungen und Einstellungen",
+      "roleHost": "Empfang — verwaltet tägliche Reservierungen",
+      "submitting": "Wird gesendet…",
+      "submit": "Einladung senden",
+      "success": "Die Einladung wurde gesendet.",
+      "errors": {
+        "auth_required": "Sie müssen angemeldet sein.",
+        "forbidden": "Sie haben keine Berechtigung, Personal einzuladen.",
+        "invalid_input": "Prüfen Sie die E-Mail-Adresse und die Rolle.",
+        "generic": "Die Einladung konnte nicht gesendet werden."
+      }
+    },
+    "pending": {
+      "title": "Ausstehende Einladungen",
+      "colEmail": "E-Mail",
+      "colRole": "Rolle",
+      "colExpires": "Läuft ab",
+      "colActions": "Aktionen"
+    },
+    "rowActions": {
+      "resend": "Erneut senden",
+      "revoke": "Abbrechen",
+      "resent": "Erneut gesendet",
+      "error": "Fehler"
+    }
+  },
+  "security": {
+    "page": {
+      "eyebrow": "Konto",
+      "title": "Sicherheit"
+    },
+    "twoFactor": {
+      "enrol": {
+        "title": "Richten Sie Ihre Authenticator-App ein",
+        "intro": "Scannen Sie diesen QR-Code mit Ihrer Authenticator-App (Google Authenticator, 1Password, Authy usw.) und geben Sie den angezeigten 6-stelligen Code ein.",
+        "secretIntro": "Oder geben Sie diesen Code in Ihre App ein:",
+        "codeLabel": "6-stelliger Code",
+        "verifying": "Wird überprüft…",
+        "verify": "Überprüfen und aktivieren",
+        "errorStart": "Die Einrichtung konnte nicht gestartet werden.",
+        "errorIncorrect": "Falscher Code."
+      },
+      "title": "Zwei-Faktor-Authentifizierung",
+      "introDisabled": "Ein zweiter Faktor für Ihr Konto bedeutet, dass ein gestohlenes Passwort nicht ausreicht, um sich anzumelden. Wir empfehlen die Verwendung einer Authenticator-App auf Ihrem Telefon.",
+      "setUp": "Authenticator einrichten",
+      "settingUp": "Wird eingerichtet…",
+      "enabledText": "Aktiviert. Die Anmeldung erfordert einen Code aus Ihrer App.",
+      "factorFallback": "Authenticator",
+      "added": "Hinzugefügt am {date}",
+      "remove": "Entfernen",
+      "errorRemove": "Der Faktor konnte nicht entfernt werden."
+    },
+    "recovery": {
+      "title": "Wiederherstellungscodes",
+      "intro": "Codes, die Sie an einem sicheren Ort aufbewahren. Jeder davon meldet Sie einmal an, falls Sie Ihren Authenticator verlieren. Die Verwendung eines Wiederherstellungscodes deaktiviert Ihren Authenticator und fordert Sie auf, einen neuen einzurichten.",
+      "remaining": "{remaining} von 10 Codes übrig.",
+      "confirmInvalidate": "Dadurch werden Ihre vorhandenen {remaining} unbenutzten Code(s) ungültig. Fortfahren?",
+      "confirmFresh": "10 neue Wiederherstellungscodes generieren?",
+      "warning": "Diese Codes werden nicht erneut angezeigt. Speichern Sie sie jetzt.",
+      "download": "Als .txt herunterladen",
+      "generating": "Wird generiert…",
+      "generate": "Neue Codes generieren",
+      "errorGenerate": "Die Codes konnten nicht generiert werden."
+    },
+    "password": {
+      "title": "Passwort",
+      "intro": "Wenn Sie Ihr Passwort ändern, werden Sie aus allen Sitzungen auf jedem Gerät abgemeldet.",
+      "currentLabel": "Aktuelles Passwort",
+      "newLabel": "Neues Passwort",
+      "confirmLabel": "Neues Passwort bestätigen",
+      "changing": "Wird geändert…",
+      "change": "Passwort ändern",
+      "errorCodeRequired": "Code ist erforderlich.",
+      "errorNotSignedIn": "Nicht angemeldet.",
+      "errorFactorRequired": "Faktor erforderlich.",
+      "errorCouldNotRemove": "Der Faktor konnte nicht entfernt werden.",
+      "errorMismatch": "Die neuen Passwörter stimmen nicht überein.",
+      "errorTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "errorBreached": "Dieses Passwort ist in einem Datenleck aufgetaucht. Bitte wählen Sie ein anderes."
+    },
+    "sessions": {
+      "title": "Aktive Sitzungen",
+      "intro": "Melden Sie sich von jedem Gerät ab, auf dem Sie angemeldet sind, einschließlich dieses Geräts.",
+      "confirm": "Von jedem Gerät abmelden, einschließlich diesem?",
+      "signingOut": "Wird abgemeldet…",
+      "signOut": "Überall abmelden"
+    }
+  }
+}

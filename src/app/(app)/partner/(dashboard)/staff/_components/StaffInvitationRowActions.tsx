@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 import { revokeVenueInvitationAction, resendVenueInvitationAction } from "../actions";
 
 export function StaffInvitationRowActions({ invitationId }: { invitationId: string }) {
+  const t = useT("partner.staffSecurity");
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState<string | null>(null);
 
@@ -17,12 +19,12 @@ export function StaffInvitationRowActions({ invitationId }: { invitationId: stri
           startTransition(async () => {
             setNote(null);
             const res = await resendVenueInvitationAction(invitationId);
-            setNote(res.ok ? "Retrimisă" : "Eroare");
+            setNote(res.ok ? t("staff.rowActions.resent") : t("staff.rowActions.error"));
           })
         }
         className="text-xs font-semibold text-brand-primary hover:underline disabled:opacity-50"
       >
-        Retrimite
+        {t("staff.rowActions.resend")}
       </button>
       <button
         type="button"
@@ -35,7 +37,7 @@ export function StaffInvitationRowActions({ invitationId }: { invitationId: stri
         }
         className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
       >
-        Anulează
+        {t("staff.rowActions.revoke")}
       </button>
     </div>
   );

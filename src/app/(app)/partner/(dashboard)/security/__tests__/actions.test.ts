@@ -11,6 +11,11 @@ jest.mock("@/lib/db/server", () => ({
 }));
 jest.mock("@/lib/auth/mfa");
 jest.mock("@/lib/auth/password-policy");
+// Localized action error strings resolve via resolveAppLocale → pin to "en" so
+// getMessages returns the EN (verbatim oracle) strings the assertions expect.
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("en"),
+}));
 jest.mock("next/navigation", () => ({
   redirect: jest.fn(() => {
     throw new Error("NEXT_REDIRECT");
