@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { X, Star } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   saveItem,
   type SaveItemPayload,
@@ -19,12 +20,12 @@ export interface EditableItem {
   isAvailable: boolean;
 }
 
-const TAG_OPTIONS: { value: string; label: string; icon?: string }[] = [
-  { value: "vegetarian", label: "Vegetarian", icon: "🥬" },
-  { value: "vegan", label: "Vegan", icon: "🌱" },
-  { value: "gluten_free", label: "Fără gluten", icon: "🌾" },
-  { value: "spicy", label: "Picant", icon: "🌶" },
-  { value: "popular", label: "Popular", icon: "🔥" },
+const TAG_OPTIONS: { value: string; icon?: string }[] = [
+  { value: "vegetarian", icon: "🥬" },
+  { value: "vegan", icon: "🌱" },
+  { value: "gluten_free", icon: "🌾" },
+  { value: "spicy", icon: "🌶" },
+  { value: "popular", icon: "🔥" },
 ];
 
 interface Props {
@@ -41,6 +42,7 @@ function parsePrice(input: string): number {
 }
 
 export function ItemDialog({ open, onClose, onSaved, item }: Props) {
+  const t = useT("partner.menu");
   const [state, setState] = useState<EditableItem>(item);
   const [priceInput, setPriceInput] = useState<string>(
     item.priceLei > 0 ? String(item.priceLei) : "",
@@ -50,12 +52,12 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
 
   if (!open) return null;
 
-  const toggleTag = (t: string) => {
+  const toggleTag = (tag: string) => {
     setState((s) => ({
       ...s,
-      dietaryTags: s.dietaryTags.includes(t)
-        ? s.dietaryTags.filter((x) => x !== t)
-        : [...s.dietaryTags, t],
+      dietaryTags: s.dietaryTags.includes(tag)
+        ? s.dietaryTags.filter((x) => x !== tag)
+        : [...s.dietaryTags, tag],
     }));
   };
 
@@ -67,7 +69,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
       };
       const result = await saveItem(payload);
       if (!result.ok) {
-        setError(result.error ?? "Salvarea a eșuat.");
+        setError(result.error ?? t("itemDialog.genericError"));
       } else {
         setError(null);
         onSaved();
@@ -80,19 +82,19 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Închide"
+        aria-label={t("itemDialog.close")}
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
       <div className="relative bg-surface-white rounded-card shadow-modal max-w-xl w-full max-h-[92vh] overflow-y-auto">
         <header className="px-6 py-5 border-b border-border flex items-center justify-between sticky top-0 bg-surface-white">
           <h2 className="font-display text-xl font-bold">
-            {state.id ? "Editează felul" : "Fel nou"}
+            {state.id ? t("itemDialog.titleEdit") : t("itemDialog.titleNew")}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Închide"
+            aria-label={t("itemDialog.close")}
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
           >
             <X size={18} />
@@ -101,21 +103,21 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
         <div className="px-6 py-5 space-y-5">
           <div className="space-y-1">
             <label className="block text-sm font-medium" htmlFor="item-name">
-              Nume
+              {t("itemDialog.nameLabel")}
             </label>
             <input
               id="item-name"
               type="text"
               value={state.name}
               onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))}
-              placeholder="Spaghetti alla Carbonara"
+              placeholder={t("itemDialog.namePlaceholder")}
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
           <div className="space-y-1">
             <label className="block text-sm font-medium" htmlFor="item-description">
-              Descriere
+              {t("itemDialog.descriptionLabel")}
             </label>
             <textarea
               id="item-description"
@@ -124,7 +126,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                 setState((s) => ({ ...s, description: e.target.value }))
               }
               rows={3}
-              placeholder="Guanciale, pecorino romano, gălbenuș de ou, piper negru."
+              placeholder={t("itemDialog.descriptionPlaceholder")}
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
           </div>
@@ -132,7 +134,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium" htmlFor="item-price">
-                Preț (lei)
+                {t("itemDialog.priceLabel")}
               </label>
               <input
                 id="item-price"
@@ -140,7 +142,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                 inputMode="decimal"
                 value={priceInput}
                 onChange={(e) => setPriceInput(e.target.value)}
-                placeholder="0"
+                placeholder={t("itemDialog.pricePlaceholder")}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
@@ -154,29 +156,29 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                   }
                   className="h-4 w-4 rounded border-border accent-[var(--color-brand-primary)]"
                 />
-                Disponibil în meniu
+                {t("itemDialog.available")}
               </label>
             </div>
           </div>
 
           <div>
-            <p className="text-sm font-medium mb-2">Etichete</p>
+            <p className="text-sm font-medium mb-2">{t("itemDialog.tagsLabel")}</p>
             <div className="flex flex-wrap gap-2">
-              {TAG_OPTIONS.map((t) => {
-                const active = state.dietaryTags.includes(t.value);
+              {TAG_OPTIONS.map((opt) => {
+                const active = state.dietaryTags.includes(opt.value);
                 return (
                   <button
-                    key={t.value}
+                    key={opt.value}
                     type="button"
-                    onClick={() => toggleTag(t.value)}
+                    onClick={() => toggleTag(opt.value)}
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-pill text-xs font-semibold border transition-colors ${
                       active
                         ? "bg-brand-primary-soft text-brand-primary-dark border-brand-primary/30"
                         : "bg-surface-white text-text-secondary border-border hover:bg-surface-bg"
                     }`}
                   >
-                    {t.icon && <span>{t.icon}</span>}
-                    {t.label}
+                    {opt.icon && <span>{opt.icon}</span>}
+                    {t(`itemDialog.tags.${opt.value}`)}
                   </button>
                 );
               })}
@@ -200,7 +202,7 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
                   : "text-text-muted"
               }
             />
-            Recomandarea bucătarului
+            {t("itemDialog.chefPick")}
           </label>
 
           {error && (
@@ -211,10 +213,14 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
         </div>
         <footer className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 sticky bottom-0 bg-surface-white">
           <Button variant="ghost" onClick={onClose} type="button">
-            Anulează
+            {t("itemDialog.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={pending} type="button">
-            {pending ? "Se salvează…" : state.id ? "Salvează modificările" : "Adaugă fel"}
+            {pending
+              ? t("itemDialog.saving")
+              : state.id
+                ? t("itemDialog.saveChanges")
+                : t("itemDialog.addItem")}
           </Button>
         </footer>
       </div>

@@ -44,6 +44,10 @@ import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
 import dePartnerReservations from "@/messages/de/partner.reservations.json";
 
+import roPartnerMenu from "@/messages/ro/partner.menu.json";
+import enPartnerMenu from "@/messages/en/partner.menu.json";
+import dePartnerMenu from "@/messages/de/partner.menu.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -815,6 +819,86 @@ export interface PartnerReservationsMessages {
   };
 }
 
+/** Structural contract for the `partner.menu` namespace. */
+export interface PartnerMenuMessages {
+  page: { title: string; subtitle: string; noRestaurant: string };
+  printQr: { disabledTitle: string; label: string };
+  qr: {
+    title: string;
+    subtitle: string;
+    noCity: string;
+    layoutLabel: string;
+    single: string;
+    sheet: string;
+    print: string;
+  };
+  editor: {
+    emptyTitle: string;
+    emptyBody1: string;
+    addFirstSection: string;
+    addSection: string;
+    addItem: string;
+    collapse: string;
+    expand: string;
+    editSection: string;
+    deleteSection: string;
+    editItem: string;
+    deleteItem: string;
+    unavailable: string;
+    itemCount: PluralBag;
+    price: string;
+    confirmDeleteSection: string;
+    confirmDeleteItem: string;
+  };
+  sectionDialog: {
+    titleNew: string;
+    titleEdit: string;
+    close: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    introLabel: string;
+    introPlaceholder: string;
+    cancel: string;
+    saving: string;
+    create: string;
+    save: string;
+    genericError: string;
+  };
+  itemDialog: {
+    titleNew: string;
+    titleEdit: string;
+    close: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    priceLabel: string;
+    pricePlaceholder: string;
+    available: string;
+    tagsLabel: string;
+    tags: {
+      vegetarian: string;
+      vegan: string;
+      gluten_free: string;
+      spicy: string;
+      popular: string;
+    };
+    chefPick: string;
+    cancel: string;
+    saving: string;
+    saveChanges: string;
+    addItem: string;
+    genericError: string;
+  };
+  errors: {
+    sectionNameRequired: string;
+    chooseSection: string;
+    invalidItemRef: string;
+    nameRequired: string;
+    priceNonNegative: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -867,6 +951,11 @@ const CATALOGS = {
     en: enPartnerReservations,
     de: dePartnerReservations,
   } as Record<Locale, PartnerReservationsMessages>,
+  "partner.menu": {
+    ro: roPartnerMenu,
+    en: enPartnerMenu,
+    de: dePartnerMenu,
+  } as Record<Locale, PartnerMenuMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

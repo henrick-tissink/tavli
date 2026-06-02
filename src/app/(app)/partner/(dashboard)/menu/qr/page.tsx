@@ -3,6 +3,8 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { appOrigin } from "@/lib/app-origin";
 import { MenuQrPreview } from "./MenuQrPreview";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,8 @@ function MissingState({ message }: { message: string }) {
 export default async function PartnerMenuQrPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.menu");
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   const { data: row } = restaurantId
@@ -30,7 +34,7 @@ export default async function PartnerMenuQrPage() {
     : { data: null };
 
   if (!row) {
-    return <MissingState message="Niciun restaurant asociat acestui cont." />;
+    return <MissingState message={m.page.noRestaurant} />;
   }
 
   const cityField = row.cities as { slug: string } | { slug: string }[] | null;
@@ -39,9 +43,7 @@ export default async function PartnerMenuQrPage() {
     : cityField?.slug ?? "";
 
   if (!citySlug) {
-    return (
-      <MissingState message="Restaurantul tău nu este încă asociat unui oraș — contactează echipa de suport ca să rezolvăm asta înainte să tipărești." />
-    );
+    return <MissingState message={m.qr.noCity} />;
   }
 
   const menuUrl = `${appOrigin()}/${citySlug}/${row.slug}/menu`;

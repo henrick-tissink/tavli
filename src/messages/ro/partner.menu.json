@@ -1,0 +1,89 @@
+{
+  "page": {
+    "title": "Meniu",
+    "subtitle": "Secțiuni, feluri, prețuri, etichete dietetice, recomandările bucătarului. Modificările apar imediat pe pagina ta publică.",
+    "noRestaurant": "Niciun restaurant asociat acestui cont."
+  },
+  "printQr": {
+    "disabledTitle": "Adaugă cel puțin un fel de mâncare înainte de a tipări",
+    "label": "Tipărește QR"
+  },
+  "qr": {
+    "title": "Tipărește QR",
+    "subtitle": "Lipește codul tipărit pe mesele tale. Clienții îl scanează pentru a vedea meniul — fără rezervare, fără bătaie de cap.",
+    "noCity": "Restaurantul tău nu este încă asociat unui oraș — contactează echipa de suport ca să rezolvăm asta înainte să tipărești.",
+    "layoutLabel": "Aspect",
+    "single": "Card individual",
+    "sheet": "Coală cu stickere (×12)",
+    "print": "Tipărește"
+  },
+  "editor": {
+    "emptyTitle": "Nicio secțiune încă",
+    "emptyBody1": "Începe cu o secțiune precum „Aperitive” sau „Antipasti”, apoi adaugă feluri în ea.",
+    "addFirstSection": "Adaugă prima secțiune",
+    "addSection": "Adaugă secțiune",
+    "addItem": "Adaugă fel",
+    "collapse": "Restrânge",
+    "expand": "Extinde",
+    "editSection": "Editează secțiunea",
+    "deleteSection": "Șterge secțiunea",
+    "editItem": "Editează felul",
+    "deleteItem": "Șterge felul",
+    "unavailable": "(indisponibil)",
+    "itemCount": {
+      "one": "1 fel",
+      "few": "{count} feluri",
+      "other": "{count} feluri"
+    },
+    "price": "{amount} lei",
+    "confirmDeleteSection": "Ștergi „{name}” și toate felurile din ea?",
+    "confirmDeleteItem": "Ștergi „{name}”?"
+  },
+  "sectionDialog": {
+    "titleNew": "Secțiune nouă",
+    "titleEdit": "Editează secțiunea",
+    "close": "Închide",
+    "nameLabel": "Nume",
+    "namePlaceholder": "Aperitive · Primi · Antipasti",
+    "introLabel": "Intro (opțional)",
+    "introPlaceholder": "Porții mici de împărțit cât timp se gătesc primi.",
+    "cancel": "Anulează",
+    "saving": "Se salvează…",
+    "create": "Creează",
+    "save": "Salvează",
+    "genericError": "A eșuat."
+  },
+  "itemDialog": {
+    "titleNew": "Fel nou",
+    "titleEdit": "Editează felul",
+    "close": "Închide",
+    "nameLabel": "Nume",
+    "namePlaceholder": "Spaghetti alla Carbonara",
+    "descriptionLabel": "Descriere",
+    "descriptionPlaceholder": "Guanciale, pecorino romano, gălbenuș de ou, piper negru.",
+    "priceLabel": "Preț (lei)",
+    "pricePlaceholder": "0",
+    "available": "Disponibil în meniu",
+    "tagsLabel": "Etichete",
+    "tags": {
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "gluten_free": "Fără gluten",
+      "spicy": "Picant",
+      "popular": "Popular"
+    },
+    "chefPick": "Recomandarea bucătarului",
+    "cancel": "Anulează",
+    "saving": "Se salvează…",
+    "saveChanges": "Salvează modificările",
+    "addItem": "Adaugă fel",
+    "genericError": "Salvarea a eșuat."
+  },
+  "errors": {
+    "sectionNameRequired": "Numele secțiunii este obligatoriu.",
+    "chooseSection": "Alege o secțiune înainte de a salva.",
+    "invalidItemRef": "Referință invalidă pentru fel. Reîncarcă pagina.",
+    "nameRequired": "Numele este obligatoriu.",
+    "priceNonNegative": "Prețul trebuie să fie ≥ 0."
+  }
+}
