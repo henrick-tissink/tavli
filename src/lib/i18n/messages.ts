@@ -1974,7 +1974,6 @@ export interface PartnerOnboardingMessages {
         menu: string;
         review: string;
       };
-      contactEmail: string;
     };
     landing: {
       eyebrow: string;
