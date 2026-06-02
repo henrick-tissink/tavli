@@ -15,6 +15,7 @@
     "viewMenu": "View menu →",
     "viewMenuLabel": "View menu",
     "viewMenuFull": "full menu",
+    "pickBadge": "Pick #{n}",
     "viewMenuRecommendations": {
       "one": "{count} recommendation",
       "few": "{count} recommendations",

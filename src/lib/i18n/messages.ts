@@ -133,6 +133,7 @@ export interface RestaurantMessages {
     viewMenu: string;
     viewMenuLabel: string;
     viewMenuFull: string;
+    pickBadge: string;
     viewMenuRecommendations: { one: string; few: string; other: string };
     reviewsTitle: string;
     reviewsSubtitle: string;
@@ -165,6 +166,9 @@ export interface RestaurantMessages {
 
 /** Structural contract for the `menu` namespace. */
 export interface MenuMessages {
+  meta: {
+    title: string;
+  };
   viewer: {
     backAriaLabel: string;
     menuLabel: string;

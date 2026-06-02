@@ -15,6 +15,7 @@
     "viewMenu": "Vezi meniul →",
     "viewMenuLabel": "Vezi meniul",
     "viewMenuFull": "complet",
+    "pickBadge": "Pick #{n}",
     "viewMenuRecommendations": {
       "one": "{count} recomandare",
       "few": "{count} recomandări",

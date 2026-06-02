@@ -1,4 +1,7 @@
 {
+  "meta": {
+    "title": "Menu — {name}"
+  },
   "viewer": {
     "backAriaLabel": "Back",
     "menuLabel": "Menu",

@@ -1,4 +1,7 @@
 {
+  "meta": {
+    "title": "Meniu — {name}"
+  },
   "viewer": {
     "backAriaLabel": "Înapoi",
     "menuLabel": "Meniu",

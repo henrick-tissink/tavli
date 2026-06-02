@@ -9,7 +9,8 @@ import {
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
 import { isLocale } from "@/lib/i18n/locale";
-import { buildBundle } from "@/lib/i18n/messages";
+import { buildBundle, getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { MenuPageClient } from "./MenuPageClient";
 
@@ -22,8 +23,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, city, slug } = await params;
   const restaurant = await getRestaurantBySlug(slug);
+  const m = getMessages(lang, "menu");
+  const titleTemplate = m.meta.title;
+  const title = restaurant
+    ? `${interpolate(titleTemplate, { name: restaurant.name })} | Tavli`
+    : `${titleTemplate.replace(/ — \{name\}/, "")} | Tavli`;
   return {
-    title: restaurant ? `Meniu — ${restaurant.name} | Tavli` : "Meniu | Tavli",
+    title,
     robots: { index: false, follow: false },
     alternates: buildAlternates(`/${city}/${slug}/menu`, isLocale(lang) ? lang : "ro", getSiteUrl()),
   };

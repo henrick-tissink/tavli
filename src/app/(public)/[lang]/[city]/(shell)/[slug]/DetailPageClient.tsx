@@ -188,7 +188,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 />
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
                   {restaurant.chefPicks.map((item, idx) => (
-                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} />
+                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} t={t} />
                   ))}
                 </div>
               </section>
@@ -510,7 +510,7 @@ function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
   );
 }
 
-function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: string; index: number }) {
+function ChefPickCard({ item, menuHref, index, t }: { item: MenuItem; menuHref: string; index: number; t: (key: string, vars?: Vars) => string }) {
   return (
     <Link
       href={menuHref}
@@ -527,7 +527,7 @@ function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: str
           />
           {index < 3 && (
             <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
-              Pick #{index + 1}
+              {t("detail.pickBadge", { n: index + 1 })}
             </span>
           )}
         </div>
@@ -536,7 +536,7 @@ function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: str
           <Star size={24} className="text-text-muted" />
           {index < 3 && (
             <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
-              Pick #{index + 1}
+              {t("detail.pickBadge", { n: index + 1 })}
             </span>
           )}
         </div>

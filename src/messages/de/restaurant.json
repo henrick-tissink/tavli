@@ -14,7 +14,8 @@
     "chefPicksSubtitle": "Gerichte, die Sie hier probieren können.",
     "viewMenu": "Speisekarte ansehen →",
     "viewMenuLabel": "Speisekarte ansehen",
-    "viewMenuFull": "vollständig",
+    "viewMenuFull": "vollständige Speisekarte",
+    "pickBadge": "Auswahl #{n}",
     "viewMenuRecommendations": {
       "one": "{count} Empfehlung",
       "few": "{count} Empfehlungen",
