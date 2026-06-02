@@ -41,5 +41,13 @@
       "quote_declined": "Angebot abgelehnt",
       "event_request_cancelled": "Anfrage storniert"
     }
+  },
+  "errors": {
+    "notAuthenticated": "Sie sind nicht angemeldet.",
+    "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
+  },
+  "dateFormat": {
+    "weekdaysShort": "So,Mo,Di,Mi,Do,Fr,Sa",
+    "monthsShort": "Jan,Feb,Mär,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez"
   }
 }

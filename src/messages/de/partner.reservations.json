@@ -1,0 +1,72 @@
+{
+  "page": {
+    "title": "Reservierungen",
+    "subtitle": "Bestätigen Sie platzierte Gäste, markieren Sie Nichterscheinen oder stornieren Sie Reservierungen. Gäste erhalten bei einer Stornierung eine E-Mail.",
+    "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
+  },
+  "tabs": {
+    "today": "Heute",
+    "upcoming": "Bevorstehend",
+    "past": "Vergangen"
+  },
+  "status": {
+    "confirmed": "Bestätigt",
+    "seated": "Platziert",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert",
+    "no_show": "Nichterscheinen"
+  },
+  "table": {
+    "when": "Wann",
+    "client": "Gast",
+    "party": "Gäste",
+    "zone": "Bereich",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "empty": {
+    "today": "Heute keine Reservierungen",
+    "upcoming": "Keine bevorstehenden Reservierungen",
+    "past": "Noch keine vergangenen Reservierungen",
+    "pastHint": "Abgeschlossene und stornierte Reservierungen erscheinen hier nach ihrem Datum.",
+    "defaultHint": "Gäste, die über Ihre öffentliche Seite buchen, erscheinen hier sofort."
+  },
+  "actions": {
+    "seat": "Platzieren",
+    "noShow": "Nichterscheinen",
+    "cancel": "Stornieren",
+    "complete": "Abschließen"
+  },
+  "toast": {
+    "seated": "Als platziert markiert.",
+    "noShow": "Als Nichterscheinen markiert.",
+    "completed": "Als abgeschlossen markiert.",
+    "updateFailed": "Die Reservierung konnte nicht aktualisiert werden."
+  },
+  "cancel": {
+    "title": "Reservierung stornieren",
+    "summaryParty": "Gruppe von {count}",
+    "reasonsTitle": "Warum stornieren Sie?",
+    "reasons": {
+      "restaurant_closed": "Restaurant unerwartet geschlossen",
+      "overbooked": "Überbucht — keine Tische mehr frei",
+      "kitchen_issue": "Problem in der Küche / Ausfall",
+      "private_event": "Für eine private Veranstaltung reserviert",
+      "other": "Sonstiges"
+    },
+    "reasonsHint": "Der Gast sieht eine freundliche Version dieses Grundes in der erhaltenen E-Mail.",
+    "keep": "Reservierung behalten",
+    "submitPending": "Wird storniert…",
+    "submit": "Reservierung stornieren",
+    "toastCancelled": "Die Reservierung wurde storniert.",
+    "toastCancelledNoEmail": "Storniert — die E-Mail an den Gast konnte nicht gesendet werden.",
+    "cancelFailed": "Die Reservierung konnte nicht storniert werden."
+  },
+  "errors": {
+    "noPermissionAction": "Sie haben keine Berechtigung für diese Aktion.",
+    "invalidReason": "Ungültiger Grund.",
+    "noPermissionCancel": "Sie haben keine Berechtigung, Reservierungen zu stornieren.",
+    "notFound": "Reservierung nicht gefunden.",
+    "onlyConfirmed": "Nur bestätigte Reservierungen können storniert werden."
+  }
+}

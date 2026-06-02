@@ -1,0 +1,72 @@
+{
+  "page": {
+    "title": "Reservations",
+    "subtitle": "Confirm seated guests, mark no-shows, or cancel reservations. Guests receive an email when you cancel.",
+    "noRestaurant": "No restaurant linked to this account."
+  },
+  "tabs": {
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "past": "Past"
+  },
+  "status": {
+    "confirmed": "Confirmed",
+    "seated": "Seated",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "no_show": "No-show"
+  },
+  "table": {
+    "when": "When",
+    "client": "Guest",
+    "party": "Guests",
+    "zone": "Zone",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "empty": {
+    "today": "No reservations today",
+    "upcoming": "No upcoming reservations",
+    "past": "No past reservations yet",
+    "pastHint": "Completed and cancelled reservations appear here after their date.",
+    "defaultHint": "Guests who book through your public page will appear here straight away."
+  },
+  "actions": {
+    "seat": "Seat",
+    "noShow": "No-show",
+    "cancel": "Cancel",
+    "complete": "Complete"
+  },
+  "toast": {
+    "seated": "Marked as seated.",
+    "noShow": "Marked as no-show.",
+    "completed": "Marked as completed.",
+    "updateFailed": "The reservation could not be updated."
+  },
+  "cancel": {
+    "title": "Cancel reservation",
+    "summaryParty": "party of {count}",
+    "reasonsTitle": "Why are you cancelling?",
+    "reasons": {
+      "restaurant_closed": "Restaurant closed unexpectedly",
+      "overbooked": "Overbooked — no tables left",
+      "kitchen_issue": "Kitchen problem / breakdown",
+      "private_event": "Booked for a private event",
+      "other": "Other"
+    },
+    "reasonsHint": "The guest will see a friendly version of this reason in the email they receive.",
+    "keep": "Keep reservation",
+    "submitPending": "Cancelling…",
+    "submit": "Cancel reservation",
+    "toastCancelled": "The reservation has been cancelled.",
+    "toastCancelledNoEmail": "Cancelled — the email to the guest could not be sent.",
+    "cancelFailed": "The reservation could not be cancelled."
+  },
+  "errors": {
+    "noPermissionAction": "You do not have permission for this action.",
+    "invalidReason": "Invalid reason.",
+    "noPermissionCancel": "You do not have permission to cancel reservations.",
+    "notFound": "Reservation not found.",
+    "onlyConfirmed": "Only confirmed reservations can be cancelled."
+  }
+}

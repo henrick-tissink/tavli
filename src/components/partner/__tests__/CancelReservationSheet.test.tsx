@@ -1,5 +1,19 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CancelReservationSheet } from "../CancelReservationSheet";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roReservations from "@/messages/ro/partner.reservations.json";
+import roCommon from "@/messages/ro/partner.common.json";
+
+function renderSheet(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider
+      locale="ro"
+      bundle={{ "partner.reservations": roReservations, "partner.common": roCommon }}
+    >
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: jest.fn() }),
@@ -30,7 +44,7 @@ describe("CancelReservationSheet", () => {
   });
 
   test("renders nothing when closed", () => {
-    const { container } = render(
+    const { container } = renderSheet(
       <CancelReservationSheet
         open={false}
         onClose={() => {}}
@@ -41,7 +55,7 @@ describe("CancelReservationSheet", () => {
   });
 
   test("when open, shows the reservation summary", () => {
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={() => {}} reservation={reservation} />,
     );
     expect(screen.getByText(/Maria/)).toBeInTheDocument();
@@ -50,7 +64,7 @@ describe("CancelReservationSheet", () => {
   });
 
   test("submit button is disabled until a reason pill is selected", () => {
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={() => {}} reservation={reservation} />,
     );
     const submit = screen.getByRole("button", { name: /^anulează rezervarea$/i });
@@ -66,7 +80,7 @@ describe("CancelReservationSheet", () => {
       emailSent: true,
     });
     const onClose = jest.fn();
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
     fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
@@ -86,7 +100,7 @@ describe("CancelReservationSheet", () => {
       ok: true,
       emailSent: false,
     });
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={() => {}} reservation={reservation} />,
     );
     fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
@@ -105,7 +119,7 @@ describe("CancelReservationSheet", () => {
       error: "Reservation not found.",
     });
     const onClose = jest.fn();
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
     fireEvent.click(screen.getByRole("button", { name: /suprarezervare/i }));
@@ -119,7 +133,7 @@ describe("CancelReservationSheet", () => {
 
   test("Keep reservation closes the sheet without firing the action", () => {
     const onClose = jest.fn();
-    render(
+    renderSheet(
       <CancelReservationSheet open onClose={onClose} reservation={reservation} />,
     );
     fireEvent.click(screen.getByRole("button", { name: /păstrează rezervarea/i }));

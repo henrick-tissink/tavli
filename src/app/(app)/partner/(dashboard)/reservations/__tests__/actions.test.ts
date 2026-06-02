@@ -25,6 +25,12 @@ jest.mock("next/cache", () => ({
 jest.mock("@/lib/auth/session", () => ({
   getCurrentSession: jest.fn(),
 }));
+// resolveAppLocale reads next/headers cookies(), which has no request store in
+// this node-env unit suite. Pin it to "ro" so getMessages returns the (verbatim)
+// Romanian error strings these tests assert against.
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("ro"),
+}));
 jest.mock("@/lib/restaurants/current-user", () => ({
   currentUserPrimaryRestaurant: jest.fn(),
 }));

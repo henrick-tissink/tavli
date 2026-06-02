@@ -3,6 +3,20 @@ import {
   ReservationsList,
   type ReservationRow,
 } from "../ReservationsList";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roReservations from "@/messages/ro/partner.reservations.json";
+import roCommon from "@/messages/ro/partner.common.json";
+
+function renderList(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider
+      locale="ro"
+      bundle={{ "partner.reservations": roReservations, "partner.common": roCommon }}
+    >
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: jest.fn() }),
@@ -36,7 +50,7 @@ function row(overrides: Partial<ReservationRow>): ReservationRow {
 
 describe("ReservationsList", () => {
   test("confirmed row shows Așază la masă, Neprezentat, Anulează — no Finalizează", () => {
-    render(
+    renderList(
       <ReservationsList
         today={[row({ id: "r1", status: "confirmed" })]}
         upcoming={[]}
@@ -52,7 +66,7 @@ describe("ReservationsList", () => {
   });
 
   test("seated row shows Finalizează + Neprezentat but NOT Anulează", () => {
-    render(
+    renderList(
       <ReservationsList
         today={[row({ id: "r2", status: "seated" })]}
         upcoming={[]}
@@ -67,7 +81,7 @@ describe("ReservationsList", () => {
   });
 
   test("cancelled / completed / no_show rows show no actions", () => {
-    render(
+    renderList(
       <ReservationsList
         today={[]}
         upcoming={[]}
@@ -88,7 +102,7 @@ describe("ReservationsList", () => {
   });
 
   test("clicking Cancel on a confirmed row opens the cancel sheet with that reservation", () => {
-    render(
+    renderList(
       <ReservationsList
         today={[row({ id: "r6", guestName: "Maria", status: "confirmed" })]}
         upcoming={[]}

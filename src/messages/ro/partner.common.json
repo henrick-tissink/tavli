@@ -41,5 +41,13 @@
       "quote_declined": "Ofertă refuzată",
       "event_request_cancelled": "Cerere anulată"
     }
+  },
+  "errors": {
+    "notAuthenticated": "Nu ești autentificat.",
+    "noRestaurant": "Niciun restaurant asociat."
+  },
+  "dateFormat": {
+    "weekdaysShort": "Dum,Lun,Mar,Mie,Joi,Vin,Sâm",
+    "monthsShort": "ian,feb,mar,apr,mai,iun,iul,aug,sep,oct,noi,dec"
   }
 }
