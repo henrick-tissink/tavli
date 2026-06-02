@@ -1,12 +1,26 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ItemDialog, type EditableItem } from "../ItemDialog";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roMenu from "@/messages/ro/partner.menu.json";
+import roCommon from "@/messages/ro/partner.common.json";
 
 jest.mock("@/app/(app)/partner/(dashboard)/menu/actions", () => ({
   saveItem: jest.fn(async (payload) => ({ ok: true, payload })),
 }));
 
 import { saveItem } from "@/app/(app)/partner/(dashboard)/menu/actions";
+
+function renderDialog(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider
+      locale="ro"
+      bundle={{ "partner.menu": roMenu, "partner.common": roCommon }}
+    >
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 function blankItem(overrides: Partial<EditableItem> = {}): EditableItem {
   return {
@@ -27,7 +41,7 @@ describe("ItemDialog price input", () => {
   });
 
   it("price input uses inputMode=decimal (not type=number)", () => {
-    render(
+    renderDialog(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
@@ -35,7 +49,7 @@ describe("ItemDialog price input", () => {
   });
 
   it("starts empty when initial price is 0 (no stuck '0')", () => {
-    render(
+    renderDialog(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
@@ -44,7 +58,7 @@ describe("ItemDialog price input", () => {
 
   it("typing 1 then 5 yields '15'", async () => {
     const user = userEvent.setup();
-    render(
+    renderDialog(
       <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
@@ -54,7 +68,7 @@ describe("ItemDialog price input", () => {
 
   it("clearing field saves priceLei = 0", async () => {
     const user = userEvent.setup();
-    render(
+    renderDialog(
       <ItemDialog
         open
         onClose={jest.fn()}
@@ -70,7 +84,7 @@ describe("ItemDialog price input", () => {
 
   it("typing '1.5' saves priceLei = 1.5", async () => {
     const user = userEvent.setup();
-    render(
+    renderDialog(
       <ItemDialog
         open
         onClose={jest.fn()}
@@ -86,7 +100,7 @@ describe("ItemDialog price input", () => {
 
   it("typing '1,5' (Romanian comma) saves priceLei = 1.5", async () => {
     const user = userEvent.setup();
-    render(
+    renderDialog(
       <ItemDialog
         open
         onClose={jest.fn()}

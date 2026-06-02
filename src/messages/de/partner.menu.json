@@ -1,0 +1,89 @@
+{
+  "page": {
+    "title": "Speisekarte",
+    "subtitle": "Bereiche, Gerichte, Preise, Ernährungshinweise, Empfehlungen des Küchenchefs. Änderungen erscheinen sofort auf Ihrer öffentlichen Seite.",
+    "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
+  },
+  "printQr": {
+    "disabledTitle": "Fügen Sie mindestens ein Gericht hinzu, bevor Sie drucken",
+    "label": "QR drucken"
+  },
+  "qr": {
+    "title": "QR drucken",
+    "subtitle": "Kleben Sie den gedruckten Code auf Ihre Tische. Gäste scannen ihn, um die Speisekarte anzusehen — ohne Reservierung, ohne Aufwand.",
+    "noCity": "Ihr Restaurant ist noch keiner Stadt zugeordnet — wenden Sie sich an das Support-Team, damit wir das vor dem Drucken klären können.",
+    "layoutLabel": "Layout",
+    "single": "Einzelkarte",
+    "sheet": "Aufkleberbogen (×12)",
+    "print": "Drucken"
+  },
+  "editor": {
+    "emptyTitle": "Noch keine Bereiche",
+    "emptyBody1": "Beginnen Sie mit einem Bereich wie „Vorspeisen“ oder „Antipasti“ und fügen Sie dann Gerichte hinzu.",
+    "addFirstSection": "Ersten Bereich hinzufügen",
+    "addSection": "Bereich hinzufügen",
+    "addItem": "Gericht hinzufügen",
+    "collapse": "Einklappen",
+    "expand": "Ausklappen",
+    "editSection": "Bereich bearbeiten",
+    "deleteSection": "Bereich löschen",
+    "editItem": "Gericht bearbeiten",
+    "deleteItem": "Gericht löschen",
+    "unavailable": "(nicht verfügbar)",
+    "itemCount": {
+      "one": "1 Gericht",
+      "few": "{count} Gerichte",
+      "other": "{count} Gerichte"
+    },
+    "price": "{amount} Lei",
+    "confirmDeleteSection": "„{name}“ und alle darin enthaltenen Gerichte löschen?",
+    "confirmDeleteItem": "„{name}“ löschen?"
+  },
+  "sectionDialog": {
+    "titleNew": "Neuer Bereich",
+    "titleEdit": "Bereich bearbeiten",
+    "close": "Schließen",
+    "nameLabel": "Name",
+    "namePlaceholder": "Vorspeisen · Primi · Antipasti",
+    "introLabel": "Einleitung (optional)",
+    "introPlaceholder": "Kleine Portionen zum Teilen, während die Primi zubereitet werden.",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "genericError": "Fehlgeschlagen."
+  },
+  "itemDialog": {
+    "titleNew": "Neues Gericht",
+    "titleEdit": "Gericht bearbeiten",
+    "close": "Schließen",
+    "nameLabel": "Name",
+    "namePlaceholder": "Spaghetti alla Carbonara",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Guanciale, Pecorino Romano, Eigelb, schwarzer Pfeffer.",
+    "priceLabel": "Preis (Lei)",
+    "pricePlaceholder": "0",
+    "available": "In der Speisekarte verfügbar",
+    "tagsLabel": "Hinweise",
+    "tags": {
+      "vegetarian": "Vegetarisch",
+      "vegan": "Vegan",
+      "gluten_free": "Glutenfrei",
+      "spicy": "Scharf",
+      "popular": "Beliebt"
+    },
+    "chefPick": "Empfehlung des Küchenchefs",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "saveChanges": "Änderungen speichern",
+    "addItem": "Gericht hinzufügen",
+    "genericError": "Speichern fehlgeschlagen."
+  },
+  "errors": {
+    "sectionNameRequired": "Der Name des Bereichs ist erforderlich.",
+    "chooseSection": "Wählen Sie einen Bereich, bevor Sie speichern.",
+    "invalidItemRef": "Ungültige Gericht-Referenz. Laden Sie die Seite neu.",
+    "nameRequired": "Der Name ist erforderlich.",
+    "priceNonNegative": "Der Preis muss ≥ 0 sein."
+  }
+}

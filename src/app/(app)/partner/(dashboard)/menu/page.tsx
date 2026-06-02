@@ -6,12 +6,16 @@ import {
 } from "@/components/partner/MenuEditor";
 import { PrintQrButton } from "./PrintQrButton";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
 export default async function PartnerMenuPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.menu");
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   if (!restaurantId) {
@@ -19,7 +23,7 @@ export default async function PartnerMenuPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            Niciun restaurant asociat acestui cont.
+            {m.page.noRestaurant}
           </p>
         </div>
       </div>
@@ -64,11 +68,10 @@ export default async function PartnerMenuPage() {
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-            Meniu
+            {m.page.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Secțiuni, feluri, prețuri, etichete dietetice, recomandările
-            bucătarului. Modificările apar imediat pe pagina ta publică.
+            {m.page.subtitle}
           </p>
         </div>
         <PrintQrButton menuItemCount={(itemsRaw ?? []).length} />

@@ -16,6 +16,9 @@ jest.mock("@/lib/auth/session", () => ({
 jest.mock("@/lib/restaurants/current-user", () => ({
   currentUserPrimaryRestaurant: jest.fn(),
 }));
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("ro"),
+}));
 
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";

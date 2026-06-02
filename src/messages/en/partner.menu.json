@@ -1,0 +1,89 @@
+{
+  "page": {
+    "title": "Menu",
+    "subtitle": "Sections, dishes, prices, dietary tags, chef's picks. Changes show up on your public page straight away.",
+    "noRestaurant": "No restaurant linked to this account."
+  },
+  "printQr": {
+    "disabledTitle": "Add at least one dish before printing",
+    "label": "Print QR"
+  },
+  "qr": {
+    "title": "Print QR",
+    "subtitle": "Stick the printed code on your tables. Guests scan it to view the menu — no booking, no fuss.",
+    "noCity": "Your restaurant isn't linked to a city yet — contact the support team so we can sort this out before you print.",
+    "layoutLabel": "Layout",
+    "single": "Single card",
+    "sheet": "Sticker sheet (×12)",
+    "print": "Print"
+  },
+  "editor": {
+    "emptyTitle": "No sections yet",
+    "emptyBody1": "Start with a section such as “Starters” or “Antipasti”, then add dishes to it.",
+    "addFirstSection": "Add your first section",
+    "addSection": "Add section",
+    "addItem": "Add dish",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "editSection": "Edit section",
+    "deleteSection": "Delete section",
+    "editItem": "Edit dish",
+    "deleteItem": "Delete dish",
+    "unavailable": "(unavailable)",
+    "itemCount": {
+      "one": "1 dish",
+      "few": "{count} dishes",
+      "other": "{count} dishes"
+    },
+    "price": "{amount} lei",
+    "confirmDeleteSection": "Delete “{name}” and all the dishes in it?",
+    "confirmDeleteItem": "Delete “{name}”?"
+  },
+  "sectionDialog": {
+    "titleNew": "New section",
+    "titleEdit": "Edit section",
+    "close": "Close",
+    "nameLabel": "Name",
+    "namePlaceholder": "Starters · Primi · Antipasti",
+    "introLabel": "Intro (optional)",
+    "introPlaceholder": "Small plates to share while the primi are cooking.",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "create": "Create",
+    "save": "Save",
+    "genericError": "Failed."
+  },
+  "itemDialog": {
+    "titleNew": "New dish",
+    "titleEdit": "Edit dish",
+    "close": "Close",
+    "nameLabel": "Name",
+    "namePlaceholder": "Spaghetti alla Carbonara",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Guanciale, pecorino romano, egg yolk, black pepper.",
+    "priceLabel": "Price (lei)",
+    "pricePlaceholder": "0",
+    "available": "Available on the menu",
+    "tagsLabel": "Tags",
+    "tags": {
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "gluten_free": "Gluten-free",
+      "spicy": "Spicy",
+      "popular": "Popular"
+    },
+    "chefPick": "Chef's pick",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "addItem": "Add dish",
+    "genericError": "Saving failed."
+  },
+  "errors": {
+    "sectionNameRequired": "Section name is required.",
+    "chooseSection": "Choose a section before saving.",
+    "invalidItemRef": "Invalid dish reference. Reload the page.",
+    "nameRequired": "Name is required.",
+    "priceNonNegative": "Price must be ≥ 0."
+  }
+}
