@@ -88,6 +88,14 @@ import roPartnerOnboarding from "@/messages/ro/partner.onboarding.json";
 import enPartnerOnboarding from "@/messages/en/partner.onboarding.json";
 import dePartnerOnboarding from "@/messages/de/partner.onboarding.json";
 
+import roPartnerDashboard from "@/messages/ro/partner.dashboard.json";
+import enPartnerDashboard from "@/messages/en/partner.dashboard.json";
+import dePartnerDashboard from "@/messages/de/partner.dashboard.json";
+
+import roPartnerReviews from "@/messages/ro/partner.reviews.json";
+import enPartnerReviews from "@/messages/en/partner.reviews.json";
+import dePartnerReviews from "@/messages/de/partner.reviews.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -822,6 +830,10 @@ export interface PartnerCommonMessages {
     weekdaysFull: string;
     copyFirstOpen: string;
     open: string;
+  };
+  /** Sidebar venue picker (shell component). */
+  venueSwitcher: {
+    orgDashboard: string;
   };
 }
 
@@ -2099,6 +2111,81 @@ export interface PartnerOnboardingMessages {
   };
 }
 
+/** Structural contract for the `partner.dashboard` namespace (overview home). */
+export interface PartnerDashboardMessages {
+  noRestaurant: { title: string; body: string };
+  greeting: { morning: string; day: string; evening: string; night: string };
+  header: { statusLabel: string; live: string };
+  justPublished: { title: string; body: string };
+  stats: {
+    viewsLabel: string;
+    viewsHint: string;
+    savesLabel: string;
+    savesHint: string;
+    reservationsLabel: string;
+    reservationsHint: string;
+  };
+  cta: {
+    previewTitle: string;
+    previewBody: string;
+    menuTitle: string;
+    menuBody: string;
+  };
+  checklist: {
+    title: string;
+    progress: string;
+    profileLabel: string;
+    profileHint: string;
+    heroLabel: string;
+    heroHint: string;
+    galleryLabel: string;
+    galleryHint: string;
+    heroNoteLabel: string;
+    heroNoteHint: string;
+    menuLabel: string;
+    menuHint: string;
+    menuHintSections: PluralBag;
+    menuHintItems: PluralBag;
+    scheduleLabel: string;
+    scheduleHint: string;
+    availabilityLabel: string;
+    availabilityHint: string;
+  };
+}
+
+/** Structural contract for the `partner.reviews` namespace. */
+export interface PartnerReviewsMessages {
+  page: {
+    eyebrow: string;
+    title: string;
+    summary: string;
+    summaryCount: PluralBag;
+    summaryEmpty: string;
+    starsAriaLabel: string;
+    empty: string;
+  };
+  report: {
+    trigger: string;
+    sheetTitle: string;
+    intro: string;
+    reasonAriaLabel: string;
+    reasonPlaceholder: string;
+    reasons: {
+      inappropriate: string;
+      fake: string;
+      spam: string;
+      off_topic: string;
+      personal_attack: string;
+      gdpr_takedown: string;
+    };
+    detailsPlaceholder: string;
+    submit: string;
+    toastSuccess: string;
+    toastError: string;
+  };
+  actions: { respondFailed: string };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -2206,6 +2293,16 @@ const CATALOGS = {
     en: enPartnerOnboarding,
     de: dePartnerOnboarding,
   } as Record<Locale, PartnerOnboardingMessages>,
+  "partner.dashboard": {
+    ro: roPartnerDashboard,
+    en: enPartnerDashboard,
+    de: dePartnerDashboard,
+  } as Record<Locale, PartnerDashboardMessages>,
+  "partner.reviews": {
+    ro: roPartnerReviews,
+    en: enPartnerReviews,
+    de: dePartnerReviews,
+  } as Record<Locale, PartnerReviewsMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

@@ -8,17 +8,14 @@ import {
   type ChecklistItem,
 } from "@/components/partner/ContentHealthChecklist";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
 
 export const dynamic = "force-dynamic";
 
-const HELLO_BY_HOUR = (h: number) =>
-  h < 5
-    ? "Bună noaptea"
-    : h < 12
-      ? "Bună dimineața"
-      : h < 18
-        ? "Bună ziua"
-        : "Bună seara";
+const greetingKey = (h: number): "morning" | "day" | "evening" | "night" =>
+  h < 5 ? "night" : h < 12 ? "morning" : h < 18 ? "day" : "evening";
 
 export default async function PartnerDashboardPage({
   searchParams,
@@ -28,6 +25,8 @@ export default async function PartnerDashboardPage({
   const { justPublished } = await searchParams;
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.dashboard");
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   const { data: restaurant } = restaurantId
@@ -44,10 +43,9 @@ export default async function PartnerDashboardPage({
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
-          <p className="font-semibold text-text-primary">Niciun restaurant încă</p>
+          <p className="font-semibold text-text-primary">{m.noRestaurant.title}</p>
           <p className="text-sm text-text-secondary mt-2">
-            Contul tău de partener nu este asociat unui restaurant.
-            Contactează echipa Tavli.
+            {m.noRestaurant.body}
           </p>
         </div>
       </div>
@@ -85,56 +83,66 @@ export default async function PartnerDashboardPage({
       .eq("restaurant_id", restaurant.id),
   ]);
 
+  const sectionCount = menuSectionsData?.length ?? 0;
+  const itemCount = menuItemsData?.length ?? 0;
+
   const checklist: ChecklistItem[] = [
     {
-      label: "Profil complet",
+      label: m.checklist.profileLabel,
       done:
         !!restaurant.name &&
         Array.isArray(restaurant.cuisines) &&
         restaurant.cuisines.length > 0 &&
         restaurant.name !== "New Restaurant",
-      hint: "Nume, bucătării, adresă, descriere scurtă",
+      hint: m.checklist.profileHint,
       href: "/partner/profile",
     },
     {
-      label: "Fotografie principală încărcată",
+      label: m.checklist.heroLabel,
       done: (heroCount ?? 0) > 0,
-      hint: "Prima imagine pe care o văd clienții",
+      hint: m.checklist.heroHint,
       href: "/partner/photos",
     },
     {
-      label: "Cel puțin 3 fotografii în galerie",
+      label: m.checklist.galleryLabel,
       done: (galleryCount ?? 0) >= 3,
-      hint: "Interior, feluri de semnătură, atmosferă",
+      hint: m.checklist.galleryHint,
       href: "/partner/photos",
     },
     {
-      label: "Notă pe meniu setată",
+      label: m.checklist.heroNoteLabel,
       done: !!restaurant.hero_note,
-      hint: "Vocea restaurantului pe pagina de meniu",
+      hint: m.checklist.heroNoteHint,
       href: "/partner/profile",
     },
     {
-      label: "Meniul are cel puțin 6 feluri",
-      done: (menuItemsData?.length ?? 0) >= 6,
-      hint: `În prezent ${menuSectionsData?.length ?? 0} secțiuni, ${menuItemsData?.length ?? 0} ${(menuItemsData?.length ?? 0) === 1 ? "fel" : "feluri"}`,
+      label: m.checklist.menuLabel,
+      done: itemCount >= 6,
+      hint: interpolate(m.checklist.menuHint, {
+        sections: translate(locale, m.checklist.menuHintSections, {
+          count: sectionCount,
+        }),
+        items: translate(locale, m.checklist.menuHintItems, {
+          count: itemCount,
+        }),
+      }),
       href: "/partner/menu",
     },
     {
-      label: "Program configurat",
+      label: m.checklist.scheduleLabel,
       done: Array.isArray(restaurant.schedule) && restaurant.schedule.length > 0,
-      hint: "Programul tău săptămânal",
+      hint: m.checklist.scheduleHint,
       href: "/partner/hours",
     },
     {
-      label: "Disponibilitate (rezervări) setată",
+      label: m.checklist.availabilityLabel,
       done: (availabilityCount ?? 0) > 0,
-      hint: "Câți clienți pe interval",
+      hint: m.checklist.availabilityHint,
       href: "/partner/reservations",
     },
   ];
 
-  const greeting = HELLO_BY_HOUR(new Date().getHours());
+  const greeting = m.greeting[greetingKey(new Date().getHours())];
 
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-5xl">
@@ -144,7 +152,7 @@ export default async function PartnerDashboardPage({
           {restaurant.name}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Stare:{" "}
+          {m.header.statusLabel}{" "}
           <span
             className={`inline-flex items-center gap-1 font-semibold ${
               restaurant.status === "live"
@@ -152,7 +160,7 @@ export default async function PartnerDashboardPage({
                 : "text-amber-700"
             }`}
           >
-            {restaurant.status === "live" ? "● Live" : `● ${restaurant.status}`}
+            {restaurant.status === "live" ? m.header.live : `● ${restaurant.status}`}
           </span>
         </p>
       </header>
@@ -162,11 +170,10 @@ export default async function PartnerDashboardPage({
           <PartyPopper size={20} className="text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-emerald-900">
-              Ești live pe Tavli.
+              {m.justPublished.title}
             </p>
             <p className="text-sm text-emerald-800 mt-1">
-              {restaurant.name} poate fi descoperit chiar acum de către
-              clienți. Copiază URL-ul paginii publice pentru a-l împărtăși.
+              {interpolate(m.justPublished.body, { name: restaurant.name })}
             </p>
           </div>
         </div>
@@ -174,29 +181,33 @@ export default async function PartnerDashboardPage({
 
       <section className="grid grid-cols-1 tablet:grid-cols-3 gap-4 mb-10">
         <StatCard
-          label="Vizualizări săptămâna asta"
+          label={m.stats.viewsLabel}
           value="—"
           icon={Eye}
           tone="muted"
-          hint="Disponibil odată cu telemetria"
+          hint={m.stats.viewsHint}
         />
         <StatCard
-          label="Salvări"
+          label={m.stats.savesLabel}
           value="—"
           icon={Heart}
           tone="muted"
-          hint="Clienți care te-au salvat"
+          hint={m.stats.savesHint}
         />
         <StatCard
-          label="Rezervări"
+          label={m.stats.reservationsLabel}
           value="—"
           icon={CalendarClock}
           tone="muted"
-          hint="Vezi rezervările reale în secțiunea Rezervări"
+          hint={m.stats.reservationsHint}
         />
       </section>
 
-      <ContentHealthChecklist items={checklist} />
+      <ContentHealthChecklist
+        items={checklist}
+        title={m.checklist.title}
+        progressTemplate={m.checklist.progress}
+      />
 
       <section className="mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4">
         <Link
@@ -204,10 +215,10 @@ export default async function PartnerDashboardPage({
           className="bg-surface-white rounded-card border border-border p-5 hover:shadow-card-hover transition-shadow"
         >
           <h3 className="font-display text-lg font-bold text-text-primary">
-            Vezi pagina ta publică
+            {m.cta.previewTitle}
           </h3>
           <p className="text-sm text-text-secondary mt-1">
-            Vezi ce văd clienții când te găsesc.
+            {m.cta.previewBody}
           </p>
         </Link>
         <Link
@@ -215,10 +226,10 @@ export default async function PartnerDashboardPage({
           className="bg-surface-white rounded-card border border-border p-5 hover:shadow-card-hover transition-shadow"
         >
           <h3 className="font-display text-lg font-bold text-text-primary">
-            Administrează meniul
+            {m.cta.menuTitle}
           </h3>
           <p className="text-sm text-text-secondary mt-1">
-            Adaugă secțiuni, feluri, prețuri, fotografii, etichete dietetice.
+            {m.cta.menuBody}
           </p>
         </Link>
       </section>

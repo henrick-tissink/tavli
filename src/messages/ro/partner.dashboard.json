@@ -1,0 +1,62 @@
+{
+  "noRestaurant": {
+    "title": "Niciun restaurant încă",
+    "body": "Contul tău de partener nu este asociat unui restaurant. Contactează echipa Tavli."
+  },
+  "greeting": {
+    "morning": "Bună dimineața",
+    "day": "Bună ziua",
+    "evening": "Bună seara",
+    "night": "Bună noaptea"
+  },
+  "header": {
+    "statusLabel": "Stare:",
+    "live": "● Live"
+  },
+  "justPublished": {
+    "title": "Ești live pe Tavli.",
+    "body": "{name} poate fi descoperit chiar acum de către clienți. Copiază URL-ul paginii publice pentru a-l împărtăși."
+  },
+  "stats": {
+    "viewsLabel": "Vizualizări săptămâna asta",
+    "viewsHint": "Disponibil odată cu telemetria",
+    "savesLabel": "Salvări",
+    "savesHint": "Clienți care te-au salvat",
+    "reservationsLabel": "Rezervări",
+    "reservationsHint": "Vezi rezervările reale în secțiunea Rezervări"
+  },
+  "cta": {
+    "previewTitle": "Vezi pagina ta publică",
+    "previewBody": "Vezi ce văd clienții când te găsesc.",
+    "menuTitle": "Administrează meniul",
+    "menuBody": "Adaugă secțiuni, feluri, prețuri, fotografii, etichete dietetice."
+  },
+  "checklist": {
+    "title": "Stare conținut",
+    "progress": "{done}/{total} finalizate",
+    "profileLabel": "Profil complet",
+    "profileHint": "Nume, bucătării, adresă, descriere scurtă",
+    "heroLabel": "Fotografie principală încărcată",
+    "heroHint": "Prima imagine pe care o văd clienții",
+    "galleryLabel": "Cel puțin 3 fotografii în galerie",
+    "galleryHint": "Interior, feluri de semnătură, atmosferă",
+    "heroNoteLabel": "Notă pe meniu setată",
+    "heroNoteHint": "Vocea restaurantului pe pagina de meniu",
+    "menuLabel": "Meniul are cel puțin 6 feluri",
+    "menuHint": "În prezent {sections}, {items}",
+    "menuHintSections": {
+      "one": "{count} secțiuni",
+      "few": "{count} secțiuni",
+      "other": "{count} secțiuni"
+    },
+    "menuHintItems": {
+      "one": "{count} fel",
+      "few": "{count} feluri",
+      "other": "{count} feluri"
+    },
+    "scheduleLabel": "Program configurat",
+    "scheduleHint": "Programul tău săptămânal",
+    "availabilityLabel": "Disponibilitate (rezervări) setată",
+    "availabilityHint": "Câți clienți pe interval"
+  }
+}

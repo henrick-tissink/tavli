@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { setActiveVenueAction } from "@/app/(app)/partner/(dashboard)/active-venue-actions";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export function VenueSwitcher({
   venues,
@@ -18,6 +19,7 @@ export function VenueSwitcher({
   venues: { id: string; name: string }[];
   activeVenueId: string | null;
 }) {
+  const t = useT("partner.common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -92,7 +94,7 @@ export function VenueSwitcher({
             onClick={() => setOpen(false)}
             className="mt-1 flex items-center gap-2 border-t border-border px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-bg hover:text-text-primary"
           >
-            <Building2 size={14} aria-hidden /> Panou organizație
+            <Building2 size={14} aria-hidden /> {t("venueSwitcher.orgDashboard")}
           </Link>
         </div>
       )}

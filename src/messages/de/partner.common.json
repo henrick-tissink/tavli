@@ -71,5 +71,8 @@
     "weekdaysFull": "Sonntag,Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag",
     "copyFirstOpen": "Ersten geöffneten Tag auf alle übertragen",
     "open": "Geöffnet"
+  },
+  "venueSwitcher": {
+    "orgDashboard": "Organisations-Dashboard"
   }
 }

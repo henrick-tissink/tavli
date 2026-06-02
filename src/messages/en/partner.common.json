@@ -71,5 +71,8 @@
     "weekdaysFull": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday",
     "copyFirstOpen": "Copy the first open day to all",
     "open": "Open"
+  },
+  "venueSwitcher": {
+    "orgDashboard": "Organisation dashboard"
   }
 }

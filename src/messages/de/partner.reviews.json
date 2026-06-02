@@ -1,0 +1,37 @@
+{
+  "page": {
+    "eyebrow": "Reputation",
+    "title": "Bewertungen",
+    "summary": "{avg} ★ im Durchschnitt aus {count}.",
+    "summaryCount": {
+      "one": "{count} Bewertung",
+      "few": "{count} Bewertungen",
+      "other": "{count} Bewertungen"
+    },
+    "summaryEmpty": "Bewertungen erscheinen hier, sobald Gäste mit einer wahrgenommenen Reservierung sie hinterlassen.",
+    "starsAriaLabel": "{rating} von 5 Sternen",
+    "empty": "Noch keine Bewertungen."
+  },
+  "report": {
+    "trigger": "Melden",
+    "sheetTitle": "Bewertung melden",
+    "intro": "Wir senden die Meldung an das Tavli-Team. Bewertungen werden nur entfernt, wenn sie gegen die Regeln verstoßen.",
+    "reasonAriaLabel": "Grund",
+    "reasonPlaceholder": "Grund auswählen…",
+    "reasons": {
+      "inappropriate": "Unangemessener Inhalt",
+      "fake": "Gefälschte Bewertung",
+      "spam": "Spam",
+      "off_topic": "Themenfremd",
+      "personal_attack": "Persönlicher Angriff",
+      "gdpr_takedown": "DSGVO-Anfrage"
+    },
+    "detailsPlaceholder": "Details (optional)",
+    "submit": "Meldung senden",
+    "toastSuccess": "Bewertung gemeldet. Wir prüfen sie.",
+    "toastError": "Meldung fehlgeschlagen."
+  },
+  "actions": {
+    "respondFailed": "Die Antwort konnte nicht gespeichert werden."
+  }
+}

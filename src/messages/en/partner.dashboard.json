@@ -1,0 +1,62 @@
+{
+  "noRestaurant": {
+    "title": "No restaurant yet",
+    "body": "Your partner account is not linked to a restaurant. Contact the Tavli team."
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "day": "Good afternoon",
+    "evening": "Good evening",
+    "night": "Good night"
+  },
+  "header": {
+    "statusLabel": "Status:",
+    "live": "● Live"
+  },
+  "justPublished": {
+    "title": "You are live on Tavli.",
+    "body": "{name} can be discovered by customers right now. Copy the public page URL to share it."
+  },
+  "stats": {
+    "viewsLabel": "Views this week",
+    "viewsHint": "Available once telemetry is on",
+    "savesLabel": "Saves",
+    "savesHint": "Customers who saved you",
+    "reservationsLabel": "Reservations",
+    "reservationsHint": "See your real reservations in the Reservations section"
+  },
+  "cta": {
+    "previewTitle": "View your public page",
+    "previewBody": "See what customers see when they find you.",
+    "menuTitle": "Manage the menu",
+    "menuBody": "Add sections, dishes, prices, photos, dietary tags."
+  },
+  "checklist": {
+    "title": "Content health",
+    "progress": "{done}/{total} complete",
+    "profileLabel": "Profile complete",
+    "profileHint": "Name, cuisines, address, short description",
+    "heroLabel": "Hero photo uploaded",
+    "heroHint": "The first image customers see",
+    "galleryLabel": "At least 3 gallery photos",
+    "galleryHint": "Interior, signature dishes, atmosphere",
+    "heroNoteLabel": "Menu note set",
+    "heroNoteHint": "The restaurant's voice on the menu page",
+    "menuLabel": "Menu has at least 6 dishes",
+    "menuHint": "Currently {sections}, {items}",
+    "menuHintSections": {
+      "one": "{count} section",
+      "few": "{count} sections",
+      "other": "{count} sections"
+    },
+    "menuHintItems": {
+      "one": "{count} dish",
+      "few": "{count} dishes",
+      "other": "{count} dishes"
+    },
+    "scheduleLabel": "Schedule configured",
+    "scheduleHint": "Your weekly schedule",
+    "availabilityLabel": "Availability (reservations) set",
+    "availabilityHint": "How many customers per slot"
+  }
+}

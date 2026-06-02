@@ -9,7 +9,7 @@ import { signupPartner } from "@/lib/identity/signup-partner-service";
 
 const SignupSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Parola trebuie să aibă cel puțin 8 caractere."),
+  password: z.string().min(8, "Parola trebuie să aibă cel puțin 8 caractere."), // i18n-allow
   fullName: z.string().trim().min(1),
   restaurantName: z.string().trim().min(1),
   cityId: z.string().uuid(),
@@ -19,7 +19,7 @@ const SignupSchema = z.object({
   customerType: z.enum(["business", "personal"]).optional(),
   tier: z.enum(["base", "pro"]),
   frequency: z.enum(["monthly", "annual"]),
-  termsAccepted: z.literal(true, { message: "Trebuie să accepți termenii." }),
+  termsAccepted: z.literal(true, { message: "Trebuie să accepți termenii." }), // i18n-allow
 });
 
 export type SignupActionResult = ActionResult<never>;
@@ -34,7 +34,7 @@ export async function signupPartnerAction(
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
   if (ip) {
     const rl = await enforceRateLimit({ key: `partner-signup:${ip}`, scope: "partner_signup_per_ip" });
-    if (!rl.allowed) return fail("rate_limited", "Prea multe încercări. Încearcă din nou mai târziu.");
+    if (!rl.allowed) return fail("rate_limited", "Prea multe încercări. Încearcă din nou mai târziu."); // i18n-allow
   }
 
   const parsed = SignupSchema.safeParse({

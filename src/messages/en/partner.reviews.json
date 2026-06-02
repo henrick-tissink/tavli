@@ -1,0 +1,37 @@
+{
+  "page": {
+    "eyebrow": "Reputation",
+    "title": "Reviews",
+    "summary": "{avg} ★ on average from {count}.",
+    "summaryCount": {
+      "one": "{count} review",
+      "few": "{count} reviews",
+      "other": "{count} reviews"
+    },
+    "summaryEmpty": "Reviews appear here once guests with an honoured reservation leave them.",
+    "starsAriaLabel": "{rating} out of 5 stars",
+    "empty": "No reviews yet."
+  },
+  "report": {
+    "trigger": "Report",
+    "sheetTitle": "Report the review",
+    "intro": "We send the report to the Tavli team. Reviews are only removed if they break the rules.",
+    "reasonAriaLabel": "Reason",
+    "reasonPlaceholder": "Choose the reason…",
+    "reasons": {
+      "inappropriate": "Inappropriate content",
+      "fake": "Fake review",
+      "spam": "Spam",
+      "off_topic": "Off topic",
+      "personal_attack": "Personal attack",
+      "gdpr_takedown": "GDPR request"
+    },
+    "detailsPlaceholder": "Details (optional)",
+    "submit": "Send the report",
+    "toastSuccess": "Review reported. We will check it.",
+    "toastError": "Reporting failed."
+  },
+  "actions": {
+    "respondFailed": "The reply could not be saved."
+  }
+}

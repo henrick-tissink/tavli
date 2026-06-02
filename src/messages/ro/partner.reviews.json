@@ -1,0 +1,37 @@
+{
+  "page": {
+    "eyebrow": "Reputație",
+    "title": "Recenzii",
+    "summary": "{avg} ★ în medie din {count}.",
+    "summaryCount": {
+      "one": "{count} recenzie",
+      "few": "{count} recenzii",
+      "other": "{count} recenzii"
+    },
+    "summaryEmpty": "Recenziile apar aici după ce oaspeții cu rezervare onorată le lasă.",
+    "starsAriaLabel": "{rating} din 5 stele",
+    "empty": "Nicio recenzie încă."
+  },
+  "report": {
+    "trigger": "Raportează",
+    "sheetTitle": "Raportează recenzia",
+    "intro": "Trimitem raportul către echipa Tavli. Recenziile sunt eliminate doar dacă încalcă regulile.",
+    "reasonAriaLabel": "Motiv",
+    "reasonPlaceholder": "Alege motivul…",
+    "reasons": {
+      "inappropriate": "Conținut nepotrivit",
+      "fake": "Recenzie falsă",
+      "spam": "Spam",
+      "off_topic": "În afara subiectului",
+      "personal_attack": "Atac la persoană",
+      "gdpr_takedown": "Solicitare GDPR"
+    },
+    "detailsPlaceholder": "Detalii (opțional)",
+    "submit": "Trimite raportul",
+    "toastSuccess": "Recenzie raportată. O verificăm.",
+    "toastError": "Raportarea nu a reușit."
+  },
+  "actions": {
+    "respondFailed": "Răspunsul nu a putut fi salvat."
+  }
+}

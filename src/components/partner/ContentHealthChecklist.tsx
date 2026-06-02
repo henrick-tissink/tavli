@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
+import { interpolate } from "@/lib/i18n/t";
 
 export interface ChecklistItem {
   label: string;
@@ -8,7 +9,16 @@ export interface ChecklistItem {
   href: string;
 }
 
-export function ContentHealthChecklist({ items }: { items: ChecklistItem[] }) {
+export function ContentHealthChecklist({
+  items,
+  title,
+  progressTemplate,
+}: {
+  items: ChecklistItem[];
+  title: string;
+  /** Template with `{done}` / `{total}` placeholders, e.g. "{done}/{total} complete". */
+  progressTemplate: string;
+}) {
   const doneCount = items.filter((i) => i.done).length;
 
   return (
@@ -16,10 +26,13 @@ export function ContentHealthChecklist({ items }: { items: ChecklistItem[] }) {
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div>
           <h2 className="font-display text-lg font-bold text-text-primary">
-            Stare conținut
+            {title}
           </h2>
           <p className="text-xs text-text-muted mt-0.5">
-            {doneCount}/{items.length} finalizate
+            {interpolate(progressTemplate, {
+              done: doneCount,
+              total: items.length,
+            })}
           </p>
         </div>
         <div className="w-32">

@@ -4,19 +4,21 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { reportReviewAction } from "../actions";
 import type { ReportReason } from "@/lib/reviews/moderation";
 
-const REASONS: { value: ReportReason; label: string }[] = [
-  { value: "inappropriate", label: "Conținut nepotrivit" },
-  { value: "fake", label: "Recenzie falsă" },
-  { value: "spam", label: "Spam" },
-  { value: "off_topic", label: "În afara subiectului" },
-  { value: "personal_attack", label: "Atac la persoană" },
-  { value: "gdpr_takedown", label: "Solicitare GDPR" },
+const REASON_VALUES: ReportReason[] = [
+  "inappropriate",
+  "fake",
+  "spam",
+  "off_topic",
+  "personal_attack",
+  "gdpr_takedown",
 ];
 
 export function ReviewReportButton({ reviewId }: { reviewId: string }) {
+  const t = useT("partner.reviews");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -29,11 +31,11 @@ export function ReviewReportButton({ reviewId }: { reviewId: string }) {
     startTransition(async () => {
       const res = await reportReviewAction(reviewId, reason, details);
       if (res.ok) {
-        toast.success("Recenzie raportată. O verificăm.");
+        toast.success(t("report.toastSuccess"));
         setOpen(false);
         router.refresh();
       } else {
-        toast.error("Raportarea nu a reușit.");
+        toast.error(t("report.toastError"));
       }
     });
   }
@@ -48,30 +50,30 @@ export function ReviewReportButton({ reviewId }: { reviewId: string }) {
         onClick={() => setOpen(true)}
         className="text-xs font-medium text-text-muted hover:text-error focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
       >
-        Raportează
+        {t("report.trigger")}
       </button>
-      <BottomSheet open={open} onClose={() => setOpen(false)} title="Raportează recenzia">
+      <BottomSheet open={open} onClose={() => setOpen(false)} title={t("report.sheetTitle")}>
         <form onSubmit={submit} className="space-y-4">
           <p className="text-sm text-text-secondary">
-            Trimitem raportul către echipa Tavli. Recenziile sunt eliminate doar dacă încalcă regulile.
+            {t("report.intro")}
           </p>
-          <select name="reason" required defaultValue="" className={inputCls} aria-label="Motiv">
+          <select name="reason" required defaultValue="" className={inputCls} aria-label={t("report.reasonAriaLabel")}>
             <option value="" disabled>
-              Alege motivul…
+              {t("report.reasonPlaceholder")}
             </option>
-            {REASONS.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+            {REASON_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t(`report.reasons.${value}`)}
               </option>
             ))}
           </select>
-          <textarea name="details" rows={3} placeholder="Detalii (opțional)" className={`${inputCls} resize-none`} />
+          <textarea name="details" rows={3} placeholder={t("report.detailsPlaceholder")} className={`${inputCls} resize-none`} />
           <button
             type="submit"
             disabled={pending}
             className="inline-flex min-h-[44px] items-center rounded-button bg-text-primary px-5 py-2.5 text-sm font-bold text-surface-white hover:bg-text-primary/90 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            Trimite raportul
+            {t("report.submit")}
           </button>
         </form>
       </BottomSheet>
