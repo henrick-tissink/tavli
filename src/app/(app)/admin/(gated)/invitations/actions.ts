@@ -12,6 +12,9 @@ import {
 } from "@/lib/invitations";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { InvitationEmail } from "@/emails/InvitationEmail";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 
 export interface CreateInvitationResult {
   ok: boolean;
@@ -24,9 +27,10 @@ export async function createInvitation(
   _prev: CreateInvitationResult | undefined,
   formData: FormData,
 ): Promise<CreateInvitationResult> {
+  const m = getMessages(await resolveAppLocale(), "admin.invitations");
   const session = await getCurrentSession();
   if (!session || session.profile.role !== "admin") {
-    return { ok: false, error: "Unauthorised." };
+    return { ok: false, error: m.errors.unauthorised };
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -34,10 +38,10 @@ export async function createInvitation(
   const proposedName = String(formData.get("proposedName") ?? "").trim();
 
   if (!email || !email.includes("@")) {
-    return { ok: false, error: "Valid email is required." };
+    return { ok: false, error: m.errors.validEmailRequired };
   }
   if (!cityId) {
-    return { ok: false, error: "City is required." };
+    return { ok: false, error: m.errors.cityRequired };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -68,7 +72,9 @@ export async function createInvitation(
     .eq("id", cityId)
     .maybeSingle();
 
-  const subject = `You're invited to Tavli${proposedName ? ` — ${proposedName}` : ""}`;
+  const subject = proposedName
+    ? interpolate(m.email.subjectNamed, { name: proposedName })
+    : m.email.subject;
   const node = InvitationEmail({
     inviteUrl: url,
     cityName: city?.name,
@@ -115,9 +121,10 @@ export async function revokeInvitation(invitationId: string): Promise<void> {
 export async function resendInvitation(
   invitationId: string,
 ): Promise<{ ok: boolean; error?: string; devMode?: boolean; url?: string }> {
+  const m = getMessages(await resolveAppLocale(), "admin.invitations");
   const session = await getCurrentSession();
   if (!session || session.profile.role !== "admin") {
-    return { ok: false, error: "Unauthorised." };
+    return { ok: false, error: m.errors.unauthorised };
   }
   const supabase = await createSupabaseServerClient();
 
@@ -136,7 +143,7 @@ export async function resendInvitation(
     .maybeSingle();
 
   if (error || !invitation) {
-    return { ok: false, error: error?.message ?? "Invitation not found." };
+    return { ok: false, error: error?.message ?? m.errors.notFound };
   }
 
   const { data: city } = await supabase
@@ -146,7 +153,7 @@ export async function resendInvitation(
     .maybeSingle();
 
   const url = invitationUrl(raw);
-  const subject = `Your Tavli invitation (resent)`;
+  const subject = m.email.subjectResent;
   const node = InvitationEmail({
     inviteUrl: url,
     cityName: city?.name,
