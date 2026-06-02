@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Locale } from "@/lib/i18n/locale";
 
 const STORAGE_KEY = "tavli_cookies_ack";
 const REPROMPT_AFTER_DAYS = 30;
@@ -53,7 +54,13 @@ function isStillAcknowledged(): boolean {
   return ageDays < REPROMPT_AFTER_DAYS;
 }
 
-export function CookieFootnote() {
+const ARIA_LABEL: Record<Locale, string> = {
+  ro: "Notificare cookie-uri",
+  en: "Cookie notice",
+  de: "Cookie-Hinweis",
+};
+
+export function CookieFootnote({ locale }: { locale?: Locale }) {
   const pathname = usePathname();
   const [acknowledged, setAcknowledged] = useState(false);
 
@@ -64,7 +71,9 @@ export function CookieFootnote() {
   if (LEGAL_PATHS.has(pathname)) return null;
   if (acknowledged) return null;
 
-  const lang = pathname.startsWith("/de") ? "de" : pathname.startsWith("/en") ? "en" : "ro";
+  const lang: Locale =
+    locale ??
+    (pathname.startsWith("/de") ? "de" : pathname.startsWith("/en") ? "en" : "ro");
   const copy = COPY[lang];
 
   const handleAck = () => {
@@ -75,7 +84,7 @@ export function CookieFootnote() {
   return (
     <div
       role="region"
-      aria-label={lang === "ro" ? "Notificare cookie-uri" : "Cookie notice"}
+      aria-label={ARIA_LABEL[lang]}
       className="fixed bottom-0 left-0 right-0 z-40 bg-surface-white border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.04)]"
     >
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3 desktop:rounded-card desktop:mb-4 desktop:border desktop:shadow-card">

@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, X } from "lucide-react";
+import type { Locale } from "@/lib/i18n/locale";
+
+const CLOSE_LABEL: Record<Locale, string> = {
+  ro: "Închide",
+  en: "Close",
+  de: "Schließen",
+};
 
 type ToastKind = "success" | "error";
 interface ToastPayload {
@@ -26,7 +33,7 @@ export const toast = {
 
 const DEFAULT_DURATION_MS = 4000;
 
-export function Toaster() {
+export function Toaster({ lang = "ro" }: { lang?: Locale }) {
   const [toasts, setToasts] = useState<ToastPayload[]>([]);
 
   useEffect(() => {
@@ -68,7 +75,7 @@ export function Toaster() {
           <button
             type="button"
             onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
-            aria-label="Închide"
+            aria-label={CLOSE_LABEL[lang]}
             className="text-text-muted hover:text-text-primary"
           >
             <X size={14} />

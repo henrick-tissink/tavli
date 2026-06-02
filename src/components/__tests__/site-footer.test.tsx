@@ -41,10 +41,22 @@ describe("<SiteFooter>", () => {
     expect(odr).toHaveAttribute("target", "_blank");
   });
 
-  it("language switcher swaps RO ↔ EN for paired legal routes", () => {
+  it("language switcher offers the other locales (3-way) on RO routes", () => {
     usePathnameMock.mockReturnValue("/confidentialitate");
     render(<SiteFooter />);
-    const switcher = screen.getByRole("link", { name: /English/i });
-    expect(switcher).toHaveAttribute("href", "/en/privacy");
+    expect(screen.getByRole("link", { name: /English/i })).toHaveAttribute("href", "/en");
+    expect(screen.getByRole("link", { name: /Deutsch/i })).toHaveAttribute("href", "/de");
+    expect(screen.queryByRole("link", { name: /Română/i })).not.toBeInTheDocument();
+  });
+
+  it("renders German copy and locale-aware legal hrefs when locale='de'", () => {
+    // A partner/app pathname has no /de segment; the locale prop must win.
+    usePathnameMock.mockReturnValue("/bucuresti");
+    render(<SiteFooter locale="de" />);
+    expect(screen.getByText(/Finden Sie Ihren Tisch\./)).toBeInTheDocument();
+    expect(screen.getByText("Datenschutz")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Datenschutz" })).toHaveAttribute("href", "/de/privacy");
+    expect(screen.getByRole("link", { name: /Română/i })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /English/i })).toHaveAttribute("href", "/en");
   });
 });
