@@ -5,7 +5,7 @@ import { zoneLabel } from "@/lib/types";
 
 interface StepSlotProps {
   availableSlots: string[]; // e.g. ["18:00", "19:30", "20:00"]
-  zones?: string[]; // e.g. ["Terasă", "Interior"]
+  zones?: string[]; // e.g. ["Terrace", "Indoor"]
   selectedSlot: string | null;
   selectedZone: string | null;
   loading?: boolean;

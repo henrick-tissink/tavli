@@ -37,7 +37,7 @@ export function MenuQrCard({
   restaurantName,
   menuUrl,
   size = "single",
-  caption = "Scanează pentru a vedea meniul nostru",
+  caption = "Scanează pentru a vedea meniul nostru", // i18n-allow: RO default; real caller (partner QR) passes a localized caption
 }: MenuQrCardProps) {
   const qrHostRef = useRef<HTMLDivElement>(null);
 
