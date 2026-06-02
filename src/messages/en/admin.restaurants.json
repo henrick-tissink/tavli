@@ -2,7 +2,7 @@
   "list": {
     "title": "Restaurants",
     "subtitle": {
-      "one": "{count} restaurant across all statuses",
+      "one": "{count} restaurants across all statuses",
       "few": "{count} restaurants across all statuses",
       "other": "{count} restaurants across all statuses"
     },
