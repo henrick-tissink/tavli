@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "eyebrow": "Partner",
+    "signOut": "Sign out",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "openRequestsBadge": {
+      "one": "{count} open request",
+      "few": "{count} open requests",
+      "other": "{count} open requests"
+    },
+    "items": {
+      "dashboard": "Overview",
+      "profile": "Profile",
+      "hours": "Hours",
+      "photos": "Photos",
+      "menu": "Menu",
+      "translations": "Translations",
+      "availability": "Availability",
+      "reservations": "Reservations",
+      "floor": "Floor",
+      "staff": "Staff",
+      "diners": "Guests",
+      "reviews": "Reviews",
+      "corporate": "Corporate",
+      "spaces": "Spaces",
+      "marketing": "Marketing",
+      "org": "Organization",
+      "billing": "Billing",
+      "preview": "Preview"
+    }
+  },
+  "bell": {
+    "ariaLabel": "Notifications",
+    "empty": "Nothing new.",
+    "kinds": {
+      "new_event_request": "New request",
+      "event_request_replied": "New reply",
+      "event_request_quoted": "Quote sent",
+      "quote_accepted": "Quote accepted",
+      "quote_declined": "Quote declined",
+      "event_request_cancelled": "Request cancelled"
+    }
+  }
+}

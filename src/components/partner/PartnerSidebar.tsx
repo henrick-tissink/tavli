@@ -28,29 +28,33 @@ import {
 } from "lucide-react";
 import { signOutPartner } from "@/app/(app)/partner/sign-in/actions";
 import { VenueSwitcher } from "./VenueSwitcher";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { useT } from "@/lib/i18n/messages-provider";
+import { type Locale } from "@/lib/i18n/locale";
 
 const NAV = [
-  { href: "/partner", label: "Prezentare", icon: LayoutDashboard, exact: true },
-  { href: "/partner/profile", label: "Profil", icon: User, exact: false },
-  { href: "/partner/hours", label: "Program", icon: Clock, exact: false },
-  { href: "/partner/photos", label: "Fotografii", icon: ImageIcon, exact: false },
-  { href: "/partner/menu", label: "Meniu", icon: BookOpen, exact: false },
-  { href: "/partner/translations", label: "Traduceri", icon: Languages, exact: false },
-  { href: "/partner/availability", label: "Disponibilitate", icon: CalendarCog, exact: false },
-  { href: "/partner/reservations", label: "Rezervări", icon: Calendar, exact: false },
-  { href: "/partner/tables/live", label: "Sala", icon: LayoutGrid, exact: false },
-  { href: "/partner/staff", label: "Echipa", icon: Users, exact: false },
-  { href: "/partner/diners", label: "Oaspeți", icon: Contact, exact: false },
-  { href: "/partner/reviews", label: "Recenzii", icon: Star, exact: false },
-  { href: "/partner/corporate", label: "Corporate", icon: Briefcase, exact: true },
-  { href: "/partner/corporate/spaces", label: "Spații", icon: DoorOpen, exact: false },
-  { href: "/partner/marketing", label: "Marketing", icon: Send, exact: false },
-  { href: "/partner/org", label: "Organizație", icon: Building2, exact: false },
-  { href: "/partner/billing", label: "Facturare", icon: CreditCard, exact: false },
-  { href: "/partner/preview", label: "Previzualizare", icon: Eye, exact: false },
-];
+  { href: "/partner", key: "dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/partner/profile", key: "profile", icon: User, exact: false },
+  { href: "/partner/hours", key: "hours", icon: Clock, exact: false },
+  { href: "/partner/photos", key: "photos", icon: ImageIcon, exact: false },
+  { href: "/partner/menu", key: "menu", icon: BookOpen, exact: false },
+  { href: "/partner/translations", key: "translations", icon: Languages, exact: false },
+  { href: "/partner/availability", key: "availability", icon: CalendarCog, exact: false },
+  { href: "/partner/reservations", key: "reservations", icon: Calendar, exact: false },
+  { href: "/partner/tables/live", key: "floor", icon: LayoutGrid, exact: false },
+  { href: "/partner/staff", key: "staff", icon: Users, exact: false },
+  { href: "/partner/diners", key: "diners", icon: Contact, exact: false },
+  { href: "/partner/reviews", key: "reviews", icon: Star, exact: false },
+  { href: "/partner/corporate", key: "corporate", icon: Briefcase, exact: true },
+  { href: "/partner/corporate/spaces", key: "spaces", icon: DoorOpen, exact: false },
+  { href: "/partner/marketing", key: "marketing", icon: Send, exact: false },
+  { href: "/partner/org", key: "org", icon: Building2, exact: false },
+  { href: "/partner/billing", key: "billing", icon: CreditCard, exact: false },
+  { href: "/partner/preview", key: "preview", icon: Eye, exact: false },
+] as const;
 
 interface Props {
+  locale: Locale;
   restaurantName: string | null;
   userEmail: string | null;
   openEventRequestsCount?: number;
@@ -59,12 +63,14 @@ interface Props {
 }
 
 export function PartnerSidebar({
+  locale,
   restaurantName,
   userEmail,
   openEventRequestsCount = 0,
   venues = [],
   activeVenueId = null,
 }: Props) {
+  const t = useT("partner.common");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -93,7 +99,7 @@ export function PartnerSidebar({
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Partner
+          {t("nav.eyebrow")}
         </p>
         {venues.length >= 2 ? (
           <div className="mt-3">
@@ -127,10 +133,10 @@ export function PartnerSidebar({
                   }`}
                 >
                   <Icon size={16} />
-                  <span className="flex-1">{item.label}</span>
+                  <span className="flex-1">{t(`nav.items.${item.key}`)}</span>
                   {showBadge && (
                     <span
-                      aria-label={`${openEventRequestsCount} cereri deschise`}
+                      aria-label={t("nav.openRequestsBadge", { count: openEventRequestsCount })}
                       className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-brand-primary text-white text-[11px] font-semibold leading-none"
                     >
                       {openEventRequestsCount > 99 ? "99+" : openEventRequestsCount}
@@ -143,6 +149,9 @@ export function PartnerSidebar({
         </ul>
       </nav>
       <div className="px-4 py-4 border-t border-border">
+        <div className="mb-3">
+          <LocaleSwitcher mode="preference" current={locale} />
+        </div>
         {userEmail && (
           <p className="text-xs text-text-muted truncate mb-2">{userEmail}</p>
         )}
@@ -152,7 +161,7 @@ export function PartnerSidebar({
             className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-bg transition-colors"
           >
             <LogOut size={16} />
-            Deconectează-te
+            {t("nav.signOut")}
           </button>
         </form>
       </div>
@@ -169,7 +178,7 @@ export function PartnerSidebar({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Deschide meniul"
+          aria-label={t("nav.openMenu")}
           className="p-2 -ml-2 rounded-lg hover:bg-surface-bg text-text-secondary"
         >
           <Menu size={20} />
@@ -187,7 +196,7 @@ export function PartnerSidebar({
         <div className="desktop:hidden fixed inset-0 z-50 flex">
           <button
             type="button"
-            aria-label="Închide meniul"
+            aria-label={t("nav.closeMenu")}
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/40"
           />
@@ -195,7 +204,7 @@ export function PartnerSidebar({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Închide meniul"
+              aria-label={t("nav.closeMenu")}
               className="absolute top-3 right-3 p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
             >
               <X size={18} />

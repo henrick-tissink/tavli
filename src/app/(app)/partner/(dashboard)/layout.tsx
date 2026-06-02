@@ -8,6 +8,8 @@ import { PartnerShell } from "@/components/partner/PartnerShell";
 import { currentUserPrimaryRestaurant, listAccessibleVenues } from "@/lib/restaurants/current-user";
 import { ImpersonationBanner } from "@/components/banners/ImpersonationBanner";
 import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { buildBundle } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +63,16 @@ export default async function PartnerGatedLayout({
   const impersonationActive =
     (await readImpersonationReturnCookie()) !== null;
 
+  const locale = await resolveAppLocale();
+  const bundle = buildBundle(locale, ["partner.common"]);
+
   return (
     <>
       <ImpersonationBanner />
       <div className={impersonationActive ? "pt-12" : ""}>
         <PartnerShell
+          locale={locale}
+          bundle={bundle}
           restaurantName={restaurant?.name ?? null}
           userEmail={session.userEmail}
           openEventRequestsCount={openEventRequestsCount}

@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "eyebrow": "Partner",
+    "signOut": "Abmelden",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "openRequestsBadge": {
+      "one": "{count} offene Anfrage",
+      "few": "{count} offene Anfragen",
+      "other": "{count} offene Anfragen"
+    },
+    "items": {
+      "dashboard": "Übersicht",
+      "profile": "Profil",
+      "hours": "Öffnungszeiten",
+      "photos": "Fotos",
+      "menu": "Speisekarte",
+      "translations": "Übersetzungen",
+      "availability": "Verfügbarkeit",
+      "reservations": "Reservierungen",
+      "floor": "Saal",
+      "staff": "Personal",
+      "diners": "Gäste",
+      "reviews": "Bewertungen",
+      "corporate": "Corporate",
+      "spaces": "Räume",
+      "marketing": "Marketing",
+      "org": "Organisation",
+      "billing": "Abrechnung",
+      "preview": "Vorschau"
+    }
+  },
+  "bell": {
+    "ariaLabel": "Benachrichtigungen",
+    "empty": "Nichts Neues.",
+    "kinds": {
+      "new_event_request": "Neue Anfrage",
+      "event_request_replied": "Neue Antwort",
+      "event_request_quoted": "Angebot gesendet",
+      "quote_accepted": "Angebot angenommen",
+      "quote_declined": "Angebot abgelehnt",
+      "event_request_cancelled": "Anfrage storniert"
+    }
+  }
+}

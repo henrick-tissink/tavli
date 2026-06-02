@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "eyebrow": "Partner",
+    "signOut": "Deconectează-te",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "openRequestsBadge": {
+      "one": "{count} cereri deschise",
+      "few": "{count} cereri deschise",
+      "other": "{count} cereri deschise"
+    },
+    "items": {
+      "dashboard": "Prezentare",
+      "profile": "Profil",
+      "hours": "Program",
+      "photos": "Fotografii",
+      "menu": "Meniu",
+      "translations": "Traduceri",
+      "availability": "Disponibilitate",
+      "reservations": "Rezervări",
+      "floor": "Sala",
+      "staff": "Echipa",
+      "diners": "Oaspeți",
+      "reviews": "Recenzii",
+      "corporate": "Corporate",
+      "spaces": "Spații",
+      "marketing": "Marketing",
+      "org": "Organizație",
+      "billing": "Facturare",
+      "preview": "Previzualizare"
+    }
+  },
+  "bell": {
+    "ariaLabel": "Notificări",
+    "empty": "Nimic nou.",
+    "kinds": {
+      "new_event_request": "Cerere nouă",
+      "event_request_replied": "Răspuns nou",
+      "event_request_quoted": "Ofertă trimisă",
+      "quote_accepted": "Ofertă acceptată",
+      "quote_declined": "Ofertă refuzată",
+      "event_request_cancelled": "Cerere anulată"
+    }
+  }
+}
