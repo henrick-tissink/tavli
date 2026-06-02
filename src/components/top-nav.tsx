@@ -11,7 +11,7 @@ import { localizedHref } from "@/lib/i18n/routing";
 interface TopNavProps {
   lang: Locale;
   pathname: string;
-  currentCity: string;
+  currentSlug: string;
   onCityChange: (city: string) => void;
   onSearchFocus: () => void;
   onSavedClick: () => void;
@@ -21,7 +21,7 @@ interface TopNavProps {
 export function TopNav({
   lang,
   pathname,
-  currentCity,
+  currentSlug,
   onCityChange,
   onSearchFocus,
   onSavedClick,
@@ -35,7 +35,7 @@ export function TopNav({
         {/* Left: Logo + City */}
         <div className="flex items-center gap-4">
           <Link
-            href={localizedHref(`/${currentCity}`, lang)}
+            href={localizedHref(`/${currentSlug}`, lang)}
             className="flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             aria-label={t("nav.logoAriaLabel")}
           >
@@ -54,7 +54,7 @@ export function TopNav({
               Tavli
             </span>
           </Link>
-          <CitySelector currentCity={currentCity} onSelect={onCityChange} />
+          <CitySelector currentSlug={currentSlug} onSelect={onCityChange} />
         </div>
 
         {/* Center: Search */}

@@ -55,5 +55,32 @@
     },
     "topMentionsTitle": "Most mentioned",
     "bestForTitle": "Great for"
+  },
+  "cuisineAdjectives": {
+    "Romanian": "authentically Romanian",
+    "Italian": "with Italian flavours",
+    "Japanese": "refined Japanese",
+    "Turkish": "authentically Turkish",
+    "French": "French with elegance",
+    "Chinese": "traditional Chinese",
+    "Lebanese": "vibrant Lebanese",
+    "Spanish": "sunny Spanish",
+    "Greek": "Mediterranean Greek",
+    "Thai": "aromatic Thai",
+    "Indian": "spiced Indian",
+    "Mexican": "spicy Mexican",
+    "Korean": "modern Korean",
+    "Balkan": "Balkan full of character",
+    "American": "relaxed American",
+    "European": "contemporary European",
+    "Mediterranean": "bright Mediterranean",
+    "Fusion": "inventive fusion",
+    "Brunch": "perfect for brunch",
+    "Coffee": "for coffee lovers",
+    "Cocktails": "for cocktail evenings",
+    "Pizza": "with artisan pizza",
+    "Burger": "with artisan burgers",
+    "Vegan": "vegan and creative",
+    "Vegetarian": "vegetarian and wholesome"
   }
 }

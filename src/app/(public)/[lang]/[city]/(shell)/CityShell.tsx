@@ -30,10 +30,9 @@ interface CityShellProps {
 function Inner({
   lang,
   city,
-  displayCity,
   restaurants,
   children,
-}: CityShellProps) {
+}: Omit<CityShellProps, "displayCity">) {
   const router = useRouter();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -63,7 +62,7 @@ function Inner({
       <TopNav
         lang={lang}
         pathname={pathname}
-        currentCity={displayCity}
+        currentSlug={city}
         onCityChange={() => {}}
         onSearchFocus={() => setSearchOpen(true)}
         onSavedClick={() => router.push(localizedHref(`/${city}/saved`, lang))}

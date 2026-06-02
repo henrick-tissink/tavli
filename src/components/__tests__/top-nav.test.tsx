@@ -3,10 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { TopNav } from "../top-nav";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roDiscovery from "@/messages/ro/discovery.json";
+import roCommon from "@/messages/ro/common.json";
+import roProfile from "@/messages/ro/profile.json";
 
 function renderWithProvider(ui: React.ReactElement) {
   return render(
-    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery, common: roCommon, profile: roProfile }}>
       {ui}
     </MessagesProvider>,
   );
@@ -20,7 +22,7 @@ jest.mock("@/app/(app)/locale-action", () => ({
 const defaultProps = {
   lang: "ro" as const,
   pathname: "/bucuresti",
-  currentCity: "București",
+  currentSlug: "bucuresti",
   onCityChange: jest.fn(),
   onSearchFocus: jest.fn(),
   onSavedClick: jest.fn(),

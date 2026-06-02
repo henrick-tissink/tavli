@@ -178,6 +178,7 @@ export interface RestaurantMessages {
     topMentionsTitle: string;
     bestForTitle: string;
   };
+  cuisineAdjectives: Record<string, string>;
 }
 
 /** Structural contract for the `menu` namespace. */
