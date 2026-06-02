@@ -5,6 +5,7 @@ import { Button } from "@/components/button";
 import { Pill } from "@/components/pill";
 import { toast } from "@/components/toast";
 import { cuisineLabel } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   savePartnerProfile,
   type SaveProfileResult,
@@ -29,6 +30,7 @@ const CUISINES = [
 ];
 
 export function PartnerProfileForm({ initialValues }: Props) {
+  const t = useT("partner.settings");
   const [state, action, pending] = useActionState<
     SaveProfileResult | undefined,
     FormData
@@ -38,8 +40,14 @@ export function PartnerProfileForm({ initialValues }: Props) {
   );
 
   useEffect(() => {
-    if (state?.ok) toast.success("Profilul a fost salvat.");
-  }, [state]);
+    if (state?.ok) toast.success(t("profile.toastSaved"));
+  }, [state, t]);
+
+  const errorText = state?.error
+    ? state.error === "billing_locked"
+      ? t("profile.errors.billing_locked")
+      : state.error
+    : null;
 
   const toggleCuisine = (c: string) =>
     setSelectedCuisines((prev) =>
@@ -48,13 +56,13 @@ export function PartnerProfileForm({ initialValues }: Props) {
 
   return (
     <form action={action} className="space-y-5 max-w-2xl">
-      <Field label="Numele restaurantului" name="name" required defaultValue={initialValues.name ?? ""} />
+      <Field label={t("profile.nameLabel")} name="name" required defaultValue={initialValues.name ?? ""} />
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">
-          Bucătării <span className="text-error">*</span>
+          {t("profile.cuisinesLabel")} <span className="text-error">*</span>
         </label>
-        <p className="text-xs text-text-muted">Alege una sau mai multe.</p>
+        <p className="text-xs text-text-muted">{t("profile.cuisinesHint")}</p>
         <div className="flex flex-wrap gap-2">
           {CUISINES.map((c) => (
             <Pill
@@ -70,18 +78,18 @@ export function PartnerProfileForm({ initialValues }: Props) {
         ))}
       </div>
 
-      <Field label="Zonă / cartier" name="zone" defaultValue={initialValues.zone ?? ""} />
+      <Field label={t("profile.zoneLabel")} name="zone" defaultValue={initialValues.zone ?? ""} />
 
-      <Field label="Adresa completă" name="address" required defaultValue={initialValues.address ?? ""} />
+      <Field label={t("profile.addressLabel")} name="address" required defaultValue={initialValues.address ?? ""} />
 
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
-        <Field label="Telefon" name="phone" type="tel" defaultValue={initialValues.phone ?? ""} />
-        <Field label="Website" name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl ?? ""} />
+        <Field label={t("profile.phoneLabel")} name="phone" type="tel" defaultValue={initialValues.phone ?? ""} />
+        <Field label={t("profile.websiteLabel")} name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl ?? ""} />
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="heroNote">
-          Povestea pe scurt
+          {t("profile.heroNoteLabel")}
         </label>
         <textarea
           id="heroNote"
@@ -89,17 +97,17 @@ export function PartnerProfileForm({ initialValues }: Props) {
           rows={2}
           maxLength={160}
           defaultValue={initialValues.heroNote ?? ""}
-          placeholder="Rețetele bunicii din inima Centrului Vechi."
+          placeholder={t("profile.heroNotePlaceholder")}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
         />
-        <p className="text-xs text-text-muted">Apare cu italice pe partea principală a meniului. Maxim 160 caractere.</p>
+        <p className="text-xs text-text-muted">{t("profile.heroNoteHint")}</p>
       </div>
 
-      {state?.error && <p className="text-sm text-error" role="alert">{state.error}</p>}
+      {errorText && <p className="text-sm text-error" role="alert">{errorText}</p>}
 
       <div className="pt-2">
         <Button disabled={pending} type="submit">
-          {pending ? "Se salvează…" : "Salvează modificările"}
+          {pending ? t("profile.saving") : t("profile.save")}
         </Button>
       </div>
     </form>

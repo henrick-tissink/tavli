@@ -1,0 +1,100 @@
+{
+  "profile": {
+    "title": "Profile",
+    "subtitle": "How your restaurant appears to guests.",
+    "nameLabel": "Restaurant name",
+    "cuisinesLabel": "Cuisines",
+    "cuisinesHint": "Choose one or more.",
+    "zoneLabel": "Area / neighbourhood",
+    "addressLabel": "Full address",
+    "phoneLabel": "Phone",
+    "websiteLabel": "Website",
+    "heroNoteLabel": "Your story in brief",
+    "heroNotePlaceholder": "Grandma's recipes in the heart of the Old Town.",
+    "heroNoteHint": "Shown in italics at the top of the menu. Maximum 160 characters.",
+    "saving": "Saving…",
+    "save": "Save changes",
+    "toastSaved": "Profile saved.",
+    "errors": {
+      "nameRequired": "The restaurant name is required.",
+      "cuisineRequired": "Choose at least one cuisine.",
+      "addressRequired": "The address is required.",
+      "phoneInvalid": "The phone number is invalid. Enter a number with the country code.",
+      "billing_locked": "Billing is suspended on this account — resume payment to edit the profile."
+    }
+  },
+  "photos": {
+    "title": "Photos",
+    "subtitle": "Upload new photos, choose a main one, delete the ones you don't like.",
+    "noRestaurantTitle": "No restaurant linked to this account yet",
+    "noRestaurantBody": "Contact the Tavli team if you've ended up here by mistake."
+  },
+  "preview": {
+    "title": "Preview",
+    "subtitle": "See what guests see when they find you.",
+    "publicUrlLabel": "Your public URL:",
+    "openPublicPage": "Open public page",
+    "statusNote": "Note: your restaurant's status is “{status}” — your public page may not be visible to guests yet.",
+    "noPublicPageTitle": "No public page available yet",
+    "noPublicPageBody": "Publish the restaurant to get a public URL."
+  },
+  "translations": {
+    "eyebrow": "Venue page",
+    "title": "Translations",
+    "subtitle": "Your page in English and German — each a parallel original, not a translation. Empty fields fall back to the Romanian version.",
+    "noRestaurant": "No restaurant linked to the account.",
+    "fields": {
+      "tagline": "Tagline",
+      "heroSubtitle": "Hero subtitle",
+      "descriptionShort": "Short description",
+      "descriptionLong": "Long description",
+      "chefBio": "Chef bio",
+      "ambience": "Ambience"
+    },
+    "roPrefix": "RO: {text}",
+    "save": "Save {language}",
+    "toastSaved": "{locale} translation saved.",
+    "toastFailed": "Saving failed.",
+    "errors": {
+      "invalidLocale": "Invalid language.",
+      "billing_locked": "Billing is suspended on this account — resume payment to edit translations."
+    }
+  },
+  "hours": {
+    "title": "Opening hours",
+    "subtitle": "Your weekly opening hours. Exceptions for special dates will be available in a later stage.",
+    "saving": "Saving…",
+    "save": "Save opening hours",
+    "toastSaved": "Opening hours saved.",
+    "errors": {
+      "parseFailed": "The schedule could not be read.",
+      "atLeastOneOpen": "At least one day must be open.",
+      "billing_locked": "Billing is suspended on this account — resume payment to edit opening hours."
+    }
+  },
+  "availability": {
+    "title": "Availability",
+    "subtitle": "Define how many guests you can take per time slot, for each day. Guests can only book at the times configured here — unconfigured slots show as “fully booked”.",
+    "noRestaurant": "No restaurant linked.",
+    "weekdaysFull": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday",
+    "emptyTitle": "No availability yet",
+    "emptyBody": "Add time slots below or start from a default evening template (every day 18:00–22:00).",
+    "seedDefault": "Start with default (daily 18–22)",
+    "seats": "{capacity} seats",
+    "deleteSlotAriaLabel": "Delete slot",
+    "startLabel": "Start",
+    "endLabel": "End",
+    "capacityLabel": "Capacity",
+    "addSlot": "Add slot",
+    "confirmDelete": "Delete this time slot?",
+    "seedPrompt": "Default capacity for the 4-hour evening slot?",
+    "genericFailed": "Failed.",
+    "errors": {
+      "invalidDay": "Invalid day.",
+      "slotTimesRequired": "The slot times are required.",
+      "endAfterStart": "The end time must be after the start time.",
+      "capacityMin": "Capacity must be ≥ 1.",
+      "billing_locked": "Billing is suspended on this account — resume payment to edit availability."
+    }
+  }
+}

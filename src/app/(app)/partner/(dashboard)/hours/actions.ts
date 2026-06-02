@@ -7,6 +7,8 @@ import { hoursToAvailabilityRows } from "@/lib/availability";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -18,22 +20,25 @@ export async function savePartnerHours(
   formData: FormData,
 ): Promise<SaveHoursResult> {
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const common = getMessages(locale, "partner.common");
+  const m = getMessages(locale, "partner.settings").hours;
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
 
   let hours: DayHours[];
   try {
     hours = JSON.parse(String(formData.get("hours") ?? "")) as DayHours[];
   } catch {
-    return { ok: false, error: "Nu s-a putut interpreta programul." };
+    return { ok: false, error: m.errors.parseFailed };
   }
   if (!hours.some((h) => h.isOpen)) {
-    return { ok: false, error: "Cel puțin o zi trebuie să fie deschisă." };
+    return { ok: false, error: m.errors.atLeastOneOpen };
   }
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
-    return { ok: false, error: "Niciun restaurant asociat acestui cont." };
+    return { ok: false, error: common.errors.noRestaurant };
   }
   if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
