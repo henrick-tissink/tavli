@@ -180,7 +180,8 @@
     "errors": {
       "unauthorised": "Unauthorised.",
       "forbidden": "Forbidden.",
-      "invalidInput": "Invalid input."
+      "invalidInput": "Invalid input.",
+      "capacityOrder": "Maximum capacity must be at least the minimum."
     }
   }
 }

@@ -180,7 +180,8 @@
     "errors": {
       "unauthorised": "Neautorizat.",
       "forbidden": "Acces interzis.",
-      "invalidInput": "Date invalide."
+      "invalidInput": "Date invalide.",
+      "capacityOrder": "Capacitatea maximă trebuie să fie cel puțin egală cu cea minimă."
     }
   }
 }

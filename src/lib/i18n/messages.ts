@@ -2231,7 +2231,12 @@ export interface PartnerCorporateMessages {
     descriptionPlaceholder: string;
     cancel: string;
     saving: string;
-    errors: { unauthorised: string; forbidden: string; invalidInput: string };
+    errors: {
+      unauthorised: string;
+      forbidden: string;
+      invalidInput: string;
+      capacityOrder: string;
+    };
   };
 }
 

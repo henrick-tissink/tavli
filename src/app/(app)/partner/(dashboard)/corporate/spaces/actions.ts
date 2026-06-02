@@ -12,10 +12,24 @@ import {
   deactivatePrivateSpace,
 } from "@/lib/repos/private-spaces-repo";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
-import { getMessages } from "@/lib/i18n/messages";
+import { getMessages, type PartnerCorporateMessages } from "@/lib/i18n/messages";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 
 type Result = { ok: true } | { ok: false; error: string };
+
+/**
+ * Map a Zod parse failure to a localized message: the capacity-order refine gets
+ * its own specific message; everything else falls back to a generic one. (The
+ * client validates these inline too, so this is a backstop.)
+ */
+function parseErrorMessage(
+  m: PartnerCorporateMessages,
+  error: z.ZodError,
+): string {
+  return error.issues.some((i) => i.message === "capacityMin must be <= capacityMax")
+    ? m.spaces.errors.capacityOrder
+    : m.spaces.errors.invalidInput;
+}
 
 async function assertOwns(
   restaurantId: string,
@@ -61,7 +75,7 @@ export async function createSpaceAction(
   const parsed = createSchema.safeParse(input);
   if (!parsed.success) {
     const m = getMessages(await resolveAppLocale(), "partner.corporate");
-    return { ok: false, error: m.spaces.errors.invalidInput };
+    return { ok: false, error: parseErrorMessage(m, parsed.error) };
   }
   const data = parsed.data;
   const auth = await assertOwns(data.restaurantId);
@@ -104,7 +118,7 @@ export async function updateSpaceAction(
   const parsed = updateSchema.safeParse(input);
   if (!parsed.success) {
     const m = getMessages(await resolveAppLocale(), "partner.corporate");
-    return { ok: false, error: m.spaces.errors.invalidInput };
+    return { ok: false, error: parseErrorMessage(m, parsed.error) };
   }
   const data = parsed.data;
   const [existing] = await dbAdmin
