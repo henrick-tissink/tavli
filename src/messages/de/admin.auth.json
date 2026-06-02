@@ -1,0 +1,33 @@
+{
+  "page": {
+    "brandEyebrow": "Admin",
+    "panelHeading": "Das Tavli-Adminpanel.",
+    "restrictedNotice": "Eingeschränkter Zugriff. Nur autorisierte Betreiber.",
+    "title": "Administratorzugang"
+  },
+  "form": {
+    "emailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "submit": "Anmelden",
+    "submitPending": "Anmeldung läuft…",
+    "createdByTeam": "Administratorkonten werden vom Tavli-Team erstellt. Kontaktieren Sie das Ops-Team, wenn Sie Zugang benötigen.",
+    "mfaCodeLabel": "Der 6-stellige Code aus Ihrer Authenticator-App",
+    "mfaSubmit": "Überprüfen und anmelden",
+    "mfaSubmitPending": "Wird überprüft…",
+    "recoveryToggle": "Wiederherstellungscode verwenden",
+    "recoveryPlaceholder": "xxxx-xxxx-xx",
+    "recoveryHint": "Bei Verwendung eines Wiederherstellungscodes wird Ihr Authenticator entfernt. Sie richten nach der Anmeldung einen neuen ein.",
+    "recoverySubmit": "Wiederherstellungscode verwenden"
+  },
+  "errors": {
+    "supabaseNotConfigured": "Supabase ist noch nicht konfiguriert. Setzen Sie NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.",
+    "sessionExpired": "Sitzung abgelaufen. Bitte melden Sie sich erneut an.",
+    "enterCode": "Geben Sie einen Code ein, um fortzufahren.",
+    "challengeFailed": "Die Abfrage konnte nicht ausgestellt werden. Versuchen Sie es erneut.",
+    "incorrectCode": "Falscher Code.",
+    "invalidRecoveryCode": "Wiederherstellungscode ungültig.",
+    "emailPasswordRequired": "E-Mail und Passwort sind erforderlich.",
+    "invalidCredentials": "Falsche Anmeldedaten.",
+    "notAuthorisedForAdmin": "Dieses Konto ist nicht für den Administratorzugang autorisiert."
+  }
+}

@@ -10,6 +10,8 @@ import {
 } from "@/lib/auth/mfa";
 import { isLocale } from "@/lib/i18n/locale";
 import { setLocaleCookie } from "@/lib/i18n/cookie";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export type SignInResult =
   | { ok: false; error: string }
@@ -25,11 +27,11 @@ export async function signInAdmin(
   _prev: SignInResult | undefined,
   formData: FormData,
 ): Promise<SignInResult> {
+  const m = getMessages(await resolveAppLocale(), "admin.auth");
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     return {
       ok: false,
-      error:
-        "Supabase isn't configured yet. Set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.",
+      error: m.errors.supabaseNotConfigured,
     };
   }
 
@@ -45,7 +47,7 @@ export async function signInAdmin(
     const supabase = await createSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) {
-      return { ok: false, error: "Session expired. Please sign in again." };
+      return { ok: false, error: m.errors.sessionExpired };
     }
 
     if (!mfaCode && !recoveryCode) {
@@ -55,7 +57,7 @@ export async function signInAdmin(
         state: "needs_mfa",
         factorId,
         hasRecoveryCodes: remaining > 0,
-        error: "Enter a code to continue.",
+        error: m.errors.enterCode,
       };
     }
 
@@ -74,7 +76,7 @@ export async function signInAdmin(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: false,
-          error: "Couldn't issue challenge. Try again.",
+          error: m.errors.challengeFailed,
         };
       }
       const verify = await supabase.auth.mfa.verify({
@@ -88,7 +90,7 @@ export async function signInAdmin(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: false,
-          error: "Incorrect code.",
+          error: m.errors.incorrectCode,
         };
       }
       // Sync locale cookie on successful MFA sign-in.
@@ -110,7 +112,7 @@ export async function signInAdmin(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: true,
-          error: "Recovery code invalid.",
+          error: m.errors.invalidRecoveryCode,
         };
       }
       // Sync locale cookie on successful recovery-code sign-in.
@@ -125,7 +127,7 @@ export async function signInAdmin(
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   if (!email || !password) {
-    return { ok: false, error: "Email and password are required." };
+    return { ok: false, error: m.errors.emailPasswordRequired };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -134,7 +136,7 @@ export async function signInAdmin(
     password,
   });
   if (error || !data.user) {
-    return { ok: false, error: "Invalid credentials." };
+    return { ok: false, error: m.errors.invalidCredentials };
   }
 
   const { data: profile } = await supabase
@@ -145,7 +147,7 @@ export async function signInAdmin(
 
   if (profile?.role !== "admin") {
     await supabase.auth.signOut();
-    return { ok: false, error: "This account isn't authorised for admin access." };
+    return { ok: false, error: m.errors.notAuthorisedForAdmin };
   }
 
   const factors = await listVerifiedTotpFactors(supabase);
