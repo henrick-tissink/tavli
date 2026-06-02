@@ -1,0 +1,125 @@
+{
+  "page": {
+    "title": "Marketing",
+    "noAccess": "Sie haben keinen Zugriff auf die Marketing-Suite.",
+    "proGateTitle": "Die Marketing-Suite ist Teil von Tavli Pro",
+    "proGateBody": "E-Mail, SMS und WhatsApp, sechs automatische Set-and-forget-Kampagnen, Segmentierung über sechs Dimensionen und ein Frequenzlimit — alles im Pro-Tarif.",
+    "proGateCta": "Auf Pro wechseln",
+    "quotaOver": "Sie haben das enthaltene Kontingent für {channels} überschritten.",
+    "quotaNear": "Nahe am Limit für {channels}.",
+    "quotaSurcharge": "Sendungen über das Kontingent hinaus werden mit Aufschlag berechnet (0,06 €/SMS, 0,03 €/WhatsApp; E-Mail kostenlos).",
+    "usageTitle": "Verbrauch diesen Monat",
+    "usageHint": "enthalten",
+    "segmentsLink": "Zielgruppensegmente erstellen →"
+  },
+  "channels": {
+    "email": "Email",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp",
+    "in_confirmation": "In Bestätigung"
+  },
+  "triggeredLabels": {
+    "post_visit_review": "Dank nach dem Besuch + Bewertung",
+    "pre_arrival": "Erinnerung vor der Ankunft",
+    "birthday_anniversary": "Geburtstag / Jahrestag",
+    "lapsed_60": "Verlorene Gäste zurückgewinnen (60 Tage)",
+    "lapsed_120": "Verlorene Gäste zurückgewinnen (120 Tage)",
+    "lapsed_180": "Verlorene Gäste zurückgewinnen (180 Tage)",
+    "no_show_followup": "No-Show-Nachfassen",
+    "welcome_series": "Willkommensserie"
+  },
+  "manager": {
+    "actionFailed": "Die Aktion war nicht erfolgreich.",
+    "triggeredTitle": "Automatische Kampagnen",
+    "triggeredSubtitle": "Einmal einrichten, dauerhaft laufen lassen. Schalten Sie jede einzeln ein oder aus.",
+    "toggleOn": "Einschalten",
+    "toggleOff": "Ausschalten",
+    "toggleAriaLabel": "Kampagne {action}: {name}",
+    "campaignStopped": "Kampagne ausgeschaltet.",
+    "campaignStarted": "Kampagne eingeschaltet.",
+    "triggeredEmpty": "Noch keine automatischen Kampagnen eingerichtet.",
+    "oneOffTitle": "Einmalige Kampagnen",
+    "newCampaign": "+ Neue Kampagne",
+    "cancel": "Abbrechen",
+    "send": "Senden",
+    "sent": "Kampagne zur Zustellung gesendet.",
+    "archive": "Archivieren",
+    "archived": "Kampagne archiviert.",
+    "oneOffEmpty": "Noch keine einmaligen Kampagnen."
+  },
+  "newCampaign": {
+    "templateLabel": "Aus einer Vorlage starten",
+    "templateAriaLabel": "Vorlage",
+    "templateNone": "Keine Vorlage — von Grund auf beginnen",
+    "namePlaceholder": "Kampagnenname",
+    "channelAriaLabel": "Kanal",
+    "subjectPlaceholder": "Betreff ({locale})",
+    "bodyPlaceholderRequired": "Nachricht auf {locale} (erforderlich)",
+    "bodyPlaceholderOptional": "Nachricht auf {locale} (optional)",
+    "submit": "Entwurf speichern",
+    "created": "Kampagne erstellt (Entwurf).",
+    "errorInvalidInput": "Geben Sie den Namen und die Nachricht auf Rumänisch ein.",
+    "errorGeneric": "Die Erstellung war nicht erfolgreich.",
+    "localeNames": {
+      "ro": "Română",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "segments": {
+    "title": "Segmente",
+    "subtitle": "Erstellen Sie eine Zielgruppe aus Ihrem Gästebestand und speichern Sie sie für Kampagnen.",
+    "savedTitle": "Gespeicherte Segmente",
+    "savedSize": "≈ {count} Gäste",
+    "savedSizeEmpty": "—"
+  },
+  "builder": {
+    "matchPrefix": "Gäste finden, die erfüllen",
+    "combinatorAriaLabel": "Verknüpfung",
+    "combinatorAll": "alle Bedingungen",
+    "combinatorAny": "eine beliebige Bedingung",
+    "dimensionAriaLabel": "Dimension",
+    "dimensions": {
+      "recency": "Aktualität (letzter Besuch)",
+      "frequency": "Häufigkeit",
+      "party_size": "Gruppengröße",
+      "occasion": "Anlass",
+      "channel": "Akquisitionskanal"
+    },
+    "recencyModeAriaLabel": "Aktualitätsmodus",
+    "recencyWithin": "hat besucht in den letzten",
+    "recencyNotWithin": "hat nicht besucht in den letzten",
+    "daysAriaLabel": "Tage",
+    "daysSuffix": "Tage",
+    "bucketPlaceholder": "bucket (z. B. regular)",
+    "bucketAriaLabel": "Bucket",
+    "minPlaceholder": "min",
+    "minAriaLabel": "Min",
+    "maxPlaceholder": "max",
+    "maxAriaLabel": "Max",
+    "tagPlaceholder": "tag (z. B. birthday)",
+    "tagAriaLabel": "Tag",
+    "sourcePlaceholder": "Quelle (z. B. widget)",
+    "sourceAriaLabel": "Quelle",
+    "removeConditionAriaLabel": "Bedingung entfernen",
+    "addCondition": "Bedingung hinzufügen",
+    "estimateSize": "Größe schätzen",
+    "sizeResult": {
+      "one": "≈ {count} Gast",
+      "few": "≈ {count} Gäste",
+      "other": "≈ {count} Gäste"
+    },
+    "nameAriaLabel": "Segmentname",
+    "namePlaceholder": "Segmentname",
+    "save": "Segment speichern",
+    "saved": "Segment gespeichert.",
+    "errorPreviewInvalid": "Fügen Sie mindestens eine gültige Bedingung hinzu.",
+    "errorPreviewGeneric": "Die Schätzung war nicht erfolgreich.",
+    "errorSaveInvalid": "Prüfen Sie den Namen und die Bedingungen.",
+    "errorSaveGeneric": "Das Speichern war nicht erfolgreich."
+  },
+  "errors": {
+    "atLeastOneCondition": "Fügen Sie mindestens eine Bedingung hinzu.",
+    "segmentNameRequired": "Der Segmentname ist erforderlich."
+  }
+}

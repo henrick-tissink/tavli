@@ -7,6 +7,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { CAMPAIGN_TEMPLATES } from "@/lib/marketing/templates";
 import { createOneOffCampaignAction } from "../actions";
 
@@ -20,8 +21,6 @@ const EMPTY_COPY: Copy = {
   de: { subject: "", body: "" },
 };
 
-const LOCALE_LABEL: Record<Locale, string> = { ro: "Română", en: "English", de: "Deutsch" };
-
 export function NewCampaignForm({
   organizationId,
   onCreated,
@@ -29,6 +28,7 @@ export function NewCampaignForm({
   organizationId: string;
   onCreated: () => void;
 }) {
+  const t = useT("partner.marketing");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
@@ -36,15 +36,17 @@ export function NewCampaignForm({
   const [copy, setCopy] = useState<Copy>(EMPTY_COPY);
   const [locale, setLocale] = useState<Locale>("ro");
 
+  const localeName = (l: Locale) => t(`newCampaign.localeNames.${l}`);
+
   function applyTemplate(key: string) {
-    const t = CAMPAIGN_TEMPLATES.find((x) => x.key === key);
-    if (!t) return;
-    setName(t.name);
-    setChannel(t.channel);
+    const tpl = CAMPAIGN_TEMPLATES.find((x) => x.key === key);
+    if (!tpl) return;
+    setName(tpl.name);
+    setChannel(tpl.channel);
     setCopy({
-      ro: { subject: t.subject.ro, body: t.body.ro },
-      en: { subject: t.subject.en, body: t.body.en },
-      de: { subject: t.subject.de, body: t.body.de },
+      ro: { subject: tpl.subject.ro, body: tpl.body.ro },
+      en: { subject: tpl.subject.en, body: tpl.body.en },
+      de: { subject: tpl.subject.de, body: tpl.body.de },
     });
   }
 
@@ -57,11 +59,11 @@ export function NewCampaignForm({
     startTransition(async () => {
       const res = await createOneOffCampaignAction({ organizationId, name, channel, copy });
       if (res.ok) {
-        toast.success("Campanie creată (ciornă).");
+        toast.success(t("newCampaign.created"));
         onCreated();
         router.refresh();
       } else {
-        toast.error(res.code === "invalid_input" ? "Completează numele și mesajul în română." : "Crearea nu a reușit.");
+        toast.error(res.code === "invalid_input" ? t("newCampaign.errorInvalidInput") : t("newCampaign.errorGeneric"));
       }
     });
   }
@@ -73,18 +75,18 @@ export function NewCampaignForm({
     <form onSubmit={submit} className="mt-4 space-y-4 rounded-card border border-border bg-surface-white p-5">
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted">
-          Pornește dintr-un șablon
+          {t("newCampaign.templateLabel")}
         </label>
         <select
           defaultValue=""
           onChange={(e) => applyTemplate(e.target.value)}
           className={`${inputCls} mt-1.5`}
-          aria-label="Șablon"
+          aria-label={t("newCampaign.templateAriaLabel")}
         >
-          <option value="">Fără șablon — pornesc de la zero</option>
-          {CAMPAIGN_TEMPLATES.map((t) => (
-            <option key={t.key} value={t.key}>
-              {t.name}
+          <option value="">{t("newCampaign.templateNone")}</option>
+          {CAMPAIGN_TEMPLATES.map((tpl) => (
+            <option key={tpl.key} value={tpl.key}>
+              {tpl.name}
             </option>
           ))}
         </select>
@@ -94,13 +96,13 @@ export function NewCampaignForm({
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
-        placeholder="Numele campaniei"
+        placeholder={t("newCampaign.namePlaceholder")}
         className={inputCls}
       />
-      <select value={channel} onChange={(e) => setChannel(e.target.value as Channel)} className={inputCls} aria-label="Canal">
-        <option value="email">Email</option>
-        <option value="sms">SMS</option>
-        <option value="whatsapp">WhatsApp</option>
+      <select value={channel} onChange={(e) => setChannel(e.target.value as Channel)} className={inputCls} aria-label={t("newCampaign.channelAriaLabel")}>
+        <option value="email">{t("channels.email")}</option>
+        <option value="sms">{t("channels.sms")}</option>
+        <option value="whatsapp">{t("channels.whatsapp")}</option>
       </select>
 
       <div role="tablist" className="inline-flex gap-1 rounded-pill border border-border p-1">
@@ -117,7 +119,7 @@ export function NewCampaignForm({
               l === "ro" ? "" : copy[l].body.trim() ? "" : "opacity-70",
             ].join(" ")}
           >
-            {LOCALE_LABEL[l]}
+            {localeName(l)}
             {l === "ro" && <span className="ml-1 text-brand-primary">•</span>}
           </button>
         ))}
@@ -127,7 +129,7 @@ export function NewCampaignForm({
         <input
           value={copy[locale].subject}
           onChange={(e) => setField("subject", e.target.value)}
-          placeholder={`Subiect (${LOCALE_LABEL[locale]})`}
+          placeholder={t("newCampaign.subjectPlaceholder", { locale: localeName(locale) })}
           className={inputCls}
         />
       )}
@@ -135,7 +137,11 @@ export function NewCampaignForm({
         value={copy[locale].body}
         onChange={(e) => setField("body", e.target.value)}
         rows={4}
-        placeholder={`Mesajul în ${LOCALE_LABEL[locale]}${locale === "ro" ? " (obligatoriu)" : " (opțional)"}`}
+        placeholder={
+          locale === "ro"
+            ? t("newCampaign.bodyPlaceholderRequired", { locale: localeName(locale) })
+            : t("newCampaign.bodyPlaceholderOptional", { locale: localeName(locale) })
+        }
         className={`${inputCls} resize-none`}
       />
 
@@ -144,7 +150,7 @@ export function NewCampaignForm({
         disabled={pending}
         className="inline-flex min-h-[44px] items-center rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
-        Salvează ciorna
+        {t("newCampaign.submit")}
       </button>
     </form>
   );

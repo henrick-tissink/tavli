@@ -20,6 +20,8 @@ import {
 } from "@/lib/marketing/segment-compile";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { loadBillingAccess } from "@/lib/billing/dunning";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 import { ok, fail, unauthenticated, forbidden, type ActionResult } from "@/lib/server-action";
@@ -191,7 +193,10 @@ export async function previewSegmentSizeAction(
     `)) as unknown as Array<{ n: number }>;
     return ok({ count: rows[0]?.n ?? 0 });
   } catch (err) {
-    if (String(err).includes("TV900")) return fail("invalid_input", "Adaugă cel puțin o condiție.");
+    if (String(err).includes("TV900")) {
+      const m = getMessages(await resolveAppLocale(), "partner.marketing");
+      return fail("invalid_input", m.errors.atLeastOneCondition);
+    }
     return fail("internal", String(err));
   }
 }
@@ -204,7 +209,9 @@ export async function saveSegmentAction(
 ): Promise<ActionResult<{ id: string }>> {
   const { error, session } = await gate(organizationId, "campaign.create");
   if (error) return error;
-  if (!name.trim()) return fail("invalid_input", "Numele segmentului e obligatoriu.");
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.marketing");
+  if (!name.trim()) return fail("invalid_input", m.errors.segmentNameRequired);
   try {
     compileSegmentFilter(conditions, combinator); // validate before persisting
     const actor = await currentActor(session!.userId);
@@ -221,7 +228,7 @@ export async function saveSegmentAction(
     revalidatePath("/partner/marketing/segments");
     return ok({ id: row.id });
   } catch (err) {
-    if (String(err).includes("TV900")) return fail("invalid_input", "Adaugă cel puțin o condiție.");
+    if (String(err).includes("TV900")) return fail("invalid_input", m.errors.atLeastOneCondition);
     return fail("internal", String(err));
   }
 }

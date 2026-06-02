@@ -17,6 +17,7 @@ jest.mock("@/lib/billing/dunning", () => ({ loadBillingAccess: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/jobs/keys", () => ({ JOBS: { marketing: { fanOut: "marketing.fanOut" } } }));
 jest.mock("@/lib/db/admin", () => ({ dbAdmin: { update: jest.fn(), insert: jest.fn() } }));
+jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("ro") }));
 
 import { sendCampaignAction } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";

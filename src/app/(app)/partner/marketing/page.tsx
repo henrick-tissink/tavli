@@ -9,28 +9,40 @@ import { restaurants, marketingCampaigns, marketingQuotaUsage } from "@/lib/db/s
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { StatCard } from "@/components/admin/StatCard";
 import { ArrowLeft, Mail, MessageSquare, Phone } from "lucide-react";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { MarketingManager } from "./_components/MarketingManager";
 
 export const dynamic = "force-dynamic";
 
 const DEFAULT_ALLOWANCE: Record<string, number> = { email: 1000, sms: 250, whatsapp: 250 };
 
-function Header() {
+type MarketingMessages = ReturnType<typeof getMessages<"partner.marketing">>;
+type CommonMessages = ReturnType<typeof getMessages<"partner.common">>;
+
+function Header({ m, common }: { m: MarketingMessages; common: CommonMessages }) {
   return (
     <header>
       <Link
         href="/partner"
         className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary"
       >
-        <ArrowLeft size={15} aria-hidden /> Înapoi la panou
+        <ArrowLeft size={15} aria-hidden /> {common.nav.backToDashboard}
       </Link>
-      <p className="mt-4 text-xs uppercase tracking-[0.2em] text-text-muted">Cont</p>
-      <h1 className="mt-2 font-display text-4xl text-text-primary">Marketing</h1>
+      <p className="mt-4 text-xs uppercase tracking-[0.2em] text-text-muted">{common.nav.accountEyebrow}</p>
+      <h1 className="mt-2 font-display text-4xl text-text-primary">{m.page.title}</h1>
     </header>
   );
 }
 
 export default async function PartnerMarketingPage() {
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.marketing");
+  const common = getMessages(locale, "partner.common");
+  const bundle = buildBundle(locale, ["partner.common", "partner.marketing"]);
+
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
 
@@ -56,9 +68,9 @@ export default async function PartnerMarketingPage() {
   if (!organizationId || !allowed) {
     return (
       <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
-        <Header />
+        <Header m={m} common={common} />
         <div className="rounded-card border border-border bg-surface-white p-8 text-sm text-text-secondary">
-          Nu ai acces la suita de marketing.
+          {m.page.noAccess}
         </div>
       </div>
     );
@@ -70,18 +82,17 @@ export default async function PartnerMarketingPage() {
   if (!isPro) {
     return (
       <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
-        <Header />
+        <Header m={m} common={common} />
         <div className="rounded-card border border-dashed border-border bg-surface-bg/60 p-12 text-center">
-          <h2 className="font-display text-2xl font-bold text-text-primary">Suita de marketing e parte din Tavli Pro</h2>
+          <h2 className="font-display text-2xl font-bold text-text-primary">{m.page.proGateTitle}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
-            Email, SMS și WhatsApp, șase campanii automate set-and-forget, segmentare pe șase dimensiuni și
-            plafon de frecvență — toate cu planul Pro.
+            {m.page.proGateBody}
           </p>
           <Link
             href="/partner/billing"
             className="mt-5 inline-flex min-h-[48px] items-center rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            Treci la Pro
+            {m.page.proGateCta}
           </Link>
         </div>
       </div>
@@ -133,45 +144,47 @@ export default async function PartnerMarketingPage() {
   const overChannels = channelsAtRisk.filter(({ u }) => u.sent >= u.allowance);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10 px-4 py-12">
-      <Header />
+    <MessagesProvider locale={locale} bundle={bundle}>
+      <div className="mx-auto max-w-3xl space-y-10 px-4 py-12">
+        <Header m={m} common={common} />
 
-      {channelsAtRisk.length > 0 && (
-        <div
-          className={`rounded-card border p-5 ${
-            overChannels.length > 0 ? "border-error/40 bg-error/5" : "border-amber-300 bg-amber-50"
-          }`}
+        {channelsAtRisk.length > 0 && (
+          <div
+            className={`rounded-card border p-5 ${
+              overChannels.length > 0 ? "border-error/40 bg-error/5" : "border-amber-300 bg-amber-50"
+            }`}
+          >
+            <p className={`text-sm font-semibold ${overChannels.length > 0 ? "text-error" : "text-amber-900"}`}>
+              {overChannels.length > 0
+                ? interpolate(m.page.quotaOver, { channels: overChannels.map((c) => c.label).join(", ") })
+                : interpolate(m.page.quotaNear, { channels: channelsAtRisk.map((c) => c.label).join(", ") })}
+            </p>
+            <p className="mt-1 text-sm text-text-secondary">
+              {m.page.quotaSurcharge}
+            </p>
+          </div>
+        )}
+
+        <section>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+            {m.page.usageTitle}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <StatCard label={m.channels.email} value={`${email.sent} / ${email.allowance}`} icon={Mail} hint={m.page.usageHint} />
+            <StatCard label={m.channels.sms} value={`${sms.sent} / ${sms.allowance}`} icon={MessageSquare} hint={m.page.usageHint} />
+            <StatCard label={m.channels.whatsapp} value={`${whatsapp.sent} / ${whatsapp.allowance}`} icon={Phone} hint={m.page.usageHint} />
+          </div>
+        </section>
+
+        <Link
+          href="/partner/marketing/segments"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary-dark hover:underline"
         >
-          <p className={`text-sm font-semibold ${overChannels.length > 0 ? "text-error" : "text-amber-900"}`}>
-            {overChannels.length > 0
-              ? `Ai depășit alocarea inclusă pe ${overChannels.map((c) => c.label).join(", ")}.`
-              : `Aproape de limită pe ${channelsAtRisk.map((c) => c.label).join(", ")}.`}
-          </p>
-          <p className="mt-1 text-sm text-text-secondary">
-            Trimiterile peste alocare se facturează la suprataxă (€0,06/SMS, €0,03/WhatsApp; email gratuit).
-          </p>
-        </div>
-      )}
+          {m.page.segmentsLink}
+        </Link>
 
-      <section>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
-          Consum luna aceasta
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard label="Email" value={`${email.sent} / ${email.allowance}`} icon={Mail} hint="incluse" />
-          <StatCard label="SMS" value={`${sms.sent} / ${sms.allowance}`} icon={MessageSquare} hint="incluse" />
-          <StatCard label="WhatsApp" value={`${whatsapp.sent} / ${whatsapp.allowance}`} icon={Phone} hint="incluse" />
-        </div>
-      </section>
-
-      <Link
-        href="/partner/marketing/segments"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary-dark hover:underline"
-      >
-        Construiește segmente de public →
-      </Link>
-
-      <MarketingManager organizationId={organizationId} campaigns={campaigns} />
-    </div>
+        <MarketingManager organizationId={organizationId} campaigns={campaigns} />
+      </div>
+    </MessagesProvider>
   );
 }
