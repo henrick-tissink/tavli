@@ -446,6 +446,35 @@ describe("proxy", () => {
       const location = res.headers.get("location");
       expect(location == null || !/\/ro\/admin/.test(location)).toBe(true);
     });
+
+    it("GUARD: localized RO legal slug /termeni is NOT rewritten to /ro/termeni", async () => {
+      const sb = mockSupabase({ user: null });
+      (createServerClient as jest.Mock).mockReturnValue(sb);
+      const req = mockRequest({ pathname: "/termeni", acceptLanguage: "ro" });
+      const res = await proxy(req);
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\/termeni/.test(rewrite)).toBe(true);
+      const location = res.headers.get("location");
+      expect(location == null || !/\/ro\/termeni/.test(location)).toBe(true);
+    });
+
+    it("GUARD: /confidentialitate is NOT locale-rewritten", async () => {
+      const sb = mockSupabase({ user: null });
+      (createServerClient as jest.Mock).mockReturnValue(sb);
+      const req = mockRequest({ pathname: "/confidentialitate", acceptLanguage: "ro" });
+      const res = await proxy(req);
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\//.test(rewrite)).toBe(true);
+      expect(res.headers.get("location")).toBeNull();
+    });
+
+    it("does not redirect an already-prefixed /en/terms legal page", async () => {
+      const req = mockRequest({ pathname: "/en/terms" });
+      const res = await proxy(req);
+      expect(res.headers.get("location")).toBeNull();
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite == null || !/\/ro\//.test(rewrite)).toBe(true);
+    });
   });
 
   describe("DEMO_MODE noindex", () => {
