@@ -697,9 +697,6 @@ export interface EmailsMessages {
   };
 }
 
-/** Plural-bag type used across partner namespaces. */
-type PartnerPluralBag = { one: string; few: string; other: string };
-
 /** Structural contract for the `partner.common` namespace (shell chrome). */
 export interface PartnerCommonMessages {
   nav: {
@@ -707,7 +704,7 @@ export interface PartnerCommonMessages {
     signOut: string;
     openMenu: string;
     closeMenu: string;
-    openRequestsBadge: PartnerPluralBag;
+    openRequestsBadge: PluralBag;
     items: {
       dashboard: string;
       profile: string;
