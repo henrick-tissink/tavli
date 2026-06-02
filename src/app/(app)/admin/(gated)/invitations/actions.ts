@@ -72,9 +72,13 @@ export async function createInvitation(
     .eq("id", cityId)
     .maybeSingle();
 
+  // Email subject is outbound content (the recipient has no locale yet, and the
+  // body is sent in a fixed locale), so resolve it against a fixed locale rather
+  // than the admin operator's UI locale.
+  const emailM = getMessages("en", "admin.invitations");
   const subject = proposedName
-    ? interpolate(m.email.subjectNamed, { name: proposedName })
-    : m.email.subject;
+    ? interpolate(emailM.email.subjectNamed, { name: proposedName })
+    : emailM.email.subject;
   const node = InvitationEmail({
     inviteUrl: url,
     cityName: city?.name,
@@ -153,7 +157,8 @@ export async function resendInvitation(
     .maybeSingle();
 
   const url = invitationUrl(raw);
-  const subject = m.email.subjectResent;
+  // Outbound email subject — fixed locale, not the admin's UI locale (see createInvitation).
+  const subject = getMessages("en", "admin.invitations").email.subjectResent;
   const node = InvitationEmail({
     inviteUrl: url,
     cityName: city?.name,
