@@ -5,16 +5,9 @@ import { BottomSheet } from "./bottom-sheet";
 import { Pill } from "./pill";
 import { Button } from "./button";
 import { submitEventRequestDraft } from "@/app/api/event-requests/actions";
+import { useT } from "@/lib/i18n/messages-provider";
 
-const OCCASION_LABELS_RO = {
-  wedding: "Nuntă",
-  birthday: "Aniversare",
-  corporate_dinner: "Cină corporate",
-  product_launch: "Lansare produs",
-  other: "Altele",
-} as const;
-
-type Occasion = keyof typeof OCCASION_LABELS_RO;
+type Occasion = "wedding" | "birthday" | "corporate_dinner" | "product_launch" | "other";
 
 export interface EventRequestSheetProps {
   open: boolean;
@@ -37,6 +30,7 @@ export function EventRequestSheet({
   minLeadDays = 7,
   budgetPerHeadGuidance,
 }: EventRequestSheetProps) {
+  const t = useT("events");
   const [step, setStep] = useState<Step>("occasion");
   const [occasion, setOccasion] = useState<Occasion | null>(null);
   const [eventDate, setEventDate] = useState("");
@@ -99,7 +93,7 @@ export function EventRequestSheet({
         });
         setStep("sent");
       } catch (e) {
-        setError((e as Error).message || "Ceva nu a mers. Încearcă din nou.");
+        setError((e as Error).message || t("sheet.errorGeneric"));
       }
     });
   }
@@ -108,23 +102,23 @@ export function EventRequestSheet({
     <BottomSheet
       open={open}
       onClose={onClose}
-      title={`${restaurantName} · Eveniment privat`}
+      title={`${restaurantName} ${t("sheet.titleSuffix")}`}
     >
       {step === "occasion" && (
         <div className="space-y-3">
-          <p className="font-medium">Ce sărbătorim?</p>
+          <p className="font-medium">{t("sheet.occasion.heading")}</p>
           <div className="flex flex-wrap gap-2">
             {acceptedOccasions.map((o) => (
               <Pill
                 key={o}
-                label={OCCASION_LABELS_RO[o]}
+                label={t(`sheet.occasion.labels.${o}`)}
                 active={occasion === o}
                 onToggle={() => setOccasion(o)}
               />
             ))}
           </div>
           <Button disabled={!occasion} onClick={next}>
-            Continuă
+            {t("sheet.continue")}
           </Button>
         </div>
       )}
@@ -132,7 +126,7 @@ export function EventRequestSheet({
       {step === "date" && (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium">Dată eveniment</span>
+            <span className="text-sm font-medium">{t("sheet.date.label")}</span>
             <input
               type="date"
               min={minDate}
@@ -142,17 +136,17 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Preferință oră</span>
+            <span className="text-sm font-medium">{t("sheet.date.timePrefLabel")}</span>
             <input
               type="text"
-              placeholder="prânz / seară / 18:00"
+              placeholder={t("sheet.date.timePrefPlaceholder")}
               value={eventTimePreference}
               onChange={(e) => setEventTimePreference(e.target.value)}
               className="w-full mt-1 border rounded p-2"
             />
           </label>
           <Button disabled={!eventDate} onClick={next}>
-            Continuă
+            {t("sheet.continue")}
           </Button>
         </div>
       )}
@@ -160,7 +154,7 @@ export function EventRequestSheet({
       {step === "details" && (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium">Persoane</span>
+            <span className="text-sm font-medium">{t("sheet.details.persoanelLabel")}</span>
             <input
               type="number"
               min={1}
@@ -170,7 +164,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Spațiu dorit (opțional)</span>
+            <span className="text-sm font-medium">{t("sheet.details.spaceLabel")}</span>
             <input
               type="text"
               value={spacePreference}
@@ -179,7 +173,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Buget per persoană (lei, opțional)</span>
+            <span className="text-sm font-medium">{t("sheet.details.budgetLabel")}</span>
             <input
               type="number"
               min={0}
@@ -196,7 +190,7 @@ export function EventRequestSheet({
             )}
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Meniu / dorințe</span>
+            <span className="text-sm font-medium">{t("sheet.details.menuLabel")}</span>
             <textarea
               value={menuPreference}
               onChange={(e) => setMenuPreference(e.target.value)}
@@ -205,7 +199,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Restricții alimentare</span>
+            <span className="text-sm font-medium">{t("sheet.details.dietaryLabel")}</span>
             <textarea
               value={dietaryNotes}
               onChange={(e) => setDietaryNotes(e.target.value)}
@@ -214,7 +208,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Note suplimentare</span>
+            <span className="text-sm font-medium">{t("sheet.details.notesLabel")}</span>
             <textarea
               value={additionalNotes}
               onChange={(e) => setAdditionalNotes(e.target.value)}
@@ -222,14 +216,14 @@ export function EventRequestSheet({
               rows={2}
             />
           </label>
-          <Button onClick={next}>Continuă</Button>
+          <Button onClick={next}>{t("sheet.continue")}</Button>
         </div>
       )}
 
       {step === "identity" && (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium">Nume</span>
+            <span className="text-sm font-medium">{t("sheet.identity.nameLabel")}</span>
             <input
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
@@ -237,7 +231,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Email</span>
+            <span className="text-sm font-medium">{t("sheet.identity.emailLabel")}</span>
             <input
               type="email"
               value={guestEmail}
@@ -246,7 +240,7 @@ export function EventRequestSheet({
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">Telefon (opțional)</span>
+            <span className="text-sm font-medium">{t("sheet.identity.phoneLabel")}</span>
             <input
               type="tel"
               value={guestPhone}
@@ -260,12 +254,12 @@ export function EventRequestSheet({
               checked={bookingForCompany}
               onChange={(e) => setBookingForCompany(e.target.checked)}
             />
-            Rezervare pentru o companie
+            {t("sheet.identity.companyCheckLabel")}
           </label>
           {bookingForCompany && (
             <>
               <label className="block">
-                <span className="text-sm font-medium">CUI</span>
+                <span className="text-sm font-medium">{t("sheet.identity.cuiLabel")}</span>
                 <input
                   value={claimedCompanyCui}
                   onChange={(e) => setClaimedCompanyCui(e.target.value)}
@@ -273,7 +267,7 @@ export function EventRequestSheet({
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium">Denumire companie</span>
+                <span className="text-sm font-medium">{t("sheet.identity.companyNameLabel")}</span>
                 <input
                   value={claimedCompanyName}
                   onChange={(e) => setClaimedCompanyName(e.target.value)}
@@ -291,17 +285,16 @@ export function EventRequestSheet({
             disabled={pending || !guestName || !guestEmail}
             onClick={submit}
           >
-            {pending ? "Se trimite…" : "Trimite cererea"}
+            {pending ? t("sheet.submitPending") : t("sheet.submitLabel")}
           </Button>
         </div>
       )}
 
       {step === "sent" && (
         <div className="space-y-3 text-center py-6">
-          <p className="text-xl font-semibold">Verifică emailul</p>
+          <p className="text-xl font-semibold">{t("sheetV2.stepSent.heading")}</p>
           <p className="text-sm text-zinc-600">
-            Ți-am trimis un link la <strong>{guestEmail}</strong>. Click pe el ca
-            să confirmi cererea — astfel restaurantul o primește în inbox.
+            {t("sheetV2.stepSent.body").replace("{email}", guestEmail)}
           </p>
         </div>
       )}

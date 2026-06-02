@@ -1,0 +1,125 @@
+{
+  "sheet": {
+    "headerLabel": "Reservierung",
+    "progress": "Schritt {current} von {total}",
+    "back": "Zurück",
+    "continue": "Weiter",
+    "submitting": "Wird gesendet...",
+    "submit": "Reservierung senden",
+    "errorGeneric": "Die Reservierung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "errorName": "Name ist erforderlich.",
+    "errorPhone": "Telefonnummer ist erforderlich.",
+    "errorEmail": "Ungültige E-Mail-Adresse.",
+    "stepDate": {
+      "title": "Wann möchten Sie reservieren?",
+      "today": "Heute",
+      "tomorrow": "Morgen"
+    },
+    "stepParty": {
+      "title": "Wie viele Personen?",
+      "decrementAriaLabel": "Gast entfernen",
+      "incrementAriaLabel": "Gast hinzufügen",
+      "privateEventHint": "Für mehr als 12 Personen, siehe",
+      "privateEventLink": "private Veranstaltungen",
+      "hintDinner": "Abendessen",
+      "hintLunch": "Mittagessen",
+      "hintFriends": "Mit Freunden"
+    },
+    "stepSlot": {
+      "title": "Zu welcher Uhrzeit?",
+      "subtitle": "Wählen Sie Ihr Ankunftsfenster.",
+      "loadingAriaLabel": "Verfügbare Zeiten werden geladen",
+      "noSlots": "Für dieses Datum sind keine Tische verfügbar.",
+      "noSlotsHint": "Bitte versuchen Sie einen anderen Tag.",
+      "zoneLabel": "Bereich (optional)",
+      "allZones": "Alle Bereiche"
+    },
+    "stepIdentity": {
+      "title": "Ihre Angaben",
+      "nameLabel": "Name",
+      "phoneLabel": "Telefon",
+      "emailLabel": "E-Mail (optional)",
+      "occasionLabel": "Feiern Sie etwas? (optional)",
+      "occasionNone": "Nein, danke",
+      "occasionBirthday": "Geburtstag",
+      "occasionAnniversary": "Jahrestag",
+      "birthdayDateLabel": "Geburtsdatum",
+      "anniversaryDateLabel": "Datum des Jahrestags",
+      "notesLabel": "Anmerkungen (optional)",
+      "summaryToday": "Heute",
+      "summaryTomorrow": "Morgen",
+      "guests": {
+        "one": "{count} Person",
+        "few": "{count} Personen",
+        "other": "{count} Personen"
+      }
+    },
+    "stepSent": {
+      "title": "Ihre Reservierung ist bestätigt",
+      "atTime": "um",
+      "subtitle": "{guests} Personen",
+      "viewReservation": "Reservierung ansehen",
+      "backToRestaurant": "Zurück zum Restaurant"
+    }
+  },
+  "confirmed": {
+    "eyebrow": "BESTÄTIGT",
+    "awaitingYou": "Wir freuen uns auf Sie am {weekday} um {time}.",
+    "forParty": "Für {partySize} {unit} bei {restaurantName}",
+    "waitingBadge": "WAS SIE ERWARTET",
+    "addressLabel": "Adresse",
+    "directionsLink": "Route anzeigen →",
+    "phoneLabel": "Telefon",
+    "calendarLabel": "Zum Kalender hinzufügen",
+    "calendarDownload": ".ics herunterladen",
+    "calendarAriaLabel": "Kalenderdatei herunterladen",
+    "needToCancel": "Müssen Sie stornieren?",
+    "cancelLink": "Reservierung stornieren",
+    "partyUnit": {
+      "one": "Person",
+      "few": "Personen",
+      "other": "Personen"
+    },
+    "icsSummary": "Reservierung bei {restaurantName}"
+  },
+  "cancel": {
+    "reasonLabel": "Grund (optional)",
+    "reasonPlaceholder": "Pläne haben sich geändert, verspätet, konnte nicht kommen…",
+    "submitPending": "Wird storniert…",
+    "submitLabel": "Reservierung bei {restaurantName} stornieren",
+    "confirmDialog": "Reservierung bei {restaurantName} stornieren?",
+    "doneTitle": "Reservierung storniert.",
+    "doneBody": "Wir haben {restaurantName} benachrichtigt. Sie können diesen Tab schließen.",
+    "errorGeneric": "Die Stornierung konnte nicht durchgeführt werden."
+  },
+  "modify": {
+    "pageTitle": "Reservierung ändern",
+    "modifyingLabel": "Sie ändern Ihre Reservierung bei {restaurantName}.",
+    "dateLabel": "Datum",
+    "timeLabel": "Uhrzeit",
+    "partySizeLabel": "Anzahl der Personen",
+    "submitPending": "Wird gespeichert…",
+    "submitLabel": "Änderungen speichern",
+    "doneTitle": "Ihre Reservierung wurde aktualisiert.",
+    "doneBody": "Wir haben Ihnen die neuen Details per E-Mail gesendet.",
+    "errorGeneric": "Die Änderung konnte nicht durchgeführt werden.",
+    "windowClosedBody": "Diese Reservierung kann nicht mehr online geändert werden (weniger als 24 Stunden verbleibend oder bereits abgeschlossen). Bitte kontaktieren Sie das Restaurant direkt.",
+    "callLink": "{restaurantName} anrufen",
+    "emailLink": "{restaurantName} schreiben",
+    "backLink": "Zurück zur Reservierung",
+    "configMissing": "Die Plattform ist nicht konfiguriert.",
+    "notFound": "Reservierung nicht gefunden."
+  },
+  "tokenPage": {
+    "reservationLabel": "Reservierung",
+    "alreadyCancelledTitle": "Bereits storniert",
+    "alreadyCancelledBody": "Diese Reservierung wurde bereits storniert. Es gibt nichts mehr zu tun.",
+    "completedTitle": "Kann nicht mehr storniert werden",
+    "completedBody": "Diese Reservierung liegt bereits in der Vergangenheit. Wir hoffen, es war ein schöner Abend.",
+    "notFoundTitle": "Reservierung nicht gefunden",
+    "notFoundBody": "Der Stornierungslink wurde nicht erkannt. Möglicherweise wurde er falsch kopiert — bitte kopieren Sie ihn erneut aus Ihrer E-Mail.",
+    "configMissingTitle": "Plattform nicht konfiguriert",
+    "configMissingBody": "Tavli wird noch eingerichtet. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.",
+    "contactLabel": "Kontakt:"
+  }
+}

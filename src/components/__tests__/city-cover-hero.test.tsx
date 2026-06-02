@@ -1,8 +1,18 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CityCoverHero } from "../city-cover-hero";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 test("renders greeting, city, and singular/plural variants", () => {
-  const { rerender } = render(
+  const { rerender } = renderWithProvider(
     <CityCoverHero
       cityDisplay="București"
       greeting="Bună dimineața"
@@ -14,19 +24,34 @@ test("renders greeting, city, and singular/plural variants", () => {
   expect(screen.getByText(/București,/)).toBeInTheDocument();
   expect(screen.getByText(/1 loc disponibil/)).toBeInTheDocument();
   rerender(
-    <CityCoverHero
-      cityDisplay="București"
-      greeting="x"
-      availableTonightCount={5}
-      onSearch={jest.fn()}
-    />
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      <CityCoverHero
+        cityDisplay="București"
+        greeting="x"
+        availableTonightCount={5}
+        onSearch={jest.fn()}
+      />
+    </MessagesProvider>
   );
   expect(screen.getByText(/5 locuri disponibile/)).toBeInTheDocument();
 });
 
+test("count=20 renders RO 'other' form verbatim (regression: no 'de')", () => {
+  renderWithProvider(
+    <CityCoverHero
+      cityDisplay="București"
+      greeting="x"
+      availableTonightCount={20}
+      onSearch={jest.fn()}
+    />
+  );
+  expect(screen.getByText(/20 locuri disponibile/)).toBeInTheDocument();
+  expect(screen.queryByText(/de locuri/)).not.toBeInTheDocument();
+});
+
 test("Caută o masă button triggers onSearch", () => {
   const onSearch = jest.fn();
-  render(
+  renderWithProvider(
     <CityCoverHero
       cityDisplay="București"
       greeting="x"

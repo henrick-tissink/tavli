@@ -12,6 +12,8 @@ import {
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
 import { isLocale } from "@/lib/i18n/locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { localizedHref } from "@/lib/i18n/routing";
 import { DetailPageClient } from "./DetailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +38,8 @@ export default async function RestaurantDetailPage({
 }: {
   params: Promise<{ lang: string; city: string; slug: string }>;
 }) {
-  const { city, slug } = await params;
+  const { lang, city, slug } = await params;
+  const m = getMessages(lang, "restaurant");
   const [restaurant, seo] = await Promise.all([
     getRestaurantDetail(slug),
     getRestaurantSeoData(slug),
@@ -46,13 +49,13 @@ export default async function RestaurantDetailPage({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <h1 className="text-xl font-bold text-text-primary">
-          Restaurantul nu a fost găsit
+          {m.notFound.title}
         </h1>
         <Link
-          href={`/${city}`}
+          href={localizedHref(`/${city}`, isLocale(lang) ? lang : "ro")}
           className="mt-4 text-brand-primary font-semibold text-sm"
         >
-          Înapoi
+          {m.notFound.back}
         </Link>
       </div>
     );

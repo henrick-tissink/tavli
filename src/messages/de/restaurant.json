@@ -1,0 +1,59 @@
+{
+  "notFound": {
+    "title": "Restaurant nicht gefunden",
+    "back": "Zurück"
+  },
+  "detail": {
+    "availableToday": "Heute verfügbar",
+    "noSlotsTitle": "Heute keine Tische verfügbar",
+    "noSlotsBody": "Versuchen Sie einen anderen Tag im Kalender.",
+    "bookOtherDay": "Anderen Tag reservieren →",
+    "readMore": "Mehr lesen",
+    "showLess": "Weniger anzeigen",
+    "chefPicksTitle": "Empfehlungen des Küchenchefs",
+    "chefPicksSubtitle": "Gerichte, die Sie hier probieren können.",
+    "viewMenu": "Speisekarte ansehen →",
+    "viewMenuLabel": "Speisekarte ansehen",
+    "viewMenuFull": "vollständige Speisekarte",
+    "pickBadge": "Auswahl #{n}",
+    "viewMenuRecommendations": {
+      "one": "{count} Empfehlung",
+      "few": "{count} Empfehlungen",
+      "other": "{count} Empfehlungen"
+    },
+    "reviewsTitle": "Bewertungen",
+    "reviewsSubtitle": "Was aktuelle Gäste sagen.",
+    "scheduleTitle": "Öffnungszeiten",
+    "scheduleSubtitle": "Wann geöffnet ist.",
+    "locationTitle": "Standort",
+    "locationSubtitle": "So kommen Sie hin.",
+    "directionsLink": "Route anzeigen",
+    "nearbyTitle": "In der Nähe",
+    "nearbySubtitle": "Lokale in derselben Straße mit ähnlichem Geist.",
+    "bookTable": "Tisch reservieren",
+    "stickyBookCta": "Reservieren",
+    "stickyNextSlot": "Nächste Verfügbarkeit: {slot}"
+  },
+  "gallery": {
+    "backAriaLabel": "Zurück",
+    "saveAriaLabel": "Speichern",
+    "shareAriaLabel": "Teilen"
+  },
+  "reviewCard": {
+    "bookedContext": "Reserviert: {date} · {count} {unit}",
+    "guestOne": "Gast",
+    "guestOther": "Gäste",
+    "helpful": "👍 Hilfreich ({count})",
+    "restaurantReply": "Antwort des Restaurants"
+  },
+  "reviewIntelligence": {
+    "title": "Was die Leute lieben",
+    "basedOn": {
+      "one": "Basierend auf {count} Bewertung",
+      "few": "Basierend auf {count} Bewertungen",
+      "other": "Basierend auf {count} Bewertungen"
+    },
+    "topMentionsTitle": "Am häufigsten erwähnt",
+    "bestForTitle": "Ideal für"
+  }
+}

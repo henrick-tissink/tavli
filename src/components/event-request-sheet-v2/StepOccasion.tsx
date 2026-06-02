@@ -1,45 +1,23 @@
 "use client";
 
 import { OccasionCard } from "./OccasionCard";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { Occasion } from "./types";
 
-const META: Record<
-  Occasion,
-  { label: string; blurb: string; illustration: string; accentVar: string }
-> = {
-  wedding: {
-    label: "Nuntă",
-    blurb:
-      "Cina sau petrecerea care contează. Te ajutăm să o organizezi de la zero.",
-    illustration: "/illustrations/occasion-wedding.svg",
-    accentVar: "--color-occasion-wedding",
-  },
-  birthday: {
-    label: "Aniversare",
-    blurb:
-      "Rotund sau intim. Spune-ne câteva detalii și restaurantul face restul.",
-    illustration: "/illustrations/occasion-birthday.svg",
-    accentVar: "--color-occasion-birthday",
-  },
-  corporate_dinner: {
-    label: "Cină corporate",
-    blurb: "Team dinner, client lunch, end-of-year — formal sau lejer.",
-    illustration: "/illustrations/occasion-corporate.svg",
-    accentVar: "--color-occasion-corporate",
-  },
-  product_launch: {
-    label: "Lansare produs",
-    blurb:
-      "Open bar, cocktail, podea liberă — un eveniment care arată ce vrei să spui.",
-    illustration: "/illustrations/occasion-product.svg",
-    accentVar: "--color-occasion-product",
-  },
-  other: {
-    label: "Altele",
-    blurb: "Vorbim despre detalii, găsim setarea potrivită.",
-    illustration: "/illustrations/occasion-other.svg",
-    accentVar: "--color-occasion-other",
-  },
+const ILLUSTRATION: Record<Occasion, string> = {
+  wedding: "/illustrations/occasion-wedding.svg",
+  birthday: "/illustrations/occasion-birthday.svg",
+  corporate_dinner: "/illustrations/occasion-corporate.svg",
+  product_launch: "/illustrations/occasion-product.svg",
+  other: "/illustrations/occasion-other.svg",
+};
+
+const ACCENT_VAR: Record<Occasion, string> = {
+  wedding: "--color-occasion-wedding",
+  birthday: "--color-occasion-birthday",
+  corporate_dinner: "--color-occasion-corporate",
+  product_launch: "--color-occasion-product",
+  other: "--color-occasion-other",
 };
 
 interface Props {
@@ -59,12 +37,13 @@ export function StepOccasion({
   onPick,
   onNext,
 }: Props) {
+  const t = useT("events");
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Hai să facem din asta ceva memorabil.
+        {t("sheetV2.stepOccasion.heading")}
       </h2>
-      <p className="text-sm text-text-secondary">Ce sărbătorești?</p>
+      <p className="text-sm text-text-secondary">{t("sheetV2.stepOccasion.subheading")}</p>
       <div className="grid grid-cols-2 gap-3">
         {acceptedOccasions.map((o) => (
           <OccasionCard
@@ -72,7 +51,10 @@ export function StepOccasion({
             occasion={o}
             selected={selected === o}
             onPick={onPick}
-            {...META[o]}
+            label={t(`sheetV2.stepOccasion.occasions.${o}.label`)}
+            blurb={t(`sheetV2.stepOccasion.occasions.${o}.blurb`)}
+            illustration={ILLUSTRATION[o]}
+            accentVar={ACCENT_VAR[o]}
           />
         ))}
       </div>
@@ -82,7 +64,7 @@ export function StepOccasion({
         onClick={onNext}
         className="w-full mt-4 bg-brand-primary text-surface-white rounded-card py-3 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-primary-dark transition-colors"
       >
-        Continuă
+        {t("sheetV2.stepOccasion.continue")}
       </button>
     </div>
   );

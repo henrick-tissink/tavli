@@ -1,5 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { PhotoGallery } from "../photo-gallery";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roRestaurant from "@/messages/ro/restaurant.json";
+
+function renderGallery(props: React.ComponentProps<typeof PhotoGallery>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ restaurant: roRestaurant }}>
+      <PhotoGallery {...props} />
+    </MessagesProvider>,
+  );
+}
 
 // Mock next/image to render a plain img
 jest.mock("next/image", () => ({
@@ -19,13 +29,13 @@ const photos = [
 
 describe("PhotoGallery", () => {
   it("renders photos", () => {
-    render(<PhotoGallery photos={photos} restaurantName="Test Restaurant" />);
+    renderGallery({ photos, restaurantName: "Test Restaurant" });
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(3);
   });
 
   it("renders dot indicators", () => {
-    render(<PhotoGallery photos={photos} restaurantName="Test Restaurant" />);
+    renderGallery({ photos, restaurantName: "Test Restaurant" });
     const dots = screen.getAllByTestId("gallery-dot");
     expect(dots).toHaveLength(3);
   });
@@ -34,22 +44,20 @@ describe("PhotoGallery", () => {
     const onBack = jest.fn();
     const onSave = jest.fn();
     const onShare = jest.fn();
-    render(
-      <PhotoGallery
-        photos={photos}
-        restaurantName="Test Restaurant"
-        onBack={onBack}
-        onSave={onSave}
-        onShare={onShare}
-      />
-    );
+    renderGallery({
+      photos,
+      restaurantName: "Test Restaurant",
+      onBack,
+      onSave,
+      onShare,
+    });
     expect(screen.getByLabelText("Înapoi")).toBeInTheDocument();
     expect(screen.getByLabelText("Salvează")).toBeInTheDocument();
     expect(screen.getByLabelText("Trimite")).toBeInTheDocument();
   });
 
   it("shows fallback when photos array is empty", () => {
-    render(<PhotoGallery photos={[]} restaurantName="Test Restaurant" />);
+    renderGallery({ photos: [], restaurantName: "Test Restaurant" });
     expect(screen.getByText("Test Restaurant")).toBeInTheDocument();
     expect(screen.queryAllByRole("img")).toHaveLength(0);
   });

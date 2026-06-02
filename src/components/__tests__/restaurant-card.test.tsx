@@ -3,6 +3,16 @@ import userEvent from "@testing-library/user-event";
 import { RestaurantCard } from "../restaurant-card";
 import type { Restaurant } from "@/lib/types";
 import { freezeClock, unfreezeClock } from "@/test-support/clock";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
+
+function renderCard(props: React.ComponentProps<typeof RestaurantCard>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      <RestaurantCard {...props} />
+    </MessagesProvider>,
+  );
+}
 
 // Mock next/image
 jest.mock("next/image", () => ({
@@ -40,28 +50,28 @@ describe("RestaurantCard", () => {
   afterEach(() => unfreezeClock());
 
   it("renders restaurant name", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByText("La Mama")).toBeInTheDocument();
   });
 
   it("renders cuisine, price label, and zone", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByText(/Românească · \$\$ · Old Town/)).toBeInTheDocument();
   });
 
   it("renders rating badge (the number 4.8)", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     const ratings = screen.getAllByText("4.8");
     expect(ratings.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders open status", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByText("Deschis acum")).toBeInTheDocument();
   });
 
   it("renders time slots limited to 4 visible with More arrow", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByText("19:00")).toBeInTheDocument();
     expect(screen.getByText("19:30")).toBeInTheDocument();
     expect(screen.getByText("20:00")).toBeInTheDocument();
@@ -71,7 +81,7 @@ describe("RestaurantCard", () => {
   });
 
   it("renders review snippet with fire emoji and dimension percentage", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(
       screen.getByText(/Best sarmale in town/)
     ).toBeInTheDocument();
@@ -79,13 +89,13 @@ describe("RestaurantCard", () => {
   });
 
   it("renders photo count", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByText(/📸 42/)).toBeInTheDocument();
   });
 
   it("renders fallback when photoUrl is null", () => {
     const noPhoto = { ...baseRestaurant, photoUrl: null };
-    render(<RestaurantCard restaurant={noPhoto} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: noPhoto, onSlotSelect: jest.fn() });
     // Fallback shows restaurant name in large text inside gradient
     const names = screen.getAllByText("La Mama");
     expect(names.length).toBeGreaterThanOrEqual(2); // one in fallback, one in info
@@ -93,12 +103,12 @@ describe("RestaurantCard", () => {
 
   it("renders Closed badge when status is closed", () => {
     const closed = { ...baseRestaurant, status: "closed" as const, opensAt: "12:00" };
-    render(<RestaurantCard restaurant={closed} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: closed, onSlotSelect: jest.fn() });
     expect(screen.getByText("Închis")).toBeInTheDocument();
   });
 
   it("renders save button with aria-label Save {name}", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     expect(screen.getByLabelText("Salvează La Mama")).toBeInTheDocument();
   });
 
@@ -109,19 +119,19 @@ describe("RestaurantCard", () => {
       topDimensionPercent: undefined,
       topDimensionLabel: undefined,
     };
-    render(<RestaurantCard restaurant={noSnippet} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: noSnippet, onSlotSelect: jest.fn() });
     expect(screen.getByText("312 recenzii")).toBeInTheDocument();
   });
 
   it("calls onSave when save button clicked", async () => {
     const onSave = jest.fn();
-    render(<RestaurantCard restaurant={baseRestaurant} saved={false} onSave={onSave} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, saved: false, onSave, onSlotSelect: jest.fn() });
     await userEvent.click(screen.getByLabelText("Salvează La Mama"));
     expect(onSave).toHaveBeenCalledWith("r1");
   });
 
   it("exposes a keyboard-accessible primary action (stretched button), not a nested-interactive card", () => {
-    const { container } = render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    const { container } = renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     const card = container.firstChild as HTMLElement;
     // a11y fix: the card container is no longer role=button (which nested the
     // save button + slot pills inside an interactive). The primary action is a
@@ -132,7 +142,7 @@ describe("RestaurantCard", () => {
 
   it("invokes onClick via the stretched primary action", async () => {
     const onClick = jest.fn();
-    render(<RestaurantCard restaurant={baseRestaurant} onClick={onClick} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onClick, onSlotSelect: jest.fn() });
     await userEvent.click(screen.getByLabelText("Vezi La Mama"));
     expect(onClick).toHaveBeenCalledWith(expect.objectContaining({ id: "r1" }));
   });
@@ -140,26 +150,24 @@ describe("RestaurantCard", () => {
   it("time slot click does not propagate to card onClick", async () => {
     const onClick = jest.fn();
     const onSlotSelect = jest.fn();
-    render(
-      <RestaurantCard
-        restaurant={baseRestaurant}
-        onClick={onClick}
-        onSlotSelect={onSlotSelect}
-      />
-    );
+    renderCard({
+      restaurant: baseRestaurant,
+      onClick,
+      onSlotSelect,
+    });
     await userEvent.click(screen.getByText("19:00"));
     expect(onSlotSelect).toHaveBeenCalledWith("r1", "19:00");
     expect(onClick).not.toHaveBeenCalled();
   });
 
   it("uses text-[17px] for card title", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     const title = screen.getByText("La Mama");
     expect(title).toHaveClass("text-[17px]");
   });
 
   it("uses text-xs for cuisine/zone row", () => {
-    render(<RestaurantCard restaurant={baseRestaurant} onSlotSelect={jest.fn()} />);
+    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
     const row = screen.getByText(/Românească · \$\$ · Old Town/);
     expect(row).toHaveClass("text-xs");
   });

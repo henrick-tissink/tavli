@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Review } from "@/lib/types";
 import { Avatar } from "./avatar";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface ReviewCardProps {
   review: Review;
@@ -25,6 +26,7 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
+  const t = useT("restaurant");
   const [helped, setHelped] = useState(false);
   const count = review.helpfulCount + (helped ? 1 : 0);
 
@@ -49,7 +51,11 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
 
       {/* Booking context */}
       <p className="text-xs text-text-muted mt-1">
-        Rezervat: {review.reservationDate} &middot; {review.guestCount} {review.guestCount === 1 ? "persoană" : "persoane"}
+        {t("reviewCard.bookedContext", {
+          date: review.reservationDate,
+          count: review.guestCount,
+          unit: review.guestCount === 1 ? t("reviewCard.guestOne") : t("reviewCard.guestOther"),
+        })}
       </p>
 
       {/* Review text */}
@@ -70,7 +76,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
             : "bg-surface-bg hover:bg-gray-200"
         }`}
       >
-        👍 Util ({count})
+        {t("reviewCard.helpful", { count })}
       </button>
 
       {/* Restaurant reply */}
@@ -79,7 +85,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
           <div className="flex items-center gap-2">
             <span>🏪</span>
             <span className="font-bold text-xs text-text-primary">
-              Răspuns restaurant
+              {t("reviewCard.restaurantReply")}
             </span>
           </div>
           <p className="text-sm text-text-primary mt-1">

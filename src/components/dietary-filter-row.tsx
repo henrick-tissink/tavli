@@ -1,6 +1,7 @@
 "use client";
 
 import type { MenuDietaryTag } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export type DietaryFilter = Extract<
   MenuDietaryTag,
@@ -13,11 +14,13 @@ interface DietaryFilterRowProps {
   onClear: () => void;
 }
 
-const FILTERS: { value: DietaryFilter; label: string; icon: string }[] = [
-  { value: "vegan", label: "Vegan", icon: "🌱" },
-  { value: "vegetarian", label: "Vegetarian", icon: "🥗" },
-  { value: "gluten-free", label: "Fără gluten", icon: "🌾" },
-  { value: "spicy", label: "Picant", icon: "🌶" },
+type FilterDef = { value: DietaryFilter; icon: string };
+
+const FILTER_DEFS: FilterDef[] = [
+  { value: "vegan", icon: "🌱" },
+  { value: "vegetarian", icon: "🥗" },
+  { value: "gluten-free", icon: "🌾" },
+  { value: "spicy", icon: "🌶" },
 ];
 
 export function DietaryFilterRow({
@@ -25,10 +28,20 @@ export function DietaryFilterRow({
   onToggle,
   onClear,
 }: DietaryFilterRowProps) {
+  const t = useT("discovery");
+
+  const LABEL_MAP: Record<DietaryFilter, string> = {
+    vegan: t("dietary.vegan"),
+    vegetarian: t("dietary.vegetarian"),
+    "gluten-free": t("dietary.glutenFree"),
+    spicy: t("dietary.spicy"),
+  };
+
   return (
     <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-      {FILTERS.map((filter) => {
+      {FILTER_DEFS.map((filter) => {
         const active = activeFilters.has(filter.value);
+        const label = LABEL_MAP[filter.value];
         const classes = [
           "rounded-pill px-3.5 py-1 text-xs font-semibold flex items-center gap-1 whitespace-nowrap",
           active
@@ -44,7 +57,7 @@ export function DietaryFilterRow({
             aria-pressed={active}
           >
             <span>{filter.icon}</span>
-            <span>{filter.label}</span>
+            <span>{label}</span>
           </button>
         );
       })}
@@ -54,7 +67,7 @@ export function DietaryFilterRow({
           onClick={onClear}
           className="text-xs font-semibold text-text-secondary underline-offset-2 hover:underline whitespace-nowrap"
         >
-          Șterge
+          {t("dietary.clear")}
         </button>
       )}
     </div>

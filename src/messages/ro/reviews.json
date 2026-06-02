@@ -1,0 +1,29 @@
+{
+  "page": {
+    "eyebrow": "Recenzie",
+    "readyHeading": "Cum a fost la {restaurantName}?",
+    "readyBody": "Ai vizitat pe {date}. Recenzia ta este anonimă — se afișează doar prenumele.",
+    "alreadyReviewedTitle": "Recenzie deja lăsată",
+    "alreadyReviewedBody": "Ai lăsat deja o recenzie pentru această rezervare. Mulțumim încă o dată!",
+    "ineligibleTitle": "Nu poți recenza această rezervare",
+    "ineligibleBody": "Această rezervare a fost anulată sau marcată ca neonorată, deci nu este eligibilă pentru o recenzie.",
+    "notFoundTitle": "Link nerecunoscut",
+    "notFoundBody": "Acest link de recenzie nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email.",
+    "configMissingTitle": "Platformă neconfigurată",
+    "configMissingBody": "Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul.",
+    "contactLabel": "Contact:"
+  },
+  "form": {
+    "ratingLegend": "Nota ta",
+    "commentLabel": "Comentariu",
+    "commentOptional": "(opțional)",
+    "commentPlaceholder": "Ce te-a impresionat?",
+    "aggregateLabel": "Include recenzia mea în <strong>nota medie publică</strong> a restaurantului. Recenzia ta apare oricum; bifează doar dacă vrei să conteze și în media afișată.",
+    "submitPending": "Se trimite…",
+    "submitLabel": "Trimite recenzia",
+    "errorNoRating": "Alege întâi o stea.",
+    "errorGeneric": "Recenzia nu a putut fi salvată.",
+    "doneTitle": "Mulțumim — recenzia ta e salvată.",
+    "doneBody": "Diners verificați îi ajută pe ceilalți să aleagă mai bine."
+  }
+}

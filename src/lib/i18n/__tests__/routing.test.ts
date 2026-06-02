@@ -1,4 +1,4 @@
-import { localeFromPathname, decideLocaleAction, withLocale } from "@/lib/i18n/routing";
+import { localeFromPathname, decideLocaleAction, withLocale, localizedHref } from "@/lib/i18n/routing";
 
 describe("localeFromPathname", () => {
   it("extracts an explicit locale prefix", () => {
@@ -61,5 +61,16 @@ describe("withLocale", () => {
     expect(withLocale("/bucuresti", "de")).toBe("/de/bucuresti");
     expect(withLocale("/en", "ro")).toBe("/");
     expect(withLocale("/", "en")).toBe("/en");
+  });
+});
+
+describe("localizedHref", () => {
+  it("returns the path unchanged for the default locale (ro)", () => {
+    expect(localizedHref("/bucuresti/x", "ro")).toBe("/bucuresti/x");
+  });
+
+  it("prepends /<locale> for non-default locales", () => {
+    expect(localizedHref("/bucuresti/x", "de")).toBe("/de/bucuresti/x");
+    expect(localizedHref("/bucuresti/x", "en")).toBe("/en/bucuresti/x");
   });
 });

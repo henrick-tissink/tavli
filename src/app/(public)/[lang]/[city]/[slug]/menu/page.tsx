@@ -9,6 +9,9 @@ import {
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
 import { isLocale } from "@/lib/i18n/locale";
+import { buildBundle, getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { MenuPageClient } from "./MenuPageClient";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +23,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, city, slug } = await params;
   const restaurant = await getRestaurantBySlug(slug);
+  const m = getMessages(lang, "menu");
+  const titleTemplate = m.meta.title;
+  const title = restaurant
+    ? `${interpolate(titleTemplate, { name: restaurant.name })} | Tavli`
+    : `${titleTemplate.replace(/ — \{name\}/, "")} | Tavli`;
   return {
-    title: restaurant ? `Meniu — ${restaurant.name} | Tavli` : "Meniu | Tavli",
+    title,
     robots: { index: false, follow: false },
     alternates: buildAlternates(`/${city}/${slug}/menu`, isLocale(lang) ? lang : "ro", getSiteUrl()),
   };
@@ -32,7 +40,9 @@ export default async function DinerMenuPage({
 }: {
   params: Promise<{ lang: string; city: string; slug: string }>;
 }) {
-  const { city, slug } = await params;
+  const { lang, city, slug } = await params;
+  const locale = isLocale(lang) ? lang : "ro";
+  const bundle = buildBundle(locale, ["common", "menu"]);
 
   const [restaurant, detail, menu] = await Promise.all([
     getRestaurantBySlug(slug),
@@ -45,33 +55,35 @@ export default async function DinerMenuPage({
   const heroPhoto = detail?.photos?.[0] ?? restaurant.photoUrl ?? undefined;
 
   return (
-    <div className="min-h-screen bg-surface-bg">
-      <div className="px-4 pt-4">
-        <span
-          data-testid="tavli-wordmark"
-          className="font-display text-xl font-bold text-brand-primary tracking-tight"
-        >
-          Tavli
-        </span>
+    <MessagesProvider locale={locale} bundle={bundle}>
+      <div className="min-h-screen bg-surface-bg">
+        <div className="px-4 pt-4">
+          <span
+            data-testid="tavli-wordmark"
+            className="font-display text-xl font-bold text-brand-primary tracking-tight"
+          >
+            Tavli
+          </span>
+        </div>
+
+        <MenuPageClient
+          city={city}
+          slug={slug}
+          restaurant={restaurant}
+          menu={menu}
+          heroPhoto={heroPhoto}
+        />
+
+        <footer className="py-8 text-center text-xs text-text-muted">
+          powered by{" "}
+          <Link
+            href={`/${city}/${slug}`}
+            className="text-brand-primary hover:underline"
+          >
+            tavli.ro
+          </Link>
+        </footer>
       </div>
-
-      <MenuPageClient
-        city={city}
-        slug={slug}
-        restaurant={restaurant}
-        menu={menu}
-        heroPhoto={heroPhoto}
-      />
-
-      <footer className="py-8 text-center text-xs text-text-muted">
-        powered by{" "}
-        <Link
-          href={`/${city}/${slug}`}
-          className="text-brand-primary hover:underline"
-        >
-          tavli.ro
-        </Link>
-      </footer>
-    </div>
+    </MessagesProvider>
   );
 }

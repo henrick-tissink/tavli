@@ -1,28 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepPartyProps {
   value: number; // 1..12
   onChange: (n: number) => void;
 }
 
-const HINT_CHIPS = ["Cină", "Prânz", "Cu prietenii"] as const;
 const PILL_SHORTCUTS = [2, 4, 6, 8] as const;
 
 export function StepParty({ value, onChange }: StepPartyProps) {
+  const t = useT("booking");
   const canDecrement = value > 1;
   const canIncrement = value < 12;
+
+  const hintChips = [
+    t("sheet.stepParty.hintDinner"),
+    t("sheet.stepParty.hintLunch"),
+    t("sheet.stepParty.hintFriends"),
+  ];
 
   return (
     <div className="space-y-5">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Câte persoane?
+        {t("sheet.stepParty.title")}
       </h2>
 
       {/* Decorative hint chips — purely visual, not interactive */}
       <div className="flex gap-2 flex-wrap" aria-hidden="true">
-        {HINT_CHIPS.map((chip) => (
+        {hintChips.map((chip) => (
           <span
             key={chip}
             tabIndex={-1}
@@ -37,7 +44,7 @@ export function StepParty({ value, onChange }: StepPartyProps) {
       <div className="flex items-center justify-center gap-6">
         <button
           type="button"
-          aria-label="Scade invitat"
+          aria-label={t("sheet.stepParty.decrementAriaLabel")}
           disabled={!canDecrement}
           onClick={() => canDecrement && onChange(value - 1)}
           className="w-11 h-11 rounded-full border border-border flex items-center justify-center text-xl font-semibold text-text-primary hover:bg-surface-bg transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
@@ -51,7 +58,7 @@ export function StepParty({ value, onChange }: StepPartyProps) {
 
         <button
           type="button"
-          aria-label="Adaugă invitat"
+          aria-label={t("sheet.stepParty.incrementAriaLabel")}
           disabled={!canIncrement}
           onClick={() => canIncrement && onChange(value + 1)}
           className="w-11 h-11 rounded-full border border-border flex items-center justify-center text-xl font-semibold text-text-primary hover:bg-surface-bg transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
@@ -81,12 +88,12 @@ export function StepParty({ value, onChange }: StepPartyProps) {
       {/* Advisory line — visible at 12 guests */}
       {value >= 12 && (
         <p className="text-sm text-text-secondary text-center">
-          Pentru mai mult de 12 persoane, vezi{" "}
+          {t("sheet.stepParty.privateEventHint")}{" "}
           <Link
             href="/evenimente-private"
             className="text-brand-primary font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
           >
-            evenimentele private
+            {t("sheet.stepParty.privateEventLink")}
           </Link>{" "}
           →
         </p>

@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchOverlay } from "../search-overlay";
 import { getRestaurants } from "@/lib/mock-data";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roDiscovery from "@/messages/ro/discovery.json";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -27,21 +29,30 @@ const defaultProps = {
   onSelectCuisine: jest.fn(),
 };
 
+function renderOverlay(props: Partial<React.ComponentProps<typeof SearchOverlay>> = {}) {
+  const merged = { ...defaultProps, ...props };
+  return render(
+    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+      <SearchOverlay {...merged} />
+    </MessagesProvider>,
+  );
+}
+
 describe("SearchOverlay", () => {
   it("returns null when closed", () => {
-    const { container } = render(<SearchOverlay {...defaultProps} open={false} />);
+    const { container } = renderOverlay({ open: false });
     expect(container.firstChild).toBeNull();
   });
 
   it("renders empty state sections", () => {
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     expect(screen.getByText("Tendințe în București")).toBeInTheDocument();
     expect(screen.getByText("Categorii rapide")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Caută restaurante, bucătării…")).toBeInTheDocument();
   });
 
   it("renders trending items", () => {
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     expect(screen.getByText("BBQ coreean")).toBeInTheDocument();
     expect(screen.getByText("Rooftop")).toBeInTheDocument();
     expect(screen.getByText("Brunch de duminică")).toBeInTheDocument();
@@ -49,7 +60,7 @@ describe("SearchOverlay", () => {
   });
 
   it("renders quick category pills", () => {
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     expect(screen.getByText("Pizza")).toBeInTheDocument();
     expect(screen.getByText("Japoneză")).toBeInTheDocument();
     expect(screen.getByText("Burgeri")).toBeInTheDocument();
@@ -58,7 +69,7 @@ describe("SearchOverlay", () => {
 
   it("renders restaurant results for a query", async () => {
     const user = userEvent.setup();
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Sakura");
     expect(screen.getByText("Sakura Sushi")).toBeInTheDocument();
@@ -67,7 +78,7 @@ describe("SearchOverlay", () => {
 
   it("renders cuisine results for a query", async () => {
     const user = userEvent.setup();
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
     expect(screen.getByText("Bucătării")).toBeInTheDocument();
@@ -77,7 +88,7 @@ describe("SearchOverlay", () => {
   it("calls onSelectRestaurant when a restaurant is clicked", async () => {
     const user = userEvent.setup();
     const onSelectRestaurant = jest.fn();
-    render(<SearchOverlay {...defaultProps} onSelectRestaurant={onSelectRestaurant} />);
+    renderOverlay({ onSelectRestaurant });
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Sakura");
     await user.click(screen.getByText("Sakura Sushi"));
@@ -90,7 +101,7 @@ describe("SearchOverlay", () => {
   it("calls onSelectCuisine when a cuisine is clicked", async () => {
     const user = userEvent.setup();
     const onSelectCuisine = jest.fn();
-    render(<SearchOverlay {...defaultProps} onSelectCuisine={onSelectCuisine} />);
+    renderOverlay({ onSelectCuisine });
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "Italian");
     await user.click(screen.getByText(/Italiană \(\d+ locuri?\)/));
@@ -100,7 +111,7 @@ describe("SearchOverlay", () => {
 
   it("shows no results message", async () => {
     const user = userEvent.setup();
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…");
     await user.type(input, "xyznotfound");
     expect(screen.getByText(/Niciun restaurant găsit pentru 'xyznotfound'/)).toBeInTheDocument();
@@ -109,14 +120,14 @@ describe("SearchOverlay", () => {
   it("calls onClose when back button clicked", async () => {
     const user = userEvent.setup();
     const onClose = jest.fn();
-    render(<SearchOverlay {...defaultProps} onClose={onClose} />);
+    renderOverlay({ onClose });
     await user.click(screen.getByLabelText("Înapoi"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it("clicking a quick category sets the query", async () => {
     const user = userEvent.setup();
-    render(<SearchOverlay {...defaultProps} />);
+    renderOverlay();
     await user.click(screen.getByText("Pizza"));
     // Pizza should now be in the input and trigger results
     const input = screen.getByPlaceholderText("Caută restaurante, bucătării…") as HTMLInputElement;

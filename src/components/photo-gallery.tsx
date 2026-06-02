@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { ArrowLeft, Heart, Share2, Star } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface PhotoGalleryProps {
   photos: string[];
@@ -27,6 +28,7 @@ export function PhotoGallery({
   overlaySubtitle,
   overlayRating,
 }: PhotoGalleryProps) {
+  const t = useT("restaurant");
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +77,7 @@ export function PhotoGallery({
           {onBack && (
             <button
               type="button"
-              aria-label="Înapoi"
+              aria-label={t("gallery.backAriaLabel")}
               onClick={onBack}
               className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
             >
@@ -86,7 +88,7 @@ export function PhotoGallery({
             {onSave && (
               <button
                 type="button"
-                aria-label="Salvează"
+                aria-label={t("gallery.saveAriaLabel")}
                 onClick={onSave}
                 className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
               >
@@ -96,7 +98,7 @@ export function PhotoGallery({
             {onShare && (
               <button
                 type="button"
-                aria-label="Trimite"
+                aria-label={t("gallery.shareAriaLabel")}
                 onClick={onShare}
                 className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
               >
@@ -172,7 +174,7 @@ export function PhotoGallery({
         {onBack ? (
           <button
             type="button"
-            aria-label="Înapoi"
+            aria-label={t("gallery.backAriaLabel")}
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
           >
@@ -185,7 +187,7 @@ export function PhotoGallery({
           {onSave && (
             <button
               type="button"
-              aria-label="Salvează"
+              aria-label={t("gallery.saveAriaLabel")}
               onClick={onSave}
               className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
             >
@@ -195,7 +197,7 @@ export function PhotoGallery({
           {onShare && (
             <button
               type="button"
-              aria-label="Trimite"
+              aria-label={t("gallery.shareAriaLabel")}
               onClick={onShare}
               className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
             >

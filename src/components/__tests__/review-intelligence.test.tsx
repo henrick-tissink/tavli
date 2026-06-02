@@ -1,6 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { ReviewIntelligenceSection } from "../review-intelligence";
 import type { ReviewIntelligence } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roRestaurant from "@/messages/ro/restaurant.json";
+
+function renderSection(props: React.ComponentProps<typeof ReviewIntelligenceSection>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ restaurant: roRestaurant }}>
+      <ReviewIntelligenceSection {...props} />
+    </MessagesProvider>,
+  );
+}
 
 const intelligence: ReviewIntelligence = {
   dimensions: [
@@ -19,7 +29,7 @@ const intelligence: ReviewIntelligence = {
 
 describe("ReviewIntelligenceSection", () => {
   it("renders dimension bars", () => {
-    render(<ReviewIntelligenceSection intelligence={intelligence} totalReviews={312} />);
+    renderSection({ intelligence, totalReviews: 312 });
     expect(screen.getByText("Food")).toBeInTheDocument();
     expect(screen.getByText("Service")).toBeInTheDocument();
     expect(screen.getByText("Atmosphere")).toBeInTheDocument();
@@ -27,21 +37,21 @@ describe("ReviewIntelligenceSection", () => {
   });
 
   it("renders top mentions", () => {
-    render(<ReviewIntelligenceSection intelligence={intelligence} totalReviews={312} />);
+    renderSection({ intelligence, totalReviews: 312 });
     expect(screen.getByText(/fresh ingredients/)).toBeInTheDocument();
     expect(screen.getByText(/friendly staff/)).toBeInTheDocument();
     expect(screen.getByText(/cozy atmosphere/)).toBeInTheDocument();
   });
 
   it("renders bestFor pills", () => {
-    render(<ReviewIntelligenceSection intelligence={intelligence} totalReviews={312} />);
+    renderSection({ intelligence, totalReviews: 312 });
     expect(screen.getByText("Date night")).toBeInTheDocument();
     expect(screen.getByText("Business lunch")).toBeInTheDocument();
     expect(screen.getByText("Group dining")).toBeInTheDocument();
   });
 
   it("renders total review count", () => {
-    render(<ReviewIntelligenceSection intelligence={intelligence} totalReviews={312} />);
+    renderSection({ intelligence, totalReviews: 312 });
     expect(screen.getByText("Pe baza a 312 recenzii")).toBeInTheDocument();
   });
 });

@@ -1,11 +1,23 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { StepSlot } from "../StepSlot";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roBooking from "@/messages/ro/booking.json";
+
+const bundle = { booking: roBooking };
+
+function wrap(ui: React.ReactElement) {
+  return render(
+    <MessagesProvider locale="ro" bundle={bundle}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 const slots = ["18:00", "19:00", "20:00"];
 
 test("clicking a slot calls onSelectSlot with that value", () => {
   const onSelectSlot = jest.fn();
-  render(
+  wrap(
     <StepSlot
       availableSlots={slots}
       selectedSlot={null}
@@ -19,7 +31,7 @@ test("clicking a slot calls onSelectSlot with that value", () => {
 });
 
 test("selected slot has aria-pressed=true", () => {
-  render(
+  wrap(
     <StepSlot
       availableSlots={slots}
       selectedSlot="19:00"
@@ -33,7 +45,7 @@ test("selected slot has aria-pressed=true", () => {
 
 test("zone chips render and selecting a zone calls onSelectZone", () => {
   const onSelectZone = jest.fn();
-  render(
+  wrap(
     <StepSlot
       availableSlots={slots}
       zones={["Terasă", "Interior"]}
@@ -48,7 +60,7 @@ test("zone chips render and selecting a zone calls onSelectZone", () => {
 });
 
 test("empty availableSlots shows empty-state copy", () => {
-  render(
+  wrap(
     <StepSlot
       availableSlots={[]}
       selectedSlot={null}

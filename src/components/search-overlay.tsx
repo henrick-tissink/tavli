@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines, cuisineLabel } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -15,18 +16,23 @@ interface SearchOverlayProps {
 
 const STORAGE_KEY = "tavli-recent-searches";
 
-const TRENDING = ["BBQ coreean", "Rooftop", "Brunch de duminică", "Noi deschideri"];
+const QUICK_CATEGORY_KEYS = [
+  { emoji: "🍕", tKey: "search.categories.pizza" },
+  { emoji: "🍣", tKey: "search.categories.japanese" },
+  { emoji: "🥩", tKey: "search.categories.steak" },
+  { emoji: "🥗", tKey: "search.categories.vegan" },
+  { emoji: "☕", tKey: "search.categories.coffee" },
+  { emoji: "🍸", tKey: "search.categories.cocktails" },
+  { emoji: "🍔", tKey: "search.categories.burgers" },
+  { emoji: "🐟", tKey: "search.categories.fish" },
+] as const;
 
-const QUICK_CATEGORIES = [
-  { emoji: "\ud83c\udf55", label: "Pizza" },
-  { emoji: "\ud83c\udf63", label: "Japonez\u0103" },
-  { emoji: "\ud83e\udd69", label: "Friptur\u0103" },
-  { emoji: "\ud83e\udd57", label: "Vegan" },
-  { emoji: "\u2615", label: "Cafea" },
-  { emoji: "\ud83c\udf78", label: "Cocktailuri" },
-  { emoji: "\ud83c\udf54", label: "Burgeri" },
-  { emoji: "\ud83d\udc1f", label: "Pe\u0219te" },
-];
+const TRENDING_KEYS = [
+  "search.trending.bbq",
+  "search.trending.rooftop",
+  "search.trending.brunch",
+  "search.trending.newOpenings",
+] as const;
 
 function getRecent(): string[] {
   try {
@@ -63,6 +69,7 @@ export function SearchOverlay({
   onSelectRestaurant,
   onSelectCuisine,
 }: SearchOverlayProps) {
+  const t = useT("discovery");
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -145,7 +152,7 @@ export function SearchOverlay({
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
           type="button"
-          aria-label="Înapoi"
+          aria-label={t("search.back")}
           onClick={onClose}
           className="p-1 text-text-primary"
         >
@@ -156,7 +163,7 @@ export function SearchOverlay({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Caută restaurante, bucătării…"
+          placeholder={t("search.placeholder")}
           className="flex-1 text-lg border-none bg-transparent outline-none text-text-primary placeholder:text-text-muted"
         />
       </div>
@@ -170,14 +177,14 @@ export function SearchOverlay({
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-                    Căutări recente
+                    {t("search.recentTitle")}
                   </h3>
                   <button
                     type="button"
                     onClick={handleClearRecent}
                     className="text-xs font-semibold text-brand-primary"
                   >
-                    Șterge tot
+                    {t("search.clearAll")}
                   </button>
                 </div>
                 <div className="space-y-2">
@@ -199,40 +206,46 @@ export function SearchOverlay({
             {/* Trending */}
             <div className="mb-6">
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                Tendințe în București
+                {t("search.trendingTitle")}
               </h3>
               <div className="space-y-2">
-                {TRENDING.map((term) => (
-                  <button
-                    key={term}
-                    type="button"
-                    onClick={() => setQuery(term)}
-                    className="flex items-center gap-3 w-full text-left py-2 text-text-secondary"
-                  >
-                    <span>{"\ud83d\udd25"}</span>
-                    <span className="text-sm">{term}</span>
-                  </button>
-                ))}
+                {TRENDING_KEYS.map((key) => {
+                  const label = t(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setQuery(label)}
+                      className="flex items-center gap-3 w-full text-left py-2 text-text-secondary"
+                    >
+                      <span>{"🔥"}</span>
+                      <span className="text-sm">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Quick categories */}
             <div>
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                Categorii rapide
+                {t("search.categoriesTitle")}
               </h3>
               <div className="grid grid-cols-4 gap-2">
-                {QUICK_CATEGORIES.map(({ emoji, label }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setQuery(label)}
-                    className="flex flex-col items-center gap-1 rounded-card bg-surface-white p-3 text-center shadow-card"
-                  >
-                    <span className="text-xl">{emoji}</span>
-                    <span className="text-xs font-semibold text-text-secondary">{label}</span>
-                  </button>
-                ))}
+                {QUICK_CATEGORY_KEYS.map(({ emoji, tKey }) => {
+                  const label = t(tKey);
+                  return (
+                    <button
+                      key={tKey}
+                      type="button"
+                      onClick={() => setQuery(label)}
+                      className="flex flex-col items-center gap-1 rounded-card bg-surface-white p-3 text-center shadow-card"
+                    >
+                      <span className="text-xl">{emoji}</span>
+                      <span className="text-xs font-semibold text-text-secondary">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </>
@@ -241,7 +254,7 @@ export function SearchOverlay({
           <>
             {matchedRestaurants.length === 0 && matchedCuisines.length === 0 ? (
               <p className="text-text-secondary text-sm py-8 text-center">
-                Niciun restaurant găsit pentru &apos;{query}&apos;
+                {t("search.noResults", { query })}
               </p>
             ) : (
               <>
@@ -249,7 +262,7 @@ export function SearchOverlay({
                 {matchedRestaurants.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                      Restaurante
+                      {t("search.resultsRestaurants")}
                     </h3>
                     <div className="space-y-1">
                       {matchedRestaurants.map((r) => (
@@ -275,7 +288,7 @@ export function SearchOverlay({
                 {matchedCuisines.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3">
-                      Bucătării
+                      {t("search.resultsCuisines")}
                     </h3>
                     <div className="space-y-1">
                       {matchedCuisines.map(({ cuisine, count }) => (
@@ -286,7 +299,7 @@ export function SearchOverlay({
                           className="flex items-center w-full text-left py-3 border-b border-border last:border-b-0"
                         >
                           <span className="text-sm text-text-primary">
-                            {cuisineLabel(cuisine)} ({count} {count === 1 ? "loc" : "locuri"})
+                            {cuisineLabel(cuisine)} ({t("search.cuisineCount", { count })})
                           </span>
                         </button>
                       ))}

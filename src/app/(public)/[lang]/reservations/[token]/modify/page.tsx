@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { ModifyReservationForm } from "@/components/modify-reservation-form";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { isLocale } from "@/lib/i18n/locale";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { interpolate } from "@/lib/i18n/t";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +13,7 @@ const MODIFY_CUTOFF_MS = 24 * 60 * 60 * 1000;
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-md px-4 py-10">
-      <h1 className="font-display text-2xl font-bold text-text-primary mb-6">Modifică rezervarea</h1>
-      <div className="rounded-card border border-border bg-surface-white p-6">{children}</div>
+      {children}
     </main>
   );
 }
@@ -20,9 +23,20 @@ export default async function ModifyReservationPage({
 }: {
   params: Promise<{ lang: string; token: string }>;
 }) {
-  const { token } = await params;
+  const { lang: rawLang, token } = await params;
+  const locale = isLocale(rawLang) ? rawLang : "ro";
+  const m = getMessages(locale, "booking");
+  const bundle = buildBundle(locale, ["common", "booking"]);
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return <Shell><p className="text-text-secondary">Platforma nu este configurată.</p></Shell>;
+    return (
+      <Shell>
+        <h1 className="font-display text-2xl font-bold text-text-primary mb-6">{m.modify.pageTitle}</h1>
+        <div className="rounded-card border border-border bg-surface-white p-6">
+          <p className="text-text-secondary">{m.modify.configMissing}</p>
+        </div>
+      </Shell>
+    );
   }
   const admin = createSupabaseAdminClient();
   const { data } = await admin
@@ -32,7 +46,14 @@ export default async function ModifyReservationPage({
     .maybeSingle();
 
   if (!data) {
-    return <Shell><p className="text-text-secondary">Rezervarea nu a fost găsită.</p></Shell>;
+    return (
+      <Shell>
+        <h1 className="font-display text-2xl font-bold text-text-primary mb-6">{m.modify.pageTitle}</h1>
+        <div className="rounded-card border border-border bg-surface-white p-6">
+          <p className="text-text-secondary">{m.modify.notFound}</p>
+        </div>
+      </Shell>
+    );
   }
   const rest = (Array.isArray(data.restaurants) ? data.restaurants[0] : data.restaurants) as
     | { name: string; phone: string | null; email: string | null }
@@ -49,13 +70,26 @@ export default async function ModifyReservationPage({
   if (!canModify) {
     return (
       <Shell>
-        <p className="text-text-secondary mb-4">
-          Această rezervare nu mai poate fi modificată online (cu mai puțin de 24h înainte sau deja finalizată). Contactează direct restaurantul.
-        </p>
-        <div className="flex flex-col gap-2">
-          {rest?.phone && <a className="text-brand-primary font-semibold" href={`tel:${rest.phone}`}>Sună {restaurantName}</a>}
-          {rest?.email && <a className="text-brand-primary font-semibold" href={`mailto:${rest.email}`}>Scrie {restaurantName}</a>}
-          <Link className="text-text-muted text-sm mt-2" href={`/reservations/${token}`}>Înapoi la rezervare</Link>
+        <h1 className="font-display text-2xl font-bold text-text-primary mb-6">{m.modify.pageTitle}</h1>
+        <div className="rounded-card border border-border bg-surface-white p-6">
+          <p className="text-text-secondary mb-4">
+            {m.modify.windowClosedBody}
+          </p>
+          <div className="flex flex-col gap-2">
+            {rest?.phone && (
+              <a className="text-brand-primary font-semibold" href={`tel:${rest.phone}`}>
+                {interpolate(m.modify.callLink, { restaurantName })}
+              </a>
+            )}
+            {rest?.email && (
+              <a className="text-brand-primary font-semibold" href={`mailto:${rest.email}`}>
+                {interpolate(m.modify.emailLink, { restaurantName })}
+              </a>
+            )}
+            <Link className="text-text-muted text-sm mt-2" href={`/reservations/${token}`}>
+              {m.modify.backLink}
+            </Link>
+          </div>
         </div>
       </Shell>
     );
@@ -63,16 +97,21 @@ export default async function ModifyReservationPage({
 
   return (
     <Shell>
-      <ModifyReservationForm
-        token={token}
-        restaurantName={restaurantName}
-        initial={{
-          date: data.reservation_date,
-          time: String(data.reservation_time).slice(0, 5),
-          partySize: data.party_size,
-          version: data.version ?? 0,
-        }}
-      />
+      <h1 className="font-display text-2xl font-bold text-text-primary mb-6">{m.modify.pageTitle}</h1>
+      <div className="rounded-card border border-border bg-surface-white p-6">
+        <MessagesProvider locale={locale} bundle={bundle}>
+          <ModifyReservationForm
+            token={token}
+            restaurantName={restaurantName}
+            initial={{
+              date: data.reservation_date,
+              time: String(data.reservation_time).slice(0, 5),
+              partySize: data.party_size,
+              version: data.version ?? 0,
+            }}
+          />
+        </MessagesProvider>
+      </div>
     </Shell>
   );
 }

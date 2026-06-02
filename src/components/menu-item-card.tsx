@@ -3,33 +3,34 @@
 import Image from "next/image";
 import { Star } from "lucide-react";
 import type { MenuItem, MenuDietaryTag } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface TagStyle {
-  label: string;
+  labelKey: string;
   icon?: string;
   className: string;
 }
 
-const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
+const TAG_STYLE_CONFIG: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
   popular: {
-    label: "Popular",
+    labelKey: "itemCard.popularLabel",
     icon: "🔥",
     className: "bg-brand-primary-soft text-brand-primary-dark",
   },
   vegan: {
-    label: "VG",
+    labelKey: "itemCard.veganLabel",
     className: "bg-emerald-50 text-emerald-800",
   },
   vegetarian: {
-    label: "V",
+    labelKey: "itemCard.vegetarianLabel",
     className: "bg-emerald-50 text-emerald-800",
   },
   "gluten-free": {
-    label: "FG",
+    labelKey: "itemCard.glutenFreeLabel",
     className: "bg-amber-50 text-amber-800",
   },
   spicy: {
-    label: "Picant",
+    labelKey: "itemCard.spicyLabel",
     icon: "🌶",
     className: "bg-red-50 text-red-700",
   },
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export function MenuItemCard({ item, currency, onOpen }: Props) {
+  const t = useT("menu");
   const isChefPick = item.tags?.includes("chef-pick");
   const isVegan = item.tags?.includes("vegan");
   const visibleTags = (item.tags ?? []).filter((t) => {
@@ -71,7 +73,7 @@ export function MenuItemCard({ item, currency, onOpen }: Props) {
               <Star
                 size={14}
                 className="inline-block mr-1 -mt-0.5 fill-yellow-400 text-yellow-400"
-                aria-label="Recomandarea bucătarului"
+                aria-label={t("itemCard.chefPickAriaLabel")}
               />
             )}
             {item.name}
@@ -90,7 +92,7 @@ export function MenuItemCard({ item, currency, onOpen }: Props) {
         {visibleTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {visibleTags.map((tag) => {
-              const cfg = TAG_STYLES[tag as Exclude<MenuDietaryTag, "chef-pick">];
+              const cfg = TAG_STYLE_CONFIG[tag as Exclude<MenuDietaryTag, "chef-pick">];
               if (!cfg) return null;
               return (
                 <span
@@ -98,7 +100,7 @@ export function MenuItemCard({ item, currency, onOpen }: Props) {
                   className={`text-[11px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${cfg.className}`}
                 >
                   {cfg.icon && <span aria-hidden="true">{cfg.icon}</span>}
-                  {cfg.label}
+                  {t(cfg.labelKey)}
                 </span>
               );
             })}

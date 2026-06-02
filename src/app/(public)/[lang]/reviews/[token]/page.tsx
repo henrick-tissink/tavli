@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { ReviewSubmitForm } from "@/components/review-submit-form";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { isLocale } from "@/lib/i18n/locale";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { translate } from "@/lib/i18n/t";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +72,10 @@ export default async function ReviewSubmitPage({
   params: Promise<{ lang: string; token: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [{ token }, sp] = await Promise.all([params, searchParams]);
+  const [{ lang: rawLang, token }, sp] = await Promise.all([params, searchParams]);
+  const locale = isLocale(rawLang) ? rawLang : "ro";
+  const m = getMessages(locale, "reviews");
+  const bundle = buildBundle(locale, ["common", "reviews"]);
   const ctx = await loadContext(token);
   const initialRating = parseRating(sp.rating);
 
@@ -82,49 +89,55 @@ export default async function ReviewSubmitPage({
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Recenzie
+          {m.page.eyebrow}
         </p>
 
         {ctx.kind === "ready" && (
           <>
             <h1 className="font-display text-[28px] font-bold text-text-primary leading-tight mt-6">
-              Cum a fost la {ctx.restaurantName}?
+              {translate(locale, m.page.readyHeading, { restaurantName: ctx.restaurantName })}
             </h1>
             <p className="text-sm text-text-secondary mt-2">
-              Ai vizitat pe{" "}
-              {new Date(`${ctx.reservationDate}T12:00:00`).toLocaleDateString(
-                "ro-RO",
-                { weekday: "long", day: "numeric", month: "long" },
-              )}
-              . Recenzia ta este anonimă — se afișează doar prenumele.
+              {translate(locale, m.page.readyBody, {
+                date: new Date(`${ctx.reservationDate}T12:00:00`).toLocaleDateString(
+                  locale === "ro" ? "ro-RO" : locale === "de" ? "de-DE" : "en-GB",
+                  { weekday: "long", day: "numeric", month: "long" },
+                ),
+              })}
             </p>
             <div className="mt-6">
-              <ReviewSubmitForm token={token} initialRating={initialRating} />
+              <MessagesProvider locale={locale} bundle={bundle}>
+                <ReviewSubmitForm token={token} initialRating={initialRating} />
+              </MessagesProvider>
             </div>
           </>
         )}
         {ctx.kind === "already_reviewed" && (
           <Blank
-            title="Recenzie deja lăsată"
-            body="Ai lăsat deja o recenzie pentru această rezervare. Mulțumim încă o dată!"
+            title={m.page.alreadyReviewedTitle}
+            body={m.page.alreadyReviewedBody}
+            contactLabel={m.page.contactLabel}
           />
         )}
         {ctx.kind === "ineligible" && (
           <Blank
-            title="Nu poți recenza această rezervare"
-            body="Această rezervare a fost anulată sau marcată ca neonorată, deci nu este eligibilă pentru o recenzie."
+            title={m.page.ineligibleTitle}
+            body={m.page.ineligibleBody}
+            contactLabel={m.page.contactLabel}
           />
         )}
         {ctx.kind === "not_found" && (
           <Blank
-            title="Link nerecunoscut"
-            body="Acest link de recenzie nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email."
+            title={m.page.notFoundTitle}
+            body={m.page.notFoundBody}
+            contactLabel={m.page.contactLabel}
           />
         )}
         {ctx.kind === "config_missing" && (
           <Blank
-            title="Platformă neconfigurată"
-            body="Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul."
+            title={m.page.configMissingTitle}
+            body={m.page.configMissingBody}
+            contactLabel={m.page.contactLabel}
           />
         )}
       </div>
@@ -132,7 +145,7 @@ export default async function ReviewSubmitPage({
   );
 }
 
-function Blank({ title, body }: { title: string; body: string }) {
+function Blank({ title, body, contactLabel }: { title: string; body: string; contactLabel: string }) {
   return (
     <>
       <h1 className="font-display text-[26px] font-bold text-text-primary leading-tight mt-6">
@@ -140,7 +153,7 @@ function Blank({ title, body }: { title: string; body: string }) {
       </h1>
       <p className="text-sm text-text-secondary mt-3 leading-relaxed">{body}</p>
       <p className="text-xs text-text-muted mt-6">
-        Contact:{" "}
+        {contactLabel}{" "}
         <a href="mailto:hello@tavli.ro" className="text-brand-primary">
           hello@tavli.ro
         </a>

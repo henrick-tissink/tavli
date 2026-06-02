@@ -1,0 +1,59 @@
+{
+  "notFound": {
+    "title": "Restaurantul nu a fost găsit",
+    "back": "Înapoi"
+  },
+  "detail": {
+    "availableToday": "Disponibil astăzi",
+    "noSlotsTitle": "Nu sunt locuri disponibile astăzi",
+    "noSlotsBody": "Încearcă o altă zi din calendar.",
+    "bookOtherDay": "Rezervă pentru altă zi →",
+    "readMore": "Citește mai mult",
+    "showLess": "Arată mai puțin",
+    "chefPicksTitle": "Recomandările bucătarului",
+    "chefPicksSubtitle": "Felurile pe care le poți încerca aici.",
+    "viewMenu": "Vezi meniul →",
+    "viewMenuLabel": "Vezi meniul",
+    "viewMenuFull": "complet",
+    "pickBadge": "Pick #{n}",
+    "viewMenuRecommendations": {
+      "one": "{count} recomandare",
+      "few": "{count} recomandări",
+      "other": "{count} recomandări"
+    },
+    "reviewsTitle": "Recenzii",
+    "reviewsSubtitle": "Ce spun oaspeții recenți.",
+    "scheduleTitle": "Program",
+    "scheduleSubtitle": "Când e deschis.",
+    "locationTitle": "Locație",
+    "locationSubtitle": "Cum ajungi.",
+    "directionsLink": "Indicații rutiere",
+    "nearbyTitle": "În apropiere",
+    "nearbySubtitle": "Locuri pe aceeași stradă cu spiritul ăsta.",
+    "bookTable": "Rezervă o masă",
+    "stickyBookCta": "Rezervă",
+    "stickyNextSlot": "Următor disponibil: {slot}"
+  },
+  "gallery": {
+    "backAriaLabel": "Înapoi",
+    "saveAriaLabel": "Salvează",
+    "shareAriaLabel": "Trimite"
+  },
+  "reviewCard": {
+    "bookedContext": "Rezervat: {date} · {count} {unit}",
+    "guestOne": "persoană",
+    "guestOther": "persoane",
+    "helpful": "👍 Util ({count})",
+    "restaurantReply": "Răspuns restaurant"
+  },
+  "reviewIntelligence": {
+    "title": "Ce le place oamenilor",
+    "basedOn": {
+      "one": "Pe baza a {count} recenzie",
+      "few": "Pe baza a {count} recenzii",
+      "other": "Pe baza a {count} recenzii"
+    },
+    "topMentionsTitle": "Cele mai menționate",
+    "bestForTitle": "Bun pentru"
+  }
+}

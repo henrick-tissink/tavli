@@ -9,7 +9,12 @@ import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
 import { CitySelector } from "@/components/city-selector";
 import { AuthSheet } from "@/components/auth-sheet";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
+// i18n-allow-block: profile city switcher is built around RO display names
+// (CitySelector emits a display name → reverse-mapped to slug). Tracked for a
+// follow-up that refactors CitySelector to slug-based + common.cities labels.
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
   cluj: "Cluj",
@@ -18,6 +23,7 @@ const CITY_DISPLAY_NAMES: Record<string, string> = {
   iasi: "Iași",
 };
 
+// i18n-allow-block: reverse map for the city switcher (see above).
 const CITY_NAME_TO_SLUG: Record<string, string> = {
   București: "bucuresti",
   Cluj: "cluj",
@@ -42,6 +48,8 @@ export default function ProfilePage({
   const { auth, signOut } = useAuth();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [notifications, setNotifications] = useState(true);
+  const t = useT("profile");
+  const locale = useLocale();
 
   // Hydrate notification preference from localStorage on mount.
   useEffect(() => {
@@ -68,7 +76,7 @@ export default function ProfilePage({
   const handleCityChange = (cityName: string) => {
     const slug = CITY_NAME_TO_SLUG[cityName];
     if (!slug || slug === city) return;
-    router.push(`/${slug}/profile`);
+    router.push(localizedHref(`/${slug}/profile`, locale));
   };
 
   const displayCity = formatCityName(city);
@@ -84,11 +92,11 @@ export default function ProfilePage({
       <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
         <EmptyState
           illustration="/illustrations/empty-profile.svg"
-          title="Profilul tău"
-          body="Conectează-te pentru a-ți gestiona contul, preferințele și istoricul de rezervări."
+          title={t("screen.signedOutTitle")}
+          body={t("screen.signedOutBody")}
         />
         <div className="flex justify-center">
-          <Button onClick={() => setAuthSheetOpen(true)}>Conectează-te</Button>
+          <Button onClick={() => setAuthSheetOpen(true)}>{t("screen.signIn")}</Button>
         </div>
         <AuthSheet open={authSheetOpen} onClose={() => setAuthSheetOpen(false)} />
       </div>
@@ -97,10 +105,17 @@ export default function ProfilePage({
 
   const user = auth.user!;
   const email = user.email ?? "";
-  const displayName = email.split("@")[0] || "Utilizator Tavli";
+  const displayName = email.split("@")[0] || t("screen.defaultDisplayName");
   const memberSince = user.created_at
     ? new Date(user.created_at).toISOString().slice(0, 10)
     : null;
+
+  const legalLinks = [
+    { href: localizedHref("/confidentialitate", locale), label: t("screen.legalPrivacy") },
+    { href: localizedHref("/termeni", locale), label: t("screen.legalTerms") },
+    { href: localizedHref("/cookie-uri", locale), label: t("screen.legalCookies") },
+    { href: localizedHref("/anpc", locale), label: t("screen.legalAnpc") },
+  ];
 
   return (
     <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
@@ -116,7 +131,7 @@ export default function ProfilePage({
           )}
           {memberSince && (
             <p className="text-xs text-text-muted mt-0.5">
-              Membru din {memberSince}
+              {t("screen.memberSince", { date: memberSince })}
             </p>
           )}
         </div>
@@ -125,12 +140,12 @@ export default function ProfilePage({
       {/* Settings */}
       <section className="space-y-5">
         <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-          Setări
+          {t("screen.settingsTitle")}
         </h2>
 
         {/* City */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-text-primary">Oraș</span>
+          <span className="text-sm font-medium text-text-primary">{t("screen.cityLabel")}</span>
           <CitySelector currentCity={displayCity} onSelect={handleCityChange} />
         </div>
 
@@ -138,13 +153,13 @@ export default function ProfilePage({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell size={18} className="text-text-secondary" />
-            <span className="text-sm font-medium text-text-primary">Notificări</span>
+            <span className="text-sm font-medium text-text-primary">{t("screen.notificationsLabel")}</span>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={notifications}
-            aria-label="Notificări"
+            aria-label={t("screen.notificationsAriaLabel")}
             onClick={toggleNotifications}
             className={`w-11 h-6 rounded-full relative transition-colors ${
               notifications ? "bg-brand-primary" : "bg-gray-300"
@@ -162,15 +177,10 @@ export default function ProfilePage({
       {/* Legal & informare — mobile entry point (desktop has the footer). */}
       <section className="bg-surface-white border border-border rounded-card mb-4 desktop:hidden">
         <h2 className="text-xs font-bold uppercase tracking-wider text-text-secondary px-4 pt-4 pb-2">
-          Legal & informare
+          {t("screen.legalTitle")}
         </h2>
         <ul className="divide-y divide-border">
-          {[
-            { href: "/confidentialitate", label: "Confidențialitate" },
-            { href: "/termeni", label: "Termeni" },
-            { href: "/cookie-uri", label: "Cookie-uri" },
-            { href: "/anpc", label: "ANPC & SOL" },
-          ].map((item) => (
+          {legalLinks.map((item) => (
             <li key={item.href}>
               <a
                 href={item.href}
@@ -186,7 +196,7 @@ export default function ProfilePage({
               href="mailto:hello@tavli.ro"
               className="flex items-center justify-between px-4 py-3.5 text-sm text-text-primary hover:bg-surface-bg"
             >
-              <span>Contact: hello@tavli.ro</span>
+              <span>{t("screen.legalContact")}</span>
               <span aria-hidden className="text-text-muted">›</span>
             </a>
           </li>
@@ -198,7 +208,7 @@ export default function ProfilePage({
         <Button variant="ghost" fullWidth onClick={() => signOut()}>
           <span className="flex items-center gap-2 justify-center">
             <LogOut size={16} />
-            Deconectează-te
+            {t("screen.signOut")}
           </span>
         </Button>
       </div>

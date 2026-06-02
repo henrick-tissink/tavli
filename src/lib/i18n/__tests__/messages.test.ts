@@ -1,4 +1,4 @@
-import { getMessages, NAMESPACES } from "@/lib/i18n/messages";
+import { getMessages, buildBundle, NAMESPACES } from "@/lib/i18n/messages";
 
 describe("getMessages", () => {
   it("returns the requested namespace in the requested locale", () => {
@@ -9,6 +9,16 @@ describe("getMessages", () => {
 
   it("falls back to RO for an unknown locale", () => {
     expect(getMessages("fr", "common").switchLanguage).toBe("Schimbă limba");
+  });
+
+  it("builds a bundle with the requested namespaces", () => {
+    const enBundle = buildBundle("en", ["common"]);
+    expect(enBundle).toHaveProperty("common");
+    expect((enBundle.common as { switchLanguage: string }).switchLanguage).toBe("Change language");
+
+    const deBundle = buildBundle("de", ["common"]);
+    expect(deBundle).toHaveProperty("common");
+    expect((deBundle.common as { switchLanguage: string }).switchLanguage).toBe("Sprache ändern");
   });
 
   it("has identical key sets across all locales for every namespace", () => {

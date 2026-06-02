@@ -6,6 +6,7 @@ import { StatusTimeline } from "@/components/tracking/StatusTimeline";
 import { QuoteExpiryCountdown } from "@/components/tracking/QuoteExpiryCountdown";
 import { PartnerIdentityBadge } from "@/components/tracking/PartnerIdentityBadge";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   consumerAcceptQuote,
   consumerDeclineQuote,
@@ -29,45 +30,41 @@ interface Props {
   token: string;
 }
 
-const STATUS_HEADLINE: Record<string, string> = {
-  new: "Cerere trimisă",
-  viewing: "Restaurantul îți vede cererea",
-  replied: "Ai primit un răspuns",
-  quoted: "Ofertă primită",
-  accepted: "Ofertă acceptată",
-  declined: "Cerere refuzată",
-  expired_quote: "Oferta a expirat",
-  cancelled: "Cerere anulată",
-  expired: "Cerere expirată",
-  completed: "Eveniment finalizat",
-};
-
 export function TrackingClient({
   er,
   restaurant,
   quoteLineItems,
   token,
 }: Props) {
+  const t = useT("events");
   const [pending, startTransition] = useTransition();
   const reloadAfter = (p: Promise<unknown>) =>
     p.then(() => {
       if (typeof window !== "undefined") window.location.reload();
     });
+
+  const statusHeadline =
+    t(`tracking.status.${er.status}`) || er.status;
+  const requestLabel = t("tracking.requestLabel").replace(
+    "{id}",
+    er.id.slice(0, 8),
+  );
+
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
       <header>
         <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-          Cerere #{er.id.slice(0, 8)}
+          {requestLabel}
         </p>
         <h1 className="font-display text-3xl font-bold mt-1">
-          {STATUS_HEADLINE[er.status] ?? er.status}
+          {statusHeadline}
         </h1>
         <div className="flex items-center gap-4 mt-2 text-sm text-text-secondary">
           <span className="flex items-center gap-1">
             <Calendar className="w-4 h-4" /> {er.eventDate}
           </span>
           <span className="flex items-center gap-1">
-            <Users className="w-4 h-4" /> {er.partySize} pers.
+            <Users className="w-4 h-4" /> {er.partySize} {t("tracking.partySizeUnit")}
           </span>
         </div>
       </header>
@@ -80,7 +77,7 @@ export function TrackingClient({
       {er.partnerResponse && (
         <section className="bg-surface-bg p-4 rounded-card">
           <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-            Răspuns restaurant
+            {t("tracking.partnerResponseLabel")}
           </p>
           <p className="mt-2 whitespace-pre-line">{er.partnerResponse}</p>
         </section>
@@ -89,10 +86,10 @@ export function TrackingClient({
         <section className="border border-brand-primary rounded-card p-4 space-y-3 bg-surface-white shadow-card">
           <div className="flex items-baseline justify-between">
             <span className="text-sm font-medium text-text-secondary">
-              Ofertă totală
+              {t("tracking.quoteLabel")}
             </span>
             <span className="font-display text-3xl font-bold text-brand-primary">
-              {(er.quotedAmountCents / 100).toLocaleString("ro-RO")} lei
+              {(er.quotedAmountCents / 100).toLocaleString("ro-RO")} {t("tracking.quoteCurrency")}
             </span>
           </div>
           {quoteLineItems.length > 0 && (
@@ -101,7 +98,7 @@ export function TrackingClient({
                 <li key={i} className="flex justify-between py-1.5">
                   <span className="text-text-secondary">{l.label}</span>
                   <span className="tabular-nums">
-                    {(l.amountCents / 100).toLocaleString("ro-RO")} lei
+                    {(l.amountCents / 100).toLocaleString("ro-RO")} {t("tracking.quoteCurrency")}
                   </span>
                 </li>
               ))}
@@ -121,7 +118,7 @@ export function TrackingClient({
                 )
               }
             >
-              Acceptă oferta
+              {t("tracking.acceptQuote")}
             </Button>
             <Button
               variant="secondary"
@@ -132,13 +129,15 @@ export function TrackingClient({
                 )
               }
             >
-              Refuză politicos
+              {t("tracking.declineQuote")}
             </Button>
           </div>
         </section>
       )}
       {er.declineReason && er.status === "declined" && (
-        <p className="text-sm text-text-secondary">Motiv: {er.declineReason}</p>
+        <p className="text-sm text-text-secondary">
+          {t("tracking.declineReasonPrefix")} {er.declineReason}
+        </p>
       )}
       {["new", "viewing", "replied", "quoted"].includes(er.status) && (
         <Button
@@ -150,7 +149,7 @@ export function TrackingClient({
             )
           }
         >
-          Anulează cererea
+          {t("tracking.cancelRequest")}
         </Button>
       )}
     </main>

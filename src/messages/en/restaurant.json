@@ -1,0 +1,59 @@
+{
+  "notFound": {
+    "title": "Restaurant not found",
+    "back": "Back"
+  },
+  "detail": {
+    "availableToday": "Available today",
+    "noSlotsTitle": "No tables available today",
+    "noSlotsBody": "Try another day from the calendar.",
+    "bookOtherDay": "Book another day →",
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "chefPicksTitle": "Chef's picks",
+    "chefPicksSubtitle": "Dishes you can try here.",
+    "viewMenu": "View menu →",
+    "viewMenuLabel": "View menu",
+    "viewMenuFull": "full menu",
+    "pickBadge": "Pick #{n}",
+    "viewMenuRecommendations": {
+      "one": "{count} recommendation",
+      "few": "{count} recommendations",
+      "other": "{count} recommendations"
+    },
+    "reviewsTitle": "Reviews",
+    "reviewsSubtitle": "What recent guests say.",
+    "scheduleTitle": "Opening hours",
+    "scheduleSubtitle": "When it's open.",
+    "locationTitle": "Location",
+    "locationSubtitle": "How to get there.",
+    "directionsLink": "Get directions",
+    "nearbyTitle": "Nearby",
+    "nearbySubtitle": "Places on the same street with a similar spirit.",
+    "bookTable": "Book a table",
+    "stickyBookCta": "Book",
+    "stickyNextSlot": "Next available: {slot}"
+  },
+  "gallery": {
+    "backAriaLabel": "Back",
+    "saveAriaLabel": "Save",
+    "shareAriaLabel": "Share"
+  },
+  "reviewCard": {
+    "bookedContext": "Booked: {date} · {count} {unit}",
+    "guestOne": "guest",
+    "guestOther": "guests",
+    "helpful": "👍 Helpful ({count})",
+    "restaurantReply": "Restaurant reply"
+  },
+  "reviewIntelligence": {
+    "title": "What people love",
+    "basedOn": {
+      "one": "Based on {count} review",
+      "few": "Based on {count} reviews",
+      "other": "Based on {count} reviews"
+    },
+    "topMentionsTitle": "Most mentioned",
+    "bestForTitle": "Great for"
+  }
+}

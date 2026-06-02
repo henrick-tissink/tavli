@@ -6,12 +6,14 @@ import {
   EventRequestSheet,
   EventRequestSheetProps,
 } from "./event-request-sheet";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props extends Omit<EventRequestSheetProps, "open" | "onClose"> {
   enabled: boolean;
 }
 
 export function EventRequestCta({ enabled, ...sheetProps }: Props) {
+  const t = useT("events");
   const [open, setOpen] = useState(false);
   if (!enabled) return null;
   return (
@@ -21,7 +23,7 @@ export function EventRequestCta({ enabled, ...sheetProps }: Props) {
         fullWidth
         onClick={() => setOpen(true)}
       >
-        Organizează un eveniment
+        {t("cta.organise")}
       </Button>
       <EventRequestSheet
         {...sheetProps}

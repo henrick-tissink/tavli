@@ -15,6 +15,8 @@ import { MapPin } from "@/components/map-pin";
 import { MapCarousel } from "@/components/map-carousel";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface Props {
   city: string;
@@ -27,6 +29,8 @@ export function MapPageClient({ city, allRestaurants }: Props) {
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { applyFilters, activeFilterCount } = useFilters();
   const timeContext = useTimeContext();
+  const t = useT("discovery");
+  const locale = useLocale();
   const isNightMode =
     timeContext.active.includes("evening") || timeContext.active.includes("late");
   const restaurants = useMemo(
@@ -34,19 +38,21 @@ export function MapPageClient({ city, allRestaurants }: Props) {
     [applyFilters, allRestaurants],
   );
 
+  const navigate = (path: string) => router.push(localizedHref(path, locale));
+
   return (
     <div className="fixed inset-0 z-40 flex flex-col desktop:flex-row">
       {/* Desktop left panel */}
       <div className="hidden desktop:flex flex-col w-[400px] bg-surface-white border-r border-border overflow-y-auto">
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Search size={18} className="text-text-muted" />
-          <span className="text-text-muted text-sm flex-1">Caută restaurante…</span>
+          <span className="text-text-muted text-sm flex-1">{t("map.searchPlaceholder")}</span>
           <button
             type="button"
             className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
             onClick={() => setFilterSheetOpen(true)}
           >
-            Filtre
+            {t("map.filters")}
             {activeFilterCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilterCount}
@@ -55,9 +61,9 @@ export function MapPageClient({ city, allRestaurants }: Props) {
           </button>
           <button
             type="button"
-            aria-label="Închide harta"
+            aria-label={t("map.closeMap")}
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-            onClick={() => router.push(`/${city}`)}
+            onClick={() => navigate(`/${city}`)}
           >
             <X size={18} className="text-text-secondary" />
           </button>
@@ -112,9 +118,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                   <TimeSlotPills
                     slots={restaurant.availableSlots}
                     maxVisible={3}
-                    onSelect={() =>
-                      router.push(`/${city}/${restaurant.slug}`)
-                    }
+                    onSelect={() => navigate(`/${city}/${restaurant.slug}`)}
                   />
                 </div>
               </div>
@@ -142,13 +146,13 @@ export function MapPageClient({ city, allRestaurants }: Props) {
         <div className="absolute top-[env(safe-area-inset-top,0px)] left-0 right-0 p-3 desktop:hidden z-10">
           <div className="bg-surface-white rounded-xl shadow-floating p-2.5 flex items-center gap-2">
             <Search size={18} className="text-text-muted flex-shrink-0" />
-            <span className="text-text-muted text-sm flex-1">Caută restaurante…</span>
+            <span className="text-text-muted text-sm flex-1">{t("map.searchPlaceholder")}</span>
             <button
               type="button"
               className="relative px-3 py-1 rounded-pill bg-surface-bg text-text-secondary text-xs font-medium"
               onClick={() => setFilterSheetOpen(true)}
             >
-              Filtre
+              {t("map.filters")}
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
@@ -157,9 +161,9 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             </button>
             <button
               type="button"
-              aria-label="Închide harta"
+              aria-label={t("map.closeMap")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-              onClick={() => router.push(`/${city}`)}
+              onClick={() => navigate(`/${city}`)}
             >
               <X size={18} className="text-text-secondary" />
             </button>
@@ -174,7 +178,7 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             onSelect={(r) => setSelectedId(r.id)}
             onSlotSelect={(id) => {
               const r = restaurants.find((r) => r.id === id);
-              if (r) router.push(`/${city}/${r.slug}`);
+              if (r) navigate(`/${city}/${r.slug}`);
             }}
           />
         </div>

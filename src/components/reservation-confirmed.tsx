@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Phone, CalendarPlus } from "lucide-react";
 import { ReservationCancelForm } from "@/components/reservation-cancel-form";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export interface ReservationConfirmedProps {
   token: string;
@@ -86,6 +87,7 @@ export function ReservationConfirmed({
   lat,
   lng,
 }: ReservationConfirmedProps) {
+  const t = useT("booking");
   const [showCancel, setShowCancel] = useState(false);
 
   const { weekday, full, timeDisplay } = formatRoDate(date, time);
@@ -96,9 +98,11 @@ export function ReservationConfirmed({
   const dtStart = new Date(Date.UTC(year!, month! - 1, day!, hour!, minute ?? 0, 0));
   const dtEnd = new Date(dtStart.getTime() + 2 * 60 * 60 * 1000);
 
+  const icsSummary = t("confirmed.icsSummary", { restaurantName });
+
   const icsHref = buildIcsDataUrl({
     uid: token,
-    summary: `Rezervare la ${restaurantName}`,
+    summary: icsSummary,
     start: dtStart,
     end: dtEnd,
     location: address,
@@ -111,6 +115,8 @@ export function ReservationConfirmed({
 
   const detailHref =
     cityHint ? `/${cityHint}/${restaurantSlug}` : `/${restaurantSlug}`;
+
+  const partyUnitMsg = t("confirmed.partyUnit", { count: partySize });
 
   return (
     <div className="min-h-screen bg-surface-bg">
@@ -134,7 +140,7 @@ export function ReservationConfirmed({
         {/* Overlay content — bottom left */}
         <div className="absolute bottom-0 left-0 p-5 desktop:p-8">
           <p className="text-white/85 text-xs tracking-[0.3em] uppercase font-semibold">
-            CONFIRMAT
+            {t("confirmed.eyebrow")}
           </p>
           <h1 className="font-display text-3xl desktop:text-5xl text-white font-bold mt-2 tracking-tight leading-tight">
             {restaurantName}
@@ -156,12 +162,11 @@ export function ReservationConfirmed({
       {/* ── 2. Headline card ─────────────────────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 desktop:px-6 mt-8">
         <h2 className="font-display text-2xl desktop:text-3xl font-bold text-text-primary leading-tight">
-          Te așteaptă {weekday}, la {timeDisplay}.
+          {t("confirmed.awaitingYou", { weekday, time: timeDisplay })}
         </h2>
         <p className="text-text-secondary mt-2">
-          Pentru {partySize} {partySize === 1 ? "persoană" : "persoane"}, la{" "}
-          {restaurantName}
-          {zone ? ` · ${zone}` : ""}.
+          {t("confirmed.forParty", { partySize, unit: partyUnitMsg, restaurantName })}
+          {zone ? ` · ${zone}` : ""}
         </p>
         <p className="text-text-muted text-sm mt-1">{guestName}</p>
       </div>
@@ -170,7 +175,7 @@ export function ReservationConfirmed({
       {heroNote && (
         <section className="mt-8 desktop:mt-10 max-w-2xl mx-auto px-4">
           <p className="text-xs tracking-[0.3em] uppercase text-brand-primary font-semibold text-center">
-            CE TE AȘTEAPTĂ
+            {t("confirmed.waitingBadge")}
           </p>
           <p className="font-display italic text-xl desktop:text-2xl text-text-primary text-center leading-snug mt-3">
             {heroNote}
@@ -185,7 +190,7 @@ export function ReservationConfirmed({
           <div className="flex items-start gap-4 p-5">
             <MapPin className="w-5 h-5 text-brand-primary flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-text-primary">Adresa</p>
+              <p className="text-sm font-semibold text-text-primary">{t("confirmed.addressLabel")}</p>
               <p className="text-sm text-text-secondary mt-0.5">{address}</p>
               {mapsUrl && (
                 <a
@@ -194,7 +199,7 @@ export function ReservationConfirmed({
                   rel="noopener noreferrer"
                   className="text-sm text-brand-primary mt-1 inline-block hover:underline"
                 >
-                  Indicații rutiere →
+                  {t("confirmed.directionsLink")}
                 </a>
               )}
             </div>
@@ -205,7 +210,7 @@ export function ReservationConfirmed({
             <div className="flex items-start gap-4 p-5">
               <Phone className="w-5 h-5 text-brand-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text-primary">Telefon</p>
+                <p className="text-sm font-semibold text-text-primary">{t("confirmed.phoneLabel")}</p>
                 <a
                   href={`tel:${phone}`}
                   className="text-sm text-brand-primary mt-0.5 hover:underline"
@@ -221,15 +226,15 @@ export function ReservationConfirmed({
             <CalendarPlus className="w-5 h-5 text-brand-primary flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-text-primary">
-                Adaugă în calendar
+                {t("confirmed.calendarLabel")}
               </p>
               <a
                 href={icsHref}
                 download="rezervare-tavli.ics"
                 className="text-sm text-brand-primary mt-0.5 inline-block hover:underline"
-                aria-label="Descarcă fișier calendar"
+                aria-label={t("confirmed.calendarAriaLabel")}
               >
-                Descarcă .ics
+                {t("confirmed.calendarDownload")}
               </a>
             </div>
           </div>
@@ -239,13 +244,13 @@ export function ReservationConfirmed({
       {/* ── 5. Secondary cancel section ─────────────────────────────────── */}
       <div className="mt-12 max-w-3xl mx-auto px-4 desktop:px-6 text-center text-sm pb-16">
         <p className="text-text-muted">
-          Trebuie să anulezi?{" "}
+          {t("confirmed.needToCancel")}{" "}
           <button
             type="button"
             onClick={() => setShowCancel((v) => !v)}
             className="text-brand-primary underline hover:no-underline"
           >
-            Anulează rezervarea
+            {t("confirmed.cancelLink")}
           </button>
         </p>
 

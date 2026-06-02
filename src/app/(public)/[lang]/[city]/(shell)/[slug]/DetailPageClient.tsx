@@ -23,6 +23,9 @@ import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
 import { SectionHeader } from "@/components/section-header";
 import { useSaved } from "@/lib/saved-context";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
+import type { Vars } from "@/lib/i18n/t";
 
 interface Props {
   city: string;
@@ -33,6 +36,8 @@ interface Props {
 export function DetailPageClient({ city, slug, restaurant }: Props) {
   const router = useRouter();
   const { isSaved, toggleSave, addBooking } = useSaved();
+  const t = useT("restaurant");
+  const locale = useLocale();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preSelectedSlot, setPreSelectedSlot] = useState<string | undefined>(
@@ -70,15 +75,15 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
   const directionsHref = hasCoords
     ? `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`
     : null;
-  const menuHref = `/${city}/${slug}/menu`;
+  const menuHref = localizedHref(`/${city}/${slug}/menu`, locale);
 
   const handleCardClick = (r: { slug: string }) => {
-    router.push(`/${city}/${r.slug}`);
+    router.push(localizedHref(`/${city}/${r.slug}`, locale));
   };
 
   const handleSlotSelect = (restaurantId: string) => {
     const target = restaurant.nearby.find((r) => r.id === restaurantId);
-    if (target) router.push(`/${city}/${target.slug}`);
+    if (target) router.push(localizedHref(`/${city}/${target.slug}`, locale));
   };
 
   return (
@@ -104,17 +109,17 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         <div className="desktop:flex desktop:gap-8">
           <div className="desktop:w-[55%]">
             <div className="desktop:hidden">
-              <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={ctaRef} />
+              <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={ctaRef} t={t} />
             </div>
 
             <div className="desktop:hidden mt-6">
-              <SectionHeader title="Disponibil astăzi" />
+              <SectionHeader title={t("detail.availableToday")} />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
-                    title="Nu sunt locuri disponibile astăzi"
-                    body="Încearcă o altă zi din calendar."
+                    title={t("detail.noSlotsTitle")}
+                    body={t("detail.noSlotsBody")}
                   />
                   <div className="text-center">
                     <button
@@ -122,7 +127,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                       onClick={() => openSheet()}
                       className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
                     >
-                      Rezervă pentru altă zi →
+                      {t("detail.bookOtherDay")}
                     </button>
                   </div>
                 </div>
@@ -145,7 +150,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     onClick={() => setExpanded(true)}
                     className="text-brand-primary font-semibold ml-1"
                   >
-                    Citește mai mult
+                    {t("detail.readMore")}
                   </button>
                 )}
                 {expanded && restaurant.description.length > 200 && (
@@ -154,7 +159,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     onClick={() => setExpanded(false)}
                     className="text-brand-primary font-semibold ml-1"
                   >
-                    Arată mai puțin
+                    {t("detail.showLess")}
                   </button>
                 )}
               </p>
@@ -169,21 +174,21 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             {restaurant.chefPicks.length > 0 && (
               <section className="mt-8">
                 <SectionHeader
-                  title="Recomandările bucătarului"
-                  subtitle="Felurile pe care le poți încerca aici."
+                  title={t("detail.chefPicksTitle")}
+                  subtitle={t("detail.chefPicksSubtitle")}
                   icon={<Star size={18} className="fill-yellow-400 text-yellow-400" />}
                   rightSlot={
                     <Link
                       href={menuHref}
                       className="text-sm font-semibold text-brand-primary hover:underline whitespace-nowrap shrink-0"
                     >
-                      Vezi meniul →
+                      {t("detail.viewMenu")}
                     </Link>
                   }
                 />
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
                   {restaurant.chefPicks.map((item, idx) => (
-                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} />
+                    <ChefPickCard key={item.id} item={item} menuHref={menuHref} index={idx} t={t} />
                   ))}
                 </div>
               </section>
@@ -201,8 +206,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             {restaurant.reviews.length > 0 && (
               <section className="mt-8">
                 <SectionHeader
-                  title="Recenzii"
-                  subtitle="Ce spun oaspeții recenți."
+                  title={t("detail.reviewsTitle")}
+                  subtitle={t("detail.reviewsSubtitle")}
                 />
                 <div className="divide-y divide-border">
                   {restaurant.reviews.map((review) => (
@@ -214,16 +219,16 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </div>
 
           <div className="hidden desktop:block desktop:w-[45%] desktop:sticky desktop:top-20 desktop:self-start">
-            <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={null} />
+            <InfoBlock restaurant={restaurant} onBook={() => openSheet()} ctaRef={null} t={t} />
 
             <div className="mt-6">
-              <SectionHeader title="Disponibil astăzi" />
+              <SectionHeader title={t("detail.availableToday")} />
               {restaurant.availableSlots.length === 0 ? (
                 <div>
                   <EmptyState
                     illustration="/illustrations/empty-bookings.svg"
-                    title="Nu sunt locuri disponibile astăzi"
-                    body="Încearcă o altă zi din calendar."
+                    title={t("detail.noSlotsTitle")}
+                    body={t("detail.noSlotsBody")}
                   />
                   <div className="text-center">
                     <button
@@ -231,7 +236,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                       onClick={() => openSheet()}
                       className="text-brand-primary text-sm font-semibold inline-flex items-center gap-1 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
                     >
-                      Rezervă pentru altă zi →
+                      {t("detail.bookOtherDay")}
                     </button>
                   </div>
                 </div>
@@ -249,11 +254,11 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               href={menuHref}
               className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-button bg-brand-primary-soft text-brand-primary-dark font-bold text-sm hover:bg-brand-primary-soft/80 transition-colors"
             >
-              <FileText size={16} /> Vezi meniul ({restaurant.chefPicks.length > 0 ? `${restaurant.chefPicks.length} recomandări` : "complet"})
+              <FileText size={16} /> {t("detail.viewMenuLabel")} ({restaurant.chefPicks.length > 0 ? t("detail.viewMenuRecommendations", { count: restaurant.chefPicks.length }) : t("detail.viewMenuFull")})
             </Link>
 
             <section className="mt-8">
-              <SectionHeader title="Program" subtitle="Când e deschis." />
+              <SectionHeader title={t("detail.scheduleTitle")} subtitle={t("detail.scheduleSubtitle")} />
               <div className="mt-3 space-y-1">
                 {restaurant.schedule.map((entry) => (
                   <div key={entry.days} className="flex justify-between text-sm">
@@ -265,7 +270,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             </section>
 
             <section className="mt-8">
-              <SectionHeader title="Locație" subtitle="Cum ajungi." />
+              <SectionHeader title={t("detail.locationTitle")} subtitle={t("detail.locationSubtitle")} />
               <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
               {hasCoords && (
                 <div className="mt-3">
@@ -283,7 +288,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
                 >
-                  Indicații rutiere <ExternalLink size={14} />
+                  {t("detail.directionsLink")} <ExternalLink size={14} />
                 </a>
               )}
             </section>
@@ -297,12 +302,12 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               href={menuHref}
               className="inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-button bg-brand-primary-soft text-brand-primary-dark font-bold text-sm hover:bg-brand-primary-soft/80 transition-colors"
             >
-              <FileText size={16} /> Vezi meniul ({restaurant.chefPicks.length > 0 ? `${restaurant.chefPicks.length} recomandări` : "complet"})
+              <FileText size={16} /> {t("detail.viewMenuLabel")} ({restaurant.chefPicks.length > 0 ? t("detail.viewMenuRecommendations", { count: restaurant.chefPicks.length }) : t("detail.viewMenuFull")})
             </Link>
           </section>
 
           <section className="mt-8">
-            <SectionHeader title="Program" subtitle="Când e deschis." />
+            <SectionHeader title={t("detail.scheduleTitle")} subtitle={t("detail.scheduleSubtitle")} />
             <div className="mt-3 space-y-1">
               {restaurant.schedule.map((entry) => (
                 <div key={entry.days} className="flex justify-between text-sm">
@@ -314,7 +319,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           </section>
 
           <section className="mt-8">
-            <SectionHeader title="Locație" subtitle="Cum ajungi." />
+            <SectionHeader title={t("detail.locationTitle")} subtitle={t("detail.locationSubtitle")} />
             <p className="text-sm text-text-secondary mt-2">{restaurant.address}</p>
             {hasCoords && (
               <div className="mt-3">
@@ -332,7 +337,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary mt-3"
               >
-                Indicații rutiere <ExternalLink size={14} />
+                {t("detail.directionsLink")} <ExternalLink size={14} />
               </a>
             )}
           </section>
@@ -341,7 +346,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
 
         {restaurant.nearby.length > 0 && (
           <section className="mt-8">
-            <SectionHeader title="În apropiere" subtitle="Locuri pe aceeași stradă cu spiritul ăsta." />
+            <SectionHeader title={t("detail.nearbyTitle")} subtitle={t("detail.nearbySubtitle")} />
             <HorizontalSection
               title=""
               restaurants={restaurant.nearby}
@@ -378,10 +383,10 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-text-primary truncate leading-tight">{restaurant.name}</p>
                 {restaurant.availableSlots[0] && (
-                  <p className="text-xs text-text-secondary leading-tight">Următor disponibil: {restaurant.availableSlots[0]}</p>
+                  <p className="text-xs text-text-secondary leading-tight">{t("detail.stickyNextSlot", { slot: restaurant.availableSlots[0] })}</p>
                 )}
               </div>
-              <Button onClick={() => openSheet()} className="px-4">Rezervă</Button>
+              <Button onClick={() => openSheet()} className="px-4">{t("detail.stickyBookCta")}</Button>
             </div>
           </motion.div>
         )}
@@ -419,10 +424,12 @@ function InfoBlock({
   restaurant,
   onBook,
   ctaRef,
+  t,
 }: {
   restaurant: RestaurantDetail;
   onBook: () => void;
   ctaRef: RefObject<HTMLDivElement | null> | null;
+  t: (key: string, vars?: Vars) => string;
 }) {
   return (
     <div className="mt-4">
@@ -443,7 +450,7 @@ function InfoBlock({
       </div>
       <div ref={ctaRef} className="mt-4 space-y-2">
         <Button fullWidth onClick={onBook}>
-          Rezervă o masă
+          {t("detail.bookTable")}
         </Button>
         <EventRequestCtaV2
           enabled={restaurant.eventsIntakeEnabled}
@@ -459,6 +466,9 @@ function InfoBlock({
   );
 }
 
+// i18n-allow-block: RO marketing-copy data used to synthesise an optional hero
+// descriptor. Localizing this adjective system is content work (Phase 1c), not
+// UI-chrome extraction.
 const CUISINE_ADJECTIVES: Record<string, string> = {
   Romanian: "autentic românesc",
   Italian: "cu savori italiene",
@@ -503,7 +513,7 @@ function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
   );
 }
 
-function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: string; index: number }) {
+function ChefPickCard({ item, menuHref, index, t }: { item: MenuItem; menuHref: string; index: number; t: (key: string, vars?: Vars) => string }) {
   return (
     <Link
       href={menuHref}
@@ -520,7 +530,7 @@ function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: str
           />
           {index < 3 && (
             <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
-              Pick #{index + 1}
+              {t("detail.pickBadge", { n: index + 1 })}
             </span>
           )}
         </div>
@@ -529,7 +539,7 @@ function ChefPickCard({ item, menuHref, index }: { item: MenuItem; menuHref: str
           <Star size={24} className="text-text-muted" />
           {index < 3 && (
             <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-full">
-              Pick #{index + 1}
+              {t("detail.pickBadge", { n: index + 1 })}
             </span>
           )}
         </div>

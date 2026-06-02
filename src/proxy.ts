@@ -54,8 +54,21 @@ export async function proxy(request: NextRequest) {
   // prefixing to every public path except the authenticated apps, API, auth
   // callback, tracking handlers, and asset/internal paths.
   const NON_LOCALE_PREFIXES = ["/admin", "/partner", "/api", "/auth", "/c/", "/u/", "/_next"];
+  // Legal pages use LOCALIZED slugs (e.g. /termeni vs /en/terms) and live outside
+  // the [lang] tree, so they must NOT be locale-rewritten. The RO slugs are
+  // unprefixed and would otherwise be rewritten to non-existent /ro/<slug> (404).
+  // The /en, /de legal variants are prefixed and pass through normally.
+  const LEGAL_RO_SLUGS = new Set([
+    "/anpc",
+    "/confidentialitate",
+    "/cookie-uri",
+    "/termeni",
+    "/mentiuni-legale",
+    "/prelucrare-date",
+  ]);
   const isLocalePath =
     !NON_LOCALE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p)) &&
+    !LEGAL_RO_SLUGS.has(pathname) &&
     !/\.[a-z0-9]+$/i.test(pathname); // skip files with an extension
   if (isLocalePath) {
     const localeAction = decideLocaleAction({

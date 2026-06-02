@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { RO_DATE_FORMAT, localDateFromIso } from "./helpers";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepSentProps {
   restaurantName: string;
@@ -22,6 +23,7 @@ export function StepSent({
   confirmationToken,
   onClose,
 }: StepSentProps) {
+  const t = useT("booking");
   const formatted = RO_DATE_FORMAT.format(localDateFromIso(date));
 
   return (
@@ -36,11 +38,11 @@ export function StepSent({
       </motion.div>
 
       <h2 className="font-display text-2xl font-bold text-text-primary text-center">
-        Rezervarea ta este confirmată
+        {t("sheet.stepSent.title")}
       </h2>
 
       <p className="text-sm text-text-secondary text-center">
-        {restaurantName} · {formatted} la {slot} · {guests} persoane
+        {restaurantName} · {formatted} {t("sheet.stepSent.atTime")} {slot} · {t("sheet.stepSent.subtitle", { guests })}
       </p>
 
       <div className="flex flex-col gap-2 pt-2">
@@ -49,7 +51,7 @@ export function StepSent({
             href={`/reservations/${confirmationToken}`}
             className="w-full bg-brand-primary text-white font-semibold py-3 rounded-button hover:bg-brand-primary-dark transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
-            Vezi rezervarea
+            {t("sheet.stepSent.viewReservation")}
           </Link>
         ) : null}
         <button
@@ -61,7 +63,7 @@ export function StepSent({
               : "bg-brand-primary text-white hover:bg-brand-primary-dark"
           }`}
         >
-          Înapoi la restaurant
+          {t("sheet.stepSent.backToRestaurant")}
         </button>
       </div>
     </div>

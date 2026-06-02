@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReviewIntelligence } from "@/lib/types";
 import { SentimentBar } from "./sentiment-bar";
 import { Pill } from "./pill";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface ReviewIntelligenceSectionProps {
   intelligence: ReviewIntelligence;
@@ -11,10 +14,11 @@ export function ReviewIntelligenceSection({
   intelligence,
   totalReviews,
 }: ReviewIntelligenceSectionProps) {
+  const t = useT("restaurant");
   return (
     <div>
       <h3 className="text-[20px] desktop:text-[24px] font-bold text-text-primary">
-        Ce le place oamenilor
+        {t("reviewIntelligence.title")}
       </h3>
 
       <div className="mt-3 space-y-2">
@@ -30,12 +34,12 @@ export function ReviewIntelligenceSection({
       </div>
 
       <p className="text-xs text-text-muted mt-2">
-        Pe baza a {totalReviews.toLocaleString()} {totalReviews === 1 ? "recenzie" : "recenzii"}
+        {t("reviewIntelligence.basedOn", { count: totalReviews })}
       </p>
 
       <hr className="border-border my-4" />
 
-      <h4 className="text-base font-bold text-text-primary mt-4">Cele mai menționate</h4>
+      <h4 className="text-base font-bold text-text-primary mt-4">{t("reviewIntelligence.topMentionsTitle")}</h4>
       <ul className="mt-2 space-y-1">
         {intelligence.topMentions.map((mention, i) => (
           <li key={mention.phrase} className="text-sm text-text-primary">
@@ -48,7 +52,7 @@ export function ReviewIntelligenceSection({
       <hr className="border-border my-4" />
 
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-bold text-text-primary">Bun pentru</span>
+        <span className="text-sm font-bold text-text-primary">{t("reviewIntelligence.bestForTitle")}</span>
         {intelligence.bestFor.map((tag) => (
           <Pill key={tag} label={tag} />
         ))}

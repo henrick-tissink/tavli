@@ -5,19 +5,15 @@ import { EditorialHero } from "@/components/events-landing/EditorialHero";
 import { OccasionEntryGrid } from "@/components/events-landing/OccasionEntryGrid";
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
-import { isLocale } from "@/lib/i18n/locale";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { translate, interpolate } from "@/lib/i18n/t";
+import { cityDisplayName } from "@/lib/i18n/city-name";
 
-const CITY_DISPLAY_NAMES: Record<string, string> = {
-  bucuresti: "București",
-  cluj: "Cluj",
-  timisoara: "Timișoara",
-  brasov: "Brașov",
-  iasi: "Iași",
-  istanbul: "Istanbul",
-};
-
-function formatCityName(slug: string): string {
-  return CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+/** Prefix a storefront path with the locale segment (skipping for the default locale). */
+function localizedHref(path: string, lang: string): string {
+  return lang === DEFAULT_LOCALE ? path : `/${lang}${path}`;
 }
 
 export async function generateMetadata({
@@ -26,11 +22,13 @@ export async function generateMetadata({
   params: Promise<{ lang: string; city: string }>;
 }) {
   const { lang, city } = await params;
-  const cityName = formatCityName(city);
+  const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+  const cityName = cityDisplayName(locale, city);
+  const m = getMessages(locale, "events");
   return {
-    title: `Locații pentru evenimente private în ${cityName} | Tavli`,
-    description: `Descoperă restaurante și cafenele din ${cityName} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate.`,
-    alternates: buildAlternates(`/${city}/events`, isLocale(lang) ? lang : "ro", getSiteUrl()),
+    title: interpolate(m.meta.title, { city: cityName }),
+    description: interpolate(m.meta.description, { city: cityName }),
+    alternates: buildAlternates(`/${city}/events`, locale, getSiteUrl()),
   };
 }
 
@@ -39,25 +37,44 @@ export default async function CityEventsPage({
 }: {
   params: Promise<{ lang: string; city: string }>;
 }) {
-  const { city } = await params;
+  const { lang: rawLang, city } = await params;
+  const locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const m = getMessages(locale, "events");
+  const bundle = buildBundle(locale, ["common", "events"]);
+
   const rows = await listRestaurants({
     citySlug: city,
     capabilities: ["events"],
     limit: 60,
   });
   if (!rows) notFound();
-  const cityCapitalised = formatCityName(city);
+  const cityCapitalised = cityDisplayName(locale, city);
+
+  // venueCount plural text
+  const venueCountText = translate(locale, m.landing.hero.venueCount, {
+    count: rows.length,
+  });
+
   return (
     <main className="max-w-6xl mx-auto p-6">
-      <EditorialHero city={cityCapitalised} venueCount={rows.length} />
-      <OccasionEntryGrid />
+      <EditorialHero
+        city={cityCapitalised}
+        venueCount={rows.length}
+        eyebrow={m.landing.hero.eyebrow}
+        heading={m.landing.hero.heading}
+        body={m.landing.hero.body}
+        venueCountText={venueCountText}
+      />
+      <MessagesProvider locale={locale} bundle={bundle}>
+        <OccasionEntryGrid />
+      </MessagesProvider>
       <section>
         <h2 className="font-display text-2xl font-bold mb-4">
-          Toate locațiile
+          {m.landing.allVenuesHeading}
         </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {rows.map((r) => (
-            <a key={r.id} href={`/${city}/${r.slug}`} className="block">
+            <a key={r.id} href={localizedHref(`/${city}/${r.slug}`, locale)} className="block">
               <RestaurantCard restaurant={r} highlightCapability="events" />
             </a>
           ))}

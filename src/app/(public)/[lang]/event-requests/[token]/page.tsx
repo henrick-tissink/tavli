@@ -5,6 +5,9 @@ import { restaurantPhotos, restaurants } from "@/lib/db/schema";
 import { getByTrackingToken } from "@/lib/repos/event-requests-repo";
 import { listLineItems } from "@/lib/repos/quote-line-items-repo";
 import { TrackingClient } from "./TrackingClient";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
+import { buildBundle } from "@/lib/i18n/messages";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +16,10 @@ export default async function EventRequestTrackingPage({
 }: {
   params: Promise<{ lang: string; token: string }>;
 }) {
-  const { token } = await params;
+  const { lang: rawLang, token } = await params;
+  const locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const bundle = buildBundle(locale, ["common", "events"]);
+
   const er = await getByTrackingToken(token);
   if (!er) notFound();
 
@@ -38,27 +44,29 @@ export default async function EventRequestTrackingPage({
   const lineItems = await listLineItems(er.id);
 
   return (
-    <TrackingClient
-      token={token}
-      er={{
-        id: er.id,
-        status: er.status,
-        occasion: er.occasion,
-        eventDate: er.eventDate,
-        partySize: er.partySize,
-        partnerResponse: er.partnerResponse,
-        quotedAmountCents: er.quotedAmountCents,
-        quoteExpiresAt: er.quoteExpiresAt,
-        declineReason: er.declineReason,
-      }}
-      restaurant={{
-        name: restaurantRow?.name ?? "Restaurant",
-        heroPath: heroRow?.storagePath ?? null,
-      }}
-      quoteLineItems={lineItems.map((l) => ({
-        label: l.label,
-        amountCents: l.amountCents,
-      }))}
-    />
+    <MessagesProvider locale={locale} bundle={bundle}>
+      <TrackingClient
+        token={token}
+        er={{
+          id: er.id,
+          status: er.status,
+          occasion: er.occasion,
+          eventDate: er.eventDate,
+          partySize: er.partySize,
+          partnerResponse: er.partnerResponse,
+          quotedAmountCents: er.quotedAmountCents,
+          quoteExpiresAt: er.quoteExpiresAt,
+          declineReason: er.declineReason,
+        }}
+        restaurant={{
+          name: restaurantRow?.name ?? "Restaurant",
+          heroPath: heroRow?.storagePath ?? null,
+        }}
+        quoteLineItems={lineItems.map((l) => ({
+          label: l.label,
+          amountCents: l.amountCents,
+        }))}
+      />
+    </MessagesProvider>
   );
 }
