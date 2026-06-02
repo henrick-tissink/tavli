@@ -13,6 +13,7 @@ import { PartnerCancelledEmail } from "@/emails/PartnerCancelledEmail";
 import { getMessages } from "@/lib/i18n/messages";
 import { interpolate } from "@/lib/i18n/t";
 import { isLocale } from "@/lib/i18n/locale";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
@@ -37,11 +38,14 @@ export async function updateReservationStatus(
   nextStatus: NewStatus,
 ): Promise<Ok> {
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const common = getMessages(locale, "partner.common");
+  const m = getMessages(locale, "partner.reservations");
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
-  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (!restaurantId) return { ok: false, error: common.errors.noRestaurant };
 
   // §01 §4 least-privilege: ownership (currentUserPrimaryRestaurant) is not
   // enough — the matrix gates each status transition. A no-show is its own
@@ -51,7 +55,7 @@ export async function updateReservationStatus(
       ? "reservation.mark_no_show"
       : "reservation.modify";
   if (!(await can(session, action, { kind: "reservation", restaurant_id: restaurantId }))) {
-    return { ok: false, error: "Nu ai permisiunea pentru această acțiune." };
+    return { ok: false, error: m.errors.noPermissionAction };
   }
 
   // Read the current status first so the §3.3 status-log captures the transition.
@@ -162,18 +166,22 @@ export async function cancelReservation(
   reservationId: string,
   reasonKey: string,
 ): Promise<CancelResult> {
+  const partnerLocale = await resolveAppLocale();
+  const common = getMessages(partnerLocale, "partner.common");
+  const m = getMessages(partnerLocale, "partner.reservations");
+
   if (!isCancelReasonKey(reasonKey)) {
-    return { ok: false, error: "Motiv invalid." };
+    return { ok: false, error: m.errors.invalidReason };
   }
   const key = reasonKey as CancelReasonKey;
 
   const supabase = await createSupabaseServerClient();
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
 
   const ownerRestaurantId = await currentUserPrimaryRestaurant(session);
   if (!ownerRestaurantId) {
-    return { ok: false, error: "Niciun restaurant asociat." };
+    return { ok: false, error: common.errors.noRestaurant };
   }
 
   // §01 §4 least-privilege: gate on the cancel permission, not just ownership.
@@ -183,7 +191,7 @@ export async function cancelReservation(
       restaurant_id: ownerRestaurantId,
     }))
   ) {
-    return { ok: false, error: "Nu ai permisiunea de a anula rezervări." };
+    return { ok: false, error: m.errors.noPermissionCancel };
   }
 
   const { data: reservationRow } = await supabase
@@ -196,7 +204,7 @@ export async function cancelReservation(
     .maybeSingle();
 
   if (!reservationRow) {
-    return { ok: false, error: "Rezervarea nu a fost găsită." };
+    return { ok: false, error: m.errors.notFound };
   }
 
   const reservation = reservationRow as unknown as {
@@ -216,7 +224,7 @@ export async function cancelReservation(
   if (reservation.status !== "confirmed") {
     return {
       ok: false,
-      error: "Doar rezervările confirmate pot fi anulate.",
+      error: m.errors.onlyConfirmed,
     };
   }
 

@@ -1,0 +1,72 @@
+{
+  "page": {
+    "title": "Rezervări",
+    "subtitle": "Confirmă clienții așezați la masă, marchează neprezentările sau anulează rezervări. Clienții primesc un email când anulezi.",
+    "noRestaurant": "Niciun restaurant asociat acestui cont."
+  },
+  "tabs": {
+    "today": "Astăzi",
+    "upcoming": "Următoare",
+    "past": "Trecute"
+  },
+  "status": {
+    "confirmed": "Confirmată",
+    "seated": "Așezat la masă",
+    "completed": "Finalizată",
+    "cancelled": "Anulată",
+    "no_show": "Neprezentat"
+  },
+  "table": {
+    "when": "Când",
+    "client": "Client",
+    "party": "Persoane",
+    "zone": "Zonă",
+    "status": "Status",
+    "actions": "Acțiuni"
+  },
+  "empty": {
+    "today": "Nicio rezervare astăzi",
+    "upcoming": "Nicio rezervare viitoare",
+    "past": "Nicio rezervare trecută încă",
+    "pastHint": "Rezervările finalizate și anulate apar aici după data lor.",
+    "defaultHint": "Clienții care rezervă prin pagina ta publică vor apărea aici imediat."
+  },
+  "actions": {
+    "seat": "Așază la masă",
+    "noShow": "Neprezentat",
+    "cancel": "Anulează",
+    "complete": "Finalizează"
+  },
+  "toast": {
+    "seated": "Marcat ca așezat la masă.",
+    "noShow": "Marcat ca neprezentat.",
+    "completed": "Marcat ca finalizat.",
+    "updateFailed": "Rezervarea nu a putut fi actualizată."
+  },
+  "cancel": {
+    "title": "Anulează rezervarea",
+    "summaryParty": "grup de {count}",
+    "reasonsTitle": "De ce anulezi?",
+    "reasons": {
+      "restaurant_closed": "Restaurant închis neașteptat",
+      "overbooked": "Suprarezervare — nu mai sunt mese",
+      "kitchen_issue": "Problemă în bucătărie / defecțiune",
+      "private_event": "Rezervat pentru un eveniment privat",
+      "other": "Altul"
+    },
+    "reasonsHint": "Clientul va vedea o variantă prietenoasă a acestui motiv în emailul primit.",
+    "keep": "Păstrează rezervarea",
+    "submitPending": "Se anulează…",
+    "submit": "Anulează rezervarea",
+    "toastCancelled": "Rezervarea a fost anulată.",
+    "toastCancelledNoEmail": "Anulată — emailul către client nu a putut fi trimis.",
+    "cancelFailed": "Rezervarea nu a putut fi anulată."
+  },
+  "errors": {
+    "noPermissionAction": "Nu ai permisiunea pentru această acțiune.",
+    "invalidReason": "Motiv invalid.",
+    "noPermissionCancel": "Nu ai permisiunea de a anula rezervări.",
+    "notFound": "Rezervarea nu a fost găsită.",
+    "onlyConfirmed": "Doar rezervările confirmate pot fi anulate."
+  }
+}

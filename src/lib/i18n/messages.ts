@@ -40,6 +40,10 @@ import roPartnerCommon from "@/messages/ro/partner.common.json";
 import enPartnerCommon from "@/messages/en/partner.common.json";
 import dePartnerCommon from "@/messages/de/partner.common.json";
 
+import roPartnerReservations from "@/messages/ro/partner.reservations.json";
+import enPartnerReservations from "@/messages/en/partner.reservations.json";
+import dePartnerReservations from "@/messages/de/partner.reservations.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -738,6 +742,77 @@ export interface PartnerCommonMessages {
       event_request_cancelled: string;
     };
   };
+  /** Generic action errors shared across partner server actions. */
+  errors: {
+    notAuthenticated: string;
+    noRestaurant: string;
+  };
+  /** Comma-joined short weekday/month names for locale-aware date labels. */
+  dateFormat: {
+    weekdaysShort: string;
+    monthsShort: string;
+  };
+}
+
+/** Structural contract for the `partner.reservations` namespace. */
+export interface PartnerReservationsMessages {
+  page: { title: string; subtitle: string; noRestaurant: string };
+  tabs: { today: string; upcoming: string; past: string };
+  status: {
+    confirmed: string;
+    seated: string;
+    completed: string;
+    cancelled: string;
+    no_show: string;
+  };
+  table: {
+    when: string;
+    client: string;
+    party: string;
+    zone: string;
+    status: string;
+    actions: string;
+  };
+  empty: {
+    today: string;
+    upcoming: string;
+    past: string;
+    pastHint: string;
+    defaultHint: string;
+  };
+  actions: { seat: string; noShow: string; cancel: string; complete: string };
+  toast: {
+    seated: string;
+    noShow: string;
+    completed: string;
+    updateFailed: string;
+  };
+  cancel: {
+    title: string;
+    summaryParty: string;
+    reasonsTitle: string;
+    reasons: {
+      restaurant_closed: string;
+      overbooked: string;
+      kitchen_issue: string;
+      private_event: string;
+      other: string;
+    };
+    reasonsHint: string;
+    keep: string;
+    submitPending: string;
+    submit: string;
+    toastCancelled: string;
+    toastCancelledNoEmail: string;
+    cancelFailed: string;
+  };
+  errors: {
+    noPermissionAction: string;
+    invalidReason: string;
+    noPermissionCancel: string;
+    notFound: string;
+    onlyConfirmed: string;
+  };
 }
 
 /**
@@ -787,6 +862,11 @@ const CATALOGS = {
     en: enPartnerCommon,
     de: dePartnerCommon,
   } as Record<Locale, PartnerCommonMessages>,
+  "partner.reservations": {
+    ro: roPartnerReservations,
+    en: enPartnerReservations,
+    de: dePartnerReservations,
+  } as Record<Locale, PartnerReservationsMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

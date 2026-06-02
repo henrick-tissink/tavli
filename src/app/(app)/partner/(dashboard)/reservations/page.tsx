@@ -5,6 +5,8 @@ import {
   type ReservationRow,
 } from "@/components/partner/ReservationsList";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,8 @@ function todayYmd(): string {
 export default async function PartnerReservationsPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.reservations");
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   if (!restaurantId) {
@@ -22,7 +26,7 @@ export default async function PartnerReservationsPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            Niciun restaurant asociat acestui cont.
+            {m.page.noRestaurant}
           </p>
         </div>
       </div>
@@ -63,11 +67,10 @@ export default async function PartnerReservationsPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Rezervări
+          {m.page.title}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Confirmă clienții așezați la masă, marchează neprezentările sau
-          anulează rezervări. Clienții primesc un email când anulezi.
+          {m.page.subtitle}
         </p>
       </header>
 

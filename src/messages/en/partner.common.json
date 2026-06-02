@@ -41,5 +41,13 @@
       "quote_declined": "Quote declined",
       "event_request_cancelled": "Request cancelled"
     }
+  },
+  "errors": {
+    "notAuthenticated": "You are not signed in.",
+    "noRestaurant": "No restaurant linked to this account."
+  },
+  "dateFormat": {
+    "weekdaysShort": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
+    "monthsShort": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
   }
 }

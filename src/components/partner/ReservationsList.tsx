@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CalendarCheck } from "lucide-react";
 import { toast } from "@/components/toast";
 import { CancelReservationSheet } from "@/components/partner/CancelReservationSheet";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   updateReservationStatus,
   type NewStatus,
@@ -24,23 +25,12 @@ export interface ReservationRow {
   createdAt: string;
 }
 
-const WEEKDAYS_SHORT = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
-const MONTHS_SHORT = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"];
-
 const STATUS_STYLE: Record<ReservationRow["status"], string> = {
   confirmed: "bg-emerald-50 text-emerald-800",
   seated: "bg-brand-primary-soft text-brand-primary-dark",
   completed: "bg-surface-bg text-text-muted",
   cancelled: "bg-red-50 text-red-800",
   no_show: "bg-amber-50 text-amber-800",
-};
-
-const STATUS_LABEL: Record<ReservationRow["status"], string> = {
-  confirmed: "Confirmată",
-  seated: "Așezat la masă",
-  completed: "Finalizată",
-  cancelled: "Anulată",
-  no_show: "Neprezentat",
 };
 
 type Tab = "today" | "upcoming" | "past";
@@ -52,6 +42,10 @@ interface Props {
 }
 
 export function ReservationsList({ today, upcoming, past }: Props) {
+  const t = useT("partner.reservations");
+  const tc = useT("partner.common");
+  const weekdaysShort = tc("dateFormat.weekdaysShort").split(",");
+  const monthsShort = tc("dateFormat.monthsShort").split(",");
   const router = useRouter();
   const [tab, setTab] = useState<Tab>(
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
@@ -65,15 +59,15 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     start(async () => {
       const result = await updateReservationStatus(id, nextStatus);
       if (!result.ok) {
-        toast.error(result.error ?? "Rezervarea nu a putut fi actualizată.");
+        toast.error(result.error ?? t("toast.updateFailed"));
         return;
       }
       const label =
         nextStatus === "no_show"
-          ? "Marcat ca neprezentat."
+          ? t("toast.noShow")
           : nextStatus === "seated"
-            ? "Marcat ca așezat la masă."
-            : "Marcat ca finalizat.";
+            ? t("toast.seated")
+            : t("toast.completed");
       toast.success(label);
       router.refresh();
     });
@@ -81,27 +75,22 @@ export function ReservationsList({ today, upcoming, past }: Props) {
 
   const rows = { today, upcoming, past }[tab];
   const counts = { today: today.length, upcoming: upcoming.length, past: past.length };
-  const TAB_LABEL: Record<Tab, string> = {
-    today: "Astăzi",
-    upcoming: "Următoare",
-    past: "Trecute",
-  };
 
   return (
     <div className="space-y-4 max-w-5xl">
       <div className="flex items-center gap-2 border-b border-border">
-        {(["today", "upcoming", "past"] as Tab[]).map((t) => (
+        {(["today", "upcoming", "past"] as Tab[]).map((tabKey) => (
           <button
-            key={t}
+            key={tabKey}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(tabKey)}
             className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-              tab === t
+              tab === tabKey
                 ? "border-brand-primary text-brand-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
-            {TAB_LABEL[t]} <span className="text-xs opacity-60">({counts[t]})</span>
+            {t(`tabs.${tabKey}`)} <span className="text-xs opacity-60">({counts[tabKey]})</span>
           </button>
         ))}
       </div>
@@ -111,15 +100,13 @@ export function ReservationsList({ today, upcoming, past }: Props) {
           <CalendarCheck size={28} className="mx-auto text-text-muted mb-3" />
           <p className="font-semibold text-text-primary">
             {tab === "today"
-              ? "Nicio rezervare astăzi"
+              ? t("empty.today")
               : tab === "upcoming"
-                ? "Nicio rezervare viitoare"
-                : "Nicio rezervare trecută încă"}
+                ? t("empty.upcoming")
+                : t("empty.past")}
           </p>
           <p className="text-sm text-text-secondary mt-2 max-w-sm mx-auto">
-            {tab === "past"
-              ? "Rezervările finalizate și anulate apar aici după data lor."
-              : "Clienții care rezervă prin pagina ta publică vor apărea aici imediat."}
+            {tab === "past" ? t("empty.pastHint") : t("empty.defaultHint")}
           </p>
         </div>
       ) : (
@@ -127,20 +114,20 @@ export function ReservationsList({ today, upcoming, past }: Props) {
           <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
-                <th className="px-4 py-3 font-semibold text-text-secondary">Când</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Client</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Persoane</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Zonă</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Status</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.when")}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.client")}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.party")}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.zone")}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.status")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary text-right">
-                  Acțiuni
+                  {t("table.actions")}
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {rows.map((r) => {
                 const d = new Date(`${r.reservationDate}T12:00:00`);
-                const dateLabel = `${WEEKDAYS_SHORT[d.getDay()]} ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+                const dateLabel = `${weekdaysShort[d.getDay()]} ${d.getDate()} ${monthsShort[d.getMonth()]}`;
                 return (
                   <tr key={r.id} className="hover:bg-surface-bg/50 align-top">
                     <td className="px-4 py-3">
@@ -173,7 +160,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                       <span
                         className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLE[r.status]}`}
                       >
-                        {STATUS_LABEL[r.status]}
+                        {t(`status.${r.status}`)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -185,7 +172,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-brand-primary text-xs font-semibold hover:underline mr-3"
                           >
-                            Așază la masă
+                            {t("actions.seat")}
                           </button>
                           <button
                             type="button"
@@ -193,7 +180,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-amber-700 text-xs font-semibold hover:underline mr-3"
                           >
-                            Neprezentat
+                            {t("actions.noShow")}
                           </button>
                           <button
                             type="button"
@@ -201,7 +188,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-error text-xs font-semibold hover:underline"
                           >
-                            Anulează
+                            {t("actions.cancel")}
                           </button>
                         </>
                       ) : r.status === "seated" ? (
@@ -212,7 +199,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-brand-primary text-xs font-semibold hover:underline mr-3"
                           >
-                            Finalizează
+                            {t("actions.complete")}
                           </button>
                           <button
                             type="button"
@@ -220,7 +207,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             disabled={pending}
                             className="text-amber-700 text-xs font-semibold hover:underline"
                           >
-                            Neprezentat
+                            {t("actions.noShow")}
                           </button>
                         </>
                       ) : (
