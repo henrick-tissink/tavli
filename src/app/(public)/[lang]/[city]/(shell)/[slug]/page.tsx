@@ -14,6 +14,8 @@ import { getSiteUrl } from "@/lib/site-url";
 import { isLocale } from "@/lib/i18n/locale";
 import { getMessages } from "@/lib/i18n/messages";
 import { localizedHref } from "@/lib/i18n/routing";
+import { loadRestaurantTranslation } from "@/lib/translations/load";
+import { applyRestaurantTranslation } from "@/lib/translations/apply-restaurant-translation";
 import { DetailPageClient } from "./DetailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -40,12 +42,29 @@ export default async function RestaurantDetailPage({
 }) {
   const { lang, city, slug } = await params;
   const m = getMessages(lang, "restaurant");
+  const locale = isLocale(lang) ? lang : "ro";
   const [restaurant, seo] = await Promise.all([
     getRestaurantDetail(slug),
     getRestaurantSeoData(slug),
   ]);
 
-  if (!restaurant) {
+  // Overlay partner-authored content translations (non-RO locales only).
+  // loadRestaurantTranslation returns usedFallback=true when the EN/DE row is
+  // incomplete — in that case the loader already returned the RO row, so we
+  // skip the overlay (applyRestaurantTranslation(detail, null) → unchanged).
+  let localizedRestaurant = restaurant;
+  if (restaurant && locale !== "ro") {
+    const { row, usedFallback } = await loadRestaurantTranslation(
+      restaurant.id,
+      locale,
+    );
+    localizedRestaurant = applyRestaurantTranslation(
+      restaurant,
+      usedFallback ? null : row,
+    );
+  }
+
+  if (!localizedRestaurant) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <h1 className="text-xl font-bold text-text-primary">
@@ -62,7 +81,7 @@ export default async function RestaurantDetailPage({
   }
 
   const jsonLd = buildRestaurantJsonLd({
-    detail: restaurant,
+    detail: localizedRestaurant,
     citySlug: city,
     countryCode: seo.countryCode,
     phone: seo.phone,
@@ -76,7 +95,7 @@ export default async function RestaurantDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <DetailPageClient city={city} slug={slug} restaurant={restaurant} />
+      <DetailPageClient city={city} slug={slug} restaurant={localizedRestaurant} />
     </>
   );
 }
