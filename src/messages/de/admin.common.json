@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "eyebrow": "Admin",
+    "signOut": "Abmelden",
+    "openNav": "Navigation öffnen",
+    "closeNav": "Navigation schließen",
+    "items": {
+      "dashboard": "Übersicht",
+      "restaurants": "Restaurants",
+      "invitations": "Einladungen"
+    }
+  }
+}

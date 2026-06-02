@@ -5,14 +5,24 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Store, Mail, LogOut, Menu, X } from "lucide-react";
 import { signOutAdmin } from "@/app/(app)/admin/sign-in/actions";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { useT } from "@/lib/i18n/messages-provider";
+import { type Locale } from "@/lib/i18n/locale";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/restaurants", label: "Restaurants", icon: Store, exact: false },
-  { href: "/admin/invitations", label: "Invitations", icon: Mail, exact: false },
-];
+  { href: "/admin", key: "dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/restaurants", key: "restaurants", icon: Store, exact: false },
+  { href: "/admin/invitations", key: "invitations", icon: Mail, exact: false },
+] as const;
 
-export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
+export function AdminSidebar({
+  locale,
+  userEmail,
+}: {
+  locale: Locale;
+  userEmail: string | null;
+}) {
+  const t = useT("admin.common");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -41,7 +51,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Admin
+          {t("nav.eyebrow")}
         </p>
       </div>
       <nav className="flex-1 px-3 overflow-y-auto">
@@ -62,7 +72,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
                   }`}
                 >
                   <Icon size={16} />
-                  {item.label}
+                  {t(`nav.items.${item.key}`)}
                 </Link>
               </li>
             );
@@ -70,6 +80,9 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
         </ul>
       </nav>
       <div className="px-4 py-4 border-t border-border">
+        <div className="mb-3">
+          <LocaleSwitcher mode="preference" current={locale} />
+        </div>
         {userEmail && (
           <p className="text-xs text-text-muted truncate mb-2">{userEmail}</p>
         )}
@@ -79,7 +92,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
             className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-bg transition-colors"
           >
             <LogOut size={16} />
-            Sign out
+            {t("nav.signOut")}
           </button>
         </form>
       </div>
@@ -96,7 +109,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open navigation"
+          aria-label={t("nav.openNav")}
           className="p-2 -ml-2 rounded-lg hover:bg-surface-bg text-text-secondary"
         >
           <Menu size={20} />
@@ -114,7 +127,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
         <div className="desktop:hidden fixed inset-0 z-50 flex">
           <button
             type="button"
-            aria-label="Close navigation"
+            aria-label={t("nav.closeNav")}
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/40"
           />
@@ -122,7 +135,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Close navigation"
+              aria-label={t("nav.closeNav")}
               className="absolute top-3 right-3 p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
             >
               <X size={18} />

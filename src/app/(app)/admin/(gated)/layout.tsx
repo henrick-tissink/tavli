@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentSession } from "@/lib/auth/session";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { buildBundle } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -13,5 +15,11 @@ export default async function AdminGatedLayout({
   if (!session || session.profile.role !== "admin") {
     redirect("/admin/sign-in");
   }
-  return <AdminShell userEmail={session.userEmail}>{children}</AdminShell>;
+  const locale = await resolveAppLocale();
+  const bundle = buildBundle(locale, ["admin.common"]);
+  return (
+    <AdminShell locale={locale} bundle={bundle} userEmail={session.userEmail}>
+      {children}
+    </AdminShell>
+  );
 }
