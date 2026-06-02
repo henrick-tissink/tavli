@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  *
- * i18n regression guard (Phase 1b + Phase 2).
+ * i18n regression guard (Phase 1b + Phase 2 + Phase 3).
  *
  * Scans the localized route trees for hardcoded Romanian — i.e. string content
  * containing Romanian-specific diacritics (ă â î ș ț) outside imports/comments.
@@ -14,11 +14,14 @@
  * - `src/app/(public)/[lang]/`     — consumer storefront (Phase 1b)
  * - `src/app/(app)/partner/`       — partner dashboard (Phase 2)
  * - `src/app/(app)/onboard/`       — partner onboarding wizard (Phase 2)
+ * - `src/app/(app)/admin/`         — admin dashboard (Phase 3)
  * - `src/components/partner/`      — converted partner components (Phase 2)
  * - `src/components/onboarding/`   — converted onboarding components (Phase 2)
+ * - `src/components/admin/`        — converted admin components (Phase 3)
  *
- * (Admin — `src/app/(app)/admin/` — is intentionally NOT yet covered; that is
- * Phase 3.)
+ * NOTE: some admin surfaces are English-source — there the catalogue oracle is
+ * EN-verbatim and RO/DE are translations. This guard still applies: extracted
+ * source strings live in catalogues, so no RO diacritics should remain inline.
  *
  * Scope & limits (intentional):
  * - Diacritic-based: catches the common case. Diacritic-free Romanian
@@ -40,8 +43,10 @@ const ROOTS = [
   join(__dirname, "..", "app", "(public)", "[lang]"),
   join(__dirname, "..", "app", "(app)", "partner"),
   join(__dirname, "..", "app", "(app)", "onboard"),
+  join(__dirname, "..", "app", "(app)", "admin"),
   join(__dirname, "..", "components", "partner"),
   join(__dirname, "..", "components", "onboarding"),
+  join(__dirname, "..", "components", "admin"),
 ];
 const SRC = join(__dirname, "..");
 const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
