@@ -1,0 +1,18 @@
+{
+  "page": {
+    "title": "Securitate"
+  },
+  "enrolRequired": {
+    "title": "Autentificarea în doi pași este obligatorie pentru accesul administratorului.",
+    "body": "Configurează o aplicație de autentificare pentru a continua."
+  },
+  "errors": {
+    "codeRequired": "Codul este obligatoriu.",
+    "notSignedIn": "Nu ești autentificat.",
+    "factorRequired": "Factorul este obligatoriu.",
+    "couldNotRemove": "Nu am putut elimina factorul.",
+    "mismatch": "Parolele noi nu se potrivesc.",
+    "tooShort": "Parola trebuie să aibă cel puțin 8 caractere.",
+    "breached": "Această parolă a apărut într-o breșă de securitate. Te rugăm să alegi alta."
+  }
+}

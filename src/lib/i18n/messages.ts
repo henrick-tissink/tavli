@@ -61,6 +61,12 @@ import deAdminGdpr from "@/messages/de/admin.gdpr.json";
 import roAdminUsers from "@/messages/ro/admin.users.json";
 import enAdminUsers from "@/messages/en/admin.users.json";
 import deAdminUsers from "@/messages/de/admin.users.json";
+import roAdminSetups from "@/messages/ro/admin.setups.json";
+import enAdminSetups from "@/messages/en/admin.setups.json";
+import deAdminSetups from "@/messages/de/admin.setups.json";
+import roAdminSecurity from "@/messages/ro/admin.security.json";
+import enAdminSecurity from "@/messages/en/admin.security.json";
+import deAdminSecurity from "@/messages/de/admin.security.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -1105,6 +1111,56 @@ export interface AdminUsersMessages {
     reasonPlaceholder: string;
     cancel: string;
     submit: string;
+  };
+}
+
+/** Structural contract for the `admin.setups` namespace (in-flight onboarding monitor). */
+export interface AdminSetupsMessages {
+  page: {
+    eyebrow: string;
+    title: string;
+  };
+  stats: {
+    atRiskLabel: string;
+    atRiskHint: string;
+    awaitingLabel: string;
+    awaitingHint: string;
+    stuckLabel: string;
+    stuckHint: string;
+  };
+  table: {
+    organization: string;
+    restaurant: string;
+    progress: string;
+    trialExpires: string;
+    status: string;
+    empty: string;
+  };
+  badge: {
+    atRisk: string;
+    stuck: string;
+    awaiting: string;
+    ok: string;
+  };
+}
+
+/** Structural contract for the `admin.security` namespace (admin's own 2FA/sessions). */
+export interface AdminSecurityMessages {
+  page: {
+    title: string;
+  };
+  enrolRequired: {
+    title: string;
+    body: string;
+  };
+  errors: {
+    codeRequired: string;
+    notSignedIn: string;
+    factorRequired: string;
+    couldNotRemove: string;
+    mismatch: string;
+    tooShort: string;
+    breached: string;
   };
 }
 
@@ -2618,6 +2674,16 @@ const CATALOGS = {
     en: enAdminUsers,
     de: deAdminUsers,
   } as Record<Locale, AdminUsersMessages>,
+  "admin.setups": {
+    ro: roAdminSetups,
+    en: enAdminSetups,
+    de: deAdminSetups,
+  } as Record<Locale, AdminSetupsMessages>,
+  "admin.security": {
+    ro: roAdminSecurity,
+    en: enAdminSecurity,
+    de: deAdminSecurity,
+  } as Record<Locale, AdminSecurityMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,

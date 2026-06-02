@@ -7,6 +7,8 @@ import { sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { StatCard } from "@/components/admin/StatCard";
 import { CalendarClock, AlertTriangle, Hourglass } from "lucide-react";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,8 @@ async function loadSetups(): Promise<Row[]> {
 }
 
 export default async function AdminSetupsPage() {
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "admin.setups");
   const rows = await loadSetups();
   const atRisk = rows.filter((r) => r.at_risk).length;
   const awaiting = rows.filter((r) => r.awaiting).length;
@@ -53,30 +57,30 @@ export default async function AdminSetupsPage() {
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-primary">Onboarding</p>
-        <h1 className="font-display text-3xl font-bold text-text-primary">Configurări în curs</h1>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-primary">{m.page.eyebrow}</p>
+        <h1 className="font-display text-3xl font-bold text-text-primary">{m.page.title}</h1>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-4 desktop:grid-cols-3">
-        <StatCard label="La risc" value={atRisk} icon={AlertTriangle} tone={atRisk ? "warning" : "muted"} hint="Trial ≤ 21 zile, pași incompleți" />
-        <StatCard label="Așteaptă fondatorul" value={awaiting} icon={CalendarClock} tone="muted" hint="Pas programat, termen depășit" />
-        <StatCard label="Blocate" value={stuck} icon={Hourglass} tone="muted" hint="În lucru > 14 zile" />
+        <StatCard label={m.stats.atRiskLabel} value={atRisk} icon={AlertTriangle} tone={atRisk ? "warning" : "muted"} hint={m.stats.atRiskHint} />
+        <StatCard label={m.stats.awaitingLabel} value={awaiting} icon={CalendarClock} tone="muted" hint={m.stats.awaitingHint} />
+        <StatCard label={m.stats.stuckLabel} value={stuck} icon={Hourglass} tone="muted" hint={m.stats.stuckHint} />
       </section>
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface-white">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-text-secondary">
-              <th scope="col" className="px-4 py-3 font-semibold">Organizație</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Restaurant</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Progres</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Trial expiră</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Stare</th>
+              <th scope="col" className="px-4 py-3 font-semibold">{m.table.organization}</th>
+              <th scope="col" className="px-4 py-3 font-semibold">{m.table.restaurant}</th>
+              <th scope="col" className="px-4 py-3 font-semibold">{m.table.progress}</th>
+              <th scope="col" className="px-4 py-3 font-semibold">{m.table.trialExpires}</th>
+              <th scope="col" className="px-4 py-3 font-semibold">{m.table.status}</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-10 text-center text-text-muted">Nicio configurare în curs.</td></tr>
+              <tr><td colSpan={5} className="px-4 py-10 text-center text-text-muted">{m.table.empty}</td></tr>
             ) : (
               rows.map((r, i) => (
                 <tr key={`${r.organization_id}-${r.restaurant_id ?? i}`} className="border-b border-border last:border-0">
@@ -85,10 +89,10 @@ export default async function AdminSetupsPage() {
                   <td className="px-4 py-3 text-text-secondary">{r.steps_done} / {r.steps_total}</td>
                   <td className="px-4 py-3 text-text-secondary">{r.trial_ends_at?.slice(0, 10) ?? "—"}</td>
                   <td className="px-4 py-3">
-                    {r.at_risk ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">La risc</span>
-                      : r.stuck ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-700">Blocat</span>
-                      : r.awaiting ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-700">Așteaptă</span>
-                      : <span className="text-xs text-text-muted">OK</span>}
+                    {r.at_risk ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">{m.badge.atRisk}</span>
+                      : r.stuck ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-700">{m.badge.stuck}</span>
+                      : r.awaiting ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-700">{m.badge.awaiting}</span>
+                      : <span className="text-xs text-text-muted">{m.badge.ok}</span>}
                   </td>
                 </tr>
               ))

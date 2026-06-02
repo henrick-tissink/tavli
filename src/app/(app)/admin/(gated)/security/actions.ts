@@ -21,11 +21,18 @@ import {
   makeTransientAnonClient,
 } from "@/lib/auth/mfa";
 import { validatePasswordPolicy } from "@/lib/auth/password-policy";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface ActionResult<T = unknown> {
   ok: boolean;
   error?: string;
   data?: T;
+}
+
+async function securityErrors() {
+  const locale = await resolveAppLocale();
+  return getMessages(locale, "admin.security").errors;
 }
 
 export async function startTotpEnrolment(): Promise<
@@ -56,11 +63,12 @@ export async function verifyTotpStep(
 ): Promise<ActionResult> {
   const factorId = String(formData.get("factor_id") ?? "");
   const code = String(formData.get("code") ?? "");
-  if (!factorId || !code) return { ok: false, error: "Code is required." };
+  const e = await securityErrors();
+  if (!factorId || !code) return { ok: false, error: e.codeRequired };
 
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) return { ok: false, error: "Not signed in." };
+  if (!userData?.user) return { ok: false, error: e.notSignedIn };
 
   const result = await verifyTotpEnrollment(
     supabase,
@@ -78,10 +86,11 @@ export async function unenrolFactorAction(
   formData: FormData,
 ): Promise<ActionResult> {
   const factorId = String(formData.get("factor_id") ?? "");
-  if (!factorId) return { ok: false, error: "Factor required." };
+  const e = await securityErrors();
+  if (!factorId) return { ok: false, error: e.factorRequired };
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) return { ok: false, error: "Not signed in." };
+  if (!userData?.user) return { ok: false, error: e.notSignedIn };
   const result = await unenrollFactor(
     supabase,
     factorId,
@@ -89,7 +98,7 @@ export async function unenrolFactorAction(
     "tavli_admin",
   );
   if (!result.ok)
-    return { ok: false, error: result.error ?? "Could not remove factor." };
+    return { ok: false, error: result.error ?? e.couldNotRemove };
   return { ok: true };
 }
 
@@ -98,7 +107,10 @@ export async function regenerateRecoveryCodes(): Promise<
 > {
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) return { ok: false, error: "Not signed in." };
+  if (!userData?.user) {
+    const e = await securityErrors();
+    return { ok: false, error: e.notSignedIn };
+  }
   const codes = await generateRecoveryCodes(userData.user.id, "tavli_admin");
   return { ok: true, data: { codes } };
 }
@@ -110,8 +122,9 @@ export async function changePasswordAction(
   const currentPassword = String(formData.get("current_password") ?? "");
   const newPassword = String(formData.get("new_password") ?? "");
   const confirm = String(formData.get("confirm_password") ?? "");
+  const e = await securityErrors();
   if (newPassword !== confirm) {
-    return { ok: false, error: "New passwords don't match." };
+    return { ok: false, error: e.mismatch };
   }
 
   // Enforce password policy at the boundary (changePassword itself doesn't).
@@ -119,10 +132,7 @@ export async function changePasswordAction(
   if (!policy.ok) {
     return {
       ok: false,
-      error:
-        policy.reason === "too_short"
-          ? "Password must be at least 8 characters."
-          : "This password has appeared in a breach. Please choose another.",
+      error: policy.reason === "too_short" ? e.tooShort : e.breached,
     };
   }
 

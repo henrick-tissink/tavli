@@ -1,0 +1,28 @@
+{
+  "page": {
+    "eyebrow": "Onboarding",
+    "title": "Laufende Einrichtungen"
+  },
+  "stats": {
+    "atRiskLabel": "Gefährdet",
+    "atRiskHint": "Testphase ≤ 21 Tage, Schritte unvollständig",
+    "awaitingLabel": "Wartet auf Gründer",
+    "awaitingHint": "Schritt geplant, überfällig",
+    "stuckLabel": "Blockiert",
+    "stuckHint": "In Bearbeitung > 14 Tage"
+  },
+  "table": {
+    "organization": "Organisation",
+    "restaurant": "Restaurant",
+    "progress": "Fortschritt",
+    "trialExpires": "Testphase endet",
+    "status": "Status",
+    "empty": "Keine laufenden Einrichtungen."
+  },
+  "badge": {
+    "atRisk": "Gefährdet",
+    "stuck": "Blockiert",
+    "awaiting": "Wartet",
+    "ok": "OK"
+  }
+}

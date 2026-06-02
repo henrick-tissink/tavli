@@ -1,0 +1,18 @@
+{
+  "page": {
+    "title": "Security"
+  },
+  "enrolRequired": {
+    "title": "Two-factor authentication is required for admin access.",
+    "body": "Set up an authenticator app to continue."
+  },
+  "errors": {
+    "codeRequired": "Code is required.",
+    "notSignedIn": "Not signed in.",
+    "factorRequired": "Factor required.",
+    "couldNotRemove": "Could not remove factor.",
+    "mismatch": "New passwords don't match.",
+    "tooShort": "Password must be at least 8 characters.",
+    "breached": "This password has appeared in a breach. Please choose another."
+  }
+}

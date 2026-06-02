@@ -8,6 +8,8 @@ import { TwoFactorSection } from "@/app/(app)/partner/(dashboard)/security/_comp
 import { RecoveryCodesSection } from "@/app/(app)/partner/(dashboard)/security/_components/RecoveryCodesSection";
 import { PasswordSection } from "@/app/(app)/partner/(dashboard)/security/_components/PasswordSection";
 import { SessionsSection } from "@/app/(app)/partner/(dashboard)/security/_components/SessionsSection";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import * as adminActions from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +25,9 @@ export default async function AdminSecurityPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/admin/sign-in");
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "admin.security");
+
   const factors = await listVerifiedTotpFactors(supabase);
   const remaining =
     factors.length > 0 ? await countUnconsumedRecoveryCodes(user.id) : 0;
@@ -33,7 +38,7 @@ export default async function AdminSecurityPage({
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 space-y-8">
       <header>
-        <h1 className="text-2xl font-semibold text-text-primary">Security</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">{m.page.title}</h1>
       </header>
 
       {enrolRequired && factors.length === 0 && (
@@ -42,10 +47,10 @@ export default async function AdminSecurityPage({
           className="rounded-button border border-amber-500 bg-amber-50 p-4"
         >
           <p className="font-medium text-text-primary">
-            Two-factor authentication is required for admin access.
+            {m.enrolRequired.title}
           </p>
           <p className="text-sm text-text-secondary mt-1">
-            Set up an authenticator app to continue.
+            {m.enrolRequired.body}
           </p>
         </div>
       )}
