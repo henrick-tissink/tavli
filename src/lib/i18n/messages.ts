@@ -58,6 +58,9 @@ import deAdminReviews from "@/messages/de/admin.reviews.json";
 import roAdminGdpr from "@/messages/ro/admin.gdpr.json";
 import enAdminGdpr from "@/messages/en/admin.gdpr.json";
 import deAdminGdpr from "@/messages/de/admin.gdpr.json";
+import roAdminUsers from "@/messages/ro/admin.users.json";
+import enAdminUsers from "@/messages/en/admin.users.json";
+import deAdminUsers from "@/messages/de/admin.users.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -1054,6 +1057,54 @@ export interface AdminGdprMessages {
     submitPending: string;
     submit: string;
     failed: string;
+  };
+}
+
+/** Structural contract for the `admin.users` namespace (user management: list, drawer, impersonate). */
+export interface AdminUsersMessages {
+  list: {
+    title: string;
+    searchPlaceholder: string;
+    search: string;
+  };
+  table: {
+    email: string;
+    role: string;
+    mfa: string;
+    lastSignIn: string;
+    lastImpersonated: string;
+    empty: string;
+    minAgo: PluralBag;
+    hoursAgo: PluralBag;
+    daysAgo: PluralBag;
+    noUsers: string;
+  };
+  drawer: {
+    close: string;
+    orgMembershipsHeading: string;
+    orgMembershipMeta: string;
+    orgMembershipsEmpty: string;
+    restaurantStaffHeading: string;
+    restaurantStaffMeta: string;
+    restaurantStaffEmpty: string;
+    mfaFactorsHeading: string;
+    authenticatorFallback: string;
+    mfaFactorMeta: string;
+    mfaFactorsEmpty: string;
+    auditHeading: string;
+    impersonatedBy: string;
+    auditEmpty: string;
+    statusActive: string;
+    statusInactive: string;
+  };
+  impersonate: {
+    trigger: string;
+    title: string;
+    body: string;
+    reasonLabel: string;
+    reasonPlaceholder: string;
+    cancel: string;
+    submit: string;
   };
 }
 
@@ -2562,6 +2613,11 @@ const CATALOGS = {
     en: enAdminGdpr,
     de: deAdminGdpr,
   } as Record<Locale, AdminGdprMessages>,
+  "admin.users": {
+    ro: roAdminUsers,
+    en: enAdminUsers,
+    de: deAdminUsers,
+  } as Record<Locale, AdminUsersMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,

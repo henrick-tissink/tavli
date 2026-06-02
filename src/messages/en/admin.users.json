@@ -1,0 +1,46 @@
+{
+  "list": {
+    "title": "Users",
+    "searchPlaceholder": "Search by email…",
+    "search": "Search"
+  },
+  "table": {
+    "email": "Email",
+    "role": "Role",
+    "mfa": "MFA",
+    "lastSignIn": "Last sign-in",
+    "lastImpersonated": "Last imp.",
+    "empty": "—",
+    "minAgo": { "one": "{count} min ago", "few": "{count} min ago", "other": "{count} min ago" },
+    "hoursAgo": { "one": "{count}h ago", "few": "{count}h ago", "other": "{count}h ago" },
+    "daysAgo": { "one": "{count}d ago", "few": "{count}d ago", "other": "{count}d ago" },
+    "noUsers": "No users found."
+  },
+  "drawer": {
+    "close": "Close",
+    "orgMembershipsHeading": "Org memberships",
+    "orgMembershipMeta": "{role} · joined {date}",
+    "orgMembershipsEmpty": "Not a member of any organization.",
+    "restaurantStaffHeading": "Restaurant staff",
+    "restaurantStaffMeta": "{role} · joined {date}",
+    "restaurantStaffEmpty": "Not assigned to any restaurant.",
+    "mfaFactorsHeading": "MFA factors",
+    "authenticatorFallback": "Authenticator",
+    "mfaFactorMeta": "TOTP · enrolled {date}",
+    "mfaFactorsEmpty": "No MFA factor enrolled.",
+    "auditHeading": "Audit timeline (last 50)",
+    "impersonatedBy": "impersonated by {id}",
+    "auditEmpty": "No events.",
+    "statusActive": "Active",
+    "statusInactive": "Inactive"
+  },
+  "impersonate": {
+    "trigger": "Impersonate",
+    "title": "Impersonate {email}",
+    "body": "You'll see Tavli as {email} sees it. Every action is audit-logged with both your identity and theirs.",
+    "reasonLabel": "Reason (optional)",
+    "reasonPlaceholder": "Investigating booking issue ALC-1042",
+    "cancel": "Cancel",
+    "submit": "Start impersonating →"
+  }
+}

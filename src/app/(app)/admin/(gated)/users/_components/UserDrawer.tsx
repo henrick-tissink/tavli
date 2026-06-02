@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { interpolate } from "@/lib/i18n/t";
+import { formatDate } from "@/lib/i18n/format";
+import { type Locale } from "@/lib/i18n/locale";
+import { type AdminUsersMessages } from "@/lib/i18n/messages";
 import { ImpersonateModal } from "./ImpersonateModal";
 
 export interface DrawerUser {
@@ -40,12 +44,13 @@ export interface MfaFactor {
   createdAt: string;
 }
 
-function formatDate(iso: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString();
-}
-
-function StatusPill({ active }: { active: boolean }) {
+function StatusPill({
+  active,
+  msgs,
+}: {
+  active: boolean;
+  msgs: AdminUsersMessages;
+}) {
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -54,7 +59,7 @@ function StatusPill({ active }: { active: boolean }) {
           : "bg-surface-bg text-text-muted"
       }`}
     >
-      {active ? "Active" : "Inactive"}
+      {active ? msgs.drawer.statusActive : msgs.drawer.statusInactive}
     </span>
   );
 }
@@ -65,12 +70,16 @@ export function UserDrawer({
   orgMemberships,
   restaurantStaff,
   mfaFactors,
+  locale,
+  msgs,
 }: {
   user: DrawerUser;
   events: AuditEvent[];
   orgMemberships: OrgMembership[];
   restaurantStaff: RestaurantStaffEntry[];
   mfaFactors: MfaFactor[];
+  locale: Locale;
+  msgs: AdminUsersMessages;
 }) {
   return (
     <aside className="w-96 border-l border-border p-6 space-y-4 overflow-y-auto">
@@ -81,7 +90,7 @@ export function UserDrawer({
         </div>
         <Link
           href={{ query: {} }}
-          aria-label="Close"
+          aria-label={msgs.drawer.close}
           className="text-text-muted hover:text-text-primary"
         >
           ×
@@ -94,7 +103,7 @@ export function UserDrawer({
 
       <section>
         <h3 className="text-sm font-medium uppercase tracking-wider text-text-muted mt-6 mb-2">
-          Org memberships
+          {msgs.drawer.orgMembershipsHeading}
         </h3>
         <ol className="space-y-2">
           {orgMemberships.map((m) => (
@@ -104,16 +113,19 @@ export function UserDrawer({
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="font-medium truncate">{m.org_name}</div>
-                <StatusPill active={m.is_active} />
+                <StatusPill active={m.is_active} msgs={msgs} />
               </div>
               <div className="text-xs text-text-muted">
-                {m.role} · joined {formatDate(m.joined_at)}
+                {interpolate(msgs.drawer.orgMembershipMeta, {
+                  role: m.role,
+                  date: formatDate(new Date(m.joined_at), locale),
+                })}
               </div>
             </li>
           ))}
           {orgMemberships.length === 0 && (
             <li className="text-sm text-text-muted">
-              Not a member of any organization.
+              {msgs.drawer.orgMembershipsEmpty}
             </li>
           )}
         </ol>
@@ -121,7 +133,7 @@ export function UserDrawer({
 
       <section>
         <h3 className="text-sm font-medium uppercase tracking-wider text-text-muted mt-6 mb-2">
-          Restaurant staff
+          {msgs.drawer.restaurantStaffHeading}
         </h3>
         <ol className="space-y-2">
           {restaurantStaff.map((s) => (
@@ -131,16 +143,19 @@ export function UserDrawer({
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="font-medium truncate">{s.restaurant_name}</div>
-                <StatusPill active={s.is_active} />
+                <StatusPill active={s.is_active} msgs={msgs} />
               </div>
               <div className="text-xs text-text-muted">
-                {s.role} · joined {formatDate(s.joined_at)}
+                {interpolate(msgs.drawer.restaurantStaffMeta, {
+                  role: s.role,
+                  date: formatDate(new Date(s.joined_at), locale),
+                })}
               </div>
             </li>
           ))}
           {restaurantStaff.length === 0 && (
             <li className="text-sm text-text-muted">
-              Not assigned to any restaurant.
+              {msgs.drawer.restaurantStaffEmpty}
             </li>
           )}
         </ol>
@@ -148,45 +163,54 @@ export function UserDrawer({
 
       <section>
         <h3 className="text-sm font-medium uppercase tracking-wider text-text-muted mt-6 mb-2">
-          MFA factors
+          {msgs.drawer.mfaFactorsHeading}
         </h3>
         <ol className="space-y-2">
           {mfaFactors.map((f) => (
             <li key={f.id} className="text-sm border-l-2 border-border pl-3">
               <div className="font-medium">
-                {f.friendlyName ?? "Authenticator"}
+                {f.friendlyName ?? msgs.drawer.authenticatorFallback}
               </div>
               <div className="text-xs text-text-muted">
-                TOTP · enrolled {formatDate(f.createdAt)}
+                {interpolate(msgs.drawer.mfaFactorMeta, {
+                  date: formatDate(new Date(f.createdAt), locale),
+                })}
               </div>
             </li>
           ))}
           {mfaFactors.length === 0 && (
-            <li className="text-sm text-text-muted">No MFA factor enrolled.</li>
+            <li className="text-sm text-text-muted">
+              {msgs.drawer.mfaFactorsEmpty}
+            </li>
           )}
         </ol>
       </section>
 
       <section>
         <h3 className="text-sm font-medium uppercase tracking-wider text-text-muted mt-6 mb-2">
-          Audit timeline (last 50)
+          {msgs.drawer.auditHeading}
         </h3>
         <ol className="space-y-2">
           {events.map((e) => (
             <li key={e.id} className="text-sm border-l-2 border-border pl-3">
               <div className="font-mono text-xs text-text-muted">
-                {new Date(e.created_at).toLocaleString()}
+                {formatDate(new Date(e.created_at), locale, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
               </div>
               <div className="font-medium">{e.action}</div>
               {e.impersonator_user_id && (
                 <div className="text-xs text-amber-700">
-                  impersonated by {e.impersonator_user_id}
+                  {interpolate(msgs.drawer.impersonatedBy, {
+                    id: e.impersonator_user_id,
+                  })}
                 </div>
               )}
             </li>
           ))}
           {events.length === 0 && (
-            <li className="text-sm text-text-muted">No events.</li>
+            <li className="text-sm text-text-muted">{msgs.drawer.auditEmpty}</li>
           )}
         </ol>
       </section>

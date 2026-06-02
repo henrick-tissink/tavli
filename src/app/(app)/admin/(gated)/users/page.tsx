@@ -1,5 +1,8 @@
 import { createSupabaseAdminClient, dbAdmin } from "@/lib/db/admin";
 import { sql } from "drizzle-orm";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
 import { UsersTable, type UserRow } from "./_components/UsersTable";
 import {
   UserDrawer,
@@ -129,6 +132,9 @@ export default async function AdminUsersPage({
   searchParams: Promise<{ q?: string; selected?: string }>;
 }) {
   const params = await searchParams;
+  const localeRaw = await resolveAppLocale();
+  const locale: Locale = isLocale(localeRaw) ? localeRaw : DEFAULT_LOCALE;
+  const msgs = getMessages(locale, "admin.users");
   const users = await fetchUsers(params.q);
 
   let drawerUser: DrawerUser | null = null;
@@ -157,23 +163,28 @@ export default async function AdminUsersPage({
     <div className="flex h-full">
       <div className="flex-1 p-6 space-y-4">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Users</h1>
+          <h1 className="text-2xl font-semibold">{msgs.list.title}</h1>
           <form className="flex gap-2">
             <input
               name="q"
               defaultValue={params.q ?? ""}
-              placeholder="Search by email…"
+              placeholder={msgs.list.searchPlaceholder}
               className="rounded-button border border-border px-3 py-2"
             />
             <button
               type="submit"
               className="rounded-button border border-border px-4 py-2 text-sm font-medium hover:bg-surface-bg"
             >
-              Search
+              {msgs.list.search}
             </button>
           </form>
         </header>
-        <UsersTable users={users} selectedId={params.selected} />
+        <UsersTable
+          users={users}
+          selectedId={params.selected}
+          locale={locale}
+          msgs={msgs}
+        />
       </div>
       {drawerUser && (
         <UserDrawer
@@ -182,6 +193,8 @@ export default async function AdminUsersPage({
           orgMemberships={orgMemberships}
           restaurantStaff={restaurantStaff}
           mfaFactors={mfaFactors}
+          locale={locale}
+          msgs={msgs}
         />
       )}
     </div>
