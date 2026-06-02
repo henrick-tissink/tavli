@@ -1,0 +1,16 @@
+{
+  "page": {
+    "title": "Panou",
+    "subtitle": "Prezentare generală a activității platformei."
+  },
+  "stats": {
+    "liveRestaurants": "Restaurante active",
+    "pendingReview": "În așteptarea verificării",
+    "drafts": "Ciorne",
+    "openInvitations": "Invitații deschise"
+  },
+  "recent": {
+    "title": "Activitate recentă",
+    "placeholder": "Fluxul de activitate sosește odată cu M5 (invitații + e-mail)."
+  }
+}

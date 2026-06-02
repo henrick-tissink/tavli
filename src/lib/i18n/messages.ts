@@ -43,6 +43,9 @@ import dePartnerCommon from "@/messages/de/partner.common.json";
 import roAdminCommon from "@/messages/ro/admin.common.json";
 import enAdminCommon from "@/messages/en/admin.common.json";
 import deAdminCommon from "@/messages/de/admin.common.json";
+import roAdminDashboard from "@/messages/ro/admin.dashboard.json";
+import enAdminDashboard from "@/messages/en/admin.dashboard.json";
+import deAdminDashboard from "@/messages/de/admin.dashboard.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -769,6 +772,24 @@ export interface AdminCommonMessages {
       restaurants: string;
       invitations: string;
     };
+  };
+}
+
+/** Structural contract for the `admin.dashboard` namespace (admin home/overview). */
+export interface AdminDashboardMessages {
+  page: {
+    title: string;
+    subtitle: string;
+  };
+  stats: {
+    liveRestaurants: string;
+    pendingReview: string;
+    drafts: string;
+    openInvitations: string;
+  };
+  recent: {
+    title: string;
+    placeholder: string;
   };
 }
 
@@ -2252,6 +2273,11 @@ const CATALOGS = {
     en: enAdminCommon,
     de: deAdminCommon,
   } as Record<Locale, AdminCommonMessages>,
+  "admin.dashboard": {
+    ro: roAdminDashboard,
+    en: enAdminDashboard,
+    de: deAdminDashboard,
+  } as Record<Locale, AdminDashboardMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,
