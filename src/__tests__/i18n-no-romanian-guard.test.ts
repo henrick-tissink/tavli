@@ -1,26 +1,33 @@
 /**
  * @jest-environment node
  *
- * i18n regression guard (Phase 1b).
+ * i18n regression guard (Phase 1b + Phase 2).
  *
- * Scans the localized consumer route tree (`src/app/(public)/[lang]/`) for
- * hardcoded Romanian — i.e. string content containing Romanian-specific
- * diacritics (ă â î ș ț) outside imports/comments. Every user-facing string in
- * this tree should live in a message catalogue (`src/messages/<locale>/*.json`)
- * and be rendered via `t()` / `getMessages`, so any remaining RO diacritic here
- * is almost certainly an un-extracted string that an EN/DE diner would see.
+ * Scans the localized route trees for hardcoded Romanian — i.e. string content
+ * containing Romanian-specific diacritics (ă â î ș ț) outside imports/comments.
+ * Every user-facing string in these trees should live in a message catalogue
+ * (`src/messages/<locale>/*.json`) and be rendered via `t()` / `getMessages`, so
+ * any remaining RO diacritic here is almost certainly an un-extracted string an
+ * EN/DE user would see.
+ *
+ * Covered trees:
+ * - `src/app/(public)/[lang]/`     — consumer storefront (Phase 1b)
+ * - `src/app/(app)/partner/`       — partner dashboard (Phase 2)
+ * - `src/app/(app)/onboard/`       — partner onboarding wizard (Phase 2)
+ * - `src/components/partner/`      — converted partner components (Phase 2)
+ * - `src/components/onboarding/`   — converted onboarding components (Phase 2)
+ *
+ * (Admin — `src/app/(app)/admin/` — is intentionally NOT yet covered; that is
+ * Phase 3.)
  *
  * Scope & limits (intentional):
  * - Diacritic-based: catches the common case. Diacritic-free Romanian
  *   ("Meniu", "Salut") is NOT caught — those were handled during the per-area
  *   extraction (verified by the RO-asserting component tests).
- * - Scoped to the `[lang]` route tree. Shared components in `src/components`
- *   are excluded (they are also used by the not-yet-localized partner/admin
- *   surfaces; they were converted + verified per-area in Phase 1b).
  *
  * Allowlist mechanisms:
  * - A line containing `i18n-allow` is skipped (use for one-off legitimate
- *   non-UI literals, e.g. a DB value).
+ *   non-UI literals, e.g. a DB value or a code-mapped dev/log fallback).
  * - A line containing `i18n-allow-block` skips lines until the block's closing
  *   `}`/`]` line (use for data maps that are content, not UI chrome).
  * - DEFERRED_FILES are excluded wholesale, tracked for a localization follow-up.
@@ -29,7 +36,14 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = join(__dirname, "..", "app", "(public)", "[lang]");
+const ROOTS = [
+  join(__dirname, "..", "app", "(public)", "[lang]"),
+  join(__dirname, "..", "app", "(app)", "partner"),
+  join(__dirname, "..", "app", "(app)", "onboard"),
+  join(__dirname, "..", "components", "partner"),
+  join(__dirname, "..", "components", "onboarding"),
+];
+const SRC = join(__dirname, "..");
 const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
 
 /**
@@ -79,8 +93,10 @@ function offendingLines(source: string): { line: number; text: string }[] {
   return hits;
 }
 
-describe("i18n regression guard: no hardcoded Romanian in the [lang] consumer tree", () => {
-  const files = walk(ROOT).filter((f) => !DEFERRED_FILES.includes(f));
+describe("i18n regression guard: no hardcoded Romanian in the localized trees", () => {
+  const files = ROOTS.flatMap((root) => walk(root)).filter(
+    (f) => !DEFERRED_FILES.includes(f),
+  );
 
   it("scans a non-trivial number of files (guard is wired)", () => {
     expect(files.length).toBeGreaterThan(10);
@@ -91,14 +107,14 @@ describe("i18n regression guard: no hardcoded Romanian in the [lang] consumer tr
     for (const file of files) {
       const hits = offendingLines(readFileSync(file, "utf8"));
       for (const h of hits) {
-        offenders.push(`${file.replace(ROOT, "[lang]")}:${h.line}  ${h.text}`);
+        offenders.push(`${file.replace(`${SRC}/`, "")}:${h.line}  ${h.text}`);
       }
     }
     if (offenders.length > 0) {
       throw new Error(
-        "Found hardcoded Romanian in the localized consumer tree. Extract each " +
-          "string into a message catalogue (src/messages/<locale>/*.json) and render " +
-          "via t()/getMessages, or mark legitimate non-UI literals with `// i18n-allow`:\n" +
+        "Found hardcoded Romanian in a localized tree. Extract each string into a " +
+          "message catalogue (src/messages/<locale>/*.json) and render via " +
+          "t()/getMessages, or mark legitimate non-UI literals with `// i18n-allow`:\n" +
           offenders.join("\n"),
       );
     }
