@@ -1,0 +1,96 @@
+{
+  "page": {
+    "eyebrow": "Konto",
+    "title": "Abrechnung",
+    "noAccess": "Die Abrechnung wird vom Inhaber der Organisation verwaltet. Ihr Konto hat keinen Zugriff auf die Abrechnung."
+  },
+  "dunning": {
+    "softLockTitle": "Die Zahlung ist abgelaufen — einige Funktionen sind ausgesetzt.",
+    "softLockBody": "Aktualisieren Sie unten Ihre Karte, um den vollen Zugriff wiederherzustellen.",
+    "readOnlyTitle": "Abonnement ausgesetzt — das Portal ist schreibgeschützt.",
+    "readOnlyBody": "Aktualisieren Sie Ihre Karte, um das Konto zu reaktivieren. Ihre Daten sind sicher."
+  },
+  "trial": {
+    "title": {
+      "one": "Ihre Testphase endet in {days} Tag.",
+      "few": "Ihre Testphase endet in {days} Tagen.",
+      "other": "Ihre Testphase endet in {days} Tagen."
+    },
+    "body": "Am {date} buchen wir {amount} von der hinterlegten Karte ab. Sie können jederzeit vorher kündigen."
+  },
+  "summary": {
+    "planEyebrow": "Ihr Tarif",
+    "amountMonthly": "{price}/Monat",
+    "amountAnnual": "{price}/Jahr",
+    "statusLabel": "Status",
+    "billingLabel": "Abrechnung",
+    "annual": "Jährlich",
+    "monthly": "Monatlich",
+    "nextRenewal": "Nächste Verlängerung",
+    "extraLocations": "Zusätzliche Standorte",
+    "pendingAnnual": "Geplante Änderung am {date}: jährliche Abrechnung.",
+    "pendingMonthly": "Geplante Änderung am {date}: monatliche Abrechnung."
+  },
+  "invoices": {
+    "title": "Letzte Rechnungen",
+    "view": "Ansehen"
+  },
+  "none": {
+    "title": "Kein aktives Abonnement",
+    "body": "Ihre Organisation hat noch kein Tavli-Abonnement. Starten Sie Ihre 3-monatige Testphase — Sie zahlen nichts bis zum 91. Tag.",
+    "cta": "Tarife ansehen"
+  },
+  "actionsBar": {
+    "updateCard": "Karte aktualisieren",
+    "changePlan": "Tarif wechseln",
+    "cancelSubscription": "Abonnement kündigen",
+    "portalUnavailable": "Das Zahlungsportal ist derzeit nicht verfügbar."
+  },
+  "changePlan": {
+    "title": "Tarif wechseln",
+    "tierHeading": "Stufe",
+    "tierBodyPrefix": "Sie nutzen ",
+    "tierBodySuffix": ". Die Änderung wird sofort wirksam.",
+    "tierCurrentPro": "Tavli Pro",
+    "tierCurrentBase": "Tavli",
+    "switchToPro": "Zu Tavli Pro wechseln",
+    "switchToBase": "Zu Tavli (Base) wechseln",
+    "frequencyHeading": "Häufigkeit",
+    "frequencyBodyPrefix": "Sie zahlen ",
+    "frequencyBodySuffix": ". Die Änderung wird zum Ende des Zeitraums wirksam{periodEnd} — keine Abbuchung jetzt.",
+    "frequencyCurrentAnnual": "jährlich",
+    "frequencyCurrentMonthly": "monatlich",
+    "switchToAnnual": "Jährliche Zahlung anfragen (2 Monate gratis)",
+    "switchToMonthly": "Monatliche Zahlung anfragen",
+    "toastSwitchedPro": "Sie sind zu Tavli Pro gewechselt.",
+    "toastSwitchedBase": "Sie sind zu Tavli gewechselt.",
+    "toastTierLimit": "Sie können mit mehr als einem Standort nicht zu Base wechseln. Entfernen Sie zuerst die zusätzlichen Standorte.",
+    "toastTierFailed": "Der Tarifwechsel ist fehlgeschlagen.",
+    "toastFrequencyApplied": "Die Änderung wird am {date} wirksam.",
+    "toastFrequencyAppliedEnd": "Die Änderung wird zum Ende des Zeitraums wirksam.",
+    "toastFrequencyFailed": "Die Änderung der Häufigkeit ist fehlgeschlagen."
+  },
+  "cancel": {
+    "title": "Abonnement kündigen",
+    "intro": "Die Kündigung ist ein einziger Klick — kein Ticket, kein Rückhalteanruf. Wir übergeben Ihnen einen vollständigen Export Ihrer Daten.",
+    "reasonLabel": "Warum gehen Sie?",
+    "optional": "(optional)",
+    "reasonPlaceholder": "Wählen Sie einen Grund…",
+    "reasons": {
+      "too_expensive": "Zu teuer",
+      "missing_feature": "Eine Funktion, die ich brauche, fehlt",
+      "business_closing": "Schließung / Geschäft pausiert",
+      "switching_provider": "Wechsel zu einem anderen Anbieter",
+      "temporary_pause": "Vorübergehende Pause",
+      "other": "Anderer Grund"
+    },
+    "feedbackLabel": "Können wir etwas besser machen?",
+    "submitPeriodEnd": "Abrechnung zum Ende des Zeitraums beenden",
+    "accessUntil": "Voller Zugriff bis {date}",
+    "submitImmediate": "Sofort kündigen",
+    "toastPeriodEnd": "Ihr Abonnement endet zum Ende des Zeitraums. Bis dahin haben Sie vollen Zugriff.",
+    "toastRefund": "Abonnement gekündigt. Wir erstatten Ihnen €{amount} anteilig.",
+    "toastCancelled": "Abonnement gekündigt.",
+    "toastFailed": "Die Kündigung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
+}

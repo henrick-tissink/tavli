@@ -10,16 +10,17 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { cancelSubscriptionAction } from "../actions";
 
-const REASONS = [
-  { value: "too_expensive", label: "Prea scump" },
-  { value: "missing_feature", label: "Lipsește o funcție de care am nevoie" },
-  { value: "business_closing", label: "Închidem / pauză de business" },
-  { value: "switching_provider", label: "Trec la alt furnizor" },
-  { value: "temporary_pause", label: "Pauză temporară" },
-  { value: "other", label: "Alt motiv" },
-];
+const REASON_VALUES = [
+  "too_expensive",
+  "missing_feature",
+  "business_closing",
+  "switching_provider",
+  "temporary_pause",
+  "other",
+] as const;
 
 export function CancelSubscriptionSheet({
   organizationId,
@@ -32,6 +33,7 @@ export function CancelSubscriptionSheet({
   onClose: () => void;
   periodEndLabel: string | null;
 }) {
+  const t = useT("partner.billing");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [reason, setReason] = useState("");
@@ -43,30 +45,29 @@ export function CancelSubscriptionSheet({
       if (res.ok) {
         toast.success(
           mode === "period_end"
-            ? "Abonamentul se va încheia la finalul perioadei. Ai acces complet până atunci."
+            ? t("cancel.toastPeriodEnd")
             : res.data.refundCents > 0
-              ? `Abonament anulat. Îți rambursăm €${(res.data.refundCents / 100).toFixed(2)} pro-rata.`
-              : "Abonament anulat.",
+              ? t("cancel.toastRefund", { amount: (res.data.refundCents / 100).toFixed(2) })
+              : t("cancel.toastCancelled"),
         );
         onClose();
         router.refresh();
       } else {
-        toast.error("Anularea nu a reușit. Încearcă din nou.");
+        toast.error(t("cancel.toastFailed"));
       }
     });
   }
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Anulează abonamentul">
+    <BottomSheet open={open} onClose={onClose} title={t("cancel.title")}>
       <div className="space-y-5">
         <p className="text-sm leading-relaxed text-text-secondary">
-          Anularea e un singur clic — fără tichet, fără apel de retenție. Îți predăm un export complet al
-          datelor tale.
+          {t("cancel.intro")}
         </p>
 
         <div>
           <label className="block text-sm font-semibold text-text-primary" htmlFor="cancel-reason">
-            De ce pleci? <span className="font-normal text-text-muted">(opțional)</span>
+            {t("cancel.reasonLabel")} <span className="font-normal text-text-muted">{t("cancel.optional")}</span>
           </label>
           <select
             id="cancel-reason"
@@ -74,10 +75,10 @@ export function CancelSubscriptionSheet({
             onChange={(e) => setReason(e.target.value)}
             className="mt-1.5 w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30"
           >
-            <option value="">Alege un motiv…</option>
-            {REASONS.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+            <option value="">{t("cancel.reasonPlaceholder")}</option>
+            {REASON_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t(`cancel.reasons.${value}`)}
               </option>
             ))}
           </select>
@@ -85,7 +86,7 @@ export function CancelSubscriptionSheet({
 
         <div>
           <label className="block text-sm font-semibold text-text-primary" htmlFor="cancel-feedback">
-            Ceva ce am putea face mai bine? <span className="font-normal text-text-muted">(opțional)</span>
+            {t("cancel.feedbackLabel")} <span className="font-normal text-text-muted">{t("cancel.optional")}</span>
           </label>
           <textarea
             id="cancel-feedback"
@@ -103,10 +104,10 @@ export function CancelSubscriptionSheet({
             onClick={() => submit("period_end")}
             className="flex w-full min-h-[48px] flex-col items-center justify-center rounded-button bg-text-primary px-6 py-3 text-sm font-bold text-surface-white transition-all hover:bg-text-primary/90 active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            Oprește facturarea la finalul perioadei
+            {t("cancel.submitPeriodEnd")}
             {periodEndLabel && (
               <span className="mt-0.5 text-xs font-normal text-surface-white/70">
-                Acces complet până la {periodEndLabel}
+                {t("cancel.accessUntil", { date: periodEndLabel })}
               </span>
             )}
           </button>
@@ -116,7 +117,7 @@ export function CancelSubscriptionSheet({
             onClick={() => submit("immediate")}
             className="w-full min-h-[44px] rounded-button border border-error/40 px-6 py-2.5 text-sm font-semibold text-error transition-colors hover:bg-error/5 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
           >
-            Anulează imediat
+            {t("cancel.submitImmediate")}
           </button>
         </div>
       </div>

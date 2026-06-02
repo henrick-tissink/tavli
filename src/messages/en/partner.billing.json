@@ -1,0 +1,96 @@
+{
+  "page": {
+    "eyebrow": "Account",
+    "title": "Billing",
+    "noAccess": "Billing is managed by the organisation owner. Your account does not have access to billing."
+  },
+  "dunning": {
+    "softLockTitle": "Payment has expired — some features are suspended.",
+    "softLockBody": "Update your card below to restore full access.",
+    "readOnlyTitle": "Subscription suspended — the portal is read-only.",
+    "readOnlyBody": "Update your card to reactivate the account. Your data is safe."
+  },
+  "trial": {
+    "title": {
+      "one": "Your free trial ends in {days} day.",
+      "few": "Your free trial ends in {days} days.",
+      "other": "Your free trial ends in {days} days."
+    },
+    "body": "On {date} we'll charge {amount} to the card on file. Cancel any time before then."
+  },
+  "summary": {
+    "planEyebrow": "Your plan",
+    "amountMonthly": "{price}/month",
+    "amountAnnual": "{price}/year",
+    "statusLabel": "Status",
+    "billingLabel": "Billing",
+    "annual": "Annual",
+    "monthly": "Monthly",
+    "nextRenewal": "Next renewal",
+    "extraLocations": "Additional locations",
+    "pendingAnnual": "Scheduled change on {date}: annual billing.",
+    "pendingMonthly": "Scheduled change on {date}: monthly billing."
+  },
+  "invoices": {
+    "title": "Recent invoices",
+    "view": "View"
+  },
+  "none": {
+    "title": "No active subscription",
+    "body": "Your organisation does not have a Tavli subscription yet. Start your 3-month free trial — you pay nothing until day 91.",
+    "cta": "View plans"
+  },
+  "actionsBar": {
+    "updateCard": "Update card",
+    "changePlan": "Change plan",
+    "cancelSubscription": "Cancel subscription",
+    "portalUnavailable": "The payment portal is unavailable right now."
+  },
+  "changePlan": {
+    "title": "Change plan",
+    "tierHeading": "Tier",
+    "tierBodyPrefix": "You're on ",
+    "tierBodySuffix": ". The change applies immediately.",
+    "tierCurrentPro": "Tavli Pro",
+    "tierCurrentBase": "Tavli",
+    "switchToPro": "Switch to Tavli Pro",
+    "switchToBase": "Switch to Tavli (Base)",
+    "frequencyHeading": "Frequency",
+    "frequencyBodyPrefix": "You pay ",
+    "frequencyBodySuffix": ". The change applies at the end of the period{periodEnd} — no charge now.",
+    "frequencyCurrentAnnual": "annually",
+    "frequencyCurrentMonthly": "monthly",
+    "switchToAnnual": "Request annual billing (2 months free)",
+    "switchToMonthly": "Request monthly billing",
+    "toastSwitchedPro": "You've switched to Tavli Pro.",
+    "toastSwitchedBase": "You've switched to Tavli.",
+    "toastTierLimit": "You can't switch to Base with more than one location. Remove the additional locations first.",
+    "toastTierFailed": "The plan change didn't go through.",
+    "toastFrequencyApplied": "The change applies on {date}.",
+    "toastFrequencyAppliedEnd": "The change applies at the end of the period.",
+    "toastFrequencyFailed": "The frequency change didn't go through."
+  },
+  "cancel": {
+    "title": "Cancel subscription",
+    "intro": "Cancelling is a single click — no ticket, no retention call. We'll hand you a full export of your data.",
+    "reasonLabel": "Why are you leaving?",
+    "optional": "(optional)",
+    "reasonPlaceholder": "Choose a reason…",
+    "reasons": {
+      "too_expensive": "Too expensive",
+      "missing_feature": "A feature I need is missing",
+      "business_closing": "Closing / business on hold",
+      "switching_provider": "Switching to another provider",
+      "temporary_pause": "Temporary pause",
+      "other": "Another reason"
+    },
+    "feedbackLabel": "Anything we could do better?",
+    "submitPeriodEnd": "Stop billing at the end of the period",
+    "accessUntil": "Full access until {date}",
+    "submitImmediate": "Cancel immediately",
+    "toastPeriodEnd": "Your subscription will end at the end of the period. You have full access until then.",
+    "toastRefund": "Subscription cancelled. We'll refund you €{amount} pro rata.",
+    "toastCancelled": "Subscription cancelled.",
+    "toastFailed": "Cancellation didn't go through. Please try again."
+  }
+}

@@ -7,6 +7,7 @@
 import { useState, useTransition } from "react";
 import { CreditCard, ArrowLeftRight, XCircle } from "lucide-react";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { ChangePlanSheet } from "./ChangePlanSheet";
 import { CancelSubscriptionSheet } from "./CancelSubscriptionSheet";
 import { createBillingPortalSessionAction } from "../actions";
@@ -24,6 +25,7 @@ export function BillingActionsBar({
   periodEndLabel: string | null;
   readOnly: boolean;
 }) {
+  const t = useT("partner.billing");
   const [changeOpen, setChangeOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [portalPending, startPortal] = useTransition();
@@ -34,7 +36,7 @@ export function BillingActionsBar({
       if (res.ok) {
         window.location.href = res.data.url;
       } else {
-        toast.error("Portalul de plată nu e disponibil momentan.");
+        toast.error(t("actionsBar.portalUnavailable"));
       }
     });
   }
@@ -51,7 +53,7 @@ export function BillingActionsBar({
           disabled={portalPending}
           className={`${base} bg-brand-primary text-white shadow-card hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60`}
         >
-          <CreditCard size={16} aria-hidden /> Actualizează cardul
+          <CreditCard size={16} aria-hidden /> {t("actionsBar.updateCard")}
         </button>
         {!readOnly && (
           <button
@@ -59,7 +61,7 @@ export function BillingActionsBar({
             onClick={() => setChangeOpen(true)}
             className={`${base} border border-border bg-surface-white text-text-primary hover:bg-surface-bg`}
           >
-            <ArrowLeftRight size={16} aria-hidden /> Schimbă planul
+            <ArrowLeftRight size={16} aria-hidden /> {t("actionsBar.changePlan")}
           </button>
         )}
         <button
@@ -67,7 +69,7 @@ export function BillingActionsBar({
           onClick={() => setCancelOpen(true)}
           className={`${base} text-text-secondary hover:text-error`}
         >
-          <XCircle size={16} aria-hidden /> Anulează abonamentul
+          <XCircle size={16} aria-hidden /> {t("actionsBar.cancelSubscription")}
         </button>
       </div>
 

@@ -8,6 +8,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { changeTierAction, requestFrequencyChangeAction } from "../actions";
 
 type Tier = "base" | "pro";
@@ -28,6 +29,7 @@ export function ChangePlanSheet({
   currentFrequency: Frequency;
   periodEndLabel: string | null;
 }) {
+  const t = useT("partner.billing");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -35,13 +37,13 @@ export function ChangePlanSheet({
     startTransition(async () => {
       const res = await changeTierAction(organizationId, target);
       if (res.ok) {
-        toast.success(target === "pro" ? "Ai trecut pe Tavli Pro." : "Ai trecut pe Tavli.");
+        toast.success(target === "pro" ? t("changePlan.toastSwitchedPro") : t("changePlan.toastSwitchedBase"));
         onClose();
         router.refresh();
       } else if (res.code === "TV1005") {
-        toast.error("Nu poți trece pe Base cu mai mult de o locație. Elimină locațiile suplimentare întâi.");
+        toast.error(t("changePlan.toastTierLimit"));
       } else {
-        toast.error("Schimbarea planului nu a reușit.");
+        toast.error(t("changePlan.toastTierFailed"));
       }
     });
   }
@@ -52,13 +54,13 @@ export function ChangePlanSheet({
       if (res.ok) {
         toast.success(
           periodEndLabel
-            ? `Schimbarea se aplică la ${periodEndLabel}.`
-            : "Schimbarea se aplică la finalul perioadei.",
+            ? t("changePlan.toastFrequencyApplied", { date: periodEndLabel })
+            : t("changePlan.toastFrequencyAppliedEnd"),
         );
         onClose();
         router.refresh();
       } else {
-        toast.error("Schimbarea frecvenței nu a reușit.");
+        toast.error(t("changePlan.toastFrequencyFailed"));
       }
     });
   }
@@ -67,13 +69,12 @@ export function ChangePlanSheet({
   const otherFrequency: Frequency = currentFrequency === "annual" ? "monthly" : "annual";
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Schimbă planul">
+    <BottomSheet open={open} onClose={onClose} title={t("changePlan.title")}>
       <div className="space-y-6">
         <section>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">Nivel</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t("changePlan.tierHeading")}</h3>
           <p className="mt-1 text-sm text-text-secondary">
-            Ești pe <span className="font-semibold text-text-primary">{currentTier === "pro" ? "Tavli Pro" : "Tavli"}</span>.
-            Schimbarea se aplică imediat.
+            {t("changePlan.tierBodyPrefix")}<span className="font-semibold text-text-primary">{currentTier === "pro" ? t("changePlan.tierCurrentPro") : t("changePlan.tierCurrentBase")}</span>{t("changePlan.tierBodySuffix")}
           </p>
           <button
             type="button"
@@ -81,15 +82,14 @@ export function ChangePlanSheet({
             onClick={() => swapTier(otherTier)}
             className="mt-3 w-full min-h-[48px] rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            {otherTier === "pro" ? "Trec pe Tavli Pro" : "Trec pe Tavli (Base)"}
+            {otherTier === "pro" ? t("changePlan.switchToPro") : t("changePlan.switchToBase")}
           </button>
         </section>
 
         <section className="border-t border-border pt-5">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">Frecvență</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t("changePlan.frequencyHeading")}</h3>
           <p className="mt-1 text-sm text-text-secondary">
-            Plătești <span className="font-semibold text-text-primary">{currentFrequency === "annual" ? "anual" : "lunar"}</span>.
-            Schimbarea se aplică la finalul perioadei{periodEndLabel ? ` (${periodEndLabel})` : ""} — fără plată acum.
+            {t("changePlan.frequencyBodyPrefix")}<span className="font-semibold text-text-primary">{currentFrequency === "annual" ? t("changePlan.frequencyCurrentAnnual") : t("changePlan.frequencyCurrentMonthly")}</span>{t("changePlan.frequencyBodySuffix", { periodEnd: periodEndLabel ? ` (${periodEndLabel})` : "" })}
           </p>
           <button
             type="button"
@@ -97,7 +97,7 @@ export function ChangePlanSheet({
             onClick={() => switchFrequency(otherFrequency)}
             className="mt-3 w-full min-h-[48px] rounded-button border border-border bg-surface-white px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            {otherFrequency === "annual" ? "Cere trecerea la plată anuală (2 luni gratuite)" : "Cere trecerea la plată lunară"}
+            {otherFrequency === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
           </button>
         </section>
       </div>
