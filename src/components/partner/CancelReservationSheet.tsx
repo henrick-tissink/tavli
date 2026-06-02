@@ -6,6 +6,7 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { toast } from "@/components/toast";
 import { CANCEL_REASONS, type CancelReasonKey } from "@/lib/cancel-reasons";
 import { useT } from "@/lib/i18n/messages-provider";
+import { usePartnerDateLabels } from "@/lib/i18n/use-date-labels";
 import { cancelReservation } from "@/app/(app)/partner/(dashboard)/reservations/actions";
 
 interface ReservationSummary {
@@ -24,17 +25,10 @@ interface Props {
 
 export function CancelReservationSheet({ open, onClose, reservation }: Props) {
   const t = useT("partner.reservations");
-  const tc = useT("partner.common");
+  const { shortDate } = usePartnerDateLabels();
   const router = useRouter();
   const [selected, setSelected] = useState<CancelReasonKey | null>(null);
   const [pending, start] = useTransition();
-
-  const prettyDate = (ymd: string): string => {
-    const d = new Date(`${ymd}T12:00:00`);
-    const weekdaysShort = tc("dateFormat.weekdaysShort").split(",");
-    const monthsShort = tc("dateFormat.monthsShort").split(",");
-    return `${weekdaysShort[d.getDay()]} ${d.getDate()} ${monthsShort[d.getMonth()]}`;
-  };
 
   const submit = () => {
     if (!selected) return;
@@ -63,7 +57,7 @@ export function CancelReservationSheet({ open, onClose, reservation }: Props) {
             {reservation.guestName}
           </p>
           <p className="text-xs text-text-secondary mt-0.5">
-            {prettyDate(reservation.reservationDate)} · {reservation.reservationTime} ·{" "}
+            {shortDate(reservation.reservationDate)} · {reservation.reservationTime} ·{" "}
             {t("cancel.summaryParty", { count: reservation.partySize })}
           </p>
         </div>

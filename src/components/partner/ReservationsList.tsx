@@ -6,6 +6,7 @@ import { CalendarCheck } from "lucide-react";
 import { toast } from "@/components/toast";
 import { CancelReservationSheet } from "@/components/partner/CancelReservationSheet";
 import { useT } from "@/lib/i18n/messages-provider";
+import { usePartnerDateLabels } from "@/lib/i18n/use-date-labels";
 import {
   updateReservationStatus,
   type NewStatus,
@@ -43,9 +44,7 @@ interface Props {
 
 export function ReservationsList({ today, upcoming, past }: Props) {
   const t = useT("partner.reservations");
-  const tc = useT("partner.common");
-  const weekdaysShort = tc("dateFormat.weekdaysShort").split(",");
-  const monthsShort = tc("dateFormat.monthsShort").split(",");
+  const { shortDate } = usePartnerDateLabels();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>(
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
@@ -126,8 +125,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
             </thead>
             <tbody className="divide-y divide-border">
               {rows.map((r) => {
-                const d = new Date(`${r.reservationDate}T12:00:00`);
-                const dateLabel = `${weekdaysShort[d.getDay()]} ${d.getDate()} ${monthsShort[d.getMonth()]}`;
+                const dateLabel = shortDate(r.reservationDate);
                 return (
                   <tr key={r.id} className="hover:bg-surface-bg/50 align-top">
                     <td className="px-4 py-3">
