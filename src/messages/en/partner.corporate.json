@@ -154,7 +154,7 @@
     "nameRequired": "The name is required.",
     "capacityPositive": "Capacities must be positive numbers.",
     "capacityMinMax": "The minimum capacity cannot exceed the maximum capacity.",
-    "deactivateConfirm": "Deactivate „{name}”? The space will no longer appear to clients, but the history remains intact.",
+    "deactivateConfirm": "Deactivate “{name}”? The space will no longer appear to clients, but the history remains intact.",
     "emptyTitle": "No spaces added yet",
     "emptyBody": "Add the rooms or halls you rent out for private events. Clients can select them when they send a request.",
     "addFirst": "Add the first space",
