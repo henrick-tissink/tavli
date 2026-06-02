@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { StatusBadge } from "@/components/status-badge";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 
 const STATUS_TONE: Record<
   string,
@@ -12,15 +16,12 @@ const STATUS_TONE: Record<
   suspended: "closed",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  live: "Live",
-  pending_review: "Pending",
-  draft: "Draft",
-  suspended: "Suspended",
-};
-
 export default async function AdminRestaurantsPage() {
   const supabase = await createSupabaseServerClient();
+  const localeRaw = await resolveAppLocale();
+  const locale = isLocale(localeRaw) ? localeRaw : DEFAULT_LOCALE;
+  const m = getMessages(locale, "admin.restaurants");
+
   const { data: restaurants, error } = await supabase
     .from("restaurants")
     .select(
@@ -28,22 +29,24 @@ export default async function AdminRestaurantsPage() {
     )
     .order("created_at", { ascending: false });
 
+  const count = restaurants?.length ?? 0;
+
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-6xl">
       <header className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-            Restaurants
+            {m.list.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            {restaurants?.length ?? 0} restaurants across all statuses
+            {translate(locale, m.list.subtitle, { count })}
           </p>
         </div>
       </header>
 
       {error && (
         <div className="bg-red-50 text-red-900 border border-red-200 rounded-card p-4 text-sm mb-4">
-          Could not load restaurants: {error.message}
+          {interpolate(m.list.loadError, { message: error.message })}
         </div>
       )}
 
@@ -51,12 +54,12 @@ export default async function AdminRestaurantsPage() {
         <table className="w-full text-sm min-w-[640px]">
           <thead className="bg-surface-bg">
             <tr className="text-left">
-              <th className="px-4 py-3 font-semibold text-text-secondary">Name</th>
-              <th className="px-4 py-3 font-semibold text-text-secondary">Cuisine</th>
-              <th className="px-4 py-3 font-semibold text-text-secondary">City</th>
-              <th className="px-4 py-3 font-semibold text-text-secondary">Status</th>
+              <th className="px-4 py-3 font-semibold text-text-secondary">{m.list.table.name}</th>
+              <th className="px-4 py-3 font-semibold text-text-secondary">{m.list.table.cuisine}</th>
+              <th className="px-4 py-3 font-semibold text-text-secondary">{m.list.table.city}</th>
+              <th className="px-4 py-3 font-semibold text-text-secondary">{m.list.table.status}</th>
               <th className="px-4 py-3 font-semibold text-text-secondary text-right">
-                Actions
+                {m.list.table.actions}
               </th>
             </tr>
           </thead>
@@ -73,16 +76,16 @@ export default async function AdminRestaurantsPage() {
                   <td className="px-4 py-3 text-text-secondary">
                     {Array.isArray(r.cuisines) && r.cuisines.length > 0
                       ? r.cuisines.join(" · ")
-                      : "—"}
+                      : m.detail.empty}
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{cityName ?? "—"}</td>
+                  <td className="px-4 py-3 text-text-secondary">{cityName ?? m.detail.empty}</td>
                   <td className="px-4 py-3">
                     <StatusBadge
                       status={STATUS_TONE[r.status] ?? "closed"}
                       variant="compact"
                     />
                     <span className="ml-2 text-xs text-text-muted">
-                      {STATUS_LABEL[r.status] ?? r.status}
+                      {m.status.list[r.status] ?? r.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -90,7 +93,7 @@ export default async function AdminRestaurantsPage() {
                       href={`/admin/restaurants/${r.id}`}
                       className="text-brand-primary text-xs font-semibold hover:underline"
                     >
-                      View →
+                      {m.list.view}
                     </Link>
                   </td>
                 </tr>
@@ -99,7 +102,7 @@ export default async function AdminRestaurantsPage() {
             {(!restaurants || restaurants.length === 0) && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-text-muted">
-                  No restaurants yet. Send an invitation to get started.
+                  {m.list.empty}
                 </td>
               </tr>
             )}

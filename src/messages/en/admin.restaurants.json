@@ -1,0 +1,68 @@
+{
+  "list": {
+    "title": "Restaurants",
+    "subtitle": {
+      "one": "{count} restaurant across all statuses",
+      "few": "{count} restaurants across all statuses",
+      "other": "{count} restaurants across all statuses"
+    },
+    "loadError": "Could not load restaurants: {message}",
+    "table": {
+      "name": "Name",
+      "cuisine": "Cuisine",
+      "city": "City",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "view": "View →",
+    "empty": "No restaurants yet. Send an invitation to get started."
+  },
+  "detail": {
+    "back": "← Restaurants",
+    "viewPublicPage": "View public page →",
+    "rows": {
+      "slug": "Slug",
+      "address": "Address",
+      "phone": "Phone",
+      "website": "Website",
+      "heroNote": "Hero note",
+      "coordinates": "Coordinates",
+      "photos": "Photos",
+      "rating": "Rating",
+      "organization": "Organization",
+      "created": "Created"
+    },
+    "notGeocoded": "Not geocoded",
+    "noRatings": "No ratings yet",
+    "ratingValue": "{rating} ({votes} votes)",
+    "unassigned": "Unassigned",
+    "ownerSuffix": " (owner: {email})",
+    "empty": "—"
+  },
+  "notFound": {
+    "title": "Restaurant not found",
+    "body": "The restaurant you're looking for doesn't exist or has been removed.",
+    "back": "← Back to restaurants"
+  },
+  "status": {
+    "list": {
+      "live": "Live",
+      "pending_review": "Pending",
+      "draft": "Draft",
+      "suspended": "Suspended"
+    },
+    "detail": {
+      "live": "Live",
+      "pending_review": "Pending review",
+      "draft": "Draft",
+      "suspended": "Suspended"
+    }
+  },
+  "actions": {
+    "suspend": "Suspend",
+    "unsuspend": "Unsuspend"
+  },
+  "errors": {
+    "unauthorised": "Unauthorised."
+  }
+}

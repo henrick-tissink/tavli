@@ -16,7 +16,11 @@ export default async function AdminGatedLayout({
     redirect("/admin/sign-in");
   }
   const locale = await resolveAppLocale();
-  const bundle = buildBundle(locale, ["admin.common", "admin.dashboard"]);
+  const bundle = buildBundle(locale, [
+    "admin.common",
+    "admin.dashboard",
+    "admin.restaurants",
+  ]);
   return (
     <AdminShell locale={locale} bundle={bundle} userEmail={session.userEmail}>
       {children}

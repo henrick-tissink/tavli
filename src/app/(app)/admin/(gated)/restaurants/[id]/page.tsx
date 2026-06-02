@@ -2,14 +2,11 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCuisines } from "@/lib/types";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 import { suspendRestaurant, unsuspendRestaurant } from "./actions";
-
-const STATUS_LABEL: Record<string, string> = {
-  live: "Live",
-  pending_review: "Pending review",
-  draft: "Draft",
-  suspended: "Suspended",
-};
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +17,9 @@ export default async function AdminRestaurantDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
+  const localeRaw = await resolveAppLocale();
+  const locale = isLocale(localeRaw) ? localeRaw : DEFAULT_LOCALE;
+  const m = getMessages(locale, "admin.restaurants");
 
   const { data: restaurant } = await supabase
     .from("restaurants")
@@ -33,16 +33,16 @@ export default async function AdminRestaurantDetailPage({
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-3xl">
         <h1 className="font-display text-[28px] font-bold text-text-primary">
-          Restaurant not found
+          {m.notFound.title}
         </h1>
         <p className="text-sm text-text-secondary mt-2">
-          The restaurant you&apos;re looking for doesn&apos;t exist or has been removed.
+          {m.notFound.body}
         </p>
         <Link
           href="/admin/restaurants"
           className="text-sm font-semibold text-brand-primary mt-4 inline-block"
         >
-          ← Back to restaurants
+          {m.notFound.back}
         </Link>
       </div>
     );
@@ -98,7 +98,7 @@ export default async function AdminRestaurantDetailPage({
           href="/admin/restaurants"
           className="text-xs font-semibold text-text-muted hover:text-text-primary"
         >
-          ← Restaurants
+          {m.detail.back}
         </Link>
       </div>
       <header className="mb-6 flex items-start justify-between gap-4">
@@ -120,7 +120,7 @@ export default async function AdminRestaurantDetailPage({
               variant="compact"
             />
             <span className="text-xs text-text-muted">
-              {STATUS_LABEL[restaurant.status] ?? restaurant.status}
+              {m.status.detail[restaurant.status] ?? restaurant.status}
             </span>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default async function AdminRestaurantDetailPage({
               href={publicHref}
               className="text-sm font-semibold text-brand-primary"
             >
-              View public page →
+              {m.detail.viewPublicPage}
             </Link>
           )}
           {restaurant.status === "suspended" ? (
@@ -142,7 +142,7 @@ export default async function AdminRestaurantDetailPage({
                 type="submit"
                 className="text-xs font-semibold px-3 py-1.5 rounded bg-brand-primary text-white hover:opacity-90"
               >
-                Unsuspend
+                {m.actions.unsuspend}
               </button>
             </form>
           ) : (
@@ -154,7 +154,7 @@ export default async function AdminRestaurantDetailPage({
                 type="submit"
                 className="text-xs font-semibold px-3 py-1.5 rounded bg-red-600 text-white hover:opacity-90"
               >
-                Suspend
+                {m.actions.suspend}
               </button>
             </form>
           )}
@@ -162,38 +162,41 @@ export default async function AdminRestaurantDetailPage({
       </header>
 
       <dl className="bg-surface-white rounded-card border border-border divide-y divide-border">
-        <Row label="Slug" value={restaurant.slug} />
-        <Row label="Address" value={restaurant.address ?? "—"} />
-        <Row label="Phone" value={restaurant.phone ?? "—"} />
-        <Row label="Website" value={restaurant.website_url ?? "—"} />
-        <Row label="Hero note" value={restaurant.hero_note ?? "—"} />
+        <Row label={m.detail.rows.slug} value={restaurant.slug} />
+        <Row label={m.detail.rows.address} value={restaurant.address ?? m.detail.empty} />
+        <Row label={m.detail.rows.phone} value={restaurant.phone ?? m.detail.empty} />
+        <Row label={m.detail.rows.website} value={restaurant.website_url ?? m.detail.empty} />
+        <Row label={m.detail.rows.heroNote} value={restaurant.hero_note ?? m.detail.empty} />
         <Row
-          label="Coordinates"
+          label={m.detail.rows.coordinates}
           value={
             restaurant.lat != null && restaurant.lng != null
               ? `${restaurant.lat}, ${restaurant.lng}`
-              : "Not geocoded"
+              : m.detail.notGeocoded
           }
         />
-        <Row label="Photos" value={String(restaurant.photo_count ?? 0)} />
+        <Row label={m.detail.rows.photos} value={String(restaurant.photo_count ?? 0)} />
         <Row
-          label="Rating"
+          label={m.detail.rows.rating}
           value={
             restaurant.rating != null
-              ? `${restaurant.rating} (${restaurant.vote_count} votes)`
-              : "No ratings yet"
+              ? interpolate(m.detail.ratingValue, {
+                  rating: restaurant.rating,
+                  votes: restaurant.vote_count ?? 0,
+                })
+              : m.detail.noRatings
           }
         />
         <Row
-          label="Organization"
+          label={m.detail.rows.organization}
           value={
             orgRow
-              ? `${orgRow.name}${ownerEmail ? ` (owner: ${ownerEmail})` : ""}`
-              : "Unassigned"
+              ? `${orgRow.name}${ownerEmail ? interpolate(m.detail.ownerSuffix, { email: ownerEmail }) : ""}`
+              : m.detail.unassigned
           }
         />
         <Row
-          label="Created"
+          label={m.detail.rows.created}
           value={new Date(restaurant.created_at).toISOString().slice(0, 10)}
         />
       </dl>
