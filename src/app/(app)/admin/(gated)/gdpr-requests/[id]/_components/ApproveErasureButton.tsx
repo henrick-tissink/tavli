@@ -2,21 +2,23 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/messages-provider";
 import { approveErasureAction } from "../actions";
 
 export function ApproveErasureButton({ dsrId, enabled }: { dsrId: string; enabled: boolean }) {
+  const t = useT("admin.gdpr");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   function handleClick() {
     if (!enabled || pending) return;
-    if (!confirm("Approve erasure? This triggers an irreversible cascade across diner/reservation/review/audit data.")) return;
+    if (!confirm(t("approveErasure.confirm"))) return;
     startTransition(async () => {
       try {
         await approveErasureAction(dsrId);
         router.refresh();
       } catch (e) {
-        alert(`Failed: ${e instanceof Error ? e.message : String(e)}`);
+        alert(t("approveErasure.failed", { error: e instanceof Error ? e.message : String(e) }));
       }
     });
   }
@@ -28,7 +30,7 @@ export function ApproveErasureButton({ dsrId, enabled }: { dsrId: string; enable
       disabled={!enabled || pending}
       className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-stone-300"
     >
-      {pending ? "Approving cascade…" : "Approve erasure"}
+      {pending ? t("approveErasure.pending") : t("approveErasure.approve")}
     </button>
   );
 }

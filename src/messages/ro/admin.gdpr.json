@@ -1,0 +1,103 @@
+{
+  "list": {
+    "title": "Cereri GDPR ale persoanelor vizate",
+    "subtitle": "Sortate după termenul limită legal. Rândurile roșii au termenul în 7 zile sau mai puțin. Doar înregistrare prin Tavli-admin în v1 — înregistrează aici cererile primite prin email, poștă sau canale verbale.",
+    "openHeading": "Cereri deschise ({count})",
+    "openEmpty": "Nicio cerere deschisă. Cererile noi sosesc de obicei prin email (legal@tavli.ro), poștă sau raportare verbală; termenul GDPR de răspuns de 30 de zile pornește la primire.",
+    "closedHeading": "Cereri închise ({count})",
+    "table": {
+      "id": "ID",
+      "kind": "Tip",
+      "source": "Sursă",
+      "identifier": "Identificator",
+      "diner": "Client",
+      "status": "Stare",
+      "deadline": "Termen limită",
+      "created": "Creată"
+    },
+    "empty": "—",
+    "unresolved": "nerezolvat",
+    "deadlineDays": "{days}z"
+  },
+  "detail": {
+    "back": "← Toate cererile",
+    "heading": "Cerere GDPR {kind}",
+    "statusLabel": "Stare:",
+    "deadlineLabel": "Termen limită legal:",
+    "deadlineExtended": " (prelungit cu {days}z)",
+    "subjectHeading": "Persoană vizată",
+    "phoneLabel": "Telefon",
+    "emailLabel": "Email",
+    "resolvedDinerLabel": "Client rezolvat",
+    "unresolved": "nerezolvat",
+    "sourceLabel": "Sursă",
+    "empty": "—",
+    "requestBodyHeading": "Conținutul cererii",
+    "identityHeading": "Verificarea identității",
+    "identityVerified": "✓ Verificat {at} prin {method}",
+    "actionsHeading": "Acțiuni",
+    "cascadeHeading": "Istoric audit cascadă ({count})",
+    "cascadeEmpty": "Nicio activitate de cascadă încă. Intrările apar după ce rulează orchestratorul.",
+    "cascadeTable": {
+      "time": "Oră",
+      "subject": "Subiect",
+      "reason": "Motiv",
+      "columns": "Coloane"
+    }
+  },
+  "failureBanner": {
+    "title": "Cascadă eșuată",
+    "body": "Ultima eșuare la {at}. Inspectează jurnalele worker-ului pentru handler-ul care a eșuat. Re-rularea orchestratorului este sigură — handler-ele sunt individual idempotente.",
+    "retryConfirm": "Reîncerci cascada? Handler-ele sunt idempotente — munca finalizată nu se va repeta.",
+    "retryPending": "Se reîncearcă…",
+    "retry": "Reîncearcă cascada",
+    "retryFailed": "Reîncercare eșuată: {error}"
+  },
+  "resolveDiner": {
+    "trigger": "Rezolvă clientul",
+    "title": "Rezolvă clientul",
+    "body": "Lipește UUID-ul (UUID-urile) clientului — separate prin virgulă pentru clienți multi-organizație. Primul listat devine diner_id-ul principal al cererii; cascada rezolvă oricum toate potrivirile de telefon/email la momentul rulării.",
+    "placeholder": "uuid, uuid, uuid",
+    "cancel": "Anulează",
+    "submitPending": "Se salvează…",
+    "submit": "Rezolvă",
+    "failed": "Eșuat: {error}"
+  },
+  "verifyIdentity": {
+    "trigger": "Verifică identitatea",
+    "title": "Verifică identitatea",
+    "body": "Cum ai verificat că aceasta este persoana vizată reală? (De ex., apel telefonic de confirmare, răspuns prin email, în persoană, verificarea actului de identitate.)",
+    "placeholder": "Motivul verificării (obligatoriu)",
+    "cancel": "Anulează",
+    "submitPending": "Se salvează…",
+    "submit": "Verifică",
+    "failed": "Eșuat: {error}"
+  },
+  "approveErasure": {
+    "confirm": "Aprobi ștergerea? Aceasta declanșează o cascadă ireversibilă asupra datelor de client/rezervare/recenzie/audit.",
+    "pending": "Se aprobă cascada…",
+    "approve": "Aprobă ștergerea",
+    "failed": "Eșuat: {error}"
+  },
+  "reject": {
+    "trigger": "Respinge cererea",
+    "title": "Respinge cererea",
+    "body": "De ce este respinsă această cerere? (De ex., identitatea nu a putut fi verificată.)",
+    "placeholder": "Motivul respingerii (obligatoriu)",
+    "cancel": "Anulează",
+    "submitPending": "Se respinge…",
+    "submit": "Respinge",
+    "failed": "Eșuat: {error}"
+  },
+  "extendDeadline": {
+    "trigger": "Prelungește termenul",
+    "title": "Prelungește termenul",
+    "body": "GDPR Art. 12(3) permite o prelungire de până la 2 luni; politica Tavli o limitează la 14 zile. Motiv obligatoriu.",
+    "daysLabel": "Zile (1-14)",
+    "placeholder": "Motivul prelungirii (obligatoriu)",
+    "cancel": "Anulează",
+    "submitPending": "Se salvează…",
+    "submit": "Prelungește",
+    "failed": "Eșuat: {error}"
+  }
+}

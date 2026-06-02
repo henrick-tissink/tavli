@@ -2,9 +2,11 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/messages-provider";
 import { verifyIdentityAction } from "../actions";
 
 export function VerifyIdentityModal({ dsrId }: { dsrId: string }) {
+  const t = useT("admin.gdpr");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [reason, setReason] = useState("");
   const [pending, startTransition] = useTransition();
@@ -22,7 +24,7 @@ export function VerifyIdentityModal({ dsrId }: { dsrId: string }) {
         setReason("");
         router.refresh();
       } catch (e) {
-        alert(`Failed: ${e instanceof Error ? e.message : String(e)}`);
+        alert(t("verifyIdentity.failed", { error: e instanceof Error ? e.message : String(e) }));
       }
     });
   }
@@ -34,30 +36,27 @@ export function VerifyIdentityModal({ dsrId }: { dsrId: string }) {
         onClick={open}
         className="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 hover:bg-stone-50"
       >
-        Verify identity
+        {t("verifyIdentity.trigger")}
       </button>
       <dialog ref={dialogRef} className="rounded-md border border-stone-200 p-6 backdrop:bg-stone-900/50">
-        <h3 className="text-lg font-semibold">Verify identity</h3>
-        <p className="mt-2 text-sm text-stone-600">
-          How did you verify this is the actual data subject? (E.g., phone callback, email reply,
-          in-person, government ID review.)
-        </p>
+        <h3 className="text-lg font-semibold">{t("verifyIdentity.title")}</h3>
+        <p className="mt-2 text-sm text-stone-600">{t("verifyIdentity.body")}</p>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           className="mt-4 w-full rounded-md border border-stone-300 p-2 text-sm"
           rows={4}
-          placeholder="Verification reason (mandatory)"
+          placeholder={t("verifyIdentity.placeholder")}
         />
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" onClick={close} className="rounded-md border border-stone-300 px-4 py-2 text-sm">Cancel</button>
+          <button type="button" onClick={close} className="rounded-md border border-stone-300 px-4 py-2 text-sm">{t("verifyIdentity.cancel")}</button>
           <button
             type="button"
             onClick={submit}
             disabled={pending || !reason.trim()}
             className="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-stone-400"
           >
-            {pending ? "Saving…" : "Verify"}
+            {pending ? t("verifyIdentity.submitPending") : t("verifyIdentity.submit")}
           </button>
         </div>
       </dialog>

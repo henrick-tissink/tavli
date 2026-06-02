@@ -9,6 +9,11 @@ import { ApproveErasureButton } from "./_components/ApproveErasureButton";
 import { RejectModal } from "./_components/RejectModal";
 import { ExtendDeadlineModal } from "./_components/ExtendDeadlineModal";
 import { FailureBanner } from "./_components/FailureBanner";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { formatDate } from "@/lib/i18n/format";
+import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +21,20 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const DATE_TIME_OPTS: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+};
+
 export default async function GdprRequestDetailPage({ params }: PageProps) {
   const { id } = await params;
+
+  const localeRaw = await resolveAppLocale();
+  const locale: Locale = isLocale(localeRaw) ? localeRaw : DEFAULT_LOCALE;
+  const m = getMessages(locale, "admin.gdpr");
 
   const rows = await dbAdmin
     .select()
@@ -49,18 +66,23 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <Link href="/admin/gdpr-requests" className="mb-6 inline-block text-sm text-stone-500 hover:text-stone-800">
-        ← All requests
+        {m.detail.back}
       </Link>
 
       <header className="mb-8">
         <h1 className="font-mono text-xs text-stone-500">{dsr.id}</h1>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight">GDPR {dsr.requestKind} request</h2>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight">
+          {interpolate(m.detail.heading, { kind: dsr.requestKind })}
+        </h2>
         <p className="mt-2 text-sm text-stone-600">
-          Status: <span className="font-medium">{dsr.status}</span>
+          {m.detail.statusLabel} <span className="font-medium">{dsr.status}</span>
           {" · "}
-          Legal deadline: <span className="font-medium">{dsr.legalDeadlineAt.toLocaleString()}</span>
+          {m.detail.deadlineLabel}{" "}
+          <span className="font-medium">{formatDate(dsr.legalDeadlineAt, locale, DATE_TIME_OPTS)}</span>
           {dsr.deadlineExtensionDays > 0 && (
-            <span className="text-amber-700"> (extended by {dsr.deadlineExtensionDays}d)</span>
+            <span className="text-amber-700">
+              {interpolate(m.detail.deadlineExtended, { days: dsr.deadlineExtensionDays })}
+            </span>
           )}
         </p>
       </header>
@@ -70,25 +92,25 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
       )}
 
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">Subject</h3>
+        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">{m.detail.subjectHeading}</h3>
         <dl className="grid grid-cols-2 gap-4 text-sm">
-          <Dt label="Phone">{dsr.identifierPhone ?? "—"}</Dt>
-          <Dt label="Email">{dsr.identifierEmail ?? "—"}</Dt>
-          <Dt label="Resolved diner">
+          <Dt label={m.detail.phoneLabel}>{dsr.identifierPhone ?? m.detail.empty}</Dt>
+          <Dt label={m.detail.emailLabel}>{dsr.identifierEmail ?? m.detail.empty}</Dt>
+          <Dt label={m.detail.resolvedDinerLabel}>
             {dsr.dinerId ? (
               <span className="font-mono text-xs">{dsr.dinerId}</span>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-stone-400">unresolved</span>
+                <span className="text-stone-400">{m.detail.unresolved}</span>
                 <ResolveDinerModal dsrId={dsr.id} />
               </div>
             )}
           </Dt>
-          <Dt label="Source">{dsr.requestSource}</Dt>
+          <Dt label={m.detail.sourceLabel}>{dsr.requestSource}</Dt>
         </dl>
         {dsr.requestBody && (
           <div className="mt-4">
-            <h4 className="text-xs font-medium uppercase tracking-wide text-stone-500">Request body</h4>
+            <h4 className="text-xs font-medium uppercase tracking-wide text-stone-500">{m.detail.requestBodyHeading}</h4>
             <p className="mt-2 whitespace-pre-wrap rounded-md border border-stone-200 bg-stone-50 p-4 text-sm text-stone-800">
               {dsr.requestBody}
             </p>
@@ -97,10 +119,13 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
       </section>
 
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">Identity verification</h3>
+        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">{m.detail.identityHeading}</h3>
         {dsr.identityVerified ? (
           <p className="text-sm text-emerald-700">
-            ✓ Verified {dsr.identityVerifiedAt?.toLocaleString()} via {dsr.identityVerificationMethod}
+            {interpolate(m.detail.identityVerified, {
+              at: dsr.identityVerifiedAt ? formatDate(dsr.identityVerifiedAt, locale, DATE_TIME_OPTS) : "",
+              method: dsr.identityVerificationMethod ?? "",
+            })}
           </p>
         ) : (
           <VerifyIdentityModal dsrId={dsr.id} />
@@ -108,7 +133,7 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
       </section>
 
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">Actions</h3>
+        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">{m.detail.actionsHeading}</h3>
         <div className="flex flex-wrap gap-3">
           <ApproveErasureButton
             dsrId={dsr.id}
@@ -121,25 +146,25 @@ export default async function GdprRequestDetailPage({ params }: PageProps) {
 
       <section>
         <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">
-          Cascade audit trail ({cascadeRows.length})
+          {interpolate(m.detail.cascadeHeading, { count: cascadeRows.length })}
         </h3>
         {cascadeRows.length === 0 ? (
-          <p className="text-sm text-stone-500">No cascade activity yet. Entries appear once the orchestrator runs.</p>
+          <p className="text-sm text-stone-500">{m.detail.cascadeEmpty}</p>
         ) : (
           <div className="overflow-x-auto rounded-md border border-stone-200">
             <table className="min-w-full divide-y divide-stone-200 text-sm">
               <thead className="bg-stone-50">
                 <tr>
-                  <Th>Time</Th>
-                  <Th>Subject</Th>
-                  <Th>Reason</Th>
-                  <Th>Columns</Th>
+                  <Th>{m.detail.cascadeTable.time}</Th>
+                  <Th>{m.detail.cascadeTable.subject}</Th>
+                  <Th>{m.detail.cascadeTable.reason}</Th>
+                  <Th>{m.detail.cascadeTable.columns}</Th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 bg-white">
                 {cascadeRows.map((row) => (
                   <tr key={row.id}>
-                    <Td className="text-stone-600">{row.createdAt.toLocaleString()}</Td>
+                    <Td className="text-stone-600">{formatDate(row.createdAt, locale, DATE_TIME_OPTS)}</Td>
                     <Td>
                       <span className="font-mono text-xs">{row.subjectType}:{row.subjectId.slice(0, 8)}</span>
                     </Td>

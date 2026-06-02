@@ -1,0 +1,103 @@
+{
+  "list": {
+    "title": "GDPR data-subject requests",
+    "subtitle": "Sorted by legal deadline. Red rows are due in 7 days or less. Tavli-admin intake only in v1 — record requests received via email, postal, or verbal channels here.",
+    "openHeading": "Open requests ({count})",
+    "openEmpty": "No open requests. New requests typically arrive via email (legal@tavli.ro), postal mail, or verbal report; the 30-day GDPR response clock starts at receipt.",
+    "closedHeading": "Closed requests ({count})",
+    "table": {
+      "id": "ID",
+      "kind": "Kind",
+      "source": "Source",
+      "identifier": "Identifier",
+      "diner": "Diner",
+      "status": "Status",
+      "deadline": "Deadline",
+      "created": "Created"
+    },
+    "empty": "—",
+    "unresolved": "unresolved",
+    "deadlineDays": "{days}d"
+  },
+  "detail": {
+    "back": "← All requests",
+    "heading": "GDPR {kind} request",
+    "statusLabel": "Status:",
+    "deadlineLabel": "Legal deadline:",
+    "deadlineExtended": " (extended by {days}d)",
+    "subjectHeading": "Subject",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "resolvedDinerLabel": "Resolved diner",
+    "unresolved": "unresolved",
+    "sourceLabel": "Source",
+    "empty": "—",
+    "requestBodyHeading": "Request body",
+    "identityHeading": "Identity verification",
+    "identityVerified": "✓ Verified {at} via {method}",
+    "actionsHeading": "Actions",
+    "cascadeHeading": "Cascade audit trail ({count})",
+    "cascadeEmpty": "No cascade activity yet. Entries appear once the orchestrator runs.",
+    "cascadeTable": {
+      "time": "Time",
+      "subject": "Subject",
+      "reason": "Reason",
+      "columns": "Columns"
+    }
+  },
+  "failureBanner": {
+    "title": "Cascade failed",
+    "body": "Last failure at {at}. Inspect the worker logs for the failing handler. Re-running the orchestrator is safe — handlers are individually idempotent.",
+    "retryConfirm": "Retry the cascade? Handlers are idempotent — completed work won't be repeated.",
+    "retryPending": "Retrying…",
+    "retry": "Retry cascade",
+    "retryFailed": "Retry failed: {error}"
+  },
+  "resolveDiner": {
+    "trigger": "Resolve diner",
+    "title": "Resolve diner",
+    "body": "Paste diner UUID(s) — comma-separated for multi-org diners. The first listed becomes the DSR's primary diner_id; the cascade still resolves all phone/email matches at run time.",
+    "placeholder": "uuid, uuid, uuid",
+    "cancel": "Cancel",
+    "submitPending": "Saving…",
+    "submit": "Resolve",
+    "failed": "Failed: {error}"
+  },
+  "verifyIdentity": {
+    "trigger": "Verify identity",
+    "title": "Verify identity",
+    "body": "How did you verify this is the actual data subject? (E.g., phone callback, email reply, in-person, government ID review.)",
+    "placeholder": "Verification reason (mandatory)",
+    "cancel": "Cancel",
+    "submitPending": "Saving…",
+    "submit": "Verify",
+    "failed": "Failed: {error}"
+  },
+  "approveErasure": {
+    "confirm": "Approve erasure? This triggers an irreversible cascade across diner/reservation/review/audit data.",
+    "pending": "Approving cascade…",
+    "approve": "Approve erasure",
+    "failed": "Failed: {error}"
+  },
+  "reject": {
+    "trigger": "Reject request",
+    "title": "Reject request",
+    "body": "Why is this request being rejected? (E.g., identity could not be verified.)",
+    "placeholder": "Rejection reason (mandatory)",
+    "cancel": "Cancel",
+    "submitPending": "Rejecting…",
+    "submit": "Reject",
+    "failed": "Failed: {error}"
+  },
+  "extendDeadline": {
+    "trigger": "Extend deadline",
+    "title": "Extend deadline",
+    "body": "GDPR Art 12(3) allows up to 2 months extension; Tavli policy caps at 14 days. Mandatory reason.",
+    "daysLabel": "Days (1-14)",
+    "placeholder": "Extension reason (mandatory)",
+    "cancel": "Cancel",
+    "submitPending": "Saving…",
+    "submit": "Extend",
+    "failed": "Failed: {error}"
+  }
+}
