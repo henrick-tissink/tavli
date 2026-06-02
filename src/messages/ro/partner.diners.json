@@ -1,0 +1,72 @@
+{
+  "list": {
+    "title": "Oaspeți",
+    "subtitle": "Baza de oaspeți a organizației tale. Caută după nume, telefon sau email.",
+    "searchPlaceholder": "Caută oaspeți…",
+    "searchSubmit": "Caută",
+    "reset": "Resetează",
+    "noRestaurant": "Niciun restaurant asociat acestui cont.",
+    "noAccess": "Nu ai acces la baza de oaspeți.",
+    "table": {
+      "guest": "Oaspete",
+      "contact": "Contact",
+      "visits": "Vizite",
+      "lastVisit": "Ultima vizită"
+    },
+    "emptySearch": "Niciun oaspete găsit.",
+    "empty": "Niciun oaspete încă.",
+    "maskedHint": "Contactul este mascat în listă. Deschide un oaspete pentru detalii complete (acces înregistrat)."
+  },
+  "detail": {
+    "back": "Înapoi la oaspeți",
+    "fallbackName": "Oaspete",
+    "visits": {
+      "one": "{count} vizite",
+      "few": "{count} vizite",
+      "other": "{count} vizite"
+    },
+    "lastVisit": "Ultima vizită: {date}",
+    "preferencesTitle": "Detalii & preferințe",
+    "historyTitle": "Istoric vizite",
+    "history": {
+      "date": "Data",
+      "venue": "Local",
+      "party": "Pers.",
+      "status": "Status"
+    },
+    "noVisits": "Nicio vizită înregistrată."
+  },
+  "bucket": {
+    "first_timer": "Nou",
+    "occasional": "Ocazional",
+    "regular": "Fidel",
+    "vip": "VIP",
+    "lapsed": "Inactiv"
+  },
+  "status": {
+    "confirmed": "Confirmată",
+    "completed": "Finalizată",
+    "cancelled": "Anulată",
+    "no_show": "Neprezentare",
+    "seated": "Așezat"
+  },
+  "form": {
+    "birthday": "Zi de naștere",
+    "anniversary": "Aniversare",
+    "occasions": "Ocazii (separate prin virgulă)",
+    "occasionsPlaceholder": "birthday, anniversary",
+    "allergies": "Alergii (separate prin virgulă)",
+    "allergiesPlaceholder": "nuci, lactoză",
+    "dietary": "Preferințe alimentare (separate prin virgulă)",
+    "dietaryPlaceholder": "vegetarian",
+    "notes": "Note interne",
+    "saving": "Se salvează…",
+    "save": "Salvează",
+    "saved": "Salvat.",
+    "saveFailed": "Nu am putut salva.",
+    "errors": {
+      "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita oaspeții.",
+      "forbidden": "Nu ai permisiunea de a edita acest oaspete."
+    }
+  }
+}
