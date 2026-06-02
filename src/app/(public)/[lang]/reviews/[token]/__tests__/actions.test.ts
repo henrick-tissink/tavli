@@ -11,6 +11,7 @@ jest.mock("@/lib/db/admin", () => ({
 }));
 jest.mock("next/headers", () => ({
   headers: jest.fn(async () => new Map<string, string>()),
+  cookies: jest.fn(async () => ({ get: () => undefined })),
 }));
 jest.mock("@/lib/rate-limit/enforce", () => ({
   enforceRateLimit: jest.fn(async () => ({ allowed: true, remaining: 4, resetsAt: new Date() })),
@@ -21,7 +22,7 @@ jest.mock("@/lib/audit/record", () => ({
 
 import { submitReviewByToken } from "@/app/(public)/[lang]/reviews/[token]/actions";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 import { recordAudit } from "@/lib/audit/record";
 
@@ -35,6 +36,7 @@ beforeEach(() => {
   jest.resetAllMocks();
   freezeClock(new Date(Date.UTC(2099, 0, 1, 9, 0, 0)));
   (headers as jest.Mock).mockResolvedValue(new Map<string, string>());
+  (cookies as jest.Mock).mockResolvedValue({ get: () => undefined });
   (enforceRateLimit as jest.Mock).mockResolvedValue({ allowed: true, remaining: 4, resetsAt: new Date() });
   (recordAudit as jest.Mock).mockResolvedValue(undefined);
   process.env = {

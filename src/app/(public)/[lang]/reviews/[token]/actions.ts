@@ -1,12 +1,15 @@
 "use server";
 
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { editReview as editReviewLib } from "@/lib/reviews/edit";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { firstNameFrom } from "@/lib/repos/reviews-repo";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
+import { getMessages } from "@/lib/i18n/messages";
+import { isLocale } from "@/lib/i18n/locale";
+import { LOCALE_COOKIE } from "@/lib/i18n/cookie";
 
 export interface SubmitReviewInput {
   rating: number;
@@ -39,6 +42,10 @@ export async function submitReviewByToken(
   token: string,
   input: SubmitReviewInput,
 ): Promise<SubmitReviewResult> {
+  const c = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const l = isLocale(c ?? "") ? (c as string) : "ro";
+  const m = getMessages(l, "reviews").errors;
+
   if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5) {
     return { ok: false, error: "Rating must be 1–5.", errorCode: "OTHER" };
   }
@@ -64,7 +71,7 @@ export async function submitReviewByToken(
   if (!rl.allowed) {
     return {
       ok: false,
-      error: "Prea multe încercări. Încearcă din nou mai târziu.",
+      error: m.rateLimited,
       errorCode: "RATE_LIMITED",
     };
   }
@@ -97,7 +104,7 @@ export async function submitReviewByToken(
   if (resv.reservation_date && resv.reservation_date > today) {
     return {
       ok: false,
-      error: "Poți lăsa o recenzie după vizita ta.",
+      error: m.visitNotYet,
       errorCode: "INELIGIBLE",
     };
   }
@@ -107,7 +114,7 @@ export async function submitReviewByToken(
   if (resv.reservation_date && resv.reservation_date < windowStart) {
     return {
       ok: false,
-      error: "Perioada în care puteai lăsa o recenzie a expirat.",
+      error: m.windowExpired,
       errorCode: "WINDOW_EXPIRED",
     };
   }
@@ -167,10 +174,14 @@ export async function editReviewByToken(
   token: string,
   input: { rating: number; comment?: string },
 ): Promise<SubmitReviewResult> {
+  const c = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const l = isLocale(c ?? "") ? (c as string) : "ro";
+  const m = getMessages(l, "reviews").errors;
+
   const r = await editReviewLib({ token, rating: input.rating, comment: input.comment ?? "" });
   if (r.ok) return { ok: true };
   const msg = r.message ?? "";
-  if (msg.includes("TV403")) return { ok: false, error: "Perioada de editare (14 zile) a expirat.", errorCode: "WINDOW_EXPIRED" };
-  if (msg.includes("TV404")) return { ok: false, error: "Recenzia a fost ascunsă și nu mai poate fi editată.", errorCode: "INELIGIBLE" };
-  return { ok: false, error: msg || "Recenzia nu a putut fi editată.", errorCode: "OTHER" };
+  if (msg.includes("TV403")) return { ok: false, error: m.editWindowExpired, errorCode: "WINDOW_EXPIRED" };
+  if (msg.includes("TV404")) return { ok: false, error: m.editHidden, errorCode: "INELIGIBLE" };
+  return { ok: false, error: msg || m.editFailed, errorCode: "OTHER" };
 }

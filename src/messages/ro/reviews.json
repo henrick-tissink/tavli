@@ -25,5 +25,13 @@
     "errorGeneric": "Recenzia nu a putut fi salvată.",
     "doneTitle": "Mulțumim — recenzia ta e salvată.",
     "doneBody": "Diners verificați îi ajută pe ceilalți să aleagă mai bine."
+  },
+  "errors": {
+    "rateLimited": "Prea multe încercări. Încearcă din nou mai târziu.",
+    "visitNotYet": "Poți lăsa o recenzie după vizita ta.",
+    "windowExpired": "Perioada în care puteai lăsa o recenzie a expirat.",
+    "editWindowExpired": "Perioada de editare (14 zile) a expirat.",
+    "editHidden": "Recenzia a fost ascunsă și nu mai poate fi editată.",
+    "editFailed": "Recenzia nu a putut fi editată."
   }
 }

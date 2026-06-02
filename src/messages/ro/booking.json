@@ -121,5 +121,14 @@
     "configMissingTitle": "Platformă neconfigurată",
     "configMissingBody": "Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul.",
     "contactLabel": "Contact:"
+  },
+  "errors": {
+    "modifyWindowClosed": "Modificarea e permisă doar cu peste 24h înainte. Contactează restaurantul.",
+    "modifyTerminal": "Rezervarea nu mai poate fi modificată.",
+    "modifySlotFull": "Intervalul ales este plin. Alege altul.",
+    "modifyConflict": "Rezervarea s-a schimbat între timp. Reîncarcă pagina.",
+    "modifyFailed": "Modificarea nu a putut fi efectuată.",
+    "configMissing": "Platforma nu este configurată.",
+    "cancelFailed": "Anularea nu a putut fi efectuată."
   }
 }

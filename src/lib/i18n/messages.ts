@@ -334,6 +334,15 @@ export interface BookingMessages {
     configMissingBody: string;
     contactLabel: string;
   };
+  errors: {
+    modifyWindowClosed: string;
+    modifyTerminal: string;
+    modifySlotFull: string;
+    modifyConflict: string;
+    modifyFailed: string;
+    configMissing: string;
+    cancelFailed: string;
+  };
 }
 
 /** Structural contract for the `reviews` namespace. */
@@ -364,6 +373,14 @@ export interface ReviewsMessages {
     errorGeneric: string;
     doneTitle: string;
     doneBody: string;
+  };
+  errors: {
+    rateLimited: string;
+    visitNotYet: string;
+    windowExpired: string;
+    editWindowExpired: string;
+    editHidden: string;
+    editFailed: string;
   };
 }
 

@@ -34,13 +34,10 @@ const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
 
 /**
  * Files whose Romanian strings are knowingly deferred to a localization
- * follow-up (Phase 1b-finalize). Server-action error toasts: low-frequency,
- * require cookie-locale threading. Tracked — remove from this list when localized.
+ * follow-up. All Phase 1b-finalize items have been resolved; this list is now
+ * empty — tracked here for documentation purposes only.
  */
-const DEFERRED_FILES = [
-  join(ROOT, "reservations", "[token]", "actions.ts"),
-  join(ROOT, "reviews", "[token]", "actions.ts"),
-];
+const DEFERRED_FILES: string[] = [];
 
 function walk(dir: string): string[] {
   const out: string[] = [];

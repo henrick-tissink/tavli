@@ -25,5 +25,13 @@
     "errorGeneric": "Your review could not be saved.",
     "doneTitle": "Thank you — your review has been saved.",
     "doneBody": "Verified diners help others choose better."
+  },
+  "errors": {
+    "rateLimited": "Too many attempts. Please try again later.",
+    "visitNotYet": "You can leave a review after your visit.",
+    "windowExpired": "The window for leaving a review has expired.",
+    "editWindowExpired": "The edit window (14 days) has expired.",
+    "editHidden": "The review has been hidden and can no longer be edited.",
+    "editFailed": "The review could not be edited."
   }
 }

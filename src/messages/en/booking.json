@@ -121,5 +121,14 @@
     "configMissingTitle": "Platform not configured",
     "configMissingBody": "Tavli is still being set up. Please try again later or contact support.",
     "contactLabel": "Contact:"
+  },
+  "errors": {
+    "modifyWindowClosed": "Changes are only permitted more than 24 hours in advance. Please contact the restaurant.",
+    "modifyTerminal": "This reservation can no longer be modified.",
+    "modifySlotFull": "The selected time slot is full. Please choose another.",
+    "modifyConflict": "The reservation was updated in the meantime. Please reload the page.",
+    "modifyFailed": "The change could not be processed.",
+    "configMissing": "The platform is not configured.",
+    "cancelFailed": "The cancellation could not be processed."
   }
 }
