@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Bewertungsmeldungen",
+    "subtitle": "DSA-Melde-und-Abhilfe-Warteschlange. Bestätigen Sie, um die Bewertung öffentlich auszublenden; verwerfen Sie, um die Meldung abzulehnen. Bestätigte Meldungen blenden die Bewertung sofort über {flag} aus.",
+    "subtitleFlag": "is_hidden=true"
+  },
+  "empty": {
+    "title": "Keine ausstehenden Meldungen. Alles erledigt."
+  },
+  "report": {
+    "label": "Meldung",
+    "detailsLabel": "Details: ",
+    "reviewIdLabel": "Bewertungs-ID: ",
+    "reviewGone": "Die Bewertung existiert nicht mehr.",
+    "alreadyHidden": "bereits ausgeblendet",
+    "reportedAt": "Gemeldet am {date}",
+    "reporterIp": "· IP {ip}"
+  },
+  "actions": {
+    "uphold": "Bestätigen (Bewertung ausblenden)",
+    "dismiss": "Verwerfen"
+  },
+  "reasons": {
+    "inappropriate": "Unangemessen",
+    "fake": "Gefälscht",
+    "spam": "Spam",
+    "off_topic": "Themenfremd",
+    "personal_attack": "Persönlicher Angriff",
+    "gdpr_takedown": "DSGVO-Entfernung"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Review reports",
+    "subtitle": "DSA notice-and-action queue. Uphold to hide the review from the public; dismiss to reject the report. Upheld reports hide the review immediately via {flag}.",
+    "subtitleFlag": "is_hidden=true"
+  },
+  "empty": {
+    "title": "No pending reports. All clear."
+  },
+  "report": {
+    "label": "Report",
+    "detailsLabel": "Details: ",
+    "reviewIdLabel": "Review ID: ",
+    "reviewGone": "Review no longer exists.",
+    "alreadyHidden": "already hidden",
+    "reportedAt": "Reported {date}",
+    "reporterIp": "· IP {ip}"
+  },
+  "actions": {
+    "uphold": "Uphold (hide review)",
+    "dismiss": "Dismiss"
+  },
+  "reasons": {
+    "inappropriate": "Inappropriate",
+    "fake": "Fake",
+    "spam": "Spam",
+    "off_topic": "Off-topic",
+    "personal_attack": "Personal attack",
+    "gdpr_takedown": "GDPR takedown"
+  }
+}
