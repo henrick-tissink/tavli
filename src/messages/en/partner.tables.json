@@ -1,0 +1,126 @@
+{
+  "page": {
+    "title": "Floor plan",
+    "subtitlePrefix": "Arrange the tables and sections for",
+    "subtitleSuffix": " visually. Drag on the plan to rearrange; edit the details in the panel.",
+    "noRestaurant": "No restaurant is linked to this account."
+  },
+  "live": {
+    "title": "Floor — live",
+    "freeNow": {
+      "one": "{count} free table",
+      "few": "{count} free tables",
+      "other": "{count} free tables"
+    },
+    "now": "now",
+    "totalSuffix": "{count} tables in total",
+    "editPlan": "Edit the plan →",
+    "noAccess": "You do not have access to the floor plan."
+  },
+  "status": {
+    "free": "Free",
+    "booked": "Reserved",
+    "seated": "Occupied",
+    "paying": "Paying",
+    "dirty": "To clean",
+    "combined": "Combined",
+    "blocked": "Blocked"
+  },
+  "liveFloor": {
+    "noSection": "No section",
+    "combineCancel": "Cancel combine",
+    "combineStart": "Combine tables",
+    "combineSelection": "Combine selection ({count})",
+    "selected": "✓ Selected",
+    "select": "Select",
+    "dissolve": "Split",
+    "transitionTo": "→ {status}",
+    "clearReasonPrompt": "Reason (optional): walkout / comp / other reason",
+    "errorInvalidTransition": "Invalid transition.",
+    "errorFailed": "The action failed."
+  },
+  "reservationsPanel": {
+    "title": "Today's reservations",
+    "empty": "No unseated reservation.",
+    "party": {
+      "one": "{count} guest",
+      "few": "{count} guests",
+      "other": "{count} guests"
+    },
+    "pickTableAriaLabel": "Choose a table for {name}",
+    "pickTablePlaceholder": "Choose a table…",
+    "tableOption": "{label} ({min}–{max})",
+    "seat": "Seat"
+  },
+  "walkinPanel": {
+    "title": "Waiting list",
+    "namePlaceholder": "Guest name",
+    "partyAriaLabel": "Guests",
+    "phonePlaceholder": "Phone (optional)",
+    "add": "Add to list",
+    "empty": "The list is empty.",
+    "party": "{count} guests",
+    "statusCalled": "Called",
+    "statusWaiting": "Waiting",
+    "waitSuffix": " · ~{minutes} min",
+    "call": "Call",
+    "seat": "Seat",
+    "left": "Left"
+  },
+  "floorPlan": {
+    "toggleLayout": "Layout",
+    "toggleTonight": "Tonight",
+    "tonightSummary": "{booked} reserved · {free} free",
+    "free": "Free",
+    "seatCount": "{count} seats",
+    "entrance": "Entrance",
+    "toastUpdateFailed": "The change was not saved.",
+    "toastAddFailed": "The table was not added.",
+    "toastDeleteFailed": "The table was not deleted."
+  },
+  "emptyInspector": {
+    "title": "Floor plan",
+    "body": "Tap a table on the plan to edit its details, or add a new one.",
+    "addTable": "Add table",
+    "dragHint": "Drag the tables to rearrange them."
+  },
+  "editInspector": {
+    "title": "Table {label}",
+    "deleteTableAriaLabel": "Delete table",
+    "labelLabel": "Label",
+    "sectionLabel": "Section",
+    "shapeLabel": "Shape",
+    "shapeRound": "Round",
+    "shapeSquare": "Rectangle",
+    "capacityLabel": "Capacity",
+    "capacityUnit": "guests",
+    "bookableOnline": "Bookable online",
+    "bookableOnlineHint": "Appears in the booking engine"
+  },
+  "tonightInspector": {
+    "title": "Tonight",
+    "summary": "{reservations} reservations · {covers} covers",
+    "empty": "No reservation for tonight.",
+    "guestParty": "{time} · {count} guests"
+  },
+  "sections": {
+    "heading": "Sections ({count})",
+    "newSection": "New section",
+    "nameRequired": "The section name is required.",
+    "deleteConfirm": "Delete the section “{name}”? The tables in it remain intact, but lose their link to the section.",
+    "editAriaLabel": "Edit {name}",
+    "deleteAriaLabel": "Delete {name}",
+    "form": {
+      "nameLabel": "Section name",
+      "namePlaceholder": "e.g. Terrace, Main room",
+      "colorLabel": "Colour",
+      "colorOptional": "(#hex, opt.)",
+      "colorPlaceholder": "#aabbcc",
+      "sortOrderLabel": "Order",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save",
+      "add": "Add"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "page": {
+    "title": "Tischplan",
+    "subtitlePrefix": "Ordnen Sie die Tische und Bereiche für",
+    "subtitleSuffix": " visuell an. Ziehen Sie im Plan, um umzuordnen; bearbeiten Sie die Details im Bedienfeld.",
+    "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
+  },
+  "live": {
+    "title": "Saal — live",
+    "freeNow": {
+      "one": "{count} freier Tisch",
+      "few": "{count} freie Tische",
+      "other": "{count} freie Tische"
+    },
+    "now": "jetzt",
+    "totalSuffix": "{count} Tische insgesamt",
+    "editPlan": "Plan bearbeiten →",
+    "noAccess": "Sie haben keinen Zugriff auf den Tischplan."
+  },
+  "status": {
+    "free": "Frei",
+    "booked": "Reserviert",
+    "seated": "Belegt",
+    "paying": "Zahlt",
+    "dirty": "Abzuräumen",
+    "combined": "Kombiniert",
+    "blocked": "Gesperrt"
+  },
+  "liveFloor": {
+    "noSection": "Ohne Bereich",
+    "combineCancel": "Kombinieren abbrechen",
+    "combineStart": "Tische kombinieren",
+    "combineSelection": "Auswahl kombinieren ({count})",
+    "selected": "✓ Ausgewählt",
+    "select": "Auswählen",
+    "dissolve": "Auflösen",
+    "transitionTo": "→ {status}",
+    "clearReasonPrompt": "Grund (optional): Walkout / Comp / anderer Grund",
+    "errorInvalidTransition": "Ungültiger Übergang.",
+    "errorFailed": "Die Aktion ist fehlgeschlagen."
+  },
+  "reservationsPanel": {
+    "title": "Heutige Reservierungen",
+    "empty": "Keine nicht platzierte Reservierung.",
+    "party": {
+      "one": "{count} Gast",
+      "few": "{count} Gäste",
+      "other": "{count} Gäste"
+    },
+    "pickTableAriaLabel": "Tisch für {name} auswählen",
+    "pickTablePlaceholder": "Tisch auswählen…",
+    "tableOption": "{label} ({min}–{max})",
+    "seat": "Platzieren"
+  },
+  "walkinPanel": {
+    "title": "Warteliste",
+    "namePlaceholder": "Name des Gastes",
+    "partyAriaLabel": "Gäste",
+    "phonePlaceholder": "Telefon (optional)",
+    "add": "Zur Liste hinzufügen",
+    "empty": "Die Liste ist leer.",
+    "party": "{count} Gäste",
+    "statusCalled": "Gerufen",
+    "statusWaiting": "Wartet",
+    "waitSuffix": " · ~{minutes} Min.",
+    "call": "Rufen",
+    "seat": "Platzieren",
+    "left": "Gegangen"
+  },
+  "floorPlan": {
+    "toggleLayout": "Anordnung",
+    "toggleTonight": "Heute Abend",
+    "tonightSummary": "{booked} reserviert · {free} frei",
+    "free": "Frei",
+    "seatCount": "{count} Plätze",
+    "entrance": "Eingang",
+    "toastUpdateFailed": "Die Änderung wurde nicht gespeichert.",
+    "toastAddFailed": "Der Tisch wurde nicht hinzugefügt.",
+    "toastDeleteFailed": "Der Tisch wurde nicht gelöscht."
+  },
+  "emptyInspector": {
+    "title": "Tischplan",
+    "body": "Tippen Sie auf einen Tisch im Plan, um seine Details zu bearbeiten, oder fügen Sie einen neuen hinzu.",
+    "addTable": "Tisch hinzufügen",
+    "dragHint": "Ziehen Sie die Tische, um sie umzuordnen."
+  },
+  "editInspector": {
+    "title": "Tisch {label}",
+    "deleteTableAriaLabel": "Tisch löschen",
+    "labelLabel": "Bezeichnung",
+    "sectionLabel": "Bereich",
+    "shapeLabel": "Form",
+    "shapeRound": "Rund",
+    "shapeSquare": "Rechteck",
+    "capacityLabel": "Kapazität",
+    "capacityUnit": "Gäste",
+    "bookableOnline": "Online buchbar",
+    "bookableOnlineHint": "Erscheint im Buchungssystem"
+  },
+  "tonightInspector": {
+    "title": "Heute Abend",
+    "summary": "{reservations} Reservierungen · {covers} Gedecke",
+    "empty": "Keine Reservierung für heute Abend.",
+    "guestParty": "{time} · {count} Gäste"
+  },
+  "sections": {
+    "heading": "Bereiche ({count})",
+    "newSection": "Neuer Bereich",
+    "nameRequired": "Der Name des Bereichs ist erforderlich.",
+    "deleteConfirm": "Den Bereich „{name}“ löschen? Die darin enthaltenen Tische bleiben erhalten, verlieren aber die Zuordnung zum Bereich.",
+    "editAriaLabel": "{name} bearbeiten",
+    "deleteAriaLabel": "{name} löschen",
+    "form": {
+      "nameLabel": "Bereichsname",
+      "namePlaceholder": "z. B. Terrasse, Hauptsaal",
+      "colorLabel": "Farbe",
+      "colorOptional": "(#hex, opt.)",
+      "colorPlaceholder": "#aabbcc",
+      "sortOrderLabel": "Reihenfolge",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert…",
+      "save": "Speichern",
+      "add": "Hinzufügen"
+    }
+  }
+}

@@ -48,6 +48,10 @@ import roPartnerMenu from "@/messages/ro/partner.menu.json";
 import enPartnerMenu from "@/messages/en/partner.menu.json";
 import dePartnerMenu from "@/messages/de/partner.menu.json";
 
+import roPartnerTables from "@/messages/ro/partner.tables.json";
+import enPartnerTables from "@/messages/en/partner.tables.json";
+import dePartnerTables from "@/messages/de/partner.tables.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -899,6 +903,126 @@ export interface PartnerMenuMessages {
   };
 }
 
+/** Structural contract for the `partner.tables` namespace. */
+export interface PartnerTablesMessages {
+  page: {
+    title: string;
+    subtitlePrefix: string;
+    subtitleSuffix: string;
+    noRestaurant: string;
+  };
+  live: {
+    title: string;
+    freeNow: PluralBag;
+    now: string;
+    totalSuffix: string;
+    editPlan: string;
+    noAccess: string;
+  };
+  status: {
+    free: string;
+    booked: string;
+    seated: string;
+    paying: string;
+    dirty: string;
+    combined: string;
+    blocked: string;
+  };
+  liveFloor: {
+    noSection: string;
+    combineCancel: string;
+    combineStart: string;
+    combineSelection: string;
+    selected: string;
+    select: string;
+    dissolve: string;
+    transitionTo: string;
+    clearReasonPrompt: string;
+    errorInvalidTransition: string;
+    errorFailed: string;
+  };
+  reservationsPanel: {
+    title: string;
+    empty: string;
+    party: PluralBag;
+    pickTableAriaLabel: string;
+    pickTablePlaceholder: string;
+    tableOption: string;
+    seat: string;
+  };
+  walkinPanel: {
+    title: string;
+    namePlaceholder: string;
+    partyAriaLabel: string;
+    phonePlaceholder: string;
+    add: string;
+    empty: string;
+    party: string;
+    statusCalled: string;
+    statusWaiting: string;
+    waitSuffix: string;
+    call: string;
+    seat: string;
+    left: string;
+  };
+  floorPlan: {
+    toggleLayout: string;
+    toggleTonight: string;
+    tonightSummary: string;
+    free: string;
+    seatCount: string;
+    entrance: string;
+    toastUpdateFailed: string;
+    toastAddFailed: string;
+    toastDeleteFailed: string;
+  };
+  emptyInspector: {
+    title: string;
+    body: string;
+    addTable: string;
+    dragHint: string;
+  };
+  editInspector: {
+    title: string;
+    deleteTableAriaLabel: string;
+    labelLabel: string;
+    sectionLabel: string;
+    shapeLabel: string;
+    shapeRound: string;
+    shapeSquare: string;
+    capacityLabel: string;
+    capacityUnit: string;
+    bookableOnline: string;
+    bookableOnlineHint: string;
+  };
+  tonightInspector: {
+    title: string;
+    summary: string;
+    empty: string;
+    guestParty: string;
+  };
+  sections: {
+    heading: string;
+    newSection: string;
+    nameRequired: string;
+    deleteConfirm: string;
+    editAriaLabel: string;
+    deleteAriaLabel: string;
+    form: {
+      nameLabel: string;
+      namePlaceholder: string;
+      colorLabel: string;
+      colorOptional: string;
+      colorPlaceholder: string;
+      sortOrderLabel: string;
+      cancel: string;
+      saving: string;
+      save: string;
+      add: string;
+    };
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -956,6 +1080,11 @@ const CATALOGS = {
     en: enPartnerMenu,
     de: dePartnerMenu,
   } as Record<Locale, PartnerMenuMessages>,
+  "partner.tables": {
+    ro: roPartnerTables,
+    en: enPartnerTables,
+    de: dePartnerTables,
+  } as Record<Locale, PartnerTablesMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

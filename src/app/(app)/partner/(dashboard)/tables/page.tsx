@@ -4,6 +4,8 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, restaurantTables, restaurantTableSections, reservations } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { SectionsManager } from "./_components/SectionsManager";
 import { FloorPlanEditor } from "./_components/FloorPlanEditor";
 
@@ -13,13 +15,16 @@ export default async function TablesPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
 
+  const locale = await resolveAppLocale();
+  const t = getMessages(locale, "partner.tables");
+
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
     return (
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            Niciun restaurant asociat acestui cont.
+            {t.page.noRestaurant}
           </p>
         </div>
       </div>
@@ -116,12 +121,12 @@ export default async function TablesPage() {
       <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-            Plan sală
+            {t.page.title}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Aranjează mesele și secțiunile pentru{" "}
-            <span className="font-medium">{venue.name}</span> vizual. Trage pe plan
-            ca să rearanjezi; editează detaliile în panou.
+            {t.page.subtitlePrefix}{" "}
+            <span className="font-medium">{venue.name}</span>
+            {t.page.subtitleSuffix}
           </p>
         </div>
       </header>
