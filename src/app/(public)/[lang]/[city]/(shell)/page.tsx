@@ -6,25 +6,11 @@ import {
 } from "@/lib/repos/restaurants-repo";
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
-import { isLocale } from "@/lib/i18n/locale";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
+import { cityDisplayName } from "@/lib/i18n/city-name";
 import { FeedPageClient } from "./FeedPageClient";
 
 export const dynamic = "force-dynamic";
-
-const CITY_DISPLAY_NAMES: Record<string, string> = {
-  bucuresti: "București",
-  cluj: "Cluj",
-  timisoara: "Timișoara",
-  brasov: "Brașov",
-  iasi: "Iași",
-  istanbul: "Istanbul",
-};
-
-function formatCityName(slug: string): string {
-  return (
-    CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1)
-  );
-}
 
 export async function generateMetadata({
   params,
@@ -42,8 +28,9 @@ export default async function DiscoverFeedPage({
 }: {
   params: Promise<{ lang: string; city: string }>;
 }) {
-  const { city } = await params;
-  const displayCity = formatCityName(city);
+  const { lang: rawLang, city } = await params;
+  const lang = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const displayCity = cityDisplayName(lang, city);
 
   const [allRestaurants, trending, newest] = await Promise.all([
     getRestaurants(),

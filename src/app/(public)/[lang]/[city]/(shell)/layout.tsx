@@ -1,24 +1,10 @@
 import { getRestaurants } from "@/lib/repos/restaurants-repo";
 import { buildBundle } from "@/lib/i18n/messages";
 import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
+import { cityDisplayName } from "@/lib/i18n/city-name";
 import { CityShell } from "./CityShell";
 
 export const dynamic = "force-dynamic";
-
-const CITY_DISPLAY_NAMES: Record<string, string> = {
-  bucuresti: "București",
-  cluj: "Cluj",
-  timisoara: "Timișoara",
-  brasov: "Brașov",
-  iasi: "Iași",
-  istanbul: "Istanbul",
-};
-
-function formatCityName(slug: string): string {
-  return (
-    CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1)
-  );
-}
 
 export default async function CityShellLayout({
   children,
@@ -29,7 +15,7 @@ export default async function CityShellLayout({
 }) {
   const { lang: rawLang, city } = await params;
   const lang: Locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
-  const displayCity = formatCityName(city);
+  const displayCity = cityDisplayName(lang, city);
   const restaurants = await getRestaurants();
   const bundle = buildBundle(lang, ["common", "discovery", "restaurant", "booking", "events", "profile"]);
 

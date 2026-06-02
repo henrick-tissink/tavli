@@ -9,19 +9,7 @@ import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { translate, interpolate } from "@/lib/i18n/t";
-
-const CITY_DISPLAY_NAMES: Record<string, string> = {
-  bucuresti: "București",
-  cluj: "Cluj",
-  timisoara: "Timișoara",
-  brasov: "Brașov",
-  iasi: "Iași",
-  istanbul: "Istanbul",
-};
-
-function formatCityName(slug: string): string {
-  return CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
-}
+import { cityDisplayName } from "@/lib/i18n/city-name";
 
 /** Prefix a storefront path with the locale segment (skipping for the default locale). */
 function localizedHref(path: string, lang: string): string {
@@ -35,7 +23,7 @@ export async function generateMetadata({
 }) {
   const { lang, city } = await params;
   const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
-  const cityName = formatCityName(city);
+  const cityName = cityDisplayName(locale, city);
   const m = getMessages(locale, "events");
   return {
     title: interpolate(m.meta.title, { city: cityName }),
@@ -60,7 +48,7 @@ export default async function CityEventsPage({
     limit: 60,
   });
   if (!rows) notFound();
-  const cityCapitalised = formatCityName(city);
+  const cityCapitalised = cityDisplayName(locale, city);
 
   // venueCount plural text
   const venueCountText = translate(locale, m.landing.hero.venueCount, {

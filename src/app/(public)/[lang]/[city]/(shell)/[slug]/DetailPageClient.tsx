@@ -466,6 +466,9 @@ function InfoBlock({
   );
 }
 
+// i18n-allow-block: RO marketing-copy data used to synthesise an optional hero
+// descriptor. Localizing this adjective system is content work (Phase 1c), not
+// UI-chrome extraction.
 const CUISINE_ADJECTIVES: Record<string, string> = {
   Romanian: "autentic românesc",
   Italian: "cu savori italiene",

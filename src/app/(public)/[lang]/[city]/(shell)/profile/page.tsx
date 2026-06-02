@@ -12,6 +12,9 @@ import { AuthSheet } from "@/components/auth-sheet";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
 
+// i18n-allow-block: profile city switcher is built around RO display names
+// (CitySelector emits a display name → reverse-mapped to slug). Tracked for a
+// follow-up that refactors CitySelector to slug-based + common.cities labels.
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
   cluj: "Cluj",
@@ -20,6 +23,7 @@ const CITY_DISPLAY_NAMES: Record<string, string> = {
   iasi: "Iași",
 };
 
+// i18n-allow-block: reverse map for the city switcher (see above).
 const CITY_NAME_TO_SLUG: Record<string, string> = {
   București: "bucuresti",
   Cluj: "cluj",
