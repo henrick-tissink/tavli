@@ -1,0 +1,96 @@
+{
+  "page": {
+    "eyebrow": "Cont",
+    "title": "Facturare",
+    "noAccess": "Facturarea e gestionată de proprietarul organizației. Contul tău nu are acces la facturare."
+  },
+  "dunning": {
+    "softLockTitle": "Plata a expirat — unele funcții sunt suspendate.",
+    "softLockBody": "Actualizează cardul de mai jos pentru a relua accesul complet.",
+    "readOnlyTitle": "Abonament suspendat — portalul e în doar-citire.",
+    "readOnlyBody": "Actualizează cardul pentru a reactiva contul. Datele tale sunt în siguranță."
+  },
+  "trial": {
+    "title": {
+      "one": "Perioada gratuită se încheie în {days} zi.",
+      "few": "Perioada gratuită se încheie în {days} zile.",
+      "other": "Perioada gratuită se încheie în {days} zile."
+    },
+    "body": "Pe {date} vom încasa {amount} de pe cardul salvat. Anulează oricând până atunci."
+  },
+  "summary": {
+    "planEyebrow": "Planul tău",
+    "amountMonthly": "{price}/lună",
+    "amountAnnual": "{price}/an",
+    "statusLabel": "Stare",
+    "billingLabel": "Facturare",
+    "annual": "Anual",
+    "monthly": "Lunar",
+    "nextRenewal": "Următoarea reînnoire",
+    "extraLocations": "Locații suplimentare",
+    "pendingAnnual": "Schimbare programată la {date}: facturare anuală.",
+    "pendingMonthly": "Schimbare programată la {date}: facturare lunară."
+  },
+  "invoices": {
+    "title": "Facturi recente",
+    "view": "Vezi"
+  },
+  "none": {
+    "title": "Niciun abonament activ",
+    "body": "Organizația ta nu are încă un abonament Tavli. Începe perioada gratuită de 3 luni — nu plătești nimic până în ziua 91.",
+    "cta": "Vezi planurile"
+  },
+  "actionsBar": {
+    "updateCard": "Actualizează cardul",
+    "changePlan": "Schimbă planul",
+    "cancelSubscription": "Anulează abonamentul",
+    "portalUnavailable": "Portalul de plată nu e disponibil momentan."
+  },
+  "changePlan": {
+    "title": "Schimbă planul",
+    "tierHeading": "Nivel",
+    "tierBodyPrefix": "Ești pe ",
+    "tierBodySuffix": ". Schimbarea se aplică imediat.",
+    "tierCurrentPro": "Tavli Pro",
+    "tierCurrentBase": "Tavli",
+    "switchToPro": "Trec pe Tavli Pro",
+    "switchToBase": "Trec pe Tavli (Base)",
+    "frequencyHeading": "Frecvență",
+    "frequencyBodyPrefix": "Plătești ",
+    "frequencyBodySuffix": ". Schimbarea se aplică la finalul perioadei{periodEnd} — fără plată acum.",
+    "frequencyCurrentAnnual": "anual",
+    "frequencyCurrentMonthly": "lunar",
+    "switchToAnnual": "Cere trecerea la plată anuală (2 luni gratuite)",
+    "switchToMonthly": "Cere trecerea la plată lunară",
+    "toastSwitchedPro": "Ai trecut pe Tavli Pro.",
+    "toastSwitchedBase": "Ai trecut pe Tavli.",
+    "toastTierLimit": "Nu poți trece pe Base cu mai mult de o locație. Elimină locațiile suplimentare întâi.",
+    "toastTierFailed": "Schimbarea planului nu a reușit.",
+    "toastFrequencyApplied": "Schimbarea se aplică la {date}.",
+    "toastFrequencyAppliedEnd": "Schimbarea se aplică la finalul perioadei.",
+    "toastFrequencyFailed": "Schimbarea frecvenței nu a reușit."
+  },
+  "cancel": {
+    "title": "Anulează abonamentul",
+    "intro": "Anularea e un singur clic — fără tichet, fără apel de retenție. Îți predăm un export complet al datelor tale.",
+    "reasonLabel": "De ce pleci?",
+    "optional": "(opțional)",
+    "reasonPlaceholder": "Alege un motiv…",
+    "reasons": {
+      "too_expensive": "Prea scump",
+      "missing_feature": "Lipsește o funcție de care am nevoie",
+      "business_closing": "Închidem / pauză de business",
+      "switching_provider": "Trec la alt furnizor",
+      "temporary_pause": "Pauză temporară",
+      "other": "Alt motiv"
+    },
+    "feedbackLabel": "Ceva ce am putea face mai bine?",
+    "submitPeriodEnd": "Oprește facturarea la finalul perioadei",
+    "accessUntil": "Acces complet până la {date}",
+    "submitImmediate": "Anulează imediat",
+    "toastPeriodEnd": "Abonamentul se va încheia la finalul perioadei. Ai acces complet până atunci.",
+    "toastRefund": "Abonament anulat. Îți rambursăm €{amount} pro-rata.",
+    "toastCancelled": "Abonament anulat.",
+    "toastFailed": "Anularea nu a reușit. Încearcă din nou."
+  }
+}

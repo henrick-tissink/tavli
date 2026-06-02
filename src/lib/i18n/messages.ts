@@ -64,6 +64,10 @@ import roPartnerAnalytics from "@/messages/ro/partner.analytics.json";
 import enPartnerAnalytics from "@/messages/en/partner.analytics.json";
 import dePartnerAnalytics from "@/messages/de/partner.analytics.json";
 
+import roPartnerBilling from "@/messages/ro/partner.billing.json";
+import enPartnerBilling from "@/messages/en/partner.billing.json";
+import dePartnerBilling from "@/messages/de/partner.billing.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1264,6 +1268,86 @@ export interface PartnerAnalyticsMessages {
   };
 }
 
+/** Structural contract for the `partner.billing` namespace. */
+export interface PartnerBillingMessages {
+  page: { eyebrow: string; title: string; noAccess: string };
+  dunning: {
+    softLockTitle: string;
+    softLockBody: string;
+    readOnlyTitle: string;
+    readOnlyBody: string;
+  };
+  trial: { title: PluralBag; body: string };
+  summary: {
+    planEyebrow: string;
+    amountMonthly: string;
+    amountAnnual: string;
+    statusLabel: string;
+    billingLabel: string;
+    annual: string;
+    monthly: string;
+    nextRenewal: string;
+    extraLocations: string;
+    pendingAnnual: string;
+    pendingMonthly: string;
+  };
+  invoices: { title: string; view: string };
+  none: { title: string; body: string; cta: string };
+  actionsBar: {
+    updateCard: string;
+    changePlan: string;
+    cancelSubscription: string;
+    portalUnavailable: string;
+  };
+  changePlan: {
+    title: string;
+    tierHeading: string;
+    tierBodyPrefix: string;
+    tierBodySuffix: string;
+    tierCurrentPro: string;
+    tierCurrentBase: string;
+    switchToPro: string;
+    switchToBase: string;
+    frequencyHeading: string;
+    frequencyBodyPrefix: string;
+    frequencyBodySuffix: string;
+    frequencyCurrentAnnual: string;
+    frequencyCurrentMonthly: string;
+    switchToAnnual: string;
+    switchToMonthly: string;
+    toastSwitchedPro: string;
+    toastSwitchedBase: string;
+    toastTierLimit: string;
+    toastTierFailed: string;
+    toastFrequencyApplied: string;
+    toastFrequencyAppliedEnd: string;
+    toastFrequencyFailed: string;
+  };
+  cancel: {
+    title: string;
+    intro: string;
+    reasonLabel: string;
+    optional: string;
+    reasonPlaceholder: string;
+    reasons: {
+      too_expensive: string;
+      missing_feature: string;
+      business_closing: string;
+      switching_provider: string;
+      temporary_pause: string;
+      other: string;
+    };
+    feedbackLabel: string;
+    submitPeriodEnd: string;
+    accessUntil: string;
+    submitImmediate: string;
+    toastPeriodEnd: string;
+    toastRefund: string;
+    toastCancelled: string;
+    toastFailed: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1341,6 +1425,11 @@ const CATALOGS = {
     en: enPartnerAnalytics,
     de: dePartnerAnalytics,
   } as Record<Locale, PartnerAnalyticsMessages>,
+  "partner.billing": {
+    ro: roPartnerBilling,
+    en: enPartnerBilling,
+    de: dePartnerBilling,
+  } as Record<Locale, PartnerBillingMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;
