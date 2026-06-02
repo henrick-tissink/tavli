@@ -67,7 +67,7 @@
         "errorIncorrect": "Incorrect code."
       },
       "title": "Two-factor authentication",
-      "introDisabled": "A second factor on your account means a stolen password isn’t enough to sign in. We recommend using an authenticator app on your phone.",
+      "introDisabled": "A second factor on your account means a stolen password isn't enough to sign in. We recommend using an authenticator app on your phone.",
       "setUp": "Set up authenticator",
       "settingUp": "Setting up…",
       "enabledText": "Enabled. Sign-in requires a code from your app.",
@@ -106,7 +106,7 @@
     },
     "sessions": {
       "title": "Active sessions",
-      "intro": "Sign out of every device you’re signed in on, including this one.",
+      "intro": "Sign out of every device you're signed in on, including this one.",
       "confirm": "Sign out from every device, including this one?",
       "signingOut": "Signing out…",
       "signOut": "Sign out everywhere"
