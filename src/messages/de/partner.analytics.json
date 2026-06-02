@@ -1,0 +1,135 @@
+{
+  "page": {
+    "noVenue": "Diesem Konto ist kein Restaurant zugeordnet."
+  },
+  "view": {
+    "eyebrow": "Analysen",
+    "subtitlePro": "Pro-Tarif — vollständige Historie und erweiterte Panels.",
+    "subtitleBase": "Aktivität der letzten 12 Monate.",
+    "exportData": "Daten exportieren",
+    "emptyTitle": "Noch keine Daten",
+    "emptyBody": "Nach Ihren ersten Reservierungen sehen Sie hier Gedecke, Nichterscheinen, Gruppenmix und Traffic-Quellen — jede Nacht aktualisiert.",
+    "delta": {
+      "up": "▲ +{n} ggü. Vorwoche",
+      "down": "▼ {n} ggü. Vorwoche",
+      "unchanged": "— unverändert"
+    },
+    "stats": {
+      "bookings": "Reservierungen",
+      "covers": "Gedecke",
+      "completed": "Abgeschlossen",
+      "noShows": "Nichterscheinen"
+    },
+    "proTitle": "Pro-Panels",
+    "proGate": {
+      "title": "Erweiterte Analysen",
+      "body": "Heatmap der Nichterscheinen, Kohortenbindung, Verteilung der Vorlaufzeit, Quellenzuordnung und eine 4-Wochen-Prognose — verfügbar mit dem Pro-Tarif.",
+      "cta": "Auf Pro upgraden"
+    }
+  },
+  "charts": {
+    "coversPerService": {
+      "kicker": "Letzte 30 Tage",
+      "title": "Gedecke pro Service",
+      "empty": "Gedecke pro Service erscheinen nach Ihren ersten abgeschlossenen Reservierungen.",
+      "seriesCovers": "Gedecke"
+    },
+    "noShowTrend": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Nichterscheinen-Rate",
+      "empty": "Der Trend der Nichterscheinen erscheint, sobald sich Reservierungen ansammeln.",
+      "seriesRate": "Rate"
+    },
+    "partyMix": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Gruppenmix",
+      "empty": "Die Verteilung der Gruppengrößen erscheint nach Ihren ersten Reservierungen.",
+      "seriesBookings": "Reservierungen"
+    },
+    "cancellations": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Stornogründe",
+      "empty": "Keine Stornierungen in diesem Zeitraum — ausgezeichnet."
+    },
+    "heatMap": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Heatmap Nichterscheinen",
+      "empty": "Die Heatmap erscheint nach 30 Tagen mit Reservierungen.",
+      "noData": "keine Daten",
+      "cellTitle": "{day} {hour}:00 — {pct}% Nichterscheinen"
+    },
+    "cohort": {
+      "kicker": "Monat für Monat",
+      "title": "Kohortenbindung",
+      "empty": "Die Kohortenbindung erscheint, sobald Gäste wiederkommen.",
+      "header": "Kohorte"
+    },
+    "leadTime": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Vorlaufzeit bis zur Reservierung (Median)",
+      "empty": "Die Verteilung der Vorlaufzeit erscheint nach Ihren ersten Reservierungen.",
+      "seriesMedian": "Median (Min.)",
+      "seriesP90": "P90 (Min.)"
+    },
+    "channel": {
+      "kicker": "Letzte 90 Tage",
+      "title": "Quellenzuordnung",
+      "empty": "Die Quellenzuordnung erscheint nach Ihren ersten Reservierungen mit identifiziertem Gast.",
+      "seriesBookings": "Reservierungen"
+    },
+    "forecast": {
+      "kicker": "Nächste 28 Tage",
+      "title": "Gedecke-Prognose",
+      "empty": "Die Prognose erscheint nach 12 Wochen mit Reservierungen für jeden Wochentag.",
+      "seriesPredicted": "Prognose",
+      "seriesConfirmed": "Bereits bestätigt"
+    }
+  },
+  "chartKit": {
+    "smallSample": "Kleine Stichprobe — mit Vorsicht interpretieren."
+  },
+  "serviceLabels": {
+    "brunch": "Brunch",
+    "lunch": "Mittagessen",
+    "dinner": "Abendessen",
+    "late": "Spät",
+    "all_day": "Ganztägig"
+  },
+  "cancelReasons": {
+    "restaurant_closed": "Restaurant geschlossen",
+    "overbooked": "Überbuchung",
+    "kitchen_issue": "Küche",
+    "private_event": "Private Veranstaltung",
+    "other": "Sonstiges",
+    "diner": "Gast"
+  },
+  "channels": {
+    "widget": "Widget",
+    "venue_page": "Lokalseite",
+    "editorial": "Redaktionell",
+    "corporate": "Corporate",
+    "walk_in": "Walk-in",
+    "manual": "Manuell",
+    "unknown": "Unbekannt"
+  },
+  "export": {
+    "eyebrow": "Export",
+    "title": "Daten herunterladen",
+    "close": "Schließen",
+    "doneTitle": "Ihr Export wird vorbereitet",
+    "doneBody": "Wir senden Ihnen einen Download-Link per E-Mail, sobald er bereit ist (~5 Min.).",
+    "doneAck": "Verstanden",
+    "dateFrom": "Von",
+    "dateTo": "Bis",
+    "includeLegend": "Einschließen",
+    "reservationsAlways": "Reservierungen (immer enthalten)",
+    "tables": {
+      "diners": "Gäste (personenbezogene Daten)",
+      "reviews": "Bewertungen"
+    },
+    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "cancel": "Abbrechen",
+    "submitting": "Wird gesendet…",
+    "submit": "Export erstellen"
+  }
+}

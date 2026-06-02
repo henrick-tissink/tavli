@@ -8,11 +8,12 @@
 import { useState } from "react";
 import { X, Download, Loader2, MailCheck } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import { requestAnalyticsExport } from "../export-actions";
 
 const OPTIONAL_TABLES = [
-  { key: "diners", label: "Clienți (date personale)" },
-  { key: "reviews", label: "Recenzii" },
+  { key: "diners" },
+  { key: "reviews" },
 ] as const;
 
 export function ExportModal({
@@ -24,6 +25,7 @@ export function ExportModal({
   restaurantIds: string[];
   onClose: () => void;
 }) {
+  const t = useT("partner.analytics");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [includes, setIncludes] = useState<string[]>(["diners", "reviews"]);
@@ -48,7 +50,7 @@ export function ExportModal({
       setState("done");
     } else {
       setState("error");
-      setError(res.error ?? "Ceva n-a mers. Încearcă din nou.");
+      setError(res.error ?? t("export.genericError"));
     }
   }
 
@@ -63,10 +65,10 @@ export function ExportModal({
       >
         <div className="mb-5 flex items-start justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-primary">Export</p>
-            <h2 className="font-display text-2xl font-bold text-text-primary">Descarcă datele</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-primary">{t("export.eyebrow")}</p>
+            <h2 className="font-display text-2xl font-bold text-text-primary">{t("export.title")}</h2>
           </div>
-          <button onClick={onClose} aria-label="Închide" className="text-text-muted hover:text-text-primary">
+          <button onClick={onClose} aria-label={t("export.close")} className="text-text-muted hover:text-text-primary">
             <X size={20} />
           </button>
         </div>
@@ -74,12 +76,12 @@ export function ExportModal({
         {state === "done" ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <MailCheck size={36} className="text-brand-primary" />
-            <p className="text-text-primary font-semibold">Pregătim exportul tău</p>
+            <p className="text-text-primary font-semibold">{t("export.doneTitle")}</p>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Îți trimitem un link de descărcare pe email când e gata (~5 min).
+              {t("export.doneBody")}
             </p>
             <Button variant="secondary" onClick={onClose} className="mt-2">
-              Am înțeles
+              {t("export.doneAck")}
             </Button>
           </div>
         ) : (
@@ -87,7 +89,7 @@ export function ExportModal({
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
-                  <span className="text-xs font-semibold text-text-secondary">De la</span>
+                  <span className="text-xs font-semibold text-text-secondary">{t("export.dateFrom")}</span>
                   <input
                     type="date"
                     value={dateFrom}
@@ -96,7 +98,7 @@ export function ExportModal({
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-semibold text-text-secondary">Până la</span>
+                  <span className="text-xs font-semibold text-text-secondary">{t("export.dateTo")}</span>
                   <input
                     type="date"
                     value={dateTo}
@@ -107,20 +109,20 @@ export function ExportModal({
               </div>
 
               <fieldset>
-                <legend className="text-xs font-semibold text-text-secondary mb-2">Include</legend>
+                <legend className="text-xs font-semibold text-text-secondary mb-2">{t("export.includeLegend")}</legend>
                 <div className="flex flex-col gap-2">
                   <span className="flex items-center gap-2 text-sm text-text-muted">
-                    <input type="checkbox" checked disabled className="accent-brand-primary" /> Rezervări (mereu incluse)
+                    <input type="checkbox" checked disabled className="accent-brand-primary" /> {t("export.reservationsAlways")}
                   </span>
-                  {OPTIONAL_TABLES.map((t) => (
-                    <label key={t.key} className="flex items-center gap-2 text-sm text-text-primary">
+                  {OPTIONAL_TABLES.map((tbl) => (
+                    <label key={tbl.key} className="flex items-center gap-2 text-sm text-text-primary">
                       <input
                         type="checkbox"
-                        checked={includes.includes(t.key)}
-                        onChange={() => toggle(t.key)}
+                        checked={includes.includes(tbl.key)}
+                        onChange={() => toggle(tbl.key)}
                         className="accent-brand-primary"
                       />
-                      {t.label}
+                      {t(`export.tables.${tbl.key}`)}
                     </label>
                   ))}
                 </div>
@@ -131,16 +133,16 @@ export function ExportModal({
 
             <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={onClose}>
-                Anulează
+                {t("export.cancel")}
               </Button>
               <Button onClick={submit} disabled={state === "submitting"}>
                 {state === "submitting" ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin" /> Se trimite…
+                    <Loader2 size={16} className="animate-spin" /> {t("export.submitting")}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <Download size={16} /> Generează export
+                    <Download size={16} /> {t("export.submit")}
                   </span>
                 )}
               </Button>

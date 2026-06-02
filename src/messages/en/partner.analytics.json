@@ -1,0 +1,135 @@
+{
+  "page": {
+    "noVenue": "No restaurant linked to this account."
+  },
+  "view": {
+    "eyebrow": "Analytics",
+    "subtitlePro": "Pro plan — full history and advanced panels.",
+    "subtitleBase": "Last 12 months of activity.",
+    "exportData": "Export data",
+    "emptyTitle": "No data yet",
+    "emptyBody": "After your first reservations, you'll see covers, no-shows, party mix and traffic sources here — updated every night.",
+    "delta": {
+      "up": "▲ +{n} vs last week",
+      "down": "▼ {n} vs last week",
+      "unchanged": "— unchanged"
+    },
+    "stats": {
+      "bookings": "Reservations",
+      "covers": "Covers",
+      "completed": "Completed",
+      "noShows": "No-shows"
+    },
+    "proTitle": "Pro panels",
+    "proGate": {
+      "title": "Advanced analytics",
+      "body": "No-show heat map, cohort retention, booking lead-time distribution, source attribution and a 4-week forecast — available with the Pro plan.",
+      "cta": "Upgrade to Pro"
+    }
+  },
+  "charts": {
+    "coversPerService": {
+      "kicker": "Last 30 days",
+      "title": "Covers per service",
+      "empty": "Covers per service appear after your first completed reservations.",
+      "seriesCovers": "Covers"
+    },
+    "noShowTrend": {
+      "kicker": "Last 90 days",
+      "title": "No-show rate",
+      "empty": "The no-show trend appears as reservations build up.",
+      "seriesRate": "Rate"
+    },
+    "partyMix": {
+      "kicker": "Last 90 days",
+      "title": "Party mix",
+      "empty": "The party-size distribution appears after your first reservations.",
+      "seriesBookings": "Reservations"
+    },
+    "cancellations": {
+      "kicker": "Last 90 days",
+      "title": "Cancellation reasons",
+      "empty": "No cancellations in this period — excellent."
+    },
+    "heatMap": {
+      "kicker": "Last 90 days",
+      "title": "No-show heat map",
+      "empty": "The heat map appears after 30 days of reservations.",
+      "noData": "no data",
+      "cellTitle": "{day} {hour}:00 — {pct}% no-shows"
+    },
+    "cohort": {
+      "kicker": "Month by month",
+      "title": "Cohort retention",
+      "empty": "Cohort retention appears as guests return.",
+      "header": "Cohort"
+    },
+    "leadTime": {
+      "kicker": "Last 90 days",
+      "title": "Booking lead time (median)",
+      "empty": "The booking lead-time distribution appears after your first reservations.",
+      "seriesMedian": "Median (min)",
+      "seriesP90": "P90 (min)"
+    },
+    "channel": {
+      "kicker": "Last 90 days",
+      "title": "Source attribution",
+      "empty": "Source attribution appears after your first reservations with an identified guest.",
+      "seriesBookings": "Reservations"
+    },
+    "forecast": {
+      "kicker": "Next 28 days",
+      "title": "Covers forecast",
+      "empty": "The forecast appears after 12 weeks of reservations for each day of the week.",
+      "seriesPredicted": "Forecast",
+      "seriesConfirmed": "Already confirmed"
+    }
+  },
+  "chartKit": {
+    "smallSample": "Small sample — interpret with caution."
+  },
+  "serviceLabels": {
+    "brunch": "Brunch",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "late": "Late",
+    "all_day": "All day"
+  },
+  "cancelReasons": {
+    "restaurant_closed": "Restaurant closed",
+    "overbooked": "Overbooked",
+    "kitchen_issue": "Kitchen",
+    "private_event": "Private event",
+    "other": "Other",
+    "diner": "Guest"
+  },
+  "channels": {
+    "widget": "Widget",
+    "venue_page": "Venue page",
+    "editorial": "Editorial",
+    "corporate": "Corporate",
+    "walk_in": "Walk-in",
+    "manual": "Manual",
+    "unknown": "Unknown"
+  },
+  "export": {
+    "eyebrow": "Export",
+    "title": "Download your data",
+    "close": "Close",
+    "doneTitle": "Preparing your export",
+    "doneBody": "We'll email you a download link when it's ready (~5 min).",
+    "doneAck": "Got it",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "includeLegend": "Include",
+    "reservationsAlways": "Reservations (always included)",
+    "tables": {
+      "diners": "Guests (personal data)",
+      "reviews": "Reviews"
+    },
+    "genericError": "Something went wrong. Please try again.",
+    "cancel": "Cancel",
+    "submitting": "Sending…",
+    "submit": "Generate export"
+  }
+}
