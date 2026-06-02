@@ -1,11 +1,18 @@
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { InvitationForm } from "@/components/admin/InvitationForm";
 import { InvitationRow } from "@/components/admin/InvitationRow";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminInvitationsPage() {
   const supabase = await createSupabaseServerClient();
+  const localeRaw = await resolveAppLocale();
+  const locale = isLocale(localeRaw) ? localeRaw : DEFAULT_LOCALE;
+  const m = getMessages(locale, "admin.invitations");
 
   const [{ data: cities }, { data: invitations, error }] = await Promise.all([
     supabase.from("cities").select("id, name").eq("is_active", true).order("name"),
@@ -22,29 +29,28 @@ export default async function AdminInvitationsPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-6xl">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Invitations
+          {m.page.title}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Invite restaurants to onboard on Tavli. They&apos;ll get an email link
-          that opens their onboarding wizard.
+          {m.page.subtitle}
         </p>
       </header>
 
       <section className="mb-8">
         <h2 className="font-display text-xl font-bold text-text-primary mb-3">
-          New invitation
+          {m.page.newHeading}
         </h2>
         <InvitationForm cities={cities ?? []} />
       </section>
 
       <section>
         <h2 className="font-display text-xl font-bold text-text-primary mb-3">
-          Sent
+          {m.page.sentHeading}
         </h2>
 
         {error && (
           <div className="bg-red-50 text-red-900 border border-red-200 rounded-card p-4 text-sm mb-4">
-            Could not load invitations: {error.message}
+            {interpolate(m.page.loadError, { message: error.message })}
           </div>
         )}
 
@@ -52,13 +58,13 @@ export default async function AdminInvitationsPage() {
           <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
-                <th className="px-4 py-3 font-semibold text-text-secondary">Email</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Restaurant</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">City</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Status</th>
-                <th className="px-4 py-3 font-semibold text-text-secondary">Expires</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{m.page.table.email}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{m.page.table.restaurant}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{m.page.table.city}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{m.page.table.status}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{m.page.table.expires}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary text-right">
-                  Actions
+                  {m.page.table.actions}
                 </th>
               </tr>
             </thead>
@@ -83,7 +89,7 @@ export default async function AdminInvitationsPage() {
               {(!invitations || invitations.length === 0) && (
                 <tr>
                   <td colSpan={6} className="px-4 py-10 text-center text-text-muted">
-                    No invitations yet. Send one above to get started.
+                    {m.page.empty}
                   </td>
                 </tr>
               )}

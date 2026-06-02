@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Invitații",
+    "subtitle": "Invită restaurante să se înscrie pe Tavli. Vor primi un link prin e-mail care le deschide asistentul de configurare.",
+    "newHeading": "Invitație nouă",
+    "sentHeading": "Trimise",
+    "loadError": "Nu s-au putut încărca invitațiile: {message}",
+    "table": {
+      "email": "E-mail",
+      "restaurant": "Restaurant",
+      "city": "Oraș",
+      "status": "Stare",
+      "expires": "Expiră",
+      "actions": "Acțiuni"
+    },
+    "empty": "Nicio invitație încă. Trimite una mai sus pentru a începe."
+  },
+  "form": {
+    "emailLabel": "E-mail de contact",
+    "emailPlaceholder": "partener@restaurant.ro",
+    "cityLabel": "Oraș",
+    "cityPlaceholder": "Alege un oraș…",
+    "nameLabel": "Numele restaurantului",
+    "nameOptional": "(opțional — partenerul poate completa)",
+    "namePlaceholder": "Casa Veche",
+    "submitPending": "Se trimite…",
+    "submit": "Trimite invitația",
+    "devModeTitle": "Mod dezvoltare — e-mailul nu a fost trimis",
+    "sentTitle": "Invitație trimisă",
+    "devModeHint": "Setează RESEND_API_KEY în .env.local pentru a trimite e-mailuri reale. Între timp, distribuie acest link manual:",
+    "sentHint": "O copie a linkului de invitație mai jos — copiază-l dacă vrei să-l distribui direct.",
+    "copyAriaLabel": "Copiază URL-ul invitației",
+    "copied": "Copiat",
+    "copy": "Copiază",
+    "toastSent": "E-mailul de invitație a fost trimis.",
+    "toastCopied": "Link copiat."
+  },
+  "row": {
+    "empty": "—",
+    "resend": "Retrimite",
+    "revoke": "Revocă",
+    "reissue": "Reemite",
+    "accepted": "Acceptată",
+    "revokeConfirm": "Revoci invitația pentru {email}?",
+    "toastResendFailed": "Retrimiterea a eșuat: {error}",
+    "toastDevLinkCopied": "Link nou copiat (mod dezvoltare — e-mailul nu a fost trimis).",
+    "toastDevLink": "Link mod dezvoltare: {url}",
+    "toastResent": "E-mail nou de invitație trimis.",
+    "toastRevoked": "Invitație revocată."
+  },
+  "status": {
+    "pending": "în așteptare",
+    "claimed": "acceptată",
+    "expired": "expirată",
+    "revoked": "revocată"
+  },
+  "email": {
+    "subject": "Ești invitat pe Tavli",
+    "subjectNamed": "Ești invitat pe Tavli — {name}",
+    "subjectResent": "Invitația ta Tavli (retrimisă)"
+  },
+  "errors": {
+    "unauthorised": "Neautorizat.",
+    "validEmailRequired": "Este necesar un e-mail valid.",
+    "cityRequired": "Orașul este obligatoriu.",
+    "notFound": "Invitația nu a fost găsită."
+  }
+}

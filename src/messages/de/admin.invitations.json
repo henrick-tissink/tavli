@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Einladungen",
+    "subtitle": "Laden Sie Restaurants ein, sich bei Tavli zu registrieren. Sie erhalten einen E-Mail-Link, der ihren Onboarding-Assistenten öffnet.",
+    "newHeading": "Neue Einladung",
+    "sentHeading": "Gesendet",
+    "loadError": "Einladungen konnten nicht geladen werden: {message}",
+    "table": {
+      "email": "E-Mail",
+      "restaurant": "Restaurant",
+      "city": "Stadt",
+      "status": "Status",
+      "expires": "Läuft ab",
+      "actions": "Aktionen"
+    },
+    "empty": "Noch keine Einladungen. Senden Sie oben eine, um zu beginnen."
+  },
+  "form": {
+    "emailLabel": "Kontakt-E-Mail",
+    "emailPlaceholder": "partner@restaurant.ro",
+    "cityLabel": "Stadt",
+    "cityPlaceholder": "Stadt auswählen…",
+    "nameLabel": "Name des Restaurants",
+    "nameOptional": "(optional — der Partner kann es ausfüllen)",
+    "namePlaceholder": "Casa Veche",
+    "submitPending": "Wird gesendet…",
+    "submit": "Einladung senden",
+    "devModeTitle": "Entwicklungsmodus — E-Mail nicht gesendet",
+    "sentTitle": "Einladung gesendet",
+    "devModeHint": "Setzen Sie RESEND_API_KEY in .env.local, um echte E-Mails zu senden. Teilen Sie in der Zwischenzeit diesen Link manuell:",
+    "sentHint": "Eine Kopie des Einladungslinks unten — kopieren Sie ihn, wenn Sie ihn direkt teilen möchten.",
+    "copyAriaLabel": "Einladungs-URL kopieren",
+    "copied": "Kopiert",
+    "copy": "Kopieren",
+    "toastSent": "Einladungs-E-Mail gesendet.",
+    "toastCopied": "Link kopiert."
+  },
+  "row": {
+    "empty": "—",
+    "resend": "Erneut senden",
+    "revoke": "Widerrufen",
+    "reissue": "Neu ausstellen",
+    "accepted": "Angenommen",
+    "revokeConfirm": "Einladung an {email} widerrufen?",
+    "toastResendFailed": "Erneutes Senden fehlgeschlagen: {error}",
+    "toastDevLinkCopied": "Neuer Link kopiert (Entwicklungsmodus — E-Mail nicht gesendet).",
+    "toastDevLink": "Entwicklungsmodus-Link: {url}",
+    "toastResent": "Neue Einladungs-E-Mail gesendet.",
+    "toastRevoked": "Einladung widerrufen."
+  },
+  "status": {
+    "pending": "ausstehend",
+    "claimed": "angenommen",
+    "expired": "abgelaufen",
+    "revoked": "widerrufen"
+  },
+  "email": {
+    "subject": "Sie sind zu Tavli eingeladen",
+    "subjectNamed": "Sie sind zu Tavli eingeladen — {name}",
+    "subjectResent": "Ihre Tavli-Einladung (erneut gesendet)"
+  },
+  "errors": {
+    "unauthorised": "Nicht autorisiert.",
+    "validEmailRequired": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "cityRequired": "Stadt ist erforderlich.",
+    "notFound": "Einladung nicht gefunden."
+  }
+}

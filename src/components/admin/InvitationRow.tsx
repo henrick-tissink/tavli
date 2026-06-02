@@ -3,6 +3,8 @@
 import { useTransition } from "react";
 import { resendInvitation, revokeInvitation } from "@/app/(app)/admin/(gated)/invitations/actions";
 import { toast } from "@/components/toast";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { BCP47 } from "@/lib/i18n/locale";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-800",
@@ -22,6 +24,8 @@ export interface InvitationRowProps {
 }
 
 export function InvitationRow(invitation: InvitationRowProps) {
+  const t = useT("admin.invitations");
+  const locale = useLocale();
   const [pending, start] = useTransition();
 
   const expires = new Date(invitation.expiresAt);
@@ -32,25 +36,25 @@ export function InvitationRow(invitation: InvitationRowProps) {
     start(async () => {
       const result = await resendInvitation(invitation.id);
       if (!result.ok) {
-        toast.error(`Failed to resend: ${result.error}`);
+        toast.error(t("row.toastResendFailed", { error: result.error ?? "" }));
       } else if (result.devMode && result.url) {
         try {
           await navigator.clipboard.writeText(result.url);
-          toast.success("New link copied (dev mode — email not sent).");
+          toast.success(t("row.toastDevLinkCopied"));
         } catch {
-          toast.success(`Dev mode link: ${result.url}`);
+          toast.success(t("row.toastDevLink", { url: result.url }));
         }
       } else {
-        toast.success("New invitation email sent.");
+        toast.success(t("row.toastResent"));
       }
     });
   };
 
   const handleRevoke = () => {
-    if (!confirm(`Revoke invitation to ${invitation.email}?`)) return;
+    if (!confirm(t("row.revokeConfirm", { email: invitation.email }))) return;
     start(async () => {
       await revokeInvitation(invitation.id);
-      toast.success("Invitation revoked.");
+      toast.success(t("row.toastRevoked"));
     });
   };
 
@@ -60,10 +64,10 @@ export function InvitationRow(invitation: InvitationRowProps) {
         <p className="font-semibold text-text-primary">{invitation.email}</p>
       </td>
       <td className="px-4 py-3 text-text-secondary">
-        {invitation.proposedName ?? "—"}
+        {invitation.proposedName ?? t("row.empty")}
       </td>
       <td className="px-4 py-3 text-text-secondary">
-        {invitation.cityName ?? "—"}
+        {invitation.cityName ?? t("row.empty")}
       </td>
       <td className="px-4 py-3">
         <span
@@ -71,11 +75,11 @@ export function InvitationRow(invitation: InvitationRowProps) {
             STATUS_STYLES[displayStatus] ?? ""
           }`}
         >
-          {displayStatus}
+          {t(`status.${displayStatus}`)}
         </span>
       </td>
       <td className="px-4 py-3 text-xs text-text-muted">
-        {expires.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+        {expires.toLocaleDateString(BCP47[locale], { day: "numeric", month: "short" })}
       </td>
       <td className="px-4 py-3 text-right whitespace-nowrap">
         {invitation.status === "pending" && !expired && (
@@ -86,7 +90,7 @@ export function InvitationRow(invitation: InvitationRowProps) {
               disabled={pending}
               className="text-brand-primary text-xs font-semibold hover:underline mr-3"
             >
-              Resend
+              {t("row.resend")}
             </button>
             <button
               type="button"
@@ -94,7 +98,7 @@ export function InvitationRow(invitation: InvitationRowProps) {
               disabled={pending}
               className="text-error text-xs font-semibold hover:underline"
             >
-              Revoke
+              {t("row.revoke")}
             </button>
           </>
         )}
@@ -105,11 +109,11 @@ export function InvitationRow(invitation: InvitationRowProps) {
             disabled={pending}
             className="text-brand-primary text-xs font-semibold hover:underline"
           >
-            Reissue
+            {t("row.reissue")}
           </button>
         )}
         {invitation.status === "claimed" && (
-          <span className="text-xs text-text-muted">Accepted</span>
+          <span className="text-xs text-text-muted">{t("row.accepted")}</span>
         )}
       </td>
     </tr>

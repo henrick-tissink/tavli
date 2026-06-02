@@ -49,6 +49,9 @@ import deAdminDashboard from "@/messages/de/admin.dashboard.json";
 import roAdminRestaurants from "@/messages/ro/admin.restaurants.json";
 import enAdminRestaurants from "@/messages/en/admin.restaurants.json";
 import deAdminRestaurants from "@/messages/de/admin.restaurants.json";
+import roAdminInvitations from "@/messages/ro/admin.invitations.json";
+import enAdminInvitations from "@/messages/en/admin.invitations.json";
+import deAdminInvitations from "@/messages/de/admin.invitations.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -849,6 +852,71 @@ export interface AdminRestaurantsMessages {
   };
   errors: {
     unauthorised: string;
+  };
+}
+
+/** Structural contract for the `admin.invitations` namespace (restaurant onboarding invitations). */
+export interface AdminInvitationsMessages {
+  page: {
+    title: string;
+    subtitle: string;
+    newHeading: string;
+    sentHeading: string;
+    loadError: string;
+    table: {
+      email: string;
+      restaurant: string;
+      city: string;
+      status: string;
+      expires: string;
+      actions: string;
+    };
+    empty: string;
+  };
+  form: {
+    emailLabel: string;
+    emailPlaceholder: string;
+    cityLabel: string;
+    cityPlaceholder: string;
+    nameLabel: string;
+    nameOptional: string;
+    namePlaceholder: string;
+    submitPending: string;
+    submit: string;
+    devModeTitle: string;
+    sentTitle: string;
+    devModeHint: string;
+    sentHint: string;
+    copyAriaLabel: string;
+    copied: string;
+    copy: string;
+    toastSent: string;
+    toastCopied: string;
+  };
+  row: {
+    empty: string;
+    resend: string;
+    revoke: string;
+    reissue: string;
+    accepted: string;
+    revokeConfirm: string;
+    toastResendFailed: string;
+    toastDevLinkCopied: string;
+    toastDevLink: string;
+    toastResent: string;
+    toastRevoked: string;
+  };
+  status: Record<string, string>;
+  email: {
+    subject: string;
+    subjectNamed: string;
+    subjectResent: string;
+  };
+  errors: {
+    unauthorised: string;
+    validEmailRequired: string;
+    cityRequired: string;
+    notFound: string;
   };
 }
 
@@ -2342,6 +2410,11 @@ const CATALOGS = {
     en: enAdminRestaurants,
     de: deAdminRestaurants,
   } as Record<Locale, AdminRestaurantsMessages>,
+  "admin.invitations": {
+    ro: roAdminInvitations,
+    en: enAdminInvitations,
+    de: deAdminInvitations,
+  } as Record<Locale, AdminInvitationsMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,

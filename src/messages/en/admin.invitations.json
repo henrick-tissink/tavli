@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Invitations",
+    "subtitle": "Invite restaurants to onboard on Tavli. They'll get an email link that opens their onboarding wizard.",
+    "newHeading": "New invitation",
+    "sentHeading": "Sent",
+    "loadError": "Could not load invitations: {message}",
+    "table": {
+      "email": "Email",
+      "restaurant": "Restaurant",
+      "city": "City",
+      "status": "Status",
+      "expires": "Expires",
+      "actions": "Actions"
+    },
+    "empty": "No invitations yet. Send one above to get started."
+  },
+  "form": {
+    "emailLabel": "Contact email",
+    "emailPlaceholder": "partner@restaurant.ro",
+    "cityLabel": "City",
+    "cityPlaceholder": "Select a city…",
+    "nameLabel": "Restaurant name",
+    "nameOptional": "(optional — partner can fill)",
+    "namePlaceholder": "Casa Veche",
+    "submitPending": "Sending…",
+    "submit": "Send invitation",
+    "devModeTitle": "Dev mode — email not sent",
+    "sentTitle": "Invitation sent",
+    "devModeHint": "Set RESEND_API_KEY in .env.local to send real emails. In the meantime, share this link manually:",
+    "sentHint": "A copy of the invitation link below — copy if you want to share it directly.",
+    "copyAriaLabel": "Copy invitation URL",
+    "copied": "Copied",
+    "copy": "Copy",
+    "toastSent": "Invitation email sent.",
+    "toastCopied": "Link copied."
+  },
+  "row": {
+    "empty": "—",
+    "resend": "Resend",
+    "revoke": "Revoke",
+    "reissue": "Reissue",
+    "accepted": "Accepted",
+    "revokeConfirm": "Revoke invitation to {email}?",
+    "toastResendFailed": "Failed to resend: {error}",
+    "toastDevLinkCopied": "New link copied (dev mode — email not sent).",
+    "toastDevLink": "Dev mode link: {url}",
+    "toastResent": "New invitation email sent.",
+    "toastRevoked": "Invitation revoked."
+  },
+  "status": {
+    "pending": "pending",
+    "claimed": "claimed",
+    "expired": "expired",
+    "revoked": "revoked"
+  },
+  "email": {
+    "subject": "You're invited to Tavli",
+    "subjectNamed": "You're invited to Tavli — {name}",
+    "subjectResent": "Your Tavli invitation (resent)"
+  },
+  "errors": {
+    "unauthorised": "Unauthorised.",
+    "validEmailRequired": "Valid email is required.",
+    "cityRequired": "City is required.",
+    "notFound": "Invitation not found."
+  }
+}

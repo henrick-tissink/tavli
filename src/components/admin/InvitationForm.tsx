@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/button";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   createInvitation,
   type CreateInvitationResult,
@@ -15,6 +16,7 @@ interface City {
 }
 
 export function InvitationForm({ cities }: { cities: City[] }) {
+  const t = useT("admin.invitations");
   const [state, action, pending] = useActionState<
     CreateInvitationResult | undefined,
     FormData
@@ -24,15 +26,15 @@ export function InvitationForm({ cities }: { cities: City[] }) {
 
   useEffect(() => {
     if (state?.ok && !state.devMode) {
-      toast.success("Invitation email sent.");
+      toast.success(t("form.toastSent"));
     }
-  }, [state]);
+  }, [state, t]);
 
   const handleCopy = () => {
     if (!state?.invitationUrl) return;
     navigator.clipboard.writeText(state.invitationUrl);
     setCopied(true);
-    toast.success("Link copied.");
+    toast.success(t("form.toastCopied"));
     window.setTimeout(() => setCopied(false), 2000);
   };
 
@@ -41,21 +43,21 @@ export function InvitationForm({ cities }: { cities: City[] }) {
       <form action={action} className="space-y-4">
         <div className="space-y-1">
           <label className="block text-sm font-medium" htmlFor="email">
-            Contact email
+            {t("form.emailLabel")}
           </label>
           <input
             id="email"
             name="email"
             type="email"
             required
-            placeholder="partner@restaurant.ro"
+            placeholder={t("form.emailPlaceholder")}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
 
         <div className="space-y-1">
           <label className="block text-sm font-medium" htmlFor="cityId">
-            City
+            {t("form.cityLabel")}
           </label>
           <select
             id="cityId"
@@ -65,7 +67,7 @@ export function InvitationForm({ cities }: { cities: City[] }) {
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-surface-white"
           >
             <option value="" disabled>
-              Select a city…
+              {t("form.cityPlaceholder")}
             </option>
             {cities.map((c) => (
               <option key={c.id} value={c.id}>
@@ -77,13 +79,13 @@ export function InvitationForm({ cities }: { cities: City[] }) {
 
         <div className="space-y-1">
           <label className="block text-sm font-medium" htmlFor="proposedName">
-            Restaurant name <span className="text-text-muted font-normal">(optional — partner can fill)</span>
+            {t("form.nameLabel")} <span className="text-text-muted font-normal">{t("form.nameOptional")}</span>
           </label>
           <input
             id="proposedName"
             name="proposedName"
             type="text"
-            placeholder="Casa Veche"
+            placeholder={t("form.namePlaceholder")}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
@@ -95,7 +97,7 @@ export function InvitationForm({ cities }: { cities: City[] }) {
         )}
 
         <Button disabled={pending} type="submit">
-          {pending ? "Sending…" : "Send invitation"}
+          {pending ? t("form.submitPending") : t("form.submit")}
         </Button>
       </form>
 
@@ -109,13 +111,13 @@ export function InvitationForm({ cities }: { cities: City[] }) {
         >
           <p className="font-semibold mb-1">
             {state.devMode
-              ? "Dev mode — email not sent"
-              : "Invitation sent"}
+              ? t("form.devModeTitle")
+              : t("form.sentTitle")}
           </p>
           <p className="text-xs mb-2 opacity-80">
             {state.devMode
-              ? "Set RESEND_API_KEY in .env.local to send real emails. In the meantime, share this link manually:"
-              : "A copy of the invitation link below — copy if you want to share it directly."}
+              ? t("form.devModeHint")
+              : t("form.sentHint")}
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-surface-white px-2 py-1 rounded text-xs font-mono truncate">
@@ -124,11 +126,11 @@ export function InvitationForm({ cities }: { cities: City[] }) {
             <button
               type="button"
               onClick={handleCopy}
-              aria-label="Copy invitation URL"
+              aria-label={t("form.copyAriaLabel")}
               className="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-white border border-border text-xs font-semibold hover:bg-surface-bg"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? "Copied" : "Copy"}
+              {copied ? t("form.copied") : t("form.copy")}
             </button>
           </div>
         </div>
