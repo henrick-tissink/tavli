@@ -90,7 +90,7 @@
     "availableCount": {
       "one": "{count} loc disponibil",
       "few": "{count} locuri disponibile",
-      "other": "{count} de locuri disponibile"
+      "other": "{count} locuri disponibile"
     },
     "availableIntro": "Avem {available} pentru diseară.",
     "searchCta": "Caută o masă"

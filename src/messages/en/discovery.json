@@ -86,7 +86,7 @@
     "topDimension": "{percent}% loved {dimension}"
   },
   "cover": {
-    "tagline": "at the table.",
+    "tagline": "your table awaits.",
     "availableCount": {
       "one": "{count} venue available",
       "few": "{count} venues available",

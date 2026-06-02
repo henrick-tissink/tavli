@@ -36,6 +36,19 @@ test("renders greeting, city, and singular/plural variants", () => {
   expect(screen.getByText(/5 locuri disponibile/)).toBeInTheDocument();
 });
 
+test("count=20 renders RO 'other' form verbatim (regression: no 'de')", () => {
+  renderWithProvider(
+    <CityCoverHero
+      cityDisplay="București"
+      greeting="x"
+      availableTonightCount={20}
+      onSearch={jest.fn()}
+    />
+  );
+  expect(screen.getByText(/20 locuri disponibile/)).toBeInTheDocument();
+  expect(screen.queryByText(/de locuri/)).not.toBeInTheDocument();
+});
+
 test("Caută o masă button triggers onSearch", () => {
   const onSearch = jest.fn();
   renderWithProvider(

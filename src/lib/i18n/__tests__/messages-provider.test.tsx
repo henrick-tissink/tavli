@@ -19,6 +19,18 @@ describe("useLocale", () => {
     );
     expect(screen.getByTestId("locale")).toHaveTextContent("de");
   });
+
+  it("throws when rendered outside a MessagesProvider", () => {
+    function LocaleProbe() {
+      const locale = useLocale();
+      return <span>{locale}</span>;
+    }
+    const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => render(<LocaleProbe />)).toThrow(
+      "useLocale must be used within a MessagesProvider",
+    );
+    consoleError.mockRestore();
+  });
 });
 
 describe("MessagesProvider + useT", () => {
