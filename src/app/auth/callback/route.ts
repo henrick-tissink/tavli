@@ -13,10 +13,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests, profiles, restaurants } from "@/lib/db/schema";
+import { eventRequests, organizations, profiles, restaurants } from "@/lib/db/schema";
 import { promoteDraftToNew } from "@/lib/repos/event-requests-repo";
 import { insertNotification } from "@/lib/repos/partner-notifications-repo";
-import { sendEventRequestNew } from "@/lib/email/event-requests";
+import {
+  sendEventRequestNew,
+  type EventRequestLocale,
+} from "@/lib/email/event-requests";
+import { isLocale } from "@/lib/i18n/locale";
 import { appOrigin } from "@/lib/app-origin";
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -83,14 +87,30 @@ export async function GET(req: NextRequest): Promise<Response> {
         // partner can also see the in-app notification.
         try {
           const [r] = await dbAdmin
-            .select({ name: restaurants.name, email: restaurants.email })
+            .select({
+              name: restaurants.name,
+              email: restaurants.email,
+              organizationId: restaurants.organizationId,
+            })
             .from(restaurants)
             .where(eq(restaurants.id, promoted.restaurantId))
             .limit(1);
           if (r?.email) {
+            // sendEventRequestNew is partner-facing → use the org's locale.
+            let partnerLocale: EventRequestLocale = "ro";
+            if (r.organizationId) {
+              const [org] = await dbAdmin
+                .select({ locale: organizations.locale })
+                .from(organizations)
+                .where(eq(organizations.id, r.organizationId))
+                .limit(1);
+              if (org && isLocale(org.locale)) {
+                partnerLocale = org.locale as EventRequestLocale;
+              }
+            }
             await sendEventRequestNew({
               partnerEmail: r.email,
-              locale: "ro",
+              locale: partnerLocale,
               restaurantName: r.name,
               guestName: promoted.guestName,
               occasion: promoted.occasion,

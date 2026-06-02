@@ -63,5 +63,74 @@
     "apologyText": "Wir entschuldigen uns für die Unannehmlichkeiten. Sie können jederzeit erneut buchen.",
     "rebookButton": "Einen anderen Termin finden",
     "footer": "Tavli — Restaurantreservierungen."
+  },
+  "eventNew": {
+    "subject": "Neue Veranstaltungsanfrage",
+    "preview": "Neue private Veranstaltungsanfrage",
+    "title": "Neue Veranstaltungsanfrage",
+    "subtitle": "{guestName} hat eine Anfrage für {restaurantName} gesendet",
+    "detailsLabel": "Details",
+    "occasionWedding": "Hochzeit",
+    "occasionBirthday": "Geburtstag",
+    "occasionCorporateDinner": "Firmenessen",
+    "occasionProductLaunch": "Produktpräsentation",
+    "occasionOther": "Sonstiges",
+    "cta": "Posteingang öffnen"
+  },
+  "eventReplied": {
+    "subject": "Antwort von {restaurantName}",
+    "preview": "Das Restaurant hat geantwortet",
+    "title": "Das Restaurant hat geantwortet",
+    "subtitle": "Hallo, {guestName} — {restaurantName} hat auf Ihre Anfrage geantwortet.",
+    "responseLabel": "Antwort",
+    "cta": "Unterhaltung ansehen"
+  },
+  "eventQuoted": {
+    "subject": "Angebot für Ihre Veranstaltung bei {restaurantName}",
+    "preview": "Sie haben ein Angebot erhalten",
+    "title": "Sie haben ein Angebot erhalten",
+    "subtitle": "Hallo, {guestName} — {restaurantName} hat Ihnen ein Angebot gesendet.",
+    "amountLabel": "Betrag",
+    "expiresLabel": "Läuft ab",
+    "cta": "Auf Angebot antworten",
+    "currency": "RON"
+  },
+  "eventAccepted": {
+    "subject": "Veranstaltung bei {restaurantName} bestätigt",
+    "preview": "Veranstaltung bestätigt",
+    "title": "Veranstaltung bestätigt",
+    "subtitle": "Hallo, {guestName} — Ihre Veranstaltung bei {restaurantName} ist bestätigt.",
+    "detailsLabel": "Details",
+    "amountLabel": "Betrag",
+    "cta": "Details ansehen",
+    "currency": "RON"
+  },
+  "eventDeclined": {
+    "subject": "Ihre Anfrage wurde abgelehnt",
+    "preview": "Die Anfrage wurde abgelehnt",
+    "title": "Die Anfrage wurde abgelehnt",
+    "subtitle": "Hallo, {guestName} — {restaurantName} kann Ihre Anfrage leider nicht erfüllen.",
+    "reasonLabel": "Grund",
+    "reasonNoAvailability": "Keine Verfügbarkeit am gewünschten Datum",
+    "reasonOutOfCapacity": "Kapazität für Ihre Gruppe nicht ausreichend",
+    "reasonBudgetMismatch": "Budget passt nicht",
+    "reasonOther": "Sonstiger Grund",
+    "cta": "Andere Veranstaltungslocation suchen"
+  },
+  "eventExpired": {
+    "subject": "Ihre Anfrage ist abgelaufen",
+    "preview": "Die Anfrage ist abgelaufen",
+    "title": "Die Anfrage ist abgelaufen",
+    "subtitle": "Hallo, {guestName} — Ihre Anfrage bei {restaurantName} ist ohne Antwort abgelaufen.",
+    "detailsLabel": "Details",
+    "cta": "Neue Anfrage senden"
+  },
+  "eventNudge": {
+    "subject": "Erinnerung: Anfrage seit {daysOpen} Tagen offen",
+    "preview": "Erinnerung: Anfrage seit {daysOpen} Tagen offen",
+    "title": "Erinnerung: Anfrage seit {daysOpen} Tagen offen",
+    "subtitle": "{guestName} wartet noch auf eine Antwort zu {restaurantName}.",
+    "detailsLabel": "Details",
+    "cta": "Posteingang öffnen"
   }
 }

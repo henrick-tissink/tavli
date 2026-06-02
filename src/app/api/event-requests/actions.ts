@@ -207,8 +207,9 @@ async function assertPartnerOwns(
 
 // Used by transition actions to compose consumer-facing emails. We fetch
 // the restaurant name once and build a tracking URL from the canonical
-// `tracking_token`. Phase 1 defaults to RO locale; per-user locale comes
-// later.
+// `tracking_token`. The event_request.locale column (migration 0061) drives
+// the email language for diner-facing messages; partner-facing messages use
+// the organization's locale (handled at each send site).
 async function loadEmailContext(eventRequestId: string): Promise<{
   restaurantName: string;
   restaurantEmail: string | null;
@@ -218,6 +219,7 @@ async function loadEmailContext(eventRequestId: string): Promise<{
   eventDate: string;
   partySize: number;
   trackingUrl: string;
+  locale: import("@/lib/email/event-requests").EventRequestLocale;
 }> {
   const [er] = await dbAdmin
     .select()
@@ -230,6 +232,9 @@ async function loadEmailContext(eventRequestId: string): Promise<{
     .from(restaurants)
     .where(eq(restaurants.id, er.restaurantId))
     .limit(1);
+  const locale = isLocale(er.locale)
+    ? (er.locale as import("@/lib/email/event-requests").EventRequestLocale)
+    : "ro";
   return {
     restaurantName: r?.name ?? "Tavli",
     restaurantEmail: r?.email ?? null,
@@ -239,6 +244,7 @@ async function loadEmailContext(eventRequestId: string): Promise<{
     eventDate: er.eventDate,
     partySize: er.partySize,
     trackingUrl: `${appOrigin()}/event-requests/${er.trackingToken}`,
+    locale,
   };
 }
 
@@ -263,7 +269,7 @@ export async function replyToEventRequest({
     const ctx = await loadEmailContext(id);
     await sendEventRequestReplied({
       guestEmail: ctx.guestEmail,
-      locale: "ro",
+      locale: ctx.locale,
       restaurantName: ctx.restaurantName,
       guestName: ctx.guestName,
       occasion: ctx.occasion,
@@ -318,7 +324,7 @@ export async function sendQuoteForEventRequest(
     const ctx = await loadEmailContext(data.id);
     await sendEventRequestQuoted({
       guestEmail: ctx.guestEmail,
-      locale: "ro",
+      locale: ctx.locale,
       restaurantName: ctx.restaurantName,
       guestName: ctx.guestName,
       occasion: ctx.occasion,
@@ -350,7 +356,7 @@ export async function declineEventRequest({
     const ctx = await loadEmailContext(id);
     await sendEventRequestDeclined({
       to: ctx.guestEmail,
-      locale: "ro",
+      locale: ctx.locale,
       restaurantName: ctx.restaurantName,
       guestName: ctx.guestName,
       occasion: ctx.occasion,
@@ -501,7 +507,7 @@ export async function materializeAcceptedEventRequest(
       ? Math.round(er.quotedAmountCents / 100)
       : 0;
     const baseProps = {
-      locale: "ro" as const,
+      locale: ctx.locale,
       restaurantName: ctx.restaurantName,
       guestName: ctx.guestName,
       occasion: ctx.occasion,

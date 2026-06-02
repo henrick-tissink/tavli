@@ -9,9 +9,12 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface Props {
-  locale: "ro" | "en";
+  locale: Locale;
   restaurantName: string;
   occasion: "wedding" | "birthday" | "corporate_dinner" | "product_launch" | "other";
   eventDate: string;
@@ -20,36 +23,20 @@ interface Props {
   trackingUrl: string;
 }
 
-const COPY = {
-  ro: {
-    preview: "Solicitarea a expirat",
-    title: "Solicitarea a expirat",
-    subtitle: (n: string, r: string) =>
-      `Salut, ${n} — solicitarea ta pentru ${r} a expirat fără răspuns.`,
-    detailsLabel: "Detalii",
-    cta: "Trimite o nouă solicitare",
-  },
-  en: {
-    preview: "Your request expired",
-    title: "Your request expired",
-    subtitle: (n: string, r: string) =>
-      `Hi, ${n} — your request for ${r} expired without a reply.`,
-    detailsLabel: "Details",
-    cta: "Submit a new request",
-  },
-} as const;
-
 export default function EventRequestExpiredEmail(props: Props) {
-  const c = COPY[props.locale];
+  const m = getMessages(props.locale, "emails").eventExpired;
   return (
     <Html lang={props.locale}>
       <Head />
-      <Preview>{c.preview}</Preview>
+      <Preview>{m.preview}</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f5f5f0" }}>
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "24px" }}>
-          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{c.title}</Heading>
+          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{m.title}</Heading>
           <Text style={{ color: "#5c5c5c" }}>
-            {c.subtitle(props.guestName, props.restaurantName)}
+            {interpolate(m.subtitle, {
+              guestName: props.guestName,
+              restaurantName: props.restaurantName,
+            })}
           </Text>
           <Section
             style={{
@@ -60,7 +47,7 @@ export default function EventRequestExpiredEmail(props: Props) {
             }}
           >
             <Text>
-              <strong>{c.detailsLabel}</strong>
+              <strong>{m.detailsLabel}</strong>
             </Text>
             <Text>
               {props.eventDate} · {props.partySize}
@@ -77,7 +64,7 @@ export default function EventRequestExpiredEmail(props: Props) {
                 textDecoration: "none",
               }}
             >
-              {c.cta}
+              {m.cta}
             </Link>
           </Section>
         </Container>

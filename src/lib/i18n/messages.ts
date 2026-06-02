@@ -622,6 +622,75 @@ export interface EmailsMessages {
     rebookButton: string;
     footer: string;
   };
+  eventNew: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    detailsLabel: string;
+    occasionWedding: string;
+    occasionBirthday: string;
+    occasionCorporateDinner: string;
+    occasionProductLaunch: string;
+    occasionOther: string;
+    cta: string;
+  };
+  eventReplied: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    responseLabel: string;
+    cta: string;
+  };
+  eventQuoted: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    amountLabel: string;
+    expiresLabel: string;
+    cta: string;
+    currency: string;
+  };
+  eventAccepted: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    detailsLabel: string;
+    amountLabel: string;
+    cta: string;
+    currency: string;
+  };
+  eventDeclined: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    reasonLabel: string;
+    reasonNoAvailability: string;
+    reasonOutOfCapacity: string;
+    reasonBudgetMismatch: string;
+    reasonOther: string;
+    cta: string;
+  };
+  eventExpired: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    detailsLabel: string;
+    cta: string;
+  };
+  eventNudge: {
+    subject: string;
+    preview: string;
+    title: string;
+    subtitle: string;
+    detailsLabel: string;
+    cta: string;
+  };
 }
 
 /**

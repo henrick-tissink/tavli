@@ -63,5 +63,74 @@
     "apologyText": "Ne pare rău pentru inconvenient. Te invităm să rezervi din nou oricând.",
     "rebookButton": "Caută alt moment",
     "footer": "Tavli — rezervări în România."
+  },
+  "eventNew": {
+    "subject": "Solicitare nouă de eveniment",
+    "preview": "Solicitare nouă de eveniment privat",
+    "title": "Solicitare nouă de eveniment",
+    "subtitle": "{guestName} a trimis o solicitare pentru {restaurantName}",
+    "detailsLabel": "Detalii",
+    "occasionWedding": "Nuntă",
+    "occasionBirthday": "Aniversare",
+    "occasionCorporateDinner": "Cină corporate",
+    "occasionProductLaunch": "Lansare de produs",
+    "occasionOther": "Altele",
+    "cta": "Vezi în inbox"
+  },
+  "eventReplied": {
+    "subject": "Răspuns de la {restaurantName}",
+    "preview": "Restaurantul ti-a răspuns",
+    "title": "Restaurantul ti-a răspuns",
+    "subtitle": "Salut, {guestName} — {restaurantName} a răspuns la solicitarea ta.",
+    "responseLabel": "Răspuns",
+    "cta": "Vezi conversația"
+  },
+  "eventQuoted": {
+    "subject": "Ofertă pentru evenimentul tău la {restaurantName}",
+    "preview": "Ai primit o ofertă",
+    "title": "Ai primit o ofertă",
+    "subtitle": "Salut, {guestName} — {restaurantName} ți-a trimis o ofertă.",
+    "amountLabel": "Sumă",
+    "expiresLabel": "Expiră",
+    "cta": "Răspunde la ofertă",
+    "currency": "lei"
+  },
+  "eventAccepted": {
+    "subject": "Eveniment confirmat la {restaurantName}",
+    "preview": "Eveniment confirmat",
+    "title": "Eveniment confirmat",
+    "subtitle": "Salut, {guestName} — evenimentul tău la {restaurantName} este confirmat.",
+    "detailsLabel": "Detalii",
+    "amountLabel": "Sumă",
+    "cta": "Vezi detalii",
+    "currency": "lei"
+  },
+  "eventDeclined": {
+    "subject": "Solicitarea ta a fost refuzată",
+    "preview": "Solicitarea a fost refuzată",
+    "title": "Solicitarea a fost refuzată",
+    "subtitle": "Salut, {guestName} — {restaurantName} nu poate onora solicitarea ta.",
+    "reasonLabel": "Motiv",
+    "reasonNoAvailability": "Indisponibilitate la data solicitată",
+    "reasonOutOfCapacity": "Capacitate insuficientă pentru grupul tău",
+    "reasonBudgetMismatch": "Bugetul nu se potrivește",
+    "reasonOther": "Alt motiv",
+    "cta": "Caută alt restaurant"
+  },
+  "eventExpired": {
+    "subject": "Solicitarea ta a expirat",
+    "preview": "Solicitarea a expirat",
+    "title": "Solicitarea a expirat",
+    "subtitle": "Salut, {guestName} — solicitarea ta pentru {restaurantName} a expirat fără răspuns.",
+    "detailsLabel": "Detalii",
+    "cta": "Trimite o nouă solicitare"
+  },
+  "eventNudge": {
+    "subject": "Reamintire: cerere fără răspuns de {daysOpen} zile",
+    "preview": "Reamintire: cerere fără răspuns de {daysOpen} zile",
+    "title": "Reamintire: cerere fără răspuns de {daysOpen} zile",
+    "subtitle": "{guestName} încă așteaptă un răspuns pentru {restaurantName}.",
+    "detailsLabel": "Detalii",
+    "cta": "Vezi în inbox"
   }
 }

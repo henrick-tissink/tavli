@@ -63,5 +63,74 @@
     "apologyText": "We are sorry for the inconvenience. You are welcome to rebook at any time.",
     "rebookButton": "Find another time",
     "footer": "Tavli — restaurant reservations."
+  },
+  "eventNew": {
+    "subject": "New event request",
+    "preview": "New private event request",
+    "title": "New event request",
+    "subtitle": "{guestName} sent a request for {restaurantName}",
+    "detailsLabel": "Details",
+    "occasionWedding": "Wedding",
+    "occasionBirthday": "Birthday",
+    "occasionCorporateDinner": "Corporate dinner",
+    "occasionProductLaunch": "Product launch",
+    "occasionOther": "Other",
+    "cta": "Open inbox"
+  },
+  "eventReplied": {
+    "subject": "Reply from {restaurantName}",
+    "preview": "The restaurant replied",
+    "title": "The restaurant replied",
+    "subtitle": "Hi, {guestName} — {restaurantName} replied to your request.",
+    "responseLabel": "Reply",
+    "cta": "View conversation"
+  },
+  "eventQuoted": {
+    "subject": "Quote for your event at {restaurantName}",
+    "preview": "You received a quote",
+    "title": "You received a quote",
+    "subtitle": "Hi, {guestName} — {restaurantName} sent you a quote.",
+    "amountLabel": "Amount",
+    "expiresLabel": "Expires",
+    "cta": "Respond to quote",
+    "currency": "RON"
+  },
+  "eventAccepted": {
+    "subject": "Event confirmed at {restaurantName}",
+    "preview": "Event confirmed",
+    "title": "Event confirmed",
+    "subtitle": "Hi, {guestName} — your event at {restaurantName} is confirmed.",
+    "detailsLabel": "Details",
+    "amountLabel": "Amount",
+    "cta": "View details",
+    "currency": "RON"
+  },
+  "eventDeclined": {
+    "subject": "Your request was declined",
+    "preview": "Your request was declined",
+    "title": "Your request was declined",
+    "subtitle": "Hi, {guestName} — {restaurantName} cannot fulfill your request.",
+    "reasonLabel": "Reason",
+    "reasonNoAvailability": "No availability on the requested date",
+    "reasonOutOfCapacity": "Capacity is not sufficient for your group",
+    "reasonBudgetMismatch": "Budget does not match",
+    "reasonOther": "Other reason",
+    "cta": "Find another venue"
+  },
+  "eventExpired": {
+    "subject": "Your request expired",
+    "preview": "Your request expired",
+    "title": "Your request expired",
+    "subtitle": "Hi, {guestName} — your request for {restaurantName} expired without a reply.",
+    "detailsLabel": "Details",
+    "cta": "Submit a new request"
+  },
+  "eventNudge": {
+    "subject": "Reminder: request open for {daysOpen} days",
+    "preview": "Reminder: request open for {daysOpen} days",
+    "title": "Reminder: request open for {daysOpen} days",
+    "subtitle": "{guestName} is still waiting for a reply about {restaurantName}.",
+    "detailsLabel": "Details",
+    "cta": "Open inbox"
   }
 }

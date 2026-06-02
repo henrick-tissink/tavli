@@ -9,9 +9,12 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface Props {
-  locale: "ro" | "en";
+  locale: Locale;
   restaurantName: string;
   occasion: "wedding" | "birthday" | "corporate_dinner" | "product_launch" | "other";
   eventDate: string;
@@ -22,38 +25,22 @@ interface Props {
   partnerInboxUrl: string;
 }
 
-const COPY = {
-  ro: {
-    preview: (d: number) => `Reamintire: cerere fără răspuns de ${d} zile`,
-    title: (d: number) => `Reamintire: cerere fără răspuns de ${d} zile`,
-    subtitle: (n: string, r: string) =>
-      `${n} încă așteaptă un răspuns pentru ${r}.`,
-    detailsLabel: "Detalii",
-    cta: "Vezi în inbox",
-  },
-  en: {
-    preview: (d: number) => `Reminder: request open for ${d} days`,
-    title: (d: number) => `Reminder: request open for ${d} days`,
-    subtitle: (n: string, r: string) =>
-      `${n} is still waiting for a reply about ${r}.`,
-    detailsLabel: "Details",
-    cta: "Open inbox",
-  },
-} as const;
-
 export default function EventRequestNudgeEmail(props: Props) {
-  const c = COPY[props.locale];
+  const m = getMessages(props.locale, "emails").eventNudge;
   return (
     <Html lang={props.locale}>
       <Head />
-      <Preview>{c.preview(props.daysOpen)}</Preview>
+      <Preview>{interpolate(m.preview, { daysOpen: props.daysOpen })}</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f5f5f0" }}>
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "24px" }}>
           <Heading style={{ fontSize: 24, marginBottom: 4 }}>
-            {c.title(props.daysOpen)}
+            {interpolate(m.title, { daysOpen: props.daysOpen })}
           </Heading>
           <Text style={{ color: "#5c5c5c" }}>
-            {c.subtitle(props.guestName, props.restaurantName)}
+            {interpolate(m.subtitle, {
+              guestName: props.guestName,
+              restaurantName: props.restaurantName,
+            })}
           </Text>
           <Section
             style={{
@@ -64,7 +51,7 @@ export default function EventRequestNudgeEmail(props: Props) {
             }}
           >
             <Text>
-              <strong>{c.detailsLabel}</strong>
+              <strong>{m.detailsLabel}</strong>
             </Text>
             <Text>
               {props.eventDate} · {props.partySize}
@@ -81,7 +68,7 @@ export default function EventRequestNudgeEmail(props: Props) {
                 textDecoration: "none",
               }}
             >
-              {c.cta}
+              {m.cta}
             </Link>
           </Section>
         </Container>
