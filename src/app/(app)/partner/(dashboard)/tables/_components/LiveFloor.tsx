@@ -208,7 +208,7 @@ export function LiveFloor({
       <div className="space-y-6">
         <ReservationsPanel
           reservations={reservations}
-          freeTables={tables.filter((t) => t.currentStatus === "free")}
+          freeTables={tables.filter((tbl) => tbl.currentStatus === "free")}
           pending={pending}
           run={run}
         />
