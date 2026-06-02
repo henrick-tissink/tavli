@@ -26,6 +26,9 @@ export default async function AdminGatedLayout({
     "admin.users",
     "admin.setups",
     "admin.security",
+    // The admin security page reuses the partner MFA section components, which
+    // read useT("partner.staffSecurity"), so that namespace must be in scope.
+    "partner.staffSecurity",
   ]);
   return (
     <AdminShell locale={locale} bundle={bundle} userEmail={session.userEmail}>
