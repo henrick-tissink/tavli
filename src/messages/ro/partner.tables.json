@@ -1,0 +1,126 @@
+{
+  "page": {
+    "title": "Plan sală",
+    "subtitlePrefix": "Aranjează mesele și secțiunile pentru",
+    "subtitleSuffix": " vizual. Trage pe plan ca să rearanjezi; editează detaliile în panou.",
+    "noRestaurant": "Niciun restaurant asociat acestui cont."
+  },
+  "live": {
+    "title": "Sala — live",
+    "freeNow": {
+      "one": "{count} masă liberă",
+      "few": "{count} mese libere",
+      "other": "{count} mese libere"
+    },
+    "now": "acum",
+    "totalSuffix": "{count} mese în total",
+    "editPlan": "Editează planul →",
+    "noAccess": "Nu ai acces la planul sălii."
+  },
+  "status": {
+    "free": "Liberă",
+    "booked": "Rezervată",
+    "seated": "Ocupată",
+    "paying": "Plătește",
+    "dirty": "De curățat",
+    "combined": "Combinată",
+    "blocked": "Blocată"
+  },
+  "liveFloor": {
+    "noSection": "Fără secțiune",
+    "combineCancel": "Anulează combinarea",
+    "combineStart": "Combină mese",
+    "combineSelection": "Combină selecția ({count})",
+    "selected": "✓ Selectată",
+    "select": "Selectează",
+    "dissolve": "Desfă",
+    "transitionTo": "→ {status}",
+    "clearReasonPrompt": "Motiv (opțional): walkout / comp / alt motiv",
+    "errorInvalidTransition": "Tranziție invalidă.",
+    "errorFailed": "Acțiunea a eșuat."
+  },
+  "reservationsPanel": {
+    "title": "Rezervări de azi",
+    "empty": "Nicio rezervare neasezată.",
+    "party": {
+      "one": "{count} persoană",
+      "few": "{count} persoane",
+      "other": "{count} persoane"
+    },
+    "pickTableAriaLabel": "Alege masa pentru {name}",
+    "pickTablePlaceholder": "Alege masa…",
+    "tableOption": "{label} ({min}–{max})",
+    "seat": "Asează"
+  },
+  "walkinPanel": {
+    "title": "Listă de așteptare",
+    "namePlaceholder": "Nume oaspete",
+    "partyAriaLabel": "Persoane",
+    "phonePlaceholder": "Telefon (opțional)",
+    "add": "Adaugă în listă",
+    "empty": "Lista e goală.",
+    "party": "{count} pers.",
+    "statusCalled": "Chemat",
+    "statusWaiting": "Așteaptă",
+    "waitSuffix": " · ~{minutes} min",
+    "call": "Cheamă",
+    "seat": "Așază",
+    "left": "A plecat"
+  },
+  "floorPlan": {
+    "toggleLayout": "Aranjament",
+    "toggleTonight": "Diseară",
+    "tonightSummary": "{booked} rezervate · {free} libere",
+    "free": "Liber",
+    "seatCount": "{count} loc",
+    "entrance": "Intrare",
+    "toastUpdateFailed": "Modificarea nu a fost salvată.",
+    "toastAddFailed": "Masa nu a fost adăugată.",
+    "toastDeleteFailed": "Masa nu a fost ștearsă."
+  },
+  "emptyInspector": {
+    "title": "Plan sală",
+    "body": "Atinge o masă pe plan ca să-i editezi detaliile, sau adaugă una nouă.",
+    "addTable": "Adaugă masă",
+    "dragHint": "Trage mesele pentru a le rearanja."
+  },
+  "editInspector": {
+    "title": "Masa {label}",
+    "deleteTableAriaLabel": "Șterge masa",
+    "labelLabel": "Etichetă",
+    "sectionLabel": "Secțiune",
+    "shapeLabel": "Formă",
+    "shapeRound": "Rotundă",
+    "shapeSquare": "Dreptunghi",
+    "capacityLabel": "Capacitate",
+    "capacityUnit": "persoane",
+    "bookableOnline": "Rezervabil online",
+    "bookableOnlineHint": "Apare în motorul de rezervări"
+  },
+  "tonightInspector": {
+    "title": "Diseară",
+    "summary": "{reservations} rezervări · {covers} acoperiri",
+    "empty": "Nicio rezervare pentru diseară.",
+    "guestParty": "{time} · {count} pers."
+  },
+  "sections": {
+    "heading": "Secțiuni ({count})",
+    "newSection": "Secțiune nouă",
+    "nameRequired": "Numele secțiunii este obligatoriu.",
+    "deleteConfirm": "Ștergi secțiunea „{name}\"? Mesele din ea rămân intacte, dar pierd asocierea cu secțiunea.",
+    "editAriaLabel": "Editează {name}",
+    "deleteAriaLabel": "Șterge {name}",
+    "form": {
+      "nameLabel": "Nume secțiune",
+      "namePlaceholder": "Ex. Terasă, Sală principală",
+      "colorLabel": "Culoare",
+      "colorOptional": "(#hex, op.)",
+      "colorPlaceholder": "#aabbcc",
+      "sortOrderLabel": "Ordine",
+      "cancel": "Anulează",
+      "saving": "Se salvează…",
+      "save": "Salvează",
+      "add": "Adaugă"
+    }
+  }
+}

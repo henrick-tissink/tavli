@@ -7,6 +7,9 @@ import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, restaurantTables, restaurantTableSections, reservations } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { walkinQueueOps } from "@/lib/tables/walkin";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
 import { LiveFloor } from "../_components/LiveFloor";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +28,11 @@ export default async function LiveFloorPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
 
+  const locale = await resolveAppLocale();
+  const t = getMessages(locale, "partner.tables");
+
   const restaurantId = await currentUserPrimaryRestaurant(session);
-  if (!restaurantId) return <EmptyShell message="Niciun restaurant asociat acestui cont." />;
+  if (!restaurantId) return <EmptyShell message={t.page.noRestaurant} />;
 
   const [venue] = await dbAdmin
     .select({ id: restaurants.id, name: restaurants.name, organizationId: restaurants.organizationId })
@@ -37,7 +43,7 @@ export default async function LiveFloorPage() {
   const orgId = venue.organizationId ?? "";
 
   if (!(await can(session, "floor_plan.edit", { kind: "restaurant", id: venue.id, organization_id: orgId }))) {
-    return <EmptyShell message="Nu ai acces la planul sălii." />;
+    return <EmptyShell message={t.live.noAccess} />;
   }
 
   const [tables, sections, walkins] = await Promise.all([
@@ -88,13 +94,13 @@ export default async function LiveFloorPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl text-text-primary">Sala — live</h1>
+          <h1 className="font-display text-3xl text-text-primary">{t.live.title}</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            {freeCount} {freeCount === 1 ? "masă liberă" : "mese libere"} acum · {tables.length} mese în total
+            {translate(locale, t.live.freeNow, { count: freeCount })} {t.live.now} · {interpolate(t.live.totalSuffix, { count: tables.length })}
           </p>
         </div>
         <Link href="/partner/tables" className="text-sm font-semibold text-brand-primary hover:underline">
-          Editează planul →
+          {t.live.editPlan}
         </Link>
       </header>
 

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { allowedTransitions, type TableStatus } from "@/lib/tables/state-machine";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   updateTableStatusAction,
   combineTablesAction,
@@ -38,16 +39,6 @@ interface WalkinVM {
   estimatedWaitMinutes: number | null;
 }
 
-const STATUS_LABEL: Record<TableStatus, string> = {
-  free: "Liberă",
-  booked: "Rezervată",
-  seated: "Ocupată",
-  paying: "Plătește",
-  dirty: "De curățat",
-  combined: "Combinată",
-  blocked: "Blocată",
-};
-
 const STATUS_STYLE: Record<TableStatus, string> = {
   free: "bg-emerald-50 border-emerald-300 text-emerald-800",
   booked: "bg-blue-50 border-blue-300 text-blue-800",
@@ -71,6 +62,8 @@ export function LiveFloor({
   walkins: WalkinVM[];
   reservations: ReservationVM[];
 }) {
+  const t = useT("partner.tables");
+  const statusLabel = (status: TableStatus) => t(`status.${status}`);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [combineMode, setCombineMode] = useState(false);
@@ -81,18 +74,18 @@ export function LiveFloor({
     startTransition(async () => {
       setError(null);
       const res = await fn();
-      if (!res.ok) setError(res.error === "invalid_transition" ? "Tranziție invalidă." : "Acțiunea a eșuat.");
+      if (!res.ok) setError(res.error === "invalid_transition" ? t("liveFloor.errorInvalidTransition") : t("liveFloor.errorFailed"));
       else router.refresh();
     });
   }
 
-  function changeStatus(t: TableVM, to: TableStatus) {
+  function changeStatus(table: TableVM, to: TableStatus) {
     // Express clear (seated → free) — capture an optional reason per §08 §5.
     let notes: string | undefined;
-    if (t.currentStatus === "seated" && to === "free") {
-      notes = window.prompt("Motiv (opțional): walkout / comp / alt motiv") ?? undefined;
+    if (table.currentStatus === "seated" && to === "free") {
+      notes = window.prompt(t("liveFloor.clearReasonPrompt")) ?? undefined;
     }
-    run(() => updateTableStatusAction({ tableId: t.id, toStatus: to, notes }));
+    run(() => updateTableStatusAction({ tableId: table.id, toStatus: to, notes }));
   }
 
   function toggleSelect(id: string) {
@@ -113,8 +106,8 @@ export function LiveFloor({
   }
 
   const grouped = [
-    ...sections.map((s) => ({ id: s.id, name: s.name, items: tables.filter((t) => t.sectionId === s.id) })),
-    { id: "none", name: "Fără secțiune", items: tables.filter((t) => !t.sectionId) },
+    ...sections.map((s) => ({ id: s.id, name: s.name, items: tables.filter((tbl) => tbl.sectionId === s.id) })),
+    { id: "none", name: t("liveFloor.noSection"), items: tables.filter((tbl) => !tbl.sectionId) },
   ].filter((g) => g.items.length > 0);
 
   return (
@@ -131,7 +124,7 @@ export function LiveFloor({
               combineMode ? "border-brand-primary bg-brand-primary-soft text-brand-primary-dark" : "border-border text-text-secondary"
             }`}
           >
-            {combineMode ? "Anulează combinarea" : "Combină mese"}
+            {combineMode ? t("liveFloor.combineCancel") : t("liveFloor.combineStart")}
           </button>
           {combineMode && (
             <button
@@ -140,7 +133,7 @@ export function LiveFloor({
               onClick={doCombine}
               className="rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
             >
-              Combină selecția ({selected.size})
+              {t("liveFloor.combineSelection", { count: selected.size })}
             </button>
           )}
           {error && <span className="text-sm text-red-700" role="alert">{error}</span>}
@@ -151,53 +144,53 @@ export function LiveFloor({
             <section key={g.id}>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">{g.name}</h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                {g.items.map((t) => {
-                  const selectable = combineMode && t.currentStatus === "free";
-                  const isSel = selected.has(t.id);
+                {g.items.map((tbl) => {
+                  const selectable = combineMode && tbl.currentStatus === "free";
+                  const isSel = selected.has(tbl.id);
                   return (
                     <div
-                      key={t.id}
-                      className={`rounded-card border p-3 ${STATUS_STYLE[t.currentStatus]} ${isSel ? "ring-2 ring-brand-primary" : ""}`}
+                      key={tbl.id}
+                      className={`rounded-card border p-3 ${STATUS_STYLE[tbl.currentStatus]} ${isSel ? "ring-2 ring-brand-primary" : ""}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-display text-lg font-bold">{t.label}</span>
-                        <span className="text-xs">{t.capacityMin}–{t.capacityMax}</span>
+                        <span className="font-display text-lg font-bold">{tbl.label}</span>
+                        <span className="text-xs">{tbl.capacityMin}–{tbl.capacityMax}</span>
                       </div>
-                      <div className="mt-0.5 text-xs font-medium">{STATUS_LABEL[t.currentStatus]}</div>
+                      <div className="mt-0.5 text-xs font-medium">{statusLabel(tbl.currentStatus)}</div>
 
                       {selectable ? (
                         <button
                           type="button"
-                          onClick={() => toggleSelect(t.id)}
+                          onClick={() => toggleSelect(tbl.id)}
                           className="mt-2 w-full rounded-md border border-current/30 bg-white/60 px-2 py-1 text-xs font-semibold"
                         >
-                          {isSel ? "✓ Selectată" : "Selectează"}
+                          {isSel ? t("liveFloor.selected") : t("liveFloor.select")}
                         </button>
                       ) : (
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {t.currentStatus === "combined" && t.currentCombinationId ? (
+                          {tbl.currentStatus === "combined" && tbl.currentCombinationId ? (
                             <button
                               type="button"
                               disabled={pending}
                               onClick={() =>
                                 run(() =>
-                                  dissolveCombinationAction({ restaurantId, combinationId: t.currentCombinationId! }),
+                                  dissolveCombinationAction({ restaurantId, combinationId: tbl.currentCombinationId! }),
                                 )
                               }
                               className="rounded-md bg-white/70 px-2 py-1 text-xs font-semibold hover:bg-white"
                             >
-                              Desfă
+                              {t("liveFloor.dissolve")}
                             </button>
                           ) : (
-                            allowedTransitions(t.currentStatus).map((to) => (
+                            allowedTransitions(tbl.currentStatus).map((to) => (
                               <button
                                 key={to}
                                 type="button"
                                 disabled={pending}
-                                onClick={() => changeStatus(t, to)}
+                                onClick={() => changeStatus(tbl, to)}
                                 className="rounded-md bg-white/70 px-2 py-1 text-xs font-medium hover:bg-white"
                               >
-                                → {STATUS_LABEL[to]}
+                                {t("liveFloor.transitionTo", { status: statusLabel(to) })}
                               </button>
                             ))
                           )}
@@ -215,7 +208,7 @@ export function LiveFloor({
       <div className="space-y-6">
         <ReservationsPanel
           reservations={reservations}
-          freeTables={tables.filter((t) => t.currentStatus === "free")}
+          freeTables={tables.filter((tbl) => tbl.currentStatus === "free")}
           pending={pending}
           run={run}
         />
@@ -237,12 +230,13 @@ function ReservationsPanel({
   pending: boolean;
   run: (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
 }) {
+  const t = useT("partner.tables");
   const [pick, setPick] = useState<Record<string, string>>({});
   return (
     <section className="rounded-card border border-border bg-surface-white p-4">
-      <h2 className="font-display text-lg font-bold text-text-primary mb-3">Rezervări de azi</h2>
+      <h2 className="font-display text-lg font-bold text-text-primary mb-3">{t("reservationsPanel.title")}</h2>
       {reservations.length === 0 ? (
-        <p className="text-sm text-text-muted">Nicio rezervare neasezată.</p>
+        <p className="text-sm text-text-muted">{t("reservationsPanel.empty")}</p>
       ) : (
         <ul className="space-y-3">
           {reservations.map((r) => (
@@ -251,19 +245,19 @@ function ReservationsPanel({
                 {r.time} · {r.guestName}
               </p>
               <p className="text-xs text-text-muted mb-2">
-                {r.partySize} {r.partySize === 1 ? "persoană" : "persoane"}
+                {t("reservationsPanel.party", { count: r.partySize })}
               </p>
               <div className="flex items-center gap-2">
                 <select
-                  aria-label={`Alege masa pentru ${r.guestName}`}
+                  aria-label={t("reservationsPanel.pickTableAriaLabel", { name: r.guestName })}
                   value={pick[r.id] ?? ""}
                   onChange={(e) => setPick((p) => ({ ...p, [r.id]: e.target.value }))}
                   className="flex-1 rounded border border-border p-1.5 text-sm"
                 >
-                  <option value="">Alege masa…</option>
-                  {freeTables.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.label} ({t.capacityMin}–{t.capacityMax})
+                  <option value="">{t("reservationsPanel.pickTablePlaceholder")}</option>
+                  {freeTables.map((tbl) => (
+                    <option key={tbl.id} value={tbl.id}>
+                      {t("reservationsPanel.tableOption", { label: tbl.label, min: tbl.capacityMin, max: tbl.capacityMax })}
                     </option>
                   ))}
                 </select>
@@ -273,7 +267,7 @@ function ReservationsPanel({
                   onClick={() => run(() => assignReservationToTableAction({ reservationId: r.id, tableId: pick[r.id] }))}
                   className="rounded bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  Asează
+                  {t("reservationsPanel.seat")}
                 </button>
               </div>
             </li>
@@ -295,6 +289,7 @@ function WalkinPanel({
   pending: boolean;
   run: (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
 }) {
+  const t = useT("partner.tables");
   const [name, setName] = useState("");
   const [party, setParty] = useState(2);
   const [phone, setPhone] = useState("");
@@ -309,13 +304,13 @@ function WalkinPanel({
 
   return (
     <aside className="rounded-card border border-border bg-surface-white p-4">
-      <h2 className="font-display text-lg text-text-primary">Listă de așteptare</h2>
+      <h2 className="font-display text-lg text-text-primary">{t("walkinPanel.title")}</h2>
 
       <div className="mt-3 space-y-2 rounded-lg bg-surface-bg p-3">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nume oaspete"
+          placeholder={t("walkinPanel.namePlaceholder")}
           className="w-full rounded-md border border-border px-2 py-1.5 text-sm focus:border-brand-primary focus:outline-none"
         />
         <div className="flex gap-2">
@@ -326,12 +321,12 @@ function WalkinPanel({
             value={party}
             onChange={(e) => setParty(Math.max(1, Number(e.target.value) || 1))}
             className="w-20 rounded-md border border-border px-2 py-1.5 text-sm focus:border-brand-primary focus:outline-none"
-            aria-label="Persoane"
+            aria-label={t("walkinPanel.partyAriaLabel")}
           />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="Telefon (opțional)"
+            placeholder={t("walkinPanel.phonePlaceholder")}
             className="flex-1 rounded-md border border-border px-2 py-1.5 text-sm focus:border-brand-primary focus:outline-none"
           />
         </div>
@@ -341,23 +336,23 @@ function WalkinPanel({
           onClick={add}
           className="w-full rounded-md bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
         >
-          Adaugă în listă
+          {t("walkinPanel.add")}
         </button>
       </div>
 
       <ul className="mt-4 space-y-2">
-        {walkins.length === 0 && <li className="text-sm text-text-muted">Lista e goală.</li>}
+        {walkins.length === 0 && <li className="text-sm text-text-muted">{t("walkinPanel.empty")}</li>}
         {walkins.map((w) => (
           <li key={w.id} className="rounded-lg border border-border p-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-text-primary">
                 {w.position}. {w.guestName}
               </span>
-              <span className="text-xs text-text-muted">{w.partySize} pers.</span>
+              <span className="text-xs text-text-muted">{t("walkinPanel.party", { count: w.partySize })}</span>
             </div>
             <div className="text-xs text-text-muted">
-              {w.status === "called" ? "Chemat" : "Așteaptă"}
-              {w.estimatedWaitMinutes != null ? ` · ~${w.estimatedWaitMinutes} min` : ""}
+              {w.status === "called" ? t("walkinPanel.statusCalled") : t("walkinPanel.statusWaiting")}
+              {w.estimatedWaitMinutes != null ? t("walkinPanel.waitSuffix", { minutes: w.estimatedWaitMinutes }) : ""}
             </div>
             <div className="mt-1.5 flex gap-1.5">
               {w.status === "waiting" && (
@@ -367,7 +362,7 @@ function WalkinPanel({
                   onClick={() => run(() => callWalkinAction(w.id))}
                   className="rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg"
                 >
-                  Cheamă
+                  {t("walkinPanel.call")}
                 </button>
               )}
               <button
@@ -376,7 +371,7 @@ function WalkinPanel({
                 onClick={() => run(() => seatWalkinAction({ walkinId: w.id }))}
                 className="rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg"
               >
-                Așază
+                {t("walkinPanel.seat")}
               </button>
               <button
                 type="button"
@@ -384,7 +379,7 @@ function WalkinPanel({
                 onClick={() => run(() => markWalkinLeftAction(w.id))}
                 className="rounded-md border border-border px-2 py-0.5 text-xs font-medium text-red-600 hover:bg-surface-bg"
               >
-                A plecat
+                {t("walkinPanel.left")}
               </button>
             </div>
           </li>

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import { createSectionAction, updateSectionAction, archiveSectionAction } from "../actions";
 
 export interface SectionRow {
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export function SectionsManager({ restaurantId, organizationId, sections }: Props) {
+  const t = useT("partner.tables");
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +72,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
   const submitCreate = () => {
     setError(null);
     if (!form.name.trim()) {
-      setError("Numele secțiunii este obligatoriu.");
+      setError(t("sections.nameRequired"));
       return;
     }
     start(async () => {
@@ -93,7 +95,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
   const submitUpdate = (id: string) => {
     setError(null);
     if (!form.name.trim()) {
-      setError("Numele secțiunii este obligatoriu.");
+      setError(t("sections.nameRequired"));
       return;
     }
     const section = sections.find((s) => s.id === id);
@@ -119,11 +121,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
   };
 
   const handleDelete = (row: SectionRow) => {
-    if (
-      !confirm(
-        `Ștergi secțiunea „${row.name}"? Mesele din ea rămân intacte, dar pierd asocierea cu secțiunea.`,
-      )
-    ) {
+    if (!confirm(t("sections.deleteConfirm", { name: row.name }))) {
       return;
     }
     setError(null);
@@ -149,7 +147,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
         className="w-full flex items-center justify-between px-5 py-4 text-left"
       >
         <span className="font-display text-base font-bold text-text-primary">
-          Secțiuni ({sections.length})
+          {t("sections.heading", { count: sections.length })}
         </span>
         {expanded ? (
           <ChevronUp size={16} className="text-text-secondary" />
@@ -177,7 +175,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
                 setForm={setForm}
                 onCancel={cancel}
                 onSubmit={() => submitUpdate(row.id)}
-                submitLabel="Salvează"
+                submitLabel={t("sections.form.save")}
                 pending={pending}
               />
             ) : (
@@ -203,7 +201,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
                     type="button"
                     onClick={() => beginEdit(row)}
                     disabled={pending}
-                    aria-label={`Editează ${row.name}`}
+                    aria-label={t("sections.editAriaLabel", { name: row.name })}
                     className="p-2 rounded-lg text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                   >
                     <Pencil size={14} />
@@ -212,7 +210,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
                     type="button"
                     onClick={() => handleDelete(row)}
                     disabled={pending}
-                    aria-label={`Șterge ${row.name}`}
+                    aria-label={t("sections.deleteAriaLabel", { name: row.name })}
                     className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
                   >
                     <Trash2 size={14} />
@@ -228,7 +226,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
               setForm={setForm}
               onCancel={cancel}
               onSubmit={submitCreate}
-              submitLabel="Adaugă"
+              submitLabel={t("sections.form.add")}
               pending={pending}
             />
           ) : (
@@ -236,7 +234,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
               <Button variant="secondary" onClick={beginCreate} disabled={pending}>
                 <span className="inline-flex items-center gap-2">
                   <Plus size={14} />
-                  Secțiune nouă
+                  {t("sections.newSection")}
                 </span>
               </Button>
             </div>
@@ -262,6 +260,7 @@ function SectionForm({
   submitLabel: string;
   pending: boolean;
 }) {
+  const t = useT("partner.tables");
   return (
     <form
       onSubmit={(e) => {
@@ -272,7 +271,7 @@ function SectionForm({
     >
       <div className="grid grid-cols-2 gap-3">
         <label className="block col-span-2">
-          <span className="text-sm font-medium text-text-primary">Nume secțiune</span>
+          <span className="text-sm font-medium text-text-primary">{t("sections.form.nameLabel")}</span>
           <input
             type="text"
             value={form.name}
@@ -280,27 +279,27 @@ function SectionForm({
             maxLength={60}
             required
             autoFocus
-            placeholder="Ex. Terasă, Sală principală"
+            placeholder={t("sections.form.namePlaceholder")}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary bg-white"
           />
         </label>
 
         <label className="block">
           <span className="text-sm font-medium text-text-primary">
-            Culoare <span className="text-text-muted">(#hex, op.)</span>
+            {t("sections.form.colorLabel")} <span className="text-text-muted">{t("sections.form.colorOptional")}</span>
           </span>
           <input
             type="text"
             value={form.color}
             onChange={(e) => setForm({ ...form, color: e.target.value })}
             maxLength={7}
-            placeholder="#aabbcc"
+            placeholder={t("sections.form.colorPlaceholder")}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary bg-white"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-text-primary">Ordine</span>
+          <span className="text-sm font-medium text-text-primary">{t("sections.form.sortOrderLabel")}</span>
           <input
             type="number"
             inputMode="numeric"
@@ -314,10 +313,10 @@ function SectionForm({
 
       <div className="flex items-center gap-2 justify-end">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={pending}>
-          Anulează
+          {t("sections.form.cancel")}
         </Button>
         <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? "Se salvează…" : submitLabel}
+          {pending ? t("sections.form.saving") : submitLabel}
         </Button>
       </div>
     </form>
