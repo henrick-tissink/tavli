@@ -13,31 +13,19 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { analyticsQueries, toPartyMixSeries, toCancellationDonut } from "@/lib/analytics/queries";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { AnalyticsView, type AnalyticsViewData } from "../../../(dashboard)/analytics/_components/AnalyticsView";
 
 export const dynamic = "force-dynamic";
 
-const CANCEL_RO: Record<string, string> = {
-  restaurant_closed: "Restaurant închis",
-  overbooked: "Suprarezervare",
-  kitchen_issue: "Bucătărie",
-  private_event: "Eveniment privat",
-  other: "Altul",
-  diner: "Client",
-};
-const CHANNEL_RO: Record<string, string> = {
-  widget: "Widget",
-  venue_page: "Pagină local",
-  editorial: "Editorial",
-  corporate: "Corporate",
-  walk_in: "Walk-in",
-  manual: "Manual",
-  unknown: "Necunoscut",
-};
-const SERVICE_RO: Record<string, string> = { brunch: "Brunch", lunch: "Prânz", dinner: "Cină", late: "Târziu", all_day: "Toată ziua" };
-
 export default async function OrgAnalyticsPage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.org");
+  const CANCEL_LABELS = m.analytics.cancelReasons;
+  const CHANNEL_LABELS = m.analytics.channels;
+  const SERVICE_LABELS = m.analytics.services;
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
   if (!(await can(session, "analytics.read", { kind: "organization", id: orgId }))) {
@@ -84,11 +72,11 @@ export default async function OrgAnalyticsPage({ params }: { params: Promise<{ o
       bookingsDelta: 0,
       coversDelta: 0,
     },
-    coversPerService: (coversRows as unknown as Array<{ service_label: string; covers: number }>).map((r) => ({ label: SERVICE_RO[r.service_label] ?? r.service_label, covers: r.covers })),
+    coversPerService: (coversRows as unknown as Array<{ service_label: string; covers: number }>).map((r) => ({ label: SERVICE_LABELS[r.service_label] ?? r.service_label, covers: r.covers })),
     noShowTrend: (noShowRows as unknown as Array<{ date: string; no_shows: number; bookings: number }>).map((r) => ({ date: r.date.slice(5), rate: r.bookings > 0 ? r.no_shows / r.bookings : 0 })),
     partyMix: toPartyMixSeries(partyRows as unknown as Array<Record<string, number>>),
-    cancellations: toCancellationDonut(cancelRow).map((d) => ({ label: CANCEL_RO[d.reason] ?? d.reason, count: d.count })),
-    channel: Object.entries(CHANNEL_RO).map(([key, label]) => ({ label, count: channelRow[key] ?? 0 })),
+    cancellations: toCancellationDonut(cancelRow).map((d) => ({ label: CANCEL_LABELS[d.reason] ?? d.reason, count: d.count })),
+    channel: Object.entries(CHANNEL_LABELS).map(([key, label]) => ({ label, count: channelRow[key] ?? 0 })),
     // Per-venue Pro charts aren't aggregated at org level in v1 (empty-state); cohort is org-scoped.
     heatMap: Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => null)),
     cohort: (cohortRows as Array<{ cohort_month: string; month_offset: number; retention_rate: string | null }>).map((c) => ({

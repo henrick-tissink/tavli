@@ -5,15 +5,19 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, cities } from "@/lib/db/schema";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { formatDate } from "@/lib/i18n/format";
 import { VenueRowActions } from "./_components/VenueRowActions";
 
 export const dynamic = "force-dynamic";
 
-const fmtDate = (d: Date | null) =>
-  d ? new Intl.DateTimeFormat("ro-RO", { day: "numeric", month: "short", year: "numeric" }).format(d) : "—";
-
 export default async function OrgVenuesPage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.org");
+  const fmtDate = (d: Date | null) =>
+    d ? formatDate(d, locale, { day: "numeric", month: "short", year: "numeric" }) : m.venues.emptyCity;
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
   if (!(await can(session, "org.read", { kind: "organization", id: orgId }))) redirect("/partner");
@@ -36,13 +40,13 @@ export default async function OrgVenuesPage({ params }: { params: Promise<{ orgI
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl text-text-primary">Toate locațiile</h2>
+        <h2 className="font-display text-xl text-text-primary">{m.venues.title}</h2>
         {canAddVenue && (
           <Link
             href={`/partner/org/${orgId}/venues/new`}
             className="inline-flex min-h-[40px] items-center rounded-button bg-brand-primary px-4 py-2 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            + Adaugă o locație
+            {m.venues.addVenue}
           </Link>
         )}
       </div>
@@ -56,19 +60,19 @@ export default async function OrgVenuesPage({ params }: { params: Promise<{ orgI
             <div className="min-w-0">
               <p className="font-medium text-text-primary">{v.name}</p>
               <p className="text-xs text-text-secondary">
-                {v.cityName ?? "—"} · adăugată {fmtDate(v.createdAt)}
+                {v.cityName ?? m.venues.emptyCity} · {m.venues.addedPrefix} {fmtDate(v.createdAt)}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <span className="rounded-pill bg-surface-bg px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary ring-1 ring-border">
-                {v.archivedAt ? "Dezactivată" : v.status}
+                {v.archivedAt ? m.venues.statusDeactivated : v.status}
               </span>
               <VenueRowActions organizationId={orgId} restaurantId={v.id} archived={!!v.archivedAt} />
             </div>
           </li>
         ))}
         {venues.length === 0 && (
-          <li className="px-5 py-8 text-center text-sm text-text-muted">Nicio locație încă.</li>
+          <li className="px-5 py-8 text-center text-sm text-text-muted">{m.venues.empty}</li>
         )}
       </ul>
     </div>

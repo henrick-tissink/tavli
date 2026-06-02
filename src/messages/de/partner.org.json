@@ -1,0 +1,129 @@
+{
+  "layout": {
+    "back": "Zurück zum Restaurant",
+    "eyebrow": "Organisation"
+  },
+  "tabs": {
+    "overview": "Übersicht",
+    "venues": "Standorte",
+    "members": "Team",
+    "analytics": "Analysen"
+  },
+  "overview": {
+    "statActiveVenues": "Aktive Standorte",
+    "statPlan": "Tarif",
+    "planPro": "Tavli Pro",
+    "planBase": "Tavli",
+    "statBookingsToday": "Reservierungen heute",
+    "statCoversToday": "Gedecke heute",
+    "venuesTitle": "Ihre Standorte",
+    "manage": "Verwalten →",
+    "emptyCity": "—",
+    "addVenue": "+ Standort hinzufügen",
+    "surcharge": "{extra} zusätzliche Standorte × 15 €/Monat über die 3 in Pro enthaltenen hinaus."
+  },
+  "members": {
+    "title": "Mitglieder der Organisation",
+    "subtitle": "Personen mit Zugriff auf Organisationsebene und auf alle Standorte.",
+    "colPerson": "Person",
+    "colRole": "Rolle",
+    "colMemberSince": "Mitglied seit",
+    "fallback": "—",
+    "inviteTitle": "Mitglied einladen",
+    "inviteSubtitle": "Senden Sie eine Einladung per E-Mail. Der Link läuft in 14 Tagen ab.",
+    "pendingTitle": "Ausstehende Einladungen",
+    "colEmail": "E-Mail",
+    "colExpires": "Läuft ab",
+    "colActions": "Aktionen"
+  },
+  "inviteForm": {
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "kollege@beispiel.de",
+    "roleLabel": "Rolle",
+    "roleAdmin": "Administrator",
+    "roleManager": "Manager",
+    "submitting": "Wird gesendet…",
+    "submit": "Einladung senden",
+    "success": "Die Einladung wurde gesendet.",
+    "errors": {
+      "auth_required": "Sie müssen angemeldet sein.",
+      "forbidden": "Sie haben keine Berechtigung, Mitglieder einzuladen.",
+      "invalid_input": "Prüfen Sie die E-Mail-Adresse und die Rolle.",
+      "generic": "Die Einladung konnte nicht gesendet werden."
+    }
+  },
+  "rowActions": {
+    "resend": "Erneut senden",
+    "resent": "Erneut gesendet",
+    "error": "Fehler",
+    "revoke": "Abbrechen"
+  },
+  "venues": {
+    "title": "Alle Standorte",
+    "addVenue": "+ Standort hinzufügen",
+    "addedPrefix": "hinzugefügt",
+    "emptyCity": "—",
+    "statusDeactivated": "Deaktiviert",
+    "empty": "Noch keine Standorte.",
+    "reactivate": "Reaktivieren",
+    "deactivate": "Deaktivieren",
+    "deactivatePrompt": "Grund für die Deaktivierung (optional):",
+    "toastDeactivated": "Standort deaktiviert.",
+    "toastReactivated": "Standort reaktiviert.",
+    "errorFutureReservations": "Dieser Standort hat anstehende Reservierungen. Stornieren Sie diese oder warten Sie, bis sie vorbei sind.",
+    "errorDeactivateFailed": "Die Deaktivierung ist fehlgeschlagen.",
+    "errorReactivateProRequired": "Die Reaktivierung erfordert den Pro-Tarif.",
+    "errorReactivateLimit": "Sie haben das Standortlimit Ihres Tarifs erreicht.",
+    "errorReactivateFailed": "Die Reaktivierung ist fehlgeschlagen."
+  },
+  "addVenue": {
+    "title": "Standort hinzufügen",
+    "subtitle": "Sie erstellen einen neuen Standort in der Organisation. Nach der Erstellung konfigurieren Sie ihn (Öffnungszeiten, Fotos, Speisekarte).",
+    "nameLabel": "Name des Standorts",
+    "namePlaceholder": "Bistro Lipscani",
+    "cityLabel": "Stadt",
+    "cityPlaceholder": "Stadt auswählen…",
+    "addressLabel": "Adresse",
+    "addressOptional": "(optional)",
+    "addressPlaceholder": "Str. Lipscani 12",
+    "billingNote": "Dieser Standort übersteigt die 3 in Pro enthaltenen — +15 €/Monat werden anteilig zum Abonnement hinzugefügt.",
+    "submit": "Standort erstellen",
+    "errorRequired": "Geben Sie den Namen und die Stadt ein.",
+    "toastCreated": "Standort erstellt. Setzen Sie die Konfiguration fort.",
+    "errorProRequired": "Das Hinzufügen von Standorten erfordert den Tavli-Pro-Tarif. Wechseln Sie über die Abrechnungsseite zu Pro.",
+    "errorLimit": "Sie haben das Standortlimit Ihres Tarifs erreicht.",
+    "errorCreateFailed": "Die Erstellung des Standorts ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "roles": {
+    "owner": "Inhaber",
+    "admin": "Administrator",
+    "manager": "Manager",
+    "host": "Empfang"
+  },
+  "analytics": {
+    "cancelReasons": {
+      "restaurant_closed": "Restaurant geschlossen",
+      "overbooked": "Überbucht",
+      "kitchen_issue": "Küche",
+      "private_event": "Privatveranstaltung",
+      "other": "Sonstiges",
+      "diner": "Gast"
+    },
+    "channels": {
+      "widget": "Widget",
+      "venue_page": "Standortseite",
+      "editorial": "Redaktionell",
+      "corporate": "Corporate",
+      "walk_in": "Walk-in",
+      "manual": "Manuell",
+      "unknown": "Unbekannt"
+    },
+    "services": {
+      "brunch": "Brunch",
+      "lunch": "Mittag",
+      "dinner": "Abendessen",
+      "late": "Spät",
+      "all_day": "Ganztägig"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 import { revokeOrgInvitationAction, resendOrgInvitationAction } from "../actions";
 
 export function InvitationRowActions({
@@ -10,6 +11,7 @@ export function InvitationRowActions({
   organizationId: string;
   invitationId: string;
 }) {
+  const t = useT("partner.org");
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState<string | null>(null);
 
@@ -23,12 +25,12 @@ export function InvitationRowActions({
           startTransition(async () => {
             setNote(null);
             const res = await resendOrgInvitationAction(organizationId, invitationId);
-            setNote(res.ok ? "Retrimisă" : "Eroare");
+            setNote(res.ok ? t("rowActions.resent") : t("rowActions.error"));
           })
         }
         className="text-xs font-semibold text-brand-primary hover:underline disabled:opacity-50"
       >
-        Retrimite
+        {t("rowActions.resend")}
       </button>
       <button
         type="button"
@@ -41,7 +43,7 @@ export function InvitationRowActions({
         }
         className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
       >
-        Anulează
+        {t("rowActions.revoke")}
       </button>
     </div>
   );

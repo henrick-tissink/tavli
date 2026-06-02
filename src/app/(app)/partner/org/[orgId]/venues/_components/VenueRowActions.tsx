@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { removeVenueFromOrgAction, reactivateVenueAction } from "../../venues/actions";
 
 export function VenueRowActions({
@@ -15,20 +16,21 @@ export function VenueRowActions({
   archived: boolean;
 }) {
   const router = useRouter();
+  const t = useT("partner.org");
   const [pending, startTransition] = useTransition();
 
   function deactivate() {
-    const reason = window.prompt("Motivul dezactivării (opțional):") ?? "";
+    const reason = window.prompt(t("venues.deactivatePrompt")) ?? "";
     startTransition(async () => {
       const res = await removeVenueFromOrgAction({ organizationId, restaurantId, reason });
       if (res.ok) {
-        toast.success("Locație dezactivată.");
+        toast.success(t("venues.toastDeactivated"));
         router.refresh();
       } else {
         toast.error(
           res.error.includes("TV703")
-            ? "Locația are rezervări viitoare. Anulează-le sau așteaptă să treacă."
-            : "Dezactivarea nu a reușit.",
+            ? t("venues.errorFutureReservations")
+            : t("venues.errorDeactivateFailed"),
         );
       }
     });
@@ -38,15 +40,15 @@ export function VenueRowActions({
     startTransition(async () => {
       const res = await reactivateVenueAction({ organizationId, restaurantId });
       if (res.ok) {
-        toast.success("Locație reactivată.");
+        toast.success(t("venues.toastReactivated"));
         router.refresh();
       } else {
         toast.error(
           res.error.includes("TV701")
-            ? "Reactivarea necesită planul Pro."
+            ? t("venues.errorReactivateProRequired")
             : res.error.includes("TV702")
-              ? "Ai atins limita de locații a planului."
-              : "Reactivarea nu a reușit.",
+              ? t("venues.errorReactivateLimit")
+              : t("venues.errorReactivateFailed"),
         );
       }
     });
@@ -59,7 +61,7 @@ export function VenueRowActions({
       disabled={pending}
       className="min-h-[36px] rounded-button border border-border px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
     >
-      Reactivează
+      {t("venues.reactivate")}
     </button>
   ) : (
     <button
@@ -68,7 +70,7 @@ export function VenueRowActions({
       disabled={pending}
       className="min-h-[36px] rounded-button px-3 py-1.5 text-xs font-semibold text-text-secondary hover:text-error disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
     >
-      Dezactivează
+      {t("venues.deactivate")}
     </button>
   );
 }
