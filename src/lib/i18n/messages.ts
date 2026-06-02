@@ -20,6 +20,14 @@ import roBooking from "@/messages/ro/booking.json";
 import enBooking from "@/messages/en/booking.json";
 import deBooking from "@/messages/de/booking.json";
 
+import roReviews from "@/messages/ro/reviews.json";
+import enReviews from "@/messages/en/reviews.json";
+import deReviews from "@/messages/de/reviews.json";
+
+import roEvents from "@/messages/ro/events.json";
+import enEvents from "@/messages/en/events.json";
+import deEvents from "@/messages/de/events.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -324,6 +332,151 @@ export interface BookingMessages {
   };
 }
 
+/** Structural contract for the `reviews` namespace. */
+export interface ReviewsMessages {
+  page: {
+    eyebrow: string;
+    readyHeading: string;
+    readyBody: string;
+    alreadyReviewedTitle: string;
+    alreadyReviewedBody: string;
+    ineligibleTitle: string;
+    ineligibleBody: string;
+    notFoundTitle: string;
+    notFoundBody: string;
+    configMissingTitle: string;
+    configMissingBody: string;
+    contactLabel: string;
+  };
+  form: {
+    ratingLegend: string;
+    commentLabel: string;
+    commentOptional: string;
+    commentPlaceholder: string;
+    aggregateLabel: string;
+    submitPending: string;
+    submitLabel: string;
+    errorNoRating: string;
+    errorGeneric: string;
+    doneTitle: string;
+    doneBody: string;
+  };
+}
+
+/** Structural contract for the `events` namespace. */
+export interface EventsMessages {
+  cta: {
+    organise: string;
+    organisePrivate: string;
+    organiseSubtitle: string;
+  };
+  sheet: {
+    titleSuffix: string;
+    closeAriaLabel: string;
+    occasion: {
+      heading: string;
+      labels: Record<string, string>;
+    };
+    date: { label: string; timePrefLabel: string; timePrefPlaceholder: string };
+    details: {
+      persoanelLabel: string;
+      spaceLabel: string;
+      budgetLabel: string;
+      menuLabel: string;
+      dietaryLabel: string;
+      notesLabel: string;
+    };
+    identity: {
+      nameLabel: string;
+      emailLabel: string;
+      phoneLabel: string;
+      companyCheckLabel: string;
+      cuiLabel: string;
+      companyNameLabel: string;
+    };
+    continue: string;
+    back: string;
+    submitPending: string;
+    submitLabel: string;
+    errorGeneric: string;
+  };
+  sheetV2: {
+    titleSuffix: string;
+    closeAriaLabel: string;
+    dialogAriaLabel: string;
+    progress: { stepLabel: string };
+    stepOccasion: {
+      heading: string;
+      subheading: string;
+      occasions: Record<string, { label: string; blurb: string }>;
+      continue: string;
+    };
+    stepDate: {
+      heading: string;
+      leadTimeNotice: string;
+      timePrefLabel: string;
+      timePrefPlaceholder: string;
+      back: string;
+      continue: string;
+    };
+    stepDetails: {
+      heading: string;
+      partySizeLabel: string;
+      spaceLabel: string;
+      spaceFreeLabel: string;
+      budgetLabel: string;
+      menuSectionLabel: string;
+      menuPlaceholder: string;
+      dietaryPlaceholder: string;
+      notesPlaceholder: string;
+      back: string;
+      continue: string;
+    };
+    stepIdentity: {
+      heading: string;
+      nameLabel: string;
+      emailLabel: string;
+      phoneLabel: string;
+      companyCheckLabel: string;
+      confirmationNotice: string;
+      errorNoOccasion: string;
+      back: string;
+      submitPending: string;
+      submitLabel: string;
+    };
+    stepSent: {
+      heading: string;
+      body: string;
+      spamNotice: string;
+    };
+  };
+  landing: {
+    hero: {
+      eyebrow: string;
+      heading: string;
+      body: string;
+      venueCount: { one: string; few: string; other: string };
+    };
+    occasionGrid: {
+      heading: string;
+      occasions: Record<string, { label: string; blurb: string }>;
+    };
+    allVenuesHeading: string;
+  };
+  tracking: {
+    requestLabel: string;
+    partySizeUnit: string;
+    partnerResponseLabel: string;
+    quoteLabel: string;
+    quoteCurrency: string;
+    acceptQuote: string;
+    declineQuote: string;
+    declineReasonPrefix: string;
+    cancelRequest: string;
+    status: Record<string, string>;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -349,6 +502,14 @@ const CATALOGS = {
   booking: { ro: roBooking, en: enBooking, de: deBooking } as Record<
     Locale,
     BookingMessages
+  >,
+  reviews: { ro: roReviews, en: enReviews, de: deReviews } as Record<
+    Locale,
+    ReviewsMessages
+  >,
+  events: { ro: roEvents, en: enEvents, de: deEvents } as Record<
+    Locale,
+    EventsMessages
   >,
 } as const;
 

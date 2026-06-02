@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitReviewByToken } from "@/app/(public)/[lang]/reviews/[token]/actions";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props {
   token: string;
@@ -11,6 +12,7 @@ interface Props {
 const MAX_COMMENT = 500;
 
 export function ReviewSubmitForm({ token, initialRating }: Props) {
+  const t = useT("reviews");
   const [rating, setRating] = useState<number>(
     initialRating >= 1 && initialRating <= 5 ? initialRating : 0,
   );
@@ -23,7 +25,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (rating < 1) {
-      setError("Alege întâi o stea.");
+      setError(t("form.errorNoRating"));
       return;
     }
     setSubmitting(true);
@@ -37,7 +39,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     if (r.ok) {
       setDone(true);
     } else {
-      setError(r.error ?? "Recenzia nu a putut fi salvată.");
+      setError(r.error ?? t("form.errorGeneric"));
     }
   }
 
@@ -49,10 +51,10 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
         className="rounded-card bg-brand-primary-soft p-6 text-center"
       >
         <p className="font-display text-xl font-bold text-brand-primary-dark">
-          Mulțumim — recenzia ta e salvată.
+          {t("form.doneTitle")}
         </p>
         <p className="text-sm text-text-secondary mt-2">
-          Diners verificați îi ajută pe ceilalți să aleagă mai bine.
+          {t("form.doneBody")}
         </p>
       </div>
     );
@@ -62,7 +64,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
     <form onSubmit={onSubmit} className="space-y-4">
       <fieldset>
         <legend className="text-sm font-semibold text-text-primary mb-2">
-          Nota ta
+          {t("form.ratingLegend")}
         </legend>
         <div className="flex items-center gap-1" role="radiogroup">
           {[1, 2, 3, 4, 5].map((n) => (
@@ -88,7 +90,8 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
       </fieldset>
       <label className="block">
         <span className="text-sm font-semibold text-text-primary">
-          Comentariu <span className="text-text-muted font-normal">(opțional)</span>
+          {t("form.commentLabel")}{" "}
+          <span className="text-text-muted font-normal">{t("form.commentOptional")}</span>
         </span>
         <textarea
           value={comment}
@@ -97,7 +100,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
           rows={4}
           aria-describedby="review-comment-count"
           className="mt-2 block w-full rounded-lg border border-border p-3 text-sm"
-          placeholder="Ce te-a impresionat?"
+          placeholder={t("form.commentPlaceholder")}
         />
         <span id="review-comment-count" className="text-xs text-text-muted">
           {comment.length}/{MAX_COMMENT}
@@ -110,11 +113,10 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
           onChange={(e) => setIncludeInAggregate(e.target.checked)}
           className="mt-0.5 h-4 w-4 accent-brand-primary"
         />
-        <span className="text-sm text-text-secondary">
-          Include recenzia mea în <strong>nota medie publică</strong> a
-          restaurantului. Recenzia ta apare oricum; bifează doar dacă vrei să
-          conteze și în media afișată.
-        </span>
+        <span
+          className="text-sm text-text-secondary"
+          dangerouslySetInnerHTML={{ __html: t("form.aggregateLabel") }}
+        />
       </label>
       {error && (
         <p className="text-sm text-error" role="alert">
@@ -127,7 +129,7 @@ export function ReviewSubmitForm({ token, initialRating }: Props) {
         aria-busy={submitting}
         className="w-full bg-brand-primary text-white font-semibold py-3 rounded-lg disabled:opacity-50"
       >
-        {submitting ? "Se trimite…" : "Trimite recenzia"}
+        {submitting ? t("form.submitPending") : t("form.submitLabel")}
       </button>
     </form>
   );

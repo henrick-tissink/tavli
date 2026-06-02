@@ -1,0 +1,29 @@
+{
+  "page": {
+    "eyebrow": "Review",
+    "readyHeading": "How was {restaurantName}?",
+    "readyBody": "You visited on {date}. Your review is anonymous — only your first name is shown.",
+    "alreadyReviewedTitle": "Review already submitted",
+    "alreadyReviewedBody": "You've already left a review for this reservation. Thank you once again!",
+    "ineligibleTitle": "This reservation cannot be reviewed",
+    "ineligibleBody": "This reservation was cancelled or marked as a no-show, so it is not eligible for a review.",
+    "notFoundTitle": "Link not recognised",
+    "notFoundBody": "This review link was not recognised. It may be misspelled — try copying it again from the email.",
+    "configMissingTitle": "Platform not configured",
+    "configMissingBody": "Tavli is still being set up. Please try again later or contact support.",
+    "contactLabel": "Contact:"
+  },
+  "form": {
+    "ratingLegend": "Your rating",
+    "commentLabel": "Comment",
+    "commentOptional": "(optional)",
+    "commentPlaceholder": "What impressed you?",
+    "aggregateLabel": "Include my review in the restaurant's <strong>public average rating</strong>. Your review appears regardless; tick this only if you want it to count towards the displayed average.",
+    "submitPending": "Submitting…",
+    "submitLabel": "Submit review",
+    "errorNoRating": "Please select a star rating first.",
+    "errorGeneric": "Your review could not be saved.",
+    "doneTitle": "Thank you — your review has been saved.",
+    "doneBody": "Verified diners help others choose better."
+  }
+}

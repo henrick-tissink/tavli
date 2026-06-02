@@ -1,0 +1,29 @@
+{
+  "page": {
+    "eyebrow": "Bewertung",
+    "readyHeading": "Wie war es in {restaurantName}?",
+    "readyBody": "Sie haben am {date} besucht. Ihre Bewertung ist anonym — es wird nur der Vorname angezeigt.",
+    "alreadyReviewedTitle": "Bewertung bereits abgegeben",
+    "alreadyReviewedBody": "Sie haben für diese Reservierung bereits eine Bewertung hinterlassen. Nochmals vielen Dank!",
+    "ineligibleTitle": "Diese Reservierung kann nicht bewertet werden",
+    "ineligibleBody": "Diese Reservierung wurde storniert oder als nicht erschienen markiert und ist daher nicht für eine Bewertung berechtigt.",
+    "notFoundTitle": "Link nicht erkannt",
+    "notFoundBody": "Dieser Bewertungslink wurde nicht erkannt. Möglicherweise ist er falsch geschrieben — bitte kopieren Sie ihn erneut aus der E-Mail.",
+    "configMissingTitle": "Plattform nicht konfiguriert",
+    "configMissingBody": "Tavli wird noch eingerichtet. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.",
+    "contactLabel": "Kontakt:"
+  },
+  "form": {
+    "ratingLegend": "Ihre Bewertung",
+    "commentLabel": "Kommentar",
+    "commentOptional": "(optional)",
+    "commentPlaceholder": "Was hat Sie beeindruckt?",
+    "aggregateLabel": "Meine Bewertung in die <strong>öffentliche Durchschnittsbewertung</strong> des Restaurants einbeziehen. Ihre Bewertung erscheint ohnehin; wählen Sie diese Option nur, wenn sie in den angezeigten Durchschnitt einfließen soll.",
+    "submitPending": "Wird gesendet…",
+    "submitLabel": "Bewertung senden",
+    "errorNoRating": "Bitte wählen Sie zuerst eine Sternebewertung.",
+    "errorGeneric": "Ihre Bewertung konnte nicht gespeichert werden.",
+    "doneTitle": "Vielen Dank — Ihre Bewertung wurde gespeichert.",
+    "doneBody": "Verifizierte Gäste helfen anderen, die bessere Wahl zu treffen."
+  }
+}
