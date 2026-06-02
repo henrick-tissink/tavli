@@ -176,12 +176,12 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                       )}
                       {it.dietaryTags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {it.dietaryTags.map((t) => (
+                          {it.dietaryTags.map((tag) => (
                             <span
-                              key={t}
+                              key={tag}
                               className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800"
                             >
-                              {t.replace("_", "-")}
+                              {tag.replace("_", "-")}
                             </span>
                           ))}
                         </div>

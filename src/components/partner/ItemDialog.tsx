@@ -52,12 +52,12 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
 
   if (!open) return null;
 
-  const toggleTag = (t: string) => {
+  const toggleTag = (tag: string) => {
     setState((s) => ({
       ...s,
-      dietaryTags: s.dietaryTags.includes(t)
-        ? s.dietaryTags.filter((x) => x !== t)
-        : [...s.dietaryTags, t],
+      dietaryTags: s.dietaryTags.includes(tag)
+        ? s.dietaryTags.filter((x) => x !== tag)
+        : [...s.dietaryTags, tag],
     }));
   };
 
