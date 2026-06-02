@@ -56,6 +56,10 @@ import roPartnerDiners from "@/messages/ro/partner.diners.json";
 import enPartnerDiners from "@/messages/en/partner.diners.json";
 import dePartnerDiners from "@/messages/de/partner.diners.json";
 
+import roPartnerMarketing from "@/messages/ro/partner.marketing.json";
+import enPartnerMarketing from "@/messages/en/partner.marketing.json";
+import dePartnerMarketing from "@/messages/de/partner.marketing.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -717,6 +721,10 @@ export interface EmailsMessages {
 export interface PartnerCommonMessages {
   nav: {
     eyebrow: string;
+    /** Back-link shown on standalone account pages (marketing, billing, org). */
+    backToDashboard: string;
+    /** Eyebrow above the page title on standalone account pages. */
+    accountEyebrow: string;
     signOut: string;
     openMenu: string;
     closeMenu: string;
@@ -1084,6 +1092,125 @@ export interface PartnerDinersMessages {
   };
 }
 
+/** Structural contract for the `partner.marketing` namespace. */
+export interface PartnerMarketingMessages {
+  page: {
+    title: string;
+    noAccess: string;
+    proGateTitle: string;
+    proGateBody: string;
+    proGateCta: string;
+    quotaOver: string;
+    quotaNear: string;
+    quotaSurcharge: string;
+    usageTitle: string;
+    usageHint: string;
+    segmentsLink: string;
+  };
+  channels: {
+    email: string;
+    sms: string;
+    whatsapp: string;
+    in_confirmation: string;
+  };
+  triggeredLabels: {
+    post_visit_review: string;
+    pre_arrival: string;
+    birthday_anniversary: string;
+    lapsed_60: string;
+    lapsed_120: string;
+    lapsed_180: string;
+    no_show_followup: string;
+    welcome_series: string;
+  };
+  manager: {
+    actionFailed: string;
+    triggeredTitle: string;
+    triggeredSubtitle: string;
+    toggleOn: string;
+    toggleOff: string;
+    toggleAriaLabel: string;
+    campaignStopped: string;
+    campaignStarted: string;
+    triggeredEmpty: string;
+    oneOffTitle: string;
+    newCampaign: string;
+    cancel: string;
+    send: string;
+    sent: string;
+    archive: string;
+    archived: string;
+    oneOffEmpty: string;
+  };
+  newCampaign: {
+    templateLabel: string;
+    templateAriaLabel: string;
+    templateNone: string;
+    namePlaceholder: string;
+    channelAriaLabel: string;
+    subjectPlaceholder: string;
+    bodyPlaceholderRequired: string;
+    bodyPlaceholderOptional: string;
+    submit: string;
+    created: string;
+    errorInvalidInput: string;
+    errorGeneric: string;
+    localeNames: { ro: string; en: string; de: string };
+  };
+  segments: {
+    title: string;
+    subtitle: string;
+    savedTitle: string;
+    savedSize: string;
+    savedSizeEmpty: string;
+  };
+  builder: {
+    matchPrefix: string;
+    combinatorAriaLabel: string;
+    combinatorAll: string;
+    combinatorAny: string;
+    dimensionAriaLabel: string;
+    dimensions: {
+      recency: string;
+      frequency: string;
+      party_size: string;
+      occasion: string;
+      channel: string;
+    };
+    recencyModeAriaLabel: string;
+    recencyWithin: string;
+    recencyNotWithin: string;
+    daysAriaLabel: string;
+    daysSuffix: string;
+    bucketPlaceholder: string;
+    bucketAriaLabel: string;
+    minPlaceholder: string;
+    minAriaLabel: string;
+    maxPlaceholder: string;
+    maxAriaLabel: string;
+    tagPlaceholder: string;
+    tagAriaLabel: string;
+    sourcePlaceholder: string;
+    sourceAriaLabel: string;
+    removeConditionAriaLabel: string;
+    addCondition: string;
+    estimateSize: string;
+    sizeResult: PluralBag;
+    nameAriaLabel: string;
+    namePlaceholder: string;
+    save: string;
+    saved: string;
+    errorPreviewInvalid: string;
+    errorPreviewGeneric: string;
+    errorSaveInvalid: string;
+    errorSaveGeneric: string;
+  };
+  errors: {
+    atLeastOneCondition: string;
+    segmentNameRequired: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1151,6 +1278,11 @@ const CATALOGS = {
     en: enPartnerDiners,
     de: dePartnerDiners,
   } as Record<Locale, PartnerDinersMessages>,
+  "partner.marketing": {
+    ro: roPartnerMarketing,
+    en: enPartnerMarketing,
+    de: dePartnerMarketing,
+  } as Record<Locale, PartnerMarketingMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

@@ -1,6 +1,8 @@
 {
   "nav": {
     "eyebrow": "Partner",
+    "backToDashboard": "Înapoi la panou",
+    "accountEyebrow": "Cont",
     "signOut": "Deconectează-te",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",

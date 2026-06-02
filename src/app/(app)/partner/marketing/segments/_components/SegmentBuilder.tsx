@@ -9,17 +9,18 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { SegmentCondition, Combinator } from "@/lib/marketing/segment-compile";
 import { previewSegmentSizeAction, saveSegmentAction } from "../../actions";
 
 type Dimension = SegmentCondition["dimension"];
 
-const DIMENSIONS: { value: Dimension; label: string }[] = [
-  { value: "recency", label: "Recență (ultima vizită)" },
-  { value: "frequency", label: "Frecvență" },
-  { value: "party_size", label: "Mărime grup" },
-  { value: "occasion", label: "Ocazie" },
-  { value: "channel", label: "Canal de achiziție" },
+const DIMENSION_VALUES: Dimension[] = [
+  "recency",
+  "frequency",
+  "party_size",
+  "occasion",
+  "channel",
 ];
 
 interface Row {
@@ -67,6 +68,7 @@ function toCondition(r: Row): SegmentCondition {
 }
 
 export function SegmentBuilder({ organizationId }: { organizationId: string }) {
+  const t = useT("partner.marketing");
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>([blankRow()]);
   const [combinator, setCombinator] = useState<Combinator>("and");
@@ -86,7 +88,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
     startTransition(async () => {
       const res = await previewSegmentSizeAction(organizationId, rows.map(toCondition), combinator);
       if (res.ok) setSize(res.data.count);
-      else toast.error(res.code === "invalid_input" ? "Adaugă cel puțin o condiție validă." : "Estimarea nu a reușit.");
+      else toast.error(res.code === "invalid_input" ? t("builder.errorPreviewInvalid") : t("builder.errorPreviewGeneric"));
     });
   }
 
@@ -94,11 +96,11 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
     startTransition(async () => {
       const res = await saveSegmentAction(organizationId, name, rows.map(toCondition), combinator);
       if (res.ok) {
-        toast.success("Segment salvat.");
+        toast.success(t("builder.saved"));
         setName("");
         router.refresh();
       } else {
-        toast.error(res.code === "invalid_input" ? "Verifică numele și condițiile." : "Salvarea nu a reușit.");
+        toast.error(res.code === "invalid_input" ? t("builder.errorSaveInvalid") : t("builder.errorSaveGeneric"));
       }
     });
   }
@@ -106,15 +108,15 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
   return (
     <div className="rounded-card border border-border bg-surface-white p-5">
       <div className="flex items-center gap-2 text-sm text-text-secondary">
-        Potrivește oaspeții care îndeplinesc
+        {t("builder.matchPrefix")}
         <select
           value={combinator}
           onChange={(e) => { setCombinator(e.target.value as Combinator); setSize(null); }}
           className={inputCls}
-          aria-label="Combinator"
+          aria-label={t("builder.combinatorAriaLabel")}
         >
-          <option value="and">toate condițiile</option>
-          <option value="or">oricare condiție</option>
+          <option value="and">{t("builder.combinatorAll")}</option>
+          <option value="or">{t("builder.combinatorAny")}</option>
         </select>
       </div>
 
@@ -125,41 +127,41 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
               value={r.dimension}
               onChange={(e) => update(i, { dimension: e.target.value as Dimension })}
               className={inputCls}
-              aria-label="Dimensiune"
+              aria-label={t("builder.dimensionAriaLabel")}
             >
-              {DIMENSIONS.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
+              {DIMENSION_VALUES.map((d) => (
+                <option key={d} value={d}>{t(`builder.dimensions.${d}`)}</option>
               ))}
             </select>
 
             {r.dimension === "recency" && (
               <>
-                <select value={r.recencyMode} onChange={(e) => update(i, { recencyMode: e.target.value as Row["recencyMode"] })} className={inputCls} aria-label="Mod recență">
-                  <option value="within">a vizitat în ultimele</option>
-                  <option value="notWithin">nu a vizitat în ultimele</option>
+                <select value={r.recencyMode} onChange={(e) => update(i, { recencyMode: e.target.value as Row["recencyMode"] })} className={inputCls} aria-label={t("builder.recencyModeAriaLabel")}>
+                  <option value="within">{t("builder.recencyWithin")}</option>
+                  <option value="notWithin">{t("builder.recencyNotWithin")}</option>
                 </select>
-                <input type="number" min={1} value={r.days} onChange={(e) => update(i, { days: e.target.value })} className={`${inputCls} w-20`} aria-label="Zile" />
-                <span className="text-sm text-text-secondary">zile</span>
+                <input type="number" min={1} value={r.days} onChange={(e) => update(i, { days: e.target.value })} className={`${inputCls} w-20`} aria-label={t("builder.daysAriaLabel")} />
+                <span className="text-sm text-text-secondary">{t("builder.daysSuffix")}</span>
               </>
             )}
             {r.dimension === "frequency" && (
-              <input value={r.bucket} onChange={(e) => update(i, { bucket: e.target.value })} placeholder="bucket (ex. regular)" className={inputCls} aria-label="Bucket" />
+              <input value={r.bucket} onChange={(e) => update(i, { bucket: e.target.value })} placeholder={t("builder.bucketPlaceholder")} className={inputCls} aria-label={t("builder.bucketAriaLabel")} />
             )}
             {r.dimension === "party_size" && (
               <>
-                <input type="number" min={1} value={r.min} onChange={(e) => update(i, { min: e.target.value })} placeholder="min" className={`${inputCls} w-20`} aria-label="Min" />
-                <input type="number" min={1} value={r.max} onChange={(e) => update(i, { max: e.target.value })} placeholder="max" className={`${inputCls} w-20`} aria-label="Max" />
+                <input type="number" min={1} value={r.min} onChange={(e) => update(i, { min: e.target.value })} placeholder={t("builder.minPlaceholder")} className={`${inputCls} w-20`} aria-label={t("builder.minAriaLabel")} />
+                <input type="number" min={1} value={r.max} onChange={(e) => update(i, { max: e.target.value })} placeholder={t("builder.maxPlaceholder")} className={`${inputCls} w-20`} aria-label={t("builder.maxAriaLabel")} />
               </>
             )}
             {r.dimension === "occasion" && (
-              <input value={r.tag} onChange={(e) => update(i, { tag: e.target.value })} placeholder="tag (ex. birthday)" className={inputCls} aria-label="Tag" />
+              <input value={r.tag} onChange={(e) => update(i, { tag: e.target.value })} placeholder={t("builder.tagPlaceholder")} className={inputCls} aria-label={t("builder.tagAriaLabel")} />
             )}
             {r.dimension === "channel" && (
-              <input value={r.source} onChange={(e) => update(i, { source: e.target.value })} placeholder="sursă (ex. widget)" className={inputCls} aria-label="Sursă" />
+              <input value={r.source} onChange={(e) => update(i, { source: e.target.value })} placeholder={t("builder.sourcePlaceholder")} className={inputCls} aria-label={t("builder.sourceAriaLabel")} />
             )}
 
             {rows.length > 1 && (
-              <button type="button" onClick={() => { setRows((p) => p.filter((_, idx) => idx !== i)); setSize(null); }} className="ml-auto text-text-muted hover:text-error" aria-label="Elimină condiția">
+              <button type="button" onClick={() => { setRows((p) => p.filter((_, idx) => idx !== i)); setSize(null); }} className="ml-auto text-text-muted hover:text-error" aria-label={t("builder.removeConditionAriaLabel")}>
                 <Trash2 size={16} aria-hidden />
               </button>
             )}
@@ -172,7 +174,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
         onClick={() => setRows((p) => [...p, blankRow()])}
         className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary-dark hover:underline"
       >
-        <Plus size={15} aria-hidden /> Adaugă o condiție
+        <Plus size={15} aria-hidden /> {t("builder.addCondition")}
       </button>
 
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
@@ -182,22 +184,22 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
           disabled={pending}
           className="min-h-[44px] rounded-button border border-border bg-surface-white px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
         >
-          Estimează mărimea
+          {t("builder.estimateSize")}
         </button>
         {size !== null && (
           <span className="text-sm font-medium text-text-primary">
-            ≈ {size} {size === 1 ? "oaspete" : "oaspeți"}
+            {t("builder.sizeResult", { count: size })}
           </span>
         )}
         <div className="ml-auto flex items-center gap-2">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Numele segmentului" className={inputCls} aria-label="Nume segment" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("builder.namePlaceholder")} className={inputCls} aria-label={t("builder.nameAriaLabel")} />
           <button
             type="button"
             onClick={save}
             disabled={pending}
             className="min-h-[44px] rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            Salvează segmentul
+            {t("builder.save")}
           </button>
         </div>
       </div>

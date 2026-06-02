@@ -1,6 +1,8 @@
 {
   "nav": {
     "eyebrow": "Partner",
+    "backToDashboard": "Back to dashboard",
+    "accountEyebrow": "Account",
     "signOut": "Sign out",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",

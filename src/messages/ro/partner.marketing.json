@@ -1,0 +1,125 @@
+{
+  "page": {
+    "title": "Marketing",
+    "noAccess": "Nu ai acces la suita de marketing.",
+    "proGateTitle": "Suita de marketing e parte din Tavli Pro",
+    "proGateBody": "Email, SMS și WhatsApp, șase campanii automate set-and-forget, segmentare pe șase dimensiuni și plafon de frecvență — toate cu planul Pro.",
+    "proGateCta": "Treci la Pro",
+    "quotaOver": "Ai depășit alocarea inclusă pe {channels}.",
+    "quotaNear": "Aproape de limită pe {channels}.",
+    "quotaSurcharge": "Trimiterile peste alocare se facturează la suprataxă (€0,06/SMS, €0,03/WhatsApp; email gratuit).",
+    "usageTitle": "Consum luna aceasta",
+    "usageHint": "incluse",
+    "segmentsLink": "Construiește segmente de public →"
+  },
+  "channels": {
+    "email": "Email",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp",
+    "in_confirmation": "În confirmare"
+  },
+  "triggeredLabels": {
+    "post_visit_review": "Mulțumire post-vizită + recenzie",
+    "pre_arrival": "Memento înainte de sosire",
+    "birthday_anniversary": "Zi de naștere / aniversare",
+    "lapsed_60": "Reactivare oaspeți pierduți (60 zile)",
+    "lapsed_120": "Reactivare oaspeți pierduți (120 zile)",
+    "lapsed_180": "Reactivare oaspeți pierduți (180 zile)",
+    "no_show_followup": "Follow-up no-show",
+    "welcome_series": "Serie de bun-venit"
+  },
+  "manager": {
+    "actionFailed": "Acțiunea nu a reușit.",
+    "triggeredTitle": "Campanii automate",
+    "triggeredSubtitle": "Configurează o dată, rulează la nesfârșit. Pornește sau oprește fiecare.",
+    "toggleOn": "Pornește",
+    "toggleOff": "Oprește",
+    "toggleAriaLabel": "{action} campania: {name}",
+    "campaignStopped": "Campanie oprită.",
+    "campaignStarted": "Campanie pornită.",
+    "triggeredEmpty": "Nicio campanie automată configurată încă.",
+    "oneOffTitle": "Campanii punctuale",
+    "newCampaign": "+ Campanie nouă",
+    "cancel": "Anulează",
+    "send": "Trimite",
+    "sent": "Campanie trimisă spre livrare.",
+    "archive": "Arhivează",
+    "archived": "Campanie arhivată.",
+    "oneOffEmpty": "Nicio campanie punctuală încă."
+  },
+  "newCampaign": {
+    "templateLabel": "Pornește dintr-un șablon",
+    "templateAriaLabel": "Șablon",
+    "templateNone": "Fără șablon — pornesc de la zero",
+    "namePlaceholder": "Numele campaniei",
+    "channelAriaLabel": "Canal",
+    "subjectPlaceholder": "Subiect ({locale})",
+    "bodyPlaceholderRequired": "Mesajul în {locale} (obligatoriu)",
+    "bodyPlaceholderOptional": "Mesajul în {locale} (opțional)",
+    "submit": "Salvează ciorna",
+    "created": "Campanie creată (ciornă).",
+    "errorInvalidInput": "Completează numele și mesajul în română.",
+    "errorGeneric": "Crearea nu a reușit.",
+    "localeNames": {
+      "ro": "Română",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "segments": {
+    "title": "Segmente",
+    "subtitle": "Construiește un public din baza ta de oaspeți și salvează-l pentru campanii.",
+    "savedTitle": "Segmente salvate",
+    "savedSize": "≈ {count} oaspeți",
+    "savedSizeEmpty": "—"
+  },
+  "builder": {
+    "matchPrefix": "Potrivește oaspeții care îndeplinesc",
+    "combinatorAriaLabel": "Combinator",
+    "combinatorAll": "toate condițiile",
+    "combinatorAny": "oricare condiție",
+    "dimensionAriaLabel": "Dimensiune",
+    "dimensions": {
+      "recency": "Recență (ultima vizită)",
+      "frequency": "Frecvență",
+      "party_size": "Mărime grup",
+      "occasion": "Ocazie",
+      "channel": "Canal de achiziție"
+    },
+    "recencyModeAriaLabel": "Mod recență",
+    "recencyWithin": "a vizitat în ultimele",
+    "recencyNotWithin": "nu a vizitat în ultimele",
+    "daysAriaLabel": "Zile",
+    "daysSuffix": "zile",
+    "bucketPlaceholder": "bucket (ex. regular)",
+    "bucketAriaLabel": "Bucket",
+    "minPlaceholder": "min",
+    "minAriaLabel": "Min",
+    "maxPlaceholder": "max",
+    "maxAriaLabel": "Max",
+    "tagPlaceholder": "tag (ex. birthday)",
+    "tagAriaLabel": "Tag",
+    "sourcePlaceholder": "sursă (ex. widget)",
+    "sourceAriaLabel": "Sursă",
+    "removeConditionAriaLabel": "Elimină condiția",
+    "addCondition": "Adaugă o condiție",
+    "estimateSize": "Estimează mărimea",
+    "sizeResult": {
+      "one": "≈ {count} oaspete",
+      "few": "≈ {count} oaspeți",
+      "other": "≈ {count} oaspeți"
+    },
+    "nameAriaLabel": "Nume segment",
+    "namePlaceholder": "Numele segmentului",
+    "save": "Salvează segmentul",
+    "saved": "Segment salvat.",
+    "errorPreviewInvalid": "Adaugă cel puțin o condiție validă.",
+    "errorPreviewGeneric": "Estimarea nu a reușit.",
+    "errorSaveInvalid": "Verifică numele și condițiile.",
+    "errorSaveGeneric": "Salvarea nu a reușit."
+  },
+  "errors": {
+    "atLeastOneCondition": "Adaugă cel puțin o condiție.",
+    "segmentNameRequired": "Numele segmentului e obligatoriu."
+  }
+}

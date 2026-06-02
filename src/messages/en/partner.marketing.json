@@ -1,0 +1,125 @@
+{
+  "page": {
+    "title": "Marketing",
+    "noAccess": "You do not have access to the marketing suite.",
+    "proGateTitle": "The marketing suite is part of Tavli Pro",
+    "proGateBody": "Email, SMS and WhatsApp, six set-and-forget automated campaigns, segmentation across six dimensions and a frequency cap — all on the Pro plan.",
+    "proGateCta": "Upgrade to Pro",
+    "quotaOver": "You have exceeded the included allowance on {channels}.",
+    "quotaNear": "Close to the limit on {channels}.",
+    "quotaSurcharge": "Sends over the allowance are billed at a surcharge (€0.06/SMS, €0.03/WhatsApp; email free).",
+    "usageTitle": "Usage this month",
+    "usageHint": "included",
+    "segmentsLink": "Build audience segments →"
+  },
+  "channels": {
+    "email": "Email",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp",
+    "in_confirmation": "In confirmation"
+  },
+  "triggeredLabels": {
+    "post_visit_review": "Post-visit thank-you + review",
+    "pre_arrival": "Pre-arrival reminder",
+    "birthday_anniversary": "Birthday / anniversary",
+    "lapsed_60": "Win back lapsed guests (60 days)",
+    "lapsed_120": "Win back lapsed guests (120 days)",
+    "lapsed_180": "Win back lapsed guests (180 days)",
+    "no_show_followup": "No-show follow-up",
+    "welcome_series": "Welcome series"
+  },
+  "manager": {
+    "actionFailed": "The action did not succeed.",
+    "triggeredTitle": "Automated campaigns",
+    "triggeredSubtitle": "Set up once, run forever. Turn each one on or off.",
+    "toggleOn": "Turn on",
+    "toggleOff": "Turn off",
+    "toggleAriaLabel": "{action} campaign: {name}",
+    "campaignStopped": "Campaign turned off.",
+    "campaignStarted": "Campaign turned on.",
+    "triggeredEmpty": "No automated campaigns set up yet.",
+    "oneOffTitle": "One-off campaigns",
+    "newCampaign": "+ New campaign",
+    "cancel": "Cancel",
+    "send": "Send",
+    "sent": "Campaign sent for delivery.",
+    "archive": "Archive",
+    "archived": "Campaign archived.",
+    "oneOffEmpty": "No one-off campaigns yet."
+  },
+  "newCampaign": {
+    "templateLabel": "Start from a template",
+    "templateAriaLabel": "Template",
+    "templateNone": "No template — start from scratch",
+    "namePlaceholder": "Campaign name",
+    "channelAriaLabel": "Channel",
+    "subjectPlaceholder": "Subject ({locale})",
+    "bodyPlaceholderRequired": "Message in {locale} (required)",
+    "bodyPlaceholderOptional": "Message in {locale} (optional)",
+    "submit": "Save draft",
+    "created": "Campaign created (draft).",
+    "errorInvalidInput": "Fill in the name and the message in Romanian.",
+    "errorGeneric": "Creation did not succeed.",
+    "localeNames": {
+      "ro": "Română",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "segments": {
+    "title": "Segments",
+    "subtitle": "Build an audience from your guest base and save it for campaigns.",
+    "savedTitle": "Saved segments",
+    "savedSize": "≈ {count} guests",
+    "savedSizeEmpty": "—"
+  },
+  "builder": {
+    "matchPrefix": "Match guests who meet",
+    "combinatorAriaLabel": "Combinator",
+    "combinatorAll": "all conditions",
+    "combinatorAny": "any condition",
+    "dimensionAriaLabel": "Dimension",
+    "dimensions": {
+      "recency": "Recency (last visit)",
+      "frequency": "Frequency",
+      "party_size": "Party size",
+      "occasion": "Occasion",
+      "channel": "Acquisition channel"
+    },
+    "recencyModeAriaLabel": "Recency mode",
+    "recencyWithin": "visited within the last",
+    "recencyNotWithin": "has not visited within the last",
+    "daysAriaLabel": "Days",
+    "daysSuffix": "days",
+    "bucketPlaceholder": "bucket (e.g. regular)",
+    "bucketAriaLabel": "Bucket",
+    "minPlaceholder": "min",
+    "minAriaLabel": "Min",
+    "maxPlaceholder": "max",
+    "maxAriaLabel": "Max",
+    "tagPlaceholder": "tag (e.g. birthday)",
+    "tagAriaLabel": "Tag",
+    "sourcePlaceholder": "source (e.g. widget)",
+    "sourceAriaLabel": "Source",
+    "removeConditionAriaLabel": "Remove condition",
+    "addCondition": "Add a condition",
+    "estimateSize": "Estimate size",
+    "sizeResult": {
+      "one": "≈ {count} guest",
+      "few": "≈ {count} guests",
+      "other": "≈ {count} guests"
+    },
+    "nameAriaLabel": "Segment name",
+    "namePlaceholder": "Segment name",
+    "save": "Save segment",
+    "saved": "Segment saved.",
+    "errorPreviewInvalid": "Add at least one valid condition.",
+    "errorPreviewGeneric": "The estimate did not succeed.",
+    "errorSaveInvalid": "Check the name and the conditions.",
+    "errorSaveGeneric": "Saving did not succeed."
+  },
+  "errors": {
+    "atLeastOneCondition": "Add at least one condition.",
+    "segmentNameRequired": "The segment name is required."
+  }
+}
