@@ -40,7 +40,9 @@ export default async function CityEventsPage({
   const { lang: rawLang, city } = await params;
   const locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const m = getMessages(locale, "events");
-  const bundle = buildBundle(locale, ["common", "events"]);
+  // "discovery" is required because the venues section renders <RestaurantCard>,
+  // which reads useT("discovery"); without it the page throws at render.
+  const bundle = buildBundle(locale, ["common", "events", "discovery"]);
 
   const rows = await listRestaurants({
     citySlug: city,
@@ -56,6 +58,7 @@ export default async function CityEventsPage({
   });
 
   return (
+    <MessagesProvider locale={locale} bundle={bundle}>
     <main className="max-w-6xl mx-auto p-6">
       <EditorialHero
         city={cityCapitalised}
@@ -65,9 +68,7 @@ export default async function CityEventsPage({
         body={m.landing.hero.body}
         venueCountText={venueCountText}
       />
-      <MessagesProvider locale={locale} bundle={bundle}>
-        <OccasionEntryGrid />
-      </MessagesProvider>
+      <OccasionEntryGrid />
       <section>
         <h2 className="font-display text-2xl font-bold mb-4">
           {m.landing.allVenuesHeading}
@@ -101,5 +102,6 @@ export default async function CityEventsPage({
         }}
       />
     </main>
+    </MessagesProvider>
   );
 }

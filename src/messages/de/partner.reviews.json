@@ -8,7 +8,7 @@
       "few": "{count} Bewertungen",
       "other": "{count} Bewertungen"
     },
-    "summaryEmpty": "Bewertungen erscheinen hier, sobald Gäste mit einer wahrgenommenen Reservierung sie hinterlassen.",
+    "summaryEmpty": "Bewertungen erscheinen hier, sobald Gäste mit einer eingehaltenen Reservierung sie hinterlassen.",
     "starsAriaLabel": "{rating} von 5 Sternen",
     "empty": "Noch keine Bewertungen."
   },

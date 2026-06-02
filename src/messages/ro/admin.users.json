@@ -19,28 +19,28 @@
   "drawer": {
     "close": "Închide",
     "orgMembershipsHeading": "Apartenențe la organizații",
-    "orgMembershipMeta": "{role} · înregistrat {date}",
+    "orgMembershipMeta": "{role} · membru din {date}",
     "orgMembershipsEmpty": "Nu este membru al niciunei organizații.",
     "restaurantStaffHeading": "Personal restaurant",
-    "restaurantStaffMeta": "{role} · înregistrat {date}",
+    "restaurantStaffMeta": "{role} · membru din {date}",
     "restaurantStaffEmpty": "Nu este asignat niciunui restaurant.",
     "mfaFactorsHeading": "Factori MFA",
     "authenticatorFallback": "Autentificator",
     "mfaFactorMeta": "TOTP · înrolat {date}",
     "mfaFactorsEmpty": "Niciun factor MFA înrolat.",
     "auditHeading": "Cronologie audit (ultimele 50)",
-    "impersonatedBy": "impersonat de {id}",
+    "impersonatedBy": "identitate preluată de {id}",
     "auditEmpty": "Niciun eveniment.",
     "statusActive": "Activ",
     "statusInactive": "Inactiv"
   },
   "impersonate": {
-    "trigger": "Impersonează",
-    "title": "Impersonează {email}",
+    "trigger": "Preia identitatea",
+    "title": "Preia identitatea lui {email}",
     "body": "Vei vedea Tavli așa cum îl vede {email}. Fiecare acțiune este înregistrată în audit, cu identitatea ta și a sa.",
     "reasonLabel": "Motiv (opțional)",
     "reasonPlaceholder": "Investighez problema de rezervare ALC-1042",
     "cancel": "Anulează",
-    "submit": "Începe impersonarea →"
+    "submit": "Începe preluarea identității →"
   }
 }

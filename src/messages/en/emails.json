@@ -109,7 +109,7 @@
     "subject": "Your request was declined",
     "preview": "Your request was declined",
     "title": "Your request was declined",
-    "subtitle": "Hi, {guestName} — {restaurantName} cannot fulfill your request.",
+    "subtitle": "Hi, {guestName} — {restaurantName} cannot fulfil your request.",
     "reasonLabel": "Reason",
     "reasonNoAvailability": "No availability on the requested date",
     "reasonOutOfCapacity": "Capacity is not sufficient for your group",

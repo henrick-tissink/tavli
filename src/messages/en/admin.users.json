@@ -20,7 +20,7 @@
     "close": "Close",
     "orgMembershipsHeading": "Org memberships",
     "orgMembershipMeta": "{role} · joined {date}",
-    "orgMembershipsEmpty": "Not a member of any organization.",
+    "orgMembershipsEmpty": "Not a member of any organisation.",
     "restaurantStaffHeading": "Restaurant staff",
     "restaurantStaffMeta": "{role} · joined {date}",
     "restaurantStaffEmpty": "Not assigned to any restaurant.",
