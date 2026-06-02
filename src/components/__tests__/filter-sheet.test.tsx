@@ -5,6 +5,7 @@ import { FilterProvider, useFilters } from "@/lib/filter-context";
 import { getRestaurants } from "@/lib/mock-data";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roDiscovery from "@/messages/ro/discovery.json";
+import roUi from "@/messages/ro/ui.json";
 
 // Helper to read context state
 let latestCtx: ReturnType<typeof useFilters>;
@@ -17,7 +18,7 @@ function renderSheet(props: { open?: boolean; onClose?: () => void; resultCount?
   const onClose = props.onClose ?? jest.fn();
   const restaurants = getRestaurants();
   const result = render(
-    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+    <MessagesProvider locale="ro" bundle={{ ui: roUi, discovery: roDiscovery }}>
       <FilterProvider>
         <CtxSpy />
         <FilterSheet

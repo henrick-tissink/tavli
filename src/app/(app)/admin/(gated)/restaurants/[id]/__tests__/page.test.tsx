@@ -1,4 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import enUi from "@/messages/en/ui.json";
+
+// The admin detail page renders <StatusBadge>, which reads useT("ui"). In the
+// app the AdminShell supplies this provider; the isolated page render needs it
+// supplied here (locale "en" mirrors the mocked resolveAppLocale).
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="en" bundle={{ ui: enUi }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 jest.mock("@/lib/db/server", () => ({
   createSupabaseServerClient: jest.fn(),

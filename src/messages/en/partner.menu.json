@@ -15,7 +15,8 @@
     "layoutLabel": "Layout",
     "single": "Single card",
     "sheet": "Sticker sheet (×12)",
-    "print": "Print"
+    "print": "Print",
+    "scanPrompt": "Scan to view our menu"
   },
   "editor": {
     "emptyTitle": "No sections yet",

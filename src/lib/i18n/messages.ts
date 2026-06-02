@@ -1,5 +1,9 @@
 import { type Locale, DEFAULT_LOCALE, isLocale } from "./locale";
 
+import roUi from "@/messages/ro/ui.json";
+import enUi from "@/messages/en/ui.json";
+import deUi from "@/messages/de/ui.json";
+
 import roCommon from "@/messages/ro/common.json";
 import enCommon from "@/messages/en/common.json";
 import deCommon from "@/messages/de/common.json";
@@ -126,6 +130,27 @@ import dePartnerDashboard from "@/messages/de/partner.dashboard.json";
 import roPartnerReviews from "@/messages/ro/partner.reviews.json";
 import enPartnerReviews from "@/messages/en/partner.reviews.json";
 import dePartnerReviews from "@/messages/de/partner.reviews.json";
+
+/**
+ * Structural contract for the universal `ui` namespace — generic micro-labels
+ * used by primitive components rendered across multiple shells (consumer,
+ * partner, admin). This namespace is added to every `buildBundle` call so that
+ * `useT("ui")` is safe on any render path.
+ */
+export interface UiMessages {
+  close: string;
+  clear: string;
+  removeFilter: string;
+  showPassword: string;
+  hidePassword: string;
+  openMap: string;
+  statusBadge: {
+    openNow: string;
+    closed: string;
+    closesAt: string;
+    opensAt: string;
+  };
+}
 
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
@@ -297,6 +322,7 @@ export interface RestaurantMessages {
     bookTable: string;
     stickyBookCta: string;
     stickyNextSlot: string;
+    mapTitle: string;
   };
   gallery: { backAriaLabel: string; saveAriaLabel: string; shareAriaLabel: string };
   reviewCard: {
@@ -330,6 +356,7 @@ export interface MenuMessages {
     viewItem: string;
     noMatchBody: string;
     clearFilters: string;
+    qrScanPrompt: string;
   };
   itemCard: {
     chefPickAriaLabel: string;
@@ -359,6 +386,10 @@ export interface MenuMessages {
 
 /** Structural contract for the `booking` namespace. */
 export interface BookingMessages {
+  slots: {
+    more: string;
+    anotherDay: string;
+  };
   sheet: {
     headerLabel: string;
     progress: string;
@@ -1402,6 +1433,7 @@ export interface PartnerMenuMessages {
     single: string;
     sheet: string;
     print: string;
+    scanPrompt: string;
   };
   editor: {
     emptyTitle: string;
@@ -2696,6 +2728,7 @@ export interface PartnerReviewsMessages {
  * contract). Add new namespaces here as later phases extract strings.
  */
 const CATALOGS = {
+  ui: { ro: roUi, en: enUi, de: deUi } as Record<Locale, UiMessages>,
   common: { ro: roCommon, en: enCommon, de: deCommon } as Record<
     Locale,
     CommonMessages

@@ -17,6 +17,7 @@ export default async function AdminGatedLayout({
   }
   const locale = await resolveAppLocale();
   const bundle = buildBundle(locale, [
+    "ui",
     "admin.common",
     "admin.dashboard",
     "admin.restaurants",

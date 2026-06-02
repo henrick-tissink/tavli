@@ -15,7 +15,8 @@
     "layoutLabel": "Aspect",
     "single": "Card individual",
     "sheet": "Coală cu stickere (×12)",
-    "print": "Tipărește"
+    "print": "Tipărește",
+    "scanPrompt": "Scanează pentru a vedea meniul nostru"
   },
   "editor": {
     "emptyTitle": "Nicio secțiune încă",

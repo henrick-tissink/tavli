@@ -38,6 +38,7 @@ export default async function OrgLayout({
   // partner.analytics is required because org/[orgId]/analytics renders the
   // shared AnalyticsView (+ ExportModal), which read useT("partner.analytics").
   const bundle = buildBundle(locale, [
+    "ui",
     "partner.common",
     "partner.org",
     "partner.analytics",

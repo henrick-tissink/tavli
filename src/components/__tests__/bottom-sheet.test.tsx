@@ -1,6 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import userEvent from "@testing-library/user-event";
 import { BottomSheet } from "../bottom-sheet";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roUi from "@/messages/ro/ui.json";
+
+// BottomSheet reads useT("ui") for its close-button aria-label, so every render
+// must be wrapped in a MessagesProvider carrying the `ui` namespace.
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ ui: roUi }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("BottomSheet", () => {
   it("renders children when open", () => {

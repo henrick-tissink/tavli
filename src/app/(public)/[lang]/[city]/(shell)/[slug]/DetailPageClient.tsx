@@ -278,6 +278,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     lat={restaurant.lat}
                     lng={restaurant.lng}
                     name={restaurant.name}
+                    title={t("detail.mapTitle", { name: restaurant.name })}
                   />
                 </div>
               )}
@@ -327,6 +328,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   lat={restaurant.lat}
                   lng={restaurant.lng}
                   name={restaurant.name}
+                  title={t("detail.mapTitle", { name: restaurant.name })}
                 />
               </div>
             )}

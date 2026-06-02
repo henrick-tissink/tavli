@@ -26,7 +26,7 @@ export default async function ModifyReservationPage({
   const { lang: rawLang, token } = await params;
   const locale = isLocale(rawLang) ? rawLang : "ro";
   const m = getMessages(locale, "booking");
-  const bundle = buildBundle(locale, ["common", "booking"]);
+  const bundle = buildBundle(locale, ["ui", "common", "booking"]);
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return (

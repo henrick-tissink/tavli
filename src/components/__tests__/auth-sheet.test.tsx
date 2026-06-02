@@ -31,7 +31,7 @@ function renderSheet(props: Partial<React.ComponentProps<typeof AuthSheet>> = {}
     onAuthenticated: jest.fn(),
     ...props,
   };
-  const bundle = buildBundle("ro", ["profile"]);
+  const bundle = buildBundle("ro", ["ui", "profile"]);
   return {
     ...render(
       <MessagesProvider locale="ro" bundle={bundle}>

@@ -19,7 +19,7 @@ export default async function PartnerSignUpPage() {
 
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "partner.onboarding").auth;
-  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding"]);
+  const bundle = buildBundle(locale, ["ui", "partner.common", "partner.onboarding"]);
 
   const cityRows = await dbAdmin
     .select({ id: cities.id, name: cities.name })

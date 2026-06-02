@@ -5,7 +5,7 @@ import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { buildBundle } from "@/lib/i18n/messages";
 
 function renderSelector(props: React.ComponentProps<typeof CitySelector>, locale = "ro") {
-  const bundle = buildBundle(locale, ["profile", "common"]);
+  const bundle = buildBundle(locale, ["ui", "profile", "common"]);
   return render(
     <MessagesProvider locale={locale as "ro" | "en" | "de"} bundle={bundle}>
       <CitySelector {...props} />

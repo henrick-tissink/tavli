@@ -17,7 +17,7 @@ export default async function CityShellLayout({
   const lang: Locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const displayCity = cityDisplayName(lang, city);
   const restaurants = await getRestaurants();
-  const bundle = buildBundle(lang, ["common", "discovery", "restaurant", "booking", "events", "profile"]);
+  const bundle = buildBundle(lang, ["ui", "common", "discovery", "restaurant", "booking", "events", "profile"]);
 
   return (
     <CityShell

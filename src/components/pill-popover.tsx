@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface PillPopoverProps {
   open: boolean;
@@ -34,10 +35,12 @@ export function PillPopover({
   id,
   title,
   onClear,
-  clearLabel = "Șterge",
+  clearLabel,
   width = DEFAULT_WIDTH,
   align = "start",
 }: PillPopoverProps) {
+  const t = useT("ui");
+  const resolvedClearLabel = clearLabel ?? t("clear");
   const popoverRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
@@ -144,7 +147,7 @@ export function PillPopover({
               onClick={onClear}
               className="text-xs font-semibold text-brand-primary"
             >
-              {clearLabel}
+              {resolvedClearLabel}
             </button>
           )}
         </div>

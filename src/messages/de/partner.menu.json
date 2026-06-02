@@ -15,7 +15,8 @@
     "layoutLabel": "Layout",
     "single": "Einzelkarte",
     "sheet": "Aufkleberbogen (×12)",
-    "print": "Drucken"
+    "print": "Drucken",
+    "scanPrompt": "Scannen, um unsere Speisekarte zu sehen"
   },
   "editor": {
     "emptyTitle": "Noch keine Bereiche",

@@ -44,7 +44,7 @@ export default async function DinerMenuPage({
 }) {
   const { lang, city, slug } = await params;
   const locale = isLocale(lang) ? lang : "ro";
-  const bundle = buildBundle(locale, ["common", "menu"]);
+  const bundle = buildBundle(locale, ["ui", "common", "menu"]);
 
   const [restaurant, detail, menu] = await Promise.all([
     getRestaurantBySlug(slug),

@@ -19,7 +19,8 @@
     },
     "viewItem": "View →",
     "noMatchBody": "No dishes match the selected filters.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "qrScanPrompt": "Scan to view our menu"
   },
   "itemCard": {
     "chefPickAriaLabel": "Chef's pick",

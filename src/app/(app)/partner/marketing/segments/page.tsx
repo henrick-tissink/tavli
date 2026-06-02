@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function MarketingSegmentsPage() {
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "partner.marketing");
-  const bundle = buildBundle(locale, ["partner.common", "partner.marketing"]);
+  const bundle = buildBundle(locale, ["ui", "partner.common", "partner.marketing"]);
 
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
