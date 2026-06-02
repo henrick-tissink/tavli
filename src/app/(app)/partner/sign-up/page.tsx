@@ -5,6 +5,9 @@ import { asc, eq } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { cities } from "@/lib/db/schema";
 import { getCurrentSession } from "@/lib/auth/session";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { SignUpForm } from "./SignUpForm";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +17,10 @@ export default async function PartnerSignUpPage() {
   const session = await getCurrentSession();
   if (session) redirect("/partner");
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding").auth;
+  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding"]);
+
   const cityRows = await dbAdmin
     .select({ id: cities.id, name: cities.name })
     .from(cities)
@@ -21,6 +28,7 @@ export default async function PartnerSignUpPage() {
     .orderBy(asc(cities.name));
 
   return (
+    <MessagesProvider locale={locale} bundle={bundle}>
     <div className="min-h-screen flex flex-col desktop:flex-row">
       {/* Left panel — desktop only */}
       <div className="hidden desktop:flex desktop:w-1/2 bg-gradient-to-br from-brand-primary-soft via-white to-white p-12 items-center justify-center">
@@ -29,7 +37,7 @@ export default async function PartnerSignUpPage() {
             <Link href="/partner" className="font-display text-3xl font-bold text-brand-primary tracking-tight">
               Tavli
             </Link>
-            <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">Partner</p>
+            <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">{m.brandPartner}</p>
           </div>
           <Image
             src="/illustrations/partner-dining.svg"
@@ -41,10 +49,10 @@ export default async function PartnerSignUpPage() {
             unoptimized
           />
           <h2 className="font-display text-2xl font-bold text-text-primary mt-6 self-start">
-            Pune restaurantul tău în fața oaspeților potriviți.
+            {m.signUp.heroHeading}
           </h2>
           <p className="text-sm text-text-secondary mt-2 self-start">
-            Începe cu 3 luni de probă. Configurezi în câteva minute.
+            {m.signUp.heroBody}
           </p>
         </div>
       </div>
@@ -60,11 +68,11 @@ export default async function PartnerSignUpPage() {
             </div>
           </div>
           <div className="mb-6">
-            <h1 className="font-display text-[28px] font-bold text-text-primary">Creează un cont</h1>
+            <h1 className="font-display text-[28px] font-bold text-text-primary">{m.signUp.title}</h1>
             <p className="text-sm text-text-secondary mt-1">
-              Ai deja cont?{" "}
+              {m.signUp.haveAccount}{" "}
               <Link href="/partner/sign-in" className="text-brand-primary hover:underline font-medium">
-                Conectează-te
+                {m.signUp.haveAccountLink}
               </Link>
             </p>
           </div>
@@ -72,5 +80,6 @@ export default async function PartnerSignUpPage() {
         </div>
       </div>
     </div>
+    </MessagesProvider>
   );
 }
