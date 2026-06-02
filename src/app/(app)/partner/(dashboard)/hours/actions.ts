@@ -38,7 +38,7 @@ export async function savePartnerHours(
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
-    return { ok: false, error: common.errors.noRestaurant };
+    return { ok: false, error: m.errors.noRestaurant };
   }
   if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 

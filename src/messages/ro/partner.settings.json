@@ -69,6 +69,7 @@
     "errors": {
       "parseFailed": "Nu s-a putut interpreta programul.",
       "atLeastOneOpen": "Cel puțin o zi trebuie să fie deschisă.",
+      "noRestaurant": "Niciun restaurant asociat acestui cont.",
       "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita programul."
     }
   },

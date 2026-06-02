@@ -69,6 +69,7 @@
     "errors": {
       "parseFailed": "The schedule could not be read.",
       "atLeastOneOpen": "At least one day must be open.",
+      "noRestaurant": "No restaurant linked to this account.",
       "billing_locked": "Billing is suspended on this account — resume payment to edit opening hours."
     }
   },

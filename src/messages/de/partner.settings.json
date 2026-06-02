@@ -34,7 +34,7 @@
     "subtitle": "Sehen Sie, was Gäste sehen, wenn sie Sie finden.",
     "publicUrlLabel": "Ihre öffentliche URL:",
     "openPublicPage": "Öffentliche Seite öffnen",
-    "statusNote": "Hinweis: Der Status Ihres Restaurants ist „{status}” — Ihre öffentliche Seite ist für Gäste möglicherweise noch nicht sichtbar.",
+    "statusNote": "Hinweis: Der Status Ihres Restaurants ist „{status}“ — Ihre öffentliche Seite ist für Gäste möglicherweise noch nicht sichtbar.",
     "noPublicPageTitle": "Noch keine öffentliche Seite verfügbar",
     "noPublicPageBody": "Veröffentlichen Sie das Restaurant, um eine öffentliche URL zu erhalten."
   },
@@ -69,12 +69,13 @@
     "errors": {
       "parseFailed": "Die Öffnungszeiten konnten nicht gelesen werden.",
       "atLeastOneOpen": "Mindestens ein Tag muss geöffnet sein.",
+      "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet.",
       "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um die Öffnungszeiten zu bearbeiten."
     }
   },
   "availability": {
     "title": "Verfügbarkeit",
-    "subtitle": "Legen Sie fest, wie viele Gäste Sie pro Zeitfenster aufnehmen können, für jeden Tag. Gäste können nur zu den hier konfigurierten Zeiten reservieren — nicht konfigurierte Zeitfenster erscheinen als „ausgebucht”.",
+    "subtitle": "Legen Sie fest, wie viele Gäste Sie pro Zeitfenster aufnehmen können, für jeden Tag. Gäste können nur zu den hier konfigurierten Zeiten reservieren — nicht konfigurierte Zeitfenster erscheinen als „ausgebucht“.",
     "noRestaurant": "Kein Restaurant zugeordnet.",
     "weekdaysFull": "Sonntag,Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag",
     "emptyTitle": "Noch keine Verfügbarkeit",

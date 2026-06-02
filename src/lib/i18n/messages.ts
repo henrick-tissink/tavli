@@ -1538,6 +1538,7 @@ export interface PartnerSettingsMessages {
     errors: {
       parseFailed: string;
       atLeastOneOpen: string;
+      noRestaurant: string;
       billing_locked: string;
     };
   };
