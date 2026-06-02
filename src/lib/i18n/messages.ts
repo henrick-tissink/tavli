@@ -68,6 +68,10 @@ import roPartnerBilling from "@/messages/ro/partner.billing.json";
 import enPartnerBilling from "@/messages/en/partner.billing.json";
 import dePartnerBilling from "@/messages/de/partner.billing.json";
 
+import roPartnerStaffSecurity from "@/messages/ro/partner.staffSecurity.json";
+import enPartnerStaffSecurity from "@/messages/en/partner.staffSecurity.json";
+import dePartnerStaffSecurity from "@/messages/de/partner.staffSecurity.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1348,6 +1352,116 @@ export interface PartnerBillingMessages {
   };
 }
 
+/** Structural contract for the `partner.staffSecurity` namespace. */
+export interface PartnerStaffSecurityMessages {
+  staff: {
+    page: {
+      title: string;
+      subtitlePrefix: string;
+      subtitleSuffix: string;
+      noRestaurant: string;
+    };
+    roles: { owner: string; manager: string; host: string };
+    active: {
+      title: string;
+      colPerson: string;
+      colRole: string;
+      colSince: string;
+      empty: string;
+    };
+    invite: {
+      title: string;
+      hint: string;
+      emailLabel: string;
+      emailPlaceholder: string;
+      roleLabel: string;
+      roleManager: string;
+      roleHost: string;
+      submitting: string;
+      submit: string;
+      success: string;
+      errors: {
+        auth_required: string;
+        forbidden: string;
+        invalid_input: string;
+        generic: string;
+      };
+    };
+    pending: {
+      title: string;
+      colEmail: string;
+      colRole: string;
+      colExpires: string;
+      colActions: string;
+    };
+    rowActions: {
+      resend: string;
+      revoke: string;
+      resent: string;
+      error: string;
+    };
+  };
+  security: {
+    page: { eyebrow: string; title: string };
+    twoFactor: {
+      enrol: {
+        title: string;
+        intro: string;
+        secretIntro: string;
+        codeLabel: string;
+        verifying: string;
+        verify: string;
+        errorStart: string;
+        errorIncorrect: string;
+      };
+      title: string;
+      introDisabled: string;
+      setUp: string;
+      settingUp: string;
+      enabledText: string;
+      factorFallback: string;
+      added: string;
+      remove: string;
+      errorRemove: string;
+    };
+    recovery: {
+      title: string;
+      intro: string;
+      remaining: string;
+      confirmInvalidate: string;
+      confirmFresh: string;
+      warning: string;
+      download: string;
+      generating: string;
+      generate: string;
+      errorGenerate: string;
+    };
+    password: {
+      title: string;
+      intro: string;
+      currentLabel: string;
+      newLabel: string;
+      confirmLabel: string;
+      changing: string;
+      change: string;
+      errorCodeRequired: string;
+      errorNotSignedIn: string;
+      errorFactorRequired: string;
+      errorCouldNotRemove: string;
+      errorMismatch: string;
+      errorTooShort: string;
+      errorBreached: string;
+    };
+    sessions: {
+      title: string;
+      intro: string;
+      confirm: string;
+      signingOut: string;
+      signOut: string;
+    };
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1430,6 +1544,11 @@ const CATALOGS = {
     en: enPartnerBilling,
     de: dePartnerBilling,
   } as Record<Locale, PartnerBillingMessages>,
+  "partner.staffSecurity": {
+    ro: roPartnerStaffSecurity,
+    en: enPartnerStaffSecurity,
+    de: dePartnerStaffSecurity,
+  } as Record<Locale, PartnerStaffSecurityMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

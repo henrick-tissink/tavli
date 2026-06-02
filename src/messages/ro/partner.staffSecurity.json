@@ -1,0 +1,115 @@
+{
+  "staff": {
+    "page": {
+      "title": "Echipa",
+      "subtitlePrefix": "Personalul cu acces la ",
+      "subtitleSuffix": ".",
+      "noRestaurant": "Niciun restaurant asociat acestui cont."
+    },
+    "roles": {
+      "owner": "Proprietar",
+      "manager": "Manager",
+      "host": "Gazdă"
+    },
+    "active": {
+      "title": "Personal activ",
+      "colPerson": "Persoană",
+      "colRole": "Rol",
+      "colSince": "Din",
+      "empty": "Niciun membru încă."
+    },
+    "invite": {
+      "title": "Invită personal",
+      "hint": "Trimite o invitație prin email. Linkul expiră în 14 zile.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "coleg@exemplu.ro",
+      "roleLabel": "Rol",
+      "roleManager": "Manager — gestionează rezervări și setări",
+      "roleHost": "Gazdă — gestionează rezervările zilnice",
+      "submitting": "Se trimite…",
+      "submit": "Trimite invitația",
+      "success": "Invitația a fost trimisă.",
+      "errors": {
+        "auth_required": "Trebuie să fii conectat.",
+        "forbidden": "Nu ai permisiunea de a invita personal.",
+        "invalid_input": "Verifică adresa de email și rolul.",
+        "generic": "Nu am putut trimite invitația."
+      }
+    },
+    "pending": {
+      "title": "Invitații în așteptare",
+      "colEmail": "Email",
+      "colRole": "Rol",
+      "colExpires": "Expiră",
+      "colActions": "Acțiuni"
+    },
+    "rowActions": {
+      "resend": "Retrimite",
+      "revoke": "Anulează",
+      "resent": "Retrimisă",
+      "error": "Eroare"
+    }
+  },
+  "security": {
+    "page": {
+      "eyebrow": "Cont",
+      "title": "Securitate"
+    },
+    "twoFactor": {
+      "enrol": {
+        "title": "Configurează-ți aplicația de autentificare",
+        "intro": "Scanează acest cod QR cu aplicația ta de autentificare (Google Authenticator, 1Password, Authy etc.) și introdu codul din 6 cifre afișat.",
+        "secretIntro": "Sau introdu acest cod în aplicația ta:",
+        "codeLabel": "Cod din 6 cifre",
+        "verifying": "Se verifică…",
+        "verify": "Verifică și activează",
+        "errorStart": "Nu s-a putut porni înrolarea.",
+        "errorIncorrect": "Cod incorect."
+      },
+      "title": "Autentificare în doi pași",
+      "introDisabled": "Un al doilea factor pe contul tău înseamnă că o parolă furată nu este suficientă pentru a te conecta. Recomandăm folosirea unei aplicații de autentificare pe telefon.",
+      "setUp": "Configurează aplicația de autentificare",
+      "settingUp": "Se configurează…",
+      "enabledText": "Activat. Conectarea necesită un cod din aplicația ta.",
+      "factorFallback": "Autentificator",
+      "added": "Adăugat {date}",
+      "remove": "Elimină",
+      "errorRemove": "Nu s-a putut elimina factorul."
+    },
+    "recovery": {
+      "title": "Coduri de recuperare",
+      "intro": "Coduri pe care le păstrezi într-un loc sigur. Fiecare te conectează o singură dată dacă îți pierzi aplicația de autentificare. Folosirea unui cod de recuperare îți dezactivează aplicația de autentificare și îți cere să configurezi una nouă.",
+      "remaining": "{remaining} din 10 coduri rămase.",
+      "confirmInvalidate": "Aceasta va invalida cele {remaining} cod(uri) nefolosite existente. Continui?",
+      "confirmFresh": "Generezi 10 coduri de recuperare noi?",
+      "warning": "Aceste coduri nu vor mai fi afișate. Salvează-le acum.",
+      "download": "Descarcă ca .txt",
+      "generating": "Se generează…",
+      "generate": "Generează coduri noi",
+      "errorGenerate": "Nu s-au putut genera codurile."
+    },
+    "password": {
+      "title": "Parolă",
+      "intro": "Schimbarea parolei te deconectează din toate sesiunile de pe fiecare dispozitiv.",
+      "currentLabel": "Parola actuală",
+      "newLabel": "Parolă nouă",
+      "confirmLabel": "Confirmă parola nouă",
+      "changing": "Se schimbă…",
+      "change": "Schimbă parola",
+      "errorCodeRequired": "Codul este obligatoriu.",
+      "errorNotSignedIn": "Nu ești conectat.",
+      "errorFactorRequired": "Factor obligatoriu.",
+      "errorCouldNotRemove": "Nu s-a putut elimina factorul.",
+      "errorMismatch": "Parolele noi nu se potrivesc.",
+      "errorTooShort": "Parola trebuie să aibă cel puțin 8 caractere.",
+      "errorBreached": "Această parolă a apărut într-o breșă de securitate. Te rugăm să alegi alta."
+    },
+    "sessions": {
+      "title": "Sesiuni active",
+      "intro": "Deconectează-te de pe fiecare dispozitiv pe care ești conectat, inclusiv de pe acesta.",
+      "confirm": "Te deconectezi de pe fiecare dispozitiv, inclusiv de pe acesta?",
+      "signingOut": "Se deconectează…",
+      "signOut": "Deconectează-te de peste tot"
+    }
+  }
+}

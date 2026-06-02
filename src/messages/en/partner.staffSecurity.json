@@ -1,0 +1,115 @@
+{
+  "staff": {
+    "page": {
+      "title": "Team",
+      "subtitlePrefix": "Staff with access to ",
+      "subtitleSuffix": ".",
+      "noRestaurant": "No restaurant linked to this account."
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "host": "Host"
+    },
+    "active": {
+      "title": "Active staff",
+      "colPerson": "Person",
+      "colRole": "Role",
+      "colSince": "Since",
+      "empty": "No members yet."
+    },
+    "invite": {
+      "title": "Invite staff",
+      "hint": "Send an invitation by email. The link expires in 14 days.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "colleague@example.com",
+      "roleLabel": "Role",
+      "roleManager": "Manager — manages reservations and settings",
+      "roleHost": "Host — manages daily reservations",
+      "submitting": "Sending…",
+      "submit": "Send invitation",
+      "success": "The invitation has been sent.",
+      "errors": {
+        "auth_required": "You must be signed in.",
+        "forbidden": "You don’t have permission to invite staff.",
+        "invalid_input": "Check the email address and the role.",
+        "generic": "We couldn’t send the invitation."
+      }
+    },
+    "pending": {
+      "title": "Pending invitations",
+      "colEmail": "Email",
+      "colRole": "Role",
+      "colExpires": "Expires",
+      "colActions": "Actions"
+    },
+    "rowActions": {
+      "resend": "Resend",
+      "revoke": "Cancel",
+      "resent": "Resent",
+      "error": "Error"
+    }
+  },
+  "security": {
+    "page": {
+      "eyebrow": "Account",
+      "title": "Security"
+    },
+    "twoFactor": {
+      "enrol": {
+        "title": "Set up your authenticator",
+        "intro": "Scan this QR code with your authenticator app (Google Authenticator, 1Password, Authy, etc.) and enter the 6-digit code it shows.",
+        "secretIntro": "Or enter this code into your app:",
+        "codeLabel": "6-digit code",
+        "verifying": "Verifying…",
+        "verify": "Verify and enable",
+        "errorStart": "Could not start enrolment.",
+        "errorIncorrect": "Incorrect code."
+      },
+      "title": "Two-factor authentication",
+      "introDisabled": "A second factor on your account means a stolen password isn’t enough to sign in. We recommend using an authenticator app on your phone.",
+      "setUp": "Set up authenticator",
+      "settingUp": "Setting up…",
+      "enabledText": "Enabled. Sign-in requires a code from your app.",
+      "factorFallback": "Authenticator",
+      "added": "Added {date}",
+      "remove": "Remove",
+      "errorRemove": "Could not remove factor."
+    },
+    "recovery": {
+      "title": "Recovery codes",
+      "intro": "Codes you save in a safe place. Each one signs you in once if you lose your authenticator. Using a recovery code disables your authenticator and prompts you to set up a new one.",
+      "remaining": "{remaining} of 10 codes remaining.",
+      "confirmInvalidate": "This will invalidate your existing {remaining} unused code(s). Continue?",
+      "confirmFresh": "Generate 10 fresh recovery codes?",
+      "warning": "These codes will not be shown again. Save them now.",
+      "download": "Download as .txt",
+      "generating": "Generating…",
+      "generate": "Generate new codes",
+      "errorGenerate": "Could not generate codes."
+    },
+    "password": {
+      "title": "Password",
+      "intro": "Changing your password signs you out of all your sessions on every device.",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "changing": "Changing…",
+      "change": "Change password",
+      "errorCodeRequired": "Code is required.",
+      "errorNotSignedIn": "Not signed in.",
+      "errorFactorRequired": "Factor required.",
+      "errorCouldNotRemove": "Could not remove factor.",
+      "errorMismatch": "New passwords don't match.",
+      "errorTooShort": "Password must be at least 8 characters.",
+      "errorBreached": "This password has appeared in a breach. Please choose another."
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "intro": "Sign out of every device you’re signed in on, including this one.",
+      "confirm": "Sign out from every device, including this one?",
+      "signingOut": "Signing out…",
+      "signOut": "Sign out everywhere"
+    }
+  }
+}

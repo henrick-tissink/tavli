@@ -5,16 +5,13 @@ import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, restaurantStaff, profiles, staffInvitations } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { BCP47 } from "@/lib/i18n/locale";
 import { InviteStaffForm } from "./_components/InviteStaffForm";
 import { StaffInvitationRowActions } from "./_components/StaffInvitationRowActions";
 
 export const dynamic = "force-dynamic";
-
-const ROLE_RO: Record<string, string> = {
-  owner: "Proprietar",
-  manager: "Manager",
-  host: "Gazdă",
-};
 
 function EmptyState({ message }: { message: string }) {
   return (
@@ -30,9 +27,14 @@ export default async function StaffPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.staffSecurity").staff;
+  const roleLabel = (role: string): string =>
+    (m.roles as Record<string, string>)[role] ?? role;
+
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
-    return <EmptyState message="Niciun restaurant asociat acestui cont." />;
+    return <EmptyState message={m.page.noRestaurant} />;
   }
 
   const [venue] = await dbAdmin
@@ -84,29 +86,31 @@ export default async function StaffPage() {
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
-        <h1 className="font-display text-3xl text-text-primary">Echipa</h1>
+        <h1 className="font-display text-3xl text-text-primary">{m.page.title}</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Personalul cu acces la <strong className="text-text-primary">{venue.name}</strong>.
+          {m.page.subtitlePrefix}
+          <strong className="text-text-primary">{venue.name}</strong>
+          {m.page.subtitleSuffix}
         </p>
       </header>
 
       <div className="space-y-8">
         <section>
-          <h2 className="font-display text-xl text-text-primary">Personal activ</h2>
+          <h2 className="font-display text-xl text-text-primary">{m.active.title}</h2>
           <div className="mt-4 overflow-hidden rounded-card border border-border bg-surface-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                  <th scope="col" className="px-4 py-3 font-medium">Persoană</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Din</th>
+                  <th scope="col" className="px-4 py-3 font-medium">{m.active.colPerson}</th>
+                  <th scope="col" className="px-4 py-3 font-medium">{m.active.colRole}</th>
+                  <th scope="col" className="px-4 py-3 font-medium">{m.active.colSince}</th>
                 </tr>
               </thead>
               <tbody>
                 {staff.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="px-4 py-6 text-center text-sm text-text-muted">
-                      Niciun membru încă.
+                      {m.active.empty}
                     </td>
                   </tr>
                 ) : (
@@ -116,9 +120,9 @@ export default async function StaffPage() {
                         <div className="font-medium text-text-primary">{s.fullName ?? "—"}</div>
                         <div className="text-xs text-text-muted">{s.email ?? "—"}</div>
                       </td>
-                      <td className="px-4 py-3 text-text-secondary">{ROLE_RO[s.role] ?? s.role}</td>
+                      <td className="px-4 py-3 text-text-secondary">{roleLabel(s.role)}</td>
                       <td className="px-4 py-3 text-text-muted">
-                        {s.joinedAt ? new Date(s.joinedAt).toLocaleDateString("ro-RO") : "—"}
+                        {s.joinedAt ? new Date(s.joinedAt).toLocaleDateString(BCP47[locale]) : "—"}
                       </td>
                     </tr>
                   ))
@@ -130,9 +134,9 @@ export default async function StaffPage() {
 
         {canInvite && (
           <section>
-            <h2 className="font-display text-xl text-text-primary">Invită personal</h2>
+            <h2 className="font-display text-xl text-text-primary">{m.invite.title}</h2>
             <p className="mt-1 text-sm text-text-secondary">
-              Trimite o invitație prin email. Linkul expiră în 14 zile.
+              {m.invite.hint}
             </p>
             <div className="mt-4 rounded-card border border-border bg-surface-white p-5">
               <InviteStaffForm restaurantId={venue.id} organizationId={organizationId} />
@@ -142,24 +146,24 @@ export default async function StaffPage() {
 
         {pending.length > 0 && (
           <section>
-            <h2 className="font-display text-xl text-text-primary">Invitații în așteptare</h2>
+            <h2 className="font-display text-xl text-text-primary">{m.pending.title}</h2>
             <div className="mt-4 overflow-hidden rounded-card border border-border bg-surface-white">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                    <th scope="col" className="px-4 py-3 font-medium">Email</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Expiră</th>
-                    {canInvite && <th scope="col" className="px-4 py-3 font-medium text-right">Acțiuni</th>}
+                    <th scope="col" className="px-4 py-3 font-medium">{m.pending.colEmail}</th>
+                    <th scope="col" className="px-4 py-3 font-medium">{m.pending.colRole}</th>
+                    <th scope="col" className="px-4 py-3 font-medium">{m.pending.colExpires}</th>
+                    {canInvite && <th scope="col" className="px-4 py-3 font-medium text-right">{m.pending.colActions}</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {pending.map((inv) => (
                     <tr key={inv.id} className="border-b border-border last:border-0">
                       <td className="px-4 py-3 text-text-primary">{inv.email}</td>
-                      <td className="px-4 py-3 text-text-secondary">{ROLE_RO[inv.role] ?? inv.role}</td>
+                      <td className="px-4 py-3 text-text-secondary">{roleLabel(inv.role)}</td>
                       <td className="px-4 py-3 text-text-muted">
-                        {new Date(inv.expiresAt).toLocaleDateString("ro-RO")}
+                        {new Date(inv.expiresAt).toLocaleDateString(BCP47[locale])}
                       </td>
                       {canInvite && (
                         <td className="px-4 py-3">
