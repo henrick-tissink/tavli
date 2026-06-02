@@ -2,6 +2,16 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReviewCard } from "../review-card";
 import type { Review } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roRestaurant from "@/messages/ro/restaurant.json";
+
+function renderCard(props: React.ComponentProps<typeof ReviewCard>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ restaurant: roRestaurant }}>
+      <ReviewCard {...props} />
+    </MessagesProvider>,
+  );
+}
 
 const reviewWithReply: Review = {
   id: "r1",
@@ -44,12 +54,12 @@ const reviewNoText: Review = {
 
 describe("ReviewCard", () => {
   it("renders author name", () => {
-    render(<ReviewCard review={reviewWithReply} />);
+    renderCard({ review: reviewWithReply });
     expect(screen.getByText("Maria Popescu")).toBeInTheDocument();
   });
 
   it("renders stars", () => {
-    render(<ReviewCard review={reviewWithReply} />);
+    renderCard({ review: reviewWithReply });
     const stars = screen.getByTestId("review-stars");
     expect(stars).toBeInTheDocument();
     // 4-star review: 4 filled + 1 empty = 5 total star elements
@@ -57,28 +67,28 @@ describe("ReviewCard", () => {
   });
 
   it("renders review text", () => {
-    render(<ReviewCard review={reviewWithReply} />);
+    renderCard({ review: reviewWithReply });
     expect(screen.getByText("Great food and nice ambiance.")).toBeInTheDocument();
   });
 
   it("renders helpful count", () => {
-    render(<ReviewCard review={reviewWithReply} />);
+    renderCard({ review: reviewWithReply });
     expect(screen.getByText(/Util \(8\)/)).toBeInTheDocument();
   });
 
   it("renders reply when present", () => {
-    render(<ReviewCard review={reviewWithReply} />);
+    renderCard({ review: reviewWithReply });
     expect(screen.getByText("Thank you, Maria!")).toBeInTheDocument();
     expect(screen.getByText(/Alexandru/)).toBeInTheDocument();
   });
 
   it("hides reply when absent", () => {
-    render(<ReviewCard review={reviewWithoutReply} />);
+    renderCard({ review: reviewWithoutReply });
     expect(screen.queryByText(/Manager/)).not.toBeInTheDocument();
   });
 
   it("hides text when empty", () => {
-    const { container } = render(<ReviewCard review={reviewNoText} />);
+    renderCard({ review: reviewNoText });
     // Should not have a review text paragraph
     expect(screen.queryByTestId("review-text")).not.toBeInTheDocument();
   });
