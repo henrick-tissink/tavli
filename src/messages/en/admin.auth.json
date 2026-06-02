@@ -1,0 +1,33 @@
+{
+  "page": {
+    "brandEyebrow": "Admin",
+    "panelHeading": "The Tavli admin panel.",
+    "restrictedNotice": "Restricted access. Authorized operators only.",
+    "title": "Admin access"
+  },
+  "form": {
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Sign in",
+    "submitPending": "Signing in…",
+    "createdByTeam": "Admin accounts are created by the Tavli team. Contact the ops team if you need access.",
+    "mfaCodeLabel": "The 6-digit code from your authenticator app",
+    "mfaSubmit": "Verify and sign in",
+    "mfaSubmitPending": "Verifying…",
+    "recoveryToggle": "Use a recovery code",
+    "recoveryPlaceholder": "xxxx-xxxx-xx",
+    "recoveryHint": "Using a recovery code removes your authenticator. You'll set up a new one after signing in.",
+    "recoverySubmit": "Use recovery code"
+  },
+  "errors": {
+    "supabaseNotConfigured": "Supabase isn't configured yet. Set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.",
+    "sessionExpired": "Session expired. Please sign in again.",
+    "enterCode": "Enter a code to continue.",
+    "challengeFailed": "Couldn't issue challenge. Try again.",
+    "incorrectCode": "Incorrect code.",
+    "invalidRecoveryCode": "Recovery code invalid.",
+    "emailPasswordRequired": "Email and password are required.",
+    "invalidCredentials": "Invalid credentials.",
+    "notAuthorisedForAdmin": "This account isn't authorised for admin access."
+  }
+}

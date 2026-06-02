@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/button";
 import { PasswordInput } from "@/components/password-input";
+import { useT } from "@/lib/i18n/messages-provider";
 import { signInAdmin, type SignInResult } from "@/app/(app)/admin/sign-in/actions";
 
 export function SignInForm({
@@ -10,6 +11,7 @@ export function SignInForm({
 }: {
   initialState?: SignInResult;
 } = {}) {
+  const t = useT("admin.auth");
   const [state, action, pending] = useActionState<SignInResult | undefined, FormData>(
     signInAdmin,
     initialState,
@@ -26,7 +28,7 @@ export function SignInForm({
             className="block text-sm font-medium text-text-primary"
             htmlFor="mfa_code"
           >
-            Codul de 6 cifre din aplicația de autentificare
+            {t("form.mfaCodeLabel")}
           </label>
           <input
             id="mfa_code"
@@ -48,24 +50,23 @@ export function SignInForm({
         )}
 
         <Button fullWidth disabled={pending} type="submit">
-          {pending ? "Se verifică…" : "Verifică și conectează-te"}
+          {pending ? t("form.mfaSubmitPending") : t("form.mfaSubmit")}
         </Button>
 
         {state.hasRecoveryCodes && (
           <details className="text-sm">
             <summary className="cursor-pointer text-text-secondary hover:text-text-primary">
-              Folosește un cod de recuperare
+              {t("form.recoveryToggle")}
             </summary>
             <div className="mt-3 space-y-3">
               <input
                 name="recovery_code"
-                placeholder="xxxx-xxxx-xx"
+                placeholder={t("form.recoveryPlaceholder")}
                 autoComplete="off"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <p className="text-xs text-text-muted">
-                Folosirea unui cod de recuperare îți elimină autentificatorul.
-                Vei configura unul nou după conectare.
+                {t("form.recoveryHint")}
               </p>
               <Button
                 fullWidth
@@ -73,7 +74,7 @@ export function SignInForm({
                 disabled={pending}
                 type="submit"
               >
-                Folosește codul de recuperare
+                {t("form.recoverySubmit")}
               </Button>
             </div>
           </details>
@@ -86,7 +87,7 @@ export function SignInForm({
     <form action={action} className="space-y-4">
       <div className="space-y-1">
         <label className="block text-sm font-medium text-text-primary" htmlFor="email">
-          Email
+          {t("form.emailLabel")}
         </label>
         <input
           id="email"
@@ -100,7 +101,7 @@ export function SignInForm({
 
       <div className="space-y-1">
         <label className="block text-sm font-medium text-text-primary" htmlFor="password">
-          Parolă
+          {t("form.passwordLabel")}
         </label>
         <PasswordInput
           id="password"
@@ -117,12 +118,11 @@ export function SignInForm({
       )}
 
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Se conectează…" : "Conectează-te"}
+        {pending ? t("form.submitPending") : t("form.submit")}
       </Button>
 
       <p className="text-xs text-text-muted text-center">
-        Conturile de administrator sunt create de echipa Tavli. Contactează
-        echipa de ops dacă ai nevoie de acces.
+        {t("form.createdByTeam")}
       </p>
     </form>
   );

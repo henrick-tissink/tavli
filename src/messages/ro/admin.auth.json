@@ -1,0 +1,33 @@
+{
+  "page": {
+    "brandEyebrow": "Admin",
+    "panelHeading": "Panoul de administrare Tavli.",
+    "restrictedNotice": "Acces restricționat. Operatori autorizați.",
+    "title": "Acces administrator"
+  },
+  "form": {
+    "emailLabel": "Email",
+    "passwordLabel": "Parolă",
+    "submit": "Conectează-te",
+    "submitPending": "Se conectează…",
+    "createdByTeam": "Conturile de administrator sunt create de echipa Tavli. Contactează echipa de ops dacă ai nevoie de acces.",
+    "mfaCodeLabel": "Codul de 6 cifre din aplicația de autentificare",
+    "mfaSubmit": "Verifică și conectează-te",
+    "mfaSubmitPending": "Se verifică…",
+    "recoveryToggle": "Folosește un cod de recuperare",
+    "recoveryPlaceholder": "xxxx-xxxx-xx",
+    "recoveryHint": "Folosirea unui cod de recuperare îți elimină autentificatorul. Vei configura unul nou după conectare.",
+    "recoverySubmit": "Folosește codul de recuperare"
+  },
+  "errors": {
+    "supabaseNotConfigured": "Supabase nu este încă configurat. Setează NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY în .env.local.",
+    "sessionExpired": "Sesiune expirată. Te rugăm să te autentifici din nou.",
+    "enterCode": "Introdu un cod pentru a continua.",
+    "challengeFailed": "Nu am putut emite provocarea. Încearcă din nou.",
+    "incorrectCode": "Cod incorect.",
+    "invalidRecoveryCode": "Cod de recuperare invalid.",
+    "emailPasswordRequired": "Email-ul și parola sunt obligatorii.",
+    "invalidCredentials": "Date de autentificare incorecte.",
+    "notAuthorisedForAdmin": "Acest cont nu este autorizat pentru acces administrator."
+  }
+}

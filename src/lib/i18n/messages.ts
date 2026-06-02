@@ -67,6 +67,9 @@ import deAdminSetups from "@/messages/de/admin.setups.json";
 import roAdminSecurity from "@/messages/ro/admin.security.json";
 import enAdminSecurity from "@/messages/en/admin.security.json";
 import deAdminSecurity from "@/messages/de/admin.security.json";
+import roAdminAuth from "@/messages/ro/admin.auth.json";
+import enAdminAuth from "@/messages/en/admin.auth.json";
+import deAdminAuth from "@/messages/de/admin.auth.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -1161,6 +1164,45 @@ export interface AdminSecurityMessages {
     mismatch: string;
     tooShort: string;
     breached: string;
+  };
+}
+
+/**
+ * Structural contract for the `admin.auth` namespace (standalone admin sign-in
+ * page). This page lives outside the `(gated)` admin shell, so it carries its
+ * own per-page MessagesProvider rather than relying on the shell bundle.
+ */
+export interface AdminAuthMessages {
+  page: {
+    brandEyebrow: string;
+    panelHeading: string;
+    restrictedNotice: string;
+    title: string;
+  };
+  form: {
+    emailLabel: string;
+    passwordLabel: string;
+    submit: string;
+    submitPending: string;
+    createdByTeam: string;
+    mfaCodeLabel: string;
+    mfaSubmit: string;
+    mfaSubmitPending: string;
+    recoveryToggle: string;
+    recoveryPlaceholder: string;
+    recoveryHint: string;
+    recoverySubmit: string;
+  };
+  errors: {
+    supabaseNotConfigured: string;
+    sessionExpired: string;
+    enterCode: string;
+    challengeFailed: string;
+    incorrectCode: string;
+    invalidRecoveryCode: string;
+    emailPasswordRequired: string;
+    invalidCredentials: string;
+    notAuthorisedForAdmin: string;
   };
 }
 
@@ -2684,6 +2726,11 @@ const CATALOGS = {
     en: enAdminSecurity,
     de: deAdminSecurity,
   } as Record<Locale, AdminSecurityMessages>,
+  "admin.auth": {
+    ro: roAdminAuth,
+    en: enAdminAuth,
+    de: deAdminAuth,
+  } as Record<Locale, AdminAuthMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,
