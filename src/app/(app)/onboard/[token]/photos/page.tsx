@@ -5,6 +5,8 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { PhotoUploader, type PhotoRow } from "@/components/onboarding/PhotoUploader";
 import { Button } from "@/components/button";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -40,15 +42,16 @@ export default async function OnboardingPhotosPage({
 
   const continueAction = goToMenu.bind(null, token);
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+
   return (
     <OnboardingShell currentStepIndex={3} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Adaugă câteva fotografii
+        {m.wizard.photos.title}
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        O fotografie principală + câteva pentru galerie sunt suficiente acum.
-        Poți adăuga mai multe oricând din panou. Marchează cea mai bună
-        fotografie drept principală — e prima pe care o văd oaspeții.
+        {m.wizard.photos.subtitle}
       </p>
 
       <PhotoUploader restaurantId={state.restaurantId} initialPhotos={photos} />
@@ -58,10 +61,10 @@ export default async function OnboardingPhotosPage({
           href={`/onboard/${token}/hours`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Înapoi
+          {m.wizard.photos.back}
         </Link>
         <form action={continueAction}>
-          <Button type="submit">Continuă</Button>
+          <Button type="submit">{m.wizard.photos.continue}</Button>
         </form>
       </div>
     </OnboardingShell>

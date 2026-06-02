@@ -7,6 +7,9 @@ import {
   countUnconsumedRecoveryCodes,
 } from "@/lib/auth/mfa";
 import type { PartnerSignInResult } from "@/app/(app)/partner/sign-in/actions";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,10 @@ export default async function PartnerSignInPage({
   // verified factor lands here we skip the password step and render the
   // MFA step directly. If there's no live session we fall through to the
   // password form (graceful degradation — the user must re-authenticate).
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding").auth;
+  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding"]);
+
   const params = (await searchParams) ?? {};
   let initialState: PartnerSignInResult | undefined;
   if (params.continue_mfa === "1" && process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -39,6 +46,7 @@ export default async function PartnerSignInPage({
   }
 
   return (
+    <MessagesProvider locale={locale} bundle={bundle}>
     <div className="min-h-screen flex flex-col desktop:flex-row">
       {/* Left panel — desktop only */}
       <div className="hidden desktop:flex desktop:w-1/2 bg-gradient-to-br from-brand-primary-soft via-white to-white p-12 items-center justify-center">
@@ -51,7 +59,7 @@ export default async function PartnerSignInPage({
               Tavli
             </Link>
             <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-              Partner
+              {m.brandPartner}
             </p>
           </div>
           <Image
@@ -64,10 +72,10 @@ export default async function PartnerSignInPage({
             unoptimized
           />
           <h2 className="font-display text-2xl font-bold text-text-primary mt-6 self-start">
-            Restaurantul tău, în mâinile oaspeților potriviți.
+            {m.signIn.heroHeading}
           </h2>
           <p className="text-sm text-text-secondary mt-2 self-start">
-            Gestionează rezervările, cererile private și echipa ta într-un singur loc.
+            {m.signIn.heroBody}
           </p>
         </div>
       </div>
@@ -88,15 +96,16 @@ export default async function PartnerSignInPage({
           </div>
           <div className="mb-6">
             <h1 className="font-display text-[28px] font-bold text-text-primary">
-              Conectează-te
+              {m.signIn.title}
             </h1>
             <p className="text-sm text-text-secondary mt-1">
-              Accesează panoul restaurantului tău.
+              {m.signIn.subtitle}
             </p>
           </div>
           <PartnerSignInForm initialState={initialState} />
         </div>
       </div>
     </div>
+    </MessagesProvider>
   );
 }

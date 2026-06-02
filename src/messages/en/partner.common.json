@@ -51,5 +51,25 @@
   "dateFormat": {
     "weekdaysShort": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
     "monthsShort": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
+  },
+  "photoUploader": {
+    "notImage": "{name} is not an image.",
+    "tooLarge": "{name} exceeds 10 MB.",
+    "uploadFailedFallback": "upload failed",
+    "uploadFailed": "{name}: {error}",
+    "deleteConfirm": "Delete this photo?",
+    "deleteFailed": "Could not delete it.",
+    "setHeroFailed": "Could not set the main photo.",
+    "uploading": "Uploading…",
+    "addPhotos": "Add photos",
+    "hint": "JPEG / PNG / WebP / AVIF, up to 10 MB each. {used}/{max} used.",
+    "heroBadge": "Main",
+    "setHeroAriaLabel": "Set as main",
+    "deleteAriaLabel": "Delete photo"
+  },
+  "hoursEditor": {
+    "weekdaysFull": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday",
+    "copyFirstOpen": "Copy the first open day to all",
+    "open": "Open"
   }
 }

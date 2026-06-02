@@ -84,6 +84,10 @@ import roPartnerOrg from "@/messages/ro/partner.org.json";
 import enPartnerOrg from "@/messages/en/partner.org.json";
 import dePartnerOrg from "@/messages/de/partner.org.json";
 
+import roPartnerOnboarding from "@/messages/ro/partner.onboarding.json";
+import enPartnerOnboarding from "@/messages/en/partner.onboarding.json";
+import dePartnerOnboarding from "@/messages/de/partner.onboarding.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -795,6 +799,29 @@ export interface PartnerCommonMessages {
   dateFormat: {
     weekdaysShort: string;
     monthsShort: string;
+  };
+  /** Shared PhotoUploader component (onboard wizard + settings/photos). */
+  photoUploader: {
+    notImage: string;
+    tooLarge: string;
+    uploadFailedFallback: string;
+    uploadFailed: string;
+    deleteConfirm: string;
+    deleteFailed: string;
+    setHeroFailed: string;
+    uploading: string;
+    addPhotos: string;
+    hint: string;
+    heroBadge: string;
+    setHeroAriaLabel: string;
+    deleteAriaLabel: string;
+  };
+  /** Shared HoursEditor component (onboard wizard + settings/hours). */
+  hoursEditor: {
+    /** Comma-joined full weekday names, index 0 = Sunday. */
+    weekdaysFull: string;
+    copyFirstOpen: string;
+    open: string;
   };
 }
 
@@ -1829,6 +1856,250 @@ export interface PartnerOrgMessages {
 }
 
 /**
+ * Structural contract for the `partner.onboarding` namespace.
+ *
+ * Scoped sub-sections so later parts can extend it without disturbing existing
+ * keys. PART A ships the pre-auth `auth` section (sign-in / sign-up / verify-
+ * email). PART B (the onboard wizard) will add its own top-level section(s)
+ * alongside `auth` — add them here as sibling keys.
+ */
+export interface PartnerOnboardingMessages {
+  auth: {
+    brandPartner: string;
+    signIn: {
+      heroHeading: string;
+      heroBody: string;
+      title: string;
+      subtitle: string;
+      emailLabel: string;
+      passwordLabel: string;
+      submit: string;
+      submitPending: string;
+      notPartnerHint: string;
+      mfaCodeLabel: string;
+      mfaSubmit: string;
+      mfaSubmitPending: string;
+      recoveryToggle: string;
+      recoveryHint: string;
+      recoverySubmit: string;
+    };
+    signUp: {
+      heroHeading: string;
+      heroBody: string;
+      title: string;
+      haveAccount: string;
+      haveAccountLink: string;
+      steps: { account: string; restaurant: string; plan: string };
+      stepsAriaLabel: string;
+      emailLabel: string;
+      passwordLabel: string;
+      passwordHint: string;
+      fullNameLabel: string;
+      restaurantNameLabel: string;
+      cityLabel: string;
+      cityPlaceholder: string;
+      orgNameLabel: string;
+      orgNameOptional: string;
+      orgNamePlaceholder: string;
+      taxIdLabel: string;
+      taxIdOptional: string;
+      taxIdHint: string;
+      customerTypeLabel: string;
+      customerTypeBusiness: string;
+      customerTypePersonal: string;
+      planLabel: string;
+      planBaseName: string;
+      planBasePrice: string;
+      planProName: string;
+      planProPrice: string;
+      frequencyLabel: string;
+      frequencyMonthly: string;
+      frequencyAnnual: string;
+      termsPrefix: string;
+      termsLink: string;
+      termsAnd: string;
+      privacyLink: string;
+      trialNotice: string;
+      back: string;
+      continue: string;
+      submit: string;
+      submitPending: string;
+    };
+    verifyEmail: {
+      title: string;
+      bodySent: string;
+      bodyDefault: string;
+      alreadyConfirmed: string;
+      alreadyConfirmedLink: string;
+      emailLabel: string;
+      resendSubmit: string;
+      resendSubmitPending: string;
+      resendSuccess: string;
+    };
+    errors: {
+      supabaseNotConfigured: string;
+      sessionExpired: string;
+      enterCode: string;
+      challengeFailed: string;
+      incorrectCode: string;
+      invalidRecoveryCode: string;
+      emailPasswordRequired: string;
+      invalidCredentials: string;
+      notPartnerAccount: string;
+      signUpInvalidInput: string;
+      signUpConflict: string;
+      signUpRateLimited: string;
+      signUpTrialUsed: string;
+      signUpTaxIdClaimed: string;
+      signUpInternal: string;
+      signUpGeneric: string;
+      resendInvalidEmail: string;
+      resendRateLimited: string;
+      resendSendFailed: string;
+      resendGeneric: string;
+    };
+  };
+  wizard: {
+    shell: {
+      eyebrow: string;
+      stepProgress: string;
+      percentComplete: string;
+      stepDone: string;
+      stepCurrent: string;
+      steps: {
+        account: string;
+        profile: string;
+        hours: string;
+        photos: string;
+        menu: string;
+        review: string;
+      };
+    };
+    landing: {
+      eyebrow: string;
+      welcomeTitle: string;
+      intro: string;
+      introCity: string;
+      introRest: string;
+      startCta: string;
+      haveAccount: string;
+      haveAccountLink: string;
+      expiredTitle: string;
+      expiredBody: string;
+      claimedTitle: string;
+      claimedBody: string;
+      revokedTitle: string;
+      revokedBody: string;
+      notFoundTitle: string;
+      notFoundBody: string;
+      configMissingTitle: string;
+      configMissingBody: string;
+      contactLabel: string;
+    };
+    account: {
+      title: string;
+      subtitle: string;
+      fullNameLabel: string;
+      fullNamePlaceholderProposed: string;
+      fullNamePlaceholder: string;
+      emailLabel: string;
+      emailHint: string;
+      passwordLabel: string;
+      passwordHint: string;
+      submitPending: string;
+      submit: string;
+      terms: string;
+    };
+    profile: {
+      title: string;
+      subtitle: string;
+      nameLabel: string;
+      namePlaceholder: string;
+      cuisinesLabel: string;
+      cuisinesHint: string;
+      zoneLabel: string;
+      zonePlaceholder: string;
+      addressLabel: string;
+      addressPlaceholder: string;
+      phoneLabel: string;
+      phonePlaceholder: string;
+      websiteLabel: string;
+      websitePlaceholder: string;
+      heroNoteLabel: string;
+      heroNotePlaceholder: string;
+      heroNoteHint: string;
+      submitPending: string;
+      submit: string;
+    };
+    hours: {
+      title: string;
+      subtitle: string;
+      back: string;
+      submitPending: string;
+      submit: string;
+    };
+    photos: {
+      title: string;
+      subtitle: string;
+      back: string;
+      continue: string;
+    };
+    menu: {
+      title: string;
+      subtitle: string;
+      cardTitle: string;
+      cardBody: string;
+      cardNote: string;
+      back: string;
+      skip: string;
+    };
+    review: {
+      title: string;
+      subtitlePrefix: string;
+      subtitleCityFallback: string;
+      subtitleSuffix: string;
+      fallbackName: string;
+      menuLabel: string;
+      scheduleLabel: string;
+      back: string;
+    };
+    policyDisclosure: {
+      title: string;
+      body: string;
+    };
+    publish: {
+      submitPending: string;
+      submit: string;
+    };
+    errors: {
+      missingToken: string;
+      validEmailRequired: string;
+      passwordTooShort: string;
+      passwordPwned: string;
+      passwordValidationFailed: string;
+      invitationNotFound: string;
+      invitationStatus: string;
+      invitationExpired: string;
+      invitationEmailMismatch: string;
+      couldNotCreateAccount: string;
+      couldNotLink: string;
+      autoSignInFailed: string;
+      notSignedIn: string;
+      noRestaurantFound: string;
+      restaurantNameRequired: string;
+      pickCuisine: string;
+      addressRequired: string;
+      phoneInvalid: string;
+      couldNotParseHours: string;
+      atLeastOneDayOpen: string;
+      noRestaurantLinked: string;
+      profileIncomplete: string;
+      hoursNotSet: string;
+    };
+  };
+}
+
+/**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
  * contract). Add new namespaces here as later phases extract strings.
@@ -1930,6 +2201,11 @@ const CATALOGS = {
     en: enPartnerOrg,
     de: dePartnerOrg,
   } as Record<Locale, PartnerOrgMessages>,
+  "partner.onboarding": {
+    ro: roPartnerOnboarding,
+    en: enPartnerOnboarding,
+    de: dePartnerOnboarding,
+  } as Record<Locale, PartnerOnboardingMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

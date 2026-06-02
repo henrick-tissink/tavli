@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getOnboardingState, advanceStep } from "@/lib/onboarding";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { Button } from "@/components/button";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -23,31 +25,27 @@ export default async function OnboardingMenuPage({
 
   const continueAction = goToReview.bind(null, token);
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+
   return (
     <OnboardingShell currentStepIndex={4} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Meniul — cum vrei tu
+        {m.wizard.menu.title}
       </h1>
       <p className="text-sm text-text-secondary mt-2 leading-relaxed">
-        Poți adăuga meniul chiar acum sau poți sări peste acest pas și folosi
-        editorul complet din panou — majoritatea partenerilor sar peste și îl
-        completează mai târziu.
+        {m.wizard.menu.subtitle}
       </p>
 
       <div className="bg-surface-white rounded-card border border-border p-6 mt-8">
         <h2 className="font-display text-lg font-bold text-text-primary">
-          Editor complet în panou
+          {m.wizard.menu.cardTitle}
         </h2>
         <p className="text-sm text-text-secondary mt-1 leading-relaxed">
-          Editorul de meniu pentru parteneri îți permite să creezi secțiuni, să
-          adaugi feluri cu fotografii, să marchezi vegetarian / fără gluten /
-          picant și să evidențiezi recomandările bucătarului — totul cu salvare
-          automată.
+          {m.wizard.menu.cardBody}
         </p>
         <p className="text-xs text-text-muted mt-3">
-          În beta, editorul vine odată cu panoul de partener (M10). Pagina ta
-          poate fi publicată și fără meniu — oaspeții văd „Meniu în curând” pe
-          pagina restaurantului.
+          {m.wizard.menu.cardNote}
         </p>
       </div>
 
@@ -56,10 +54,10 @@ export default async function OnboardingMenuPage({
           href={`/onboard/${token}/photos`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Înapoi
+          {m.wizard.menu.back}
         </Link>
         <form action={continueAction}>
-          <Button type="submit">Sari peste și mergi la verificare</Button>
+          <Button type="submit">{m.wizard.menu.skip}</Button>
         </form>
       </div>
     </OnboardingShell>

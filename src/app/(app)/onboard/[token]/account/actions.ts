@@ -5,6 +5,9 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { hashInvitationToken } from "@/lib/invitations";
 import { validatePasswordPolicy } from "@/lib/auth/password-policy";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 
 export interface CreateAccountResult {
   ok: boolean;
@@ -15,28 +18,31 @@ export async function createAccount(
   _prev: CreateAccountResult | undefined,
   formData: FormData,
 ): Promise<CreateAccountResult> {
+  const locale = await resolveAppLocale();
+  const e = getMessages(locale, "partner.onboarding").wizard.errors;
+
   const token = String(formData.get("token") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "").trim();
 
-  if (!token) return { ok: false, error: "Missing invitation token." };
-  if (!email || !email.includes("@")) return { ok: false, error: "Valid email required." };
+  if (!token) return { ok: false, error: e.missingToken };
+  if (!email || !email.includes("@")) return { ok: false, error: e.validEmailRequired };
 
   // §01 §5a.1 (NIST 800-63B): length minimum + HIBP breach check via
   // k-anonymity API. HIBP fails open on transient errors per spec.
   const policyResult = await validatePasswordPolicy(password);
   if (!policyResult.ok) {
     if (policyResult.reason === "too_short") {
-      return { ok: false, error: "Password must be at least 8 characters." };
+      return { ok: false, error: e.passwordTooShort };
     }
     if (policyResult.reason === "pwned") {
       return {
         ok: false,
-        error: "This password has appeared in a known data breach. Please choose a different one.",
+        error: e.passwordPwned,
       };
     }
-    return { ok: false, error: "Password validation failed." };
+    return { ok: false, error: e.passwordValidationFailed };
   }
 
   const admin = createSupabaseAdminClient();
@@ -48,17 +54,17 @@ export async function createAccount(
     .eq("token_hash", hashInvitationToken(token))
     .maybeSingle();
 
-  if (!invitation) return { ok: false, error: "Invitation not found." };
+  if (!invitation) return { ok: false, error: e.invitationNotFound };
   if (invitation.status !== "pending") {
-    return { ok: false, error: `Invitation is ${invitation.status}.` };
+    return { ok: false, error: interpolate(e.invitationStatus, { status: invitation.status }) };
   }
   if (new Date(invitation.expires_at) < new Date()) {
-    return { ok: false, error: "Invitation has expired." };
+    return { ok: false, error: e.invitationExpired };
   }
   if (email !== invitation.email) {
     return {
       ok: false,
-      error: `This invitation was sent to ${invitation.email}. Please use that email.`,
+      error: interpolate(e.invitationEmailMismatch, { email: invitation.email }),
     };
   }
 
@@ -75,7 +81,7 @@ export async function createAccount(
   if (signUpError || !created.user) {
     // If user already exists, Supabase returns a specific error. We can
     // offer sign-in instead; for now just surface the error.
-    return { ok: false, error: signUpError?.message ?? "Could not create account." };
+    return { ok: false, error: signUpError?.message ?? e.couldNotCreateAccount };
   }
 
   // Call the RPC to link everything together.
@@ -88,7 +94,7 @@ export async function createAccount(
   if (rpcError) {
     // Clean up: delete the just-created user if the claim fails.
     await admin.auth.admin.deleteUser(created.user.id);
-    return { ok: false, error: `Couldn't link your account: ${rpcError.message}` };
+    return { ok: false, error: interpolate(e.couldNotLink, { message: rpcError.message }) };
   }
 
   // Sign the user in via the user-scoped SSR client so the session cookie is set.
@@ -97,7 +103,7 @@ export async function createAccount(
   if (signInError) {
     return {
       ok: false,
-      error: `Account created but auto-sign-in failed: ${signInError.message}. Try /partner/sign-in.`,
+      error: interpolate(e.autoSignInFailed, { message: signInError.message }),
     };
   }
 

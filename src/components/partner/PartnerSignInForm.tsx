@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/button";
 import { PasswordInput } from "@/components/password-input";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   signInPartner,
   type PartnerSignInResult,
@@ -13,6 +14,7 @@ export function PartnerSignInForm({
 }: {
   initialState?: PartnerSignInResult;
 } = {}) {
+  const t = useT("partner.onboarding");
   const [state, action, pending] = useActionState<
     PartnerSignInResult | undefined,
     FormData
@@ -29,7 +31,7 @@ export function PartnerSignInForm({
             className="block text-sm font-medium text-text-primary"
             htmlFor="mfa_code"
           >
-            Cod din aplicația de autentificare
+            {t("auth.signIn.mfaCodeLabel")}
           </label>
           <input
             id="mfa_code"
@@ -51,13 +53,13 @@ export function PartnerSignInForm({
         )}
 
         <Button fullWidth disabled={pending} type="submit">
-          {pending ? "Se verifică…" : "Verifică și conectează-mă"}
+          {pending ? t("auth.signIn.mfaSubmitPending") : t("auth.signIn.mfaSubmit")}
         </Button>
 
         {state.hasRecoveryCodes && (
           <details className="text-sm">
             <summary className="cursor-pointer text-text-secondary hover:text-text-primary">
-              Folosește un cod de recuperare
+              {t("auth.signIn.recoveryToggle")}
             </summary>
             <div className="mt-3 space-y-3">
               <input
@@ -67,8 +69,7 @@ export function PartnerSignInForm({
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <p className="text-xs text-text-muted">
-                Folosirea unui cod de recuperare îți va dezactiva
-                autentificatorul. Vei putea seta unul nou după conectare.
+                {t("auth.signIn.recoveryHint")}
               </p>
               <Button
                 fullWidth
@@ -76,7 +77,7 @@ export function PartnerSignInForm({
                 disabled={pending}
                 type="submit"
               >
-                Folosește codul de recuperare
+                {t("auth.signIn.recoverySubmit")}
               </Button>
             </div>
           </details>
@@ -89,7 +90,7 @@ export function PartnerSignInForm({
     <form action={action} className="space-y-4">
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="email">
-          Email
+          {t("auth.signIn.emailLabel")}
         </label>
         <input
           id="email"
@@ -102,7 +103,7 @@ export function PartnerSignInForm({
       </div>
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="password">
-          Parolă
+          {t("auth.signIn.passwordLabel")}
         </label>
         <PasswordInput
           id="password"
@@ -117,10 +118,10 @@ export function PartnerSignInForm({
         </p>
       )}
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Se conectează…" : "Conectează-te"}
+        {pending ? t("auth.signIn.submitPending") : t("auth.signIn.submit")}
       </Button>
       <p className="text-xs text-text-muted text-center">
-        Încă nu ești partener? Ai nevoie de o invitație de la echipa Tavli.
+        {t("auth.signIn.notPartnerHint")}
       </p>
     </form>
   );

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
 import type { DayHours } from "@/lib/onboarding";
+import { useT } from "@/lib/i18n/messages-provider";
 
-const DAY_LABELS = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon..Sun
 
 export function HoursEditor({
@@ -16,6 +16,8 @@ export function HoursEditor({
   onChange?: (v: DayHours[]) => void;
   name?: string;
 }) {
+  const t = useT("partner.common");
+  const dayLabels = t("hoursEditor.weekdaysFull").split(",");
   const [hours, setHours] = useState<DayHours[]>(value);
 
   function update(dayOfWeek: number, patch: Partial<DayHours>) {
@@ -48,7 +50,7 @@ export function HoursEditor({
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:underline"
         >
           <Copy size={12} />
-          Copiază prima zi deschisă la toate
+          {t("hoursEditor.copyFirstOpen")}
         </button>
       </div>
 
@@ -63,7 +65,7 @@ export function HoursEditor({
             >
               <div className="w-24 flex-shrink-0">
                 <p className="text-sm font-medium text-text-primary">
-                  {DAY_LABELS[dow]}
+                  {dayLabels[dow]}
                 </p>
               </div>
               <label className="flex items-center gap-2 text-xs text-text-secondary">
@@ -73,7 +75,7 @@ export function HoursEditor({
                   onChange={(e) => update(dow, { isOpen: e.target.checked })}
                   className="h-4 w-4 rounded border-border accent-[var(--color-brand-primary)]"
                 />
-                Deschis
+                {t("hoursEditor.open")}
               </label>
               <div
                 className={`flex items-center gap-2 flex-1 justify-end transition-opacity ${

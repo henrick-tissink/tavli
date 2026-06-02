@@ -12,6 +12,8 @@ import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 import { stopImpersonationSession } from "@/lib/auth/impersonation-session";
 import { isLocale } from "@/lib/i18n/locale";
 import { setLocaleCookie } from "@/lib/i18n/cookie";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export type PartnerSignInResult =
   | { ok: false; error: string }
@@ -27,8 +29,10 @@ export async function signInPartner(
   _prev: PartnerSignInResult | undefined,
   formData: FormData,
 ): Promise<PartnerSignInResult> {
+  const errors = getMessages(await resolveAppLocale(), "partner.onboarding").auth.errors;
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return { ok: false, error: "Supabase nu este încă configurat." };
+    return { ok: false, error: errors.supabaseNotConfigured };
   }
 
   const mfaCode = formData.get("mfa_code");
@@ -43,7 +47,7 @@ export async function signInPartner(
     const supabase = await createSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) {
-      return { ok: false, error: "Sesiunea a expirat. Conectează-te din nou." };
+      return { ok: false, error: errors.sessionExpired };
     }
 
     if (!mfaCode && !recoveryCode) {
@@ -53,7 +57,7 @@ export async function signInPartner(
         state: "needs_mfa",
         factorId,
         hasRecoveryCodes: remaining > 0,
-        error: "Introdu un cod pentru a continua.",
+        error: errors.enterCode,
       };
     }
 
@@ -72,7 +76,7 @@ export async function signInPartner(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: false,
-          error: "Nu am putut emite provocarea. Încearcă din nou.",
+          error: errors.challengeFailed,
         };
       }
       const verify = await supabase.auth.mfa.verify({
@@ -86,7 +90,7 @@ export async function signInPartner(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: false,
-          error: "Cod incorect.",
+          error: errors.incorrectCode,
         };
       }
       // Sync locale cookie on successful MFA sign-in.
@@ -108,7 +112,7 @@ export async function signInPartner(
           state: "needs_mfa",
           factorId,
           hasRecoveryCodes: true,
-          error: "Cod de recuperare invalid.",
+          error: errors.invalidRecoveryCode,
         };
       }
       // Sync locale cookie on successful recovery-code sign-in.
@@ -123,7 +127,7 @@ export async function signInPartner(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   if (!email || !password) {
-    return { ok: false, error: "Emailul și parola sunt obligatorii." };
+    return { ok: false, error: errors.emailPasswordRequired };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -132,7 +136,7 @@ export async function signInPartner(
     password,
   });
   if (error || !data.user) {
-    return { ok: false, error: "Date de autentificare invalide." };
+    return { ok: false, error: errors.invalidCredentials };
   }
 
   const { data: profile } = await supabase
@@ -143,7 +147,7 @@ export async function signInPartner(
 
   if (profile?.role !== "restaurant_owner" && profile?.role !== "admin") {
     await supabase.auth.signOut();
-    return { ok: false, error: "Acest cont nu este un cont de partener." };
+    return { ok: false, error: errors.notPartnerAccount };
   }
 
   const factors = await listVerifiedTotpFactors(supabase);

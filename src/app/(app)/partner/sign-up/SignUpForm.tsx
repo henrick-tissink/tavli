@@ -2,35 +2,42 @@
 
 import { useActionState, useState } from "react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import { signupPartnerAction, type SignupActionResult } from "./actions";
 
-const ERRORS: Record<string, string> = {
-  invalid_input: "Verifică datele introduse.",
-  conflict: "Există deja un cont cu acest email. Conectează-te în schimb.",
-  rate_limited: "Prea multe încercări. Încearcă din nou mai târziu.",
-  TV1401: "Acest cod fiscal a folosit deja o perioadă de probă. Scrie-ne pentru ajutor.",
-  TV1403: "Acest cod fiscal este deja revendicat de altă organizație.",
-  internal: "Ceva n-a mers. Te rugăm să încerci din nou.",
+/** Maps server-action error codes to message keys under `auth.errors`. */
+const ERROR_KEYS: Record<string, string> = {
+  invalid_input: "auth.errors.signUpInvalidInput",
+  conflict: "auth.errors.signUpConflict",
+  rate_limited: "auth.errors.signUpRateLimited",
+  TV1401: "auth.errors.signUpTrialUsed",
+  TV1403: "auth.errors.signUpTaxIdClaimed",
+  internal: "auth.errors.signUpInternal",
 };
-
-const STEPS = ["Cont", "Restaurant", "Plan"] as const;
 
 const fieldClass =
   "w-full rounded-lg border border-border bg-surface-white px-3 py-2 text-sm text-text-primary focus:border-brand-primary focus:outline-none";
 const labelClass = "mb-1 block text-xs font-medium text-text-secondary";
 
 export function SignUpForm({ cities }: { cities: { id: string; name: string }[] }) {
+  const t = useT("partner.onboarding");
   const [state, action, pending] = useActionState<SignupActionResult | undefined, FormData>(
     signupPartnerAction,
     undefined,
   );
   const [step, setStep] = useState(0);
 
+  const steps = [
+    t("auth.signUp.steps.account"),
+    t("auth.signUp.steps.restaurant"),
+    t("auth.signUp.steps.plan"),
+  ];
+
   return (
     <form action={action} className="space-y-6">
       {/* Progress */}
-      <ol className="flex items-center gap-2" aria-label="Pași">
-        {STEPS.map((label, i) => (
+      <ol className="flex items-center gap-2" aria-label={t("auth.signUp.stepsAriaLabel")}>
+        {steps.map((label, i) => (
           <li key={label} className="flex flex-1 items-center gap-2">
             <span
               className={[
@@ -51,16 +58,16 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
       {/* Step 1 — account */}
       <div hidden={step !== 0} className="space-y-4">
         <div>
-          <label className={labelClass} htmlFor="su-email">Email</label>
+          <label className={labelClass} htmlFor="su-email">{t("auth.signUp.emailLabel")}</label>
           <input id="su-email" name="email" type="email" required autoComplete="email" className={fieldClass} />
         </div>
         <div>
-          <label className={labelClass} htmlFor="su-password">Parolă</label>
+          <label className={labelClass} htmlFor="su-password">{t("auth.signUp.passwordLabel")}</label>
           <input id="su-password" name="password" type="password" required minLength={8} autoComplete="new-password" className={fieldClass} />
-          <p className="mt-1 text-xs text-text-muted">Minimum 8 caractere.</p>
+          <p className="mt-1 text-xs text-text-muted">{t("auth.signUp.passwordHint")}</p>
         </div>
         <div>
-          <label className={labelClass} htmlFor="su-name">Numele tău</label>
+          <label className={labelClass} htmlFor="su-name">{t("auth.signUp.fullNameLabel")}</label>
           <input id="su-name" name="fullName" type="text" required autoComplete="name" className={fieldClass} />
         </div>
       </div>
@@ -68,13 +75,13 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
       {/* Step 2 — restaurant + org */}
       <div hidden={step !== 1} className="space-y-4">
         <div>
-          <label className={labelClass} htmlFor="su-rname">Numele restaurantului</label>
+          <label className={labelClass} htmlFor="su-rname">{t("auth.signUp.restaurantNameLabel")}</label>
           <input id="su-rname" name="restaurantName" type="text" required className={fieldClass} />
         </div>
         <div>
-          <label className={labelClass} htmlFor="su-city">Oraș</label>
+          <label className={labelClass} htmlFor="su-city">{t("auth.signUp.cityLabel")}</label>
           <select id="su-city" name="cityId" required defaultValue="" className={fieldClass}>
-            <option value="" disabled>Alege orașul…</option>
+            <option value="" disabled>{t("auth.signUp.cityPlaceholder")}</option>
             {cities.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -82,9 +89,9 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
         </div>
         <div>
           <label className={labelClass} htmlFor="su-org">
-            Numele organizației <span className="text-text-muted">(opțional)</span>
+            {t("auth.signUp.orgNameLabel")} <span className="text-text-muted">{t("auth.signUp.orgNameOptional")}</span>
           </label>
-          <input id="su-org" name="organizationName" type="text" placeholder="Implicit: numele restaurantului" className={fieldClass} />
+          <input id="su-org" name="organizationName" type="text" placeholder={t("auth.signUp.orgNamePlaceholder")} className={fieldClass} />
         </div>
         <input type="hidden" name="countryCode" value="RO" />
       </div>
@@ -93,70 +100,70 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
       <div hidden={step !== 2} className="space-y-4">
         <div>
           <label className={labelClass} htmlFor="su-tax">
-            Cod fiscal / CUI <span className="text-text-muted">(opțional acum)</span>
+            {t("auth.signUp.taxIdLabel")} <span className="text-text-muted">{t("auth.signUp.taxIdOptional")}</span>
           </label>
           <input id="su-tax" name="taxId" type="text" className={fieldClass} />
-          <p className="mt-1 text-xs text-text-muted">Îl poți adăuga mai târziu, înainte de facturare.</p>
+          <p className="mt-1 text-xs text-text-muted">{t("auth.signUp.taxIdHint")}</p>
         </div>
         <div>
-          <span className={labelClass}>Tip de client</span>
+          <span className={labelClass}>{t("auth.signUp.customerTypeLabel")}</span>
           <div className="flex gap-4 text-sm text-text-secondary">
             <label className="flex items-center gap-2">
-              <input type="radio" name="customerType" value="business" /> Companie
+              <input type="radio" name="customerType" value="business" /> {t("auth.signUp.customerTypeBusiness")}
             </label>
             <label className="flex items-center gap-2">
-              <input type="radio" name="customerType" value="personal" /> Persoană fizică
+              <input type="radio" name="customerType" value="personal" /> {t("auth.signUp.customerTypePersonal")}
             </label>
           </div>
         </div>
         <div>
-          <span className={labelClass}>Plan</span>
+          <span className={labelClass}>{t("auth.signUp.planLabel")}</span>
           <div className="grid grid-cols-2 gap-3">
             <label className="cursor-pointer rounded-lg border border-border p-3 text-sm has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary-soft">
               <input type="radio" name="tier" value="base" defaultChecked className="sr-only" />
-              <span className="font-semibold text-text-primary">Tavli</span>
-              <span className="block text-text-muted">€30 / lună</span>
+              <span className="font-semibold text-text-primary">{t("auth.signUp.planBaseName")}</span>
+              <span className="block text-text-muted">{t("auth.signUp.planBasePrice")}</span>
             </label>
             <label className="cursor-pointer rounded-lg border border-border p-3 text-sm has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary-soft">
               <input type="radio" name="tier" value="pro" className="sr-only" />
-              <span className="font-semibold text-text-primary">Tavli Pro</span>
-              <span className="block text-text-muted">€60 / lună</span>
+              <span className="font-semibold text-text-primary">{t("auth.signUp.planProName")}</span>
+              <span className="block text-text-muted">{t("auth.signUp.planProPrice")}</span>
             </label>
           </div>
         </div>
         <div>
-          <span className={labelClass}>Facturare</span>
+          <span className={labelClass}>{t("auth.signUp.frequencyLabel")}</span>
           <div className="flex gap-4 text-sm text-text-secondary">
             <label className="flex items-center gap-2">
-              <input type="radio" name="frequency" value="monthly" defaultChecked /> Lunar
+              <input type="radio" name="frequency" value="monthly" defaultChecked /> {t("auth.signUp.frequencyMonthly")}
             </label>
             <label className="flex items-center gap-2">
-              <input type="radio" name="frequency" value="annual" /> Anual
+              <input type="radio" name="frequency" value="annual" /> {t("auth.signUp.frequencyAnnual")}
             </label>
           </div>
         </div>
         <label className="flex items-start gap-2 text-sm text-text-secondary">
           <input type="checkbox" name="termsAccepted" required className="mt-0.5" />
           <span>
-            Sunt de acord cu{" "}
+            {t("auth.signUp.termsPrefix")}{" "}
             <a href="/termeni" className="text-brand-primary hover:underline" target="_blank" rel="noreferrer">
-              Termenii
+              {t("auth.signUp.termsLink")}
             </a>{" "}
-            și{" "}
+            {t("auth.signUp.termsAnd")}{" "}
             <a href="/prelucrare-date" className="text-brand-primary hover:underline" target="_blank" rel="noreferrer">
-              prelucrarea datelor
+              {t("auth.signUp.privacyLink")}
             </a>
             .
           </span>
         </label>
         <p className="text-xs text-text-muted">
-          Începi cu o perioadă de probă de 3 luni. Nu se percep costuri acum.
+          {t("auth.signUp.trialNotice")}
         </p>
       </div>
 
       {state && !state.ok && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
-          {ERRORS[state.code] ?? "Nu am putut crea contul."}
+          {t(ERROR_KEYS[state.code] ?? "auth.errors.signUpGeneric")}
         </p>
       )}
 
@@ -167,15 +174,15 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
           disabled={step === 0}
           className="text-sm font-semibold text-text-secondary hover:text-text-primary disabled:opacity-0"
         >
-          Înapoi
+          {t("auth.signUp.back")}
         </button>
-        {step < STEPS.length - 1 ? (
-          <Button type="button" onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}>
-            Continuă
+        {step < steps.length - 1 ? (
+          <Button type="button" onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}>
+            {t("auth.signUp.continue")}
           </Button>
         ) : (
           <Button type="submit" disabled={pending}>
-            {pending ? "Se creează…" : "Creează contul"}
+            {pending ? t("auth.signUp.submitPending") : t("auth.signUp.submit")}
           </Button>
         )}
       </div>

@@ -8,6 +8,10 @@ jest.mock("@/lib/invitations", () => ({
   hashInvitationToken: () => "hash",
 }));
 
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("ro"),
+}));
+
 const ORIGINAL_ENV = { ...process.env };
 
 beforeAll(() => {
