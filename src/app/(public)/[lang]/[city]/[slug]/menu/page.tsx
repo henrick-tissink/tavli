@@ -12,6 +12,8 @@ import { isLocale } from "@/lib/i18n/locale";
 import { buildBundle, getMessages } from "@/lib/i18n/messages";
 import { interpolate } from "@/lib/i18n/t";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { loadMenuTranslations } from "@/lib/translations/load-menu";
+import { applyMenuTranslations } from "@/lib/translations/apply-menu-translation";
 import { MenuPageClient } from "./MenuPageClient";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +54,15 @@ export default async function DinerMenuPage({
 
   if (!restaurant) notFound();
 
+  // Overlay partner-authored menu content translations (non-RO locales only).
+  // Per-row fallback: sections/items without an authored translated name keep
+  // their RO values. loadMenuTranslations returns empty maps for RO locale.
+  let localizedMenu = menu;
+  if (menu && locale !== "ro") {
+    const menuTranslations = await loadMenuTranslations(menu.restaurantId, locale);
+    localizedMenu = applyMenuTranslations(menu, menuTranslations);
+  }
+
   const heroPhoto = detail?.photos?.[0] ?? restaurant.photoUrl ?? undefined;
 
   return (
@@ -70,7 +81,7 @@ export default async function DinerMenuPage({
           city={city}
           slug={slug}
           restaurant={restaurant}
-          menu={menu}
+          menu={localizedMenu}
           heroPhoto={heroPhoto}
         />
 
