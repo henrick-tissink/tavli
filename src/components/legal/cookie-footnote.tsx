@@ -16,6 +16,10 @@ const LEGAL_PATHS = new Set([
   "/en/terms",
   "/en/cookies",
   "/en/anpc",
+  "/de/privacy",
+  "/de/terms",
+  "/de/cookies",
+  "/de/anpc",
 ]);
 
 const COPY = {
@@ -30,6 +34,12 @@ const COPY = {
     details: "Details",
     ok: "OK",
     detailsHref: "/en/cookies",
+  },
+  de: {
+    body: "🍪 Wir verwenden essentielle Cookies für Anmeldung und Einstellungen. Kein Tracking.",
+    details: "Details",
+    ok: "OK",
+    detailsHref: "/de/cookies",
   },
 };
 
@@ -54,7 +64,7 @@ export function CookieFootnote() {
   if (LEGAL_PATHS.has(pathname)) return null;
   if (acknowledged) return null;
 
-  const lang = pathname.startsWith("/en") ? "en" : "ro";
+  const lang = pathname.startsWith("/de") ? "de" : pathname.startsWith("/en") ? "en" : "ro";
   const copy = COPY[lang];
 
   const handleAck = () => {

@@ -1,0 +1,63 @@
+{
+  "screen": {
+    "defaultDisplayName": "Tavli User",
+    "memberSince": "Member since {date}",
+    "settingsTitle": "Settings",
+    "cityLabel": "City",
+    "notificationsLabel": "Notifications",
+    "notificationsAriaLabel": "Notifications",
+    "legalTitle": "Legal & information",
+    "legalPrivacy": "Privacy",
+    "legalTerms": "Terms",
+    "legalCookies": "Cookies",
+    "legalAnpc": "ANPC & SOL",
+    "legalContact": "Contact: hello@tavli.ro",
+    "signOut": "Sign out",
+    "signedOutTitle": "Your profile",
+    "signedOutBody": "Sign in to manage your account, preferences, and reservation history.",
+    "signIn": "Sign in"
+  },
+  "saved": {
+    "savedTitle": "Your saved places",
+    "emptyTitle": "No saved places",
+    "emptyBody": "Tap the heart on any restaurant to save it here.",
+    "discoverAction": "Discover restaurants",
+    "bookingsTitle": "Previous reservations",
+    "bookingsEmptyTitle": "No reservations",
+    "bookingsEmptyBody": "Book a table to see your history here.",
+    "bookingAt": "at",
+    "bookingGuests": {
+      "one": "{count} person",
+      "few": "{count} people",
+      "other": "{count} people"
+    }
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create account",
+    "signInSubmit": "Sign in",
+    "signUpSubmit": "Create account",
+    "signInLoading": "Signing in…",
+    "signUpLoading": "Creating account…",
+    "emailPlaceholder": "Email",
+    "emailAriaLabel": "Email",
+    "passwordPlaceholder": "Password (min. 6 characters)",
+    "passwordAriaLabel": "Password",
+    "signInSubtitle": "Enter your account details to continue.",
+    "signUpSubtitle": "Create a free account to make reservations.",
+    "confirmationTitle": "Check your email",
+    "confirmationBody": "We've sent an email to {email}. Confirm your address to complete your account, then sign in.",
+    "confirmationAck": "Got it",
+    "switchToSignUp": "No account? Create one",
+    "switchToSignIn": "Already have an account? Sign in",
+    "legalPrefix": "By continuing, you agree to our",
+    "legalTerms": "Terms",
+    "legalAnd": "and",
+    "legalPrivacy": "Privacy Policy"
+  },
+  "citySelector": {
+    "ariaLabel": "Choose city",
+    "comingSoon": "Coming soon"
+  },
+  "empty": {}
+}

@@ -1,0 +1,63 @@
+{
+  "screen": {
+    "defaultDisplayName": "Tavli-Nutzer",
+    "memberSince": "Mitglied seit {date}",
+    "settingsTitle": "Einstellungen",
+    "cityLabel": "Stadt",
+    "notificationsLabel": "Benachrichtigungen",
+    "notificationsAriaLabel": "Benachrichtigungen",
+    "legalTitle": "Rechtliches & Informationen",
+    "legalPrivacy": "Datenschutz",
+    "legalTerms": "Nutzungsbedingungen",
+    "legalCookies": "Cookies",
+    "legalAnpc": "ANPC & SOL",
+    "legalContact": "Kontakt: hello@tavli.ro",
+    "signOut": "Abmelden",
+    "signedOutTitle": "Ihr Profil",
+    "signedOutBody": "Melden Sie sich an, um Ihr Konto, Ihre Einstellungen und Ihren Reservierungsverlauf zu verwalten.",
+    "signIn": "Anmelden"
+  },
+  "saved": {
+    "savedTitle": "Ihre gespeicherten Orte",
+    "emptyTitle": "Keine gespeicherten Orte",
+    "emptyBody": "Tippen Sie auf das Herz bei einem Restaurant, um es hier zu speichern.",
+    "discoverAction": "Restaurants entdecken",
+    "bookingsTitle": "Frühere Reservierungen",
+    "bookingsEmptyTitle": "Keine Reservierungen",
+    "bookingsEmptyBody": "Reservieren Sie einen Tisch, um Ihren Verlauf hier zu sehen.",
+    "bookingAt": "um",
+    "bookingGuests": {
+      "one": "{count} Person",
+      "few": "{count} Personen",
+      "other": "{count} Personen"
+    }
+  },
+  "auth": {
+    "signInTitle": "Anmelden",
+    "signUpTitle": "Konto erstellen",
+    "signInSubmit": "Anmelden",
+    "signUpSubmit": "Konto erstellen",
+    "signInLoading": "Anmeldung läuft…",
+    "signUpLoading": "Konto wird erstellt…",
+    "emailPlaceholder": "E-Mail",
+    "emailAriaLabel": "E-Mail",
+    "passwordPlaceholder": "Passwort (mind. 6 Zeichen)",
+    "passwordAriaLabel": "Passwort",
+    "signInSubtitle": "Geben Sie Ihre Kontodaten ein, um fortzufahren.",
+    "signUpSubtitle": "Erstellen Sie ein kostenloses Konto, um Reservierungen vorzunehmen.",
+    "confirmationTitle": "Überprüfen Sie Ihre E-Mail",
+    "confirmationBody": "Wir haben eine E-Mail an {email} gesendet. Bestätigen Sie Ihre Adresse, um Ihr Konto abzuschließen, und melden Sie sich dann an.",
+    "confirmationAck": "Verstanden",
+    "switchToSignUp": "Kein Konto? Jetzt erstellen",
+    "switchToSignIn": "Sie haben bereits ein Konto? Anmelden",
+    "legalPrefix": "Mit der Fortsetzung stimmen Sie unseren",
+    "legalTerms": "Nutzungsbedingungen",
+    "legalAnd": "und",
+    "legalPrivacy": "Datenschutzrichtlinien"
+  },
+  "citySelector": {
+    "ariaLabel": "Stadt wählen",
+    "comingSoon": "Demnächst"
+  },
+  "empty": {}
+}

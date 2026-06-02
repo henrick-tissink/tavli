@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 const CITIES = [
   { name: "București", active: true },
@@ -19,6 +20,7 @@ interface CitySelectorProps {
 export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const t = useT("profile");
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -34,7 +36,7 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
     <div ref={ref} className="relative">
       <button
         type="button"
-        aria-label="Alege orașul"
+        aria-label={t("citySelector.ariaLabel")}
         className="flex items-center gap-1 text-sm font-semibold text-text-primary"
         onClick={() => setOpen((prev) => !prev)}
       >
@@ -61,7 +63,7 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
                 ) : (
                   <div className="w-full px-4 py-2 text-sm text-text-muted flex items-center justify-between">
                     <span>{city.name}</span>
-                    <span className="text-xs">În curând</span>
+                    <span className="text-xs">{t("citySelector.comingSoon")}</span>
                   </div>
                 )}
               </li>

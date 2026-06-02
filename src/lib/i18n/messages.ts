@@ -28,6 +28,10 @@ import roEvents from "@/messages/ro/events.json";
 import enEvents from "@/messages/en/events.json";
 import deEvents from "@/messages/de/events.json";
 
+import roProfile from "@/messages/ro/profile.json";
+import enProfile from "@/messages/en/profile.json";
+import deProfile from "@/messages/de/profile.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -481,6 +485,67 @@ export interface EventsMessages {
   };
 }
 
+/** Structural contract for the `profile` namespace. */
+export interface ProfileMessages {
+  screen: {
+    defaultDisplayName: string;
+    memberSince: string;
+    settingsTitle: string;
+    cityLabel: string;
+    notificationsLabel: string;
+    notificationsAriaLabel: string;
+    legalTitle: string;
+    legalPrivacy: string;
+    legalTerms: string;
+    legalCookies: string;
+    legalAnpc: string;
+    legalContact: string;
+    signOut: string;
+    signedOutTitle: string;
+    signedOutBody: string;
+    signIn: string;
+  };
+  saved: {
+    savedTitle: string;
+    emptyTitle: string;
+    emptyBody: string;
+    discoverAction: string;
+    bookingsTitle: string;
+    bookingsEmptyTitle: string;
+    bookingsEmptyBody: string;
+    bookingAt: string;
+    bookingGuests: { one: string; few: string; other: string };
+  };
+  auth: {
+    signInTitle: string;
+    signUpTitle: string;
+    signInSubmit: string;
+    signUpSubmit: string;
+    signInLoading: string;
+    signUpLoading: string;
+    emailPlaceholder: string;
+    emailAriaLabel: string;
+    passwordPlaceholder: string;
+    passwordAriaLabel: string;
+    signInSubtitle: string;
+    signUpSubtitle: string;
+    confirmationTitle: string;
+    confirmationBody: string;
+    confirmationAck: string;
+    switchToSignUp: string;
+    switchToSignIn: string;
+    legalPrefix: string;
+    legalTerms: string;
+    legalAnd: string;
+    legalPrivacy: string;
+  };
+  citySelector: {
+    ariaLabel: string;
+    comingSoon: string;
+  };
+  empty: Record<string, never>;
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -514,6 +579,10 @@ const CATALOGS = {
   events: { ro: roEvents, en: enEvents, de: deEvents } as Record<
     Locale,
     EventsMessages
+  >,
+  profile: { ro: roProfile, en: enProfile, de: deProfile } as Record<
+    Locale,
+    ProfileMessages
   >,
 } as const;
 

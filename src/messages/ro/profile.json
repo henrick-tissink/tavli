@@ -1,0 +1,63 @@
+{
+  "screen": {
+    "defaultDisplayName": "Utilizator Tavli",
+    "memberSince": "Membru din {date}",
+    "settingsTitle": "Setări",
+    "cityLabel": "Oraș",
+    "notificationsLabel": "Notificări",
+    "notificationsAriaLabel": "Notificări",
+    "legalTitle": "Legal & informare",
+    "legalPrivacy": "Confidențialitate",
+    "legalTerms": "Termeni",
+    "legalCookies": "Cookie-uri",
+    "legalAnpc": "ANPC & SOL",
+    "legalContact": "Contact: hello@tavli.ro",
+    "signOut": "Deconectează-te",
+    "signedOutTitle": "Profilul tău",
+    "signedOutBody": "Conectează-te pentru a-ți gestiona contul, preferințele și istoricul de rezervări.",
+    "signIn": "Conectează-te"
+  },
+  "saved": {
+    "savedTitle": "Locurile tale salvate",
+    "emptyTitle": "Niciun loc salvat",
+    "emptyBody": "Apasă pe inima oricărui restaurant ca să-l adaugi aici.",
+    "discoverAction": "Descoperă restaurante",
+    "bookingsTitle": "Rezervări anterioare",
+    "bookingsEmptyTitle": "Nicio rezervare",
+    "bookingsEmptyBody": "Rezervă o masă pentru a-ți vedea istoricul aici.",
+    "bookingAt": "la",
+    "bookingGuests": {
+      "one": "{count} persoană",
+      "few": "{count} persoane",
+      "other": "{count} persoane"
+    }
+  },
+  "auth": {
+    "signInTitle": "Conectează-te",
+    "signUpTitle": "Creează cont",
+    "signInSubmit": "Conectează-te",
+    "signUpSubmit": "Creează cont",
+    "signInLoading": "Se conectează…",
+    "signUpLoading": "Se creează contul…",
+    "emailPlaceholder": "Email",
+    "emailAriaLabel": "Email",
+    "passwordPlaceholder": "Parolă (minim 6 caractere)",
+    "passwordAriaLabel": "Parolă",
+    "signInSubtitle": "Introdu datele contului tău pentru a continua.",
+    "signUpSubtitle": "Creează un cont gratuit pentru a face rezervări.",
+    "confirmationTitle": "Verifică emailul",
+    "confirmationBody": "Ți-am trimis un email la {email}. Confirmă adresa pentru a finaliza contul, apoi conectează-te.",
+    "confirmationAck": "Am înțeles",
+    "switchToSignUp": "Nu ai cont? Creează unul",
+    "switchToSignIn": "Ai deja cont? Conectează-te",
+    "legalPrefix": "Continuând, ești de acord cu",
+    "legalTerms": "Termenii",
+    "legalAnd": "și",
+    "legalPrivacy": "Confidențialitatea"
+  },
+  "citySelector": {
+    "ariaLabel": "Alege orașul",
+    "comingSoon": "În curând"
+  },
+  "empty": {}
+}

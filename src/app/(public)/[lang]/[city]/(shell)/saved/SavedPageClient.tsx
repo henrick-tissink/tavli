@@ -7,6 +7,8 @@ import type { Restaurant } from "@/lib/types";
 import { useSaved } from "@/lib/saved-context";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { EmptyState } from "@/components/empty-state";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface Props {
   city: string;
@@ -16,6 +18,8 @@ interface Props {
 export function SavedPageClient({ city, allRestaurants }: Props) {
   const router = useRouter();
   const { savedIds, bookings, toggleSave, isSaved } = useSaved();
+  const t = useT("profile");
+  const locale = useLocale();
 
   const savedRestaurants = useMemo(
     () => allRestaurants.filter((r) => savedIds.includes(r.id)),
@@ -26,14 +30,14 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
     <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
       <section>
         <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary mb-4">
-          Locurile tale salvate
+          {t("saved.savedTitle")}
         </h2>
         {savedRestaurants.length === 0 ? (
           <EmptyState
             illustration="/illustrations/empty-saved.svg"
-            title="Niciun loc salvat"
-            body="Apasă pe inima oricărui restaurant ca să-l adaugi aici."
-            action={{ label: "Descoperă restaurante", href: `/${city}` }}
+            title={t("saved.emptyTitle")}
+            body={t("saved.emptyBody")}
+            action={{ label: t("saved.discoverAction"), href: localizedHref(`/${city}`, locale) }}
           />
         ) : (
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
@@ -43,7 +47,7 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
                 restaurant={restaurant}
                 saved={isSaved(restaurant.id)}
                 onSave={() => toggleSave(restaurant.id)}
-                onClick={(r) => router.push(`/${city}/${r.slug}`)}
+                onClick={(r) => router.push(localizedHref(`/${city}/${r.slug}`, locale))}
               />
             ))}
           </div>
@@ -52,13 +56,13 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
 
       <section className="mt-8">
         <h2 className="text-[20px] desktop:text-[24px] font-bold text-text-primary mb-4">
-          Rezervări anterioare
+          {t("saved.bookingsTitle")}
         </h2>
         {bookings.length === 0 ? (
           <EmptyState
             illustration="/illustrations/empty-bookings.svg"
-            title="Nicio rezervare"
-            body="Rezervă o masă pentru a-ți vedea istoricul aici."
+            title={t("saved.bookingsEmptyTitle")}
+            body={t("saved.bookingsEmptyBody")}
           />
         ) : (
           <div className="space-y-3">
@@ -73,7 +77,8 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
                     {booking.restaurantName}
                   </p>
                   <p className="text-xs text-text-secondary">
-                    {booking.date} la {booking.time} &middot; {booking.guests} {booking.guests === 1 ? "persoană" : "persoane"}
+                    {booking.date} {t("saved.bookingAt")} {booking.time} &middot;{" "}
+                    {t("saved.bookingGuests", { count: booking.guests })}
                   </p>
                 </div>
                 {booking.reviewed && booking.rating && (

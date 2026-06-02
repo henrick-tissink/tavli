@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { AuthSheet } from "../auth-sheet";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { buildBundle } from "@/lib/i18n/messages";
 
 const mockSignIn = jest.fn();
 const mockSignUp = jest.fn();
@@ -29,8 +31,13 @@ function renderSheet(props: Partial<React.ComponentProps<typeof AuthSheet>> = {}
     onAuthenticated: jest.fn(),
     ...props,
   };
+  const bundle = buildBundle("ro", ["profile"]);
   return {
-    ...render(<AuthSheet {...defaultProps} />),
+    ...render(
+      <MessagesProvider locale="ro" bundle={bundle}>
+        <AuthSheet {...defaultProps} />
+      </MessagesProvider>
+    ),
     ...defaultProps,
   };
 }
@@ -114,7 +121,7 @@ describe("AuthSheet", () => {
     await waitFor(() => {
       expect(screen.getByText(/Ți-am trimis un email/)).toBeInTheDocument();
     });
-    expect(screen.getByText("new@test.com")).toBeInTheDocument();
+    expect(screen.getByText(/new@test\.com/)).toBeInTheDocument();
   });
 
   it("calls signUp directly when in sign-up mode", async () => {

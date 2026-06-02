@@ -6,6 +6,8 @@ import { Mail } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import { Button } from "./button";
 import { useAuth } from "@/lib/auth-context";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { localizedHref } from "@/lib/i18n/routing";
 
 interface AuthSheetProps {
   open: boolean;
@@ -23,6 +25,8 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const t = useT("profile");
+  const locale = useLocale();
 
   const canSubmit =
     !submitting && /\S+@\S+\.\S+/.test(email) && password.length >= 6;
@@ -67,9 +71,9 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
     handleClose();
   };
 
-  const title = mode === "sign-in" ? "Conectează-te" : "Creează cont";
-  const submitLabel = mode === "sign-in" ? "Conectează-te" : "Creează cont";
-  const loadingLabel = mode === "sign-in" ? "Se conectează…" : "Se creează contul…";
+  const title = mode === "sign-in" ? t("auth.signInTitle") : t("auth.signUpTitle");
+  const submitLabel = mode === "sign-in" ? t("auth.signInSubmit") : t("auth.signUpSubmit");
+  const loadingLabel = mode === "sign-in" ? t("auth.signInLoading") : t("auth.signUpLoading");
 
   return (
     <BottomSheet open={open} onClose={handleClose} title={title}>
@@ -81,15 +85,14 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
               <Mail size={24} className="text-brand-primary" />
             </div>
             <h2 className="font-display text-2xl font-bold text-text-primary text-center">
-              Verifică emailul
+              {t("auth.confirmationTitle")}
             </h2>
             <p className="text-sm text-text-secondary text-center">
-              Ți-am trimis un email la <strong>{email}</strong>. Confirmă adresa
-              pentru a finaliza contul, apoi conectează-te.
+              {t("auth.confirmationBody", { email })}
             </p>
           </div>
           <Button fullWidth onClick={handleClose}>
-            Am înțeles
+            {t("auth.confirmationAck")}
           </Button>
         </div>
       ) : (
@@ -104,8 +107,8 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             </h2>
             <p className="text-sm text-text-secondary text-center">
               {mode === "sign-in"
-                ? "Introdu datele contului tău pentru a continua."
-                : "Creează un cont gratuit pentru a face rezervări."}
+                ? t("auth.signInSubtitle")
+                : t("auth.signUpSubtitle")}
             </p>
           </div>
 
@@ -113,8 +116,8 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            aria-label="Email"
+            placeholder={t("auth.emailPlaceholder")}
+            aria-label={t("auth.emailAriaLabel")}
             autoComplete="email"
             className="rounded-button border border-border px-3 py-2.5 w-full text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary focus:bg-brand-primary-soft/40"
           />
@@ -122,8 +125,8 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Parolă (minim 6 caractere)"
-            aria-label="Parolă"
+            placeholder={t("auth.passwordPlaceholder")}
+            aria-label={t("auth.passwordAriaLabel")}
             autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
             className="rounded-button border border-border px-3 py-2.5 w-full text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary focus:bg-brand-primary-soft/40"
           />
@@ -151,21 +154,21 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
               className="text-sm text-brand-primary font-semibold"
             >
               {mode === "sign-in"
-                ? "Nu ai cont? Creează unul"
-                : "Ai deja cont? Conectează-te"}
+                ? t("auth.switchToSignUp")
+                : t("auth.switchToSignIn")}
             </button>
           </div>
 
           {/* Legal microcopy */}
           <div className="border-t border-border pt-3">
             <p className="text-xs text-text-muted text-center">
-              Continuând, ești de acord cu{" "}
-              <Link href="/termeni" className="underline hover:text-text-secondary">
-                Termenii
+              {t("auth.legalPrefix")}{" "}
+              <Link href={localizedHref("/termeni", locale)} className="underline hover:text-text-secondary">
+                {t("auth.legalTerms")}
               </Link>{" "}
-              și{" "}
-              <Link href="/confidentialitate" className="underline hover:text-text-secondary">
-                Confidențialitatea
+              {t("auth.legalAnd")}{" "}
+              <Link href={localizedHref("/confidentialitate", locale)} className="underline hover:text-text-secondary">
+                {t("auth.legalPrivacy")}
               </Link>
               .
             </p>
