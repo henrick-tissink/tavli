@@ -428,6 +428,13 @@
       "when": 1779604000000,
       "tag": "0060_reservation_optimistic_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1779605000000,
+      "tag": "0061_reservation_event_locale",
+      "breakpoints": true
     }
   ]
 }

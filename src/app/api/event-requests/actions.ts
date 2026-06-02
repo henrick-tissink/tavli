@@ -1,9 +1,12 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { and, eq, gte } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { LOCALE_COOKIE } from "@/lib/i18n/cookie";
+import { isLocale } from "@/lib/i18n/locale";
 import {
   availabilityExceptions,
   eventRequests,
@@ -121,6 +124,12 @@ export async function submitEventRequestDraft(
     return { ok: true, trackingToken: existing.trackingToken };
   }
 
+  // §i18n Phase 1c — capture the diner's locale from the NEXT_LOCALE cookie
+  // so transactional emails can be sent in their chosen language. Falls back
+  // to "ro" when the cookie is absent or contains an unsupported value.
+  const lc = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const eventRequestLocale = lc !== undefined && isLocale(lc) ? lc : "ro";
+
   const draft = await createEventRequestDraft({
     restaurantId: data.restaurantId,
     guestName: data.guestName,
@@ -138,6 +147,7 @@ export async function submitEventRequestDraft(
     claimedCompanyCui: claimedCui,
     claimedCompanyName: data.claimedCompanyName,
     privateSpaceId: data.privateSpaceId,
+    locale: eventRequestLocale,
   });
 
   await sendOtp({ email: data.guestEmail, redirectToToken: draft.trackingToken });

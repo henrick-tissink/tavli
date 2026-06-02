@@ -14,6 +14,12 @@ jest.mock("@react-email/render", () => ({
   render: jest.fn().mockResolvedValue("<rendered/>"),
 }));
 
+// §i18n Phase 1c: createReservation reads the NEXT_LOCALE cookie; stub
+// next/headers so the unit tests don't require a Next.js request context.
+jest.mock("next/headers", () => ({
+  cookies: jest.fn(async () => ({ get: () => undefined })),
+}));
+
 jest.mock("@/lib/db/admin", () => ({
   createSupabaseAdminClient: jest.fn(),
 }));
