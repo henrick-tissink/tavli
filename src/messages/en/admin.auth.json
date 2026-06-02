@@ -20,7 +20,7 @@
     "recoverySubmit": "Use recovery code"
   },
   "errors": {
-    "supabaseNotConfigured": "Supabase is not configured yet. Set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.",
+    "supabaseNotConfigured": "Supabase isn't configured yet. Set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.",
     "sessionExpired": "Session expired. Please sign in again.",
     "enterCode": "Enter a code to continue.",
     "challengeFailed": "Couldn't issue challenge. Try again.",
