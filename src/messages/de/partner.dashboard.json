@@ -1,0 +1,62 @@
+{
+  "noRestaurant": {
+    "title": "Noch kein Restaurant",
+    "body": "Ihr Partner-Konto ist mit keinem Restaurant verknüpft. Kontaktieren Sie das Tavli-Team."
+  },
+  "greeting": {
+    "morning": "Guten Morgen",
+    "day": "Guten Tag",
+    "evening": "Guten Abend",
+    "night": "Gute Nacht"
+  },
+  "header": {
+    "statusLabel": "Status:",
+    "live": "● Live"
+  },
+  "justPublished": {
+    "title": "Sie sind live auf Tavli.",
+    "body": "{name} kann ab sofort von Kundinnen und Kunden entdeckt werden. Kopieren Sie die URL der öffentlichen Seite, um sie zu teilen."
+  },
+  "stats": {
+    "viewsLabel": "Aufrufe diese Woche",
+    "viewsHint": "Verfügbar, sobald die Telemetrie aktiv ist",
+    "savesLabel": "Speicherungen",
+    "savesHint": "Kundinnen und Kunden, die Sie gespeichert haben",
+    "reservationsLabel": "Reservierungen",
+    "reservationsHint": "Sehen Sie Ihre echten Reservierungen im Bereich Reservierungen"
+  },
+  "cta": {
+    "previewTitle": "Ihre öffentliche Seite ansehen",
+    "previewBody": "Sehen Sie, was Kundinnen und Kunden sehen, wenn sie Sie finden.",
+    "menuTitle": "Speisekarte verwalten",
+    "menuBody": "Bereiche, Gerichte, Preise, Fotos und Ernährungs-Tags hinzufügen."
+  },
+  "checklist": {
+    "title": "Inhaltsstatus",
+    "progress": "{done}/{total} abgeschlossen",
+    "profileLabel": "Profil vollständig",
+    "profileHint": "Name, Küchen, Adresse, Kurzbeschreibung",
+    "heroLabel": "Hauptfoto hochgeladen",
+    "heroHint": "Das erste Bild, das Kundinnen und Kunden sehen",
+    "galleryLabel": "Mindestens 3 Galeriefotos",
+    "galleryHint": "Innenraum, Signature-Gerichte, Atmosphäre",
+    "heroNoteLabel": "Notiz zur Speisekarte gesetzt",
+    "heroNoteHint": "Die Stimme des Restaurants auf der Menüseite",
+    "menuLabel": "Speisekarte hat mindestens 6 Gerichte",
+    "menuHint": "Derzeit {sections}, {items}",
+    "menuHintSections": {
+      "one": "{count} Bereich",
+      "few": "{count} Bereiche",
+      "other": "{count} Bereiche"
+    },
+    "menuHintItems": {
+      "one": "{count} Gericht",
+      "few": "{count} Gerichte",
+      "other": "{count} Gerichte"
+    },
+    "scheduleLabel": "Öffnungszeiten konfiguriert",
+    "scheduleHint": "Ihr Wochenplan",
+    "availabilityLabel": "Verfügbarkeit (Reservierungen) gesetzt",
+    "availabilityHint": "Wie viele Kundinnen und Kunden pro Zeitfenster"
+  }
+}

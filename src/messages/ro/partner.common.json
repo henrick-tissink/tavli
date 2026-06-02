@@ -71,5 +71,8 @@
     "weekdaysFull": "Duminică,Luni,Marți,Miercuri,Joi,Vineri,Sâmbătă",
     "copyFirstOpen": "Copiază prima zi deschisă la toate",
     "open": "Deschis"
+  },
+  "venueSwitcher": {
+    "orgDashboard": "Panou organizație"
   }
 }

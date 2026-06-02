@@ -8,6 +8,8 @@ import { revalidatePath } from "next/cache";
 import { getCurrentSession } from "@/lib/auth/session";
 import { reviewModerationActions, type ReportReason } from "@/lib/reviews/moderation";
 import { respondToReview as respondToReviewLib } from "@/lib/reviews/respond";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface ReportReviewResult {
   ok: boolean;
@@ -20,7 +22,13 @@ export async function reportReviewAction(
   details?: string,
 ): Promise<ReportReviewResult> {
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  if (!session) {
+    const locale = await resolveAppLocale();
+    return {
+      ok: false,
+      error: getMessages(locale, "partner.common").errors.notAuthenticated,
+    };
+  }
   try {
     await reviewModerationActions.submitReport({
       reviewId,
@@ -40,9 +48,21 @@ export async function respondToReviewAction(
   locale: "ro" | "en" | "de" = "ro",
 ): Promise<ReportReviewResult> {
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  const appLocale = await resolveAppLocale();
+  if (!session) {
+    return {
+      ok: false,
+      error: getMessages(appLocale, "partner.common").errors.notAuthenticated,
+    };
+  }
   const r = await respondToReviewLib(session, { reviewId, body, locale });
-  if (!r.ok) return { ok: false, error: r.message ?? "Răspunsul nu a putut fi salvat." };
+  if (!r.ok) {
+    return {
+      ok: false,
+      error:
+        r.message ?? getMessages(appLocale, "partner.reviews").actions.respondFailed,
+    };
+  }
   revalidatePath("/partner/reviews");
   return { ok: true };
 }
