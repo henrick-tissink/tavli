@@ -52,6 +52,9 @@ import deAdminRestaurants from "@/messages/de/admin.restaurants.json";
 import roAdminInvitations from "@/messages/ro/admin.invitations.json";
 import enAdminInvitations from "@/messages/en/admin.invitations.json";
 import deAdminInvitations from "@/messages/de/admin.invitations.json";
+import roAdminReviews from "@/messages/ro/admin.reviews.json";
+import enAdminReviews from "@/messages/en/admin.reviews.json";
+import deAdminReviews from "@/messages/de/admin.reviews.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -918,6 +921,32 @@ export interface AdminInvitationsMessages {
     cityRequired: string;
     notFound: string;
   };
+}
+
+/** Structural contract for the `admin.reviews` namespace (DSA review-report moderation queue). */
+export interface AdminReviewsMessages {
+  page: {
+    title: string;
+    subtitle: string;
+    subtitleFlag: string;
+  };
+  empty: {
+    title: string;
+  };
+  report: {
+    label: string;
+    detailsLabel: string;
+    reviewIdLabel: string;
+    reviewGone: string;
+    alreadyHidden: string;
+    reportedAt: string;
+    reporterIp: string;
+  };
+  actions: {
+    uphold: string;
+    dismiss: string;
+  };
+  reasons: Record<string, string>;
 }
 
 /** Structural contract for the `partner.common` namespace (shell chrome). */
@@ -2415,6 +2444,11 @@ const CATALOGS = {
     en: enAdminInvitations,
     de: deAdminInvitations,
   } as Record<Locale, AdminInvitationsMessages>,
+  "admin.reviews": {
+    ro: roAdminReviews,
+    en: enAdminReviews,
+    de: deAdminReviews,
+  } as Record<Locale, AdminReviewsMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,

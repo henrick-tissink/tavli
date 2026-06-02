@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Rapoarte recenzii",
+    "subtitle": "Coadă de notificare-și-acțiune DSA. Confirmă pentru a ascunde recenzia de public; respinge pentru a respinge raportul. Rapoartele confirmate ascund recenzia imediat prin {flag}.",
+    "subtitleFlag": "is_hidden=true"
+  },
+  "empty": {
+    "title": "Niciun raport în așteptare. Totul în regulă."
+  },
+  "report": {
+    "label": "Raport",
+    "detailsLabel": "Detalii: ",
+    "reviewIdLabel": "ID recenzie: ",
+    "reviewGone": "Recenzia nu mai există.",
+    "alreadyHidden": "deja ascunsă",
+    "reportedAt": "Raportată {date}",
+    "reporterIp": "· IP {ip}"
+  },
+  "actions": {
+    "uphold": "Confirmă (ascunde recenzia)",
+    "dismiss": "Respinge"
+  },
+  "reasons": {
+    "inappropriate": "Nepotrivit",
+    "fake": "Falsă",
+    "spam": "Spam",
+    "off_topic": "În afara subiectului",
+    "personal_attack": "Atac personal",
+    "gdpr_takedown": "Retragere GDPR"
+  }
+}
