@@ -22,6 +22,7 @@ export default async function AdminGatedLayout({
     "admin.restaurants",
     "admin.invitations",
     "admin.reviews",
+    "admin.gdpr",
   ]);
   return (
     <AdminShell locale={locale} bundle={bundle} userEmail={session.userEmail}>

@@ -1,0 +1,103 @@
+{
+  "list": {
+    "title": "DSGVO-Anfragen betroffener Personen",
+    "subtitle": "Sortiert nach gesetzlicher Frist. Rote Zeilen sind in 7 Tagen oder weniger fällig. In v1 nur Erfassung über Tavli-Admin — erfassen Sie hier Anfragen, die per E-Mail, Post oder mündlich eingegangen sind.",
+    "openHeading": "Offene Anfragen ({count})",
+    "openEmpty": "Keine offenen Anfragen. Neue Anfragen treffen üblicherweise per E-Mail (legal@tavli.ro), Post oder mündlicher Meldung ein; die 30-tägige DSGVO-Antwortfrist beginnt mit dem Eingang.",
+    "closedHeading": "Geschlossene Anfragen ({count})",
+    "table": {
+      "id": "ID",
+      "kind": "Art",
+      "source": "Quelle",
+      "identifier": "Kennung",
+      "diner": "Gast",
+      "status": "Status",
+      "deadline": "Frist",
+      "created": "Erstellt"
+    },
+    "empty": "—",
+    "unresolved": "ungeklärt",
+    "deadlineDays": "{days}T"
+  },
+  "detail": {
+    "back": "← Alle Anfragen",
+    "heading": "DSGVO-Anfrage {kind}",
+    "statusLabel": "Status:",
+    "deadlineLabel": "Gesetzliche Frist:",
+    "deadlineExtended": " (verlängert um {days}T)",
+    "subjectHeading": "Betroffene Person",
+    "phoneLabel": "Telefon",
+    "emailLabel": "E-Mail",
+    "resolvedDinerLabel": "Zugeordneter Gast",
+    "unresolved": "ungeklärt",
+    "sourceLabel": "Quelle",
+    "empty": "—",
+    "requestBodyHeading": "Inhalt der Anfrage",
+    "identityHeading": "Identitätsprüfung",
+    "identityVerified": "✓ Überprüft {at} per {method}",
+    "actionsHeading": "Aktionen",
+    "cascadeHeading": "Kaskaden-Audit-Protokoll ({count})",
+    "cascadeEmpty": "Noch keine Kaskaden-Aktivität. Einträge erscheinen, sobald der Orchestrator läuft.",
+    "cascadeTable": {
+      "time": "Zeit",
+      "subject": "Betreff",
+      "reason": "Grund",
+      "columns": "Spalten"
+    }
+  },
+  "failureBanner": {
+    "title": "Kaskade fehlgeschlagen",
+    "body": "Letzter Fehler um {at}. Prüfen Sie die Worker-Logs auf den fehlschlagenden Handler. Ein erneuter Lauf des Orchestrators ist sicher — die Handler sind einzeln idempotent.",
+    "retryConfirm": "Kaskade erneut versuchen? Die Handler sind idempotent — bereits abgeschlossene Arbeit wird nicht wiederholt.",
+    "retryPending": "Wird wiederholt…",
+    "retry": "Kaskade erneut versuchen",
+    "retryFailed": "Wiederholung fehlgeschlagen: {error}"
+  },
+  "resolveDiner": {
+    "trigger": "Gast zuordnen",
+    "title": "Gast zuordnen",
+    "body": "Fügen Sie die Gast-UUID(s) ein — durch Komma getrennt für Gäste mehrerer Organisationen. Die zuerst aufgeführte wird zur primären diner_id der Anfrage; die Kaskade ordnet zur Laufzeit dennoch alle Telefon-/E-Mail-Übereinstimmungen zu.",
+    "placeholder": "uuid, uuid, uuid",
+    "cancel": "Abbrechen",
+    "submitPending": "Wird gespeichert…",
+    "submit": "Zuordnen",
+    "failed": "Fehlgeschlagen: {error}"
+  },
+  "verifyIdentity": {
+    "trigger": "Identität überprüfen",
+    "title": "Identität überprüfen",
+    "body": "Wie haben Sie überprüft, dass dies die tatsächliche betroffene Person ist? (z. B. telefonischer Rückruf, E-Mail-Antwort, persönlich, Prüfung des amtlichen Ausweises.)",
+    "placeholder": "Grund der Überprüfung (Pflichtfeld)",
+    "cancel": "Abbrechen",
+    "submitPending": "Wird gespeichert…",
+    "submit": "Überprüfen",
+    "failed": "Fehlgeschlagen: {error}"
+  },
+  "approveErasure": {
+    "confirm": "Löschung genehmigen? Dies löst eine unumkehrbare Kaskade über Gast-/Reservierungs-/Bewertungs-/Audit-Daten aus.",
+    "pending": "Kaskade wird genehmigt…",
+    "approve": "Löschung genehmigen",
+    "failed": "Fehlgeschlagen: {error}"
+  },
+  "reject": {
+    "trigger": "Anfrage ablehnen",
+    "title": "Anfrage ablehnen",
+    "body": "Warum wird diese Anfrage abgelehnt? (z. B. Identität konnte nicht überprüft werden.)",
+    "placeholder": "Grund der Ablehnung (Pflichtfeld)",
+    "cancel": "Abbrechen",
+    "submitPending": "Wird abgelehnt…",
+    "submit": "Ablehnen",
+    "failed": "Fehlgeschlagen: {error}"
+  },
+  "extendDeadline": {
+    "trigger": "Frist verlängern",
+    "title": "Frist verlängern",
+    "body": "DSGVO Art. 12(3) erlaubt eine Verlängerung um bis zu 2 Monate; die Tavli-Richtlinie begrenzt sie auf 14 Tage. Pflichtbegründung.",
+    "daysLabel": "Tage (1-14)",
+    "placeholder": "Grund der Verlängerung (Pflichtfeld)",
+    "cancel": "Abbrechen",
+    "submitPending": "Wird gespeichert…",
+    "submit": "Verlängern",
+    "failed": "Fehlgeschlagen: {error}"
+  }
+}

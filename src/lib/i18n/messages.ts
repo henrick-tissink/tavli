@@ -55,6 +55,9 @@ import deAdminInvitations from "@/messages/de/admin.invitations.json";
 import roAdminReviews from "@/messages/ro/admin.reviews.json";
 import enAdminReviews from "@/messages/en/admin.reviews.json";
 import deAdminReviews from "@/messages/de/admin.reviews.json";
+import roAdminGdpr from "@/messages/ro/admin.gdpr.json";
+import enAdminGdpr from "@/messages/en/admin.gdpr.json";
+import deAdminGdpr from "@/messages/de/admin.gdpr.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -947,6 +950,111 @@ export interface AdminReviewsMessages {
     dismiss: string;
   };
   reasons: Record<string, string>;
+}
+
+/** Structural contract for the `admin.gdpr` namespace (GDPR data-erasure request handling). */
+export interface AdminGdprMessages {
+  list: {
+    title: string;
+    subtitle: string;
+    openHeading: string;
+    openEmpty: string;
+    closedHeading: string;
+    table: {
+      id: string;
+      kind: string;
+      source: string;
+      identifier: string;
+      diner: string;
+      status: string;
+      deadline: string;
+      created: string;
+    };
+    empty: string;
+    unresolved: string;
+    deadlineDays: string;
+  };
+  detail: {
+    back: string;
+    heading: string;
+    statusLabel: string;
+    deadlineLabel: string;
+    deadlineExtended: string;
+    subjectHeading: string;
+    phoneLabel: string;
+    emailLabel: string;
+    resolvedDinerLabel: string;
+    unresolved: string;
+    sourceLabel: string;
+    empty: string;
+    requestBodyHeading: string;
+    identityHeading: string;
+    identityVerified: string;
+    actionsHeading: string;
+    cascadeHeading: string;
+    cascadeEmpty: string;
+    cascadeTable: {
+      time: string;
+      subject: string;
+      reason: string;
+      columns: string;
+    };
+  };
+  failureBanner: {
+    title: string;
+    body: string;
+    retryConfirm: string;
+    retryPending: string;
+    retry: string;
+    retryFailed: string;
+  };
+  resolveDiner: {
+    trigger: string;
+    title: string;
+    body: string;
+    placeholder: string;
+    cancel: string;
+    submitPending: string;
+    submit: string;
+    failed: string;
+  };
+  verifyIdentity: {
+    trigger: string;
+    title: string;
+    body: string;
+    placeholder: string;
+    cancel: string;
+    submitPending: string;
+    submit: string;
+    failed: string;
+  };
+  approveErasure: {
+    confirm: string;
+    pending: string;
+    approve: string;
+    failed: string;
+  };
+  reject: {
+    trigger: string;
+    title: string;
+    body: string;
+    placeholder: string;
+    cancel: string;
+    submitPending: string;
+    submit: string;
+    failed: string;
+  };
+  extendDeadline: {
+    trigger: string;
+    title: string;
+    body: string;
+    daysLabel: string;
+    placeholder: string;
+    cancel: string;
+    submitPending: string;
+    submit: string;
+    failed: string;
+  };
 }
 
 /** Structural contract for the `partner.common` namespace (shell chrome). */
@@ -2449,6 +2557,11 @@ const CATALOGS = {
     en: enAdminReviews,
     de: deAdminReviews,
   } as Record<Locale, AdminReviewsMessages>,
+  "admin.gdpr": {
+    ro: roAdminGdpr,
+    en: enAdminGdpr,
+    de: deAdminGdpr,
+  } as Record<Locale, AdminGdprMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,
