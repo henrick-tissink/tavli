@@ -176,6 +176,44 @@
       "cancelled": "Request cancelled",
       "expired": "Request expired",
       "completed": "Event completed"
+    },
+    "timeline": {
+      "ariaLabel": "Request progress",
+      "steps": {
+        "submitted": "Sent",
+        "viewing": "Viewed",
+        "quoted": "Quote",
+        "decided": "Decision"
+      }
+    },
+    "expiry": {
+      "expired": "The quote has expired",
+      "prefix": "Expires in ",
+      "days": {
+        "one": "{days} day",
+        "few": "{days} days",
+        "other": "{days} days"
+      },
+      "dayHours": "{days} day {hours} hours",
+      "today": "Expires today (in {hours}h)"
+    },
+    "partnerBadge": {
+      "viewingAriaLabel": "viewing now",
+      "viewingText": "Viewing your request now",
+      "verifiedText": "Verified restaurant"
+    }
+  },
+  "cuiLookup": {
+    "searchingAriaLabel": "searching",
+    "foundAriaLabel": "found",
+    "denumirePrefix": "Company name: "
+  },
+  "roomPicker": {
+    "capacityRange": "{capacityMin}–{capacityMax} guests",
+    "fits": {
+      "one": "Fits {partySize} guest",
+      "few": "Fits {partySize} guests",
+      "other": "Fits {partySize} guests"
     }
   }
 }

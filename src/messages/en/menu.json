@@ -45,5 +45,6 @@
     "noMenuTitle": "Menu coming soon",
     "noMenuBody": "Please ask your server for a printed copy.",
     "backTo": "Back to {name}"
-  }
+  },
+  "poweredBy": "powered by"
 }

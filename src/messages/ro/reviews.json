@@ -32,6 +32,13 @@
     "windowExpired": "Perioada în care puteai lăsa o recenzie a expirat.",
     "editWindowExpired": "Perioada de editare (14 zile) a expirat.",
     "editHidden": "Recenzia a fost ascunsă și nu mai poate fi editată.",
-    "editFailed": "Recenzia nu a putut fi editată."
+    "editFailed": "Recenzia nu a putut fi editată.",
+    "ratingRange": "Nota trebuie să fie între 1 și 5.",
+    "commentTooLong": "Comentariul trebuie să aibă cel mult {max} caractere.",
+    "platformNotConfigured": "Platforma nu este configurată.",
+    "reservationNotFound": "Rezervarea nu a fost găsită.",
+    "ineligible": "Această rezervare nu este eligibilă pentru o recenzie.",
+    "alreadyReviewed": "Ai lăsat deja o recenzie pentru această rezervare.",
+    "couldNotSave": "Recenzia nu a putut fi salvată."
   }
 }

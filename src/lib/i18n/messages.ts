@@ -382,6 +382,7 @@ export interface MenuMessages {
     noMenuBody: string;
     backTo: string;
   };
+  poweredBy: string;
 }
 
 /** Structural contract for the `booking` namespace. */
@@ -547,6 +548,13 @@ export interface ReviewsMessages {
     editWindowExpired: string;
     editHidden: string;
     editFailed: string;
+    ratingRange: string;
+    commentTooLong: string;
+    platformNotConfigured: string;
+    reservationNotFound: string;
+    ineligible: string;
+    alreadyReviewed: string;
+    couldNotSave: string;
   };
 }
 
@@ -665,6 +673,31 @@ export interface EventsMessages {
     declineReasonPrefix: string;
     cancelRequest: string;
     status: Record<string, string>;
+    timeline: {
+      ariaLabel: string;
+      steps: { submitted: string; viewing: string; quoted: string; decided: string };
+    };
+    expiry: {
+      expired: string;
+      prefix: string;
+      days: PluralBag;
+      dayHours: string;
+      today: string;
+    };
+    partnerBadge: {
+      viewingAriaLabel: string;
+      viewingText: string;
+      verifiedText: string;
+    };
+  };
+  cuiLookup: {
+    searchingAriaLabel: string;
+    foundAriaLabel: string;
+    denumirePrefix: string;
+  };
+  roomPicker: {
+    capacityRange: string;
+    fits: PluralBag;
   };
 }
 

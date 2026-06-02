@@ -1,11 +1,8 @@
 "use client";
 
-const STEPS = [
-  { key: "submitted", label: "Trimisă" },
-  { key: "viewing", label: "Vizualizată" },
-  { key: "quoted", label: "Ofertă" },
-  { key: "decided", label: "Decizie" },
-] as const;
+import { useT } from "@/lib/i18n/messages-provider";
+
+const STEPS = ["submitted", "viewing", "quoted", "decided"] as const;
 
 function indexFor(status: string): number {
   if (status === "new" || status === "draft") return 0;
@@ -15,13 +12,17 @@ function indexFor(status: string): number {
 }
 
 export function StatusTimeline({ status }: { status: string }) {
+  const t = useT("events");
   const current = indexFor(status);
   return (
-    <ol className="grid grid-cols-4 gap-2" aria-label="Progres cerere">
-      {STEPS.map((s, i) => {
+    <ol
+      className="grid grid-cols-4 gap-2"
+      aria-label={t("tracking.timeline.ariaLabel")}
+    >
+      {STEPS.map((key, i) => {
         const state = i < current ? "past" : i === current ? "current" : "future";
         return (
-          <li key={s.key} data-state={state} className="relative">
+          <li key={key} data-state={state} className="relative">
             <div className="flex items-center gap-2">
               <span
                 className={`w-2 h-2 rounded-full ${
@@ -49,7 +50,7 @@ export function StatusTimeline({ status }: { status: string }) {
                     : "text-text-secondary"
               }`}
             >
-              {s.label}
+              {t(`tracking.timeline.steps.${key}`)}
             </span>
           </li>
         );

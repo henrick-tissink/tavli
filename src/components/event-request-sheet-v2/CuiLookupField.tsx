@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props {
   cui: string;
@@ -20,6 +21,7 @@ interface LookupResult {
  * tinted panel and bubbles the resolved denumire up to the parent.
  */
 export function CuiLookupField({ cui, denumire, onChange }: Props) {
+  const t = useT("events");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LookupResult | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -82,13 +84,13 @@ export function CuiLookupField({ cui, denumire, onChange }: Props) {
             {loading && (
               <Loader2
                 className="w-4 h-4 animate-spin text-text-muted"
-                aria-label="se caută"
+                aria-label={t("cuiLookup.searchingAriaLabel")}
               />
             )}
             {!loading && result?.denumire && (
               <CheckCircle2
                 className="w-4 h-4 text-[color:var(--color-occasion-product)]"
-                aria-label="găsit"
+                aria-label={t("cuiLookup.foundAriaLabel")}
               />
             )}
           </span>
@@ -106,7 +108,10 @@ export function CuiLookupField({ cui, denumire, onChange }: Props) {
         </p>
       )}
       {denumire && !result && (
-        <p className="mt-1 text-xs text-text-secondary">Denumire: {denumire}</p>
+        <p className="mt-1 text-xs text-text-secondary">
+          {t("cuiLookup.denumirePrefix")}
+          {denumire}
+        </p>
       )}
     </div>
   );

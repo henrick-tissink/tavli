@@ -45,6 +45,7 @@ export default async function DinerMenuPage({
   const { lang, city, slug } = await params;
   const locale = isLocale(lang) ? lang : "ro";
   const bundle = buildBundle(locale, ["ui", "common", "menu"]);
+  const menuMessages = getMessages(locale, "menu");
 
   const [restaurant, detail, menu] = await Promise.all([
     getRestaurantBySlug(slug),
@@ -86,7 +87,7 @@ export default async function DinerMenuPage({
         />
 
         <footer className="py-8 text-center text-xs text-text-muted">
-          powered by{" "}
+          {menuMessages.poweredBy}{" "}
           <Link
             href={`/${city}/${slug}`}
             className="text-brand-primary hover:underline"

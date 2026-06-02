@@ -47,13 +47,13 @@ export async function submitReviewByToken(
   const m = getMessages(l, "reviews").errors;
 
   if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5) {
-    return { ok: false, error: "Rating must be 1–5.", errorCode: "OTHER" };
+    return { ok: false, error: m.ratingRange, errorCode: "OTHER" };
   }
   const comment = (input.comment ?? "").trim();
   if (comment.length > MAX_COMMENT) {
     return {
       ok: false,
-      error: `Comment must be ${MAX_COMMENT} characters or fewer.`,
+      error: m.commentTooLong.replace("{max}", String(MAX_COMMENT)),
       errorCode: "OTHER",
     };
   }
@@ -61,7 +61,7 @@ export async function submitReviewByToken(
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
-    return { ok: false, error: "Platform not configured.", errorCode: "OTHER" };
+    return { ok: false, error: m.platformNotConfigured, errorCode: "OTHER" };
   }
 
   // §06 §4.1 — rate-limit the anonymous-token endpoint per IP (5 / hour).
@@ -88,12 +88,12 @@ export async function submitReviewByToken(
     .maybeSingle();
 
   if (!resv) {
-    return { ok: false, error: "Reservation not found.", errorCode: "NOT_FOUND" };
+    return { ok: false, error: m.reservationNotFound, errorCode: "NOT_FOUND" };
   }
   if (resv.status === "cancelled" || resv.status === "no_show") {
     return {
       ok: false,
-      error: "This reservation isn't eligible for a review.",
+      error: m.ineligible,
       errorCode: "INELIGIBLE",
     };
   }
@@ -143,12 +143,12 @@ export async function submitReviewByToken(
     if (error.code === "23505") {
       return {
         ok: false,
-        error: "You've already left a review for this reservation.",
+        error: m.alreadyReviewed,
         errorCode: "ALREADY_REVIEWED",
       };
     }
     console.error("[submitReviewByToken] insert failed", error);
-    return { ok: false, error: "Could not save review.", errorCode: "OTHER" };
+    return { ok: false, error: m.couldNotSave, errorCode: "OTHER" };
   }
 
   // (editReviewByToken below — §06 §4.1a 14-day edit flow.)

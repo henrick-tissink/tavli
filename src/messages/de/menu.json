@@ -45,5 +45,6 @@
     "noMenuTitle": "Speisekarte folgt in Kürze",
     "noMenuBody": "Bitte fragen Sie das Servicepersonal nach einer gedruckten Speisekarte.",
     "backTo": "Zurück zu {name}"
-  }
+  },
+  "poweredBy": "bereitgestellt von"
 }

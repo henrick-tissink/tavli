@@ -176,6 +176,44 @@
       "cancelled": "Cerere anulată",
       "expired": "Cerere expirată",
       "completed": "Eveniment finalizat"
+    },
+    "timeline": {
+      "ariaLabel": "Progres cerere",
+      "steps": {
+        "submitted": "Trimisă",
+        "viewing": "Vizualizată",
+        "quoted": "Ofertă",
+        "decided": "Decizie"
+      }
+    },
+    "expiry": {
+      "expired": "Oferta a expirat",
+      "prefix": "Expiră în ",
+      "days": {
+        "one": "{days} zile",
+        "few": "{days} zile",
+        "other": "{days} zile"
+      },
+      "dayHours": "{days} zi {hours} ore",
+      "today": "Expiră astăzi (în {hours}h)"
+    },
+    "partnerBadge": {
+      "viewingAriaLabel": "se uită acum",
+      "viewingText": "Vede cererea ta acum",
+      "verifiedText": "Restaurant verificat"
+    }
+  },
+  "cuiLookup": {
+    "searchingAriaLabel": "se caută",
+    "foundAriaLabel": "găsit",
+    "denumirePrefix": "Denumire: "
+  },
+  "roomPicker": {
+    "capacityRange": "{capacityMin}–{capacityMax} persoane",
+    "fits": {
+      "one": "Potrivit pentru {partySize} de persoane",
+      "few": "Potrivit pentru {partySize} de persoane",
+      "other": "Potrivit pentru {partySize} de persoane"
     }
   }
 }

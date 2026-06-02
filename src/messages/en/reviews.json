@@ -32,6 +32,13 @@
     "windowExpired": "The window for leaving a review has expired.",
     "editWindowExpired": "The edit window (14 days) has expired.",
     "editHidden": "The review has been hidden and can no longer be edited.",
-    "editFailed": "The review could not be edited."
+    "editFailed": "The review could not be edited.",
+    "ratingRange": "Rating must be 1–5.",
+    "commentTooLong": "Comment must be {max} characters or fewer.",
+    "platformNotConfigured": "Platform not configured.",
+    "reservationNotFound": "Reservation not found.",
+    "ineligible": "This reservation isn't eligible for a review.",
+    "alreadyReviewed": "You've already left a review for this reservation.",
+    "couldNotSave": "Could not save review."
   }
 }

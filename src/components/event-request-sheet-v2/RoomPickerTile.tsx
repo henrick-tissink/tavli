@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Check } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { PrivateSpaceTile } from "./types";
 
 interface Props {
@@ -24,6 +25,7 @@ export function RoomPickerTile({
   publicPhotoUrl,
   onPick,
 }: Props) {
+  const t = useT("events");
   const fits = partySize >= space.capacityMin && partySize <= space.capacityMax;
   const photo = publicPhotoUrl(space.photoStoragePath);
   return (
@@ -50,11 +52,14 @@ export function RoomPickerTile({
       <div className="p-3">
         <span className="block font-semibold text-text-primary">{space.name}</span>
         <span className="block text-xs text-text-secondary mt-0.5">
-          {space.capacityMin}–{space.capacityMax} persoane
+          {t("roomPicker.capacityRange", {
+            capacityMin: space.capacityMin,
+            capacityMax: space.capacityMax,
+          })}
         </span>
         {fits && (
           <span className="inline-block mt-2 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[color:var(--color-occasion-product-soft)] text-[color:var(--color-occasion-product)]">
-            Potrivit pentru {partySize} de persoane
+            {t("roomPicker.fits", { count: partySize, partySize })}
           </span>
         )}
       </div>
