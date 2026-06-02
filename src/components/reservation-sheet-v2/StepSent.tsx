@@ -42,7 +42,7 @@ export function StepSent({
       </h2>
 
       <p className="text-sm text-text-secondary text-center">
-        {restaurantName} · {formatted} · {slot} · {t("sheet.stepSent.subtitle", { guests })}
+        {restaurantName} · {formatted} {t("sheet.stepSent.atTime")} {slot} · {t("sheet.stepSent.subtitle", { guests })}
       </p>
 
       <div className="flex flex-col gap-2 pt-2">

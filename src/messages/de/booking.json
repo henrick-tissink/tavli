@@ -44,7 +44,7 @@
       "occasionBirthday": "Geburtstag",
       "occasionAnniversary": "Jahrestag",
       "birthdayDateLabel": "Geburtsdatum",
-      "anniversaryDateLabel": "Jahrestagsdatum",
+      "anniversaryDateLabel": "Datum des Jahrestags",
       "notesLabel": "Anmerkungen (optional)",
       "summaryToday": "Heute",
       "summaryTomorrow": "Morgen",
@@ -56,6 +56,7 @@
     },
     "stepSent": {
       "title": "Ihre Reservierung ist bestätigt",
+      "atTime": "um",
       "subtitle": "{guests} Personen",
       "viewReservation": "Reservierung ansehen",
       "backToRestaurant": "Zurück zum Restaurant"
@@ -100,7 +101,7 @@
     "submitPending": "Wird gespeichert…",
     "submitLabel": "Änderungen speichern",
     "doneTitle": "Ihre Reservierung wurde aktualisiert.",
-    "doneBody": "Wir haben Ihnen die neuen Details per E-Mail zugeschickt.",
+    "doneBody": "Wir haben Ihnen die neuen Details per E-Mail gesendet.",
     "errorGeneric": "Die Änderung konnte nicht durchgeführt werden.",
     "windowClosedBody": "Diese Reservierung kann nicht mehr online geändert werden (weniger als 24 Stunden verbleibend oder bereits abgeschlossen). Bitte kontaktieren Sie das Restaurant direkt.",
     "callLink": "{restaurantName} anrufen",
