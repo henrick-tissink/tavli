@@ -55,5 +55,32 @@
     },
     "topMentionsTitle": "Am häufigsten erwähnt",
     "bestForTitle": "Ideal für"
+  },
+  "cuisineAdjectives": {
+    "Romanian": "authentisch rumänisch",
+    "Italian": "mit italienischen Aromen",
+    "Japanese": "raffiniert japanisch",
+    "Turkish": "authentisch türkisch",
+    "French": "französisch mit Eleganz",
+    "Chinese": "traditionell chinesisch",
+    "Lebanese": "lebendig libanesisch",
+    "Spanish": "sonnig spanisch",
+    "Greek": "mediterran griechisch",
+    "Thai": "aromatisch thailändisch",
+    "Indian": "würzig indisch",
+    "Mexican": "scharf mexikanisch",
+    "Korean": "modern koreanisch",
+    "Balkan": "balkanisch voller Charakter",
+    "American": "entspannt amerikanisch",
+    "European": "zeitgenössisch europäisch",
+    "Mediterranean": "hell mediterran",
+    "Fusion": "einfallsreich fusioniert",
+    "Brunch": "ideal zum Brunch",
+    "Coffee": "für Kaffeeliebhaber",
+    "Cocktails": "für Cocktailabende",
+    "Pizza": "mit handwerklicher Pizza",
+    "Burger": "mit handwerklichen Burgern",
+    "Vegan": "vegan und kreativ",
+    "Vegetarian": "vegetarisch und gesund"
   }
 }

@@ -466,37 +466,6 @@ function InfoBlock({
   );
 }
 
-// i18n-allow-block: RO marketing-copy data used to synthesise an optional hero
-// descriptor. Localizing this adjective system is content work (Phase 1c), not
-// UI-chrome extraction.
-const CUISINE_ADJECTIVES: Record<string, string> = {
-  Romanian: "autentic românesc",
-  Italian: "cu savori italiene",
-  Japanese: "japonez rafinat",
-  Turkish: "turcesc autentic",
-  French: "franțuzesc cu eleganță",
-  Chinese: "chinezesc tradițional",
-  Lebanese: "libanez vibrant",
-  Spanish: "spaniol însorit",
-  Greek: "grecesc mediteranean",
-  Thai: "thailandez aromat",
-  Indian: "indian condimentat",
-  Mexican: "mexican picant",
-  Korean: "coreean modern",
-  Balkan: "balcanic plin de caracter",
-  American: "american relaxat",
-  European: "european contemporan",
-  Mediterranean: "mediteranean luminos",
-  Fusion: "fusion inventiv",
-  Brunch: "perfect pentru brunch",
-  Coffee: "pentru iubitorii de cafea",
-  Cocktails: "pentru serile cu cocktailuri",
-  Pizza: "cu pizza artizanală",
-  Burger: "cu burger-uri artizanale",
-  Vegan: "vegan și creativ",
-  Vegetarian: "vegetarian și sănătos",
-};
-
 function HeroNoteSection({ restaurant }: { restaurant: RestaurantDetail }) {
   if (!restaurant.heroNote) return null;
 

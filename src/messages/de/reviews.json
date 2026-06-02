@@ -25,5 +25,13 @@
     "errorGeneric": "Ihre Bewertung konnte nicht gespeichert werden.",
     "doneTitle": "Vielen Dank — Ihre Bewertung wurde gespeichert.",
     "doneBody": "Verifizierte Gäste helfen anderen, die bessere Wahl zu treffen."
+  },
+  "errors": {
+    "rateLimited": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
+    "visitNotYet": "Sie können eine Bewertung nach Ihrem Besuch hinterlassen.",
+    "windowExpired": "Der Zeitraum für das Hinterlassen einer Bewertung ist abgelaufen.",
+    "editWindowExpired": "Das Bearbeitungsfenster (14 Tage) ist abgelaufen.",
+    "editHidden": "Die Bewertung wurde ausgeblendet und kann nicht mehr bearbeitet werden.",
+    "editFailed": "Die Bewertung konnte nicht bearbeitet werden."
   }
 }

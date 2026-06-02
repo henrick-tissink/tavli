@@ -5,22 +5,23 @@ import { ChevronDown } from "lucide-react";
 import { useT } from "@/lib/i18n/messages-provider";
 
 const CITIES = [
-  { name: "București", active: true },
-  { name: "Cluj", active: false },
-  { name: "Timișoara", active: false },
-  { name: "Brașov", active: false },
-  { name: "Iași", active: false },
+  { slug: "bucuresti", active: true },
+  { slug: "cluj", active: false },
+  { slug: "timisoara", active: false },
+  { slug: "brasov", active: false },
+  { slug: "iasi", active: false },
 ];
 
 interface CitySelectorProps {
-  currentCity: string;
-  onSelect: (city: string) => void;
+  currentSlug: string;
+  onSelect: (slug: string) => void;
 }
 
-export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
+export function CitySelector({ currentSlug, onSelect }: CitySelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const t = useT("profile");
+  const tc = useT("common");
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -40,7 +41,7 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
         className="flex items-center gap-1 text-sm font-semibold text-text-primary"
         onClick={() => setOpen((prev) => !prev)}
       >
-        <span>{currentCity}</span>
+        <span>{tc(`cities.${currentSlug}`)}</span>
         <ChevronDown size={16} />
       </button>
 
@@ -48,21 +49,21 @@ export function CitySelector({ currentCity, onSelect }: CitySelectorProps) {
         <div className="absolute top-full left-0 mt-2 w-48 bg-surface-white rounded-card shadow-floating border border-border z-50">
           <ul role="listbox" className="py-1">
             {CITIES.map((city) => (
-              <li key={city.name} role="option" aria-selected={city.name === currentCity}>
+              <li key={city.slug} role="option" aria-selected={city.slug === currentSlug}>
                 {city.active ? (
                   <button
                     type="button"
                     className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-surface-bg"
                     onClick={() => {
-                      onSelect(city.name);
+                      onSelect(city.slug);
                       setOpen(false);
                     }}
                   >
-                    {city.name}
+                    {tc(`cities.${city.slug}`)}
                   </button>
                 ) : (
                   <div className="w-full px-4 py-2 text-sm text-text-muted flex items-center justify-between">
-                    <span>{city.name}</span>
+                    <span>{tc(`cities.${city.slug}`)}</span>
                     <span className="text-xs">{t("citySelector.comingSoon")}</span>
                   </div>
                 )}
