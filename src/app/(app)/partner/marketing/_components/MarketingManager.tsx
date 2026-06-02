@@ -31,8 +31,11 @@ export function MarketingManager({
   const triggered = campaigns.filter((c) => c.kind === "triggered");
   const oneOff = campaigns.filter((c) => c.kind === "one_off");
 
-  const triggeredLabel = (key: string | null, fallback: string) =>
-    key ? t(`triggeredLabels.${key}`) : fallback;
+  const triggeredLabel = (key: string | null, fallback: string) => {
+    if (!key) return fallback;
+    const label = t(`triggeredLabels.${key}`);
+    return label === `triggeredLabels.${key}` ? fallback : label;
+  };
   const channelLabel = (channel: string) => {
     const label = t(`channels.${channel}`);
     return label === `channels.${channel}` ? channel : label;
