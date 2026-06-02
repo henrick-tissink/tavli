@@ -1,8 +1,11 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { cookies } from "next/headers";
 import { render } from "@react-email/render";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
+import { LOCALE_COOKIE } from "@/lib/i18n/cookie";
+import { isLocale } from "@/lib/i18n/locale";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
 import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
@@ -101,6 +104,12 @@ export async function createReservation(
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 
+  // §i18n Phase 1c — capture the diner's locale from the NEXT_LOCALE cookie
+  // so transactional emails can be sent in their chosen language. Falls back
+  // to "ro" when the cookie is absent or contains an unsupported value.
+  const lc = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const reservationLocale = lc !== undefined && isLocale(lc) ? lc : "ro";
+
   const { data, error } = await admin
     .from("reservations")
     .insert({
@@ -115,6 +124,7 @@ export async function createReservation(
       notes: input.notes?.trim() || null,
       status: "confirmed",
       confirmation_token: confirmationToken,
+      locale: reservationLocale,
     })
     .select("id, restaurant_id")
     .single();

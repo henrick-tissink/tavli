@@ -51,6 +51,7 @@ export async function createEventRequestDraft(input: {
   claimedCompanyCui?: string;
   claimedCompanyName?: string;
   privateSpaceId?: string | null;
+  locale?: string;
 }): Promise<EventRequest> {
   const [row] = await dbAdmin.insert(eventRequests).values({
     restaurantId: input.restaurantId,
@@ -70,6 +71,7 @@ export async function createEventRequestDraft(input: {
     claimedCompanyName: input.claimedCompanyName ?? null,
     privateSpaceId: input.privateSpaceId ?? null,
     trackingToken: newToken(),
+    ...(input.locale !== undefined ? { locale: input.locale } : {}),
   }).returning();
   return row;
 }

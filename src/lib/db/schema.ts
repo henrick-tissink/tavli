@@ -469,6 +469,9 @@ export const reservations = pgTable("reservations", {
   // §14 Wave 8 — migration-import provenance for rollback. Owned by §02 per doc;
   // added in 0044. FK → migration_imports added in SQL (table defined later).
   migrationImportId: uuid("migration_import_id"),
+  // §i18n Phase 1c — diner's locale at booking time (migration 0061). Used to
+  // send transactional emails in the diner's chosen language.
+  locale: varchar("locale", { length: 5 }).notNull().default("ro"),
 }, (t) => [
   index("reservations_restaurant_date_idx").on(
     t.restaurantId,
@@ -689,6 +692,9 @@ export const eventRequests = pgTable("event_requests", {
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  // §i18n Phase 1c — diner's locale at submission time (migration 0061). Used
+  // to send transactional emails in the diner's chosen language.
+  locale: varchar("locale", { length: 5 }).notNull().default("ro"),
 }, (t) => [
   index("event_requests_restaurant_status_idx").on(t.restaurantId, t.status),
   index("event_requests_status_created_idx").on(t.status, t.createdAt),
