@@ -1,0 +1,28 @@
+{
+  "page": {
+    "eyebrow": "Onboarding",
+    "title": "Configurări în curs"
+  },
+  "stats": {
+    "atRiskLabel": "La risc",
+    "atRiskHint": "Trial ≤ 21 zile, pași incompleți",
+    "awaitingLabel": "Așteaptă fondatorul",
+    "awaitingHint": "Pas programat, termen depășit",
+    "stuckLabel": "Blocate",
+    "stuckHint": "În lucru > 14 zile"
+  },
+  "table": {
+    "organization": "Organizație",
+    "restaurant": "Restaurant",
+    "progress": "Progres",
+    "trialExpires": "Trial expiră",
+    "status": "Stare",
+    "empty": "Nicio configurare în curs."
+  },
+  "badge": {
+    "atRisk": "La risc",
+    "stuck": "Blocat",
+    "awaiting": "Așteaptă",
+    "ok": "OK"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "page": {
+    "eyebrow": "Onboarding",
+    "title": "Setups in progress"
+  },
+  "stats": {
+    "atRiskLabel": "At risk",
+    "atRiskHint": "Trial ≤ 21 days, incomplete steps",
+    "awaitingLabel": "Awaiting founder",
+    "awaitingHint": "Step scheduled, overdue",
+    "stuckLabel": "Stuck",
+    "stuckHint": "In progress > 14 days"
+  },
+  "table": {
+    "organization": "Organisation",
+    "restaurant": "Restaurant",
+    "progress": "Progress",
+    "trialExpires": "Trial expires",
+    "status": "Status",
+    "empty": "No setups in progress."
+  },
+  "badge": {
+    "atRisk": "At risk",
+    "stuck": "Stuck",
+    "awaiting": "Awaiting",
+    "ok": "OK"
+  }
+}
