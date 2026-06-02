@@ -21,7 +21,7 @@ jest.mock("drizzle-orm", () => ({
   inArray: jest.fn((col, vals) => ({ type: "inArray", col, vals })),
 }));
 
-import { makeLoadMenuTranslations } from "../load-menu";
+import { makeLoadMenuTranslations, makeLoadMenuItemTranslations } from "../load-menu";
 
 type AnyRow = Record<string, unknown>;
 
@@ -208,5 +208,111 @@ describe("loadMenuTranslations", () => {
     expect(result.sections.get("s1")).toEqual({ name: "DE Starters" });
     expect(result.items.get("i1")).toEqual({ name: "DE Pasta", description: "Frische Pasta" });
     expect(result.heroNote).toBe("DE hero");
+  });
+});
+
+// ─── makeLoadMenuItemTranslations ────────────────────────────────────────────
+
+/**
+ * Build a minimal mock db for the targeted item-translation loader.
+ * The loader issues a single select().from().where() call, so we just need
+ * one result array.
+ */
+function makeSingleSelectDb(rows: unknown[]) {
+  return {
+    select: jest.fn().mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockResolvedValue(rows),
+      }),
+    }),
+  };
+}
+
+describe("makeLoadMenuItemTranslations", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns empty map for RO locale without DB calls", async () => {
+    const db = { select: jest.fn() };
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1", "i2"], "ro");
+
+    expect(result.size).toBe(0);
+    expect(db.select).not.toHaveBeenCalled();
+  });
+
+  it("returns empty map for empty itemIds without DB calls", async () => {
+    const db = { select: jest.fn() };
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load([], "en");
+
+    expect(result.size).toBe(0);
+    expect(db.select).not.toHaveBeenCalled();
+  });
+
+  it("builds item map with translated names for EN locale", async () => {
+    const db = makeSingleSelectDb([
+      makeItemTransRow("i1", "en", { name: "Stuffed Cabbage", description: "Traditional Romanian" }),
+      makeItemTransRow("i2", "en", { name: "Grilled Steak" }),
+    ]);
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1", "i2"], "en");
+
+    expect(result.get("i1")).toEqual({ name: "Stuffed Cabbage", description: "Traditional Romanian" });
+    expect(result.get("i2")).toEqual({ name: "Grilled Steak" });
+    expect(result.size).toBe(2);
+  });
+
+  it("per-row fallback: items with empty translated name are omitted from map", async () => {
+    const db = makeSingleSelectDb([
+      makeItemTransRow("i1", "en", { name: "" }),      // empty → skip (RO fallback)
+      makeItemTransRow("i2", "en", { name: "Steak" }), // valid
+    ]);
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1", "i2"], "en");
+
+    expect(result.has("i1")).toBe(false);
+    expect(result.get("i2")).toEqual({ name: "Steak" });
+  });
+
+  it("per-row fallback: items with null translated name are omitted from map", async () => {
+    const db = makeSingleSelectDb([
+      makeItemTransRow("i1", "en", { name: null }), // null → skip
+      makeItemTransRow("i2", "en", { name: "Pasta" }),
+    ]);
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1", "i2"], "en");
+
+    expect(result.has("i1")).toBe(false);
+    expect(result.get("i2")).toEqual({ name: "Pasta" });
+  });
+
+  it("omits description from entry when not authored (empty/null)", async () => {
+    const db = makeSingleSelectDb([
+      makeItemTransRow("i1", "en", { name: "Stuffed Cabbage", description: null }),
+    ]);
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1"], "en");
+
+    expect(result.get("i1")).toEqual({ name: "Stuffed Cabbage" });
+    expect(result.get("i1")?.description).toBeUndefined();
+  });
+
+  it("works for DE locale", async () => {
+    const db = makeSingleSelectDb([
+      makeItemTransRow("i1", "de", { name: "Polenta", description: "Traditionelle Polenta" }),
+    ]);
+    const load = makeLoadMenuItemTranslations({ db: db as any });
+
+    const result = await load(["i1"], "de");
+
+    expect(result.get("i1")).toEqual({ name: "Polenta", description: "Traditionelle Polenta" });
   });
 });

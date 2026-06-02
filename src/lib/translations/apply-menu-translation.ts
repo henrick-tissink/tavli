@@ -7,7 +7,34 @@
  */
 
 import type { Menu, MenuSection, MenuItem } from "@/lib/types";
-import type { MenuTranslations } from "./load-menu";
+import type { MenuTranslations, ItemTranslation } from "./load-menu";
+
+/**
+ * Overlay translated name/description onto a chef-picks array from an item map.
+ * Pure helper — no DB access, no side effects.
+ *
+ * For each item in chefPicks:
+ *   - If itemMap has an entry for item.id: return a new item with translated
+ *     name (and description, if authored).
+ *   - Otherwise: return the original item unchanged (RO per-row fallback).
+ *
+ * Always returns a new array (does not mutate the input).
+ * Pass an empty map (or omit) to get RO passthrough.
+ */
+export function applyChefPickTranslations(
+  chefPicks: MenuItem[],
+  itemMap: Map<string, ItemTranslation>,
+): MenuItem[] {
+  return chefPicks.map((item) => {
+    const t = itemMap.get(item.id);
+    if (!t) return item;
+    return {
+      ...item,
+      name: t.name,
+      ...(t.description !== undefined ? { description: t.description } : {}),
+    };
+  });
+}
 
 /**
  * Return a new Menu with translated section names/intros, item names/descriptions,

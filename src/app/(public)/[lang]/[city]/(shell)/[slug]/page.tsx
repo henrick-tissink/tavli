@@ -16,6 +16,8 @@ import { getMessages } from "@/lib/i18n/messages";
 import { localizedHref } from "@/lib/i18n/routing";
 import { loadRestaurantTranslation } from "@/lib/translations/load";
 import { applyRestaurantTranslation } from "@/lib/translations/apply-restaurant-translation";
+import { loadMenuItemTranslations } from "@/lib/translations/load-menu";
+import { applyChefPickTranslations } from "@/lib/translations/apply-menu-translation";
 import { DetailPageClient } from "./DetailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -54,14 +56,19 @@ export default async function RestaurantDetailPage({
   // skip the overlay (applyRestaurantTranslation(detail, null) → unchanged).
   let localizedRestaurant = restaurant;
   if (restaurant && locale !== "ro") {
-    const { row, usedFallback } = await loadRestaurantTranslation(
-      restaurant.id,
-      locale,
-    );
-    localizedRestaurant = applyRestaurantTranslation(
+    const chefPickIds = restaurant.chefPicks.map((p) => p.id);
+    const [{ row, usedFallback }, chefPickItemMap] = await Promise.all([
+      loadRestaurantTranslation(restaurant.id, locale),
+      loadMenuItemTranslations(chefPickIds, locale),
+    ]);
+    const withRestaurantTranslation = applyRestaurantTranslation(
       restaurant,
       usedFallback ? null : row,
     );
+    localizedRestaurant = {
+      ...withRestaurantTranslation,
+      chefPicks: applyChefPickTranslations(withRestaurantTranslation.chefPicks, chefPickItemMap),
+    };
   }
 
   if (!localizedRestaurant) {

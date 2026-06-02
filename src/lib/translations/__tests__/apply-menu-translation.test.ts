@@ -2,9 +2,9 @@
  * Unit tests for applyMenuTranslations — pure function, no DB/server.
  */
 
-import { applyMenuTranslations } from "../apply-menu-translation";
-import type { Menu } from "@/lib/types";
-import type { MenuTranslations } from "../load-menu";
+import { applyMenuTranslations, applyChefPickTranslations } from "../apply-menu-translation";
+import type { Menu, MenuItem } from "@/lib/types";
+import type { MenuTranslations, ItemTranslation } from "../load-menu";
 
 function makeMenu(overrides: Partial<Menu> = {}): Menu {
   return {
@@ -147,5 +147,100 @@ describe("applyMenuTranslations", () => {
     const result = applyMenuTranslations(menu, translations);
     expect(result.items[0].tags).toEqual(["chef-pick"]);
     expect(result.items[0].price).toBe(35);
+  });
+});
+
+// ─── applyChefPickTranslations ────────────────────────────────────────────────
+
+function makeChefPick(id: string, overrides: Partial<MenuItem> = {}): MenuItem {
+  return {
+    id,
+    sectionId: "s1",
+    name: `RO Name ${id}`,
+    description: `RO Desc ${id}`,
+    price: 50,
+    ...overrides,
+  };
+}
+
+describe("applyChefPickTranslations", () => {
+  it("RO passthrough: returns all items unchanged when map is empty", () => {
+    const picks = [makeChefPick("i1"), makeChefPick("i2")];
+    const result = applyChefPickTranslations(picks, new Map());
+    expect(result[0].name).toBe("RO Name i1");
+    expect(result[1].name).toBe("RO Name i2");
+  });
+
+  it("RO passthrough: returns all items unchanged when map is undefined-equivalent (no entries)", () => {
+    const picks = [makeChefPick("i1")];
+    const result = applyChefPickTranslations(picks, new Map<string, ItemTranslation>());
+    expect(result[0].name).toBe("RO Name i1");
+  });
+
+  it("overlays name and description for EN locale by id", () => {
+    const picks = [makeChefPick("i1"), makeChefPick("i2")];
+    const map = new Map<string, ItemTranslation>([
+      ["i1", { name: "Stuffed Cabbage", description: "Traditional Romanian" }],
+      ["i2", { name: "Grilled Steak" }],
+    ]);
+    const result = applyChefPickTranslations(picks, map);
+    expect(result[0].name).toBe("Stuffed Cabbage");
+    expect(result[0].description).toBe("Traditional Romanian");
+    expect(result[1].name).toBe("Grilled Steak");
+    // i2 has no description in map → keeps original
+    expect(result[1].description).toBe("RO Desc i2");
+  });
+
+  it("per-row fallback: item not in map keeps RO name/description", () => {
+    const picks = [makeChefPick("i1"), makeChefPick("i2")];
+    const map = new Map<string, ItemTranslation>([
+      ["i1", { name: "Stuffed Cabbage" }],
+      // i2 not present → RO fallback
+    ]);
+    const result = applyChefPickTranslations(picks, map);
+    expect(result[0].name).toBe("Stuffed Cabbage");
+    expect(result[1].name).toBe("RO Name i2");
+    expect(result[1].description).toBe("RO Desc i2");
+  });
+
+  it("immutability: does not mutate original chefPicks array or items", () => {
+    const picks = [makeChefPick("i1")];
+    const originalName = picks[0].name;
+    const map = new Map<string, ItemTranslation>([
+      ["i1", { name: "EN Name" }],
+    ]);
+    const result = applyChefPickTranslations(picks, map);
+    // original array unchanged
+    expect(picks[0].name).toBe(originalName);
+    // returned array is a new reference
+    expect(result).not.toBe(picks);
+    expect(result[0]).not.toBe(picks[0]);
+  });
+
+  it("preserves non-translated fields (price, tags, photoUrl, sectionId)", () => {
+    const picks = [makeChefPick("i1", { price: 99, tags: ["chef-pick", "spicy"], photoUrl: "http://x.com/img.jpg" })];
+    const map = new Map<string, ItemTranslation>([
+      ["i1", { name: "EN Name", description: "EN Desc" }],
+    ]);
+    const result = applyChefPickTranslations(picks, map);
+    expect(result[0].price).toBe(99);
+    expect(result[0].tags).toEqual(["chef-pick", "spicy"]);
+    expect(result[0].photoUrl).toBe("http://x.com/img.jpg");
+    expect(result[0].sectionId).toBe("s1");
+  });
+
+  it("handles empty chefPicks array", () => {
+    const result = applyChefPickTranslations([], new Map());
+    expect(result).toEqual([]);
+  });
+
+  it("DE locale: overlays from a DE item map", () => {
+    const picks = [makeChefPick("i1", { name: "Mămăligă", description: "Porridge RO" })];
+    const map = new Map<string, ItemTranslation>([
+      ["i1", { name: "Polenta", description: "Traditionelle rumänische Polenta" }],
+    ]);
+    const result = applyChefPickTranslations(picks, map);
+    expect(result[0].name).toBe("Polenta");
+    expect(result[0].description).toBe("Traditionelle rumänische Polenta");
   });
 });

@@ -151,3 +151,48 @@ export function makeLoadMenuTranslations(deps: Deps) {
 }
 
 export const loadMenuTranslations = makeLoadMenuTranslations({ db: dbAdmin });
+
+/**
+ * Targeted loader: fetch translations for a specific set of item ids only.
+ * Preferred over loadMenuTranslations when only a handful of items need
+ * translation (e.g. chef picks on the detail page).
+ *
+ * Returns a Map<itemId, ItemTranslation> with per-row fallback:
+ * items whose translated name is missing/empty are omitted from the map
+ * (caller keeps the RO original).
+ *
+ * RO locale: returns an empty map immediately without DB calls.
+ * Empty itemIds array: returns an empty map immediately without DB calls.
+ */
+export function makeLoadMenuItemTranslations(deps: Deps) {
+  return async function loadMenuItemTranslations(
+    itemIds: string[],
+    locale: Locale,
+  ): Promise<Map<string, ItemTranslation>> {
+    if (locale === "ro" || itemIds.length === 0) {
+      return new Map();
+    }
+
+    const rows = await deps.db
+      .select()
+      .from(menuItemTranslations)
+      .where(
+        and(
+          inArray(menuItemTranslations.itemId, itemIds),
+          eq(menuItemTranslations.locale, locale),
+        ),
+      );
+
+    const result = new Map<string, ItemTranslation>();
+    for (const row of rows) {
+      const translatedName = pickTranslatedName(row.name);
+      if (translatedName === null) continue; // per-row fallback
+      const entry: ItemTranslation = { name: translatedName };
+      if (row.description?.trim()) entry.description = row.description;
+      result.set(row.itemId, entry);
+    }
+    return result;
+  };
+}
+
+export const loadMenuItemTranslations = makeLoadMenuItemTranslations({ db: dbAdmin });
