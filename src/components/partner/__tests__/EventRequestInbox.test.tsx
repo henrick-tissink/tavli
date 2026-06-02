@@ -1,5 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
 import { EventRequestInbox } from "../EventRequestInbox";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roCorporate from "@/messages/ro/partner.corporate.json";
+import roCommon from "@/messages/ro/partner.common.json";
+
+function render(ui: React.ReactElement) {
+  return rtlRender(
+    <MessagesProvider
+      locale="ro"
+      bundle={{ "partner.corporate": roCorporate, "partner.common": roCommon }}
+    >
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("EventRequestInbox (v2)", () => {
   it("renders one card per row with urgency, party size, days waiting", () => {

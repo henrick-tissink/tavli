@@ -1,35 +1,26 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useT } from "@/lib/i18n/messages-provider";
 
-const STATUSES = [
-  {
-    key: "open",
-    label: "Active",
-    statuses: ["new", "viewing", "replied", "quoted"],
-  },
-  { key: "new", label: "Nou", statuses: ["new"] },
-  { key: "viewing", label: "În lucru", statuses: ["viewing"] },
-  { key: "quoted", label: "Cu ofertă", statuses: ["quoted"] },
-  { key: "accepted", label: "Acceptate", statuses: ["accepted"] },
-  { key: "all", label: "Toate", statuses: [] },
-];
+const STATUS_KEYS = ["open", "new", "viewing", "quoted", "accepted", "all"] as const;
 
 export function InboxFilters({ active }: { active: string }) {
+  const t = useT("partner.corporate");
   const router = useRouter();
   const params = useSearchParams();
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      {STATUSES.map((s) => (
+      {STATUS_KEYS.map((key) => (
         <button
-          key={s.key}
+          key={key}
           onClick={() => {
             const next = new URLSearchParams(params.toString());
-            next.set("status", s.key);
+            next.set("status", key);
             router.push(`?${next.toString()}`);
           }}
-          className={`text-sm px-3 py-1.5 rounded-full ${active === s.key ? "bg-brand-primary text-white" : "bg-surface-bg hover:bg-border"}`}
+          className={`text-sm px-3 py-1.5 rounded-full ${active === key ? "bg-brand-primary text-white" : "bg-surface-bg hover:bg-border"}`}
         >
-          {s.label}
+          {t(`filters.${key}`)}
         </button>
       ))}
     </div>

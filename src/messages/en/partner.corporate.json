@@ -1,0 +1,181 @@
+{
+  "overview": {
+    "pageTitle": "Corporate",
+    "openRequests": {
+      "one": "{count} active request",
+      "few": "{count} active requests",
+      "other": "{count} active requests"
+    },
+    "comingSoon": "Coming soon",
+    "cards": {
+      "events": {
+        "title": "Private events",
+        "blurb": "Receive requests for weddings, birthdays and corporate events."
+      },
+      "corporateMeals": {
+        "title": "Corporate orders",
+        "blurb": "Allow reservations assigned to a company (direct invoicing)."
+      },
+      "standing": {
+        "title": "Recurring reservations",
+        "blurb": "Accept long-term weekly or fortnightly reservations."
+      },
+      "meetingNooks": {
+        "title": "Meeting spaces",
+        "blurb": "Set up hourly bookable work spaces."
+      }
+    }
+  },
+  "inbox": {
+    "title": "Event requests",
+    "emptyTitle": "No requests yet.",
+    "emptyBody": "New requests appear here as soon as they are confirmed by email."
+  },
+  "filters": {
+    "open": "Active",
+    "new": "New",
+    "viewing": "In progress",
+    "quoted": "With quote",
+    "accepted": "Accepted",
+    "all": "All"
+  },
+  "card": {
+    "personsSuffix": "guests",
+    "budgetPerHead": "{amount} lei/guest",
+    "daysWaiting": {
+      "one": "{days} day",
+      "few": "{days} days",
+      "other": "{days} days"
+    }
+  },
+  "status": {
+    "new": "New",
+    "viewing": "In progress",
+    "replied": "Replied",
+    "quoted": "Quote sent",
+    "accepted": "Accepted",
+    "declined": "Declined"
+  },
+  "occasion": {
+    "wedding": "Wedding",
+    "birthday": "Birthday",
+    "corporate_dinner": "Corporate dinner",
+    "product_launch": "Product launch",
+    "other": "Other"
+  },
+  "detail": {
+    "header": "{occasion} · {partySize} guests",
+    "subtitle": "Request from {guestName} for {eventDate}",
+    "overlapWarning": "There are {count} regular reservations for this date. Check before accepting.",
+    "eventDetailsTitle": "Event details",
+    "fieldDate": "Date",
+    "fieldPartySize": "Number of guests",
+    "fieldSpacePreference": "Space preference",
+    "fieldPrivateSpace": "Private space",
+    "fieldBudgetPerHead": "Budget / guest",
+    "budgetValue": "{amount} lei",
+    "fieldMenu": "Menu",
+    "dietaryNotesLabel": "Dietary requirements",
+    "additionalNotesLabel": "Additional notes",
+    "previousResponseLabel": "Your previous reply",
+    "replyPlaceholder": "Message for the client...",
+    "sendReply": "Send reply",
+    "sendQuote": "Send quote",
+    "decline": "Decline",
+    "createReservation": "Create reservation",
+    "markViewing": "Mark as viewed",
+    "clientTitle": "Client",
+    "fieldName": "Name",
+    "fieldEmail": "Email",
+    "fieldPhone": "Phone",
+    "fieldCompany": "Company",
+    "companyEmpty": "—",
+    "companyCui": "VAT no.: {cui}"
+  },
+  "materialize": {
+    "title": "Convert to reservation",
+    "subtitle": "For {eventDate} · {partySize} guests",
+    "modeLegend": "Blocking mode",
+    "modePrivateName": "Private space",
+    "modePrivateHint": "· the regular booking grid stays untouched",
+    "modeWholeName": "Whole venue",
+    "modeWholeHint": "· block all slots for this date",
+    "zoneLabel": "Zone",
+    "selectTime": "Select time",
+    "loadingSlots": "Loading slots…",
+    "noSlots": "No slots configured for this day. Enter the time manually.",
+    "back": "Back",
+    "createReservation": "Create reservation"
+  },
+  "quote": {
+    "title": "Build the quote",
+    "templateLine": "Standard menu ({partySize} guests × {perHead} lei)",
+    "addLine": "Add line",
+    "frequentAddons": "Frequent add-ons",
+    "suggested": {
+      "welcomeCocktail": "Welcome cocktail",
+      "openBar": "Open bar (3h)",
+      "customCake": "Custom cake",
+      "floralDecor": "Floral decor",
+      "dj": "DJ / sound system"
+    },
+    "responsePlaceholder": "Accompanying message for the client (optional)",
+    "expiresPrefix": "The quote expires in",
+    "expiresSuffix": "days",
+    "total": "Total: {amount} lei",
+    "perHeadSummary": "{partySize} guests · {amount} lei/guest",
+    "perHeadEmpty": "—",
+    "cancel": "Cancel",
+    "send": "Send quote",
+    "lineDescriptionPlaceholder": "Description",
+    "lineAmountPlaceholder": "Amount (lei)",
+    "deleteLine": "Delete line"
+  },
+  "decline": {
+    "reasons": {
+      "no_availability": "Not available",
+      "budget_too_low": "Insufficient budget",
+      "space_too_small": "Space does not fit",
+      "other": "Other reason"
+    },
+    "detailsPlaceholder": "Details (optional)",
+    "submit": "Decline",
+    "back": "Back"
+  },
+  "revenue": {
+    "title": "Revenue estimate",
+    "range": "{low} – {high} lei",
+    "noBudget": "The client did not specify a budget",
+    "footnote": "{partySize} guests · ±15% range from the stated budget"
+  },
+  "spaces": {
+    "title": "Your private spaces",
+    "subtitle": "Add the rooms and halls you rent out for events. These appear in the client's request form.",
+    "nameRequired": "The name is required.",
+    "capacityPositive": "Capacities must be positive numbers.",
+    "capacityMinMax": "The minimum capacity cannot exceed the maximum capacity.",
+    "deactivateConfirm": "Deactivate “{name}”? The space will no longer appear to clients, but the history remains intact.",
+    "emptyTitle": "No spaces added yet",
+    "emptyBody": "Add the rooms or halls you rent out for private events. Clients can select them when they send a request.",
+    "addFirst": "Add the first space",
+    "editTitle": "Edit space",
+    "newTitle": "New space",
+    "save": "Save",
+    "add": "Add",
+    "capacityRange": "{min}–{max} guests",
+    "capacitySingle": "{count} guests",
+    "editAriaLabel": "Edit {name}",
+    "deactivateAriaLabel": "Deactivate {name}",
+    "addSpace": "Add space",
+    "closeAriaLabel": "Close",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. The Green Hall",
+    "capacityMinLabel": "Min. capacity",
+    "capacityMaxLabel": "Max. capacity",
+    "descriptionLabel": "Description",
+    "descriptionOptional": "(optional)",
+    "descriptionPlaceholder": "Useful details: layout, view, available equipment.",
+    "cancel": "Cancel",
+    "saving": "Saving…"
+  }
+}

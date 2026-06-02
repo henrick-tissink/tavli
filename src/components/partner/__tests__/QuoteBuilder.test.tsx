@@ -1,10 +1,24 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
 
 jest.mock("@/app/api/event-requests/actions", () => ({
   sendQuoteForEventRequest: jest.fn().mockResolvedValue({}),
 }));
 
 import { QuoteForm } from "../QuoteForm";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roCorporate from "@/messages/ro/partner.corporate.json";
+import roCommon from "@/messages/ro/partner.common.json";
+
+function render(ui: React.ReactElement) {
+  return rtlRender(
+    <MessagesProvider
+      locale="ro"
+      bundle={{ "partner.corporate": roCorporate, "partner.common": roCommon }}
+    >
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 beforeEach(() => {
   jest.clearAllMocks();

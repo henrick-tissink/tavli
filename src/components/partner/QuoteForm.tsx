@@ -3,6 +3,8 @@ import { useState, useMemo, useTransition } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { QuoteLineItemRow } from "./QuoteLineItemRow";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { formatNumber } from "@/lib/i18n/format";
 import { sendQuoteForEventRequest } from "@/app/api/event-requests/actions";
 
 interface Line {
@@ -11,29 +13,13 @@ interface Line {
   amount: string;
 }
 
-const STARTING_TEMPLATES = (
-  partySize: number,
-  budgetPerHeadCents: number | null,
-): Line[] => {
-  const perHead = budgetPerHeadCents
-    ? Math.round(budgetPerHeadCents / 100)
-    : 300;
-  return [
-    {
-      id: "1",
-      label: `Meniu standard (${partySize} pers. × ${perHead} lei)`,
-      amount: String(partySize * perHead),
-    },
-  ];
-};
-
 const SUGGESTED = [
-  { label: "Welcome cocktail", per: 25 },
-  { label: "Open bar (3h)", per: 90 },
-  { label: "Tort personalizat", per: 18 },
-  { label: "Decor floral", flat: 800 },
-  { label: "DJ / sonorizare", flat: 1500 },
-];
+  { key: "welcomeCocktail", per: 25 },
+  { key: "openBar", per: 90 },
+  { key: "customCake", per: 18 },
+  { key: "floralDecor", flat: 800 },
+  { key: "dj", flat: 1500 },
+] as const;
 
 export function QuoteForm({
   eventRequestId,
@@ -46,9 +32,20 @@ export function QuoteForm({
   budgetPerHeadCents: number | null;
   onCancel: () => void;
 }) {
-  const [lines, setLines] = useState<Line[]>(() =>
-    STARTING_TEMPLATES(partySize, budgetPerHeadCents),
-  );
+  const t = useT("partner.corporate");
+  const locale = useLocale();
+  const [lines, setLines] = useState<Line[]>(() => {
+    const perHead = budgetPerHeadCents
+      ? Math.round(budgetPerHeadCents / 100)
+      : 300;
+    return [
+      {
+        id: "1",
+        label: t("quote.templateLine", { partySize, perHead }),
+        amount: String(partySize * perHead),
+      },
+    ];
+  });
   const [expiresDays, setExpiresDays] = useState(7);
   const [partnerResponse, setPartnerResponse] = useState("");
   const [pending, startTransition] = useTransition();
@@ -63,9 +60,11 @@ export function QuoteForm({
       { id: String(Date.now() + Math.random()), label, amount },
     ]);
   }
-  function addSuggested(s: { label: string; per?: number; flat?: number }) {
-    const amount = s.flat ?? (s.per ? s.per * partySize : 0);
-    addLine(s.label, String(amount));
+  function addSuggested(s: (typeof SUGGESTED)[number]) {
+    const flat = "flat" in s ? s.flat : undefined;
+    const per = "per" in s ? s.per : undefined;
+    const amount = flat ?? (per ? per * partySize : 0);
+    addLine(t(`quote.suggested.${s.key}`), String(amount));
   }
   function send() {
     startTransition(async () => {
@@ -88,7 +87,7 @@ export function QuoteForm({
 
   return (
     <section className="space-y-4 rounded-card border border-border p-4 bg-surface-white">
-      <h3 className="font-display text-lg font-bold">Construiește oferta</h3>
+      <h3 className="font-display text-lg font-bold">{t("quote.title")}</h3>
       <div className="space-y-2">
         {lines.map((l) => (
           <QuoteLineItemRow
@@ -109,21 +108,21 @@ export function QuoteForm({
           onClick={() => addLine()}
           className="text-sm font-medium text-brand-primary inline-flex items-center gap-1"
         >
-          <Plus className="w-4 h-4" /> Adaugă linie
+          <Plus className="w-4 h-4" /> {t("quote.addLine")}
         </button>
       </div>
       <div>
         <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
-          Adăugări frecvente
+          {t("quote.frequentAddons")}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {SUGGESTED.map((s) => (
             <button
-              key={s.label}
+              key={s.key}
               onClick={() => addSuggested(s)}
               className="text-xs px-2 py-1 rounded-full bg-surface-bg hover:bg-border"
             >
-              + {s.label}
+              + {t(`quote.suggested.${s.key}`)}
             </button>
           ))}
         </div>
@@ -133,11 +132,11 @@ export function QuoteForm({
         onChange={(e) => setPartnerResponse(e.target.value)}
         rows={3}
         maxLength={2000}
-        placeholder="Mesaj însoțitor pentru client (opțional)"
+        placeholder={t("quote.responsePlaceholder")}
         className="w-full border border-border rounded-card p-2 text-sm"
       />
       <label className="flex items-center gap-2 text-sm">
-        <span>Oferta expiră în</span>
+        <span>{t("quote.expiresPrefix")}</span>
         <input
           type="number"
           min={1}
@@ -146,26 +145,28 @@ export function QuoteForm({
           onChange={(e) => setExpiresDays(Number(e.target.value))}
           className="w-16 border border-border rounded-card p-1 tabular-nums"
         />
-        <span>zile</span>
+        <span>{t("quote.expiresSuffix")}</span>
       </label>
       <div className="flex items-center justify-between p-3 bg-[color:var(--color-occasion-product-soft)] rounded-card">
         <span className="text-sm font-medium">
-          Total: {totalLei.toLocaleString("ro-RO")} lei
+          {t("quote.total", { amount: formatNumber(totalLei, locale) })}
         </span>
         <span className="text-xs text-text-secondary">
-          {partySize} pers. ·{" "}
-          {partySize > 0
-            ? Math.round(totalLei / partySize).toLocaleString("ro-RO")
-            : "—"}{" "}
-          lei/pers
+          {t("quote.perHeadSummary", {
+            partySize,
+            amount:
+              partySize > 0
+                ? formatNumber(Math.round(totalLei / partySize), locale)
+                : t("quote.perHeadEmpty"),
+          })}
         </span>
       </div>
       <div className="flex gap-2">
         <Button variant="ghost" onClick={onCancel} disabled={pending}>
-          Renunță
+          {t("quote.cancel")}
         </Button>
         <Button onClick={send} disabled={pending || totalLei === 0}>
-          Trimite oferta
+          {t("quote.send")}
         </Button>
       </div>
     </section>

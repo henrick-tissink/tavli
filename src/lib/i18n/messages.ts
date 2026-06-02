@@ -76,6 +76,10 @@ import roPartnerSettings from "@/messages/ro/partner.settings.json";
 import enPartnerSettings from "@/messages/en/partner.settings.json";
 import dePartnerSettings from "@/messages/de/partner.settings.json";
 
+import roPartnerCorporate from "@/messages/ro/partner.corporate.json";
+import enPartnerCorporate from "@/messages/en/partner.corporate.json";
+import dePartnerCorporate from "@/messages/de/partner.corporate.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1569,6 +1573,165 @@ export interface PartnerSettingsMessages {
   };
 }
 
+/** Structural contract for the `partner.corporate` namespace. */
+export interface PartnerCorporateMessages {
+  overview: {
+    pageTitle: string;
+    openRequests: PluralBag;
+    comingSoon: string;
+    cards: {
+      events: { title: string; blurb: string };
+      corporateMeals: { title: string; blurb: string };
+      standing: { title: string; blurb: string };
+      meetingNooks: { title: string; blurb: string };
+    };
+  };
+  inbox: { title: string; emptyTitle: string; emptyBody: string };
+  filters: {
+    open: string;
+    new: string;
+    viewing: string;
+    quoted: string;
+    accepted: string;
+    all: string;
+  };
+  card: {
+    personsSuffix: string;
+    budgetPerHead: string;
+    daysWaiting: PluralBag;
+  };
+  status: {
+    new: string;
+    viewing: string;
+    replied: string;
+    quoted: string;
+    accepted: string;
+    declined: string;
+  };
+  occasion: {
+    wedding: string;
+    birthday: string;
+    corporate_dinner: string;
+    product_launch: string;
+    other: string;
+  };
+  detail: {
+    header: string;
+    subtitle: string;
+    overlapWarning: string;
+    eventDetailsTitle: string;
+    fieldDate: string;
+    fieldPartySize: string;
+    fieldSpacePreference: string;
+    fieldPrivateSpace: string;
+    fieldBudgetPerHead: string;
+    budgetValue: string;
+    fieldMenu: string;
+    dietaryNotesLabel: string;
+    additionalNotesLabel: string;
+    previousResponseLabel: string;
+    replyPlaceholder: string;
+    sendReply: string;
+    sendQuote: string;
+    decline: string;
+    createReservation: string;
+    markViewing: string;
+    clientTitle: string;
+    fieldName: string;
+    fieldEmail: string;
+    fieldPhone: string;
+    fieldCompany: string;
+    companyEmpty: string;
+    companyCui: string;
+  };
+  materialize: {
+    title: string;
+    subtitle: string;
+    modeLegend: string;
+    modePrivateName: string;
+    modePrivateHint: string;
+    modeWholeName: string;
+    modeWholeHint: string;
+    zoneLabel: string;
+    selectTime: string;
+    loadingSlots: string;
+    noSlots: string;
+    back: string;
+    createReservation: string;
+  };
+  quote: {
+    title: string;
+    templateLine: string;
+    addLine: string;
+    frequentAddons: string;
+    suggested: {
+      welcomeCocktail: string;
+      openBar: string;
+      customCake: string;
+      floralDecor: string;
+      dj: string;
+    };
+    responsePlaceholder: string;
+    expiresPrefix: string;
+    expiresSuffix: string;
+    total: string;
+    perHeadSummary: string;
+    perHeadEmpty: string;
+    cancel: string;
+    send: string;
+    lineDescriptionPlaceholder: string;
+    lineAmountPlaceholder: string;
+    deleteLine: string;
+  };
+  decline: {
+    reasons: {
+      no_availability: string;
+      budget_too_low: string;
+      space_too_small: string;
+      other: string;
+    };
+    detailsPlaceholder: string;
+    submit: string;
+    back: string;
+  };
+  revenue: {
+    title: string;
+    range: string;
+    noBudget: string;
+    footnote: string;
+  };
+  spaces: {
+    title: string;
+    subtitle: string;
+    nameRequired: string;
+    capacityPositive: string;
+    capacityMinMax: string;
+    deactivateConfirm: string;
+    emptyTitle: string;
+    emptyBody: string;
+    addFirst: string;
+    editTitle: string;
+    newTitle: string;
+    save: string;
+    add: string;
+    capacityRange: string;
+    capacitySingle: string;
+    editAriaLabel: string;
+    deactivateAriaLabel: string;
+    addSpace: string;
+    closeAriaLabel: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    capacityMinLabel: string;
+    capacityMaxLabel: string;
+    descriptionLabel: string;
+    descriptionOptional: string;
+    descriptionPlaceholder: string;
+    cancel: string;
+    saving: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1661,6 +1824,11 @@ const CATALOGS = {
     en: enPartnerSettings,
     de: dePartnerSettings,
   } as Record<Locale, PartnerSettingsMessages>,
+  "partner.corporate": {
+    ro: roPartnerCorporate,
+    en: enPartnerCorporate,
+    de: dePartnerCorporate,
+  } as Record<Locale, PartnerCorporateMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

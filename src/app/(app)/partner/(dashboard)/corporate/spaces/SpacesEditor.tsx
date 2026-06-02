@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   createSpaceAction,
   updateSpaceAction,
@@ -55,6 +56,7 @@ export function SpacesEditor({
   restaurantId: string;
   initialSpaces: PrivateSpaceRow[];
 }) {
+  const t = useT("partner.corporate");
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -84,11 +86,11 @@ export function SpacesEditor({
     const min = parseInt(form.capacityMin, 10);
     const max = parseInt(form.capacityMax, 10);
     if (!Number.isFinite(min) || !Number.isFinite(max) || min < 1 || max < 1) {
-      setError("Capacitățile trebuie să fie numere pozitive.");
+      setError(t("spaces.capacityPositive"));
       return null;
     }
     if (min > max) {
-      setError("Capacitatea minimă nu poate depăși capacitatea maximă.");
+      setError(t("spaces.capacityMinMax"));
       return null;
     }
     return { min, max };
@@ -97,7 +99,7 @@ export function SpacesEditor({
   const submitCreate = () => {
     setError(null);
     if (!form.name.trim()) {
-      setError("Numele este obligatoriu.");
+      setError(t("spaces.nameRequired"));
       return;
     }
     const caps = parseCapacities();
@@ -123,7 +125,7 @@ export function SpacesEditor({
   const submitUpdate = (id: string) => {
     setError(null);
     if (!form.name.trim()) {
-      setError("Numele este obligatoriu.");
+      setError(t("spaces.nameRequired"));
       return;
     }
     const caps = parseCapacities();
@@ -148,9 +150,7 @@ export function SpacesEditor({
 
   const handleDeactivate = (row: PrivateSpaceRow) => {
     if (
-      !confirm(
-        `Dezactivezi „${row.name}”? Spațiul nu va mai apărea pentru clienți, dar istoricul rămâne intact.`,
-      )
+      !confirm(t("spaces.deactivateConfirm", { name: row.name }))
     ) {
       return;
     }
@@ -179,18 +179,16 @@ export function SpacesEditor({
       {initialSpaces.length === 0 && editing !== "new" && (
         <div className="bg-surface-white rounded-card border border-border p-6">
           <p className="font-semibold text-text-primary">
-            Niciun spațiu adăugat încă
+            {t("spaces.emptyTitle")}
           </p>
           <p className="text-sm text-text-secondary mt-1 leading-relaxed">
-            Adaugă camerele sau saloanele pe care le închiriezi pentru
-            evenimente private. Clienții le pot selecta atunci când trimit o
-            cerere.
+            {t("spaces.emptyBody")}
           </p>
           <div className="mt-4">
             <Button variant="primary" onClick={beginCreate} disabled={pending}>
               <span className="inline-flex items-center gap-2">
                 <Plus size={16} />
-                Adaugă primul spațiu
+                {t("spaces.addFirst")}
               </span>
             </Button>
           </div>
@@ -201,12 +199,12 @@ export function SpacesEditor({
         editing === row.id ? (
           <SpaceForm
             key={row.id}
-            title="Editează spațiul"
+            title={t("spaces.editTitle")}
             form={form}
             setForm={setForm}
             onCancel={cancel}
             onSubmit={() => submitUpdate(row.id)}
-            submitLabel="Salvează"
+            submitLabel={t("spaces.save")}
             pending={pending}
           />
         ) : (
@@ -222,8 +220,11 @@ export function SpacesEditor({
                 <p className="inline-flex items-center gap-1 text-sm text-text-secondary mt-1">
                   <Users size={14} />
                   {row.capacityMin === row.capacityMax
-                    ? `${row.capacityMin} persoane`
-                    : `${row.capacityMin}–${row.capacityMax} persoane`}
+                    ? t("spaces.capacitySingle", { count: row.capacityMin })
+                    : t("spaces.capacityRange", {
+                        min: row.capacityMin,
+                        max: row.capacityMax,
+                      })}
                 </p>
                 {row.description && (
                   <p className="text-sm text-text-secondary mt-2 leading-relaxed whitespace-pre-line">
@@ -236,7 +237,7 @@ export function SpacesEditor({
                   type="button"
                   onClick={() => beginEdit(row)}
                   disabled={pending}
-                  aria-label={`Editează ${row.name}`}
+                  aria-label={t("spaces.editAriaLabel", { name: row.name })}
                   className="p-2 rounded-lg text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                 >
                   <Pencil size={16} />
@@ -245,7 +246,7 @@ export function SpacesEditor({
                   type="button"
                   onClick={() => handleDeactivate(row)}
                   disabled={pending}
-                  aria-label={`Dezactivează ${row.name}`}
+                  aria-label={t("spaces.deactivateAriaLabel", { name: row.name })}
                   className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
                 >
                   <Trash2 size={16} />
@@ -258,12 +259,12 @@ export function SpacesEditor({
 
       {editing === "new" && (
         <SpaceForm
-          title="Spațiu nou"
+          title={t("spaces.newTitle")}
           form={form}
           setForm={setForm}
           onCancel={cancel}
           onSubmit={submitCreate}
-          submitLabel="Adaugă"
+          submitLabel={t("spaces.add")}
           pending={pending}
         />
       )}
@@ -273,7 +274,7 @@ export function SpacesEditor({
           <Button variant="secondary" onClick={beginCreate} disabled={pending}>
             <span className="inline-flex items-center gap-2">
               <Plus size={16} />
-              Adaugă spațiu
+              {t("spaces.addSpace")}
             </span>
           </Button>
         </div>
@@ -299,6 +300,7 @@ function SpaceForm({
   submitLabel: string;
   pending: boolean;
 }) {
+  const t = useT("partner.corporate");
   return (
     <form
       onSubmit={(e) => {
@@ -314,7 +316,7 @@ function SpaceForm({
         <button
           type="button"
           onClick={onCancel}
-          aria-label="Închide"
+          aria-label={t("spaces.closeAriaLabel")}
           className="p-1.5 rounded-lg text-text-secondary hover:bg-surface-bg"
         >
           <X size={16} />
@@ -322,14 +324,16 @@ function SpaceForm({
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-text-primary">Nume</span>
+        <span className="text-sm font-medium text-text-primary">
+          {t("spaces.nameLabel")}
+        </span>
         <input
           type="text"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           maxLength={120}
           required
-          placeholder="Ex. Salonul Verde"
+          placeholder={t("spaces.namePlaceholder")}
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary"
         />
       </label>
@@ -337,7 +341,7 @@ function SpaceForm({
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className="text-sm font-medium text-text-primary">
-            Capacitate min.
+            {t("spaces.capacityMinLabel")}
           </span>
           <input
             type="number"
@@ -352,7 +356,7 @@ function SpaceForm({
         </label>
         <label className="block">
           <span className="text-sm font-medium text-text-primary">
-            Capacitate max.
+            {t("spaces.capacityMaxLabel")}
           </span>
           <input
             type="number"
@@ -369,14 +373,17 @@ function SpaceForm({
 
       <label className="block">
         <span className="text-sm font-medium text-text-primary">
-          Descriere <span className="text-text-muted">(opțional)</span>
+          {t("spaces.descriptionLabel")}{" "}
+          <span className="text-text-muted">
+            {t("spaces.descriptionOptional")}
+          </span>
         </span>
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           maxLength={2000}
           rows={3}
-          placeholder="Detalii utile: amenajare, vedere, echipamente disponibile."
+          placeholder={t("spaces.descriptionPlaceholder")}
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary resize-y"
         />
       </label>
@@ -388,10 +395,10 @@ function SpaceForm({
           onClick={onCancel}
           disabled={pending}
         >
-          Anulează
+          {t("spaces.cancel")}
         </Button>
         <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? "Se salvează…" : submitLabel}
+          {pending ? t("spaces.saving") : submitLabel}
         </Button>
       </div>
     </form>

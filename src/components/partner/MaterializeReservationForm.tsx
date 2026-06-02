@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import { materializeAcceptedEventRequest } from "@/app/api/event-requests/actions";
 
 interface Slot {
@@ -20,6 +21,7 @@ export function MaterializeReservationForm({
   partySize: number;
   onCancel: () => void;
 }) {
+  const t = useT("partner.corporate");
   const [mode, setMode] = useState<"private_room" | "whole_venue">(
     "private_room",
   );
@@ -74,15 +76,15 @@ export function MaterializeReservationForm({
   return (
     <section className="space-y-4 rounded-card border border-border p-4 bg-surface-white">
       <h3 className="font-display text-lg font-bold">
-        Materializează rezervare
+        {t("materialize.title")}
       </h3>
       <p className="text-sm text-text-secondary">
-        Pentru {eventDate} · {partySize} persoane
+        {t("materialize.subtitle", { eventDate, partySize })}
       </p>
 
       <fieldset className="space-y-2">
         <legend className="text-xs uppercase tracking-wider text-text-muted mb-1">
-          Mod de blocare
+          {t("materialize.modeLegend")}
         </legend>
         <label className="flex items-start gap-2 cursor-pointer">
           <input
@@ -92,8 +94,8 @@ export function MaterializeReservationForm({
             onChange={() => setMode("private_room")}
           />
           <span className="text-sm">
-            <strong>Spațiu privat</strong> · grila normală de rezervări rămâne
-            neatinsă
+            <strong>{t("materialize.modePrivateName")}</strong>{" "}
+            {t("materialize.modePrivateHint")}
           </span>
         </label>
         <label className="flex items-start gap-2 cursor-pointer">
@@ -104,8 +106,8 @@ export function MaterializeReservationForm({
             onChange={() => setMode("whole_venue")}
           />
           <span className="text-sm">
-            <strong>Întregul local</strong> · blochează toate sloturile pentru
-            această dată
+            <strong>{t("materialize.modeWholeName")}</strong>{" "}
+            {t("materialize.modeWholeHint")}
           </span>
         </label>
       </fieldset>
@@ -113,7 +115,7 @@ export function MaterializeReservationForm({
       {mode === "private_room" && (
         <label className="block">
           <span className="text-xs uppercase tracking-wider text-text-muted">
-            Zonă
+            {t("materialize.zoneLabel")}
           </span>
           <input
             value={zone}
@@ -125,10 +127,12 @@ export function MaterializeReservationForm({
 
       <div>
         <p className="text-xs uppercase tracking-wider text-text-muted mb-2">
-          Selectează ora
+          {t("materialize.selectTime")}
         </p>
         {loading ? (
-          <p className="text-sm text-text-secondary">Se încarcă sloturile…</p>
+          <p className="text-sm text-text-secondary">
+            {t("materialize.loadingSlots")}
+          </p>
         ) : slots && slots.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {slots.map((s) => {
@@ -152,10 +156,7 @@ export function MaterializeReservationForm({
           </div>
         ) : (
           <div className="text-sm text-text-secondary space-y-2">
-            <p>
-              Nu există sloturi configurate pentru această zi. Introduceți ora
-              manual.
-            </p>
+            <p>{t("materialize.noSlots")}</p>
             <input
               type="time"
               value={selectedTime ?? "19:00"}
@@ -172,13 +173,13 @@ export function MaterializeReservationForm({
           onClick={onCancel}
           disabled={pending}
         >
-          Înapoi
+          {t("materialize.back")}
         </Button>
         <Button
           onClick={submit}
           disabled={pending || !selectedTime}
         >
-          Creează rezervare
+          {t("materialize.createReservation")}
         </Button>
       </div>
     </section>
