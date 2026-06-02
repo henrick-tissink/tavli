@@ -32,6 +32,10 @@ import roProfile from "@/messages/ro/profile.json";
 import enProfile from "@/messages/en/profile.json";
 import deProfile from "@/messages/de/profile.json";
 
+import roEmails from "@/messages/ro/emails.json";
+import enEmails from "@/messages/en/emails.json";
+import deEmails from "@/messages/de/emails.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -564,6 +568,61 @@ export interface ProfileMessages {
   empty: Record<string, never>;
 }
 
+/** Plural-bag type used across the emails catalogue. */
+type PluralBag = { one: string; few: string; other: string };
+
+/** Structural contract for the `emails` namespace. */
+export interface EmailsMessages {
+  confirmation: {
+    subject: string;
+    preview: string;
+    heading: string;
+    lede: string;
+    guests: PluralBag;
+    reminderText: string;
+    cancelButton: string;
+    footer: string;
+  };
+  reminder: {
+    subject: string;
+    preview: string;
+    heading: string;
+    lede: string;
+    guests: PluralBag;
+    cancelHint: string;
+    manageButton: string;
+    footer: string;
+  };
+  postVisit: {
+    subject: string;
+    preview: string;
+    heading: string;
+    lede: string;
+    instructionText: string;
+    footer: string;
+  };
+  partnerAlert: {
+    subject: string;
+    preview: string;
+    heading: string;
+    covers: PluralBag;
+    zoneLabel: string;
+    notesLabel: string;
+    manageText: string;
+    footer: string;
+  };
+  partnerCancelled: {
+    subject: string;
+    preview: string;
+    heading: string;
+    lede: string;
+    guests: PluralBag;
+    apologyText: string;
+    rebookButton: string;
+    footer: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -601,6 +660,10 @@ const CATALOGS = {
   profile: { ro: roProfile, en: enProfile, de: deProfile } as Record<
     Locale,
     ProfileMessages
+  >,
+  emails: { ro: roEmails, en: enEmails, de: deEmails } as Record<
+    Locale,
+    EmailsMessages
   >,
 } as const;
 

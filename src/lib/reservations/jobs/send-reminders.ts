@@ -20,6 +20,9 @@ import { appOrigin } from "@/lib/app-origin";
 import { recordAudit as realRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
+import { resolveDinerLocale } from "@/lib/email/resolve-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 
 interface ReminderRow {
   id: string;
@@ -35,6 +38,8 @@ interface ReminderRow {
   restaurant_name: string;
   restaurant_address: string | null;
   organization_id: string | null;
+  locale: string | null;
+  diner_locale: string | null;
 }
 
 export interface RenderReminderInput {
@@ -46,6 +51,7 @@ export interface RenderReminderInput {
   guestName: string;
   zone?: string;
   cancelUrl: string;
+  locale?: "ro" | "en" | "de";
 }
 
 interface Deps {
@@ -63,10 +69,12 @@ export function makeSendReminders(deps: Deps) {
              r.reservation_date::text AS reservation_date,
              to_char(r.reservation_time, 'HH24:MI') AS reservation_time,
              r.party_size, r.zone, r.diner_id, r.restaurant_id,
+             r.locale, d.locale AS diner_locale,
              rest.name AS restaurant_name, rest.address AS restaurant_address,
              rest.organization_id
       FROM reservations r
       JOIN restaurants rest ON rest.id = r.restaurant_id
+      LEFT JOIN diners d ON d.id = r.diner_id
       WHERE r.status = 'confirmed'
         AND r.reminder_sent_at IS NULL
         AND r.guest_email IS NOT NULL
@@ -85,6 +93,12 @@ export function makeSendReminders(deps: Deps) {
       if (claimed.length === 0) continue;
 
       try {
+        const locale = resolveDinerLocale({
+          reservation: { locale: r.locale ?? null },
+          diner: { locale: r.diner_locale ?? null },
+          restaurant: { locale: "ro" },
+        });
+        const reminderM = getMessages(locale, "emails").reminder;
         const cancelUrl = `${appOrigin()}/reservations/${r.confirmation_token}`;
         const { html, text } = await deps.renderReminder({
           restaurantName: r.restaurant_name,
@@ -95,12 +109,13 @@ export function makeSendReminders(deps: Deps) {
           guestName: r.guest_name,
           zone: r.zone ?? undefined,
           cancelUrl,
+          locale,
         });
         const result = await deps.sendEmail({
           to: r.guest_email,
-          locale: "ro",
+          locale,
           templateKey: "reservation_reminder",
-          subject: `Mâine la ${r.restaurant_name}`,
+          subject: interpolate(reminderM.subject, { restaurantName: r.restaurant_name }),
           html,
           text,
           context: {

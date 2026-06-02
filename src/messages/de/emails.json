@@ -1,0 +1,66 @@
+{
+  "confirmation": {
+    "subject": "Reservierung bei {restaurantName} — {date} {time}",
+    "preview": "Tisch reserviert bei {restaurantName} — {prettyDate} um {time}",
+    "heading": "Ihre Reservierung ist bestätigt.",
+    "lede": "Hallo, {guestName} — hier sind Ihre Reservierungsdetails.",
+    "guests": {
+      "one": "Person",
+      "few": "Personen",
+      "other": "Personen"
+    },
+    "reminderText": "Bitte kommen Sie einige Minuten früher und teilen Sie dem Gastgeber mit, dass Sie über Tavli gebucht haben.",
+    "cancelButton": "Stornieren oder ändern",
+    "footer": "Tavli — Restaurantreservierungen."
+  },
+  "reminder": {
+    "subject": "Morgen bei {restaurantName}",
+    "preview": "Morgen bei {restaurantName} — {prettyDate} um {time}",
+    "heading": "Wir sehen uns morgen.",
+    "lede": "Hallo, {guestName} — eine freundliche Erinnerung an Ihre Reservierung morgen.",
+    "guests": {
+      "one": "Person",
+      "few": "Personen",
+      "other": "Personen"
+    },
+    "cancelHint": "Können Sie nicht kommen? Stornieren Sie mit einem Klick, um den Tisch freizugeben.",
+    "manageButton": "Reservierung verwalten",
+    "footer": "Sie erhalten diese E-Mail, weil Sie eine Reservierung über Tavli haben."
+  },
+  "postVisit": {
+    "subject": "Wie war es bei {restaurantName}?",
+    "preview": "Ein Tippen hinterlässt eine anonyme Bewertung — nur mit Vornamen.",
+    "heading": "Wie war es bei {restaurantName}?",
+    "lede": "Hallo, {firstName} — ein Tippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
+    "instructionText": "Tippen Sie oben auf einen Stern. Sie gelangen auf eine Seite, auf der Sie einen Kommentar hinzufügen können — oder senden Sie einfach ab.",
+    "footer": "Tavli — Restaurantreservierungen."
+  },
+  "partnerAlert": {
+    "subject": "Neue Reservierung — {restaurantName} · {date} {time}",
+    "preview": "Neue Reservierung bei {restaurantName} — {prettyDate} {time} · {partySize} {coversLabel}",
+    "heading": "Neue Reservierung — {restaurantName}",
+    "covers": {
+      "one": "Person",
+      "few": "Personen",
+      "other": "Personen"
+    },
+    "zoneLabel": "Bereich:",
+    "notesLabel": "Hinweise:",
+    "manageText": "Verwalten Sie die Reservierung in Ihrem Partner-Dashboard (stornieren / als sitzend markieren / als nicht erschienen markieren).",
+    "footer": "Tavli — Partner-Benachrichtigungen."
+  },
+  "partnerCancelled": {
+    "subject": "Reservierung storniert bei {restaurantName}",
+    "preview": "Reservierung storniert bei {restaurantName} — {prettyDate} um {time}",
+    "heading": "Reservierung storniert.",
+    "lede": "Hallo, {guestName} — leider wurde Ihre Reservierung bei {restaurantName} für {prettyDate} um {time} ({partySize} {guestsLabel}) storniert.",
+    "guests": {
+      "one": "Person",
+      "few": "Personen",
+      "other": "Personen"
+    },
+    "apologyText": "Wir entschuldigen uns für die Unannehmlichkeiten. Sie können jederzeit erneut buchen.",
+    "rebookButton": "Einen anderen Termin finden",
+    "footer": "Tavli — Restaurantreservierungen."
+  }
+}

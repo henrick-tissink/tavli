@@ -10,6 +10,9 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
+import { type Locale, BCP47 } from "@/lib/i18n/locale";
 
 interface Props {
   restaurantName: string;
@@ -20,6 +23,7 @@ interface Props {
   guestName: string;
   zone?: string;
   cancelUrl: string;
+  locale?: Locale;
 }
 
 export function ReservationConfirmationEmail({
@@ -31,34 +35,40 @@ export function ReservationConfirmationEmail({
   guestName,
   zone,
   cancelUrl,
+  locale = "ro",
 }: Props) {
+  const m = getMessages(locale, "emails").confirmation;
   const prettyDate = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "ro-RO",
+    BCP47[locale],
     { weekday: "long", day: "numeric", month: "long" },
   );
-  const guestsLabel = partySize === 1 ? "persoană" : "persoane";
+  const guestsLabel = translate(locale, m.guests, { count: partySize });
 
   return (
     <Html>
       <Head />
       <Preview>
-        Masă rezervată la {restaurantName} — {prettyDate} la {reservationTime}
+        {interpolate(m.preview, { restaurantName, prettyDate, time: reservationTime })}
       </Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            Rezervarea ta este confirmată.
+            {m.heading}
           </Heading>
           <Text style={lede}>
-            Salut, {guestName} — iată detaliile rezervării.
+            {interpolate(m.lede, { guestName })}
           </Text>
           <Section style={card}>
             <Heading as="h2" style={h2}>
               {restaurantName}
             </Heading>
             <Text style={cardLine}>
-              <strong>{prettyDate}</strong> la <strong>{reservationTime}</strong>
+              <strong>{prettyDate}</strong>
+              {" "}
+              {locale === "ro" ? "la" : locale === "de" ? "um" : "at"}
+              {" "}
+              <strong>{reservationTime}</strong>
             </Text>
             <Text style={cardLine}>
               {partySize} {guestsLabel}
@@ -69,16 +79,15 @@ export function ReservationConfirmationEmail({
             )}
           </Section>
           <Text style={text}>
-            Te rugăm să ajungi cu câteva minute mai devreme și să-i spui gazdei
-            că ai rezervat prin Tavli.
+            {m.reminderText}
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             <Button href={cancelUrl} style={cancelButton}>
-              Anulează sau modifică
+              {m.cancelButton}
             </Button>
           </Section>
           <Hr style={hr} />
-          <Text style={footer}>Tavli — rezervări în România.</Text>
+          <Text style={footer}>{m.footer}</Text>
         </Container>
       </Body>
     </Html>

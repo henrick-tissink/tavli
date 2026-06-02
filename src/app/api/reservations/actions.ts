@@ -9,6 +9,8 @@ import { isLocale } from "@/lib/i18n/locale";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { ReservationConfirmationEmail } from "@/emails/ReservationConfirmationEmail";
 import { PartnerBookingAlertEmail } from "@/emails/PartnerBookingAlertEmail";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 import { appOrigin } from "@/lib/app-origin";
 import { recordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
@@ -160,6 +162,25 @@ export async function createReservation(
     .eq("id", data.restaurant_id)
     .maybeSingle();
 
+  // §i18n Phase 1c — resolve the partner (organization) locale for the
+  // partner-alert email. The organizations table has a `locale` column;
+  // fall back to "ro" when the org row is not available.
+  let partnerLocale: "ro" | "en" | "de" = "ro";
+  if (restaurant?.organization_id) {
+    try {
+      const { data: orgRow } = await admin
+        .from("organizations")
+        .select("locale")
+        .eq("id", restaurant.organization_id)
+        .maybeSingle();
+      if (orgRow?.locale && isLocale(orgRow.locale)) {
+        partnerLocale = orgRow.locale as "ro" | "en" | "de";
+      }
+    } catch {
+      // best-effort; fallback to "ro"
+    }
+  }
+
   // §03 §5.2 Wave 3 sub-unit A.3: resolve (or create) the diner row for
   // this booking and stamp diner_id on the reservation. Skipped when the
   // restaurant has no organization_id (defensive — schema enforces NOT
@@ -264,7 +285,12 @@ export async function createReservation(
 
   // Consumer confirmation.
   if (input.guestEmail) {
-    const subject = `Rezervare la ${restaurant?.name ?? "Tavli"} — ${input.date} ${input.time}`;
+    const confirmM = getMessages(reservationLocale, "emails").confirmation;
+    const subject = interpolate(confirmM.subject, {
+      restaurantName: restaurant?.name ?? "Tavli",
+      date: input.date,
+      time: input.time,
+    });
     const node = ReservationConfirmationEmail({
       restaurantName: restaurant?.name ?? "Your restaurant",
       restaurantAddress: restaurant?.address ?? undefined,
@@ -274,12 +300,13 @@ export async function createReservation(
       guestName: input.guestName.trim(),
       zone: input.zone,
       cancelUrl,
+      locale: reservationLocale,
     });
     const html = await render(node);
     const text = await render(node, { plainText: true });
     await sendTransactionalEmail({
       to: input.guestEmail,
-      locale: "ro",
+      locale: reservationLocale,
       templateKey: "reservation_confirmation",
       subject,
       html,
@@ -295,7 +322,12 @@ export async function createReservation(
 
   // Partner alert.
   if (restaurant?.email) {
-    const subject = `Rezervare nouă — ${restaurant.name} · ${input.date} ${input.time}`;
+    const alertM = getMessages(partnerLocale, "emails").partnerAlert;
+    const subject = interpolate(alertM.subject, {
+      restaurantName: restaurant.name,
+      date: input.date,
+      time: input.time,
+    });
     const node = PartnerBookingAlertEmail({
       restaurantName: restaurant.name,
       reservationDate: input.date,
@@ -306,12 +338,13 @@ export async function createReservation(
       guestEmail: input.guestEmail,
       zone: input.zone,
       notes: input.notes,
+      locale: partnerLocale,
     });
     const html = await render(node);
     const text = await render(node, { plainText: true });
     await sendTransactionalEmail({
       to: restaurant.email,
-      locale: "ro",
+      locale: partnerLocale,
       templateKey: "partner_booking_alert",
       subject,
       html,

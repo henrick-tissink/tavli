@@ -1,0 +1,66 @@
+{
+  "confirmation": {
+    "subject": "Rezervare la {restaurantName} — {date} {time}",
+    "preview": "Masă rezervată la {restaurantName} — {prettyDate} la {time}",
+    "heading": "Rezervarea ta este confirmată.",
+    "lede": "Salut, {guestName} — iată detaliile rezervării.",
+    "guests": {
+      "one": "persoană",
+      "few": "persoane",
+      "other": "persoane"
+    },
+    "reminderText": "Te rugăm să ajungi cu câteva minute mai devreme și să-i spui gazdei că ai rezervat prin Tavli.",
+    "cancelButton": "Anulează sau modifică",
+    "footer": "Tavli — rezervări în România."
+  },
+  "reminder": {
+    "subject": "Mâine la {restaurantName}",
+    "preview": "Mâine la {restaurantName} — {prettyDate} la {time}",
+    "heading": "Ne vedem mâine.",
+    "lede": "Salut, {guestName} — un memento prietenos pentru rezervarea ta de mâine.",
+    "guests": {
+      "one": "persoană",
+      "few": "persoane",
+      "other": "persoane"
+    },
+    "cancelHint": "Nu mai poți ajunge? Anulează cu un click ca să eliberezi masa.",
+    "manageButton": "Gestionează rezervarea",
+    "footer": "Primești acest e-mail pentru că ai o rezervare prin Tavli."
+  },
+  "postVisit": {
+    "subject": "Cum a fost la {restaurantName}?",
+    "preview": "O atingere lasă o notă anonimă — doar cu prenumele.",
+    "heading": "Cum a fost la {restaurantName}?",
+    "lede": "Salut, {firstName} — o atingere e tot ce avem nevoie. Nota ta rămâne anonimă (doar prenumele) și ajută următorul diner.",
+    "instructionText": "Apasă pe o stea de mai sus. Vei ajunge pe o pagină unde poți adăuga un comentariu dacă vrei — sau doar trimiți și gata.",
+    "footer": "Tavli — rezervări în România."
+  },
+  "partnerAlert": {
+    "subject": "Rezervare nouă — {restaurantName} · {date} {time}",
+    "preview": "Rezervare nouă la {restaurantName} — {prettyDate} {time} · {partySize} {coversLabel}",
+    "heading": "Rezervare nouă — {restaurantName}",
+    "covers": {
+      "one": "persoană",
+      "few": "persoane",
+      "other": "persoane"
+    },
+    "zoneLabel": "Loc:",
+    "notesLabel": "Note:",
+    "manageText": "Gestionează rezervarea în panoul tău partener (anulare / marcare „asezat” / marcare „neonorat”).",
+    "footer": "Tavli — alerte partener."
+  },
+  "partnerCancelled": {
+    "subject": "Rezervare anulată la {restaurantName}",
+    "preview": "Rezervare anulată la {restaurantName} — {prettyDate} la {time}",
+    "heading": "Rezervare anulată.",
+    "lede": "Salut, {guestName} — din păcate, rezervarea ta la {restaurantName} pentru {prettyDate} la {time} ({partySize} {guestsLabel}) a fost anulată.",
+    "guests": {
+      "one": "persoană",
+      "few": "persoane",
+      "other": "persoane"
+    },
+    "apologyText": "Ne pare rău pentru inconvenient. Te invităm să rezervi din nou oricând.",
+    "rebookButton": "Caută alt moment",
+    "footer": "Tavli — rezervări în România."
+  }
+}

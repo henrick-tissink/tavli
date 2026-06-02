@@ -10,11 +10,15 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface Props {
   restaurantName: string;
   guestName: string;
   reviewBaseUrl: string; // e.g. https://tavli.ro/reviews/<token>
+  locale?: Locale;
 }
 
 function firstNameOf(fullName: string): string {
@@ -27,20 +31,23 @@ export function PostVisitReviewEmail({
   restaurantName,
   guestName,
   reviewBaseUrl,
+  locale = "ro",
 }: Props) {
+  const m = getMessages(locale, "emails").postVisit;
+  const firstName = firstNameOf(guestName);
+
   return (
     <Html>
       <Head />
-      <Preview>O atingere lasă o notă anonimă — doar cu prenumele.</Preview>
+      <Preview>{m.preview}</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            Cum a fost la {restaurantName}?
+            {interpolate(m.heading, { restaurantName })}
           </Heading>
           <Text style={lede}>
-            Salut, {firstNameOf(guestName)} — o atingere e tot ce avem nevoie.
-            Nota ta rămâne anonimă (doar prenumele) și ajută următorul diner.
+            {interpolate(m.lede, { firstName })}
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -54,12 +61,11 @@ export function PostVisitReviewEmail({
             ))}
           </Section>
           <Text style={textMuted}>
-            Apasă pe o stea de mai sus. Vei ajunge pe o pagină unde poți adăuga
-            un comentariu dacă vrei — sau doar trimiți și gata.
+            {m.instructionText}
           </Text>
           <Hr style={hr} />
           <Text style={footer}>
-            Tavli — rezervări în România.
+            {m.footer}
           </Text>
         </Container>
       </Body>

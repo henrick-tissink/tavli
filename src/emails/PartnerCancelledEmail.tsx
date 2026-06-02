@@ -11,6 +11,9 @@ import {
   Text,
 } from "@react-email/components";
 import { getSiteUrl } from "@/lib/site-url";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
+import { type Locale, BCP47 } from "@/lib/i18n/locale";
 
 interface Props {
   restaurantName: string;
@@ -21,6 +24,7 @@ interface Props {
   partySize: number;
   guestName: string;
   guestMessage: string;
+  locale?: Locale;
 }
 
 export function PartnerCancelledEmail({
@@ -32,31 +36,37 @@ export function PartnerCancelledEmail({
   partySize,
   guestName,
   guestMessage,
+  locale = "ro",
 }: Props) {
+  const m = getMessages(locale, "emails").partnerCancelled;
   const prettyDate = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "ro-RO",
+    BCP47[locale],
     { weekday: "long", day: "numeric", month: "long" },
   );
-  const guestsLabel = partySize === 1 ? "persoană" : "persoane";
+  const guestsLabel = translate(locale, m.guests, { count: partySize });
   const rebookUrl = `${getSiteUrl()}/${restaurantCitySlug}/${restaurantSlug}`;
 
   return (
     <Html>
       <Head />
       <Preview>
-        Rezervare anulată la {restaurantName} — {prettyDate} la {reservationTime}
+        {interpolate(m.preview, { restaurantName, prettyDate, time: reservationTime })}
       </Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            Rezervare anulată.
+            {m.heading}
           </Heading>
           <Text style={lede}>
-            Salut, {guestName} — din păcate, rezervarea ta la{" "}
-            <strong>{restaurantName}</strong> pentru <strong>{prettyDate}</strong>{" "}
-            la <strong>{reservationTime}</strong> ({partySize} {guestsLabel}) a
-            fost anulată.
+            {interpolate(m.lede, {
+              guestName,
+              restaurantName,
+              prettyDate,
+              time: reservationTime,
+              partySize: String(partySize),
+              guestsLabel,
+            })}
           </Text>
           <Section style={card}>
             <Text style={cardLine}>
@@ -64,16 +74,15 @@ export function PartnerCancelledEmail({
             </Text>
           </Section>
           <Text style={text}>
-            Ne pare rău pentru inconvenient. Te invităm să rezervi din nou
-            oricând.
+            {m.apologyText}
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             <Button href={rebookUrl} style={cta}>
-              Caută alt moment
+              {m.rebookButton}
             </Button>
           </Section>
           <Hr style={hr} />
-          <Text style={footer}>Tavli — rezervări în România.</Text>
+          <Text style={footer}>{m.footer}</Text>
         </Container>
       </Body>
     </Html>
