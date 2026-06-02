@@ -64,7 +64,7 @@ export default async function PartnerGatedLayout({
     (await readImpersonationReturnCookie()) !== null;
 
   const locale = await resolveAppLocale();
-  const bundle = buildBundle(locale, ["partner.common", "partner.reservations", "partner.menu", "partner.tables", "partner.diners", "partner.analytics", "partner.billing", "partner.staffSecurity", "partner.settings"]);
+  const bundle = buildBundle(locale, ["partner.common", "partner.reservations", "partner.menu", "partner.tables", "partner.diners", "partner.analytics", "partner.billing", "partner.staffSecurity", "partner.settings", "partner.corporate"]);
 
   return (
     <>

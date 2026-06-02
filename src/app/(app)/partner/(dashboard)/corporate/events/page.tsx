@@ -5,6 +5,8 @@ import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { getPartnerRestaurant } from "@/lib/auth/partner";
 import { EventRequestInbox } from "@/components/partner/EventRequestInbox";
 import { InboxFilters } from "@/components/partner/InboxFilters";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +56,7 @@ export default async function EventInboxPage({
   if (group.length > 0) {
     filters.push(inArray(eventRequests.status, group));
   }
+  const m = getMessages(await resolveAppLocale(), "partner.corporate");
   const rows = await dbAdmin
     .select({
       id: eventRequests.id,
@@ -70,7 +73,7 @@ export default async function EventInboxPage({
     .orderBy(sql`${eventRequests.createdAt} DESC`);
   return (
     <main className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Solicitări de eveniment</h1>
+      <h1 className="text-2xl font-semibold mb-4">{m.inbox.title}</h1>
       <InboxFilters active={activeKey} />
       <EventRequestInbox rows={rows} />
     </main>

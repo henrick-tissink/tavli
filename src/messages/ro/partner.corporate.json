@@ -1,0 +1,181 @@
+{
+  "overview": {
+    "pageTitle": "Corporate",
+    "openRequests": {
+      "one": "{count} solicitare activă",
+      "few": "{count} solicitări active",
+      "other": "{count} solicitări active"
+    },
+    "comingSoon": "În curând",
+    "cards": {
+      "events": {
+        "title": "Evenimente private",
+        "blurb": "Primește solicitări pentru nunți, aniversări, evenimente corporate."
+      },
+      "corporateMeals": {
+        "title": "Comenzi corporate",
+        "blurb": "Permite rezervări atribuite unei companii (facturare directă)."
+      },
+      "standing": {
+        "title": "Rezervări recurente",
+        "blurb": "Acceptă rezervări săptămânale sau bilunare pe termen lung."
+      },
+      "meetingNooks": {
+        "title": "Spații pentru întâlniri",
+        "blurb": "Configurează spații de lucru disponibile cu ora."
+      }
+    }
+  },
+  "inbox": {
+    "title": "Solicitări de eveniment",
+    "emptyTitle": "Nicio cerere încă.",
+    "emptyBody": "Cererile noi apar aici imediat după ce sunt confirmate prin email."
+  },
+  "filters": {
+    "open": "Active",
+    "new": "Nou",
+    "viewing": "În lucru",
+    "quoted": "Cu ofertă",
+    "accepted": "Acceptate",
+    "all": "Toate"
+  },
+  "card": {
+    "personsSuffix": "pers.",
+    "budgetPerHead": "{amount} lei/pers",
+    "daysWaiting": {
+      "one": "{days} zile",
+      "few": "{days} zile",
+      "other": "{days} zile"
+    }
+  },
+  "status": {
+    "new": "Nou",
+    "viewing": "În lucru",
+    "replied": "Răspuns",
+    "quoted": "Ofertă trimisă",
+    "accepted": "Acceptat",
+    "declined": "Refuzat"
+  },
+  "occasion": {
+    "wedding": "Nuntă",
+    "birthday": "Aniversare",
+    "corporate_dinner": "Cină corporate",
+    "product_launch": "Lansare produs",
+    "other": "Altele"
+  },
+  "detail": {
+    "header": "{occasion} · {partySize} pers.",
+    "subtitle": "Cerere de la {guestName} pentru {eventDate}",
+    "overlapWarning": "Există {count} rezervări regulate pentru această dată. Verifică înainte de acceptare.",
+    "eventDetailsTitle": "Detalii eveniment",
+    "fieldDate": "Dată",
+    "fieldPartySize": "Număr persoane",
+    "fieldSpacePreference": "Preferință spațiu",
+    "fieldPrivateSpace": "Spațiu privat",
+    "fieldBudgetPerHead": "Buget / pers",
+    "budgetValue": "{amount} lei",
+    "fieldMenu": "Meniu",
+    "dietaryNotesLabel": "Restricții alimentare",
+    "additionalNotesLabel": "Note suplimentare",
+    "previousResponseLabel": "Răspunsul tău anterior",
+    "replyPlaceholder": "Mesaj pentru client...",
+    "sendReply": "Trimite răspuns",
+    "sendQuote": "Trimite ofertă",
+    "decline": "Refuză",
+    "createReservation": "Creează rezervare",
+    "markViewing": "Marchează ca vizualizată",
+    "clientTitle": "Client",
+    "fieldName": "Nume",
+    "fieldEmail": "Email",
+    "fieldPhone": "Telefon",
+    "fieldCompany": "Companie",
+    "companyEmpty": "—",
+    "companyCui": "CUI: {cui}"
+  },
+  "materialize": {
+    "title": "Materializează rezervare",
+    "subtitle": "Pentru {eventDate} · {partySize} persoane",
+    "modeLegend": "Mod de blocare",
+    "modePrivateName": "Spațiu privat",
+    "modePrivateHint": "· grila normală de rezervări rămâne neatinsă",
+    "modeWholeName": "Întregul local",
+    "modeWholeHint": "· blochează toate sloturile pentru această dată",
+    "zoneLabel": "Zonă",
+    "selectTime": "Selectează ora",
+    "loadingSlots": "Se încarcă sloturile…",
+    "noSlots": "Nu există sloturi configurate pentru această zi. Introduceți ora manual.",
+    "back": "Înapoi",
+    "createReservation": "Creează rezervare"
+  },
+  "quote": {
+    "title": "Construiește oferta",
+    "templateLine": "Meniu standard ({partySize} pers. × {perHead} lei)",
+    "addLine": "Adaugă linie",
+    "frequentAddons": "Adăugări frecvente",
+    "suggested": {
+      "welcomeCocktail": "Welcome cocktail",
+      "openBar": "Open bar (3h)",
+      "customCake": "Tort personalizat",
+      "floralDecor": "Decor floral",
+      "dj": "DJ / sonorizare"
+    },
+    "responsePlaceholder": "Mesaj însoțitor pentru client (opțional)",
+    "expiresPrefix": "Oferta expiră în",
+    "expiresSuffix": "zile",
+    "total": "Total: {amount} lei",
+    "perHeadSummary": "{partySize} pers. · {amount} lei/pers",
+    "perHeadEmpty": "—",
+    "cancel": "Renunță",
+    "send": "Trimite oferta",
+    "lineDescriptionPlaceholder": "Descriere",
+    "lineAmountPlaceholder": "Suma (lei)",
+    "deleteLine": "Șterge linie"
+  },
+  "decline": {
+    "reasons": {
+      "no_availability": "Indisponibilitate",
+      "budget_too_low": "Buget insuficient",
+      "space_too_small": "Spațiul nu se potrivește",
+      "other": "Alt motiv"
+    },
+    "detailsPlaceholder": "Detalii (opțional)",
+    "submit": "Refuză",
+    "back": "Înapoi"
+  },
+  "revenue": {
+    "title": "Estimare venit",
+    "range": "{low} – {high} lei",
+    "noBudget": "Clientul nu a specificat buget",
+    "footnote": "{partySize} pers. · interval ±15% față de bugetul declarat"
+  },
+  "spaces": {
+    "title": "Spațiile tale private",
+    "subtitle": "Adaugă camerele și saloanele pe care le închiriezi pentru evenimente. Acestea apar în formularul de cerere al clientului.",
+    "nameRequired": "Numele este obligatoriu.",
+    "capacityPositive": "Capacitățile trebuie să fie numere pozitive.",
+    "capacityMinMax": "Capacitatea minimă nu poate depăși capacitatea maximă.",
+    "deactivateConfirm": "Dezactivezi „{name}”? Spațiul nu va mai apărea pentru clienți, dar istoricul rămâne intact.",
+    "emptyTitle": "Niciun spațiu adăugat încă",
+    "emptyBody": "Adaugă camerele sau saloanele pe care le închiriezi pentru evenimente private. Clienții le pot selecta atunci când trimit o cerere.",
+    "addFirst": "Adaugă primul spațiu",
+    "editTitle": "Editează spațiul",
+    "newTitle": "Spațiu nou",
+    "save": "Salvează",
+    "add": "Adaugă",
+    "capacityRange": "{min}–{max} persoane",
+    "capacitySingle": "{count} persoane",
+    "editAriaLabel": "Editează {name}",
+    "deactivateAriaLabel": "Dezactivează {name}",
+    "addSpace": "Adaugă spațiu",
+    "closeAriaLabel": "Închide",
+    "nameLabel": "Nume",
+    "namePlaceholder": "Ex. Salonul Verde",
+    "capacityMinLabel": "Capacitate min.",
+    "capacityMaxLabel": "Capacitate max.",
+    "descriptionLabel": "Descriere",
+    "descriptionOptional": "(opțional)",
+    "descriptionPlaceholder": "Detalii utile: amenajare, vedere, echipamente disponibile.",
+    "cancel": "Anulează",
+    "saving": "Se salvează…"
+  }
+}

@@ -18,18 +18,12 @@ import { QuoteForm } from "./QuoteForm";
 import { DeclineForm } from "./DeclineForm";
 import { MaterializeReservationForm } from "./MaterializeReservationForm";
 import { RevenueEstimateWidget } from "./RevenueEstimateWidget";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { formatNumber } from "@/lib/i18n/format";
 import {
   markEventRequestViewing,
   replyToEventRequest,
 } from "@/app/api/event-requests/actions";
-
-const OCCASION_LABELS_RO: Record<string, string> = {
-  wedding: "Nuntă",
-  birthday: "Aniversare",
-  corporate_dinner: "Cină corporate",
-  product_launch: "Lansare produs",
-  other: "Altele",
-};
 
 interface ER {
   id: string;
@@ -98,22 +92,28 @@ export function EventRequestDetail({
   er: ER;
   overlaps: { id: string; reservationTime: string; partySize: number }[];
 }) {
+  const t = useT("partner.corporate");
+  const locale = useLocale();
   const [pending, startTransition] = useTransition();
   const [view, setView] = useState<
     "detail" | "quote" | "decline" | "materialize"
   >("detail");
   const [replyText, setReplyText] = useState("");
+  const occasionKey = t(`occasion.${er.occasion}`);
   const occasionLabel =
-    OCCASION_LABELS_RO[er.occasion] ?? er.occasion;
+    occasionKey === `occasion.${er.occasion}` ? er.occasion : occasionKey;
 
   return (
     <main className="max-w-6xl mx-auto p-6">
       <header className="mb-6">
         <h1 className="font-display text-3xl font-bold">
-          {occasionLabel} · {er.partySize} pers.
+          {t("detail.header", { occasion: occasionLabel, partySize: er.partySize })}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Cerere de la {er.guestName} pentru {er.eventDate}
+          {t("detail.subtitle", {
+            guestName: er.guestName,
+            eventDate: er.eventDate,
+          })}
         </p>
       </header>
 
@@ -121,8 +121,7 @@ export function EventRequestDetail({
         <div className="border border-amber-400 bg-amber-50 rounded-card p-3 text-sm mb-6 inline-flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
           <span>
-            Există {overlaps.length} rezervări regulate pentru această dată.
-            Verifică înainte de acceptare.
+            {t("detail.overlapWarning", { count: overlaps.length })}
           </span>
         </div>
       )}
@@ -131,44 +130,49 @@ export function EventRequestDetail({
         <div className="desktop:col-span-2 space-y-6">
           <section className="rounded-card border border-border bg-surface-white p-4">
             <h2 className="font-display text-lg font-bold mb-4">
-              Detalii eveniment
+              {t("detail.eventDetailsTitle")}
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <IconField
                 icon={Calendar}
-                label="Dată"
+                label={t("detail.fieldDate")}
                 value={er.eventDate}
               />
               <IconField
                 icon={Users}
-                label="Număr persoane"
+                label={t("detail.fieldPartySize")}
                 value={`${er.partySize}`}
               />
               {er.spacePreference && (
                 <IconField
                   icon={DoorOpen}
-                  label="Preferință spațiu"
+                  label={t("detail.fieldSpacePreference")}
                   value={er.spacePreference}
                 />
               )}
               {er.privateSpaceName && (
                 <IconField
                   icon={DoorOpen}
-                  label="Spațiu privat"
+                  label={t("detail.fieldPrivateSpace")}
                   value={er.privateSpaceName}
                 />
               )}
               {er.budgetPerHeadCents != null && (
                 <IconField
                   icon={Wallet}
-                  label="Buget / pers"
-                  value={`${Math.round(er.budgetPerHeadCents / 100)} lei`}
+                  label={t("detail.fieldBudgetPerHead")}
+                  value={t("detail.budgetValue", {
+                    amount: formatNumber(
+                      Math.round(er.budgetPerHeadCents / 100),
+                      locale,
+                    ),
+                  })}
                 />
               )}
               {er.menuPreference && (
                 <IconField
                   icon={UtensilsCrossed}
-                  label="Meniu"
+                  label={t("detail.fieldMenu")}
                   value={er.menuPreference}
                 />
               )}
@@ -178,10 +182,14 @@ export function EventRequestDetail({
           {(er.dietaryNotes || er.additionalNotes) && (
             <section className="space-y-3">
               {er.dietaryNotes && (
-                <Block label="Restricții alimentare">{er.dietaryNotes}</Block>
+                <Block label={t("detail.dietaryNotesLabel")}>
+                  {er.dietaryNotes}
+                </Block>
               )}
               {er.additionalNotes && (
-                <Block label="Note suplimentare">{er.additionalNotes}</Block>
+                <Block label={t("detail.additionalNotesLabel")}>
+                  {er.additionalNotes}
+                </Block>
               )}
             </section>
           )}
@@ -189,7 +197,7 @@ export function EventRequestDetail({
           {er.partnerResponse && (
             <section className="rounded-card border border-border bg-surface-bg p-4">
               <p className="text-xs uppercase tracking-wider text-text-muted mb-1">
-                Răspunsul tău anterior
+                {t("detail.previousResponseLabel")}
               </p>
               <p className="whitespace-pre-line text-sm">
                 {er.partnerResponse}
@@ -209,7 +217,7 @@ export function EventRequestDetail({
                     className="w-full border border-border rounded-card p-2"
                     rows={3}
                     maxLength={2000}
-                    placeholder="Mesaj pentru client..."
+                    placeholder={t("detail.replyPlaceholder")}
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -223,23 +231,23 @@ export function EventRequestDetail({
                         )
                       }
                     >
-                      Trimite răspuns
+                      {t("detail.sendReply")}
                     </Button>
                     <Button
                       variant="secondary"
                       onClick={() => setView("quote")}
                     >
-                      Trimite ofertă
+                      {t("detail.sendQuote")}
                     </Button>
                     <Button variant="ghost" onClick={() => setView("decline")}>
-                      Refuză
+                      {t("detail.decline")}
                     </Button>
                   </div>
                 </>
               )}
               {er.status === "accepted" && (
                 <Button onClick={() => setView("materialize")}>
-                  Creează rezervare
+                  {t("detail.createReservation")}
                 </Button>
               )}
               {er.status === "new" && (
@@ -253,7 +261,7 @@ export function EventRequestDetail({
                     )
                   }
                 >
-                  Marchează ca vizualizată
+                  {t("detail.markViewing")}
                 </Button>
               )}
             </section>
@@ -288,27 +296,37 @@ export function EventRequestDetail({
             budgetPerHeadCents={er.budgetPerHeadCents}
           />
           <section className="rounded-card border border-border bg-surface-white p-4">
-            <h3 className="font-display text-base font-bold mb-3">Client</h3>
+            <h3 className="font-display text-base font-bold mb-3">
+              {t("detail.clientTitle")}
+            </h3>
             <div className="space-y-3">
-              <IconField icon={User} label="Nume" value={er.guestName} />
-              <IconField icon={Mail} label="Email" value={er.guestEmail} />
+              <IconField
+                icon={User}
+                label={t("detail.fieldName")}
+                value={er.guestName}
+              />
+              <IconField
+                icon={Mail}
+                label={t("detail.fieldEmail")}
+                value={er.guestEmail}
+              />
               {er.guestPhone && (
                 <IconField
                   icon={Phone}
-                  label="Telefon"
+                  label={t("detail.fieldPhone")}
                   value={er.guestPhone}
                 />
               )}
               {(er.claimedCompanyName || er.claimedCompanyCui) && (
                 <IconField
                   icon={Building2}
-                  label="Companie"
+                  label={t("detail.fieldCompany")}
                   value={
                     <>
-                      {er.claimedCompanyName ?? "—"}
+                      {er.claimedCompanyName ?? t("detail.companyEmpty")}
                       {er.claimedCompanyCui && (
                         <span className="block text-xs text-text-muted">
-                          CUI: {er.claimedCompanyCui}
+                          {t("detail.companyCui", { cui: er.claimedCompanyCui })}
                         </span>
                       )}
                     </>

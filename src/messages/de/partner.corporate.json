@@ -1,0 +1,181 @@
+{
+  "overview": {
+    "pageTitle": "Corporate",
+    "openRequests": {
+      "one": "{count} aktive Anfrage",
+      "few": "{count} aktive Anfragen",
+      "other": "{count} aktive Anfragen"
+    },
+    "comingSoon": "Demnächst",
+    "cards": {
+      "events": {
+        "title": "Private Veranstaltungen",
+        "blurb": "Erhalten Sie Anfragen für Hochzeiten, Geburtstage und Firmenveranstaltungen."
+      },
+      "corporateMeals": {
+        "title": "Firmenbestellungen",
+        "blurb": "Erlauben Sie Reservierungen, die einem Unternehmen zugeordnet sind (Direktabrechnung)."
+      },
+      "standing": {
+        "title": "Wiederkehrende Reservierungen",
+        "blurb": "Akzeptieren Sie langfristige wöchentliche oder zweiwöchentliche Reservierungen."
+      },
+      "meetingNooks": {
+        "title": "Räume für Besprechungen",
+        "blurb": "Richten Sie stundenweise buchbare Arbeitsräume ein."
+      }
+    }
+  },
+  "inbox": {
+    "title": "Veranstaltungsanfragen",
+    "emptyTitle": "Noch keine Anfrage.",
+    "emptyBody": "Neue Anfragen erscheinen hier, sobald sie per E-Mail bestätigt wurden."
+  },
+  "filters": {
+    "open": "Aktiv",
+    "new": "Neu",
+    "viewing": "In Bearbeitung",
+    "quoted": "Mit Angebot",
+    "accepted": "Angenommen",
+    "all": "Alle"
+  },
+  "card": {
+    "personsSuffix": "Gäste",
+    "budgetPerHead": "{amount} Lei/Gast",
+    "daysWaiting": {
+      "one": "{days} Tag",
+      "few": "{days} Tage",
+      "other": "{days} Tage"
+    }
+  },
+  "status": {
+    "new": "Neu",
+    "viewing": "In Bearbeitung",
+    "replied": "Geantwortet",
+    "quoted": "Angebot gesendet",
+    "accepted": "Angenommen",
+    "declined": "Abgelehnt"
+  },
+  "occasion": {
+    "wedding": "Hochzeit",
+    "birthday": "Geburtstag",
+    "corporate_dinner": "Firmenessen",
+    "product_launch": "Produkteinführung",
+    "other": "Sonstiges"
+  },
+  "detail": {
+    "header": "{occasion} · {partySize} Gäste",
+    "subtitle": "Anfrage von {guestName} für {eventDate}",
+    "overlapWarning": "Es gibt {count} reguläre Reservierungen für dieses Datum. Bitte vor der Annahme prüfen.",
+    "eventDetailsTitle": "Veranstaltungsdetails",
+    "fieldDate": "Datum",
+    "fieldPartySize": "Anzahl der Gäste",
+    "fieldSpacePreference": "Raumpräferenz",
+    "fieldPrivateSpace": "Privater Raum",
+    "fieldBudgetPerHead": "Budget / Gast",
+    "budgetValue": "{amount} Lei",
+    "fieldMenu": "Menü",
+    "dietaryNotesLabel": "Ernährungseinschränkungen",
+    "additionalNotesLabel": "Zusätzliche Hinweise",
+    "previousResponseLabel": "Ihre vorherige Antwort",
+    "replyPlaceholder": "Nachricht an den Kunden ...",
+    "sendReply": "Antwort senden",
+    "sendQuote": "Angebot senden",
+    "decline": "Ablehnen",
+    "createReservation": "Reservierung erstellen",
+    "markViewing": "Als angesehen markieren",
+    "clientTitle": "Kunde",
+    "fieldName": "Name",
+    "fieldEmail": "E-Mail",
+    "fieldPhone": "Telefon",
+    "fieldCompany": "Unternehmen",
+    "companyEmpty": "—",
+    "companyCui": "USt-IdNr.: {cui}"
+  },
+  "materialize": {
+    "title": "In Reservierung umwandeln",
+    "subtitle": "Für {eventDate} · {partySize} Gäste",
+    "modeLegend": "Blockierungsmodus",
+    "modePrivateName": "Privater Raum",
+    "modePrivateHint": "· das reguläre Reservierungsraster bleibt unberührt",
+    "modeWholeName": "Gesamtes Lokal",
+    "modeWholeHint": "· blockiert alle Zeitfenster für dieses Datum",
+    "zoneLabel": "Zone",
+    "selectTime": "Uhrzeit auswählen",
+    "loadingSlots": "Zeitfenster werden geladen …",
+    "noSlots": "Für diesen Tag sind keine Zeitfenster konfiguriert. Bitte geben Sie die Uhrzeit manuell ein.",
+    "back": "Zurück",
+    "createReservation": "Reservierung erstellen"
+  },
+  "quote": {
+    "title": "Angebot erstellen",
+    "templateLine": "Standardmenü ({partySize} Gäste × {perHead} Lei)",
+    "addLine": "Position hinzufügen",
+    "frequentAddons": "Häufige Zusätze",
+    "suggested": {
+      "welcomeCocktail": "Willkommenscocktail",
+      "openBar": "Open Bar (3 Std.)",
+      "customCake": "Individuelle Torte",
+      "floralDecor": "Blumendekoration",
+      "dj": "DJ / Beschallung"
+    },
+    "responsePlaceholder": "Begleitende Nachricht an den Kunden (optional)",
+    "expiresPrefix": "Das Angebot läuft ab in",
+    "expiresSuffix": "Tagen",
+    "total": "Gesamt: {amount} Lei",
+    "perHeadSummary": "{partySize} Gäste · {amount} Lei/Gast",
+    "perHeadEmpty": "—",
+    "cancel": "Abbrechen",
+    "send": "Angebot senden",
+    "lineDescriptionPlaceholder": "Beschreibung",
+    "lineAmountPlaceholder": "Betrag (Lei)",
+    "deleteLine": "Position löschen"
+  },
+  "decline": {
+    "reasons": {
+      "no_availability": "Nicht verfügbar",
+      "budget_too_low": "Unzureichendes Budget",
+      "space_too_small": "Raum passt nicht",
+      "other": "Anderer Grund"
+    },
+    "detailsPlaceholder": "Details (optional)",
+    "submit": "Ablehnen",
+    "back": "Zurück"
+  },
+  "revenue": {
+    "title": "Umsatzschätzung",
+    "range": "{low} – {high} Lei",
+    "noBudget": "Der Kunde hat kein Budget angegeben",
+    "footnote": "{partySize} Gäste · Spanne ±15 % gegenüber dem angegebenen Budget"
+  },
+  "spaces": {
+    "title": "Ihre privaten Räume",
+    "subtitle": "Fügen Sie die Räume und Säle hinzu, die Sie für Veranstaltungen vermieten. Diese erscheinen im Anfrageformular des Kunden.",
+    "nameRequired": "Der Name ist erforderlich.",
+    "capacityPositive": "Die Kapazitäten müssen positive Zahlen sein.",
+    "capacityMinMax": "Die Mindestkapazität darf die Höchstkapazität nicht überschreiten.",
+    "deactivateConfirm": "„{name}“ deaktivieren? Der Raum wird Kunden nicht mehr angezeigt, der Verlauf bleibt jedoch erhalten.",
+    "emptyTitle": "Noch keine Räume hinzugefügt",
+    "emptyBody": "Fügen Sie die Räume oder Säle hinzu, die Sie für private Veranstaltungen vermieten. Kunden können sie auswählen, wenn sie eine Anfrage senden.",
+    "addFirst": "Ersten Raum hinzufügen",
+    "editTitle": "Raum bearbeiten",
+    "newTitle": "Neuer Raum",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "capacityRange": "{min}–{max} Gäste",
+    "capacitySingle": "{count} Gäste",
+    "editAriaLabel": "{name} bearbeiten",
+    "deactivateAriaLabel": "{name} deaktivieren",
+    "addSpace": "Raum hinzufügen",
+    "closeAriaLabel": "Schließen",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Der Grüne Saal",
+    "capacityMinLabel": "Min. Kapazität",
+    "capacityMaxLabel": "Max. Kapazität",
+    "descriptionLabel": "Beschreibung",
+    "descriptionOptional": "(optional)",
+    "descriptionPlaceholder": "Nützliche Details: Ausstattung, Aussicht, verfügbares Equipment.",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert …"
+  }
+}

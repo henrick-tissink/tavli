@@ -1,17 +1,19 @@
 "use client";
 import { useState } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 import { EventRequestCard, type Row } from "./EventRequestCard";
 
 export type { Row };
 
 export function EventRequestInbox({ rows }: { rows: Row[] }) {
+  const t = useT("partner.corporate");
   const [nowMs] = useState(() => Date.now());
   if (rows.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="font-display text-lg">Nicio cerere încă.</p>
+        <p className="font-display text-lg">{t("inbox.emptyTitle")}</p>
         <p className="text-sm text-text-secondary mt-1">
-          Cererile noi apar aici imediat după ce sunt confirmate prin email.
+          {t("inbox.emptyBody")}
         </p>
       </div>
     );
