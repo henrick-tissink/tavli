@@ -32,6 +32,7 @@
     "preview": "O atingere lasă o notă anonimă — doar cu prenumele.",
     "heading": "Cum a fost la {restaurantName}?",
     "lede": "Salut, {firstName} — o atingere e tot ce avem nevoie. Nota ta rămâne anonimă (doar prenumele) și ajută următorul diner.",
+    "greetingNoName": "Salut — o atingere e tot ce avem nevoie. Nota ta rămâne anonimă (doar prenumele) și ajută următorul diner.",
     "instructionText": "Apasă pe o stea de mai sus. Vei ajunge pe o pagină unde poți adăuga un comentariu dacă vrei — sau doar trimiți și gata.",
     "footer": "Tavli — rezervări în România."
   },
@@ -46,7 +47,7 @@
     },
     "zoneLabel": "Loc:",
     "notesLabel": "Note:",
-    "manageText": "Gestionează rezervarea în panoul tău partener (anulare / marcare „asezat” / marcare „neonorat”).",
+    "manageText": "Gestionează rezervarea în panoul tău partener (anulare / marcare „așezat” / marcare „neonorat”).",
     "footer": "Tavli — alerte partener."
   },
   "partnerCancelled": {

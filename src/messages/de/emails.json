@@ -29,9 +29,10 @@
   },
   "postVisit": {
     "subject": "Wie war es bei {restaurantName}?",
-    "preview": "Ein Tippen hinterlässt eine anonyme Bewertung — nur mit Vornamen.",
+    "preview": "Ein Antippen hinterlässt eine anonyme Bewertung — nur mit Vornamen.",
     "heading": "Wie war es bei {restaurantName}?",
-    "lede": "Hallo, {firstName} — ein Tippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
+    "lede": "Hallo, {firstName} — ein Antippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
+    "greetingNoName": "Hallo — ein Antippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
     "instructionText": "Tippen Sie oben auf einen Stern. Sie gelangen auf eine Seite, auf der Sie einen Kommentar hinzufügen können — oder senden Sie einfach ab.",
     "footer": "Tavli — Restaurantreservierungen."
   },
@@ -50,7 +51,7 @@
     "footer": "Tavli — Partner-Benachrichtigungen."
   },
   "partnerCancelled": {
-    "subject": "Reservierung storniert bei {restaurantName}",
+    "subject": "Reservierung bei {restaurantName} storniert",
     "preview": "Reservierung storniert bei {restaurantName} — {prettyDate} um {time}",
     "heading": "Reservierung storniert.",
     "lede": "Hallo, {guestName} — leider wurde Ihre Reservierung bei {restaurantName} für {prettyDate} um {time} ({partySize} {guestsLabel}) storniert.",

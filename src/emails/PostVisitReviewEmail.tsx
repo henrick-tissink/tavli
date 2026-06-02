@@ -21,9 +21,9 @@ interface Props {
   locale?: Locale;
 }
 
-function firstNameOf(fullName: string): string {
+function firstNameOf(fullName: string): string | null {
   const t = fullName.trim();
-  if (!t) return "salut";
+  if (!t) return null;
   return t.split(/\s+/)[0];
 }
 
@@ -35,6 +35,9 @@ export function PostVisitReviewEmail({
 }: Props) {
   const m = getMessages(locale, "emails").postVisit;
   const firstName = firstNameOf(guestName);
+  const ledeCopy = firstName
+    ? interpolate(m.lede, { firstName })
+    : m.greetingNoName;
 
   return (
     <Html>
@@ -47,7 +50,7 @@ export function PostVisitReviewEmail({
             {interpolate(m.heading, { restaurantName })}
           </Heading>
           <Text style={lede}>
-            {interpolate(m.lede, { firstName })}
+            {ledeCopy}
           </Text>
           <Section style={{ textAlign: "center", margin: "28px 0" }}>
             {[1, 2, 3, 4, 5].map((n) => (

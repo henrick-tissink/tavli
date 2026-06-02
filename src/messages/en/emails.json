@@ -32,6 +32,7 @@
     "preview": "One tap leaves an anonymous rating — first name only.",
     "heading": "How was {restaurantName}?",
     "lede": "Hello, {firstName} — one tap is all we need. Your rating stays anonymous (first name only) and helps the next diner.",
+    "greetingNoName": "Hi — one tap is all we need. Your rating stays anonymous (first name only) and helps the next diner.",
     "instructionText": "Tap a star above. You will land on a page where you can add a comment if you like — or just submit and you're done.",
     "footer": "Tavli — restaurant reservations."
   },

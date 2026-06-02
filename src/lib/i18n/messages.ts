@@ -598,6 +598,7 @@ export interface EmailsMessages {
     preview: string;
     heading: string;
     lede: string;
+    greetingNoName: string;
     instructionText: string;
     footer: string;
   };

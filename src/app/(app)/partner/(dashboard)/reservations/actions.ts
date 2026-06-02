@@ -293,7 +293,7 @@ export async function cancelReservation(
       // Restore the legacy Reply-To so guests replying to the cancellation
       // notification reach the venue inbox directly, not our no-reply sender.
       replyTo: restaurant.email ?? undefined,
-      locale: "ro",
+      locale: guestLocale,
       templateKey: "reservation_modified",
       subject,
       html,
