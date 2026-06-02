@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { addVenueToOrgAction } from "../../../venues/actions";
 
 function slugify(name: string): string {
@@ -24,6 +25,7 @@ export function AddVenueForm({
   showBillingNote: boolean;
 }) {
   const router = useRouter();
+  const t = useT("partner.org");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +36,7 @@ export function AddVenueForm({
     const cityId = String(form.get("cityId") ?? "");
     const address = String(form.get("address") ?? "").trim();
     if (!name || !cityId) {
-      setError("Completează numele și orașul.");
+      setError(t("addVenue.errorRequired"));
       return;
     }
     setError(null);
@@ -47,15 +49,15 @@ export function AddVenueForm({
         address: address || undefined,
       });
       if (res.ok) {
-        toast.success("Locație creată. Continuă configurarea.");
+        toast.success(t("addVenue.toastCreated"));
         router.push(`/partner/org/${organizationId}/venues`);
         router.refresh();
       } else if (res.error.includes("TV701")) {
-        setError("Adăugarea de locații necesită planul Tavli Pro. Treci pe Pro din pagina de facturare.");
+        setError(t("addVenue.errorProRequired"));
       } else if (res.error.includes("TV702")) {
-        setError("Ai atins limita de locații a planului tău.");
+        setError(t("addVenue.errorLimit"));
       } else {
-        setError("Crearea locației nu a reușit. Încearcă din nou.");
+        setError(t("addVenue.errorCreateFailed"));
       }
     });
   }
@@ -64,20 +66,20 @@ export function AddVenueForm({
     <form onSubmit={onSubmit} className="max-w-lg space-y-5">
       <div>
         <label className="block text-sm font-semibold text-text-primary" htmlFor="name">
-          Numele locației
+          {t("addVenue.nameLabel")}
         </label>
         <input
           id="name"
           name="name"
           required
-          placeholder="Bistro Lipscani"
+          placeholder={t("addVenue.namePlaceholder")}
           className="mt-1.5 w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30"
         />
       </div>
 
       <div>
         <label className="block text-sm font-semibold text-text-primary" htmlFor="cityId">
-          Oraș
+          {t("addVenue.cityLabel")}
         </label>
         <select
           id="cityId"
@@ -87,7 +89,7 @@ export function AddVenueForm({
           className="mt-1.5 w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30"
         >
           <option value="" disabled>
-            Alege orașul…
+            {t("addVenue.cityPlaceholder")}
           </option>
           {cities.map((c) => (
             <option key={c.id} value={c.id}>
@@ -99,19 +101,19 @@ export function AddVenueForm({
 
       <div>
         <label className="block text-sm font-semibold text-text-primary" htmlFor="address">
-          Adresă <span className="font-normal text-text-muted">(opțional)</span>
+          {t("addVenue.addressLabel")} <span className="font-normal text-text-muted">{t("addVenue.addressOptional")}</span>
         </label>
         <input
           id="address"
           name="address"
-          placeholder="Str. Lipscani 12"
+          placeholder={t("addVenue.addressPlaceholder")}
           className="mt-1.5 w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30"
         />
       </div>
 
       {showBillingNote && (
         <p className="rounded-button bg-brand-primary-soft px-4 py-3 text-xs text-text-secondary">
-          Această locație depășește cele 3 incluse în Pro — se adaugă +€15/lună la abonament, pro-rata.
+          {t("addVenue.billingNote")}
         </p>
       )}
 
@@ -126,7 +128,7 @@ export function AddVenueForm({
         disabled={pending}
         className="inline-flex min-h-[48px] items-center rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
-        Creează locația
+        {t("addVenue.submit")}
       </button>
     </form>
   );

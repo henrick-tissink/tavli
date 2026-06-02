@@ -1,0 +1,129 @@
+{
+  "layout": {
+    "back": "Înapoi la restaurant",
+    "eyebrow": "Organizație"
+  },
+  "tabs": {
+    "overview": "Prezentare",
+    "venues": "Locații",
+    "members": "Echipă",
+    "analytics": "Analize"
+  },
+  "overview": {
+    "statActiveVenues": "Locații active",
+    "statPlan": "Plan",
+    "planPro": "Tavli Pro",
+    "planBase": "Tavli",
+    "statBookingsToday": "Rezervări azi",
+    "statCoversToday": "Acoperiri azi",
+    "venuesTitle": "Locațiile tale",
+    "manage": "Gestionează →",
+    "emptyCity": "—",
+    "addVenue": "+ Adaugă o locație",
+    "surcharge": "{extra} locații suplimentare × €15/lună peste cele 3 incluse în Pro."
+  },
+  "members": {
+    "title": "Membrii organizației",
+    "subtitle": "Persoanele cu acces la nivel de organizație și la toate locațiile.",
+    "colPerson": "Persoană",
+    "colRole": "Rol",
+    "colMemberSince": "Membru din",
+    "fallback": "—",
+    "inviteTitle": "Invită un membru",
+    "inviteSubtitle": "Trimite o invitație prin email. Linkul expiră în 14 zile.",
+    "pendingTitle": "Invitații în așteptare",
+    "colEmail": "Email",
+    "colExpires": "Expiră",
+    "colActions": "Acțiuni"
+  },
+  "inviteForm": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "coleg@exemplu.ro",
+    "roleLabel": "Rol",
+    "roleAdmin": "Administrator",
+    "roleManager": "Manager",
+    "submitting": "Se trimite…",
+    "submit": "Trimite invitația",
+    "success": "Invitația a fost trimisă.",
+    "errors": {
+      "auth_required": "Trebuie să fii conectat.",
+      "forbidden": "Nu ai permisiunea de a invita membri.",
+      "invalid_input": "Verifică adresa de email și rolul.",
+      "generic": "Nu am putut trimite invitația."
+    }
+  },
+  "rowActions": {
+    "resend": "Retrimite",
+    "resent": "Retrimisă",
+    "error": "Eroare",
+    "revoke": "Anulează"
+  },
+  "venues": {
+    "title": "Toate locațiile",
+    "addVenue": "+ Adaugă o locație",
+    "addedPrefix": "adăugată",
+    "emptyCity": "—",
+    "statusDeactivated": "Dezactivată",
+    "empty": "Nicio locație încă.",
+    "reactivate": "Reactivează",
+    "deactivate": "Dezactivează",
+    "deactivatePrompt": "Motivul dezactivării (opțional):",
+    "toastDeactivated": "Locație dezactivată.",
+    "toastReactivated": "Locație reactivată.",
+    "errorFutureReservations": "Locația are rezervări viitoare. Anulează-le sau așteaptă să treacă.",
+    "errorDeactivateFailed": "Dezactivarea nu a reușit.",
+    "errorReactivateProRequired": "Reactivarea necesită planul Pro.",
+    "errorReactivateLimit": "Ai atins limita de locații a planului.",
+    "errorReactivateFailed": "Reactivarea nu a reușit."
+  },
+  "addVenue": {
+    "title": "Adaugă o locație",
+    "subtitle": "Creezi o locație nouă în organizație. După creare, o configurezi (program, fotografii, meniu).",
+    "nameLabel": "Numele locației",
+    "namePlaceholder": "Bistro Lipscani",
+    "cityLabel": "Oraș",
+    "cityPlaceholder": "Alege orașul…",
+    "addressLabel": "Adresă",
+    "addressOptional": "(opțional)",
+    "addressPlaceholder": "Str. Lipscani 12",
+    "billingNote": "Această locație depășește cele 3 incluse în Pro — se adaugă +€15/lună la abonament, pro-rata.",
+    "submit": "Creează locația",
+    "errorRequired": "Completează numele și orașul.",
+    "toastCreated": "Locație creată. Continuă configurarea.",
+    "errorProRequired": "Adăugarea de locații necesită planul Tavli Pro. Treci pe Pro din pagina de facturare.",
+    "errorLimit": "Ai atins limita de locații a planului tău.",
+    "errorCreateFailed": "Crearea locației nu a reușit. Încearcă din nou."
+  },
+  "roles": {
+    "owner": "Proprietar",
+    "admin": "Administrator",
+    "manager": "Manager",
+    "host": "Gazdă"
+  },
+  "analytics": {
+    "cancelReasons": {
+      "restaurant_closed": "Restaurant închis",
+      "overbooked": "Suprarezervare",
+      "kitchen_issue": "Bucătărie",
+      "private_event": "Eveniment privat",
+      "other": "Altul",
+      "diner": "Client"
+    },
+    "channels": {
+      "widget": "Widget",
+      "venue_page": "Pagină local",
+      "editorial": "Editorial",
+      "corporate": "Corporate",
+      "walk_in": "Walk-in",
+      "manual": "Manual",
+      "unknown": "Necunoscut"
+    },
+    "services": {
+      "brunch": "Brunch",
+      "lunch": "Prânz",
+      "dinner": "Cină",
+      "late": "Târziu",
+      "all_day": "Toată ziua"
+    }
+  }
+}

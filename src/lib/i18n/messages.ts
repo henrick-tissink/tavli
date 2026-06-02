@@ -80,6 +80,10 @@ import roPartnerCorporate from "@/messages/ro/partner.corporate.json";
 import enPartnerCorporate from "@/messages/en/partner.corporate.json";
 import dePartnerCorporate from "@/messages/de/partner.corporate.json";
 
+import roPartnerOrg from "@/messages/ro/partner.org.json";
+import enPartnerOrg from "@/messages/en/partner.org.json";
+import dePartnerOrg from "@/messages/de/partner.org.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1732,6 +1736,98 @@ export interface PartnerCorporateMessages {
   };
 }
 
+/** Structural contract for the `partner.org` namespace. */
+export interface PartnerOrgMessages {
+  layout: { back: string; eyebrow: string };
+  tabs: { overview: string; venues: string; members: string; analytics: string };
+  overview: {
+    statActiveVenues: string;
+    statPlan: string;
+    planPro: string;
+    planBase: string;
+    statBookingsToday: string;
+    statCoversToday: string;
+    venuesTitle: string;
+    manage: string;
+    emptyCity: string;
+    addVenue: string;
+    surcharge: string;
+  };
+  members: {
+    title: string;
+    subtitle: string;
+    colPerson: string;
+    colRole: string;
+    colMemberSince: string;
+    fallback: string;
+    inviteTitle: string;
+    inviteSubtitle: string;
+    pendingTitle: string;
+    colEmail: string;
+    colExpires: string;
+    colActions: string;
+  };
+  inviteForm: {
+    emailLabel: string;
+    emailPlaceholder: string;
+    roleLabel: string;
+    roleAdmin: string;
+    roleManager: string;
+    submitting: string;
+    submit: string;
+    success: string;
+    errors: {
+      auth_required: string;
+      forbidden: string;
+      invalid_input: string;
+      generic: string;
+    };
+  };
+  rowActions: { resend: string; resent: string; error: string; revoke: string };
+  venues: {
+    title: string;
+    addVenue: string;
+    addedPrefix: string;
+    emptyCity: string;
+    statusDeactivated: string;
+    empty: string;
+    reactivate: string;
+    deactivate: string;
+    deactivatePrompt: string;
+    toastDeactivated: string;
+    toastReactivated: string;
+    errorFutureReservations: string;
+    errorDeactivateFailed: string;
+    errorReactivateProRequired: string;
+    errorReactivateLimit: string;
+    errorReactivateFailed: string;
+  };
+  addVenue: {
+    title: string;
+    subtitle: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    cityLabel: string;
+    cityPlaceholder: string;
+    addressLabel: string;
+    addressOptional: string;
+    addressPlaceholder: string;
+    billingNote: string;
+    submit: string;
+    errorRequired: string;
+    toastCreated: string;
+    errorProRequired: string;
+    errorLimit: string;
+    errorCreateFailed: string;
+  };
+  roles: { owner: string; admin: string; manager: string; host: string };
+  analytics: {
+    cancelReasons: Record<string, string>;
+    channels: Record<string, string>;
+    services: Record<string, string>;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1829,6 +1925,11 @@ const CATALOGS = {
     en: enPartnerCorporate,
     de: dePartnerCorporate,
   } as Record<Locale, PartnerCorporateMessages>,
+  "partner.org": {
+    ro: roPartnerOrg,
+    en: enPartnerOrg,
+    de: dePartnerOrg,
+  } as Record<Locale, PartnerOrgMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

@@ -5,12 +5,16 @@ import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { cities, restaurants } from "@/lib/db/schema";
 import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { AddVenueForm } from "./_components/AddVenueForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function AddVenuePage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.org");
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
   if (!(await can(session, "org.add_venue", { kind: "organization", id: orgId }))) {
@@ -31,9 +35,9 @@ export default async function AddVenuePage({ params }: { params: Promise<{ orgId
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-xl text-text-primary">Adaugă o locație</h2>
+        <h2 className="font-display text-xl text-text-primary">{m.addVenue.title}</h2>
         <p className="mt-1 text-sm text-text-secondary">
-          Creezi o locație nouă în organizație. După creare, o configurezi (program, fotografii, meniu).
+          {m.addVenue.subtitle}
         </p>
       </div>
       <AddVenueForm organizationId={orgId} cities={cityRows} showBillingNote={!!showBillingNote} />

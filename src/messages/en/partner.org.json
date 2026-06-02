@@ -1,0 +1,129 @@
+{
+  "layout": {
+    "back": "Back to restaurant",
+    "eyebrow": "Organisation"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "venues": "Venues",
+    "members": "Team",
+    "analytics": "Analytics"
+  },
+  "overview": {
+    "statActiveVenues": "Active venues",
+    "statPlan": "Plan",
+    "planPro": "Tavli Pro",
+    "planBase": "Tavli",
+    "statBookingsToday": "Bookings today",
+    "statCoversToday": "Covers today",
+    "venuesTitle": "Your venues",
+    "manage": "Manage →",
+    "emptyCity": "—",
+    "addVenue": "+ Add a venue",
+    "surcharge": "{extra} additional venues × €15/month above the 3 included in Pro."
+  },
+  "members": {
+    "title": "Organisation members",
+    "subtitle": "People with organisation-level access to every venue.",
+    "colPerson": "Person",
+    "colRole": "Role",
+    "colMemberSince": "Member since",
+    "fallback": "—",
+    "inviteTitle": "Invite a member",
+    "inviteSubtitle": "Send an invitation by email. The link expires in 14 days.",
+    "pendingTitle": "Pending invitations",
+    "colEmail": "Email",
+    "colExpires": "Expires",
+    "colActions": "Actions"
+  },
+  "inviteForm": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "colleague@example.com",
+    "roleLabel": "Role",
+    "roleAdmin": "Administrator",
+    "roleManager": "Manager",
+    "submitting": "Sending…",
+    "submit": "Send invitation",
+    "success": "The invitation has been sent.",
+    "errors": {
+      "auth_required": "You must be signed in.",
+      "forbidden": "You do not have permission to invite members.",
+      "invalid_input": "Check the email address and the role.",
+      "generic": "We could not send the invitation."
+    }
+  },
+  "rowActions": {
+    "resend": "Resend",
+    "resent": "Resent",
+    "error": "Error",
+    "revoke": "Cancel"
+  },
+  "venues": {
+    "title": "All venues",
+    "addVenue": "+ Add a venue",
+    "addedPrefix": "added",
+    "emptyCity": "—",
+    "statusDeactivated": "Deactivated",
+    "empty": "No venues yet.",
+    "reactivate": "Reactivate",
+    "deactivate": "Deactivate",
+    "deactivatePrompt": "Reason for deactivation (optional):",
+    "toastDeactivated": "Venue deactivated.",
+    "toastReactivated": "Venue reactivated.",
+    "errorFutureReservations": "This venue has upcoming reservations. Cancel them or wait until they pass.",
+    "errorDeactivateFailed": "Deactivation failed.",
+    "errorReactivateProRequired": "Reactivation requires the Pro plan.",
+    "errorReactivateLimit": "You have reached your plan's venue limit.",
+    "errorReactivateFailed": "Reactivation failed."
+  },
+  "addVenue": {
+    "title": "Add a venue",
+    "subtitle": "Create a new venue in the organisation. After creating it, you configure it (hours, photos, menu).",
+    "nameLabel": "Venue name",
+    "namePlaceholder": "Bistro Lipscani",
+    "cityLabel": "City",
+    "cityPlaceholder": "Choose the city…",
+    "addressLabel": "Address",
+    "addressOptional": "(optional)",
+    "addressPlaceholder": "Str. Lipscani 12",
+    "billingNote": "This venue exceeds the 3 included in Pro — +€15/month is added to the subscription, pro rata.",
+    "submit": "Create venue",
+    "errorRequired": "Fill in the name and the city.",
+    "toastCreated": "Venue created. Continue the setup.",
+    "errorProRequired": "Adding venues requires the Tavli Pro plan. Switch to Pro from the billing page.",
+    "errorLimit": "You have reached your plan's venue limit.",
+    "errorCreateFailed": "Creating the venue failed. Please try again."
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Administrator",
+    "manager": "Manager",
+    "host": "Host"
+  },
+  "analytics": {
+    "cancelReasons": {
+      "restaurant_closed": "Restaurant closed",
+      "overbooked": "Overbooked",
+      "kitchen_issue": "Kitchen",
+      "private_event": "Private event",
+      "other": "Other",
+      "diner": "Guest"
+    },
+    "channels": {
+      "widget": "Widget",
+      "venue_page": "Venue page",
+      "editorial": "Editorial",
+      "corporate": "Corporate",
+      "walk_in": "Walk-in",
+      "manual": "Manual",
+      "unknown": "Unknown"
+    },
+    "services": {
+      "brunch": "Brunch",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "late": "Late",
+      "all_day": "All day"
+    }
+  }
+}

@@ -4,20 +4,20 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { organizationMembers, profiles, staffInvitations } from "@/lib/db/schema";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { formatDate } from "@/lib/i18n/format";
 import { InviteMemberForm } from "./_components/InviteMemberForm";
 import { InvitationRowActions } from "./_components/InvitationRowActions";
 
 export const dynamic = "force-dynamic";
 
-const ROLE_RO: Record<string, string> = {
-  owner: "Proprietar",
-  admin: "Administrator",
-  manager: "Manager",
-  host: "Gazdă",
-};
-
 export default async function OrgMembersPage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.org");
+  const roleLabel = (role: string) =>
+    (m.roles as Record<string, string>)[role] ?? role;
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
   // The layout already enforces org.read; this page additionally surfaces the
@@ -57,29 +57,29 @@ export default async function OrgMembersPage({ params }: { params: Promise<{ org
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="font-display text-xl text-text-primary">Membrii organizației</h2>
+        <h2 className="font-display text-xl text-text-primary">{m.members.title}</h2>
         <p className="mt-1 text-sm text-text-secondary">
-          Persoanele cu acces la nivel de organizație și la toate locațiile.
+          {m.members.subtitle}
         </p>
         <div className="mt-4 overflow-hidden rounded-card border border-border bg-surface-white">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                <th scope="col" className="px-4 py-3 font-medium">Persoană</th>
-                <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-                <th scope="col" className="px-4 py-3 font-medium">Membru din</th>
+                <th scope="col" className="px-4 py-3 font-medium">{m.members.colPerson}</th>
+                <th scope="col" className="px-4 py-3 font-medium">{m.members.colRole}</th>
+                <th scope="col" className="px-4 py-3 font-medium">{m.members.colMemberSince}</th>
               </tr>
             </thead>
             <tbody>
-              {members.map((m) => (
-                <tr key={m.userId} className="border-b border-border last:border-0">
+              {members.map((member) => (
+                <tr key={member.userId} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-text-primary">{m.fullName ?? "—"}</div>
-                    <div className="text-xs text-text-muted">{m.email ?? "—"}</div>
+                    <div className="font-medium text-text-primary">{member.fullName ?? m.members.fallback}</div>
+                    <div className="text-xs text-text-muted">{member.email ?? m.members.fallback}</div>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{ROLE_RO[m.role] ?? m.role}</td>
+                  <td className="px-4 py-3 text-text-secondary">{roleLabel(member.role)}</td>
                   <td className="px-4 py-3 text-text-muted">
-                    {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString("ro-RO") : "—"}
+                    {member.joinedAt ? formatDate(new Date(member.joinedAt), locale, {}) : m.members.fallback}
                   </td>
                 </tr>
               ))}
@@ -90,9 +90,9 @@ export default async function OrgMembersPage({ params }: { params: Promise<{ org
 
       {canInvite && (
         <section>
-          <h2 className="font-display text-xl text-text-primary">Invită un membru</h2>
+          <h2 className="font-display text-xl text-text-primary">{m.members.inviteTitle}</h2>
           <p className="mt-1 text-sm text-text-secondary">
-            Trimite o invitație prin email. Linkul expiră în 14 zile.
+            {m.members.inviteSubtitle}
           </p>
           <div className="mt-4 rounded-card border border-border bg-surface-white p-5">
             <InviteMemberForm organizationId={orgId} />
@@ -102,24 +102,24 @@ export default async function OrgMembersPage({ params }: { params: Promise<{ org
 
       {pending.length > 0 && (
         <section>
-          <h2 className="font-display text-xl text-text-primary">Invitații în așteptare</h2>
+          <h2 className="font-display text-xl text-text-primary">{m.members.pendingTitle}</h2>
           <div className="mt-4 overflow-hidden rounded-card border border-border bg-surface-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                  <th scope="col" className="px-4 py-3 font-medium">Email</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Expiră</th>
-                  {canInvite && <th scope="col" className="px-4 py-3 font-medium text-right">Acțiuni</th>}
+                  <th scope="col" className="px-4 py-3 font-medium">{m.members.colEmail}</th>
+                  <th scope="col" className="px-4 py-3 font-medium">{m.members.colRole}</th>
+                  <th scope="col" className="px-4 py-3 font-medium">{m.members.colExpires}</th>
+                  {canInvite && <th scope="col" className="px-4 py-3 font-medium text-right">{m.members.colActions}</th>}
                 </tr>
               </thead>
               <tbody>
                 {pending.map((inv) => (
                   <tr key={inv.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3 text-text-primary">{inv.email}</td>
-                    <td className="px-4 py-3 text-text-secondary">{ROLE_RO[inv.role] ?? inv.role}</td>
+                    <td className="px-4 py-3 text-text-secondary">{roleLabel(inv.role)}</td>
                     <td className="px-4 py-3 text-text-muted">
-                      {new Date(inv.expiresAt).toLocaleDateString("ro-RO")}
+                      {formatDate(new Date(inv.expiresAt), locale, {})}
                     </td>
                     {canInvite && (
                       <td className="px-4 py-3">
