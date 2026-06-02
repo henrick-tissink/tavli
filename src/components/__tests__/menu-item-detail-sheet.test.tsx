@@ -2,6 +2,16 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MenuItemDetailSheet } from "../menu-item-detail-sheet";
 import type { MenuItem, MenuSection } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roMenu from "@/messages/ro/menu.json";
+
+function renderSheet(props: React.ComponentProps<typeof MenuItemDetailSheet>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ menu: roMenu }}>
+      <MenuItemDetailSheet {...props} />
+    </MessagesProvider>,
+  );
+}
 
 // Mock next/image
 jest.mock("next/image", () => ({
@@ -46,16 +56,7 @@ const sibling2: MenuItem = {
 
 describe("MenuItemDetailSheet", () => {
   it("renders name, price, and description when open with item", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: baseItem, section, moreFromSection: [], currency: "lei" });
     expect(screen.getByText("Carbonara")).toBeInTheDocument();
     expect(screen.getByText("48 lei")).toBeInTheDocument();
     expect(
@@ -64,19 +65,14 @@ describe("MenuItemDetailSheet", () => {
   });
 
   it("renders all visible dietary tags", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={{
-          ...baseItem,
-          tags: ["popular", "vegetarian", "gluten-free", "spicy"],
-        }}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({
+      open: true,
+      onClose: jest.fn(),
+      item: { ...baseItem, tags: ["popular", "vegetarian", "gluten-free", "spicy"] },
+      section,
+      moreFromSection: [],
+      currency: "lei",
+    });
     expect(screen.getByText("Popular")).toBeInTheDocument();
     expect(screen.getByText("V")).toBeInTheDocument();
     expect(screen.getByText("FG")).toBeInTheDocument();
@@ -84,31 +80,13 @@ describe("MenuItemDetailSheet", () => {
   });
 
   it("shows VG but hides V when item is vegan and vegetarian", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={{ ...baseItem, tags: ["vegan", "vegetarian"] }}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: { ...baseItem, tags: ["vegan", "vegetarian"] }, section, moreFromSection: [], currency: "lei" });
     expect(screen.getByText("VG")).toBeInTheDocument();
     expect(screen.queryByText("V", { selector: "span" })).not.toBeInTheDocument();
   });
 
   it("renders chef's-note pullquote when item has chef-pick tag", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={{ ...baseItem, tags: ["chef-pick"] }}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: { ...baseItem, tags: ["chef-pick"] }, section, moreFromSection: [], currency: "lei" });
     expect(screen.getByText("Nota bucătarului")).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -120,94 +98,39 @@ describe("MenuItemDetailSheet", () => {
   });
 
   it("does NOT render chef's-note pullquote when item has no chef-pick tag", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: baseItem, section, moreFromSection: [], currency: "lei" });
     expect(screen.queryByText("Nota bucătarului")).not.toBeInTheDocument();
   });
 
   it("renders 'More from {section.name}' heading when moreFromSection is non-empty", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[sibling1, sibling2]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: baseItem, section, moreFromSection: [sibling1, sibling2], currency: "lei" });
     expect(screen.getByText("Mai mult din Primi")).toBeInTheDocument();
     expect(screen.getByText("Cacio e Pepe")).toBeInTheDocument();
     expect(screen.getByText("Amatriciana")).toBeInTheDocument();
   });
 
   it("does NOT render 'More from' block when moreFromSection is empty", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: baseItem, section, moreFromSection: [], currency: "lei" });
     expect(screen.queryByText(/More from/)).not.toBeInTheDocument();
   });
 
   it("clicking a 'More from' item calls onSelectItem with that item", async () => {
     const onSelectItem = jest.fn();
     const user = userEvent.setup();
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[sibling1, sibling2]}
-        currency="lei"
-        onSelectItem={onSelectItem}
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: baseItem, section, moreFromSection: [sibling1, sibling2], currency: "lei", onSelectItem });
     await user.click(screen.getByText("Cacio e Pepe"));
     expect(onSelectItem).toHaveBeenCalledTimes(1);
     expect(onSelectItem).toHaveBeenCalledWith(sibling1);
   });
 
   it("renders nothing visible when open=false", () => {
-    render(
-      <MenuItemDetailSheet
-        open={false}
-        onClose={jest.fn()}
-        item={baseItem}
-        section={section}
-        moreFromSection={[sibling1]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: false, onClose: jest.fn(), item: baseItem, section, moreFromSection: [sibling1], currency: "lei" });
     expect(screen.queryByText("Carbonara")).not.toBeInTheDocument();
     expect(screen.queryByText("48 lei")).not.toBeInTheDocument();
   });
 
   it("renders nothing visible when item is null", () => {
-    render(
-      <MenuItemDetailSheet
-        open
-        onClose={jest.fn()}
-        item={null}
-        section={section}
-        moreFromSection={[]}
-        currency="lei"
-      />,
-    );
+    renderSheet({ open: true, onClose: jest.fn(), item: null, section, moreFromSection: [], currency: "lei" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

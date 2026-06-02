@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MenuViewer } from "../menu-viewer";
 import type { Menu, Restaurant } from "@/lib/types";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
-import roDiscovery from "@/messages/ro/discovery.json";
+import roMenu from "@/messages/ro/menu.json";
 
 // JSDOM lacks IntersectionObserver
 class IOMock {
@@ -70,7 +70,7 @@ const menu: Menu = {
 
 function renderViewer(props: React.ComponentProps<typeof MenuViewer>) {
   return render(
-    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+    <MessagesProvider locale="ro" bundle={{ menu: roMenu }}>
       <MenuViewer {...props} />
     </MessagesProvider>,
   );

@@ -1,0 +1,45 @@
+{
+  "viewer": {
+    "backAriaLabel": "Back",
+    "menuLabel": "Menu",
+    "dishesCount": {
+      "one": "{count} dish",
+      "few": "{count} dishes",
+      "other": "{count} dishes"
+    },
+    "priceRange": "Mains {min}–{max} {currency}",
+    "chefPicksTitle": "Chef's picks",
+    "chefPicksCount": {
+      "one": "{count} recommendation",
+      "few": "{count} recommendations",
+      "other": "{count} recommendations"
+    },
+    "viewItem": "View →",
+    "noMatchBody": "No dishes match the selected filters.",
+    "clearFilters": "Clear filters"
+  },
+  "itemCard": {
+    "chefPickAriaLabel": "Chef's pick",
+    "popularLabel": "Popular",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "GF",
+    "spicyLabel": "Spicy"
+  },
+  "itemSheet": {
+    "chefPickAriaLabel": "Chef's pick",
+    "popularLabel": "Popular",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "GF",
+    "spicyLabel": "Spicy",
+    "chefNoteTitle": "Chef's note",
+    "chefNoteBody": "A signature dish — chosen by the chef for what the kitchen does best.",
+    "moreFromSection": "More from {section}"
+  },
+  "pageClient": {
+    "noMenuTitle": "Menu coming soon",
+    "noMenuBody": "Please ask your server for a printed copy.",
+    "backTo": "Back to {name}"
+  }
+}

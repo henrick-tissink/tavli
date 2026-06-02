@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import type { MenuItem, MenuSection, MenuDietaryTag } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface TagStyle {
   label: string;
@@ -11,27 +12,27 @@ interface TagStyle {
   className: string;
 }
 
-// Mirrors the TAG_STYLES object in MenuItemCard for visual consistency.
-const TAG_STYLES: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
+// Mirrors the TAG_STYLE_CONFIG object in MenuItemCard for visual consistency.
+const TAG_STYLE_CONFIG: Record<Exclude<MenuDietaryTag, "chef-pick">, TagStyle> = {
   popular: {
-    label: "Popular",
+    label: "itemSheet.popularLabel",
     icon: "🔥",
     className: "bg-brand-primary-soft text-brand-primary-dark",
   },
   vegan: {
-    label: "VG",
+    label: "itemSheet.veganLabel",
     className: "bg-emerald-50 text-emerald-800",
   },
   vegetarian: {
-    label: "V",
+    label: "itemSheet.vegetarianLabel",
     className: "bg-emerald-50 text-emerald-800",
   },
   "gluten-free": {
-    label: "FG",
+    label: "itemSheet.glutenFreeLabel",
     className: "bg-amber-50 text-amber-800",
   },
   spicy: {
-    label: "Picant",
+    label: "itemSheet.spicyLabel",
     icon: "🌶",
     className: "bg-red-50 text-red-700",
   },
@@ -56,6 +57,8 @@ export function MenuItemDetailSheet({
   currency,
   onSelectItem,
 }: MenuItemDetailSheetProps) {
+  const t = useT("menu");
+
   if (!item) {
     return <BottomSheet open={false} onClose={onClose}>{null}</BottomSheet>;
   }
@@ -97,7 +100,7 @@ export function MenuItemDetailSheet({
             <Star
               size={22}
               className="inline-block mr-2 -mt-1 fill-yellow-400 text-yellow-400"
-              aria-label="Recomandarea bucătarului"
+              aria-label={t("itemSheet.chefPickAriaLabel")}
             />
           )}
           {item.name}
@@ -107,7 +110,7 @@ export function MenuItemDetailSheet({
         {visibleTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {visibleTags.map((tag) => {
-              const cfg = TAG_STYLES[tag as Exclude<MenuDietaryTag, "chef-pick">];
+              const cfg = TAG_STYLE_CONFIG[tag as Exclude<MenuDietaryTag, "chef-pick">];
               if (!cfg) return null;
               return (
                 <span
@@ -115,7 +118,7 @@ export function MenuItemDetailSheet({
                   className={`text-[11px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${cfg.className}`}
                 >
                   {cfg.icon && <span aria-hidden="true">{cfg.icon}</span>}
-                  {cfg.label}
+                  {t(cfg.label)}
                 </span>
               );
             })}
@@ -135,9 +138,9 @@ export function MenuItemDetailSheet({
         {/* Chef's note pullquote */}
         {isChefPick && (
           <blockquote className="mt-5 border-l-4 border-brand-primary pl-4 py-2 text-sm text-text-primary leading-relaxed">
-            <p className="font-semibold text-text-primary mb-0.5">Nota bucătarului</p>
+            <p className="font-semibold text-text-primary mb-0.5">{t("itemSheet.chefNoteTitle")}</p>
             <p className="italic text-text-secondary">
-              Un fel de semnătură — ales de bucătar pentru ceea ce face bucătăria cel mai bine.
+              {t("itemSheet.chefNoteBody")}
             </p>
           </blockquote>
         )}
@@ -147,7 +150,7 @@ export function MenuItemDetailSheet({
           <div className="mt-7">
             <div className="h-px bg-border" />
             <h3 className="font-display text-[20px] desktop:text-[22px] font-bold text-text-primary mt-5 mb-3">
-              Mai mult din {section.name}
+              {t("itemSheet.moreFromSection", { section: section.name })}
             </h3>
             <div className="flex gap-3 overflow-x-auto hide-scrollbar -mx-5 px-5 desktop:mx-0 desktop:px-0 desktop:overflow-visible desktop:grid desktop:grid-cols-3 desktop:gap-4">
               {moreFromSection.map((sibling) => (

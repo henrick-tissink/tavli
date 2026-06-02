@@ -1,0 +1,45 @@
+{
+  "viewer": {
+    "backAriaLabel": "Înapoi",
+    "menuLabel": "Meniu",
+    "dishesCount": {
+      "one": "{count} fel",
+      "few": "{count} feluri",
+      "other": "{count} feluri"
+    },
+    "priceRange": "Feluri {min}–{max} {currency}",
+    "chefPicksTitle": "Recomandările bucătarului",
+    "chefPicksCount": {
+      "one": "{count} recomandare",
+      "few": "{count} recomandări",
+      "other": "{count} recomandări"
+    },
+    "viewItem": "Vezi →",
+    "noMatchBody": "Niciun fel nu se potrivește cu filtrele alese.",
+    "clearFilters": "Șterge filtrele"
+  },
+  "itemCard": {
+    "chefPickAriaLabel": "Recomandarea bucătarului",
+    "popularLabel": "Popular",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "FG",
+    "spicyLabel": "Picant"
+  },
+  "itemSheet": {
+    "chefPickAriaLabel": "Recomandarea bucătarului",
+    "popularLabel": "Popular",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "FG",
+    "spicyLabel": "Picant",
+    "chefNoteTitle": "Nota bucătarului",
+    "chefNoteBody": "Un fel de semnătură — ales de bucătar pentru ceea ce face bucătăria cel mai bine.",
+    "moreFromSection": "Mai mult din {section}"
+  },
+  "pageClient": {
+    "noMenuTitle": "Menu coming soon",
+    "noMenuBody": "Please ask your server for a printed copy.",
+    "backTo": "Back to {name}"
+  }
+}

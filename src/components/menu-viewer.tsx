@@ -12,6 +12,7 @@ import {
   DietaryFilterRow,
   type DietaryFilter,
 } from "./dietary-filter-row";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props {
   restaurant: Restaurant;
@@ -26,6 +27,7 @@ const NON_MAINS_PATTERN =
   /dessert|dolci|tatli|dezerti|postres|deserturi|drink|bevande|bebidas|bauturi|icecekler|pica|vin|sake|icecek/i;
 
 export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
+  const t = useT("menu");
   const sectionsRef = useRef<Record<string, HTMLElement | null>>({});
   const [activeSectionId, setActiveSectionId] = useState<string>(
     menu.sections[0]?.id ?? "",
@@ -180,7 +182,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <button
           type="button"
           onClick={onBack}
-          aria-label="Înapoi"
+          aria-label={t("viewer.backAriaLabel")}
           className="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/35 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50"
         >
           <ArrowLeft size={20} />
@@ -188,7 +190,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <div className="absolute bottom-0 left-0 right-0 p-4 desktop:p-8">
           <div className="max-w-[var(--container-content)] mx-auto text-white">
             <p className="text-xs desktop:text-sm uppercase tracking-[0.2em] opacity-80">
-              {formatCuisines(restaurant.cuisines)} · Meniu
+              {formatCuisines(restaurant.cuisines)} · {t("viewer.menuLabel")}
             </p>
             <h1 className="font-display text-[36px] desktop:text-[60px] font-bold mt-1 leading-[1.02]">
               {restaurant.name}
@@ -209,13 +211,13 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                 <>
                   <span className="opacity-60">·</span>
                   <span className="opacity-90">
-                    Feluri {heroPriceRange.min}–{heroPriceRange.max} {menu.currency}
+                    {t("viewer.priceRange", { min: heroPriceRange.min, max: heroPriceRange.max, currency: menu.currency })}
                   </span>
                 </>
               )}
               <span className="opacity-60">·</span>
               <span className="opacity-90">
-                {menu.items.length} {menu.items.length === 1 ? "fel" : "feluri"}
+                {t("viewer.dishesCount", { count: menu.items.length })}
               </span>
             </div>
           </div>
@@ -232,10 +234,10 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                   size={18}
                   className="fill-yellow-400 text-yellow-400"
                 />
-                Recomandările bucătarului
+                {t("viewer.chefPicksTitle")}
               </h2>
               <span className="text-xs text-text-muted">
-                {chefPicks.length} {chefPicks.length === 1 ? "recomandare" : "recomandări"}
+                {t("viewer.chefPicksCount", { count: chefPicks.length })}
               </span>
             </div>
             <div className="flex gap-4 overflow-x-auto hide-scrollbar -mx-4 desktop:-mx-6 px-4 desktop:px-6 pb-1">
@@ -275,7 +277,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
                         {item.price} {menu.currency}
                       </span>
                       <span className="text-[11px] text-text-muted group-hover:text-brand-primary transition-colors">
-                        Vezi →
+                        {t("viewer.viewItem")}
                       </span>
                     </div>
                   </div>
@@ -326,14 +328,14 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         {totalFilteredCount === 0 ? (
           <div className="py-20 text-center">
             <p className="text-text-secondary">
-              Niciun fel nu se potrivește cu filtrele alese.
+              {t("viewer.noMatchBody")}
             </p>
             <button
               type="button"
               onClick={clearFilters}
               className="mt-3 text-brand-primary font-semibold text-sm"
             >
-              Șterge filtrele
+              {t("viewer.clearFilters")}
             </button>
           </div>
         ) : (

@@ -1,0 +1,45 @@
+{
+  "viewer": {
+    "backAriaLabel": "Zurück",
+    "menuLabel": "Speisekarte",
+    "dishesCount": {
+      "one": "{count} Gericht",
+      "few": "{count} Gerichte",
+      "other": "{count} Gerichte"
+    },
+    "priceRange": "Hauptgerichte {min}–{max} {currency}",
+    "chefPicksTitle": "Empfehlungen des Küchenchefs",
+    "chefPicksCount": {
+      "one": "{count} Empfehlung",
+      "few": "{count} Empfehlungen",
+      "other": "{count} Empfehlungen"
+    },
+    "viewItem": "Ansehen →",
+    "noMatchBody": "Kein Gericht entspricht den gewählten Filtern.",
+    "clearFilters": "Filter löschen"
+  },
+  "itemCard": {
+    "chefPickAriaLabel": "Empfehlung des Küchenchefs",
+    "popularLabel": "Beliebt",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "GF",
+    "spicyLabel": "Scharf"
+  },
+  "itemSheet": {
+    "chefPickAriaLabel": "Empfehlung des Küchenchefs",
+    "popularLabel": "Beliebt",
+    "veganLabel": "VG",
+    "vegetarianLabel": "V",
+    "glutenFreeLabel": "GF",
+    "spicyLabel": "Scharf",
+    "chefNoteTitle": "Notiz des Küchenchefs",
+    "chefNoteBody": "Ein Signaturgericht — vom Küchenchef für das ausgewählt, was die Küche am besten kann.",
+    "moreFromSection": "Mehr aus {section}"
+  },
+  "pageClient": {
+    "noMenuTitle": "Speisekarte folgt in Kürze",
+    "noMenuBody": "Bitte fragen Sie Ihren Service nach einer gedruckten Speisekarte.",
+    "backTo": "Zurück zu {name}"
+  }
+}
