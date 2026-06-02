@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
 import { FilterPillBar } from "@/components/filter-pill-bar";
 import { FilterSheet } from "@/components/filter-sheet";
 import { CityCoverHero } from "@/components/city-cover-hero";
@@ -229,6 +229,7 @@ function RestaurantSpotlight({
   onSlotSelect: () => void;
 }) {
   const t = useT("discovery");
+  const locale = useLocale();
 
   return (
     <div className="rounded-card overflow-hidden bg-surface-white border border-border shadow-card">
@@ -262,8 +263,8 @@ function RestaurantSpotlight({
               {restaurant.name}
             </h2>
             <p className="text-white/90 text-sm desktop:text-base mt-2">
-              {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]}
-              {restaurant.zone && ` · ${restaurant.zone}`}
+              {formatCuisines(restaurant.cuisines, locale)} · {PRICE_LABELS[restaurant.priceLevel]}
+              {restaurant.zone && ` · ${zoneLabel(restaurant.zone, locale)}`}
             </p>
           </div>
         </div>

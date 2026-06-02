@@ -1,6 +1,7 @@
 "use client";
 
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { zoneLabel } from "@/lib/types";
 
 interface StepSlotProps {
   availableSlots: string[]; // e.g. ["18:00", "19:30", "20:00"]
@@ -22,6 +23,7 @@ export function StepSlot({
   onSelectZone,
 }: StepSlotProps) {
   const t = useT("booking");
+  const locale = useLocale();
   const hasZones = zones && zones.length > 0;
 
   return (
@@ -101,7 +103,7 @@ export function StepSlot({
                       : "bg-surface-white text-text-primary border-border hover:bg-surface-bg"
                   }`}
                 >
-                  {zone}
+                  {zoneLabel(zone, locale)}
                 </button>
               );
             })}

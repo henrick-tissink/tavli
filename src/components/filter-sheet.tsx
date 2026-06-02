@@ -5,9 +5,9 @@ import { Pill } from "@/components/pill";
 import { Button } from "@/components/button";
 import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
-import { cuisineLabel } from "@/lib/types";
+import { cuisineLabel, zoneLabel } from "@/lib/types";
 import { useMemo } from "react";
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
 
 interface FilterSheetProps {
   open: boolean;
@@ -24,6 +24,7 @@ export function FilterSheet({
 }: FilterSheetProps) {
   const { filters, toggleArrayFilter, setFilter, resetFilters, activeFilterCount } = useFilters();
   const t = useT("discovery");
+  const locale = useLocale();
 
   const PRICE_OPTIONS = [
     { value: 1, label: t("filters.priceAccessible") },
@@ -43,14 +44,16 @@ export function FilterSheet({
   const cuisines = useMemo(() => {
     const all = restaurants.flatMap((r) => r.cuisines);
     return [...new Set(all)].sort((a, b) =>
-      cuisineLabel(a).localeCompare(cuisineLabel(b), "ro"),
+      cuisineLabel(a, locale).localeCompare(cuisineLabel(b, locale), locale),
     );
-  }, [restaurants]);
+  }, [restaurants, locale]);
 
   const neighborhoods = useMemo(() => {
     const all = restaurants.map((r) => r.zone).filter(Boolean);
-    return [...new Set(all)].sort((a, b) => a.localeCompare(b, "ro"));
-  }, [restaurants]);
+    return [...new Set(all)].sort((a, b) =>
+      zoneLabel(a, locale).localeCompare(zoneLabel(b, locale), locale),
+    );
+  }, [restaurants, locale]);
 
   const showResultsLabel =
     resultCount === 0
@@ -80,7 +83,7 @@ export function FilterSheet({
           {cuisines.map((cuisine) => (
             <Pill
               key={cuisine}
-              label={cuisineLabel(cuisine)}
+              label={cuisineLabel(cuisine, locale)}
               active={filters.cuisines.some((c) => c.toLowerCase() === cuisine.toLowerCase())}
               onToggle={() => toggleArrayFilter("cuisines", cuisine)}
             />
@@ -123,7 +126,7 @@ export function FilterSheet({
           {neighborhoods.map((zone) => (
             <Pill
               key={zone}
-              label={zone}
+              label={zoneLabel(zone, locale)}
               active={filters.neighborhoods.some((n) => n.toLowerCase() === zone.toLowerCase())}
               onToggle={() => toggleArrayFilter("neighborhoods", zone)}
             />

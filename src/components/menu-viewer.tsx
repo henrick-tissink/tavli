@@ -12,7 +12,7 @@ import {
   DietaryFilterRow,
   type DietaryFilter,
 } from "./dietary-filter-row";
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
 
 interface Props {
   restaurant: Restaurant;
@@ -28,6 +28,7 @@ const NON_MAINS_PATTERN =
 
 export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
   const t = useT("menu");
+  const locale = useLocale();
   const sectionsRef = useRef<Record<string, HTMLElement | null>>({});
   const [activeSectionId, setActiveSectionId] = useState<string>(
     menu.sections[0]?.id ?? "",
@@ -190,7 +191,7 @@ export function MenuViewer({ restaurant, menu, heroPhoto, onBack }: Props) {
         <div className="absolute bottom-0 left-0 right-0 p-4 desktop:p-8">
           <div className="max-w-[var(--container-content)] mx-auto text-white">
             <p className="text-xs desktop:text-sm uppercase tracking-[0.2em] opacity-80">
-              {formatCuisines(restaurant.cuisines)} · {t("viewer.menuLabel")}
+              {formatCuisines(restaurant.cuisines, locale)} · {t("viewer.menuLabel")}
             </p>
             <h1 className="font-display text-[36px] desktop:text-[60px] font-bold mt-1 leading-[1.02]">
               {restaurant.name}

@@ -30,6 +30,8 @@ export interface Restaurant {
   }[];
 }
 
+import { type Locale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
+
 export const PRICE_LABELS: Record<number, string> = {
   1: "$",
   2: "$$",
@@ -38,48 +40,127 @@ export const PRICE_LABELS: Record<number, string> = {
 };
 
 // Display labels for cuisines. Stored values stay in English (a stable
-// canonical key); the UI maps to Romanian for display. Unknown keys fall
-// through unchanged so partner-entered free-form values still render.
-export const CUISINE_LABELS: Record<string, string> = {
-  Romanian: "Românească",
-  Italian: "Italiană",
-  Japanese: "Japoneză",
-  Turkish: "Turcească",
-  French: "Franțuzească",
-  Chinese: "Chinezească",
-  Lebanese: "Libaneză",
-  Spanish: "Spaniolă",
-  Greek: "Grecească",
-  Thai: "Thailandeză",
-  Indian: "Indiană",
-  Mexican: "Mexicană",
-  Korean: "Coreeană",
-  Balkan: "Balcanică",
-  American: "Americană",
-  European: "Europeană",
-  Mediterranean: "Mediteraneană",
-  Fusion: "Fusion",
-  Brunch: "Brunch",
-  Coffee: "Cafenea",
-  Cocktails: "Cocktail bar",
-  Pizza: "Pizzerie",
-  Burger: "Burger",
-  Vegan: "Vegană",
-  Vegetarian: "Vegetariană",
-  Other: "Alta",
+// canonical key); the UI maps to a per-locale label for display. Unknown
+// keys fall through unchanged so partner-entered free-form values still
+// render. The `ro` column is the regression oracle and must stay
+// byte-identical to the historical Romanian labels.
+export const CUISINE_LABELS: Record<Locale, Record<string, string>> = {
+  ro: {
+    Romanian: "Românească",
+    Italian: "Italiană",
+    Japanese: "Japoneză",
+    Turkish: "Turcească",
+    French: "Franțuzească",
+    Chinese: "Chinezească",
+    Lebanese: "Libaneză",
+    Spanish: "Spaniolă",
+    Greek: "Grecească",
+    Thai: "Thailandeză",
+    Indian: "Indiană",
+    Mexican: "Mexicană",
+    Korean: "Coreeană",
+    Balkan: "Balcanică",
+    American: "Americană",
+    European: "Europeană",
+    Mediterranean: "Mediteraneană",
+    Fusion: "Fusion",
+    Brunch: "Brunch",
+    Coffee: "Cafenea",
+    Cocktails: "Cocktail bar",
+    Pizza: "Pizzerie",
+    Burger: "Burger",
+    Vegan: "Vegană",
+    Vegetarian: "Vegetariană",
+    Other: "Alta",
+  },
+  en: {
+    Romanian: "Romanian",
+    Italian: "Italian",
+    Japanese: "Japanese",
+    Turkish: "Turkish",
+    French: "French",
+    Chinese: "Chinese",
+    Lebanese: "Lebanese",
+    Spanish: "Spanish",
+    Greek: "Greek",
+    Thai: "Thai",
+    Indian: "Indian",
+    Mexican: "Mexican",
+    Korean: "Korean",
+    Balkan: "Balkan",
+    American: "American",
+    European: "European",
+    Mediterranean: "Mediterranean",
+    Fusion: "Fusion",
+    Brunch: "Brunch",
+    Coffee: "Café",
+    Cocktails: "Cocktail bar",
+    Pizza: "Pizzeria",
+    Burger: "Burger",
+    Vegan: "Vegan",
+    Vegetarian: "Vegetarian",
+    Other: "Other",
+  },
+  de: {
+    Romanian: "Rumänisch",
+    Italian: "Italienisch",
+    Japanese: "Japanisch",
+    Turkish: "Türkisch",
+    French: "Französisch",
+    Chinese: "Chinesisch",
+    Lebanese: "Libanesisch",
+    Spanish: "Spanisch",
+    Greek: "Griechisch",
+    Thai: "Thailändisch",
+    Indian: "Indisch",
+    Mexican: "Mexikanisch",
+    Korean: "Koreanisch",
+    Balkan: "Balkanisch",
+    American: "Amerikanisch",
+    European: "Europäisch",
+    Mediterranean: "Mediterran",
+    Fusion: "Fusion",
+    Brunch: "Brunch",
+    Coffee: "Café",
+    Cocktails: "Cocktailbar",
+    Pizza: "Pizzeria",
+    Burger: "Burger",
+    Vegan: "Vegan",
+    Vegetarian: "Vegetarisch",
+    Other: "Sonstige",
+  },
 };
 
-export function cuisineLabel(value: string): string {
-  return CUISINE_LABELS[value] ?? value;
+export function cuisineLabel(value: string, locale: Locale = DEFAULT_LOCALE): string {
+  return CUISINE_LABELS[locale]?.[value] ?? value;
 }
 
 /**
  * Display-format a list of cuisines. Empty arrays fall back to a generic
  * label so the UI doesn't render a stray middle-dot.
  */
-export function formatCuisines(cuisines: string[]): string {
+export function formatCuisines(cuisines: string[], locale: Locale = DEFAULT_LOCALE): string {
   if (!cuisines || cuisines.length === 0) return "Restaurant";
-  return cuisines.map(cuisineLabel).join(" · ");
+  return cuisines.map((c) => cuisineLabel(c, locale)).join(" · ");
+}
+
+// Display labels for booking/seating zones. Zones are free-text DB data
+// seeded in Romanian; this maps the common seeded values to en/de. Unknown
+// values (custom partner zone names) pass through unchanged, and the `ro`
+// locale always returns the original Romanian string.
+const ZONE_LABELS: Record<string, { en: string; de: string }> = {
+  Terasă: { en: "Terrace", de: "Terrasse" },
+  Interior: { en: "Indoor", de: "Innenbereich" },
+  Grădină: { en: "Garden", de: "Garten" },
+  Bar: { en: "Bar", de: "Bar" },
+  Salon: { en: "Lounge", de: "Salon" },
+};
+
+export function zoneLabel(zone: string, locale: Locale = DEFAULT_LOCALE): string {
+  if (locale === "ro") return zone;
+  const entry = ZONE_LABELS[zone];
+  if (!entry) return zone;
+  return locale === "de" ? entry.de : entry.en;
 }
 
 export interface Review {

@@ -7,7 +7,7 @@ import { Pill } from "@/components/pill";
 import { PillPopover } from "@/components/pill-popover";
 import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
-import { cuisineLabel } from "@/lib/types";
+import { cuisineLabel, zoneLabel } from "@/lib/types";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
 
@@ -72,16 +72,16 @@ export function FilterPillBar({
   const cuisines = useMemo(
     () =>
       [...new Set(restaurants.flatMap((r) => r.cuisines))].sort((a, b) =>
-        cuisineLabel(a).localeCompare(cuisineLabel(b), "ro"),
+        cuisineLabel(a, locale).localeCompare(cuisineLabel(b, locale), locale),
       ),
-    [restaurants],
+    [restaurants, locale],
   );
   const neighborhoods = useMemo(
     () =>
       [...new Set(restaurants.map((r) => r.zone).filter(Boolean))].sort(
-        (a, b) => a.localeCompare(b, "ro"),
+        (a, b) => zoneLabel(a, locale).localeCompare(zoneLabel(b, locale), locale),
       ),
-    [restaurants],
+    [restaurants, locale],
   );
 
   const nothingSelected =
@@ -219,7 +219,7 @@ export function FilterPillBar({
         }
       >
         <ChecklistBody
-          items={cuisines.map((c) => ({ value: c, label: cuisineLabel(c) }))}
+          items={cuisines.map((c) => ({ value: c, label: cuisineLabel(c, locale) }))}
           selected={filters.cuisines}
           onToggle={(v) => toggleArrayFilter("cuisines", v)}
         />
@@ -253,7 +253,7 @@ export function FilterPillBar({
         }
       >
         <ChecklistBody
-          items={neighborhoods.map((n) => ({ value: n, label: n }))}
+          items={neighborhoods.map((n) => ({ value: n, label: zoneLabel(n, locale) }))}
           selected={filters.neighborhoods}
           onToggle={(v) => toggleArrayFilter("neighborhoods", v)}
         />

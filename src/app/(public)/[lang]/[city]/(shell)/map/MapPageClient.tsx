@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Search, X } from "lucide-react";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
 import { useFilters } from "@/lib/filter-context";
 import { useTimeContext } from "@/lib/time-context";
 import { FilterSheet } from "@/components/filter-sheet";
@@ -108,8 +108,8 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                     {restaurant.name}
                   </h3>
                   <p className="text-xs text-text-secondary truncate">
-                    {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
-                    {restaurant.zone}
+                    {formatCuisines(restaurant.cuisines, locale)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+                    {zoneLabel(restaurant.zone, locale)}
                   </p>
                   <RatingChip
                     rating={restaurant.rating}
