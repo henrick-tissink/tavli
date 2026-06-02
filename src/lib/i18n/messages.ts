@@ -37,3 +37,14 @@ export function getMessages<N extends Namespace>(
   const l: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
   return CATALOGS[ns][l];
 }
+
+/** Assemble a client-provider bundle for the given namespaces. */
+export function buildBundle(
+  locale: string,
+  namespaces: Namespace[],
+): Record<string, Record<string, unknown>> {
+  const bundle: Record<string, Record<string, unknown>> = {};
+  for (const ns of namespaces)
+    bundle[ns] = getMessages(locale, ns) as unknown as Record<string, unknown>;
+  return bundle;
+}

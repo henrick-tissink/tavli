@@ -1,10 +1,25 @@
 import { render, screen } from "@testing-library/react";
-import { MessagesProvider, useT } from "@/lib/i18n/messages-provider";
+import { MessagesProvider, useT, useLocale } from "@/lib/i18n/messages-provider";
 
 function Probe() {
   const t = useT("common");
   return <span>{t("switchLanguage")}</span>;
 }
+
+describe("useLocale", () => {
+  it("returns the locale from the provider context", () => {
+    function LocaleProbe() {
+      const locale = useLocale();
+      return <span data-testid="locale">{locale}</span>;
+    }
+    render(
+      <MessagesProvider locale="de" bundle={{ common: { switchLanguage: "Sprache ändern" } }}>
+        <LocaleProbe />
+      </MessagesProvider>,
+    );
+    expect(screen.getByTestId("locale")).toHaveTextContent("de");
+  });
+});
 
 describe("MessagesProvider + useT", () => {
   it("resolves a key from the provided bundle in the active locale", () => {

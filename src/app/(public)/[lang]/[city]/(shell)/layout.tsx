@@ -1,5 +1,5 @@
 import { getRestaurants } from "@/lib/repos/restaurants-repo";
-import { getMessages } from "@/lib/i18n/messages";
+import { buildBundle } from "@/lib/i18n/messages";
 import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
 import { CityShell } from "./CityShell";
 
@@ -31,9 +31,7 @@ export default async function CityShellLayout({
   const lang: Locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const displayCity = formatCityName(city);
   const restaurants = await getRestaurants();
-  const bundle: Record<string, Record<string, unknown>> = {
-    common: getMessages(lang, "common") as unknown as Record<string, unknown>,
-  };
+  const bundle = buildBundle(lang, ["common"]);
 
   return (
     <CityShell

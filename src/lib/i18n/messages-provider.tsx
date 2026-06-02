@@ -21,6 +21,12 @@ export function MessagesProvider({
   return <MessagesContext.Provider value={value}>{children}</MessagesContext.Provider>;
 }
 
+export function useLocale(): Locale {
+  const ctx = useContext(MessagesContext);
+  if (!ctx) throw new Error("useLocale must be used within a MessagesProvider");
+  return ctx.locale;
+}
+
 export function useT(ns: string): (key: string, vars?: Vars) => string {
   const ctx = useContext(MessagesContext);
   if (!ctx) throw new Error("useT must be used within a MessagesProvider");

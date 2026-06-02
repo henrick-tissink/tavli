@@ -59,6 +59,15 @@ export function decideLocaleAction(input: DecideInput): LocaleAction {
   return { type: "redirect", to: prefixed(detected), setCookie: detected };
 }
 
+/**
+ * Build a fresh storefront href for the given locale. RO (default locale)
+ * is served without a prefix; other locales get `/<locale><path>`.
+ * Distinct from `withLocale` which SWAPS an existing prefix.
+ */
+export function localizedHref(path: string, locale: Locale): string {
+  return locale === DEFAULT_LOCALE ? path : `/${locale}${path}`;
+}
+
 /** Swap the locale prefix on a pathname for the consumer switcher. RO ⇒ no prefix. */
 export function withLocale(pathname: string, target: Locale): string {
   const { hasPrefix } = localeFromPathname(pathname);
