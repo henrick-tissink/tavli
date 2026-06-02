@@ -2,12 +2,15 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { PhotoUploader, type PhotoRow } from "@/components/onboarding/PhotoUploader";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
 export default async function PartnerPhotosPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const m = getMessages(await resolveAppLocale(), "partner.settings").photos;
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   if (!restaurantId) {
@@ -15,10 +18,10 @@ export default async function PartnerPhotosPage() {
       <div className="px-4 py-6 desktop:px-8 desktop:py-8">
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
           <p className="font-semibold text-text-primary">
-            Niciun restaurant asociat acestui cont încă
+            {m.noRestaurantTitle}
           </p>
           <p className="text-sm text-text-secondary mt-2">
-            Contactează echipa Tavli dacă ai ajuns aici din greșeală.
+            {m.noRestaurantBody}
           </p>
         </div>
       </div>
@@ -42,11 +45,10 @@ export default async function PartnerPhotosPage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-3xl">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Fotografii
+          {m.title}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Încarcă fotografii noi, alege una principală, șterge-le pe cele
-          care nu îți plac.
+          {m.subtitle}
         </p>
       </header>
 

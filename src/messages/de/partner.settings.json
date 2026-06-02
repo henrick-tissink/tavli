@@ -1,0 +1,101 @@
+{
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Wie Ihr Restaurant Gästen präsentiert wird.",
+    "nameLabel": "Name des Restaurants",
+    "cuisinesLabel": "Küche",
+    "cuisinesHint": "Wählen Sie eine oder mehrere.",
+    "zoneLabel": "Gegend / Stadtviertel",
+    "addressLabel": "Vollständige Adresse",
+    "phoneLabel": "Telefon",
+    "websiteLabel": "Website",
+    "heroNoteLabel": "Ihre Geschichte in Kürze",
+    "heroNotePlaceholder": "Großmutters Rezepte im Herzen der Altstadt.",
+    "heroNoteHint": "Erscheint kursiv im oberen Teil der Speisekarte. Maximal 160 Zeichen.",
+    "saving": "Wird gespeichert…",
+    "save": "Änderungen speichern",
+    "toastSaved": "Profil wurde gespeichert.",
+    "errors": {
+      "nameRequired": "Der Name des Restaurants ist erforderlich.",
+      "cuisineRequired": "Wählen Sie mindestens eine Küche.",
+      "addressRequired": "Die Adresse ist erforderlich.",
+      "phoneInvalid": "Die Telefonnummer ist ungültig. Geben Sie eine Nummer mit Ländervorwahl ein.",
+      "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um das Profil zu bearbeiten."
+    }
+  },
+  "photos": {
+    "title": "Fotos",
+    "subtitle": "Laden Sie neue Fotos hoch, wählen Sie ein Hauptfoto, löschen Sie die, die Ihnen nicht gefallen.",
+    "noRestaurantTitle": "Diesem Konto ist noch kein Restaurant zugeordnet",
+    "noRestaurantBody": "Kontaktieren Sie das Tavli-Team, falls Sie versehentlich hier gelandet sind."
+  },
+  "preview": {
+    "title": "Vorschau",
+    "subtitle": "Sehen Sie, was Gäste sehen, wenn sie Sie finden.",
+    "publicUrlLabel": "Ihre öffentliche URL:",
+    "openPublicPage": "Öffentliche Seite öffnen",
+    "statusNote": "Hinweis: Der Status Ihres Restaurants ist „{status}“ — Ihre öffentliche Seite ist für Gäste möglicherweise noch nicht sichtbar.",
+    "noPublicPageTitle": "Noch keine öffentliche Seite verfügbar",
+    "noPublicPageBody": "Veröffentlichen Sie das Restaurant, um eine öffentliche URL zu erhalten."
+  },
+  "translations": {
+    "eyebrow": "Lokalseite",
+    "title": "Übersetzungen",
+    "subtitle": "Ihre Seite auf Englisch und Deutsch — jeweils ein paralleles Original, keine Übersetzung. Leere Felder greifen auf die rumänische Version zurück.",
+    "noRestaurant": "Dem Konto ist kein Restaurant zugeordnet.",
+    "fields": {
+      "tagline": "Tagline",
+      "heroSubtitle": "Hero-Untertitel",
+      "descriptionShort": "Kurzbeschreibung",
+      "descriptionLong": "Lange Beschreibung",
+      "chefBio": "Küchenchef-Bio",
+      "ambience": "Ambiente"
+    },
+    "roPrefix": "RO: {text}",
+    "save": "{language} speichern",
+    "toastSaved": "Übersetzung {locale} gespeichert.",
+    "toastFailed": "Speichern fehlgeschlagen.",
+    "errors": {
+      "invalidLocale": "Ungültige Sprache.",
+      "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um Übersetzungen zu bearbeiten."
+    }
+  },
+  "hours": {
+    "title": "Öffnungszeiten",
+    "subtitle": "Ihre wöchentlichen Öffnungszeiten. Ausnahmen für besondere Termine werden in einer späteren Phase verfügbar sein.",
+    "saving": "Wird gespeichert…",
+    "save": "Öffnungszeiten speichern",
+    "toastSaved": "Öffnungszeiten wurden gespeichert.",
+    "errors": {
+      "parseFailed": "Die Öffnungszeiten konnten nicht gelesen werden.",
+      "atLeastOneOpen": "Mindestens ein Tag muss geöffnet sein.",
+      "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet.",
+      "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um die Öffnungszeiten zu bearbeiten."
+    }
+  },
+  "availability": {
+    "title": "Verfügbarkeit",
+    "subtitle": "Legen Sie fest, wie viele Gäste Sie pro Zeitfenster aufnehmen können, für jeden Tag. Gäste können nur zu den hier konfigurierten Zeiten reservieren — nicht konfigurierte Zeitfenster erscheinen als „ausgebucht“.",
+    "noRestaurant": "Kein Restaurant zugeordnet.",
+    "weekdaysFull": "Sonntag,Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag",
+    "emptyTitle": "Noch keine Verfügbarkeit",
+    "emptyBody": "Fügen Sie unten Zeitfenster hinzu oder starten Sie mit einer Standard-Abendvorlage (täglich 18:00–22:00).",
+    "seedDefault": "Mit Standard starten (täglich 18–22)",
+    "seats": "{capacity} Plätze",
+    "deleteSlotAriaLabel": "Zeitfenster löschen",
+    "startLabel": "Beginn",
+    "endLabel": "Ende",
+    "capacityLabel": "Kapazität",
+    "addSlot": "Zeitfenster hinzufügen",
+    "confirmDelete": "Dieses Zeitfenster löschen?",
+    "seedPrompt": "Standardkapazität für das 4-stündige Abend-Zeitfenster?",
+    "genericFailed": "Fehlgeschlagen.",
+    "errors": {
+      "invalidDay": "Ungültiger Tag.",
+      "slotTimesRequired": "Die Zeiten des Zeitfensters sind erforderlich.",
+      "endAfterStart": "Die Endzeit muss nach der Startzeit liegen.",
+      "capacityMin": "Kapazität muss ≥ 1 sein.",
+      "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um die Verfügbarkeit zu bearbeiten."
+    }
+  }
+}

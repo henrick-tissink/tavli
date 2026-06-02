@@ -72,6 +72,10 @@ import roPartnerStaffSecurity from "@/messages/ro/partner.staffSecurity.json";
 import enPartnerStaffSecurity from "@/messages/en/partner.staffSecurity.json";
 import dePartnerStaffSecurity from "@/messages/de/partner.staffSecurity.json";
 
+import roPartnerSettings from "@/messages/ro/partner.settings.json";
+import enPartnerSettings from "@/messages/en/partner.settings.json";
+import dePartnerSettings from "@/messages/de/partner.settings.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1462,6 +1466,109 @@ export interface PartnerStaffSecurityMessages {
   };
 }
 
+/** Structural contract for the `partner.settings` namespace. */
+export interface PartnerSettingsMessages {
+  profile: {
+    title: string;
+    subtitle: string;
+    nameLabel: string;
+    cuisinesLabel: string;
+    cuisinesHint: string;
+    zoneLabel: string;
+    addressLabel: string;
+    phoneLabel: string;
+    websiteLabel: string;
+    heroNoteLabel: string;
+    heroNotePlaceholder: string;
+    heroNoteHint: string;
+    saving: string;
+    save: string;
+    toastSaved: string;
+    errors: {
+      nameRequired: string;
+      cuisineRequired: string;
+      addressRequired: string;
+      phoneInvalid: string;
+      billing_locked: string;
+    };
+  };
+  photos: {
+    title: string;
+    subtitle: string;
+    noRestaurantTitle: string;
+    noRestaurantBody: string;
+  };
+  preview: {
+    title: string;
+    subtitle: string;
+    publicUrlLabel: string;
+    openPublicPage: string;
+    statusNote: string;
+    noPublicPageTitle: string;
+    noPublicPageBody: string;
+  };
+  translations: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    noRestaurant: string;
+    fields: {
+      tagline: string;
+      heroSubtitle: string;
+      descriptionShort: string;
+      descriptionLong: string;
+      chefBio: string;
+      ambience: string;
+    };
+    roPrefix: string;
+    save: string;
+    toastSaved: string;
+    toastFailed: string;
+    errors: {
+      invalidLocale: string;
+      billing_locked: string;
+    };
+  };
+  hours: {
+    title: string;
+    subtitle: string;
+    saving: string;
+    save: string;
+    toastSaved: string;
+    errors: {
+      parseFailed: string;
+      atLeastOneOpen: string;
+      noRestaurant: string;
+      billing_locked: string;
+    };
+  };
+  availability: {
+    title: string;
+    subtitle: string;
+    noRestaurant: string;
+    weekdaysFull: string;
+    emptyTitle: string;
+    emptyBody: string;
+    seedDefault: string;
+    seats: string;
+    deleteSlotAriaLabel: string;
+    startLabel: string;
+    endLabel: string;
+    capacityLabel: string;
+    addSlot: string;
+    confirmDelete: string;
+    seedPrompt: string;
+    genericFailed: string;
+    errors: {
+      invalidDay: string;
+      slotTimesRequired: string;
+      endAfterStart: string;
+      capacityMin: string;
+      billing_locked: string;
+    };
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1549,6 +1656,11 @@ const CATALOGS = {
     en: enPartnerStaffSecurity,
     de: dePartnerStaffSecurity,
   } as Record<Locale, PartnerStaffSecurityMessages>,
+  "partner.settings": {
+    ro: roPartnerSettings,
+    en: enPartnerSettings,
+    de: dePartnerSettings,
+  } as Record<Locale, PartnerSettingsMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

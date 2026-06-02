@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { HoursEditor } from "@/components/onboarding/HoursEditor";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   savePartnerHours,
   type SaveHoursResult,
@@ -11,6 +12,7 @@ import {
 import type { DayHours } from "@/lib/onboarding";
 
 export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] }) {
+  const t = useT("partner.settings");
   const [state, action, pending] = useActionState<
     SaveHoursResult | undefined,
     FormData
@@ -18,18 +20,24 @@ export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] })
   const [hours, setHours] = useState<DayHours[]>(initialHours);
 
   useEffect(() => {
-    if (state?.ok) toast.success("Programul a fost salvat.");
-  }, [state]);
+    if (state?.ok) toast.success(t("hours.toastSaved"));
+  }, [state, t]);
+
+  const errorText = state?.error
+    ? state.error === "billing_locked"
+      ? t("hours.errors.billing_locked")
+      : state.error
+    : null;
 
   return (
     <form action={action} className="space-y-5 max-w-2xl">
       <HoursEditor value={hours} onChange={setHours} />
 
-      {state?.error && <p className="text-sm text-error" role="alert">{state.error}</p>}
+      {errorText && <p className="text-sm text-error" role="alert">{errorText}</p>}
 
       <div className="pt-2">
         <Button disabled={pending} type="submit">
-          {pending ? "Se salvează…" : "Salvează programul"}
+          {pending ? t("hours.saving") : t("hours.save")}
         </Button>
       </div>
     </form>

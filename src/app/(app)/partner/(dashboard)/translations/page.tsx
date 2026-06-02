@@ -6,6 +6,8 @@ import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, restaurantTranslations } from "@/lib/db/schema";
 import { TranslationEditor } from "./_components/TranslationEditor";
 import type { TranslationFields } from "./actions";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +15,13 @@ export default async function PartnerTranslationsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/partner/sign-in");
   const restaurantId = await currentUserPrimaryRestaurant(session);
+  const m = getMessages(await resolveAppLocale(), "partner.settings").translations;
 
   if (!restaurantId) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
-        <h1 className="font-display text-4xl text-text-primary">Traduceri</h1>
-        <p className="mt-4 text-sm text-text-secondary">Niciun restaurant asociat contului.</p>
+        <h1 className="font-display text-4xl text-text-primary">{m.title}</h1>
+        <p className="mt-4 text-sm text-text-secondary">{m.noRestaurant}</p>
       </div>
     );
   }
@@ -62,11 +65,10 @@ export default async function PartnerTranslationsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <header>
-        <p className="text-xs uppercase tracking-[0.2em] text-text-muted">Pagina de local</p>
-        <h1 className="mt-2 font-display text-4xl text-text-primary">Traduceri</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-text-muted">{m.eyebrow}</p>
+        <h1 className="mt-2 font-display text-4xl text-text-primary">{m.title}</h1>
         <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-          Pagina ta în engleză și germană — fiecare un original paralel, nu o traducere. Câmpurile goale
-          revin la versiunea românească.
+          {m.subtitle}
         </p>
       </header>
 

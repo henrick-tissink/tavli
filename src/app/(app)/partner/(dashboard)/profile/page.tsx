@@ -2,12 +2,15 @@ import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { PartnerProfileForm } from "@/components/partner/PartnerProfileForm";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
 export default async function PartnerProfilePage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
+  const m = getMessages(await resolveAppLocale(), "partner.settings").profile;
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   const { data: restaurant } = restaurantId
@@ -22,10 +25,10 @@ export default async function PartnerProfilePage() {
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
         <h1 className="font-display text-[36px] font-bold text-text-primary leading-tight">
-          Profil
+          {m.title}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Cum este prezentat restaurantul tău clienților.
+          {m.subtitle}
         </p>
       </header>
 

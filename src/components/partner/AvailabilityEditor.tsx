@@ -4,13 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   addSlot,
   deleteSlot,
   seedDefaultAvailability,
 } from "@/app/(app)/partner/(dashboard)/availability/actions";
 
-const DAY_LABELS = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon..Sun
 
 export interface AvailabilitySlot {
@@ -26,9 +26,14 @@ export function AvailabilityEditor({
 }: {
   slots: AvailabilitySlot[];
 }) {
+  const t = useT("partner.settings");
+  const dayLabels = t("availability.weekdaysFull").split(",");
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const errText = (e?: string) =>
+    e === "billing_locked" ? t("availability.errors.billing_locked") : (e ?? t("availability.genericFailed"));
 
   const byDay = new Map<number, AvailabilitySlot[]>();
   for (const s of slots) {
@@ -39,10 +44,10 @@ export function AvailabilityEditor({
   const totalSlots = slots.length;
 
   const handleDelete = (id: string) => {
-    if (!confirm("Ștergi acest interval orar?")) return;
+    if (!confirm(t("availability.confirmDelete"))) return;
     start(async () => {
       const result = await deleteSlot(id);
-      if (!result.ok) setError(result.error ?? "A eșuat.");
+      if (!result.ok) setError(errText(result.error));
       else router.refresh();
     });
   };
@@ -54,19 +59,19 @@ export function AvailabilityEditor({
     setError(null);
     start(async () => {
       const result = await addSlot(dow, start_ + ":00", end + ":00", cap);
-      if (!result.ok) setError(result.error ?? "A eșuat.");
+      if (!result.ok) setError(errText(result.error));
       else router.refresh();
     });
   };
 
   const handleQuickSeed = () => {
-    const capStr = prompt("Capacitate implicită pentru intervalul de seară de 4 ore?", "30");
+    const capStr = prompt(t("availability.seedPrompt"), "30");
     if (!capStr) return;
     const cap = parseInt(capStr, 10);
     if (!Number.isFinite(cap) || cap < 1) return;
     start(async () => {
       const result = await seedDefaultAvailability(cap);
-      if (!result.ok) setError(result.error ?? "A eșuat.");
+      if (!result.ok) setError(errText(result.error));
       else router.refresh();
     });
   };
@@ -75,14 +80,13 @@ export function AvailabilityEditor({
     <div className="space-y-4 max-w-3xl">
       {totalSlots === 0 && (
         <div className="bg-surface-white rounded-card border border-border p-6">
-          <p className="font-semibold text-text-primary">Nicio disponibilitate încă</p>
+          <p className="font-semibold text-text-primary">{t("availability.emptyTitle")}</p>
           <p className="text-sm text-text-secondary mt-1 leading-relaxed">
-            Adaugă intervale orare mai jos sau pornește de la un șablon
-            implicit de seară (în fiecare zi 18:00–22:00).
+            {t("availability.emptyBody")}
           </p>
           <div className="mt-4">
             <Button variant="secondary" onClick={handleQuickSeed} disabled={pending}>
-              Pornește implicit (zilnic 18–22)
+              {t("availability.seedDefault")}
             </Button>
           </div>
         </div>
@@ -105,7 +109,7 @@ export function AvailabilityEditor({
           >
             <div className="px-5 py-3 border-b border-border bg-surface-bg/40">
               <h3 className="font-display text-base font-bold">
-                {DAY_LABELS[dow]}
+                {dayLabels[dow]}
               </h3>
             </div>
             <div className="px-5 py-3 space-y-2">
@@ -119,13 +123,13 @@ export function AvailabilityEditor({
                   </span>
                   <span className="inline-flex items-center gap-1 text-text-secondary">
                     <Users size={12} />
-                    {s.capacity} locuri
+                    {t("availability.seats", { capacity: s.capacity })}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleDelete(s.id)}
                     disabled={pending}
-                    aria-label="Șterge intervalul"
+                    aria-label={t("availability.deleteSlotAriaLabel")}
                     className="ml-auto p-1.5 rounded-lg text-text-muted hover:bg-red-50 hover:text-red-700"
                   >
                     <Trash2 size={13} />
@@ -139,7 +143,7 @@ export function AvailabilityEditor({
               >
                 <div className="space-y-1">
                   <label className="block text-xs text-text-muted" htmlFor={`start-${dow}`}>
-                    Început
+                    {t("availability.startLabel")}
                   </label>
                   <input
                     id={`start-${dow}`}
@@ -152,7 +156,7 @@ export function AvailabilityEditor({
                 </div>
                 <div className="space-y-1">
                   <label className="block text-xs text-text-muted" htmlFor={`end-${dow}`}>
-                    Sfârșit
+                    {t("availability.endLabel")}
                   </label>
                   <input
                     id={`end-${dow}`}
@@ -165,7 +169,7 @@ export function AvailabilityEditor({
                 </div>
                 <div className="space-y-1">
                   <label className="block text-xs text-text-muted" htmlFor={`cap-${dow}`}>
-                    Capacitate
+                    {t("availability.capacityLabel")}
                   </label>
                   <input
                     id={`cap-${dow}`}
@@ -183,7 +187,7 @@ export function AvailabilityEditor({
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-primary-soft text-brand-primary-dark text-xs font-semibold hover:bg-brand-primary-soft/80"
                 >
                   <Plus size={12} />
-                  Adaugă interval
+                  {t("availability.addSlot")}
                 </button>
               </form>
             </div>

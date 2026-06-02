@@ -3,17 +3,18 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
+import { useT } from "@/lib/i18n/messages-provider";
 import { saveTranslation, type TranslationFields } from "../actions";
 
 type Locale = "en" | "de";
 
-const FIELD_DEFS: { key: keyof TranslationFields; label: string; long?: boolean }[] = [
-  { key: "tagline", label: "Tagline" },
-  { key: "heroSubtitle", label: "Subtitlu hero" },
-  { key: "descriptionShort", label: "Descriere scurtă", long: true },
-  { key: "descriptionLong", label: "Descriere lungă", long: true },
-  { key: "chefBio", label: "Bio chef", long: true },
-  { key: "ambience", label: "Ambianță", long: true },
+const FIELD_DEFS: { key: keyof TranslationFields; long?: boolean }[] = [
+  { key: "tagline" },
+  { key: "heroSubtitle" },
+  { key: "descriptionShort", long: true },
+  { key: "descriptionLong", long: true },
+  { key: "chefBio", long: true },
+  { key: "ambience", long: true },
 ];
 
 export function TranslationEditor({
@@ -23,6 +24,7 @@ export function TranslationEditor({
   initial: Record<Locale, TranslationFields>;
   roReference: { descriptionShort: string | null; heroSubtitle: string | null };
 }) {
+  const t = useT("partner.settings");
   const router = useRouter();
   const [locale, setLocale] = useState<Locale>("en");
   const [values, setValues] = useState<Record<Locale, TranslationFields>>(initial);
@@ -36,10 +38,14 @@ export function TranslationEditor({
     startTransition(async () => {
       const res = await saveTranslation(locale, values[locale]);
       if (res.ok) {
-        toast.success(`Traducere ${locale.toUpperCase()} salvată.`);
+        toast.success(t("translations.toastSaved", { locale: locale.toUpperCase() }));
         router.refresh();
       } else {
-        toast.error(res.error ?? "Salvarea nu a reușit.");
+        const msg =
+          res.error === "billing_locked"
+            ? t("translations.errors.billing_locked")
+            : (res.error ?? t("translations.toastFailed"));
+        toast.error(msg);
       }
     });
   }
@@ -77,9 +83,9 @@ export function TranslationEditor({
           return (
             <div key={f.key}>
               <label className="block text-sm font-semibold text-text-primary" htmlFor={`${locale}-${f.key}`}>
-                {f.label}
+                {t(`translations.fields.${f.key}`)}
               </label>
-              {ref && <p className="mt-0.5 text-xs italic text-text-muted">RO: {ref}</p>}
+              {ref && <p className="mt-0.5 text-xs italic text-text-muted">{t("translations.roPrefix", { text: ref })}</p>}
               {f.long ? (
                 <textarea
                   id={`${locale}-${f.key}`}
@@ -107,7 +113,7 @@ export function TranslationEditor({
         disabled={pending}
         className="mt-6 inline-flex min-h-[48px] items-center rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
-        Salvează {locale === "en" ? "English" : "Deutsch"}
+        {t("translations.save", { language: locale === "en" ? "English" : "Deutsch" })}
       </button>
     </div>
   );

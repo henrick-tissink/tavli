@@ -7,6 +7,8 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 import { normalizePhone } from "@/lib/phone/normalize";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -18,11 +20,14 @@ export async function savePartnerProfile(
   formData: FormData,
 ): Promise<SaveProfileResult> {
   const supabase = await createSupabaseServerClient();
+  const locale = await resolveAppLocale();
+  const common = getMessages(locale, "partner.common");
+  const m = getMessages(locale, "partner.settings").profile;
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
-  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (!restaurantId) return { ok: false, error: common.errors.noRestaurant };
   if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const profile = {
@@ -38,9 +43,9 @@ export async function savePartnerProfile(
     websiteUrl: String(formData.get("websiteUrl") ?? "").trim(),
   };
 
-  if (!profile.name) return { ok: false, error: "Numele restaurantului este obligatoriu." };
-  if (profile.cuisines.length === 0) return { ok: false, error: "Alege cel puțin o bucătărie." };
-  if (!profile.address) return { ok: false, error: "Adresa este obligatorie." };
+  if (!profile.name) return { ok: false, error: m.errors.nameRequired };
+  if (profile.cuisines.length === 0) return { ok: false, error: m.errors.cuisineRequired };
+  if (!profile.address) return { ok: false, error: m.errors.addressRequired };
 
   // §02 §4.7: normalise restaurant phone to E.164. Optional field — empty
   // → null; invalid → reject.
@@ -50,7 +55,7 @@ export async function savePartnerProfile(
     if (phoneResult.ok) {
       phoneE164 = phoneResult.e164;
     } else if (phoneResult.reason === "invalid") {
-      return { ok: false, error: "Numărul de telefon este invalid. Introdu un număr cu prefixul de țară." };
+      return { ok: false, error: m.errors.phoneInvalid };
     }
   }
 

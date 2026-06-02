@@ -11,6 +11,8 @@ import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurantTranslations } from "@/lib/db/schema";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface SaveTranslationResult {
   ok: boolean;
@@ -32,11 +34,14 @@ export async function saveTranslation(
   locale: "en" | "de",
   fields: TranslationFields,
 ): Promise<SaveTranslationResult> {
+  const appLocale = await resolveAppLocale();
+  const common = getMessages(appLocale, "partner.common");
+  const m = getMessages(appLocale, "partner.settings").translations;
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Nu ești autentificat." };
-  if (locale !== "en" && locale !== "de") return { ok: false, error: "Limbă invalidă." };
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
+  if (locale !== "en" && locale !== "de") return { ok: false, error: m.errors.invalidLocale };
   const restaurantId = await currentUserPrimaryRestaurant(session);
-  if (!restaurantId) return { ok: false, error: "Niciun restaurant asociat." };
+  if (!restaurantId) return { ok: false, error: common.errors.noRestaurant };
   if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const row = {

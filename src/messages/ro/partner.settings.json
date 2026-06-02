@@ -1,0 +1,101 @@
+{
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Cum este prezentat restaurantul tău clienților.",
+    "nameLabel": "Numele restaurantului",
+    "cuisinesLabel": "Bucătării",
+    "cuisinesHint": "Alege una sau mai multe.",
+    "zoneLabel": "Zonă / cartier",
+    "addressLabel": "Adresa completă",
+    "phoneLabel": "Telefon",
+    "websiteLabel": "Website",
+    "heroNoteLabel": "Povestea pe scurt",
+    "heroNotePlaceholder": "Rețetele bunicii din inima Centrului Vechi.",
+    "heroNoteHint": "Apare cu italice pe partea principală a meniului. Maxim 160 caractere.",
+    "saving": "Se salvează…",
+    "save": "Salvează modificările",
+    "toastSaved": "Profilul a fost salvat.",
+    "errors": {
+      "nameRequired": "Numele restaurantului este obligatoriu.",
+      "cuisineRequired": "Alege cel puțin o bucătărie.",
+      "addressRequired": "Adresa este obligatorie.",
+      "phoneInvalid": "Numărul de telefon este invalid. Introdu un număr cu prefixul de țară.",
+      "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita profilul."
+    }
+  },
+  "photos": {
+    "title": "Fotografii",
+    "subtitle": "Încarcă fotografii noi, alege una principală, șterge-le pe cele care nu îți plac.",
+    "noRestaurantTitle": "Niciun restaurant asociat acestui cont încă",
+    "noRestaurantBody": "Contactează echipa Tavli dacă ai ajuns aici din greșeală."
+  },
+  "preview": {
+    "title": "Previzualizare",
+    "subtitle": "Vezi ce văd clienții când te găsesc.",
+    "publicUrlLabel": "URL-ul tău public:",
+    "openPublicPage": "Deschide pagina publică",
+    "statusNote": "Notă: statusul restaurantului tău este \"{status}\" — s-ar putea ca pagina publică să nu fie încă vizibilă pentru clienți.",
+    "noPublicPageTitle": "Nicio pagină publică disponibilă încă",
+    "noPublicPageBody": "Publică restaurantul pentru a obține un URL public."
+  },
+  "translations": {
+    "eyebrow": "Pagina de local",
+    "title": "Traduceri",
+    "subtitle": "Pagina ta în engleză și germană — fiecare un original paralel, nu o traducere. Câmpurile goale revin la versiunea românească.",
+    "noRestaurant": "Niciun restaurant asociat contului.",
+    "fields": {
+      "tagline": "Tagline",
+      "heroSubtitle": "Subtitlu hero",
+      "descriptionShort": "Descriere scurtă",
+      "descriptionLong": "Descriere lungă",
+      "chefBio": "Bio chef",
+      "ambience": "Ambianță"
+    },
+    "roPrefix": "RO: {text}",
+    "save": "Salvează {language}",
+    "toastSaved": "Traducere {locale} salvată.",
+    "toastFailed": "Salvarea nu a reușit.",
+    "errors": {
+      "invalidLocale": "Limbă invalidă.",
+      "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita traducerile."
+    }
+  },
+  "hours": {
+    "title": "Program",
+    "subtitle": "Programul tău săptămânal de deschidere. Excepțiile pentru date speciale vor fi disponibile într-o etapă ulterioară.",
+    "saving": "Se salvează…",
+    "save": "Salvează programul",
+    "toastSaved": "Programul a fost salvat.",
+    "errors": {
+      "parseFailed": "Nu s-a putut interpreta programul.",
+      "atLeastOneOpen": "Cel puțin o zi trebuie să fie deschisă.",
+      "noRestaurant": "Niciun restaurant asociat acestui cont.",
+      "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita programul."
+    }
+  },
+  "availability": {
+    "title": "Disponibilitate",
+    "subtitle": "Definește câți clienți poți primi pe interval orar, pentru fiecare zi. Clienții pot rezerva doar la orele configurate aici — intervalele neconfigurate apar ca “complet rezervat”.",
+    "noRestaurant": "Niciun restaurant asociat.",
+    "weekdaysFull": "Duminică,Luni,Marți,Miercuri,Joi,Vineri,Sâmbătă",
+    "emptyTitle": "Nicio disponibilitate încă",
+    "emptyBody": "Adaugă intervale orare mai jos sau pornește de la un șablon implicit de seară (în fiecare zi 18:00–22:00).",
+    "seedDefault": "Pornește implicit (zilnic 18–22)",
+    "seats": "{capacity} locuri",
+    "deleteSlotAriaLabel": "Șterge intervalul",
+    "startLabel": "Început",
+    "endLabel": "Sfârșit",
+    "capacityLabel": "Capacitate",
+    "addSlot": "Adaugă interval",
+    "confirmDelete": "Ștergi acest interval orar?",
+    "seedPrompt": "Capacitate implicită pentru intervalul de seară de 4 ore?",
+    "genericFailed": "A eșuat.",
+    "errors": {
+      "invalidDay": "Zi invalidă.",
+      "slotTimesRequired": "Orele intervalului sunt obligatorii.",
+      "endAfterStart": "Ora de sfârșit trebuie să fie după ora de început.",
+      "capacityMin": "Capacitatea trebuie să fie ≥ 1.",
+      "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita disponibilitatea."
+    }
+  }
+}
