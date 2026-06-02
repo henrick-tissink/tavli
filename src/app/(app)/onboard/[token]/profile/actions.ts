@@ -7,6 +7,8 @@ import { geocode } from "@/lib/geocoding";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { normalizePhone } from "@/lib/phone/normalize";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface SaveProfileResult {
   ok: boolean;
@@ -18,13 +20,16 @@ export async function saveProfile(
   _prev: SaveProfileResult | undefined,
   formData: FormData,
 ): Promise<SaveProfileResult> {
+  const locale = await resolveAppLocale();
+  const e = getMessages(locale, "partner.onboarding").wizard.errors;
+
   const supabase = await createSupabaseServerClient();
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Not signed in." };
+  if (!session) return { ok: false, error: e.notSignedIn };
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
-    return { ok: false, error: "No restaurant found for your account." };
+    return { ok: false, error: e.noRestaurantFound };
   }
 
   const profile = {
@@ -40,9 +45,9 @@ export async function saveProfile(
     websiteUrl: String(formData.get("websiteUrl") ?? "").trim(),
   };
 
-  if (!profile.name) return { ok: false, error: "Restaurant name is required." };
-  if (profile.cuisines.length === 0) return { ok: false, error: "Pick at least one cuisine." };
-  if (!profile.address) return { ok: false, error: "Address is required." };
+  if (!profile.name) return { ok: false, error: e.restaurantNameRequired };
+  if (profile.cuisines.length === 0) return { ok: false, error: e.pickCuisine };
+  if (!profile.address) return { ok: false, error: e.addressRequired };
 
   // §02 §4.7: normalise restaurant phone to E.164. Optional — empty stays null;
   // invalid rejects.
@@ -52,7 +57,7 @@ export async function saveProfile(
     if (phoneResult.ok) {
       phoneE164 = phoneResult.e164;
     } else if (phoneResult.reason === "invalid") {
-      return { ok: false, error: "Phone number is invalid. Please include the country code." };
+      return { ok: false, error: e.phoneInvalid };
     }
   }
 

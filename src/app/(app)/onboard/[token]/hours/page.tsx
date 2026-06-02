@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { DEFAULT_HOURS, getOnboardingState } from "@/lib/onboarding";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { HoursForm } from "@/components/onboarding/HoursForm";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -19,14 +21,16 @@ export default async function OnboardingHoursPage({
       ? state.payload.hours
       : DEFAULT_HOURS;
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+
   return (
     <OnboardingShell currentStepIndex={2} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Când ești deschis?
+        {m.wizard.hours.title}
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        Setează-ți programul săptămânal. Îl poți schimba oricând — iar
-        excepțiile pentru zile speciale le adaugi mai târziu din panou.
+        {m.wizard.hours.subtitle}
       </p>
       <HoursForm token={token} initialHours={initialHours} />
     </OnboardingShell>

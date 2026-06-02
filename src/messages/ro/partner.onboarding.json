@@ -97,5 +97,144 @@
       "resendSendFailed": "Nu am putut retrimite emailul. Încearcă din nou.",
       "resendGeneric": "A apărut o eroare."
     }
+  },
+  "wizard": {
+    "shell": {
+      "eyebrow": "Înrolare partener",
+      "stepProgress": "Pasul {current} din {total}:",
+      "percentComplete": "{percent}% finalizat",
+      "stepDone": " (finalizat)",
+      "stepCurrent": " (curent)",
+      "steps": {
+        "account": "Cont",
+        "profile": "Profil",
+        "hours": "Program",
+        "photos": "Fotografii",
+        "menu": "Meniu",
+        "review": "Verificare"
+      },
+      "contactEmail": "Contact:"
+    },
+    "landing": {
+      "eyebrow": "Înrolare partener",
+      "welcomeTitle": "Bun venit la Tavli.",
+      "intro": "Am păstrat această invitație pentru ",
+      "introCity": " în {city}",
+      "introRest": ". Îți configurezi profilul, programul, fotografiile și meniul în câteva minute.",
+      "startCta": "Începe configurarea",
+      "haveAccount": "Ai deja un cont Tavli?",
+      "haveAccountLink": "Conectează-te",
+      "expiredTitle": "Invitația a expirat",
+      "expiredBody": "Linkurile de invitație sunt valabile 14 zile. Cere-i persoanei tale de contact de la Tavli una nouă.",
+      "claimedTitle": "Deja acceptată",
+      "claimedBody": "Această invitație a fost deja folosită. Dacă vrei să accesezi panoul de partener, conectează-te la /partner/sign-in.",
+      "revokedTitle": "Invitație revocată",
+      "revokedBody": "Această invitație nu mai este activă. Contactează echipa Tavli dacă crezi că este o greșeală.",
+      "notFoundTitle": "Invitație negăsită",
+      "notFoundBody": "Acest link nu este recunoscut. Poate a fost scris greșit — copiază și lipește adresa completă din email.",
+      "configMissingTitle": "Platformă neconfigurată",
+      "configMissingBody": "Tavli încă se configurează. Încearcă din nou în câteva minute sau contactează-ne dacă problema persistă.",
+      "contactLabel": "Contact:"
+    },
+    "account": {
+      "title": "Creează-ți contul",
+      "subtitle": "Un singur cont e tot ce-ți trebuie. Folosim această adresă pentru alertele de rezervare și pentru anunțurile importante de pe platformă.",
+      "fullNameLabel": "Numele tău",
+      "fullNamePlaceholderProposed": "Manager la {name}",
+      "fullNamePlaceholder": "Andrei Popescu",
+      "emailLabel": "Email",
+      "emailHint": "Trebuie să fie aceeași adresă la care a fost trimisă invitația.",
+      "passwordLabel": "Parolă",
+      "passwordHint": "Cel puțin 8 caractere.",
+      "submitPending": "Se creează contul…",
+      "submit": "Creează contul și continuă",
+      "terms": "Continuând, ești de acord cu termenii pentru parteneri Tavli și cu politica noastră de confidențialitate."
+    },
+    "profile": {
+      "title": "Spune-ne despre restaurant",
+      "subtitle": "Aceste informații de bază apar pe pagina și pe meniul tău. Le poți modifica oricând din panoul de partener.",
+      "nameLabel": "Numele restaurantului",
+      "namePlaceholder": "Casa Veche",
+      "cuisinesLabel": "Bucătării",
+      "cuisinesHint": "Alege una sau mai multe.",
+      "zoneLabel": "Zonă / cartier",
+      "zonePlaceholder": "Centru Vechi",
+      "addressLabel": "Adresă completă",
+      "addressPlaceholder": "Str. Lipscani 45, București",
+      "phoneLabel": "Telefon",
+      "phonePlaceholder": "+40 7xx xxx xxx",
+      "websiteLabel": "Site web",
+      "websitePlaceholder": "https://…",
+      "heroNoteLabel": "Povestea într-o frază",
+      "heroNotePlaceholder": "Rețete de la bunica, din inima Centrului Vechi.",
+      "heroNoteHint": "Apare ca rândul italic de pe meniul tău. Maxim 160 de caractere.",
+      "submitPending": "Se salvează…",
+      "submit": "Salvează și continuă la program"
+    },
+    "hours": {
+      "title": "Când ești deschis?",
+      "subtitle": "Setează-ți programul săptămânal. Îl poți schimba oricând — iar excepțiile pentru zile speciale le adaugi mai târziu din panou.",
+      "back": "← Înapoi",
+      "submitPending": "Se salvează…",
+      "submit": "Salvează și continuă"
+    },
+    "photos": {
+      "title": "Adaugă câteva fotografii",
+      "subtitle": "O fotografie principală + câteva pentru galerie sunt suficiente acum. Poți adăuga mai multe oricând din panou. Marchează cea mai bună fotografie drept principală — e prima pe care o văd oaspeții.",
+      "back": "← Înapoi",
+      "continue": "Continuă"
+    },
+    "menu": {
+      "title": "Meniul — cum vrei tu",
+      "subtitle": "Poți adăuga meniul chiar acum sau poți sări peste acest pas și folosi editorul complet din panou — majoritatea partenerilor sar peste și îl completează mai târziu.",
+      "cardTitle": "Editor complet în panou",
+      "cardBody": "Editorul de meniu pentru parteneri îți permite să creezi secțiuni, să adaugi feluri cu fotografii, să marchezi vegetarian / fără gluten / picant și să evidențiezi recomandările bucătarului — totul cu salvare automată.",
+      "cardNote": "În beta, editorul vine odată cu panoul de partener (M10). Pagina ta poate fi publicată și fără meniu — oaspeții văd „Meniu în curând” pe pagina restaurantului.",
+      "back": "← Înapoi",
+      "skip": "Sari peste și mergi la verificare"
+    },
+    "review": {
+      "title": "Gata de lansare?",
+      "subtitlePrefix": "Așa va arăta restaurantul tău pentru oaspeți. Apasă Publică și vei apărea în ",
+      "subtitleCityFallback": "orașul tău",
+      "subtitleSuffix": " în câteva secunde.",
+      "fallbackName": "Restaurantul tău",
+      "menuLabel": "Meniu",
+      "scheduleLabel": "Program",
+      "back": "← Înapoi"
+    },
+    "policyDisclosure": {
+      "title": "Despre recenziile de pe Tavli",
+      "body": "După ce oaspeții mănâncă la restaurantul tău, le cerem o evaluare printr-un singur tap. Recenziile sunt legate de o rezervare reală pe Tavli — verificate, nu străini anonimi. Nu ștergem și nu edităm recenziile. Vei putea răspunde public la fiecare recenzie (în curând)."
+    },
+    "publish": {
+      "submitPending": "Se publică…",
+      "submit": "Publică și pornește"
+    },
+    "errors": {
+      "missingToken": "Missing invitation token.",
+      "validEmailRequired": "Valid email required.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "passwordPwned": "This password has appeared in a known data breach. Please choose a different one.",
+      "passwordValidationFailed": "Password validation failed.",
+      "invitationNotFound": "Invitation not found.",
+      "invitationStatus": "Invitation is {status}.",
+      "invitationExpired": "Invitation has expired.",
+      "invitationEmailMismatch": "This invitation was sent to {email}. Please use that email.",
+      "couldNotCreateAccount": "Could not create account.",
+      "couldNotLink": "Couldn't link your account: {message}",
+      "autoSignInFailed": "Account created but auto-sign-in failed: {message}. Try /partner/sign-in.",
+      "notSignedIn": "Not signed in.",
+      "noRestaurantFound": "No restaurant found for your account.",
+      "restaurantNameRequired": "Restaurant name is required.",
+      "pickCuisine": "Pick at least one cuisine.",
+      "addressRequired": "Address is required.",
+      "phoneInvalid": "Phone number is invalid. Please include the country code.",
+      "couldNotParseHours": "Could not parse hours.",
+      "atLeastOneDayOpen": "At least one day must be open.",
+      "noRestaurantLinked": "No restaurant linked to this account.",
+      "profileIncomplete": "Profile isn't complete. Go back and fill in name, cuisines, and address.",
+      "hoursNotSet": "Hours aren't set. Go back to the Hours step."
+    }
   }
 }

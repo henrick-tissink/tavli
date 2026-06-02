@@ -9,6 +9,8 @@ import { PublishButton } from "@/components/onboarding/PublishButton";
 import { ReviewPolicyDisclosure } from "@/components/onboarding/review-policy-disclosure";
 import { resolvePhotoUrl } from "@/lib/storage";
 import { formatCuisines } from "@/lib/types";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -46,14 +48,18 @@ export default async function OnboardingReviewPage({
       : [],
   );
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+
   return (
     <OnboardingShell currentStepIndex={5} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Gata de lansare?
+        {m.wizard.review.title}
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-6 leading-relaxed">
-        Așa va arăta restaurantul tău pentru oaspeți. Apasă Publică și vei
-        apărea în {cityName ?? "orașul tău"} în câteva secunde.
+        {m.wizard.review.subtitlePrefix}
+        {cityName ?? m.wizard.review.subtitleCityFallback}
+        {m.wizard.review.subtitleSuffix}
       </p>
 
       {/* Preview card */}
@@ -70,14 +76,14 @@ export default async function OnboardingReviewPage({
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center p-6">
               <span className="font-display text-white text-2xl font-bold text-center">
-                {restaurant?.name ?? "Restaurantul tău"}
+                {restaurant?.name ?? m.wizard.review.fallbackName}
               </span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 text-white">
             <p className="text-xs uppercase tracking-[0.2em] opacity-80">
-              {cuisinesLabel} · Meniu
+              {cuisinesLabel} · {m.wizard.review.menuLabel}
             </p>
             <h2 className="font-display text-3xl font-bold mt-1 leading-tight">
               {restaurant?.name}
@@ -112,7 +118,7 @@ export default async function OnboardingReviewPage({
           {Array.isArray(restaurant?.schedule) && restaurant.schedule.length > 0 && (
             <div className="pt-2 border-t border-border">
               <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">
-                Program
+                {m.wizard.review.scheduleLabel}
               </p>
               <ul className="text-xs text-text-secondary space-y-0.5">
                 {(restaurant.schedule as { days: string; hours: string }[]).map((s, i) => (
@@ -138,7 +144,7 @@ export default async function OnboardingReviewPage({
           href={`/onboard/${token}/menu`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Înapoi
+          {m.wizard.review.back}
         </Link>
       </div>
     </OnboardingShell>

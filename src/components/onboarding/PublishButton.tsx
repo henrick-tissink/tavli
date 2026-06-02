@@ -2,12 +2,14 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   publishRestaurant,
   type PublishResult,
 } from "@/app/(app)/onboard/[token]/review/actions";
 
 export function PublishButton() {
+  const t = useT("partner.onboarding");
   const [state, action, pending] = useActionState<
     PublishResult | undefined,
     FormData
@@ -24,7 +26,7 @@ export function PublishButton() {
         </p>
       )}
       <Button fullWidth type="submit" disabled={pending}>
-        {pending ? "Se publică…" : "Publică și pornește"}
+        {pending ? t("wizard.publish.submitPending") : t("wizard.publish.submit")}
       </Button>
     </form>
   );

@@ -11,6 +11,8 @@ import {
 import { hoursToAvailabilityRows } from "@/lib/availability";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface SaveHoursResult {
   ok: boolean;
@@ -22,27 +24,30 @@ export async function saveHours(
   _prev: SaveHoursResult | undefined,
   formData: FormData,
 ): Promise<SaveHoursResult> {
+  const locale = await resolveAppLocale();
+  const e = getMessages(locale, "partner.onboarding").wizard.errors;
+
   const supabase = await createSupabaseServerClient();
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Not signed in." };
+  if (!session) return { ok: false, error: e.notSignedIn };
 
   const raw = String(formData.get("hours") ?? "");
   let hours: DayHours[];
   try {
     hours = JSON.parse(raw) as DayHours[];
   } catch {
-    return { ok: false, error: "Could not parse hours." };
+    return { ok: false, error: e.couldNotParseHours };
   }
 
   if (!hours.some((h) => h.isOpen)) {
-    return { ok: false, error: "At least one day must be open." };
+    return { ok: false, error: e.atLeastOneDayOpen };
   }
 
   // Look up the restaurant once so we can both update the display schedule
   // and project hours into structured availability rows.
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) {
-    return { ok: false, error: "No restaurant linked to this account." };
+    return { ok: false, error: e.noRestaurantLinked };
   }
 
   const schedule = hoursToSchedule(hours);

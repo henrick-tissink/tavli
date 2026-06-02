@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/button";
 import { HoursEditor } from "./HoursEditor";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   saveHours,
   type SaveHoursResult,
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function HoursForm({ token, initialHours }: Props) {
+  const t = useT("partner.onboarding");
   const action = saveHours.bind(null, token);
   const [state, dispatch, pending] = useActionState<
     SaveHoursResult | undefined,
@@ -37,10 +39,10 @@ export function HoursForm({ token, initialHours }: Props) {
           href={`/onboard/${token}/profile`}
           className="text-sm font-semibold text-text-secondary hover:underline"
         >
-          ← Înapoi
+          {t("wizard.hours.back")}
         </a>
         <Button disabled={pending} type="submit">
-          {pending ? "Se salvează…" : "Salvează și continuă"}
+          {pending ? t("wizard.hours.submitPending") : t("wizard.hours.submit")}
         </Button>
       </div>
     </form>

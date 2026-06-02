@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/button";
 import { Pill } from "@/components/pill";
 import { cuisineLabel } from "@/lib/types";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   saveProfile,
   type SaveProfileResult,
@@ -43,6 +44,7 @@ const CUISINES = [
 ];
 
 export function ProfileForm({ token, initialValues }: Props) {
+  const t = useT("partner.onboarding");
   const action = saveProfile.bind(null, token);
   const [state, dispatch, pending] = useActionState<
     SaveProfileResult | undefined,
@@ -59,13 +61,19 @@ export function ProfileForm({ token, initialValues }: Props) {
 
   return (
     <form action={dispatch} className="space-y-5">
-      <Field label="Numele restaurantului" name="name" required defaultValue={initialValues.name} placeholder="Casa Veche" />
+      <Field
+        label={t("wizard.profile.nameLabel")}
+        name="name"
+        required
+        defaultValue={initialValues.name}
+        placeholder={t("wizard.profile.namePlaceholder")}
+      />
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">
-          Bucătării <span className="text-error">*</span>
+          {t("wizard.profile.cuisinesLabel")} <span className="text-error">*</span>
         </label>
-        <p className="text-xs text-text-muted">Alege una sau mai multe.</p>
+        <p className="text-xs text-text-muted">{t("wizard.profile.cuisinesHint")}</p>
         <div className="flex flex-wrap gap-2">
           {CUISINES.map((c) => (
             <Pill
@@ -82,28 +90,40 @@ export function ProfileForm({ token, initialValues }: Props) {
       </div>
 
       <Field
-        label="Zonă / cartier"
+        label={t("wizard.profile.zoneLabel")}
         name="zone"
-        placeholder="Centru Vechi"
+        placeholder={t("wizard.profile.zonePlaceholder")}
         defaultValue={initialValues.zone}
       />
 
       <Field
-        label="Adresă completă"
+        label={t("wizard.profile.addressLabel")}
         name="address"
         required
         defaultValue={initialValues.address}
-        placeholder="Str. Lipscani 45, București"
+        placeholder={t("wizard.profile.addressPlaceholder")}
       />
 
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
-        <Field label="Telefon" name="phone" type="tel" defaultValue={initialValues.phone} placeholder="+40 7xx xxx xxx" />
-        <Field label="Site web" name="websiteUrl" type="url" defaultValue={initialValues.websiteUrl} placeholder="https://…" />
+        <Field
+          label={t("wizard.profile.phoneLabel")}
+          name="phone"
+          type="tel"
+          defaultValue={initialValues.phone}
+          placeholder={t("wizard.profile.phonePlaceholder")}
+        />
+        <Field
+          label={t("wizard.profile.websiteLabel")}
+          name="websiteUrl"
+          type="url"
+          defaultValue={initialValues.websiteUrl}
+          placeholder={t("wizard.profile.websitePlaceholder")}
+        />
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="heroNote">
-          Povestea într-o frază
+          {t("wizard.profile.heroNoteLabel")}
         </label>
         <textarea
           id="heroNote"
@@ -111,11 +131,11 @@ export function ProfileForm({ token, initialValues }: Props) {
           rows={2}
           maxLength={160}
           defaultValue={initialValues.heroNote}
-          placeholder="Rețete de la bunica, din inima Centrului Vechi."
+          placeholder={t("wizard.profile.heroNotePlaceholder")}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
         />
         <p className="text-xs text-text-muted">
-          Apare ca rândul italic de pe meniul tău. Maxim 160 de caractere.
+          {t("wizard.profile.heroNoteHint")}
         </p>
       </div>
 
@@ -127,7 +147,7 @@ export function ProfileForm({ token, initialValues }: Props) {
 
       <div className="pt-2">
         <Button fullWidth disabled={pending} type="submit">
-          {pending ? "Se salvează…" : "Salvează și continuă la program"}
+          {pending ? t("wizard.profile.submitPending") : t("wizard.profile.submit")}
         </Button>
       </div>
     </form>

@@ -1,15 +1,15 @@
+"use client";
+
+import { useT } from "@/lib/i18n/messages-provider";
+
 export function ReviewPolicyDisclosure() {
+  const t = useT("partner.onboarding");
   return (
     <aside className="rounded-card border border-border bg-surface-bg p-4 mt-6 text-sm text-text-secondary">
       <p className="font-semibold text-text-primary mb-1">
-        Despre recenziile de pe Tavli
+        {t("wizard.policyDisclosure.title")}
       </p>
-      <p>
-        După ce oaspeții mănâncă la restaurantul tău, le cerem o evaluare
-        printr-un singur tap. Recenziile sunt legate de o rezervare reală pe
-        Tavli — verificate, nu străini anonimi. Nu ștergem și nu edităm
-        recenziile. Vei putea răspunde public la fiecare recenzie (în curând).
-      </p>
+      <p>{t("wizard.policyDisclosure.body")}</p>
     </aside>
   );
 }

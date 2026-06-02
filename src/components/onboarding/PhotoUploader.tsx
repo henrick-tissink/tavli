@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useState, useTransition } from "react";
 import { Upload, Trash2, Star } from "lucide-react";
 import { resolvePhotoUrl } from "@/lib/storage";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   uploadRestaurantPhoto,
   setPhotoHero,
@@ -28,6 +29,7 @@ export function PhotoUploader({
   initialPhotos,
   maxPhotos = 12,
 }: Props) {
+  const t = useT("partner.common");
   const [photos, setPhotos] = useState<PhotoRow[]>(initialPhotos);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,11 +45,11 @@ export function PhotoUploader({
 
       for (const file of toUpload) {
         if (!file.type.startsWith("image/")) {
-          setError(`${file.name} nu este o imagine.`);
+          setError(t("photoUploader.notImage", { name: file.name }));
           continue;
         }
         if (file.size > 10 * 1024 * 1024) {
-          setError(`${file.name} depășește 10 MB.`);
+          setError(t("photoUploader.tooLarge", { name: file.name }));
           continue;
         }
 
@@ -58,7 +60,12 @@ export function PhotoUploader({
 
         const result = await uploadRestaurantPhoto(fd);
         if (!result.ok || !result.photo) {
-          setError(`${file.name}: ${result.error ?? "încărcarea a eșuat"}`);
+          setError(
+            t("photoUploader.uploadFailed", {
+              name: file.name,
+              error: result.error ?? t("photoUploader.uploadFailedFallback"),
+            }),
+          );
           continue;
         }
         setPhotos((prev) => [...prev, result.photo!]);
@@ -66,22 +73,22 @@ export function PhotoUploader({
 
       setUploading(false);
     },
-    [photos, restaurantId, maxPhotos],
+    [photos, restaurantId, maxPhotos, t],
   );
 
   const handleDelete = useCallback(
     (photo: PhotoRow) => {
-      if (!confirm("Ștergi această fotografie?")) return;
+      if (!confirm(t("photoUploader.deleteConfirm"))) return;
       startTransition(async () => {
         const result = await deletePhoto(photo.id);
         if (!result.ok) {
-          setError(result.error ?? "Nu s-a putut șterge.");
+          setError(result.error ?? t("photoUploader.deleteFailed"));
         } else {
           setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
         }
       });
     },
-    [],
+    [t],
   );
 
   const handleSetHero = useCallback(
@@ -89,7 +96,7 @@ export function PhotoUploader({
       startTransition(async () => {
         const result = await setPhotoHero(photo.id);
         if (!result.ok) {
-          setError(result.error ?? "Nu s-a putut seta fotografia principală.");
+          setError(result.error ?? t("photoUploader.setHeroFailed"));
         } else {
           setPhotos((prev) =>
             prev.map((p) =>
@@ -103,7 +110,7 @@ export function PhotoUploader({
         }
       });
     },
-    [],
+    [t],
   );
 
   return (
@@ -125,11 +132,12 @@ export function PhotoUploader({
         />
         <Upload size={24} className="mx-auto text-text-muted" />
         <p className="font-semibold text-text-primary mt-2">
-          {uploading ? "Se încarcă…" : "Adaugă fotografii"}
+          {uploading
+            ? t("photoUploader.uploading")
+            : t("photoUploader.addPhotos")}
         </p>
         <p className="text-xs text-text-muted mt-1">
-          JPEG / PNG / WebP / AVIF, până la 10 MB fiecare. {photos.length}/
-          {maxPhotos} folosite.
+          {t("photoUploader.hint", { used: photos.length, max: maxPhotos })}
         </p>
       </label>
 
@@ -160,7 +168,8 @@ export function PhotoUploader({
                 )}
                 {isHero && (
                   <span className="absolute top-2 left-2 bg-brand-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                    <Star size={10} className="fill-white" /> Principală
+                    <Star size={10} className="fill-white" />{" "}
+                    {t("photoUploader.heroBadge")}
                   </span>
                 )}
                 <div className="absolute top-2 right-2 flex gap-1">
@@ -168,7 +177,7 @@ export function PhotoUploader({
                     <button
                       type="button"
                       onClick={() => handleSetHero(photo)}
-                      aria-label="Setează ca principală"
+                      aria-label={t("photoUploader.setHeroAriaLabel")}
                       className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70"
                     >
                       <Star size={12} />
@@ -177,7 +186,7 @@ export function PhotoUploader({
                   <button
                     type="button"
                     onClick={() => handleDelete(photo)}
-                    aria-label="Șterge fotografia"
+                    aria-label={t("photoUploader.deleteAriaLabel")}
                     className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-600"
                   >
                     <Trash2 size={12} />

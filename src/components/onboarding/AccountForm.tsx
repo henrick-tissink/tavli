@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/button";
 import { PasswordInput } from "@/components/password-input";
+import { useT } from "@/lib/i18n/messages-provider";
 import {
   createAccount,
   type CreateAccountResult,
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function AccountForm({ token, emailHint, proposedName }: Props) {
+  const t = useT("partner.onboarding");
   const [state, action, pending] = useActionState<
     CreateAccountResult | undefined,
     FormData
@@ -26,7 +28,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="fullName">
-          Numele tău
+          {t("wizard.account.fullNameLabel")}
         </label>
         <input
           id="fullName"
@@ -34,14 +36,18 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           type="text"
           autoComplete="name"
           required
-          placeholder={proposedName ? `Manager la ${proposedName}` : "Andrei Popescu"}
+          placeholder={
+            proposedName
+              ? t("wizard.account.fullNamePlaceholderProposed", { name: proposedName })
+              : t("wizard.account.fullNamePlaceholder")
+          }
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="email">
-          Email
+          {t("wizard.account.emailLabel")}
         </label>
         <input
           id="email"
@@ -53,13 +59,13 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
         <p className="text-xs text-text-muted">
-          Trebuie să fie aceeași adresă la care a fost trimisă invitația.
+          {t("wizard.account.emailHint")}
         </p>
       </div>
 
       <div className="space-y-1">
         <label className="block text-sm font-medium" htmlFor="password">
-          Parolă
+          {t("wizard.account.passwordLabel")}
         </label>
         <PasswordInput
           id="password"
@@ -68,7 +74,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
           required
           minLength={8}
         />
-        <p className="text-xs text-text-muted">Cel puțin 8 caractere.</p>
+        <p className="text-xs text-text-muted">{t("wizard.account.passwordHint")}</p>
       </div>
 
       {state?.error && (
@@ -78,12 +84,11 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
       )}
 
       <Button fullWidth disabled={pending} type="submit">
-        {pending ? "Se creează contul…" : "Creează contul și continuă"}
+        {pending ? t("wizard.account.submitPending") : t("wizard.account.submit")}
       </Button>
 
       <p className="text-xs text-text-muted text-center">
-        Continuând, ești de acord cu termenii pentru parteneri Tavli și cu
-        politica noastră de confidențialitate.
+        {t("wizard.account.terms")}
       </p>
     </form>
   );

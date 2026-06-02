@@ -51,5 +51,25 @@
   "dateFormat": {
     "weekdaysShort": "Dum,Lun,Mar,Mie,Joi,Vin,Sâm",
     "monthsShort": "ian,feb,mar,apr,mai,iun,iul,aug,sep,oct,noi,dec"
+  },
+  "photoUploader": {
+    "notImage": "{name} nu este o imagine.",
+    "tooLarge": "{name} depășește 10 MB.",
+    "uploadFailedFallback": "încărcarea a eșuat",
+    "uploadFailed": "{name}: {error}",
+    "deleteConfirm": "Ștergi această fotografie?",
+    "deleteFailed": "Nu s-a putut șterge.",
+    "setHeroFailed": "Nu s-a putut seta fotografia principală.",
+    "uploading": "Se încarcă…",
+    "addPhotos": "Adaugă fotografii",
+    "hint": "JPEG / PNG / WebP / AVIF, până la 10 MB fiecare. {used}/{max} folosite.",
+    "heroBadge": "Principală",
+    "setHeroAriaLabel": "Setează ca principală",
+    "deleteAriaLabel": "Șterge fotografia"
+  },
+  "hoursEditor": {
+    "weekdaysFull": "Duminică,Luni,Marți,Miercuri,Joi,Vineri,Sâmbătă",
+    "copyFirstOpen": "Copiază prima zi deschisă la toate",
+    "open": "Deschis"
   }
 }

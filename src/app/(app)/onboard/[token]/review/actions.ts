@@ -13,6 +13,8 @@ import { loadActiveSubscription } from "@/lib/billing/load-subscription";
 import { recordBillingAudit } from "@/lib/billing/billing-audit";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { maybeStartTrial } from "@/lib/billing/onboard-trial-seam";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export interface PublishResult {
   ok: boolean;
@@ -22,9 +24,12 @@ export interface PublishResult {
 export async function publishRestaurant(
   _prev: PublishResult | undefined,
 ): Promise<PublishResult | void> {
+  const locale = await resolveAppLocale();
+  const e = getMessages(locale, "partner.onboarding").wizard.errors;
+
   const supabase = await createSupabaseServerClient();
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Not signed in." };
+  if (!session) return { ok: false, error: e.notSignedIn };
 
   const restaurantId = await currentUserPrimaryRestaurant(session);
   const { data: restaurant } = restaurantId
@@ -35,17 +40,17 @@ export async function publishRestaurant(
         .maybeSingle()
     : { data: null };
 
-  if (!restaurant) return { ok: false, error: "No restaurant found for your account." };
+  if (!restaurant) return { ok: false, error: e.noRestaurantFound };
   const hasCuisines =
     Array.isArray(restaurant.cuisines) && restaurant.cuisines.length > 0;
   if (!restaurant.name || !hasCuisines || !restaurant.address) {
     return {
       ok: false,
-      error: "Profile isn't complete. Go back and fill in name, cuisines, and address.",
+      error: e.profileIncomplete,
     };
   }
   if (!Array.isArray(restaurant.schedule) || restaurant.schedule.length === 0) {
-    return { ok: false, error: "Hours aren't set. Go back to the Hours step." };
+    return { ok: false, error: e.hoursNotSet };
   }
 
   // Status change is column-restricted from `authenticated` — use the

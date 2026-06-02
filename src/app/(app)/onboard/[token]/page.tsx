@@ -2,6 +2,9 @@ import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { hashInvitationToken } from "@/lib/invitations";
 import { Button } from "@/components/button";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +56,10 @@ export default async function OnboardingLandingPage({
   const { token } = await params;
   const result = await validateToken(token);
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+  const l = m.wizard.landing;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-bg px-4">
       <div className="w-full max-w-lg bg-surface-white rounded-card border border-border p-8 shadow-card">
@@ -60,29 +67,31 @@ export default async function OnboardingLandingPage({
           Tavli
         </p>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Înrolare partener
+          {l.eyebrow}
         </p>
 
         {result.kind === "valid" && (
           <>
             <h1 className="font-display text-[32px] font-bold text-text-primary mt-6 leading-tight">
-              Bun venit la Tavli.
+              {l.welcomeTitle}
             </h1>
             <p className="text-sm text-text-secondary mt-3 leading-relaxed">
-              Am păstrat această invitație pentru{" "}
+              {l.intro}
               <strong>{result.invitation.email}</strong>
-              {result.invitation.cityName ? ` în ${result.invitation.cityName}` : ""}
-              . Îți configurezi profilul, programul, fotografiile și meniul în câteva minute.
+              {result.invitation.cityName
+                ? interpolate(l.introCity, { city: result.invitation.cityName })
+                : ""}
+              {l.introRest}
             </p>
             <div className="mt-8">
               <Link href={`/onboard/${token}/account`}>
-                <Button fullWidth>Începe configurarea</Button>
+                <Button fullWidth>{l.startCta}</Button>
               </Link>
             </div>
             <p className="text-xs text-text-muted mt-4 text-center">
-              Ai deja un cont Tavli?{" "}
+              {l.haveAccount}{" "}
               <Link href={`/partner/sign-in?invite=${token}`} className="text-brand-primary font-semibold">
-                Conectează-te
+                {l.haveAccountLink}
               </Link>
             </p>
           </>
@@ -90,32 +99,37 @@ export default async function OnboardingLandingPage({
 
         {result.kind === "expired" && (
           <ErrorState
-            title="Invitația a expirat"
-            body="Linkurile de invitație sunt valabile 14 zile. Cere-i persoanei tale de contact de la Tavli una nouă."
+            title={l.expiredTitle}
+            body={l.expiredBody}
+            contactLabel={l.contactLabel}
           />
         )}
         {result.kind === "claimed" && (
           <ErrorState
-            title="Deja acceptată"
-            body="Această invitație a fost deja folosită. Dacă vrei să accesezi panoul de partener, conectează-te la /partner/sign-in."
+            title={l.claimedTitle}
+            body={l.claimedBody}
+            contactLabel={l.contactLabel}
           />
         )}
         {result.kind === "revoked" && (
           <ErrorState
-            title="Invitație revocată"
-            body="Această invitație nu mai este activă. Contactează echipa Tavli dacă crezi că este o greșeală."
+            title={l.revokedTitle}
+            body={l.revokedBody}
+            contactLabel={l.contactLabel}
           />
         )}
         {result.kind === "not_found" && (
           <ErrorState
-            title="Invitație negăsită"
-            body="Acest link nu este recunoscut. Poate a fost scris greșit — copiază și lipește adresa completă din email."
+            title={l.notFoundTitle}
+            body={l.notFoundBody}
+            contactLabel={l.contactLabel}
           />
         )}
         {result.kind === "config_missing" && (
           <ErrorState
-            title="Platformă neconfigurată"
-            body="Tavli încă se configurează. Încearcă din nou în câteva minute sau contactează-ne dacă problema persistă."
+            title={l.configMissingTitle}
+            body={l.configMissingBody}
+            contactLabel={l.contactLabel}
           />
         )}
       </div>
@@ -123,7 +137,15 @@ export default async function OnboardingLandingPage({
   );
 }
 
-function ErrorState({ title, body }: { title: string; body: string }) {
+function ErrorState({
+  title,
+  body,
+  contactLabel,
+}: {
+  title: string;
+  body: string;
+  contactLabel: string;
+}) {
   return (
     <>
       <h1 className="font-display text-[28px] font-bold text-text-primary mt-6 leading-tight">
@@ -131,7 +153,7 @@ function ErrorState({ title, body }: { title: string; body: string }) {
       </h1>
       <p className="text-sm text-text-secondary mt-3 leading-relaxed">{body}</p>
       <p className="text-xs text-text-muted mt-6">
-        Contact:{" "}
+        {contactLabel}{" "}
         <a href="mailto:hello@tavli.ro" className="text-brand-primary">
           hello@tavli.ro
         </a>

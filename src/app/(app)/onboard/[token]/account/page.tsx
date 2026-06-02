@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { hashInvitationToken } from "@/lib/invitations";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { AccountForm } from "@/components/onboarding/AccountForm";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -32,14 +34,16 @@ export default async function OnboardingAccountPage({
     redirect(`/onboard/${token}`);
   }
 
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.onboarding");
+
   return (
     <OnboardingShell currentStepIndex={0} token={token}>
       <h1 className="font-display text-[32px] font-bold text-text-primary leading-tight">
-        Creează-ți contul
+        {m.wizard.account.title}
       </h1>
       <p className="text-sm text-text-secondary mt-2 mb-8 leading-relaxed">
-        Un singur cont e tot ce-ți trebuie. Folosim această adresă pentru
-        alertele de rezervare și pentru anunțurile importante de pe platformă.
+        {m.wizard.account.subtitle}
       </p>
       <AccountForm
         token={token}
