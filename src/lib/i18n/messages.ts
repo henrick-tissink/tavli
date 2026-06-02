@@ -365,6 +365,10 @@ export interface ReviewsMessages {
 
 /** Structural contract for the `events` namespace. */
 export interface EventsMessages {
+  meta: {
+    title: string;
+    description: string;
+  };
   cta: {
     organise: string;
     organisePrivate: string;

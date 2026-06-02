@@ -8,7 +8,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
-import { translate } from "@/lib/i18n/t";
+import { translate, interpolate } from "@/lib/i18n/t";
 
 const CITY_DISPLAY_NAMES: Record<string, string> = {
   bucuresti: "București",
@@ -38,8 +38,8 @@ export async function generateMetadata({
   const cityName = formatCityName(city);
   const m = getMessages(locale, "events");
   return {
-    title: `Locații pentru evenimente private în ${cityName} | Tavli`,
-    description: `Descoperă restaurante și cafenele din ${cityName} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate.`,
+    title: interpolate(m.meta.title, { city: cityName }),
+    description: interpolate(m.meta.description, { city: cityName }),
     alternates: buildAlternates(`/${city}/events`, locale, getSiteUrl()),
   };
 }

@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Locații pentru evenimente private în {city} | Tavli",
+    "description": "Descoperă restaurante și cafenele din {city} care primesc solicitări pentru evenimente private — nunți, aniversări, cine corporate."
+  },
   "cta": {
     "organise": "Organizează un eveniment",
     "organisePrivate": "Organizează un eveniment privat",

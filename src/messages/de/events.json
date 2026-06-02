@@ -1,8 +1,12 @@
 {
+  "meta": {
+    "title": "Locations für private Veranstaltungen in {city} | Tavli",
+    "description": "Entdecken Sie Restaurants und Locations in {city}, die Anfragen für private Veranstaltungen entgegennehmen — Hochzeiten, Geburtstage, Firmendinner."
+  },
   "cta": {
     "organise": "Eine Veranstaltung organisieren",
     "organisePrivate": "Eine private Veranstaltung organisieren",
-    "organiseSubtitle": "Hochzeit, Jubiläum, Firmendinner · Antwort in weniger als 24 Stunden"
+    "organiseSubtitle": "Hochzeit, Geburtstag, Firmendinner · Antwort in weniger als 24 Stunden"
   },
   "sheet": {
     "titleSuffix": "· Private Veranstaltung",
@@ -11,7 +15,7 @@
       "heading": "Was feiern wir?",
       "labels": {
         "wedding": "Hochzeit",
-        "birthday": "Jubiläum",
+        "birthday": "Geburtstag",
         "corporate_dinner": "Firmendinner",
         "product_launch": "Produkteinführung",
         "other": "Sonstiges"
@@ -60,7 +64,7 @@
           "blurb": "Das Dinner oder die Feier, die zählt. Wir helfen Ihnen, sie von Grund auf zu planen."
         },
         "birthday": {
-          "label": "Jubiläum",
+          "label": "Geburtstag",
           "blurb": "Intim oder groß. Teilen Sie uns ein paar Details mit und das Restaurant erledigt den Rest."
         },
         "corporate_dinner": {
@@ -121,7 +125,7 @@
     "hero": {
       "eyebrow": "Tavli · private Veranstaltungen",
       "heading": "Unvergessliche Momente, veranstaltet in {city}.",
-      "body": "Sorgfältig geprüfte Restaurants und Veranstaltungsorte, die Anfragen für private Veranstaltungen entgegennehmen — Hochzeiten, Jubiläen, Firmendinner. Fordern Sie in 60 Sekunden ein Angebot an.",
+      "body": "Sorgfältig geprüfte Restaurants und Veranstaltungsorte, die Anfragen für private Veranstaltungen entgegennehmen — Hochzeiten, Geburtstage, Firmendinner. Fordern Sie in 60 Sekunden ein Angebot an.",
       "venueCount": {
         "one": "{count} geprüfte Location · Antwort garantiert innerhalb von 24 Std.",
         "few": "{count} geprüfte Locations · Antwort garantiert innerhalb von 24 Std.",
@@ -140,7 +144,7 @@
           "blurb": "Teamdinner, Launches, Jahresabschluss"
         },
         "birthday": {
-          "label": "Jubiläum",
+          "label": "Geburtstag",
           "blurb": "Vom intimen Dinner zur großen Feier"
         },
         "product_launch": {

@@ -1,8 +1,12 @@
 {
+  "meta": {
+    "title": "Private event venues in {city} | Tavli",
+    "description": "Discover restaurants and venues in {city} that accept requests for private events — weddings, birthdays, corporate dinners."
+  },
   "cta": {
     "organise": "Organise an event",
     "organisePrivate": "Organise a private event",
-    "organiseSubtitle": "Wedding, anniversary, corporate dinner · response within 24 hours"
+    "organiseSubtitle": "Wedding, birthday, corporate dinner · response within 24 hours"
   },
   "sheet": {
     "titleSuffix": "· Private event",
@@ -11,7 +15,7 @@
       "heading": "What are we celebrating?",
       "labels": {
         "wedding": "Wedding",
-        "birthday": "Anniversary",
+        "birthday": "Birthday",
         "corporate_dinner": "Corporate dinner",
         "product_launch": "Product launch",
         "other": "Other"
@@ -60,7 +64,7 @@
           "blurb": "The dinner or party that matters. We'll help you plan it from scratch."
         },
         "birthday": {
-          "label": "Anniversary",
+          "label": "Birthday",
           "blurb": "Intimate or grand. Share a few details and the restaurant does the rest."
         },
         "corporate_dinner": {
@@ -121,7 +125,7 @@
     "hero": {
       "eyebrow": "Tavli · private events",
       "heading": "Memorable moments, hosted in {city}.",
-      "body": "Carefully vetted restaurants and venues that accept requests for private events — weddings, anniversaries, corporate dinners. Request a quote in 60 seconds.",
+      "body": "Carefully vetted restaurants and venues that accept requests for private events — weddings, birthdays, corporate dinners. Request a quote in 60 seconds.",
       "venueCount": {
         "one": "{count} verified venue · response guaranteed within 24 h",
         "few": "{count} verified venues · response guaranteed within 24 h",
@@ -140,7 +144,7 @@
           "blurb": "Team dinners, launches, end-of-year"
         },
         "birthday": {
-          "label": "Anniversary",
+          "label": "Birthday",
           "blurb": "From intimate dinner to full celebration"
         },
         "product_launch": {

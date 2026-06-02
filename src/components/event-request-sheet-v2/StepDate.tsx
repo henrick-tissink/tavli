@@ -32,10 +32,8 @@ export function StepDate({
   const today = new Date();
   const minDate = addDays(today, minLeadDays);
   const selected = value ? new Date(value) : undefined;
-  const leadTimeNotice = t("sheetV2.stepDate.leadTimeNotice").replace(
-    "{minLeadDays}",
-    String(minLeadDays),
-  );
+  const leadTimeTemplate = t("sheetV2.stepDate.leadTimeNotice");
+  const [leadBefore, leadAfter] = leadTimeTemplate.split("{minLeadDays}");
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
@@ -43,7 +41,9 @@ export function StepDate({
       </h2>
       <div className="rounded-card border border-border p-3 bg-[color:var(--color-occasion-corporate-soft)]">
         <p className="text-xs font-medium text-text-secondary">
-          {leadTimeNotice}
+          {leadBefore}
+          <span className="font-semibold">{minLeadDays}</span>
+          {leadAfter}
         </p>
       </div>
       <div className="flex justify-center">
