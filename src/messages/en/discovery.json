@@ -115,5 +115,93 @@
     "searchPlaceholder": "Search restaurants, cuisines…",
     "savedAriaLabel": "Saved restaurants",
     "profileAriaLabel": "Profile"
+  },
+  "timeContext": {
+    "greetings": {
+      "morning": "Good morning",
+      "brunch": "It's brunch o'clock",
+      "lunch": "It's lunchtime",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "late": "Still peckish?",
+      "default": "Discover"
+    },
+    "subtexts": {
+      "morning": {
+        "one": "{count} spot for coffee or brunch near you",
+        "few": "{count} spots for coffee or brunch near you",
+        "other": "{count} spots for coffee or brunch near you"
+      },
+      "brunch": {
+        "one": "{count} spot for brunch with free tables",
+        "few": "{count} spots for brunch with free tables",
+        "other": "{count} spots for brunch with free tables"
+      },
+      "lunch": {
+        "one": "{count} spot with quick service",
+        "few": "{count} spots with quick service",
+        "other": "{count} spots with quick service"
+      },
+      "afternoon": {
+        "one": "{count} café near you",
+        "few": "{count} cafés near you",
+        "other": "{count} cafés near you"
+      },
+      "evening": {
+        "one": "{count} spot available tonight",
+        "few": "{count} spots available tonight",
+        "other": "{count} spots available tonight"
+      },
+      "late": {
+        "one": "{count} spot open late near you",
+        "few": "{count} spots open late near you",
+        "other": "{count} spots open late near you"
+      },
+      "default": {
+        "one": "{count} spot to explore",
+        "few": "{count} spots to explore",
+        "other": "{count} spots to explore"
+      }
+    },
+    "chips": {
+      "morning": "Breakfast",
+      "brunch": "Brunch",
+      "lunch": "Quick lunch",
+      "afternoon": "Coffee",
+      "evening": "Dinner",
+      "late": "Open late",
+      "terrace": "Terrace",
+      "cocktails": "Cocktails"
+    },
+    "pullQuotes": {
+      "morning": {
+        "eyebrow": "A LITTLE INSPIRATION",
+        "body": "The best diners start planning in the morning. Find a table for tonight."
+      },
+      "brunch": {
+        "eyebrow": "BRUNCH TIME",
+        "body": "Saturday, Sunday — the city sets its slow tables. Find yours."
+      },
+      "lunch": {
+        "eyebrow": "LUNCHTIME",
+        "body": "The best lunch tables are found an hour ahead. Search now."
+      },
+      "afternoon": {
+        "eyebrow": "AFTERNOON",
+        "body": "{city} becomes another city at dusk. Hold your place."
+      },
+      "evening": {
+        "eyebrow": "EVENING",
+        "body": "Tonight, in {city}, people are already at their tables. So can you."
+      },
+      "late": {
+        "eyebrow": "AFTER MIDNIGHT",
+        "body": "A city that never sleeps. Some places still have their lights on."
+      },
+      "default": {
+        "eyebrow": "DISCOVER",
+        "body": "Tables ready for you, wherever you are."
+      }
+    }
   }
 }

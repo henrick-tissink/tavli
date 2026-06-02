@@ -227,6 +227,45 @@ export interface DiscoveryMessages {
     savedAriaLabel: string;
     profileAriaLabel: string;
   };
+  timeContext: {
+    greetings: {
+      morning: string;
+      brunch: string;
+      lunch: string;
+      afternoon: string;
+      evening: string;
+      late: string;
+      default: string;
+    };
+    subtexts: {
+      morning: { one: string; few: string; other: string };
+      brunch: { one: string; few: string; other: string };
+      lunch: { one: string; few: string; other: string };
+      afternoon: { one: string; few: string; other: string };
+      evening: { one: string; few: string; other: string };
+      late: { one: string; few: string; other: string };
+      default: { one: string; few: string; other: string };
+    };
+    chips: {
+      morning: string;
+      brunch: string;
+      lunch: string;
+      afternoon: string;
+      evening: string;
+      late: string;
+      terrace: string;
+      cocktails: string;
+    };
+    pullQuotes: {
+      morning: { eyebrow: string; body: string };
+      brunch: { eyebrow: string; body: string };
+      lunch: { eyebrow: string; body: string };
+      afternoon: { eyebrow: string; body: string };
+      evening: { eyebrow: string; body: string };
+      late: { eyebrow: string; body: string };
+      default: { eyebrow: string; body: string };
+    };
+  };
 }
 
 /** Structural contract for the `restaurant` namespace. */

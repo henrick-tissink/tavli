@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export type TimeContextId =
   | "morning"
@@ -13,12 +14,43 @@ export type TimeContextId =
   | "weekend"
   | "holiday";
 
+/** Catalogue key used to look up greeting / subtext / pull-quote copy. */
+export type ContextCopyKey =
+  | "morning"
+  | "brunch"
+  | "lunch"
+  | "afternoon"
+  | "evening"
+  | "late"
+  | "default";
+
+/** Catalogue key for a single injected filter/trending chip. */
+export type PillKey =
+  | "morning"
+  | "brunch"
+  | "lunch"
+  | "afternoon"
+  | "evening"
+  | "late"
+  | "terrace"
+  | "cocktails";
+
 export interface TimeContextValue {
   active: TimeContextId[];
   greeting: string;
   subtextTemplate: string;
   injectedPills: { label: string; icon: string }[];
   pullQuote: { eyebrow: string; body: string };
+  /**
+   * Catalogue keys resolved from the active time-of-day. The provider uses
+   * these to source localized copy; `computeTimeContext` still fills the
+   * `greeting` / `subtextTemplate` / `pullQuote` / pill `label` fields above
+   * with the verbatim Romanian oracle so direct callers (and unit tests) keep
+   * byte-identical output.
+   */
+  copyKey: ContextCopyKey;
+  pullQuoteKey: ContextCopyKey;
+  pillKeys: { key: PillKey; icon: string }[];
 }
 
 const GREETING_PRIORITY: TimeContextId[] = [
@@ -77,6 +109,19 @@ const PILL_MAP: Record<string, { label: string; icon: string }> = {
   late: { label: "Deschis până târziu", icon: "🌙" },
   terrace: { label: "Terasă", icon: "☀️" },
   "weekend+evening": { label: "Cocktailuri", icon: "🍸" },
+};
+
+// Maps each pill-priority slot to its catalogue chip key (the catalogue is keyed
+// by time-of-day, with the weekend+evening combo surfacing as "cocktails").
+const PILL_CATALOGUE_KEY: Record<string, PillKey> = {
+  morning: "morning",
+  brunch: "brunch",
+  lunch: "lunch",
+  afternoon: "afternoon",
+  evening: "evening",
+  late: "late",
+  terrace: "terrace",
+  "weekend+evening": "cocktails",
 };
 
 const PILL_PRIORITY = [
@@ -164,28 +209,33 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
   // Determine greeting using priority
   let greeting = "Descoperă";
   let subtextTemplate = "{N} {P:loc|locuri} de explorat";
+  let copyKey: ContextCopyKey = "default";
 
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
       const mapped = GREETING_MAP[id];
       greeting = mapped.greeting;
       subtextTemplate = mapped.subtextTemplate;
+      copyKey = id as ContextCopyKey;
       break;
     }
   }
 
   // Determine injected pills (max 2, priority order)
   const injectedPills: { label: string; icon: string }[] = [];
+  const pillKeys: { key: PillKey; icon: string }[] = [];
   for (const key of PILL_PRIORITY) {
     if (injectedPills.length >= 2) break;
 
     if (key === "weekend+evening") {
       if (active.includes("weekend") && active.includes("evening")) {
         injectedPills.push(PILL_MAP[key]);
+        pillKeys.push({ key: PILL_CATALOGUE_KEY[key], icon: PILL_MAP[key].icon });
       }
     } else {
       if (active.includes(key as TimeContextId)) {
         injectedPills.push(PILL_MAP[key]);
+        pillKeys.push({ key: PILL_CATALOGUE_KEY[key], icon: PILL_MAP[key].icon });
       }
     }
   }
@@ -193,15 +243,62 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
   // Resolve pullQuote by the SAME priority as greeting — keeps cover hero
   // and editorial interstitial in lock-step.
   let pullQuote = DEFAULT_PULL_QUOTE;
+  let pullQuoteKey: ContextCopyKey = "default";
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
       const mapped = PULL_QUOTE_MAP[id];
-      if (mapped.body) pullQuote = mapped;
+      if (mapped.body) {
+        pullQuote = mapped;
+        pullQuoteKey = id as ContextCopyKey;
+      }
       break;
     }
   }
 
-  return { active, greeting, subtextTemplate, injectedPills, pullQuote };
+  return {
+    active,
+    greeting,
+    subtextTemplate,
+    injectedPills,
+    pullQuote,
+    copyKey,
+    pullQuoteKey,
+    pillKeys,
+  };
+}
+
+type Translator = (key: string, vars?: Record<string, string | number>) => string;
+
+/**
+ * Replace the (verbatim-RO) copy fields of a computed time context with strings
+ * resolved from the `discovery` catalogue for the active locale. The structural
+ * fields (`active`, icons, resolved keys) are untouched, and the `{city}` token
+ * in the pull-quote body is preserved for the consumer to substitute.
+ *
+ * `subtextTemplate` is rendered via the catalogue's plural bag. The historic
+ * field carried a `{N}`/`{P:…}` micro-template that no live consumer reads (only
+ * the pure `computeTimeContext`/`fillSubtext` unit tests), so here we surface a
+ * ready-to-show string with `{count}` left intact for any downstream caller.
+ */
+export function localizeTimeContext(
+  base: TimeContextValue,
+  t: Translator,
+): TimeContextValue {
+  return {
+    ...base,
+    greeting: t(`timeContext.greetings.${base.copyKey}`),
+    // `count` drives plural selection; leave the {count} token unresolved by
+    // omitting the var so the returned template still reads naturally.
+    subtextTemplate: t(`timeContext.subtexts.${base.copyKey}.other`),
+    injectedPills: base.pillKeys.map(({ key, icon }) => ({
+      label: t(`timeContext.chips.${key}`),
+      icon,
+    })),
+    pullQuote: {
+      eyebrow: t(`timeContext.pullQuotes.${base.pullQuoteKey}.eyebrow`),
+      body: t(`timeContext.pullQuotes.${base.pullQuoteKey}.body`),
+    },
+  };
 }
 
 const TimeContext = createContext<TimeContextValue | null>(null);
@@ -216,20 +313,26 @@ const NEUTRAL_CTX: TimeContextValue = {
   subtextTemplate: "{N} {P:loc|locuri} de explorat",
   injectedPills: [],
   pullQuote: DEFAULT_PULL_QUOTE,
+  copyKey: "default",
+  pullQuoteKey: "default",
+  pillKeys: [],
 };
 
 export function TimeContextProvider({ children }: { children: ReactNode }) {
-  const [ctx, setCtx] = useState<TimeContextValue>(NEUTRAL_CTX);
+  const [base, setBase] = useState<TimeContextValue>(NEUTRAL_CTX);
+  const t = useT("discovery");
 
   useEffect(() => {
-    setCtx(computeTimeContext(new Date(), MOCK_TEMPERATURE));
+    setBase(computeTimeContext(new Date(), MOCK_TEMPERATURE));
 
     const interval = setInterval(() => {
-      setCtx(computeTimeContext(new Date(), MOCK_TEMPERATURE));
+      setBase(computeTimeContext(new Date(), MOCK_TEMPERATURE));
     }, 60_000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const ctx = localizeTimeContext(base, t);
 
   return <TimeContext value={ctx}>{children}</TimeContext>;
 }
