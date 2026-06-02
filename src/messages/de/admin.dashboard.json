@@ -1,0 +1,16 @@
+{
+  "page": {
+    "title": "Übersicht",
+    "subtitle": "Überblick über die Plattformaktivität."
+  },
+  "stats": {
+    "liveRestaurants": "Aktive Restaurants",
+    "pendingReview": "Ausstehende Prüfung",
+    "drafts": "Entwürfe",
+    "openInvitations": "Offene Einladungen"
+  },
+  "recent": {
+    "title": "Letzte Aktivität",
+    "placeholder": "Der Aktivitätsfeed kommt mit M5 (Einladungen + E-Mail)."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "page": {
+    "title": "Dashboard",
+    "subtitle": "Overview of platform activity."
+  },
+  "stats": {
+    "liveRestaurants": "Live restaurants",
+    "pendingReview": "Pending review",
+    "drafts": "Drafts",
+    "openInvitations": "Open invitations"
+  },
+  "recent": {
+    "title": "Recent activity",
+    "placeholder": "Activity feed arrives with M5 (invitations + email)."
+  }
+}
