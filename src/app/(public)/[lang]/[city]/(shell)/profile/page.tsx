@@ -12,31 +12,7 @@ import { AuthSheet } from "@/components/auth-sheet";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
 
-// i18n-allow-block: profile city switcher is built around RO display names
-// (CitySelector emits a display name → reverse-mapped to slug). Tracked for a
-// follow-up that refactors CitySelector to slug-based + common.cities labels.
-const CITY_DISPLAY_NAMES: Record<string, string> = {
-  bucuresti: "București",
-  cluj: "Cluj",
-  timisoara: "Timișoara",
-  brasov: "Brașov",
-  iasi: "Iași",
-};
-
-// i18n-allow-block: reverse map for the city switcher (see above).
-const CITY_NAME_TO_SLUG: Record<string, string> = {
-  București: "bucuresti",
-  Cluj: "cluj",
-  Timișoara: "timisoara",
-  Brașov: "brasov",
-  Iași: "iasi",
-};
-
 const NOTIFICATIONS_STORAGE_KEY = "tavli-notifications-enabled";
-
-function formatCityName(slug: string): string {
-  return CITY_DISPLAY_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
-}
 
 export default function ProfilePage({
   params,
@@ -49,6 +25,7 @@ export default function ProfilePage({
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const t = useT("profile");
+  const tc = useT("common");
   const locale = useLocale();
 
   // Hydrate notification preference from localStorage on mount.
@@ -73,13 +50,10 @@ export default function ProfilePage({
     });
   };
 
-  const handleCityChange = (cityName: string) => {
-    const slug = CITY_NAME_TO_SLUG[cityName];
+  const handleCityChange = (slug: string) => {
     if (!slug || slug === city) return;
     router.push(localizedHref(`/${slug}/profile`, locale));
   };
-
-  const displayCity = formatCityName(city);
 
   if (auth.loading) {
     return (
@@ -146,7 +120,7 @@ export default function ProfilePage({
         {/* City */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-text-primary">{t("screen.cityLabel")}</span>
-          <CitySelector currentCity={displayCity} onSelect={handleCityChange} />
+          <CitySelector currentSlug={city} onSelect={handleCityChange} />
         </div>
 
         {/* Notifications */}
