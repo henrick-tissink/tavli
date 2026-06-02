@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { ShieldCheck } from "lucide-react";
 import { CuiLookupField } from "./CuiLookupField";
 import { submitEventRequestDraft } from "@/app/api/event-requests/actions";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { DraftState } from "./index";
 
 interface Props {
@@ -27,12 +28,13 @@ export function StepIdentity({
   onBack,
   onSent,
 }: Props) {
+  const t = useT("events");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   function submit() {
     if (!draft.occasion) {
-      setError("Alege ocazia înainte de a trimite.");
+      setError(t("sheetV2.stepIdentity.errorNoOccasion"));
       return;
     }
     setError(null);
@@ -72,10 +74,10 @@ export function StepIdentity({
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Cum te găsim?
+        {t("sheetV2.stepIdentity.heading")}
       </h2>
       <label className="block">
-        <span className="text-sm font-medium text-text-primary">Nume</span>
+        <span className="text-sm font-medium text-text-primary">{t("sheetV2.stepIdentity.nameLabel")}</span>
         <input
           value={draft.guestName}
           onChange={(e) => onChange({ guestName: e.target.value })}
@@ -83,7 +85,7 @@ export function StepIdentity({
         />
       </label>
       <label className="block">
-        <span className="text-sm font-medium text-text-primary">Email</span>
+        <span className="text-sm font-medium text-text-primary">{t("sheetV2.stepIdentity.emailLabel")}</span>
         <input
           type="email"
           value={draft.guestEmail}
@@ -93,7 +95,7 @@ export function StepIdentity({
       </label>
       <label className="block">
         <span className="text-sm font-medium text-text-primary">
-          Telefon (opțional)
+          {t("sheetV2.stepIdentity.phoneLabel")}
         </span>
         <input
           type="tel"
@@ -108,7 +110,7 @@ export function StepIdentity({
           checked={draft.bookingForCompany}
           onChange={(e) => onChange({ bookingForCompany: e.target.checked })}
         />
-        Rezervare pentru o companie (facturare cu CUI)
+        {t("sheetV2.stepIdentity.companyCheckLabel")}
       </label>
       {draft.bookingForCompany && (
         <CuiLookupField
@@ -120,8 +122,7 @@ export function StepIdentity({
       <div className="text-xs text-text-secondary flex items-start gap-2 bg-surface-bg rounded-card p-3">
         <ShieldCheck className="w-4 h-4 mt-0.5 text-[color:var(--color-occasion-corporate)] shrink-0" />
         <span>
-          Îți vom trimite un link de confirmare pe email. Restaurantul vede
-          cererea ta doar după ce confirmi.
+          {t("sheetV2.stepIdentity.confirmationNotice")}
         </span>
       </div>
       {error && (
@@ -136,7 +137,7 @@ export function StepIdentity({
           disabled={pending}
           className="flex-1 border border-border rounded-card py-3 font-semibold text-text-primary hover:bg-surface-bg transition-colors"
         >
-          Înapoi
+          {t("sheetV2.stepIdentity.back")}
         </button>
         <button
           type="button"
@@ -144,7 +145,7 @@ export function StepIdentity({
           disabled={pending || !draft.guestName || !draft.guestEmail}
           className="flex-1 bg-brand-primary text-surface-white rounded-card py-3 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-primary-dark transition-colors"
         >
-          {pending ? "Se trimite…" : "Trimite cererea"}
+          {pending ? t("sheetV2.stepIdentity.submitPending") : t("sheetV2.stepIdentity.submitLabel")}
         </button>
       </div>
     </div>

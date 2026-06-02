@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { CalendarHeart, ChevronRight } from "lucide-react";
 import { EventRequestSheetV2 } from "./event-request-sheet-v2";
+import { useT } from "@/lib/i18n/messages-provider";
 import type {
   Occasion,
   PrivateSpaceTile,
@@ -26,6 +27,7 @@ export function EventRequestCtaV2({
   minLeadDays,
   budgetPerHeadGuidance,
 }: Props) {
+  const t = useT("events");
   const [open, setOpen] = useState(false);
   if (!enabled) return null;
   return (
@@ -40,10 +42,10 @@ export function EventRequestCtaV2({
         </span>
         <span className="flex-1">
           <span className="block font-semibold text-text-primary">
-            Organizează un eveniment privat
+            {t("cta.organisePrivate")}
           </span>
           <span className="block text-xs text-text-secondary mt-0.5">
-            Nuntă, aniversare, cină corporate · răspuns în mai puțin de 24 de ore
+            {t("cta.organiseSubtitle")}
           </span>
         </span>
         <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-primary transition-colors" />

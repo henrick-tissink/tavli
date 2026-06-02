@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/messages-provider";
+
 interface Props {
   current: number;
   total: number;
@@ -11,6 +13,10 @@ interface Props {
  * progresses through the wizard.
  */
 export function SheetProgress({ current, total }: Props) {
+  const t = useT("events");
+  const label = t("sheetV2.progress.stepLabel")
+    .replace("{current}", String(current))
+    .replace("{total}", String(total));
   return (
     <div
       className="flex items-center gap-2 mt-1"
@@ -20,7 +26,7 @@ export function SheetProgress({ current, total }: Props) {
       aria-valuemax={total}
     >
       <span className="text-xs font-medium text-text-secondary uppercase tracking-wider">
-        Pas {current} din {total}
+        {label}
       </span>
       <div className="flex gap-1">
         {Array.from({ length: total }).map((_, i) => (

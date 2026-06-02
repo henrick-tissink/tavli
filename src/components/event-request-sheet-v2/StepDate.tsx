@@ -4,6 +4,7 @@ import { DayPicker } from "react-day-picker";
 import { ro } from "date-fns/locale";
 import { addDays, format } from "date-fns";
 import "react-day-picker/style.css";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props {
   minLeadDays: number;
@@ -27,21 +28,22 @@ export function StepDate({
   onBack,
   onNext,
 }: Props) {
+  const t = useT("events");
   const today = new Date();
   const minDate = addDays(today, minLeadDays);
   const selected = value ? new Date(value) : undefined;
+  const leadTimeNotice = t("sheetV2.stepDate.leadTimeNotice").replace(
+    "{minLeadDays}",
+    String(minLeadDays),
+  );
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Când e ziua cea mare?
+        {t("sheetV2.stepDate.heading")}
       </h2>
       <div className="rounded-card border border-border p-3 bg-[color:var(--color-occasion-corporate-soft)]">
         <p className="text-xs font-medium text-text-secondary">
-          Acest restaurant primește cereri cu minim{" "}
-          <span className="font-semibold text-text-primary">
-            {minLeadDays} zile
-          </span>{" "}
-          înainte de eveniment.
+          {leadTimeNotice}
         </p>
       </div>
       <div className="flex justify-center">
@@ -61,12 +63,12 @@ export function StepDate({
       )}
       <label className="block">
         <span className="text-sm font-medium text-text-primary">
-          Preferință oră (opțional)
+          {t("sheetV2.stepDate.timePrefLabel")}
         </span>
         <input
           type="text"
           value={timePreference}
-          placeholder="prânz, seară, 18:00…"
+          placeholder={t("sheetV2.stepDate.timePrefPlaceholder")}
           onChange={(e) => onChange({ eventTimePreference: e.target.value })}
           className="w-full mt-1 border border-border rounded-card p-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
         />
@@ -77,7 +79,7 @@ export function StepDate({
           onClick={onBack}
           className="flex-1 border border-border rounded-card py-3 font-semibold text-text-primary hover:bg-surface-bg transition-colors"
         >
-          Înapoi
+          {t("sheetV2.stepDate.back")}
         </button>
         <button
           type="button"
@@ -85,7 +87,7 @@ export function StepDate({
           disabled={!value}
           className="flex-1 bg-brand-primary text-surface-white rounded-card py-3 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-primary-dark transition-colors"
         >
-          Continuă
+          {t("sheetV2.stepDate.continue")}
         </button>
       </div>
     </div>

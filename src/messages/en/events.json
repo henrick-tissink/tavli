@@ -1,0 +1,177 @@
+{
+  "cta": {
+    "organise": "Organise an event",
+    "organisePrivate": "Organise a private event",
+    "organiseSubtitle": "Wedding, anniversary, corporate dinner · response within 24 hours"
+  },
+  "sheet": {
+    "titleSuffix": "· Private event",
+    "closeAriaLabel": "Close",
+    "occasion": {
+      "heading": "What are we celebrating?",
+      "labels": {
+        "wedding": "Wedding",
+        "birthday": "Anniversary",
+        "corporate_dinner": "Corporate dinner",
+        "product_launch": "Product launch",
+        "other": "Other"
+      }
+    },
+    "date": {
+      "label": "Event date",
+      "timePrefLabel": "Time preference",
+      "timePrefPlaceholder": "lunch / evening / 6 pm"
+    },
+    "details": {
+      "persoanelLabel": "Guests",
+      "spaceLabel": "Preferred space (optional)",
+      "budgetLabel": "Budget per person (RON, optional)",
+      "menuLabel": "Menu / preferences",
+      "dietaryLabel": "Dietary requirements",
+      "notesLabel": "Additional notes"
+    },
+    "identity": {
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone (optional)",
+      "companyCheckLabel": "Booking for a company",
+      "cuiLabel": "Tax ID (CUI)",
+      "companyNameLabel": "Company name"
+    },
+    "continue": "Continue",
+    "back": "Back",
+    "submitPending": "Sending…",
+    "submitLabel": "Send request",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "sheetV2": {
+    "titleSuffix": "· Private event",
+    "closeAriaLabel": "Close",
+    "dialogAriaLabel": "Private event request — {restaurantName}",
+    "progress": {
+      "stepLabel": "Step {current} of {total}"
+    },
+    "stepOccasion": {
+      "heading": "Let's make this truly memorable.",
+      "subheading": "What are you celebrating?",
+      "occasions": {
+        "wedding": {
+          "label": "Wedding",
+          "blurb": "The dinner or party that matters. We'll help you plan it from scratch."
+        },
+        "birthday": {
+          "label": "Anniversary",
+          "blurb": "Intimate or grand. Share a few details and the restaurant does the rest."
+        },
+        "corporate_dinner": {
+          "label": "Corporate dinner",
+          "blurb": "Team dinner, client lunch, end-of-year — formal or relaxed."
+        },
+        "product_launch": {
+          "label": "Product launch",
+          "blurb": "Open bar, cocktails, free floor — an event that says what you mean."
+        },
+        "other": {
+          "label": "Other",
+          "blurb": "Tell us the details and we'll find the right setting."
+        }
+      },
+      "continue": "Continue"
+    },
+    "stepDate": {
+      "heading": "When is the big day?",
+      "leadTimeNotice": "This restaurant accepts requests at least {minLeadDays} days before the event.",
+      "timePrefLabel": "Time preference (optional)",
+      "timePrefPlaceholder": "lunch, evening, 6 pm…",
+      "back": "Back",
+      "continue": "Continue"
+    },
+    "stepDetails": {
+      "heading": "A few details.",
+      "partySizeLabel": "How many guests?",
+      "spaceLabel": "Your preferred space",
+      "spaceFreeLabel": "Preferred space (optional)",
+      "budgetLabel": "Budget per person (RON)",
+      "menuSectionLabel": "Menu and dietary requirements (optional)",
+      "menuPlaceholder": "Menu / preferences",
+      "dietaryPlaceholder": "Dietary requirements",
+      "notesPlaceholder": "Additional notes",
+      "back": "Back",
+      "continue": "Continue"
+    },
+    "stepIdentity": {
+      "heading": "How can we reach you?",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone (optional)",
+      "companyCheckLabel": "Booking for a company (invoicing with tax ID)",
+      "confirmationNotice": "We'll send you a confirmation link by email. The restaurant only sees your request once you confirm.",
+      "errorNoOccasion": "Please select an occasion before submitting.",
+      "back": "Back",
+      "submitPending": "Sending…",
+      "submitLabel": "Send request"
+    },
+    "stepSent": {
+      "heading": "Check your email",
+      "body": "We've sent a link to {email}. Click it to confirm your request — the restaurant receives it in their inbox immediately after.",
+      "spamNotice": "Didn't receive the email? Check your Spam folder or try again in 2 minutes."
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "Tavli · private events",
+      "heading": "Memorable moments, hosted in {city}.",
+      "body": "Carefully vetted restaurants and venues that accept requests for private events — weddings, anniversaries, corporate dinners. Request a quote in 60 seconds.",
+      "venueCount": {
+        "one": "{count} verified venue · response guaranteed within 24 h",
+        "few": "{count} verified venues · response guaranteed within 24 h",
+        "other": "{count} verified venues · response guaranteed within 24 h"
+      }
+    },
+    "occasionGrid": {
+      "heading": "What occasion are you looking for?",
+      "occasions": {
+        "wedding": {
+          "label": "Wedding",
+          "blurb": "Rooms for 40–200 guests"
+        },
+        "corporate_dinner": {
+          "label": "Corporate dinner",
+          "blurb": "Team dinners, launches, end-of-year"
+        },
+        "birthday": {
+          "label": "Anniversary",
+          "blurb": "From intimate dinner to full celebration"
+        },
+        "product_launch": {
+          "label": "Product launch",
+          "blurb": "Cocktails, free floor, branding"
+        }
+      }
+    },
+    "allVenuesHeading": "All venues"
+  },
+  "tracking": {
+    "requestLabel": "Request #{id}",
+    "partySizeUnit": "guests",
+    "partnerResponseLabel": "Restaurant response",
+    "quoteLabel": "Total quote",
+    "quoteCurrency": "RON",
+    "acceptQuote": "Accept quote",
+    "declineQuote": "Politely decline",
+    "declineReasonPrefix": "Reason:",
+    "cancelRequest": "Cancel request",
+    "status": {
+      "new": "Request sent",
+      "viewing": "The restaurant is viewing your request",
+      "replied": "You have received a reply",
+      "quoted": "Quote received",
+      "accepted": "Quote accepted",
+      "declined": "Request declined",
+      "expired_quote": "Quote expired",
+      "cancelled": "Request cancelled",
+      "expired": "Request expired",
+      "completed": "Event completed"
+    }
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "cta": {
+    "organise": "Organizează un eveniment",
+    "organisePrivate": "Organizează un eveniment privat",
+    "organiseSubtitle": "Nuntă, aniversare, cină corporate · răspuns în mai puțin de 24 de ore"
+  },
+  "sheet": {
+    "titleSuffix": "· Eveniment privat",
+    "closeAriaLabel": "Închide",
+    "occasion": {
+      "heading": "Ce sărbătorim?",
+      "labels": {
+        "wedding": "Nuntă",
+        "birthday": "Aniversare",
+        "corporate_dinner": "Cină corporate",
+        "product_launch": "Lansare produs",
+        "other": "Altele"
+      }
+    },
+    "date": {
+      "label": "Dată eveniment",
+      "timePrefLabel": "Preferință oră",
+      "timePrefPlaceholder": "prânz / seară / 18:00"
+    },
+    "details": {
+      "persoanelLabel": "Persoane",
+      "spaceLabel": "Spațiu dorit (opțional)",
+      "budgetLabel": "Buget per persoană (lei, opțional)",
+      "menuLabel": "Meniu / dorințe",
+      "dietaryLabel": "Restricții alimentare",
+      "notesLabel": "Note suplimentare"
+    },
+    "identity": {
+      "nameLabel": "Nume",
+      "emailLabel": "Email",
+      "phoneLabel": "Telefon (opțional)",
+      "companyCheckLabel": "Rezervare pentru o companie",
+      "cuiLabel": "CUI",
+      "companyNameLabel": "Denumire companie"
+    },
+    "continue": "Continuă",
+    "back": "Înapoi",
+    "submitPending": "Se trimite…",
+    "submitLabel": "Trimite cererea",
+    "errorGeneric": "Ceva nu a mers. Încearcă din nou."
+  },
+  "sheetV2": {
+    "titleSuffix": "· Eveniment privat",
+    "closeAriaLabel": "Închide",
+    "dialogAriaLabel": "Cerere eveniment privat — {restaurantName}",
+    "progress": {
+      "stepLabel": "Pas {current} din {total}"
+    },
+    "stepOccasion": {
+      "heading": "Hai să facem din asta ceva memorabil.",
+      "subheading": "Ce sărbătorești?",
+      "occasions": {
+        "wedding": {
+          "label": "Nuntă",
+          "blurb": "Cina sau petrecerea care contează. Te ajutăm să o organizezi de la zero."
+        },
+        "birthday": {
+          "label": "Aniversare",
+          "blurb": "Rotund sau intim. Spune-ne câteva detalii și restaurantul face restul."
+        },
+        "corporate_dinner": {
+          "label": "Cină corporate",
+          "blurb": "Team dinner, client lunch, end-of-year — formal sau lejer."
+        },
+        "product_launch": {
+          "label": "Lansare produs",
+          "blurb": "Open bar, cocktail, podea liberă — un eveniment care arată ce vrei să spui."
+        },
+        "other": {
+          "label": "Altele",
+          "blurb": "Vorbim despre detalii, găsim setarea potrivită."
+        }
+      },
+      "continue": "Continuă"
+    },
+    "stepDate": {
+      "heading": "Când e ziua cea mare?",
+      "leadTimeNotice": "Acest restaurant primește cereri cu minim {minLeadDays} zile înainte de eveniment.",
+      "timePrefLabel": "Preferință oră (opțional)",
+      "timePrefPlaceholder": "prânz, seară, 18:00…",
+      "back": "Înapoi",
+      "continue": "Continuă"
+    },
+    "stepDetails": {
+      "heading": "Câteva detalii.",
+      "partySizeLabel": "Câte persoane?",
+      "spaceLabel": "Spațiul tău preferat",
+      "spaceFreeLabel": "Spațiu preferat (opțional)",
+      "budgetLabel": "Buget per persoană (lei)",
+      "menuSectionLabel": "Meniu și restricții (opțional)",
+      "menuPlaceholder": "Meniu / dorințe",
+      "dietaryPlaceholder": "Restricții alimentare",
+      "notesPlaceholder": "Note suplimentare",
+      "back": "Înapoi",
+      "continue": "Continuă"
+    },
+    "stepIdentity": {
+      "heading": "Cum te găsim?",
+      "nameLabel": "Nume",
+      "emailLabel": "Email",
+      "phoneLabel": "Telefon (opțional)",
+      "companyCheckLabel": "Rezervare pentru o companie (facturare cu CUI)",
+      "confirmationNotice": "Îți vom trimite un link de confirmare pe email. Restaurantul vede cererea ta doar după ce confirmi.",
+      "errorNoOccasion": "Alege ocazia înainte de a trimite.",
+      "back": "Înapoi",
+      "submitPending": "Se trimite…",
+      "submitLabel": "Trimite cererea"
+    },
+    "stepSent": {
+      "heading": "Verifică emailul",
+      "body": "Ți-am trimis un link la {email}. Click pe el ca să confirmi cererea — restaurantul o primește în inbox imediat după.",
+      "spamNotice": "Nu primești emailul? Verifică Spam-ul sau reîncearcă peste 2 minute."
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "Tavli · evenimente private",
+      "heading": "Momente memorabile, găzduite în {city}.",
+      "body": "Restaurante și locații atent verificate, care primesc cereri pentru evenimente private — nunți, aniversări, cine corporate. Cere ofertă în 60 de secunde.",
+      "venueCount": {
+        "one": "{count} locație verificată · răspuns garantat în 24h",
+        "few": "{count} locații verificate · răspuns garantat în 24h",
+        "other": "{count} locații verificate · răspuns garantat în 24h"
+      }
+    },
+    "occasionGrid": {
+      "heading": "Pentru ce moment cauți?",
+      "occasions": {
+        "wedding": {
+          "label": "Nuntă",
+          "blurb": "Săli pentru 40–200 oaspeți"
+        },
+        "corporate_dinner": {
+          "label": "Cină corporate",
+          "blurb": "Cine de team, lansări, end-of-year"
+        },
+        "birthday": {
+          "label": "Aniversare",
+          "blurb": "De la cină intimă la petrecere"
+        },
+        "product_launch": {
+          "label": "Lansare produs",
+          "blurb": "Cocktail, podea liberă, branding"
+        }
+      }
+    },
+    "allVenuesHeading": "Toate locațiile"
+  },
+  "tracking": {
+    "requestLabel": "Cerere #{id}",
+    "partySizeUnit": "pers.",
+    "partnerResponseLabel": "Răspuns restaurant",
+    "quoteLabel": "Ofertă totală",
+    "quoteCurrency": "lei",
+    "acceptQuote": "Acceptă oferta",
+    "declineQuote": "Refuză politicos",
+    "declineReasonPrefix": "Motiv:",
+    "cancelRequest": "Anulează cererea",
+    "status": {
+      "new": "Cerere trimisă",
+      "viewing": "Restaurantul îți vede cererea",
+      "replied": "Ai primit un răspuns",
+      "quoted": "Ofertă primită",
+      "accepted": "Ofertă acceptată",
+      "declined": "Cerere refuzată",
+      "expired_quote": "Oferta a expirat",
+      "cancelled": "Cerere anulată",
+      "expired": "Cerere expirată",
+      "completed": "Eveniment finalizat"
+    }
+  }
+}

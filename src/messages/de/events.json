@@ -1,0 +1,177 @@
+{
+  "cta": {
+    "organise": "Eine Veranstaltung organisieren",
+    "organisePrivate": "Eine private Veranstaltung organisieren",
+    "organiseSubtitle": "Hochzeit, Jubiläum, Firmendinner · Antwort in weniger als 24 Stunden"
+  },
+  "sheet": {
+    "titleSuffix": "· Private Veranstaltung",
+    "closeAriaLabel": "Schließen",
+    "occasion": {
+      "heading": "Was feiern wir?",
+      "labels": {
+        "wedding": "Hochzeit",
+        "birthday": "Jubiläum",
+        "corporate_dinner": "Firmendinner",
+        "product_launch": "Produkteinführung",
+        "other": "Sonstiges"
+      }
+    },
+    "date": {
+      "label": "Veranstaltungsdatum",
+      "timePrefLabel": "Zeitpräferenz",
+      "timePrefPlaceholder": "Mittag / Abend / 18:00 Uhr"
+    },
+    "details": {
+      "persoanelLabel": "Gäste",
+      "spaceLabel": "Bevorzugter Raum (optional)",
+      "budgetLabel": "Budget pro Person (RON, optional)",
+      "menuLabel": "Speisekarte / Wünsche",
+      "dietaryLabel": "Ernährungsanforderungen",
+      "notesLabel": "Zusätzliche Hinweise"
+    },
+    "identity": {
+      "nameLabel": "Name",
+      "emailLabel": "E-Mail",
+      "phoneLabel": "Telefon (optional)",
+      "companyCheckLabel": "Buchung für ein Unternehmen",
+      "cuiLabel": "Steuer-ID (CUI)",
+      "companyNameLabel": "Unternehmensname"
+    },
+    "continue": "Weiter",
+    "back": "Zurück",
+    "submitPending": "Wird gesendet…",
+    "submitLabel": "Anfrage senden",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "sheetV2": {
+    "titleSuffix": "· Private Veranstaltung",
+    "closeAriaLabel": "Schließen",
+    "dialogAriaLabel": "Anfrage für private Veranstaltung — {restaurantName}",
+    "progress": {
+      "stepLabel": "Schritt {current} von {total}"
+    },
+    "stepOccasion": {
+      "heading": "Lassen Sie uns das unvergesslich machen.",
+      "subheading": "Was feiern Sie?",
+      "occasions": {
+        "wedding": {
+          "label": "Hochzeit",
+          "blurb": "Das Dinner oder die Feier, die zählt. Wir helfen Ihnen, sie von Grund auf zu planen."
+        },
+        "birthday": {
+          "label": "Jubiläum",
+          "blurb": "Intim oder groß. Teilen Sie uns ein paar Details mit und das Restaurant erledigt den Rest."
+        },
+        "corporate_dinner": {
+          "label": "Firmendinner",
+          "blurb": "Teamdinner, Kundenlunch, Jahresabschluss — formell oder locker."
+        },
+        "product_launch": {
+          "label": "Produkteinführung",
+          "blurb": "Open Bar, Cocktails, freie Fläche — eine Veranstaltung, die Ihre Botschaft vermittelt."
+        },
+        "other": {
+          "label": "Sonstiges",
+          "blurb": "Erzählen Sie uns die Details und wir finden den passenden Rahmen."
+        }
+      },
+      "continue": "Weiter"
+    },
+    "stepDate": {
+      "heading": "Wann ist der große Tag?",
+      "leadTimeNotice": "Dieses Restaurant nimmt Anfragen mindestens {minLeadDays} Tage vor der Veranstaltung entgegen.",
+      "timePrefLabel": "Zeitpräferenz (optional)",
+      "timePrefPlaceholder": "Mittag, Abend, 18:00 Uhr…",
+      "back": "Zurück",
+      "continue": "Weiter"
+    },
+    "stepDetails": {
+      "heading": "Ein paar Details.",
+      "partySizeLabel": "Wie viele Gäste?",
+      "spaceLabel": "Ihr bevorzugter Raum",
+      "spaceFreeLabel": "Bevorzugter Raum (optional)",
+      "budgetLabel": "Budget pro Person (RON)",
+      "menuSectionLabel": "Speisekarte und Ernährungsanforderungen (optional)",
+      "menuPlaceholder": "Speisekarte / Wünsche",
+      "dietaryPlaceholder": "Ernährungsanforderungen",
+      "notesPlaceholder": "Zusätzliche Hinweise",
+      "back": "Zurück",
+      "continue": "Weiter"
+    },
+    "stepIdentity": {
+      "heading": "Wie können wir Sie erreichen?",
+      "nameLabel": "Name",
+      "emailLabel": "E-Mail",
+      "phoneLabel": "Telefon (optional)",
+      "companyCheckLabel": "Buchung für ein Unternehmen (Abrechnung mit Steuer-ID)",
+      "confirmationNotice": "Wir senden Ihnen einen Bestätigungslink per E-Mail. Das Restaurant sieht Ihre Anfrage erst, nachdem Sie diese bestätigt haben.",
+      "errorNoOccasion": "Bitte wählen Sie einen Anlass aus, bevor Sie absenden.",
+      "back": "Zurück",
+      "submitPending": "Wird gesendet…",
+      "submitLabel": "Anfrage senden"
+    },
+    "stepSent": {
+      "heading": "Überprüfen Sie Ihre E-Mail",
+      "body": "Wir haben Ihnen einen Link an {email} gesendet. Klicken Sie darauf, um Ihre Anfrage zu bestätigen — das Restaurant erhält sie danach sofort im Posteingang.",
+      "spamNotice": "Keine E-Mail erhalten? Überprüfen Sie Ihren Spam-Ordner oder versuchen Sie es in 2 Minuten erneut."
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "Tavli · private Veranstaltungen",
+      "heading": "Unvergessliche Momente, veranstaltet in {city}.",
+      "body": "Sorgfältig geprüfte Restaurants und Veranstaltungsorte, die Anfragen für private Veranstaltungen entgegennehmen — Hochzeiten, Jubiläen, Firmendinner. Fordern Sie in 60 Sekunden ein Angebot an.",
+      "venueCount": {
+        "one": "{count} geprüfte Location · Antwort garantiert innerhalb von 24 Std.",
+        "few": "{count} geprüfte Locations · Antwort garantiert innerhalb von 24 Std.",
+        "other": "{count} geprüfte Locations · Antwort garantiert innerhalb von 24 Std."
+      }
+    },
+    "occasionGrid": {
+      "heading": "Für welchen Anlass suchen Sie?",
+      "occasions": {
+        "wedding": {
+          "label": "Hochzeit",
+          "blurb": "Säle für 40–200 Gäste"
+        },
+        "corporate_dinner": {
+          "label": "Firmendinner",
+          "blurb": "Teamdinner, Launches, Jahresabschluss"
+        },
+        "birthday": {
+          "label": "Jubiläum",
+          "blurb": "Vom intimen Dinner zur großen Feier"
+        },
+        "product_launch": {
+          "label": "Produkteinführung",
+          "blurb": "Cocktails, freie Fläche, Branding"
+        }
+      }
+    },
+    "allVenuesHeading": "Alle Locations"
+  },
+  "tracking": {
+    "requestLabel": "Anfrage #{id}",
+    "partySizeUnit": "Pers.",
+    "partnerResponseLabel": "Antwort des Restaurants",
+    "quoteLabel": "Gesamtangebot",
+    "quoteCurrency": "RON",
+    "acceptQuote": "Angebot annehmen",
+    "declineQuote": "Höflich ablehnen",
+    "declineReasonPrefix": "Grund:",
+    "cancelRequest": "Anfrage stornieren",
+    "status": {
+      "new": "Anfrage gesendet",
+      "viewing": "Das Restaurant sieht Ihre Anfrage",
+      "replied": "Sie haben eine Antwort erhalten",
+      "quoted": "Angebot erhalten",
+      "accepted": "Angebot angenommen",
+      "declined": "Anfrage abgelehnt",
+      "expired_quote": "Angebot abgelaufen",
+      "cancelled": "Anfrage storniert",
+      "expired": "Anfrage abgelaufen",
+      "completed": "Veranstaltung abgeschlossen"
+    }
+  }
+}

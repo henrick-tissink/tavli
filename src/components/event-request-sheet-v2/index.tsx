@@ -9,6 +9,7 @@ import { StepDate } from "./StepDate";
 import { StepDetails } from "./StepDetails";
 import { StepIdentity } from "./StepIdentity";
 import { StepSent } from "./StepSent";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { Occasion, PrivateSpaceTile } from "./types";
 
 type Step = "occasion" | "date" | "details" | "identity" | "sent";
@@ -74,6 +75,7 @@ const INITIAL: DraftState = {
  * use AnimatePresence so the user perceives forward/back motion clearly.
  */
 export function EventRequestSheetV2(props: Props) {
+  const t = useT("events");
   const [step, setStep] = useState<Step>("occasion");
   const [draft, setDraft] = useState<DraftState>(INITIAL);
   if (!props.open) return null;
@@ -90,7 +92,7 @@ export function EventRequestSheetV2(props: Props) {
       <motion.div
         role="dialog"
         aria-modal="true"
-        aria-label={`Cerere eveniment privat — ${props.restaurantName}`}
+        aria-label={t("sheetV2.dialogAriaLabel").replace("{restaurantName}", props.restaurantName)}
         initial={{ y: "20%", opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "20%", opacity: 0 }}
@@ -101,7 +103,7 @@ export function EventRequestSheetV2(props: Props) {
         <header className="flex items-start justify-between gap-3 p-4 border-b border-border">
           <div>
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-              {props.restaurantName} · Eveniment privat
+              {props.restaurantName} {t("sheetV2.titleSuffix")}
             </p>
             {step !== "sent" && (
               <SheetProgress current={stepIndex + 1} total={ORDER.length} />
@@ -110,7 +112,7 @@ export function EventRequestSheetV2(props: Props) {
           <button
             type="button"
             onClick={props.onClose}
-            aria-label="Închide"
+            aria-label={t("sheetV2.closeAriaLabel")}
             className="p-1 rounded hover:bg-surface-bg transition-colors"
           >
             <X className="w-5 h-5 text-text-muted hover:text-text-primary" />

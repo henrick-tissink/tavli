@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MailCheck } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface Props {
   email: string;
@@ -13,6 +14,10 @@ interface Props {
  * without being childish.
  */
 export function StepSent({ email }: Props) {
+  const t = useT("events");
+  // Split on the {email} placeholder to wrap the address in <strong>.
+  const bodyTemplate = t("sheetV2.stepSent.body");
+  const [before, after] = bodyTemplate.split("{email}");
   return (
     <div className="text-center py-6 space-y-4">
       <motion.div
@@ -24,15 +29,15 @@ export function StepSent({ email }: Props) {
         <MailCheck className="w-8 h-8 text-[color:var(--color-occasion-product)]" />
       </motion.div>
       <h2 className="font-display text-2xl font-bold text-text-primary">
-        Verifică emailul
+        {t("sheetV2.stepSent.heading")}
       </h2>
       <p className="text-sm text-text-secondary max-w-sm mx-auto">
-        Ți-am trimis un link la{" "}
-        <strong className="text-text-primary">{email}</strong>. Click pe el ca să
-        confirmi cererea — restaurantul o primește în inbox imediat după.
+        {before}
+        <strong className="text-text-primary">{email}</strong>
+        {after}
       </p>
       <p className="text-xs text-text-muted">
-        Nu primești emailul? Verifică Spam-ul sau reîncearcă peste 2 minute.
+        {t("sheetV2.stepSent.spamNotice")}
       </p>
     </div>
   );

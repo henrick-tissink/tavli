@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { RoomPickerTile } from "./RoomPickerTile";
+import { useT } from "@/lib/i18n/messages-provider";
 import type { PrivateSpaceTile } from "./types";
 import type { DraftState } from "./index";
 
@@ -34,6 +35,7 @@ export function StepDetails({
   onBack,
   onNext,
 }: Props) {
+  const t = useT("events");
   const sortedSpaces = useMemo(
     () => [...privateSpaces].sort((a, b) => a.capacityMin - b.capacityMin),
     [privateSpaces],
@@ -41,11 +43,11 @@ export function StepDetails({
   return (
     <div className="space-y-5">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Câteva detalii.
+        {t("sheetV2.stepDetails.heading")}
       </h2>
       <label className="block">
         <span className="text-sm font-medium text-text-primary">
-          Câte persoane?
+          {t("sheetV2.stepDetails.partySizeLabel")}
         </span>
         <input
           type="number"
@@ -60,7 +62,7 @@ export function StepDetails({
       {sortedSpaces.length > 0 ? (
         <div>
           <p className="text-sm font-medium mb-2 text-text-primary">
-            Spațiul tău preferat
+            {t("sheetV2.stepDetails.spaceLabel")}
           </p>
           <div className="grid grid-cols-2 gap-3">
             {sortedSpaces.map((space) => (
@@ -80,7 +82,7 @@ export function StepDetails({
       ) : (
         <label className="block">
           <span className="text-sm font-medium text-text-primary">
-            Spațiu preferat (opțional)
+            {t("sheetV2.stepDetails.spaceFreeLabel")}
           </span>
           <input
             type="text"
@@ -93,7 +95,7 @@ export function StepDetails({
 
       <label className="block">
         <span className="text-sm font-medium text-text-primary">
-          Buget per persoană (lei)
+          {t("sheetV2.stepDetails.budgetLabel")}
         </span>
         <input
           type="number"
@@ -122,26 +124,26 @@ export function StepDetails({
 
       <details className="rounded-card border border-border">
         <summary className="px-3 py-2 cursor-pointer text-sm font-medium text-text-primary">
-          Meniu și restricții (opțional)
+          {t("sheetV2.stepDetails.menuSectionLabel")}
         </summary>
         <div className="p-3 space-y-2 border-t border-border">
           <textarea
             rows={2}
-            placeholder="Meniu / dorințe"
+            placeholder={t("sheetV2.stepDetails.menuPlaceholder")}
             value={draft.menuPreference}
             onChange={(e) => onChange({ menuPreference: e.target.value })}
             className="w-full border border-border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
           />
           <textarea
             rows={2}
-            placeholder="Restricții alimentare"
+            placeholder={t("sheetV2.stepDetails.dietaryPlaceholder")}
             value={draft.dietaryNotes}
             onChange={(e) => onChange({ dietaryNotes: e.target.value })}
             className="w-full border border-border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
           />
           <textarea
             rows={2}
-            placeholder="Note suplimentare"
+            placeholder={t("sheetV2.stepDetails.notesPlaceholder")}
             value={draft.additionalNotes}
             onChange={(e) => onChange({ additionalNotes: e.target.value })}
             className="w-full border border-border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
@@ -155,14 +157,14 @@ export function StepDetails({
           onClick={onBack}
           className="flex-1 border border-border rounded-card py-3 font-semibold text-text-primary hover:bg-surface-bg transition-colors"
         >
-          Înapoi
+          {t("sheetV2.stepDetails.back")}
         </button>
         <button
           type="button"
           onClick={onNext}
           className="flex-1 bg-brand-primary text-surface-white rounded-card py-3 font-semibold hover:bg-brand-primary-dark transition-colors"
         >
-          Continuă
+          {t("sheetV2.stepDetails.continue")}
         </button>
       </div>
     </div>

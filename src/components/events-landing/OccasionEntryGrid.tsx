@@ -1,42 +1,36 @@
 "use client";
 import Image from "next/image";
+import { useT } from "@/lib/i18n/messages-provider";
 
 const ENTRIES = [
   {
-    key: "wedding",
-    label: "Nuntă",
-    blurb: "Săli pentru 40–200 oaspeți",
+    key: "wedding" as const,
     illustration: "/illustrations/occasion-wedding.svg",
     accentVar: "--color-occasion-wedding",
   },
   {
-    key: "corporate_dinner",
-    label: "Cină corporate",
-    blurb: "Cine de team, lansări, end-of-year",
+    key: "corporate_dinner" as const,
     illustration: "/illustrations/occasion-corporate.svg",
     accentVar: "--color-occasion-corporate",
   },
   {
-    key: "birthday",
-    label: "Aniversare",
-    blurb: "De la cină intimă la petrecere",
+    key: "birthday" as const,
     illustration: "/illustrations/occasion-birthday.svg",
     accentVar: "--color-occasion-birthday",
   },
   {
-    key: "product_launch",
-    label: "Lansare produs",
-    blurb: "Cocktail, podea liberă, branding",
+    key: "product_launch" as const,
     illustration: "/illustrations/occasion-product.svg",
     accentVar: "--color-occasion-product",
   },
 ];
 
 export function OccasionEntryGrid() {
+  const t = useT("events");
   return (
     <section className="mb-10">
       <h2 className="font-display text-2xl font-bold mb-4">
-        Pentru ce moment cauți?
+        {t("landing.occasionGrid.heading")}
       </h2>
       <div className="grid grid-cols-2 desktop:grid-cols-4 gap-3">
         {ENTRIES.map((e) => (
@@ -57,9 +51,11 @@ export function OccasionEntryGrid() {
               aria-hidden
               unoptimized
             />
-            <span className="block font-semibold mt-2">{e.label}</span>
+            <span className="block font-semibold mt-2">
+              {t(`landing.occasionGrid.occasions.${e.key}.label`)}
+            </span>
             <span className="block text-xs text-text-secondary mt-1">
-              {e.blurb}
+              {t(`landing.occasionGrid.occasions.${e.key}.blurb`)}
             </span>
           </a>
         ))}

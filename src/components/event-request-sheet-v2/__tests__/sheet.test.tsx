@@ -11,19 +11,27 @@ jest.mock("@/app/api/event-requests/actions", () => ({
 // IntersectionObserver gap from framer-motion below.
 
 import { EventRequestSheetV2 } from "../index";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roEvents from "@/messages/ro/events.json";
 
-describe("EventRequestSheetV2", () => {
-  it("renders the dialog with progress on step 1", () => {
-    render(
+function renderSheet(open = true) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ events: roEvents }}>
       <EventRequestSheetV2
-        open
+        open={open}
         onClose={() => {}}
         restaurantId="r1"
         restaurantName="Atelier"
         acceptedOccasions={["wedding"]}
         privateSpaces={[]}
-      />,
-    );
+      />
+    </MessagesProvider>,
+  );
+}
+
+describe("EventRequestSheetV2", () => {
+  it("renders the dialog with progress on step 1", () => {
+    renderSheet();
     expect(
       screen.getByText("Atelier · Eveniment privat"),
     ).toBeInTheDocument();
@@ -31,16 +39,7 @@ describe("EventRequestSheetV2", () => {
   });
 
   it("does not render when closed", () => {
-    const { container } = render(
-      <EventRequestSheetV2
-        open={false}
-        onClose={() => {}}
-        restaurantId="r1"
-        restaurantName="Atelier"
-        acceptedOccasions={["wedding"]}
-        privateSpaces={[]}
-      />,
-    );
+    const { container } = renderSheet(false);
     expect(container).toBeEmptyDOMElement();
   });
 });

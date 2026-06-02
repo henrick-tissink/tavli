@@ -1,21 +1,29 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { EventRequestSheet } from "../event-request-sheet";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roEvents from "@/messages/ro/events.json";
 
 jest.mock("@/app/api/event-requests/actions", () => ({
   submitEventRequestDraft: jest.fn().mockResolvedValue({ ok: true, trackingToken: "abc" }),
 }));
 
-describe("EventRequestSheet", () => {
-  it("walks through steps and submits with form data", async () => {
-    render(
+function renderSheet() {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ events: roEvents }}>
       <EventRequestSheet
         open
         onClose={() => {}}
         restaurantId="r1"
         restaurantName="Test"
         acceptedOccasions={["wedding", "birthday", "corporate_dinner", "product_launch", "other"]}
-      />,
-    );
+      />
+    </MessagesProvider>,
+  );
+}
+
+describe("EventRequestSheet", () => {
+  it("walks through steps and submits with form data", async () => {
+    renderSheet();
     fireEvent.click(screen.getByRole("button", { name: /nuntă|wedding/i }));
     fireEvent.click(screen.getByRole("button", { name: /continuă|next/i }));
     // date step
