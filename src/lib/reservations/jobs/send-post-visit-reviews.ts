@@ -12,6 +12,9 @@ import { sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { appOrigin } from "@/lib/app-origin";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
+import { resolveDinerLocale } from "@/lib/email/resolve-locale";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
 
 interface Row {
   id: string;
@@ -22,21 +25,25 @@ interface Row {
   restaurant_id: string;
   restaurant_name: string;
   organization_id: string | null;
+  locale: string | null;
+  diner_locale: string | null;
 }
 
 interface Deps {
   db: typeof dbAdmin;
   sendEmail: typeof sendTransactionalEmail;
-  renderPostVisit: (input: { restaurantName: string; guestName: string; reviewBaseUrl: string }) => Promise<{ html: string; text: string }>;
+  renderPostVisit: (input: { restaurantName: string; guestName: string; reviewBaseUrl: string; locale?: "ro" | "en" | "de" }) => Promise<{ html: string; text: string }>;
 }
 
 export function makeSendPostVisitReviews(deps: Deps) {
   return async function sendPostVisitReviews(): Promise<{ sent: number }> {
     const rows = (await deps.db.execute(sql`
       SELECT r.id, r.confirmation_token, r.guest_name, r.guest_email, r.diner_id,
-             r.restaurant_id, rest.name AS restaurant_name, rest.organization_id
+             r.restaurant_id, rest.name AS restaurant_name, rest.organization_id,
+             r.locale, d.locale AS diner_locale
       FROM reservations r
       JOIN restaurants rest ON rest.id = r.restaurant_id
+      LEFT JOIN diners d ON d.id = r.diner_id
       WHERE r.status = 'confirmed'
         AND r.post_visit_email_sent_at IS NULL
         AND r.guest_email IS NOT NULL
@@ -54,16 +61,23 @@ export function makeSendPostVisitReviews(deps: Deps) {
       if (claimed.length === 0) continue;
 
       try {
+        const locale = resolveDinerLocale({
+          reservation: { locale: r.locale ?? null },
+          diner: { locale: r.diner_locale ?? null },
+          restaurant: { locale: "ro" },
+        });
+        const postVisitM = getMessages(locale, "emails").postVisit;
         const { html, text } = await deps.renderPostVisit({
           restaurantName: r.restaurant_name,
           guestName: r.guest_name,
           reviewBaseUrl: `${appOrigin()}/reviews/${r.confirmation_token}`,
+          locale,
         });
         const result = await deps.sendEmail({
           to: r.guest_email,
-          locale: "ro",
+          locale,
           templateKey: "review_request",
-          subject: `Cum a fost la ${r.restaurant_name}?`,
+          subject: interpolate(postVisitM.subject, { restaurantName: r.restaurant_name }),
           html,
           text,
           context: {

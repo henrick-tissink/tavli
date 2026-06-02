@@ -5,7 +5,9 @@ import { eventRequests, restaurants } from "@/lib/db/schema";
 import {
   sendEventRequestExpired,
   sendEventRequestNudge,
+  type EventRequestLocale,
 } from "@/lib/email/event-requests";
+import { isLocale } from "@/lib/i18n/locale";
 import { appOrigin } from "@/lib/app-origin";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +28,7 @@ interface ExpiredRow {
   party_size: number;
   occasion: Occasion;
   tracking_token: string;
+  locale: string;
 }
 
 interface NudgeRow {
@@ -36,6 +39,7 @@ interface NudgeRow {
   party_size: number;
   occasion: Occasion;
   tracking_token: string;
+  locale: string;
 }
 
 export async function GET(req: Request) {
@@ -50,7 +54,7 @@ export async function GET(req: Request) {
     sql`UPDATE event_requests
         SET status = 'expired'
         WHERE status = 'new' AND created_at < NOW() - INTERVAL '21 days'
-        RETURNING id, restaurant_id, guest_email, guest_name, event_date, party_size, occasion, tracking_token`,
+        RETURNING id, restaurant_id, guest_email, guest_name, event_date, party_size, occasion, tracking_token, locale`,
   )) as unknown as ExpiredRow[];
 
   for (const row of expired) {
@@ -60,9 +64,12 @@ export async function GET(req: Request) {
       .where(eq(restaurants.id, row.restaurant_id))
       .limit(1);
     if (!r) continue;
+    const locale: EventRequestLocale = isLocale(row.locale)
+      ? (row.locale as EventRequestLocale)
+      : "ro";
     try {
       await sendEventRequestExpired({
-        locale: "ro",
+        locale,
         restaurantName: r.name,
         guestName: row.guest_name,
         guestEmail: row.guest_email,
@@ -84,7 +91,7 @@ export async function GET(req: Request) {
   let nudgesSent = 0;
   for (const ageDays of [3, 7, 14] as const) {
     const toNudge = (await dbAdmin.execute(
-      sql`SELECT id, restaurant_id, guest_name, event_date, party_size, occasion, tracking_token
+      sql`SELECT id, restaurant_id, guest_name, event_date, party_size, occasion, tracking_token, locale
           FROM event_requests
           WHERE status = 'new'
             AND created_at < NOW() - INTERVAL '${sql.raw(String(ageDays))} days'
@@ -98,9 +105,12 @@ export async function GET(req: Request) {
         .where(eq(restaurants.id, row.restaurant_id))
         .limit(1);
       if (r?.email) {
+        const nudgeLocale: EventRequestLocale = isLocale(row.locale)
+          ? (row.locale as EventRequestLocale)
+          : "ro";
         try {
           await sendEventRequestNudge({
-            locale: "ro",
+            locale: nudgeLocale,
             restaurantName: r.name,
             guestName: row.guest_name,
             occasion: row.occasion,

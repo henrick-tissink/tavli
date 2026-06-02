@@ -101,6 +101,13 @@ function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
           }),
         };
       }
+      if (table === "organizations") {
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({ data: { locale: "ro" } }),
+        };
+      }
       throw new Error(`unexpected from(${table})`);
     }),
   };

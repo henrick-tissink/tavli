@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { dbAdmin } from "@/lib/db/admin";
 import { sql, eq } from "drizzle-orm";
 import { restaurants } from "@/lib/db/schema";
-import { sendEventRequestExpired } from "@/lib/email/event-requests";
+import {
+  sendEventRequestExpired,
+  type EventRequestLocale,
+} from "@/lib/email/event-requests";
+import { isLocale } from "@/lib/i18n/locale";
 import { appOrigin } from "@/lib/app-origin";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +25,7 @@ interface ExpiredRow {
     | "product_launch"
     | "other";
   tracking_token: string;
+  locale: string;
 }
 
 export async function GET(req: Request) {
@@ -34,7 +39,7 @@ export async function GET(req: Request) {
     sql`UPDATE event_requests
         SET status = 'expired_quote'
         WHERE status = 'quoted' AND quote_expires_at < NOW()
-        RETURNING id, restaurant_id, guest_email, guest_name, event_date, party_size, occasion, tracking_token`,
+        RETURNING id, restaurant_id, guest_email, guest_name, event_date, party_size, occasion, tracking_token, locale`,
   )) as unknown as ExpiredRow[];
 
   for (const row of expired) {
@@ -44,9 +49,12 @@ export async function GET(req: Request) {
       .where(eq(restaurants.id, row.restaurant_id))
       .limit(1);
     if (!r) continue;
+    const locale: EventRequestLocale = isLocale(row.locale)
+      ? (row.locale as EventRequestLocale)
+      : "ro";
     try {
       await sendEventRequestExpired({
-        locale: "ro",
+        locale,
         restaurantName: r.name,
         guestName: row.guest_name,
         guestEmail: row.guest_email,

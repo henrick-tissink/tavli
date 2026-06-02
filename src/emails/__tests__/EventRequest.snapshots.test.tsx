@@ -32,7 +32,7 @@ const base = {
 };
 
 describe("event-request email snapshots", () => {
-  for (const locale of ["ro", "en"] as const) {
+  for (const locale of ["ro", "en", "de"] as const) {
     it(`new-to-partner ${locale}`, async () => {
       const html = await render(
         <EventRequestNewToPartnerEmail

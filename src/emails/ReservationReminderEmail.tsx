@@ -10,6 +10,9 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { translate, interpolate } from "@/lib/i18n/t";
+import { type Locale, BCP47 } from "@/lib/i18n/locale";
 
 interface Props {
   restaurantName: string;
@@ -20,13 +23,12 @@ interface Props {
   guestName: string;
   zone?: string;
   cancelUrl: string;
+  locale?: Locale;
 }
 
 /**
- * §02 §6 / §04 — the 24-hour pre-arrival reminder. RO copy, matching the
- * existing single-locale confirmation/post-visit templates (per-locale email
- * catalogues are a documented later item). Includes the cancel link so a
- * guest who can't make it can free the table.
+ * §02 §6 / §04 — the 24-hour pre-arrival reminder. Supports RO/EN/DE.
+ * Includes the cancel link so a guest who can't make it can free the table.
  */
 export function ReservationReminderEmail({
   restaurantName,
@@ -37,35 +39,40 @@ export function ReservationReminderEmail({
   guestName,
   zone,
   cancelUrl,
+  locale = "ro",
 }: Props) {
+  const m = getMessages(locale, "emails").reminder;
   const prettyDate = new Date(`${reservationDate}T12:00:00`).toLocaleDateString(
-    "ro-RO",
+    BCP47[locale],
     { weekday: "long", day: "numeric", month: "long" },
   );
-  const guestsLabel = partySize === 1 ? "persoană" : "persoane";
+  const guestsLabel = translate(locale, m.guests, { count: partySize });
 
   return (
     <Html>
       <Head />
       <Preview>
-        Mâine la {restaurantName} — {prettyDate} la {reservationTime}
+        {interpolate(m.preview, { restaurantName, prettyDate, time: reservationTime })}
       </Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={logo}>Tavli</Heading>
           <Heading as="h1" style={h1}>
-            Ne vedem mâine.
+            {m.heading}
           </Heading>
           <Text style={lede}>
-            Salut, {guestName} — un memento prietenos pentru rezervarea ta de
-            mâine.
+            {interpolate(m.lede, { guestName })}
           </Text>
           <Section style={card}>
             <Heading as="h2" style={h2}>
               {restaurantName}
             </Heading>
             <Text style={cardLine}>
-              <strong>{prettyDate}</strong> la <strong>{reservationTime}</strong>
+              <strong>{prettyDate}</strong>
+              {" "}
+              {locale === "ro" ? "la" : locale === "de" ? "um" : "at"}
+              {" "}
+              <strong>{reservationTime}</strong>
             </Text>
             <Text style={cardLine}>
               {partySize} {guestsLabel}
@@ -76,14 +83,14 @@ export function ReservationReminderEmail({
             )}
           </Section>
           <Text style={lede}>
-            Nu mai poți ajunge? Anulează cu un click ca să eliberezi masa.
+            {m.cancelHint}
           </Text>
           <Button href={cancelUrl} style={button}>
-            Gestionează rezervarea
+            {m.manageButton}
           </Button>
           <Hr style={hr} />
           <Text style={footer}>
-            Primești acest e-mail pentru că ai o rezervare prin Tavli.
+            {m.footer}
           </Text>
         </Container>
       </Body>

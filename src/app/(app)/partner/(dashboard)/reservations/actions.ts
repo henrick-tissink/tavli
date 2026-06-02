@@ -10,6 +10,9 @@ import {
   type CancelReasonKey,
 } from "@/lib/cancel-reasons";
 import { PartnerCancelledEmail } from "@/emails/PartnerCancelledEmail";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { isLocale } from "@/lib/i18n/locale";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
@@ -186,7 +189,7 @@ export async function cancelReservation(
   const { data: reservationRow } = await supabase
     .from("reservations")
     .select(
-      "id, status, guest_name, guest_email, reservation_date, reservation_time, party_size, restaurants!inner(name, email, slug, cities!inner(slug))",
+      "id, status, guest_name, guest_email, reservation_date, reservation_time, party_size, locale, restaurants!inner(name, email, slug, cities!inner(slug))",
     )
     .eq("id", reservationId)
     .eq("restaurant_id", ownerRestaurantId)
@@ -204,6 +207,7 @@ export async function cancelReservation(
     reservation_date: string;
     reservation_time: string;
     party_size: number;
+    locale: string | null;
     restaurants:
       | { name: string; email: string | null; slug: string; cities: { slug: string } | { slug: string }[] }
       | { name: string; email: string | null; slug: string; cities: { slug: string } | { slug: string }[] }[];
@@ -267,7 +271,10 @@ export async function cancelReservation(
     const citiesField = restaurant.cities;
     const city = Array.isArray(citiesField) ? citiesField[0] : citiesField;
 
-    const subject = `Rezervare anulată la ${restaurant.name}`;
+    // §i18n Phase 1c — use the locale captured at booking time.
+    const guestLocale = (isLocale(reservation.locale ?? "") ? reservation.locale : "ro") as "ro" | "en" | "de";
+    const cancelledM = getMessages(guestLocale, "emails").partnerCancelled;
+    const subject = interpolate(cancelledM.subject, { restaurantName: restaurant.name });
     const node = PartnerCancelledEmail({
       restaurantName: restaurant.name,
       restaurantCitySlug: city.slug,
@@ -277,6 +284,7 @@ export async function cancelReservation(
       partySize: reservation.party_size,
       guestName: reservation.guest_name,
       guestMessage: CANCEL_REASONS[key].guestMessage,
+      locale: guestLocale,
     });
     const html = await render(node);
     const text = await render(node, { plainText: true });
@@ -285,7 +293,7 @@ export async function cancelReservation(
       // Restore the legacy Reply-To so guests replying to the cancellation
       // notification reach the venue inbox directly, not our no-reply sender.
       replyTo: restaurant.email ?? undefined,
-      locale: "ro",
+      locale: guestLocale,
       templateKey: "reservation_modified",
       subject,
       html,

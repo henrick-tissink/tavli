@@ -11,6 +11,7 @@ jest.mock("@/lib/audit/record", () => ({ recordAudit: jest.fn() }));
 jest.mock("@/lib/app-origin", () => ({ appOrigin: () => "https://tavli.ro" }));
 
 import { makeSendReminders } from "../send-reminders";
+import { getMessages } from "@/lib/i18n/messages";
 
 const ROW = {
   id: "res-1",
@@ -28,13 +29,23 @@ const ROW = {
   organization_id: "org-1",
 };
 
-function makeDeps(opts: { claimReturns?: unknown[]; sendOk?: boolean } = {}) {
-  const claimReturns = opts.claimReturns ?? [{ id: "res-1" }];
+const ROW_DE = {
+  ...ROW,
+  id: "res-2",
+  confirmation_token: "tok-2",
+  locale: "de",
+  diner_locale: null,
+};
+
+function makeDeps(opts: { claimReturns?: unknown[]; sendOk?: boolean; sweepRow?: unknown } = {}) {
+  const sweepRow = opts.sweepRow ?? ROW;
+  const claimId = (sweepRow as typeof ROW).id;
+  const claimReturns = opts.claimReturns ?? [{ id: claimId }];
   const calls: string[] = [];
   const db = {
     execute: jest.fn(async (q: unknown) => {
       const t = JSON.stringify(q);
-      if (t.includes("FROM reservations r")) { calls.push("sweep"); return [ROW]; }
+      if (t.includes("FROM reservations r")) { calls.push("sweep"); return [sweepRow]; }
       if (t.includes("reminder_sent_at = now()")) { calls.push("claim"); return claimReturns; }
       if (t.includes("reminder_sent_at = NULL")) { calls.push("release"); return []; }
       return [];
@@ -71,5 +82,25 @@ describe("makeSendReminders", () => {
     expect(res.sent).toBe(0);
     expect(d.calls).toContain("release");
     expect(d.recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("resolves 'de' locale and passes DE subject when reservation.locale is 'de'", async () => {
+    const d = makeDeps({ sweepRow: ROW_DE });
+    const res = await makeSendReminders(d as never)();
+    expect(res.sent).toBe(1);
+    // resolveDinerLocale picks reservation.locale = "de"
+    expect(d.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        locale: "de",
+        subject: getMessages("de", "emails").reminder.subject.replace(
+          "{restaurantName}",
+          ROW_DE.restaurant_name,
+        ),
+      }),
+    );
+    // renderReminder also receives the DE locale
+    expect(d.renderReminder).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: "de" }),
+    );
   });
 });

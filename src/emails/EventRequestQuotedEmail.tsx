@@ -9,9 +9,12 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface Props {
-  locale: "ro" | "en";
+  locale: Locale;
   restaurantName: string;
   occasion: "wedding" | "birthday" | "corporate_dinner" | "product_launch" | "other";
   eventDate: string;
@@ -22,38 +25,20 @@ interface Props {
   quoteExpiresAt: string;
 }
 
-const COPY = {
-  ro: {
-    preview: "Ai primit o ofertă",
-    title: "Ai primit o ofertă",
-    subtitle: (n: string, r: string) => `Salut, ${n} — ${r} ți-a trimis o ofertă.`,
-    amountLabel: "Sumă",
-    expiresLabel: "Expiră",
-    cta: "Răspunde la ofertă",
-    currency: "lei",
-  },
-  en: {
-    preview: "You received a quote",
-    title: "You received a quote",
-    subtitle: (n: string, r: string) => `Hi, ${n} — ${r} sent you a quote.`,
-    amountLabel: "Amount",
-    expiresLabel: "Expires",
-    cta: "Respond to quote",
-    currency: "RON",
-  },
-} as const;
-
 export default function EventRequestQuotedEmail(props: Props) {
-  const c = COPY[props.locale];
+  const m = getMessages(props.locale, "emails").eventQuoted;
   return (
     <Html lang={props.locale}>
       <Head />
-      <Preview>{c.preview}</Preview>
+      <Preview>{m.preview}</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f5f5f0" }}>
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "24px" }}>
-          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{c.title}</Heading>
+          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{m.title}</Heading>
           <Text style={{ color: "#5c5c5c" }}>
-            {c.subtitle(props.guestName, props.restaurantName)}
+            {interpolate(m.subtitle, {
+              guestName: props.guestName,
+              restaurantName: props.restaurantName,
+            })}
           </Text>
           <Section
             style={{
@@ -64,10 +49,10 @@ export default function EventRequestQuotedEmail(props: Props) {
             }}
           >
             <Text>
-              <strong>{c.amountLabel}:</strong> {props.amountLei} {c.currency}
+              <strong>{m.amountLabel}:</strong> {props.amountLei} {m.currency}
             </Text>
             <Text>
-              <strong>{c.expiresLabel}:</strong> {props.quoteExpiresAt}
+              <strong>{m.expiresLabel}:</strong> {props.quoteExpiresAt}
             </Text>
             <Text>
               {props.eventDate} · {props.partySize}
@@ -84,7 +69,7 @@ export default function EventRequestQuotedEmail(props: Props) {
                 textDecoration: "none",
               }}
             >
-              {c.cta}
+              {m.cta}
             </Link>
           </Section>
         </Container>

@@ -1,0 +1,136 @@
+{
+  "confirmation": {
+    "subject": "Reservation at {restaurantName} — {date} {time}",
+    "preview": "Table booked at {restaurantName} — {prettyDate} at {time}",
+    "heading": "Your reservation is confirmed.",
+    "lede": "Hello, {guestName} — here are your booking details.",
+    "guests": {
+      "one": "person",
+      "few": "people",
+      "other": "people"
+    },
+    "reminderText": "Please arrive a few minutes early and let the host know you booked through Tavli.",
+    "cancelButton": "Cancel or modify",
+    "footer": "Tavli — restaurant reservations."
+  },
+  "reminder": {
+    "subject": "Tomorrow at {restaurantName}",
+    "preview": "Tomorrow at {restaurantName} — {prettyDate} at {time}",
+    "heading": "See you tomorrow.",
+    "lede": "Hello, {guestName} — a friendly reminder about your reservation tomorrow.",
+    "guests": {
+      "one": "person",
+      "few": "people",
+      "other": "people"
+    },
+    "cancelHint": "Can't make it? Cancel with one click to free up the table.",
+    "manageButton": "Manage reservation",
+    "footer": "You are receiving this email because you have a reservation through Tavli."
+  },
+  "postVisit": {
+    "subject": "How was {restaurantName}?",
+    "preview": "One tap leaves an anonymous rating — first name only.",
+    "heading": "How was {restaurantName}?",
+    "lede": "Hello, {firstName} — one tap is all we need. Your rating stays anonymous (first name only) and helps the next diner.",
+    "greetingNoName": "Hi — one tap is all we need. Your rating stays anonymous (first name only) and helps the next diner.",
+    "instructionText": "Tap a star above. You will land on a page where you can add a comment if you like — or just submit and you're done.",
+    "footer": "Tavli — restaurant reservations."
+  },
+  "partnerAlert": {
+    "subject": "New reservation — {restaurantName} · {date} {time}",
+    "preview": "New reservation at {restaurantName} — {prettyDate} {time} · {partySize} {coversLabel}",
+    "heading": "New reservation — {restaurantName}",
+    "covers": {
+      "one": "person",
+      "few": "people",
+      "other": "people"
+    },
+    "zoneLabel": "Area:",
+    "notesLabel": "Notes:",
+    "manageText": "Manage the reservation in your partner dashboard (cancel / mark as seated / mark as no-show).",
+    "footer": "Tavli — partner alerts."
+  },
+  "partnerCancelled": {
+    "subject": "Reservation cancelled at {restaurantName}",
+    "preview": "Reservation cancelled at {restaurantName} — {prettyDate} at {time}",
+    "heading": "Reservation cancelled.",
+    "lede": "Hello, {guestName} — unfortunately your reservation at {restaurantName} for {prettyDate} at {time} ({partySize} {guestsLabel}) has been cancelled.",
+    "guests": {
+      "one": "person",
+      "few": "people",
+      "other": "people"
+    },
+    "apologyText": "We are sorry for the inconvenience. You are welcome to rebook at any time.",
+    "rebookButton": "Find another time",
+    "footer": "Tavli — restaurant reservations."
+  },
+  "eventNew": {
+    "subject": "New event request",
+    "preview": "New private event request",
+    "title": "New event request",
+    "subtitle": "{guestName} sent a request for {restaurantName}",
+    "detailsLabel": "Details",
+    "occasionWedding": "Wedding",
+    "occasionBirthday": "Birthday",
+    "occasionCorporateDinner": "Corporate dinner",
+    "occasionProductLaunch": "Product launch",
+    "occasionOther": "Other",
+    "cta": "Open inbox"
+  },
+  "eventReplied": {
+    "subject": "Reply from {restaurantName}",
+    "preview": "The restaurant replied",
+    "title": "The restaurant replied",
+    "subtitle": "Hi, {guestName} — {restaurantName} replied to your request.",
+    "responseLabel": "Reply",
+    "cta": "View conversation"
+  },
+  "eventQuoted": {
+    "subject": "Quote for your event at {restaurantName}",
+    "preview": "You received a quote",
+    "title": "You received a quote",
+    "subtitle": "Hi, {guestName} — {restaurantName} sent you a quote.",
+    "amountLabel": "Amount",
+    "expiresLabel": "Expires",
+    "cta": "Respond to quote",
+    "currency": "RON"
+  },
+  "eventAccepted": {
+    "subject": "Event confirmed at {restaurantName}",
+    "preview": "Event confirmed",
+    "title": "Event confirmed",
+    "subtitle": "Hi, {guestName} — your event at {restaurantName} is confirmed.",
+    "detailsLabel": "Details",
+    "amountLabel": "Amount",
+    "cta": "View details",
+    "currency": "RON"
+  },
+  "eventDeclined": {
+    "subject": "Your request was declined",
+    "preview": "Your request was declined",
+    "title": "Your request was declined",
+    "subtitle": "Hi, {guestName} — {restaurantName} cannot fulfill your request.",
+    "reasonLabel": "Reason",
+    "reasonNoAvailability": "No availability on the requested date",
+    "reasonOutOfCapacity": "Capacity is not sufficient for your group",
+    "reasonBudgetMismatch": "Budget does not match",
+    "reasonOther": "Other reason",
+    "cta": "Find another venue"
+  },
+  "eventExpired": {
+    "subject": "Your request expired",
+    "preview": "Your request expired",
+    "title": "Your request expired",
+    "subtitle": "Hi, {guestName} — your request for {restaurantName} expired without a reply.",
+    "detailsLabel": "Details",
+    "cta": "Submit a new request"
+  },
+  "eventNudge": {
+    "subject": "Reminder: request open for {daysOpen} days",
+    "preview": "Reminder: request open for {daysOpen} days",
+    "title": "Reminder: request open for {daysOpen} days",
+    "subtitle": "{guestName} is still waiting for a reply about {restaurantName}.",
+    "detailsLabel": "Details",
+    "cta": "Open inbox"
+  }
+}

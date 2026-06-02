@@ -9,9 +9,12 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getMessages } from "@/lib/i18n/messages";
+import { interpolate } from "@/lib/i18n/t";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface Props {
-  locale: "ro" | "en";
+  locale: Locale;
   restaurantName: string;
   occasion: "wedding" | "birthday" | "corporate_dinner" | "product_launch" | "other";
   eventDate: string;
@@ -21,34 +24,20 @@ interface Props {
   partnerResponse: string;
 }
 
-const COPY = {
-  ro: {
-    preview: "Restaurantul ti-a răspuns",
-    title: "Restaurantul ti-a răspuns",
-    subtitle: (n: string, r: string) => `Salut, ${n} — ${r} a răspuns la solicitarea ta.`,
-    responseLabel: "Răspuns",
-    cta: "Vezi conversația",
-  },
-  en: {
-    preview: "The restaurant replied",
-    title: "The restaurant replied",
-    subtitle: (n: string, r: string) => `Hi, ${n} — ${r} replied to your request.`,
-    responseLabel: "Reply",
-    cta: "View conversation",
-  },
-} as const;
-
 export default function EventRequestRepliedEmail(props: Props) {
-  const c = COPY[props.locale];
+  const m = getMessages(props.locale, "emails").eventReplied;
   return (
     <Html lang={props.locale}>
       <Head />
-      <Preview>{c.preview}</Preview>
+      <Preview>{m.preview}</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f5f5f0" }}>
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "24px" }}>
-          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{c.title}</Heading>
+          <Heading style={{ fontSize: 24, marginBottom: 4 }}>{m.title}</Heading>
           <Text style={{ color: "#5c5c5c" }}>
-            {c.subtitle(props.guestName, props.restaurantName)}
+            {interpolate(m.subtitle, {
+              guestName: props.guestName,
+              restaurantName: props.restaurantName,
+            })}
           </Text>
           <Section
             style={{
@@ -59,7 +48,7 @@ export default function EventRequestRepliedEmail(props: Props) {
             }}
           >
             <Text>
-              <strong>{c.responseLabel}</strong>
+              <strong>{m.responseLabel}</strong>
             </Text>
             <Text>{props.partnerResponse}</Text>
           </Section>
@@ -74,7 +63,7 @@ export default function EventRequestRepliedEmail(props: Props) {
                 textDecoration: "none",
               }}
             >
-              {c.cta}
+              {m.cta}
             </Link>
           </Section>
         </Container>
