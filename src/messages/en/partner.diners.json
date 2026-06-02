@@ -1,0 +1,72 @@
+{
+  "list": {
+    "title": "Guests",
+    "subtitle": "Your organisation's guest database. Search by name, phone or email.",
+    "searchPlaceholder": "Search guests…",
+    "searchSubmit": "Search",
+    "reset": "Reset",
+    "noRestaurant": "No restaurant linked to this account.",
+    "noAccess": "You do not have access to the guest database.",
+    "table": {
+      "guest": "Guest",
+      "contact": "Contact",
+      "visits": "Visits",
+      "lastVisit": "Last visit"
+    },
+    "emptySearch": "No guests found.",
+    "empty": "No guests yet.",
+    "maskedHint": "Contact details are masked in the list. Open a guest for full details (access logged)."
+  },
+  "detail": {
+    "back": "Back to guests",
+    "fallbackName": "Guest",
+    "visits": {
+      "one": "{count} visit",
+      "few": "{count} visits",
+      "other": "{count} visits"
+    },
+    "lastVisit": "Last visit: {date}",
+    "preferencesTitle": "Details & preferences",
+    "historyTitle": "Visit history",
+    "history": {
+      "date": "Date",
+      "venue": "Venue",
+      "party": "Party",
+      "status": "Status"
+    },
+    "noVisits": "No visits recorded."
+  },
+  "bucket": {
+    "first_timer": "New",
+    "occasional": "Occasional",
+    "regular": "Regular",
+    "vip": "VIP",
+    "lapsed": "Lapsed"
+  },
+  "status": {
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "no_show": "No-show",
+    "seated": "Seated"
+  },
+  "form": {
+    "birthday": "Birthday",
+    "anniversary": "Anniversary",
+    "occasions": "Occasions (comma-separated)",
+    "occasionsPlaceholder": "birthday, anniversary",
+    "allergies": "Allergies (comma-separated)",
+    "allergiesPlaceholder": "nuts, lactose",
+    "dietary": "Dietary preferences (comma-separated)",
+    "dietaryPlaceholder": "vegetarian",
+    "notes": "Internal notes",
+    "saving": "Saving…",
+    "save": "Save",
+    "saved": "Saved.",
+    "saveFailed": "We could not save.",
+    "errors": {
+      "billing_locked": "Billing is suspended on this account — resume payment to edit guests.",
+      "forbidden": "You do not have permission to edit this guest."
+    }
+  }
+}

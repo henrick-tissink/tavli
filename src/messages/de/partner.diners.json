@@ -1,0 +1,72 @@
+{
+  "list": {
+    "title": "Gäste",
+    "subtitle": "Die Gästedatenbank Ihrer Organisation. Suchen Sie nach Name, Telefon oder E-Mail.",
+    "searchPlaceholder": "Gäste suchen…",
+    "searchSubmit": "Suchen",
+    "reset": "Zurücksetzen",
+    "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet.",
+    "noAccess": "Sie haben keinen Zugriff auf die Gästedatenbank.",
+    "table": {
+      "guest": "Gast",
+      "contact": "Kontakt",
+      "visits": "Besuche",
+      "lastVisit": "Letzter Besuch"
+    },
+    "emptySearch": "Keine Gäste gefunden.",
+    "empty": "Noch keine Gäste.",
+    "maskedHint": "Kontaktdaten werden in der Liste maskiert. Öffnen Sie einen Gast für vollständige Details (Zugriff protokolliert)."
+  },
+  "detail": {
+    "back": "Zurück zu den Gästen",
+    "fallbackName": "Gast",
+    "visits": {
+      "one": "{count} Besuch",
+      "few": "{count} Besuche",
+      "other": "{count} Besuche"
+    },
+    "lastVisit": "Letzter Besuch: {date}",
+    "preferencesTitle": "Details & Vorlieben",
+    "historyTitle": "Besuchsverlauf",
+    "history": {
+      "date": "Datum",
+      "venue": "Lokal",
+      "party": "Pers.",
+      "status": "Status"
+    },
+    "noVisits": "Keine Besuche erfasst."
+  },
+  "bucket": {
+    "first_timer": "Neu",
+    "occasional": "Gelegentlich",
+    "regular": "Stammgast",
+    "vip": "VIP",
+    "lapsed": "Inaktiv"
+  },
+  "status": {
+    "confirmed": "Bestätigt",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert",
+    "no_show": "Nichterscheinen",
+    "seated": "Platziert"
+  },
+  "form": {
+    "birthday": "Geburtstag",
+    "anniversary": "Jahrestag",
+    "occasions": "Anlässe (durch Komma getrennt)",
+    "occasionsPlaceholder": "birthday, anniversary",
+    "allergies": "Allergien (durch Komma getrennt)",
+    "allergiesPlaceholder": "Nüsse, Laktose",
+    "dietary": "Ernährungsvorlieben (durch Komma getrennt)",
+    "dietaryPlaceholder": "vegetarisch",
+    "notes": "Interne Notizen",
+    "saving": "Wird gespeichert…",
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "saveFailed": "Speichern nicht möglich.",
+    "errors": {
+      "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um Gäste zu bearbeiten.",
+      "forbidden": "Sie haben keine Berechtigung, diesen Gast zu bearbeiten."
+    }
+  }
+}

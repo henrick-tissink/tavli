@@ -52,6 +52,10 @@ import roPartnerTables from "@/messages/ro/partner.tables.json";
 import enPartnerTables from "@/messages/en/partner.tables.json";
 import dePartnerTables from "@/messages/de/partner.tables.json";
 
+import roPartnerDiners from "@/messages/ro/partner.diners.json";
+import enPartnerDiners from "@/messages/en/partner.diners.json";
+import dePartnerDiners from "@/messages/de/partner.diners.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1023,6 +1027,63 @@ export interface PartnerTablesMessages {
   };
 }
 
+/** Structural contract for the `partner.diners` namespace. */
+export interface PartnerDinersMessages {
+  list: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    searchSubmit: string;
+    reset: string;
+    noRestaurant: string;
+    noAccess: string;
+    table: { guest: string; contact: string; visits: string; lastVisit: string };
+    emptySearch: string;
+    empty: string;
+    maskedHint: string;
+  };
+  detail: {
+    back: string;
+    fallbackName: string;
+    visits: PluralBag;
+    lastVisit: string;
+    preferencesTitle: string;
+    historyTitle: string;
+    history: { date: string; venue: string; party: string; status: string };
+    noVisits: string;
+  };
+  bucket: {
+    first_timer: string;
+    occasional: string;
+    regular: string;
+    vip: string;
+    lapsed: string;
+  };
+  status: {
+    confirmed: string;
+    completed: string;
+    cancelled: string;
+    no_show: string;
+    seated: string;
+  };
+  form: {
+    birthday: string;
+    anniversary: string;
+    occasions: string;
+    occasionsPlaceholder: string;
+    allergies: string;
+    allergiesPlaceholder: string;
+    dietary: string;
+    dietaryPlaceholder: string;
+    notes: string;
+    saving: string;
+    save: string;
+    saved: string;
+    saveFailed: string;
+    errors: { billing_locked: string; forbidden: string };
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1085,6 +1146,11 @@ const CATALOGS = {
     en: enPartnerTables,
     de: dePartnerTables,
   } as Record<Locale, PartnerTablesMessages>,
+  "partner.diners": {
+    ro: roPartnerDiners,
+    en: enPartnerDiners,
+    de: dePartnerDiners,
+  } as Record<Locale, PartnerDinersMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;
