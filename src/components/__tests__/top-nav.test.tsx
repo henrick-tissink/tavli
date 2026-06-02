@@ -2,7 +2,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TopNav } from "../top-nav";
 
+// locale-action uses next/headers (server-only); mock it for the jsdom environment.
+jest.mock("@/app/(app)/locale-action", () => ({
+  setAppLocale: jest.fn(),
+}));
+
 const defaultProps = {
+  lang: "ro" as const,
+  pathname: "/bucuresti",
   currentCity: "București",
   onCityChange: jest.fn(),
   onSearchFocus: jest.fn(),

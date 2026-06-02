@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { Search, Heart, User } from "lucide-react";
 import { CitySelector } from "@/components/city-selector";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface TopNavProps {
+  lang: Locale;
+  pathname: string;
   currentCity: string;
   onCityChange: (city: string) => void;
   onSearchFocus: () => void;
@@ -13,6 +17,8 @@ interface TopNavProps {
 }
 
 export function TopNav({
+  lang,
+  pathname,
   currentCity,
   onCityChange,
   onSearchFocus,
@@ -61,24 +67,27 @@ export function TopNav({
           </div>
         </div>
 
-        {/* Right: Icon buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Restaurante salvate"
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
-            onClick={onSavedClick}
-          >
-            <Heart size={20} />
-          </button>
-          <button
-            type="button"
-            aria-label="Profil"
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
-            onClick={onProfileClick}
-          >
-            <User size={20} />
-          </button>
+        {/* Right: LocaleSwitcher + Icon buttons */}
+        <div className="flex items-center gap-4">
+          <LocaleSwitcher mode="path" current={lang} pathname={pathname} />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Restaurante salvate"
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
+              onClick={onSavedClick}
+            >
+              <Heart size={20} />
+            </button>
+            <button
+              type="button"
+              aria-label="Profil"
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-bg text-text-secondary"
+              onClick={onProfileClick}
+            >
+              <User size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </header>

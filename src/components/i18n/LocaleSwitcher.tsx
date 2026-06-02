@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LOCALES, type Locale } from "@/lib/i18n/locale";
 import { withLocale } from "@/lib/i18n/routing";
 import { setAppLocale } from "@/app/(app)/locale-action";
+import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 
 const LABEL: Record<Locale, string> = { ro: "Română", en: "English", de: "Deutsch" };
 
@@ -20,6 +21,7 @@ export function LocaleSwitcher(props: Props) {
             key={l}
             href={withLocale(props.pathname, l)}
             aria-current={l === props.current ? "true" : undefined}
+            onClick={() => setLocaleCookieClient(l)}
           >
             {LABEL[l]}
           </Link>

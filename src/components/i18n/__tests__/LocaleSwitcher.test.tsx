@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 
 // locale-action uses next/headers (server-only); mock it for the jsdom environment.
@@ -12,6 +12,31 @@ describe("LocaleSwitcher (consumer)", () => {
     expect(screen.getByRole("link", { name: /Română/i })).toHaveAttribute("href", "/bucuresti");
     expect(screen.getByRole("link", { name: /Deutsch/i })).toHaveAttribute("href", "/de/bucuresti");
     expect(screen.getByRole("link", { name: /English/i })).toHaveAttribute("aria-current", "true");
+  });
+
+  it("writes NEXT_LOCALE cookie when a path-mode locale link is clicked", () => {
+    // Reset document.cookie before the test.
+    // jsdom allows setting and reading document.cookie.
+    document.cookie = "NEXT_LOCALE=ro; path=/";
+
+    render(<LocaleSwitcher mode="path" current="ro" pathname="/bucuresti" />);
+
+    const deLink = screen.getByRole("link", { name: /Deutsch/i });
+    fireEvent.click(deLink);
+
+    // jsdom accumulates cookies; the most recently set value should be present.
+    expect(document.cookie).toContain("NEXT_LOCALE=de");
+  });
+
+  it("writes NEXT_LOCALE cookie when switching to English via path-mode", () => {
+    document.cookie = "NEXT_LOCALE=ro; path=/";
+
+    render(<LocaleSwitcher mode="path" current="ro" pathname="/bucuresti" />);
+
+    const enLink = screen.getByRole("link", { name: /English/i });
+    fireEvent.click(enLink);
+
+    expect(document.cookie).toContain("NEXT_LOCALE=en");
   });
 });
 
