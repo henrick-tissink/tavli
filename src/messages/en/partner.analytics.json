@@ -130,6 +130,12 @@
     "genericError": "Something went wrong. Please try again.",
     "cancel": "Cancel",
     "submitting": "Sending…",
-    "submit": "Generate export"
+    "submit": "Generate export",
+    "errors": {
+      "notSignedIn": "Not signed in.",
+      "forbidden": "Forbidden.",
+      "invalidInput": "Invalid input.",
+      "couldNotCreate": "Could not create export job."
+    }
   }
 }

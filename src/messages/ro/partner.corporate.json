@@ -176,6 +176,12 @@
     "descriptionOptional": "(opțional)",
     "descriptionPlaceholder": "Detalii utile: amenajare, vedere, echipamente disponibile.",
     "cancel": "Anulează",
-    "saving": "Se salvează…"
+    "saving": "Se salvează…",
+    "errors": {
+      "unauthorised": "Neautorizat.",
+      "forbidden": "Acces interzis.",
+      "invalidInput": "Date invalide.",
+      "capacityOrder": "Capacitatea maximă trebuie să fie cel puțin egală cu cea minimă."
+    }
   }
 }

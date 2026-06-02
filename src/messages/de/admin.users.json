@@ -29,18 +29,18 @@
     "mfaFactorMeta": "TOTP · registriert {date}",
     "mfaFactorsEmpty": "Kein MFA-Faktor registriert.",
     "auditHeading": "Audit-Verlauf (letzte 50)",
-    "impersonatedBy": "imitiert von {id}",
+    "impersonatedBy": "Identität übernommen von {id}",
     "auditEmpty": "Keine Ereignisse.",
     "statusActive": "Aktiv",
     "statusInactive": "Inaktiv"
   },
   "impersonate": {
-    "trigger": "Imitieren",
-    "title": "{email} imitieren",
+    "trigger": "Identität übernehmen",
+    "title": "Identität von {email} übernehmen",
     "body": "Sie sehen Tavli so, wie {email} es sieht. Jede Aktion wird im Audit-Log mit Ihrer und deren Identität protokolliert.",
     "reasonLabel": "Grund (optional)",
     "reasonPlaceholder": "Untersuche Buchungsproblem ALC-1042",
     "cancel": "Abbrechen",
-    "submit": "Imitieren starten →"
+    "submit": "Übernahme starten →"
   }
 }

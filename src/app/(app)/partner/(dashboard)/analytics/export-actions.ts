@@ -17,6 +17,8 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
+import { getMessages } from "@/lib/i18n/messages";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const EXPORTABLE_TABLES = ["reservations", "diners", "reviews", "campaigns"] as const;
@@ -45,21 +47,22 @@ export interface RequestAnalyticsExportResult {
 export async function requestAnalyticsExport(
   raw: RequestAnalyticsExportInput,
 ): Promise<RequestAnalyticsExportResult> {
+  const m = getMessages(await resolveAppLocale(), "partner.analytics");
   const parsed = inputSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return { ok: false, error: m.export.errors.invalidInput };
   }
   const input = parsed.data;
 
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Not signed in." };
+  if (!session) return { ok: false, error: m.export.errors.notSignedIn };
 
   const subject = { kind: "organization" as const, id: input.organizationId };
   if (!(await can(session, "analytics.export", subject))) {
-    return { ok: false, error: "Forbidden." };
+    return { ok: false, error: m.export.errors.forbidden };
   }
   if (input.tables.includes("campaigns") && !(await can(session, "campaign.read", subject))) {
-    return { ok: false, error: "Forbidden." };
+    return { ok: false, error: m.export.errors.forbidden };
   }
 
   const [row] = await dbAdmin
@@ -77,7 +80,7 @@ export async function requestAnalyticsExport(
     })
     .returning({ id: restaurantExportJobs.id });
 
-  if (!row) return { ok: false, error: "Could not create export job." };
+  if (!row) return { ok: false, error: m.export.errors.couldNotCreate };
 
   await enqueue(JOBS.analytics.runExport, { jobId: row.id });
 

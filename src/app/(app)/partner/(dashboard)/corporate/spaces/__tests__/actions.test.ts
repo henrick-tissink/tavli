@@ -4,6 +4,7 @@ import { cities, organizations, organizationMembers, restaurantStaff, profiles, 
 import { eq } from "drizzle-orm";
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
+jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("en") }));
 import { createSpaceAction, updateSpaceAction, deactivateSpaceAction } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
@@ -117,7 +118,7 @@ describe("private-spaces partner actions", () => {
       description: "",
     });
     expect(res.ok).toBe(false);
-    if (!res.ok) expect(res.error).toMatch(/capacityMin must be <= capacityMax/);
+    if (!res.ok) expect(res.error).toMatch(/maximum capacity must be at least/i);
   });
 
   it("updateSpaceAction non-owner gets forbidden", async () => {

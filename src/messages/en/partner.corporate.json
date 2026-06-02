@@ -176,6 +176,12 @@
     "descriptionOptional": "(optional)",
     "descriptionPlaceholder": "Useful details: layout, view, available equipment.",
     "cancel": "Cancel",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "errors": {
+      "unauthorised": "Unauthorised.",
+      "forbidden": "Forbidden.",
+      "invalidInput": "Invalid input.",
+      "capacityOrder": "Maximum capacity must be at least the minimum."
+    }
   }
 }

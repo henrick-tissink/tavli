@@ -130,6 +130,12 @@
     "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "cancel": "Abbrechen",
     "submitting": "Wird gesendet…",
-    "submit": "Export erstellen"
+    "submit": "Export erstellen",
+    "errors": {
+      "notSignedIn": "Nicht angemeldet.",
+      "forbidden": "Keine Berechtigung.",
+      "invalidInput": "Ungültige Eingabe.",
+      "couldNotCreate": "Export-Auftrag konnte nicht erstellt werden."
+    }
   }
 }

@@ -12,19 +12,36 @@ import {
   deactivatePrivateSpace,
 } from "@/lib/repos/private-spaces-repo";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { getMessages, type PartnerCorporateMessages } from "@/lib/i18n/messages";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
 
 type Result = { ok: true } | { ok: false; error: string };
+
+/**
+ * Map a Zod parse failure to a localized message: the capacity-order refine gets
+ * its own specific message; everything else falls back to a generic one. (The
+ * client validates these inline too, so this is a backstop.)
+ */
+function parseErrorMessage(
+  m: PartnerCorporateMessages,
+  error: z.ZodError,
+): string {
+  return error.issues.some((i) => i.message === "capacityMin must be <= capacityMax")
+    ? m.spaces.errors.capacityOrder
+    : m.spaces.errors.invalidInput;
+}
 
 async function assertOwns(
   restaurantId: string,
 ): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
+  const m = getMessages(await resolveAppLocale(), "partner.corporate");
   const session = await getCurrentSession();
-  if (!session) return { ok: false, error: "Unauthorised." };
+  if (!session) return { ok: false, error: m.spaces.errors.unauthorised };
   if (
     session.profile.role !== "restaurant_owner" &&
     session.profile.role !== "admin"
   ) {
-    return { ok: false, error: "Forbidden." };
+    return { ok: false, error: m.spaces.errors.forbidden };
   }
   // Admins pass through (legacy behaviour from owner_user_id era was an
   // exact ownership match, so this branch keeps the same surface). The
@@ -33,7 +50,7 @@ async function assertOwns(
   if (session.profile.role === "admin") return { ok: true, userId: session.userId };
   const primary = await currentUserPrimaryRestaurant(session);
   if (!primary || primary !== restaurantId) {
-    return { ok: false, error: "Forbidden." };
+    return { ok: false, error: m.spaces.errors.forbidden };
   }
   return { ok: true, userId: session.userId };
 }
@@ -57,10 +74,8 @@ export async function createSpaceAction(
 ): Promise<Result> {
   const parsed = createSchema.safeParse(input);
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input.",
-    };
+    const m = getMessages(await resolveAppLocale(), "partner.corporate");
+    return { ok: false, error: parseErrorMessage(m, parsed.error) };
   }
   const data = parsed.data;
   const auth = await assertOwns(data.restaurantId);
@@ -102,10 +117,8 @@ export async function updateSpaceAction(
 ): Promise<Result> {
   const parsed = updateSchema.safeParse(input);
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input.",
-    };
+    const m = getMessages(await resolveAppLocale(), "partner.corporate");
+    return { ok: false, error: parseErrorMessage(m, parsed.error) };
   }
   const data = parsed.data;
   const [existing] = await dbAdmin
@@ -113,7 +126,10 @@ export async function updateSpaceAction(
     .from(restaurantPrivateSpaces)
     .where(eq(restaurantPrivateSpaces.id, data.id))
     .limit(1);
-  if (!existing) return { ok: false, error: "Forbidden." };
+  if (!existing) {
+    const m = getMessages(await resolveAppLocale(), "partner.corporate");
+    return { ok: false, error: m.spaces.errors.forbidden };
+  }
   const auth = await assertOwns(existing.restaurantId);
   if (!auth.ok) return auth;
   const { id: _id, ...patch } = data;
@@ -129,10 +145,8 @@ export async function deactivateSpaceAction(
 ): Promise<Result> {
   const parsed = deleteSchema.safeParse(input);
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input.",
-    };
+    const m = getMessages(await resolveAppLocale(), "partner.corporate");
+    return { ok: false, error: m.spaces.errors.invalidInput };
   }
   const data = parsed.data;
   const [existing] = await dbAdmin
@@ -140,7 +154,10 @@ export async function deactivateSpaceAction(
     .from(restaurantPrivateSpaces)
     .where(eq(restaurantPrivateSpaces.id, data.id))
     .limit(1);
-  if (!existing) return { ok: false, error: "Forbidden." };
+  if (!existing) {
+    const m = getMessages(await resolveAppLocale(), "partner.corporate");
+    return { ok: false, error: m.spaces.errors.forbidden };
+  }
   const auth = await assertOwns(existing.restaurantId);
   if (!auth.ok) return auth;
   await deactivatePrivateSpace(data.id);
