@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "eyebrow": "Admin",
+    "signOut": "Deconectează-te",
+    "openNav": "Deschide navigarea",
+    "closeNav": "Închide navigarea",
+    "items": {
+      "dashboard": "Panou",
+      "restaurants": "Restaurante",
+      "invitations": "Invitații"
+    }
+  }
+}

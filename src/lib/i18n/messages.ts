@@ -40,6 +40,10 @@ import roPartnerCommon from "@/messages/ro/partner.common.json";
 import enPartnerCommon from "@/messages/en/partner.common.json";
 import dePartnerCommon from "@/messages/de/partner.common.json";
 
+import roAdminCommon from "@/messages/ro/admin.common.json";
+import enAdminCommon from "@/messages/en/admin.common.json";
+import deAdminCommon from "@/messages/de/admin.common.json";
+
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
 import dePartnerReservations from "@/messages/de/partner.reservations.json";
@@ -750,6 +754,21 @@ export interface EmailsMessages {
     subtitle: string;
     detailsLabel: string;
     cta: string;
+  };
+}
+
+/** Structural contract for the `admin.common` namespace (admin shell chrome). */
+export interface AdminCommonMessages {
+  nav: {
+    eyebrow: string;
+    signOut: string;
+    openNav: string;
+    closeNav: string;
+    items: {
+      dashboard: string;
+      restaurants: string;
+      invitations: string;
+    };
   };
 }
 
@@ -2228,6 +2247,11 @@ const CATALOGS = {
     Locale,
     EmailsMessages
   >,
+  "admin.common": {
+    ro: roAdminCommon,
+    en: enAdminCommon,
+    de: deAdminCommon,
+  } as Record<Locale, AdminCommonMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,
