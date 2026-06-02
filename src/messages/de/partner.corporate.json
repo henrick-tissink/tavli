@@ -176,6 +176,11 @@
     "descriptionOptional": "(optional)",
     "descriptionPlaceholder": "Nützliche Details: Ausstattung, Aussicht, verfügbares Equipment.",
     "cancel": "Abbrechen",
-    "saving": "Wird gespeichert …"
+    "saving": "Wird gespeichert …",
+    "errors": {
+      "unauthorised": "Nicht autorisiert.",
+      "forbidden": "Keine Berechtigung.",
+      "invalidInput": "Ungültige Eingabe."
+    }
   }
 }

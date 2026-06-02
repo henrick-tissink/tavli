@@ -4,6 +4,7 @@ import { cities, organizations, organizationMembers, restaurantStaff, profiles, 
 import { eq } from "drizzle-orm";
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
+jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("ro") }));
 import { createSpaceAction, updateSpaceAction, deactivateSpaceAction } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;

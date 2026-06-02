@@ -130,6 +130,12 @@
     "genericError": "Ceva n-a mers. Încearcă din nou.",
     "cancel": "Anulează",
     "submitting": "Se trimite…",
-    "submit": "Generează export"
+    "submit": "Generează export",
+    "errors": {
+      "notSignedIn": "Nu ești autentificat.",
+      "forbidden": "Acces interzis.",
+      "invalidInput": "Date invalide.",
+      "couldNotCreate": "Nu s-a putut crea sarcina de export."
+    }
   }
 }

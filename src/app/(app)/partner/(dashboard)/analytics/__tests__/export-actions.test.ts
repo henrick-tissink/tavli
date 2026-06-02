@@ -1,5 +1,6 @@
 jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
+jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("en") }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn().mockResolvedValue("queued-id") }));
 jest.mock("@/lib/db/admin", () => ({
   dbAdmin: {

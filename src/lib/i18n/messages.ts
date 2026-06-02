@@ -1773,6 +1773,12 @@ export interface PartnerAnalyticsMessages {
     cancel: string;
     submitting: string;
     submit: string;
+    errors: {
+      notSignedIn: string;
+      forbidden: string;
+      invalidInput: string;
+      couldNotCreate: string;
+    };
   };
 }
 
@@ -2225,6 +2231,7 @@ export interface PartnerCorporateMessages {
     descriptionPlaceholder: string;
     cancel: string;
     saving: string;
+    errors: { unauthorised: string; forbidden: string; invalidInput: string };
   };
 }
 
