@@ -60,6 +60,10 @@ import roPartnerMarketing from "@/messages/ro/partner.marketing.json";
 import enPartnerMarketing from "@/messages/en/partner.marketing.json";
 import dePartnerMarketing from "@/messages/de/partner.marketing.json";
 
+import roPartnerAnalytics from "@/messages/ro/partner.analytics.json";
+import enPartnerAnalytics from "@/messages/en/partner.analytics.json";
+import dePartnerAnalytics from "@/messages/de/partner.analytics.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -1211,6 +1215,55 @@ export interface PartnerMarketingMessages {
   };
 }
 
+/** Structural contract for the `partner.analytics` namespace. */
+export interface PartnerAnalyticsMessages {
+  page: { noVenue: string };
+  view: {
+    eyebrow: string;
+    subtitlePro: string;
+    subtitleBase: string;
+    exportData: string;
+    emptyTitle: string;
+    emptyBody: string;
+    delta: { up: string; down: string; unchanged: string };
+    stats: { bookings: string; covers: string; completed: string; noShows: string };
+    proTitle: string;
+    proGate: { title: string; body: string; cta: string };
+  };
+  charts: {
+    coversPerService: { kicker: string; title: string; empty: string; seriesCovers: string };
+    noShowTrend: { kicker: string; title: string; empty: string; seriesRate: string };
+    partyMix: { kicker: string; title: string; empty: string; seriesBookings: string };
+    cancellations: { kicker: string; title: string; empty: string };
+    heatMap: { kicker: string; title: string; empty: string; noData: string; cellTitle: string };
+    cohort: { kicker: string; title: string; empty: string; header: string };
+    leadTime: { kicker: string; title: string; empty: string; seriesMedian: string; seriesP90: string };
+    channel: { kicker: string; title: string; empty: string; seriesBookings: string };
+    forecast: { kicker: string; title: string; empty: string; seriesPredicted: string; seriesConfirmed: string };
+  };
+  chartKit: { smallSample: string };
+  serviceLabels: Record<string, string>;
+  cancelReasons: Record<string, string>;
+  channels: Record<string, string>;
+  export: {
+    eyebrow: string;
+    title: string;
+    close: string;
+    doneTitle: string;
+    doneBody: string;
+    doneAck: string;
+    dateFrom: string;
+    dateTo: string;
+    includeLegend: string;
+    reservationsAlways: string;
+    tables: { diners: string; reviews: string };
+    genericError: string;
+    cancel: string;
+    submitting: string;
+    submit: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -1283,6 +1336,11 @@ const CATALOGS = {
     en: enPartnerMarketing,
     de: dePartnerMarketing,
   } as Record<Locale, PartnerMarketingMessages>,
+  "partner.analytics": {
+    ro: roPartnerAnalytics,
+    en: enPartnerAnalytics,
+    de: dePartnerAnalytics,
+  } as Record<Locale, PartnerAnalyticsMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

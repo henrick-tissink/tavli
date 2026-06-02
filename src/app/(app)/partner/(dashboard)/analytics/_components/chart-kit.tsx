@@ -6,6 +6,7 @@
  * section titles, no default blue/grid clutter. Editorial, not admin-panel.
  */
 import type { ReactNode } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 // Sequential warm palette (orange → terracotta → stone) for categorical series.
 export const SERIES = ["#F97316", "#EA580C", "#C2410C", "#9A3412", "#78716C", "#A8A29E", "#D6D3D1"];
@@ -55,9 +56,10 @@ export function EmptyChart({ message }: { message: string }) {
 
 /** Small-sample caution footnote. */
 export function SmallSampleNote() {
+  const t = useT("partner.analytics");
   return (
     <p className="mt-3 text-xs text-text-muted italic">
-      Eșantion mic — interpretează cu prudență.
+      {t("chartKit.smallSample")}
     </p>
   );
 }

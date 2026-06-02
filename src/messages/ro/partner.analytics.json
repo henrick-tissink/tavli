@@ -1,0 +1,135 @@
+{
+  "page": {
+    "noVenue": "Niciun restaurant asociat acestui cont."
+  },
+  "view": {
+    "eyebrow": "Analize",
+    "subtitlePro": "Plan Pro — istoric complet și panouri avansate.",
+    "subtitleBase": "Ultimele 12 luni de activitate.",
+    "exportData": "Exportă datele",
+    "emptyTitle": "Încă nu avem date",
+    "emptyBody": "După primele rezervări, aici vei vedea acoperiri, neprezentări, mixul de grup și sursele de trafic — actualizate în fiecare noapte.",
+    "delta": {
+      "up": "▲ +{n} față de săpt. trecută",
+      "down": "▼ {n} față de săpt. trecută",
+      "unchanged": "— neschimbat"
+    },
+    "stats": {
+      "bookings": "Rezervări",
+      "covers": "Acoperiri",
+      "completed": "Finalizate",
+      "noShows": "Neprezentări"
+    },
+    "proTitle": "Panouri Pro",
+    "proGate": {
+      "title": "Analize avansate",
+      "body": "Hartă de căldură a neprezentărilor, retenția cohortelor, distribuția timpului de rezervare, atribuirea surselor și prognoza pe 4 săptămâni — disponibile cu planul Pro.",
+      "cta": "Treci la Pro"
+    }
+  },
+  "charts": {
+    "coversPerService": {
+      "kicker": "Ultimele 30 de zile",
+      "title": "Acoperiri pe serviciu",
+      "empty": "Acoperirile pe serviciu apar după primele rezervări finalizate.",
+      "seriesCovers": "Acoperiri"
+    },
+    "noShowTrend": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Rata de neprezentare",
+      "empty": "Tendința neprezentărilor apare pe măsură ce se acumulează rezervări.",
+      "seriesRate": "Rată"
+    },
+    "partyMix": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Mixul de grup",
+      "empty": "Distribuția mărimii grupurilor apare după primele rezervări.",
+      "seriesBookings": "Rezervări"
+    },
+    "cancellations": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Motive de anulare",
+      "empty": "Nicio anulare în această perioadă — excelent."
+    },
+    "heatMap": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Hartă neprezentări",
+      "empty": "Harta de căldură apare după 30 de zile de rezervări.",
+      "noData": "fără date",
+      "cellTitle": "{day} {hour}:00 — {pct}% neprezentări"
+    },
+    "cohort": {
+      "kicker": "Lună de lună",
+      "title": "Retenția cohortelor",
+      "empty": "Retenția cohortelor apare pe măsură ce clienții revin.",
+      "header": "Cohortă"
+    },
+    "leadTime": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Timp până la rezervare (mediană)",
+      "empty": "Distribuția timpului de rezervare apare după primele rezervări.",
+      "seriesMedian": "Median (min)",
+      "seriesP90": "P90 (min)"
+    },
+    "channel": {
+      "kicker": "Ultimele 90 de zile",
+      "title": "Atribuire surse",
+      "empty": "Atribuirea surselor apare după primele rezervări cu client identificat.",
+      "seriesBookings": "Rezervări"
+    },
+    "forecast": {
+      "kicker": "Următoarele 28 de zile",
+      "title": "Prognoză acoperiri",
+      "empty": "Prognoza apare după 12 săptămâni de rezervări pe fiecare zi a săptămânii.",
+      "seriesPredicted": "Prognoză",
+      "seriesConfirmed": "Deja confirmate"
+    }
+  },
+  "chartKit": {
+    "smallSample": "Eșantion mic — interpretează cu prudență."
+  },
+  "serviceLabels": {
+    "brunch": "Brunch",
+    "lunch": "Prânz",
+    "dinner": "Cină",
+    "late": "Târziu",
+    "all_day": "Toată ziua"
+  },
+  "cancelReasons": {
+    "restaurant_closed": "Restaurant închis",
+    "overbooked": "Suprarezervare",
+    "kitchen_issue": "Bucătărie",
+    "private_event": "Eveniment privat",
+    "other": "Altul",
+    "diner": "Client"
+  },
+  "channels": {
+    "widget": "Widget",
+    "venue_page": "Pagină local",
+    "editorial": "Editorial",
+    "corporate": "Corporate",
+    "walk_in": "Walk-in",
+    "manual": "Manual",
+    "unknown": "Necunoscut"
+  },
+  "export": {
+    "eyebrow": "Export",
+    "title": "Descarcă datele",
+    "close": "Închide",
+    "doneTitle": "Pregătim exportul tău",
+    "doneBody": "Îți trimitem un link de descărcare pe email când e gata (~5 min).",
+    "doneAck": "Am înțeles",
+    "dateFrom": "De la",
+    "dateTo": "Până la",
+    "includeLegend": "Include",
+    "reservationsAlways": "Rezervări (mereu incluse)",
+    "tables": {
+      "diners": "Clienți (date personale)",
+      "reviews": "Recenzii"
+    },
+    "genericError": "Ceva n-a mers. Încearcă din nou.",
+    "cancel": "Anulează",
+    "submitting": "Se trimite…",
+    "submit": "Generează export"
+  }
+}

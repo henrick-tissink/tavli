@@ -15,54 +15,34 @@ import {
   buildHeatMapMatrix,
 } from "@/lib/analytics/queries";
 import { weekBounds } from "@/lib/analytics/weekly-summary-core";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { AnalyticsView, type AnalyticsViewData } from "./_components/AnalyticsView";
 
 export const dynamic = "force-dynamic";
 
-const SERVICE_RO: Record<string, string> = {
-  brunch: "Brunch",
-  lunch: "Prânz",
-  dinner: "Cină",
-  late: "Târziu",
-  all_day: "Toată ziua",
-};
-const CANCEL_RO: Record<string, string> = {
-  restaurant_closed: "Restaurant închis",
-  overbooked: "Suprarezervare",
-  kitchen_issue: "Bucătărie",
-  private_event: "Eveniment privat",
-  other: "Altul",
-  diner: "Client",
-};
-const CHANNEL_RO: Record<string, string> = {
-  widget: "Widget",
-  venue_page: "Pagină local",
-  editorial: "Editorial",
-  corporate: "Corporate",
-  walk_in: "Walk-in",
-  manual: "Manual",
-  unknown: "Necunoscut",
-};
-
-function NoVenue() {
+function NoVenue({ message }: { message: string }) {
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <div className="rounded-card border border-border bg-surface-white p-10 text-center">
-        <p className="font-semibold text-text-primary">Niciun restaurant asociat acestui cont.</p>
+        <p className="font-semibold text-text-primary">{message}</p>
       </div>
     </div>
   );
 }
 
 export default async function PartnerAnalyticsPage() {
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.analytics");
+
   const session = await getCurrentSession();
   const restaurantId = session ? await currentUserPrimaryRestaurant(session) : null;
-  if (!restaurantId) return <NoVenue />;
+  if (!restaurantId) return <NoVenue message={m.page.noVenue} />;
 
   const [venue] = await dbAdmin.execute(sql`
     SELECT id, name, organization_id AS "organizationId", timezone FROM restaurants WHERE id = ${restaurantId}
   `) as unknown as Array<{ id: string; name: string; organizationId: string; timezone: string }>;
-  if (!venue) return <NoVenue />;
+  if (!venue) return <NoVenue message={m.page.noVenue} />;
 
   const sub = await loadActiveSubscription(venue.organizationId);
   // Pro analytics require Pro tier AND a paying/trialing status — trialing Pro
@@ -82,14 +62,14 @@ export default async function PartnerAnalyticsPage() {
     ? await Promise.all([q.heatMapRows(restaurantId), q.cohortRows(venue.organizationId), q.leadTimeRows(restaurantId), q.forecastRows(restaurantId)])
     : [[], [], [], []];
 
-  const coversPerService = coversRows.map((r) => ({ label: SERVICE_RO[r.service_label] ?? r.service_label, covers: r.covers }));
+  const coversPerService = coversRows.map((r) => ({ label: m.serviceLabels[r.service_label] ?? r.service_label, covers: r.covers }));
   const noShowTrend = noShowRows.map((r) => ({
     date: r.date.slice(5),
     rate: r.bookings > 0 ? r.no_shows / r.bookings : 0,
   }));
   const partyMix = toPartyMixSeries(partyRows);
-  const cancellations = toCancellationDonut(cancelRow).map((d) => ({ label: CANCEL_RO[d.reason] ?? d.reason, count: d.count }));
-  const channel = Object.entries(CHANNEL_RO).map(([key, label]) => ({ label, count: (channelRow as Record<string, number>)[key] ?? 0 }));
+  const cancellations = toCancellationDonut(cancelRow).map((d) => ({ label: m.cancelReasons[d.reason] ?? d.reason, count: d.count }));
+  const channel = Object.entries(m.channels).map(([key, label]) => ({ label, count: (channelRow as Record<string, number>)[key] ?? 0 }));
 
   const data: AnalyticsViewData = {
     scopeLabel: venue.name,
