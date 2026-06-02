@@ -7,6 +7,9 @@ jest.mock("../actions", () => ({
   suspendRestaurant: jest.fn(),
   unsuspendRestaurant: jest.fn(),
 }));
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("en"),
+}));
 
 import AdminRestaurantDetailPage from "../page";
 import { createSupabaseServerClient } from "@/lib/db/server";

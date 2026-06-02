@@ -11,13 +11,16 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests, restaurants } from "@/lib/db/schema";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 
 type Result = { ok: true } | { ok: false; error: string };
 
 async function assertAdmin(): Promise<Result | { ok: true; userId: string }> {
   const session = await getCurrentSession();
   if (!session || session.profile.role !== "admin") {
-    return { ok: false, error: "Unauthorised." };
+    const m = getMessages(await resolveAppLocale(), "admin.restaurants");
+    return { ok: false, error: m.errors.unauthorised };
   }
   return { ok: true, userId: session.userId };
 }

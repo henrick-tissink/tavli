@@ -46,6 +46,9 @@ import deAdminCommon from "@/messages/de/admin.common.json";
 import roAdminDashboard from "@/messages/ro/admin.dashboard.json";
 import enAdminDashboard from "@/messages/en/admin.dashboard.json";
 import deAdminDashboard from "@/messages/de/admin.dashboard.json";
+import roAdminRestaurants from "@/messages/ro/admin.restaurants.json";
+import enAdminRestaurants from "@/messages/en/admin.restaurants.json";
+import deAdminRestaurants from "@/messages/de/admin.restaurants.json";
 
 import roPartnerReservations from "@/messages/ro/partner.reservations.json";
 import enPartnerReservations from "@/messages/en/partner.reservations.json";
@@ -790,6 +793,62 @@ export interface AdminDashboardMessages {
   recent: {
     title: string;
     placeholder: string;
+  };
+}
+
+/** Structural contract for the `admin.restaurants` namespace (restaurant approval/management). */
+export interface AdminRestaurantsMessages {
+  list: {
+    title: string;
+    subtitle: PluralBag;
+    loadError: string;
+    table: {
+      name: string;
+      cuisine: string;
+      city: string;
+      status: string;
+      actions: string;
+    };
+    view: string;
+    empty: string;
+  };
+  detail: {
+    back: string;
+    viewPublicPage: string;
+    rows: {
+      slug: string;
+      address: string;
+      phone: string;
+      website: string;
+      heroNote: string;
+      coordinates: string;
+      photos: string;
+      rating: string;
+      organization: string;
+      created: string;
+    };
+    notGeocoded: string;
+    noRatings: string;
+    ratingValue: string;
+    unassigned: string;
+    ownerSuffix: string;
+    empty: string;
+  };
+  notFound: {
+    title: string;
+    body: string;
+    back: string;
+  };
+  status: {
+    list: Record<string, string>;
+    detail: Record<string, string>;
+  };
+  actions: {
+    suspend: string;
+    unsuspend: string;
+  };
+  errors: {
+    unauthorised: string;
   };
 }
 
@@ -2278,6 +2337,11 @@ const CATALOGS = {
     en: enAdminDashboard,
     de: deAdminDashboard,
   } as Record<Locale, AdminDashboardMessages>,
+  "admin.restaurants": {
+    ro: roAdminRestaurants,
+    en: enAdminRestaurants,
+    de: deAdminRestaurants,
+  } as Record<Locale, AdminRestaurantsMessages>,
   "partner.common": {
     ro: roPartnerCommon,
     en: enPartnerCommon,

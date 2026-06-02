@@ -1,0 +1,68 @@
+{
+  "list": {
+    "title": "Restaurante",
+    "subtitle": {
+      "one": "{count} restaurant în toate statusurile",
+      "few": "{count} restaurante în toate statusurile",
+      "other": "{count} de restaurante în toate statusurile"
+    },
+    "loadError": "Restaurantele nu au putut fi încărcate: {message}",
+    "table": {
+      "name": "Nume",
+      "cuisine": "Bucătărie",
+      "city": "Oraș",
+      "status": "Status",
+      "actions": "Acțiuni"
+    },
+    "view": "Vezi →",
+    "empty": "Niciun restaurant încă. Trimite o invitație pentru a începe."
+  },
+  "detail": {
+    "back": "← Restaurante",
+    "viewPublicPage": "Vezi pagina publică →",
+    "rows": {
+      "slug": "Slug",
+      "address": "Adresă",
+      "phone": "Telefon",
+      "website": "Site web",
+      "heroNote": "Notă principală",
+      "coordinates": "Coordonate",
+      "photos": "Fotografii",
+      "rating": "Evaluare",
+      "organization": "Organizație",
+      "created": "Creat"
+    },
+    "notGeocoded": "Negeocodat",
+    "noRatings": "Nicio evaluare încă",
+    "ratingValue": "{rating} ({votes} voturi)",
+    "unassigned": "Neatribuit",
+    "ownerSuffix": " (proprietar: {email})",
+    "empty": "—"
+  },
+  "notFound": {
+    "title": "Restaurant negăsit",
+    "body": "Restaurantul pe care îl cauți nu există sau a fost eliminat.",
+    "back": "← Înapoi la restaurante"
+  },
+  "status": {
+    "list": {
+      "live": "Activ",
+      "pending_review": "În așteptare",
+      "draft": "Ciornă",
+      "suspended": "Suspendat"
+    },
+    "detail": {
+      "live": "Activ",
+      "pending_review": "În așteptarea verificării",
+      "draft": "Ciornă",
+      "suspended": "Suspendat"
+    }
+  },
+  "actions": {
+    "suspend": "Suspendă",
+    "unsuspend": "Reactivează"
+  },
+  "errors": {
+    "unauthorised": "Neautorizat."
+  }
+}

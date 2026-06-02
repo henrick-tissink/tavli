@@ -1,0 +1,68 @@
+{
+  "list": {
+    "title": "Restaurants",
+    "subtitle": {
+      "one": "{count} Restaurant über alle Status",
+      "few": "{count} Restaurants über alle Status",
+      "other": "{count} Restaurants über alle Status"
+    },
+    "loadError": "Restaurants konnten nicht geladen werden: {message}",
+    "table": {
+      "name": "Name",
+      "cuisine": "Küche",
+      "city": "Stadt",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "view": "Ansehen →",
+    "empty": "Noch keine Restaurants. Senden Sie eine Einladung, um zu beginnen."
+  },
+  "detail": {
+    "back": "← Restaurants",
+    "viewPublicPage": "Öffentliche Seite ansehen →",
+    "rows": {
+      "slug": "Slug",
+      "address": "Adresse",
+      "phone": "Telefon",
+      "website": "Website",
+      "heroNote": "Hero-Notiz",
+      "coordinates": "Koordinaten",
+      "photos": "Fotos",
+      "rating": "Bewertung",
+      "organization": "Organisation",
+      "created": "Erstellt"
+    },
+    "notGeocoded": "Nicht geokodiert",
+    "noRatings": "Noch keine Bewertungen",
+    "ratingValue": "{rating} ({votes} Stimmen)",
+    "unassigned": "Nicht zugewiesen",
+    "ownerSuffix": " (Inhaber: {email})",
+    "empty": "—"
+  },
+  "notFound": {
+    "title": "Restaurant nicht gefunden",
+    "body": "Das gesuchte Restaurant existiert nicht oder wurde entfernt.",
+    "back": "← Zurück zu den Restaurants"
+  },
+  "status": {
+    "list": {
+      "live": "Aktiv",
+      "pending_review": "Ausstehend",
+      "draft": "Entwurf",
+      "suspended": "Gesperrt"
+    },
+    "detail": {
+      "live": "Aktiv",
+      "pending_review": "Ausstehende Prüfung",
+      "draft": "Entwurf",
+      "suspended": "Gesperrt"
+    }
+  },
+  "actions": {
+    "suspend": "Sperren",
+    "unsuspend": "Entsperren"
+  },
+  "errors": {
+    "unauthorised": "Nicht autorisiert."
+  }
+}

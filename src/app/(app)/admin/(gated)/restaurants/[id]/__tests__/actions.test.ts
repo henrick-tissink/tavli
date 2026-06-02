@@ -21,6 +21,9 @@ jest.mock("@/lib/auth/session", () => ({
   getCurrentSession: jest.fn(),
 }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("en"),
+}));
 
 import { suspendRestaurant, unsuspendRestaurant } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
