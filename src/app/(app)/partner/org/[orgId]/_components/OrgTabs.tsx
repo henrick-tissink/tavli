@@ -16,12 +16,12 @@ export function OrgTabs({ orgId }: { orgId: string }) {
   ];
   return (
     <nav className="flex gap-1 border-b border-border">
-      {tabs.map((t) => {
-        const active = t.match(pathname);
+      {tabs.map((tab) => {
+        const active = tab.match(pathname);
         return (
           <Link
-            key={t.href}
-            href={t.href}
+            key={tab.href}
+            href={tab.href}
             className={[
               "relative -mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
               active
@@ -29,7 +29,7 @@ export function OrgTabs({ orgId }: { orgId: string }) {
                 : "border-transparent text-text-secondary hover:text-text-primary",
             ].join(" ")}
           >
-            {t.label}
+            {tab.label}
           </Link>
         );
       })}
