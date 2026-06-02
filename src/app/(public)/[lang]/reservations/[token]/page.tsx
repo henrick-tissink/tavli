@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { ReservationCancelForm } from "@/components/reservation-cancel-form";
 import { ReservationConfirmed } from "@/components/reservation-confirmed";
 import { resolvePhotoUrl } from "@/lib/storage";
+import { getMessages, buildBundle } from "@/lib/i18n/messages";
+import { isLocale } from "@/lib/i18n/locale";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -100,27 +102,32 @@ export default async function ReservationPage({
 }: {
   params: Promise<{ lang: string; token: string }>;
 }) {
-  const { token } = await params;
+  const { lang: rawLang, token } = await params;
+  const locale = isLocale(rawLang) ? rawLang : "ro";
+  const m = getMessages(locale, "booking");
+  const bundle = buildBundle(locale, ["common", "booking"]);
   const result = await loadReservation(token);
 
   if (result.kind === "confirmed") {
     return (
-      <ReservationConfirmed
-        token={token}
-        restaurantName={result.restaurantName}
-        restaurantSlug={result.restaurantSlug}
-        photoUrl={result.photoUrl ?? undefined}
-        heroNote={result.heroNote ?? undefined}
-        date={result.date}
-        time={result.time}
-        partySize={result.partySize}
-        zone={result.zone}
-        guestName={result.guestName}
-        address={result.address}
-        phone={result.phone ?? undefined}
-        lat={result.lat}
-        lng={result.lng}
-      />
+      <MessagesProvider locale={locale} bundle={bundle}>
+        <ReservationConfirmed
+          token={token}
+          restaurantName={result.restaurantName}
+          restaurantSlug={result.restaurantSlug}
+          photoUrl={result.photoUrl ?? undefined}
+          heroNote={result.heroNote ?? undefined}
+          date={result.date}
+          time={result.time}
+          partySize={result.partySize}
+          zone={result.zone}
+          guestName={result.guestName}
+          address={result.address}
+          phone={result.phone ?? undefined}
+          lat={result.lat}
+          lng={result.lng}
+        />
+      </MessagesProvider>
     );
   }
 
@@ -134,31 +141,35 @@ export default async function ReservationPage({
           Tavli
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
-          Rezervare
+          {m.tokenPage.reservationLabel}
         </p>
 
         {result.kind === "already_cancelled" && (
           <Blank
-            title="Deja anulată"
-            body="Această rezervare a fost deja anulată. Nu mai e nimic de făcut aici."
+            title={m.tokenPage.alreadyCancelledTitle}
+            body={m.tokenPage.alreadyCancelledBody}
+            contactLabel={m.tokenPage.contactLabel}
           />
         )}
         {result.kind === "completed" && (
           <Blank
-            title="Nu mai poate fi anulată"
-            body="Această rezervare a trecut deja. Sperăm că a fost o seară frumoasă."
+            title={m.tokenPage.completedTitle}
+            body={m.tokenPage.completedBody}
+            contactLabel={m.tokenPage.contactLabel}
           />
         )}
         {result.kind === "not_found" && (
           <Blank
-            title="Rezervarea nu a fost găsită"
-            body="Linkul de anulare nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email."
+            title={m.tokenPage.notFoundTitle}
+            body={m.tokenPage.notFoundBody}
+            contactLabel={m.tokenPage.contactLabel}
           />
         )}
         {result.kind === "config_missing" && (
           <Blank
-            title="Platformă neconfigurată"
-            body="Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul."
+            title={m.tokenPage.configMissingTitle}
+            body={m.tokenPage.configMissingBody}
+            contactLabel={m.tokenPage.contactLabel}
           />
         )}
       </div>
@@ -166,7 +177,7 @@ export default async function ReservationPage({
   );
 }
 
-function Blank({ title, body }: { title: string; body: string }) {
+function Blank({ title, body, contactLabel }: { title: string; body: string; contactLabel: string }) {
   return (
     <>
       <h1 className="font-display text-[26px] font-bold text-text-primary leading-tight mt-6">
@@ -174,7 +185,7 @@ function Blank({ title, body }: { title: string; body: string }) {
       </h1>
       <p className="text-sm text-text-secondary mt-3 leading-relaxed">{body}</p>
       <p className="text-xs text-text-muted mt-6">
-        Contact:{" "}
+        {contactLabel}{" "}
         <a href="mailto:hello@tavli.ro" className="text-brand-primary">
           hello@tavli.ro
         </a>

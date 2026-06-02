@@ -2,6 +2,7 @@
 
 import { RO_DATE_FORMAT, localDateFromIso } from "./helpers";
 import type { OccasionKind } from "./types";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepIdentityProps {
   // Selection summary, displayed in a preview card at top
@@ -26,18 +27,6 @@ interface StepIdentityProps {
   errors: Partial<Record<"name" | "phone" | "email" | "notes", string>>;
 }
 
-function formatDateSummary(isoDate: string): string {
-  const d = localDateFromIso(isoDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  if (d.getTime() === today.getTime()) return "Astăzi";
-  if (d.getTime() === tomorrow.getTime()) return "Mâine";
-  return RO_DATE_FORMAT.format(d);
-}
-
 export function StepIdentity({
   date,
   slot,
@@ -52,11 +41,26 @@ export function StepIdentity({
   onChange,
   errors,
 }: StepIdentityProps) {
+  const t = useT("booking");
+
+  function formatDateSummary(isoDate: string): string {
+    const d = localDateFromIso(isoDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    if (d.getTime() === today.getTime()) return t("sheet.stepIdentity.summaryToday");
+    if (d.getTime() === tomorrow.getTime()) return t("sheet.stepIdentity.summaryTomorrow");
+    return RO_DATE_FORMAT.format(d);
+  }
+
   const dateSummary = formatDateSummary(date);
+  const guestsLabel = t("sheet.stepIdentity.guests", { count: guests });
   const summary = [
     dateSummary,
     slot,
-    `${guests} persoane`,
+    guestsLabel,
     zone ?? null,
   ]
     .filter(Boolean)
@@ -65,7 +69,7 @@ export function StepIdentity({
   return (
     <div className="space-y-5">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Detaliile tale
+        {t("sheet.stepIdentity.title")}
       </h2>
 
       {/* Selection preview card */}
@@ -79,7 +83,7 @@ export function StepIdentity({
           htmlFor="identity-name"
           className="text-sm font-semibold text-text-primary"
         >
-          Nume
+          {t("sheet.stepIdentity.nameLabel")}
         </label>
         <input
           id="identity-name"
@@ -103,7 +107,7 @@ export function StepIdentity({
           htmlFor="identity-phone"
           className="text-sm font-semibold text-text-primary"
         >
-          Telefon
+          {t("sheet.stepIdentity.phoneLabel")}
         </label>
         <input
           id="identity-phone"
@@ -127,7 +131,7 @@ export function StepIdentity({
           htmlFor="identity-email"
           className="text-sm font-semibold text-text-primary"
         >
-          Email (opțional)
+          {t("sheet.stepIdentity.emailLabel")}
         </label>
         <input
           id="identity-email"
@@ -150,7 +154,7 @@ export function StepIdentity({
           htmlFor="identity-occasion"
           className="text-sm font-semibold text-text-primary"
         >
-          Sărbătorești ceva? (opțional)
+          {t("sheet.stepIdentity.occasionLabel")}
         </label>
         <select
           id="identity-occasion"
@@ -158,14 +162,16 @@ export function StepIdentity({
           onChange={(e) => onChange("occasion", e.target.value)}
           className="rounded-button border border-border px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-colors"
         >
-          <option value="">Nu, mulțumesc</option>
-          <option value="birthday">Zi de naștere</option>
-          <option value="anniversary">Aniversare</option>
+          <option value="">{t("sheet.stepIdentity.occasionNone")}</option>
+          <option value="birthday">{t("sheet.stepIdentity.occasionBirthday")}</option>
+          <option value="anniversary">{t("sheet.stepIdentity.occasionAnniversary")}</option>
         </select>
         {occasion !== "" && (
           <div className="pt-1">
             <label htmlFor="identity-occasion-date" className="text-xs text-text-muted">
-              {occasion === "birthday" ? "Data nașterii" : "Data aniversării"}
+              {occasion === "birthday"
+                ? t("sheet.stepIdentity.birthdayDateLabel")
+                : t("sheet.stepIdentity.anniversaryDateLabel")}
             </label>
             <input
               id="identity-occasion-date"
@@ -184,7 +190,7 @@ export function StepIdentity({
           htmlFor="identity-notes"
           className="text-sm font-semibold text-text-primary"
         >
-          Note (opțional)
+          {t("sheet.stepIdentity.notesLabel")}
         </label>
         <textarea
           id="identity-notes"

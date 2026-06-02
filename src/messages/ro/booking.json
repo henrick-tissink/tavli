@@ -1,0 +1,124 @@
+{
+  "sheet": {
+    "headerLabel": "Rezervare",
+    "progress": "Pas {current} din {total}",
+    "back": "Înapoi",
+    "continue": "Continuă",
+    "submitting": "Se trimite...",
+    "submit": "Trimite rezervarea",
+    "errorGeneric": "Rezervarea nu a putut fi trimisă. Încearcă din nou.",
+    "errorName": "Numele este obligatoriu.",
+    "errorPhone": "Telefonul este obligatoriu.",
+    "errorEmail": "Adresă de email invalidă.",
+    "stepDate": {
+      "title": "Când vrei să rezervi?",
+      "today": "Astăzi",
+      "tomorrow": "Mâine"
+    },
+    "stepParty": {
+      "title": "Câte persoane?",
+      "decrementAriaLabel": "Scade invitat",
+      "incrementAriaLabel": "Adaugă invitat",
+      "privateEventHint": "Pentru mai mult de 12 persoane, vezi",
+      "privateEventLink": "evenimentele private",
+      "hintDinner": "Cină",
+      "hintLunch": "Prânz",
+      "hintFriends": "Cu prietenii"
+    },
+    "stepSlot": {
+      "title": "La ce oră?",
+      "subtitle": "Alege intervalul de sosire.",
+      "loadingAriaLabel": "Se încarcă locurile",
+      "noSlots": "Nu sunt locuri disponibile pentru această dată.",
+      "noSlotsHint": "Încearcă altă zi.",
+      "zoneLabel": "Zonă (opțional)",
+      "allZones": "Toate zonele"
+    },
+    "stepIdentity": {
+      "title": "Detaliile tale",
+      "nameLabel": "Nume",
+      "phoneLabel": "Telefon",
+      "emailLabel": "Email (opțional)",
+      "occasionLabel": "Sărbătorești ceva? (opțional)",
+      "occasionNone": "Nu, mulțumesc",
+      "occasionBirthday": "Zi de naștere",
+      "occasionAnniversary": "Aniversare",
+      "birthdayDateLabel": "Data nașterii",
+      "anniversaryDateLabel": "Data aniversării",
+      "notesLabel": "Note (opțional)",
+      "summaryToday": "Astăzi",
+      "summaryTomorrow": "Mâine",
+      "guests": {
+        "one": "{count} persoană",
+        "few": "{count} persoane",
+        "other": "{count} persoane"
+      }
+    },
+    "stepSent": {
+      "title": "Rezervarea ta este confirmată",
+      "subtitle": "{guests} persoane",
+      "viewReservation": "Vezi rezervarea",
+      "backToRestaurant": "Înapoi la restaurant"
+    }
+  },
+  "confirmed": {
+    "eyebrow": "CONFIRMAT",
+    "awaitingYou": "Te așteaptă {weekday}, la {time}.",
+    "forParty": "Pentru {partySize} {unit}, la {restaurantName}",
+    "waitingBadge": "CE TE AȘTEAPTĂ",
+    "addressLabel": "Adresa",
+    "directionsLink": "Indicații rutiere →",
+    "phoneLabel": "Telefon",
+    "calendarLabel": "Adaugă în calendar",
+    "calendarDownload": "Descarcă .ics",
+    "calendarAriaLabel": "Descarcă fișier calendar",
+    "needToCancel": "Trebuie să anulezi?",
+    "cancelLink": "Anulează rezervarea",
+    "partyUnit": {
+      "one": "persoană",
+      "few": "persoane",
+      "other": "persoane"
+    },
+    "icsSummary": "Rezervare la {restaurantName}"
+  },
+  "cancel": {
+    "reasonLabel": "Motiv (opțional)",
+    "reasonPlaceholder": "S-au schimbat planurile, întârzii, n-am mai putut ajunge…",
+    "submitPending": "Se anulează…",
+    "submitLabel": "Anulează rezervarea de la {restaurantName}",
+    "confirmDialog": "Anulează rezervarea de la {restaurantName}?",
+    "doneTitle": "Rezervare anulată.",
+    "doneBody": "Am anunțat {restaurantName}. Poți închide tabul.",
+    "errorGeneric": "Anularea nu a putut fi efectuată."
+  },
+  "modify": {
+    "pageTitle": "Modifică rezervarea",
+    "modifyingLabel": "Modifici rezervarea la {restaurantName}.",
+    "dateLabel": "Data",
+    "timeLabel": "Ora",
+    "partySizeLabel": "Număr de persoane",
+    "submitPending": "Se salvează…",
+    "submitLabel": "Salvează modificările",
+    "doneTitle": "Rezervarea ta a fost actualizată.",
+    "doneBody": "Ți-am trimis detaliile noi pe e-mail.",
+    "errorGeneric": "Modificarea nu a putut fi efectuată.",
+    "windowClosedBody": "Această rezervare nu mai poate fi modificată online (cu mai puțin de 24h înainte sau deja finalizată). Contactează direct restaurantul.",
+    "callLink": "Sună {restaurantName}",
+    "emailLink": "Scrie {restaurantName}",
+    "backLink": "Înapoi la rezervare",
+    "configMissing": "Platforma nu este configurată.",
+    "notFound": "Rezervarea nu a fost găsită."
+  },
+  "tokenPage": {
+    "reservationLabel": "Rezervare",
+    "alreadyCancelledTitle": "Deja anulată",
+    "alreadyCancelledBody": "Această rezervare a fost deja anulată. Nu mai e nimic de făcut aici.",
+    "completedTitle": "Nu mai poate fi anulată",
+    "completedBody": "Această rezervare a trecut deja. Sperăm că a fost o seară frumoasă.",
+    "notFoundTitle": "Rezervarea nu a fost găsită",
+    "notFoundBody": "Linkul de anulare nu a fost recunoscut. Poate fi scris greșit — încearcă să-l copiezi din nou din email.",
+    "configMissingTitle": "Platformă neconfigurată",
+    "configMissingBody": "Tavli încă se configurează. Te rugăm să încerci mai târziu sau să contactezi suportul.",
+    "contactLabel": "Contact:"
+  }
+}

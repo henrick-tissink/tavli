@@ -11,6 +11,7 @@ import { StepIdentity } from "./StepIdentity";
 import { StepSent } from "./StepSent";
 import type { ReservationStep, ReservationFormState } from "./types";
 import { createReservation } from "@/app/api/reservations/actions";
+import { useT } from "@/lib/i18n/messages-provider";
 
 const STEP_ORDER: ReservationStep[] = ["date", "party", "slot", "identity"];
 const STEP_INDEX: Record<ReservationStep, number> = {
@@ -69,6 +70,7 @@ export function ReservationSheetV2({
   preSelectedSlot,
   onBookingConfirmed,
 }: ReservationSheetV2Props) {
+  const t = useT("booking");
   const [step, setStep] = useState<ReservationStep>("date");
   const [form, setForm] = useState<ReservationFormState>(
     makeInitialForm(preSelectedSlot),
@@ -190,10 +192,10 @@ export function ReservationSheetV2({
   async function handleSubmit() {
     const newErrors: Partial<Record<"name" | "phone" | "email" | "notes", string>> =
       {};
-    if (!form.name.trim()) newErrors.name = "Numele este obligatoriu.";
-    if (!form.phone.trim()) newErrors.phone = "Telefonul este obligatoriu.";
+    if (!form.name.trim()) newErrors.name = t("sheet.errorName");
+    if (!form.phone.trim()) newErrors.phone = t("sheet.errorPhone");
     if (form.email && !EMAIL_RE.test(form.email))
-      newErrors.email = "Adresă de email invalidă.";
+      newErrors.email = t("sheet.errorEmail");
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -227,11 +229,11 @@ export function ReservationSheetV2({
         setStep("sent");
       } else {
         setSubmitError(
-          result.error ?? "Rezervarea nu a putut fi trimisă. Încearcă din nou.",
+          result.error ?? t("sheet.errorGeneric"),
         );
       }
     } catch {
-      setSubmitError("Rezervarea nu a putut fi trimisă. Încearcă din nou.");
+      setSubmitError(t("sheet.errorGeneric"));
     } finally {
       setSubmitting(false);
     }
@@ -252,7 +254,7 @@ export function ReservationSheetV2({
       {/* the restaurant label + progress bar at the top of our children.     */}
       <div className="mb-4 -mt-1">
         <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-          {restaurantName} · Rezervare
+          {restaurantName} · {t("sheet.headerLabel")}
         </p>
         {!isSent && (
           <SheetProgress current={currentProgress} total={4} />
@@ -371,7 +373,7 @@ export function ReservationSheetV2({
                 onClick={handleBack}
                 className="px-4 py-3 rounded-button border border-border text-sm font-semibold text-text-primary bg-surface-white hover:bg-surface-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               >
-                Înapoi
+                {t("sheet.back")}
               </button>
             )}
             <button
@@ -383,10 +385,10 @@ export function ReservationSheetV2({
               }`}
             >
               {submitting
-                ? "Se trimite..."
+                ? t("sheet.submitting")
                 : isLastStep
-                  ? "Trimite rezervarea"
-                  : "Continuă"}
+                  ? t("sheet.submit")
+                  : t("sheet.continue")}
             </button>
           </div>
         </div>

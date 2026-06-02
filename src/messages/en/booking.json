@@ -1,0 +1,124 @@
+{
+  "sheet": {
+    "headerLabel": "Reservation",
+    "progress": "Step {current} of {total}",
+    "back": "Back",
+    "continue": "Continue",
+    "submitting": "Sending...",
+    "submit": "Send reservation",
+    "errorGeneric": "The reservation could not be sent. Please try again.",
+    "errorName": "Name is required.",
+    "errorPhone": "Phone number is required.",
+    "errorEmail": "Invalid email address.",
+    "stepDate": {
+      "title": "When would you like to book?",
+      "today": "Today",
+      "tomorrow": "Tomorrow"
+    },
+    "stepParty": {
+      "title": "How many people?",
+      "decrementAriaLabel": "Remove guest",
+      "incrementAriaLabel": "Add guest",
+      "privateEventHint": "For more than 12 people, see",
+      "privateEventLink": "private events",
+      "hintDinner": "Dinner",
+      "hintLunch": "Lunch",
+      "hintFriends": "With friends"
+    },
+    "stepSlot": {
+      "title": "What time?",
+      "subtitle": "Choose your arrival window.",
+      "loadingAriaLabel": "Loading available slots",
+      "noSlots": "No slots available for this date.",
+      "noSlotsHint": "Try another day.",
+      "zoneLabel": "Zone (optional)",
+      "allZones": "All zones"
+    },
+    "stepIdentity": {
+      "title": "Your details",
+      "nameLabel": "Name",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email (optional)",
+      "occasionLabel": "Celebrating something? (optional)",
+      "occasionNone": "No, thank you",
+      "occasionBirthday": "Birthday",
+      "occasionAnniversary": "Anniversary",
+      "birthdayDateLabel": "Date of birth",
+      "anniversaryDateLabel": "Anniversary date",
+      "notesLabel": "Notes (optional)",
+      "summaryToday": "Today",
+      "summaryTomorrow": "Tomorrow",
+      "guests": {
+        "one": "{count} person",
+        "few": "{count} people",
+        "other": "{count} people"
+      }
+    },
+    "stepSent": {
+      "title": "Your reservation is confirmed",
+      "subtitle": "{guests} people",
+      "viewReservation": "View reservation",
+      "backToRestaurant": "Back to restaurant"
+    }
+  },
+  "confirmed": {
+    "eyebrow": "CONFIRMED",
+    "awaitingYou": "We'll see you {weekday} at {time}.",
+    "forParty": "For {partySize} {unit} at {restaurantName}",
+    "waitingBadge": "WHAT AWAITS YOU",
+    "addressLabel": "Address",
+    "directionsLink": "Get directions →",
+    "phoneLabel": "Phone",
+    "calendarLabel": "Add to calendar",
+    "calendarDownload": "Download .ics",
+    "calendarAriaLabel": "Download calendar file",
+    "needToCancel": "Need to cancel?",
+    "cancelLink": "Cancel reservation",
+    "partyUnit": {
+      "one": "person",
+      "few": "people",
+      "other": "people"
+    },
+    "icsSummary": "Reservation at {restaurantName}"
+  },
+  "cancel": {
+    "reasonLabel": "Reason (optional)",
+    "reasonPlaceholder": "Plans changed, running late, couldn't make it…",
+    "submitPending": "Cancelling…",
+    "submitLabel": "Cancel reservation at {restaurantName}",
+    "confirmDialog": "Cancel reservation at {restaurantName}?",
+    "doneTitle": "Reservation cancelled.",
+    "doneBody": "We've notified {restaurantName}. You can close this tab.",
+    "errorGeneric": "The cancellation could not be processed."
+  },
+  "modify": {
+    "pageTitle": "Change your reservation",
+    "modifyingLabel": "You are changing your reservation at {restaurantName}.",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "partySizeLabel": "Number of people",
+    "submitPending": "Saving…",
+    "submitLabel": "Save changes",
+    "doneTitle": "Your reservation has been updated.",
+    "doneBody": "We've sent the new details to your email.",
+    "errorGeneric": "The change could not be processed.",
+    "windowClosedBody": "This reservation can no longer be changed online (less than 24 hours to go or already completed). Please contact the restaurant directly.",
+    "callLink": "Call {restaurantName}",
+    "emailLink": "Email {restaurantName}",
+    "backLink": "Back to reservation",
+    "configMissing": "The platform is not configured.",
+    "notFound": "Reservation not found."
+  },
+  "tokenPage": {
+    "reservationLabel": "Reservation",
+    "alreadyCancelledTitle": "Already cancelled",
+    "alreadyCancelledBody": "This reservation has already been cancelled. There is nothing more to do here.",
+    "completedTitle": "Cannot be cancelled",
+    "completedBody": "This reservation has already passed. We hope it was a wonderful evening.",
+    "notFoundTitle": "Reservation not found",
+    "notFoundBody": "The cancellation link was not recognised. It may have been copied incorrectly — please try copying it again from your email.",
+    "configMissingTitle": "Platform not configured",
+    "configMissingBody": "Tavli is still being set up. Please try again later or contact support.",
+    "contactLabel": "Contact:"
+  }
+}

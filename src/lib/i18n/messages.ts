@@ -16,6 +16,10 @@ import roMenu from "@/messages/ro/menu.json";
 import enMenu from "@/messages/en/menu.json";
 import deMenu from "@/messages/de/menu.json";
 
+import roBooking from "@/messages/ro/booking.json";
+import enBooking from "@/messages/en/booking.json";
+import deBooking from "@/messages/de/booking.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -206,6 +210,120 @@ export interface MenuMessages {
   };
 }
 
+/** Structural contract for the `booking` namespace. */
+export interface BookingMessages {
+  sheet: {
+    headerLabel: string;
+    progress: string;
+    back: string;
+    continue: string;
+    submitting: string;
+    submit: string;
+    errorGeneric: string;
+    errorName: string;
+    errorPhone: string;
+    errorEmail: string;
+    stepDate: { title: string; today: string; tomorrow: string };
+    stepParty: {
+      title: string;
+      decrementAriaLabel: string;
+      incrementAriaLabel: string;
+      privateEventHint: string;
+      privateEventLink: string;
+      hintDinner: string;
+      hintLunch: string;
+      hintFriends: string;
+    };
+    stepSlot: {
+      title: string;
+      subtitle: string;
+      loadingAriaLabel: string;
+      noSlots: string;
+      noSlotsHint: string;
+      zoneLabel: string;
+      allZones: string;
+    };
+    stepIdentity: {
+      title: string;
+      nameLabel: string;
+      phoneLabel: string;
+      emailLabel: string;
+      occasionLabel: string;
+      occasionNone: string;
+      occasionBirthday: string;
+      occasionAnniversary: string;
+      birthdayDateLabel: string;
+      anniversaryDateLabel: string;
+      notesLabel: string;
+      summaryToday: string;
+      summaryTomorrow: string;
+      guests: { one: string; few: string; other: string };
+    };
+    stepSent: {
+      title: string;
+      subtitle: string;
+      viewReservation: string;
+      backToRestaurant: string;
+    };
+  };
+  confirmed: {
+    eyebrow: string;
+    awaitingYou: string;
+    forParty: string;
+    waitingBadge: string;
+    addressLabel: string;
+    directionsLink: string;
+    phoneLabel: string;
+    calendarLabel: string;
+    calendarDownload: string;
+    calendarAriaLabel: string;
+    needToCancel: string;
+    cancelLink: string;
+    partyUnit: { one: string; few: string; other: string };
+    icsSummary: string;
+  };
+  cancel: {
+    reasonLabel: string;
+    reasonPlaceholder: string;
+    submitPending: string;
+    submitLabel: string;
+    confirmDialog: string;
+    doneTitle: string;
+    doneBody: string;
+    errorGeneric: string;
+  };
+  modify: {
+    pageTitle: string;
+    modifyingLabel: string;
+    dateLabel: string;
+    timeLabel: string;
+    partySizeLabel: string;
+    submitPending: string;
+    submitLabel: string;
+    doneTitle: string;
+    doneBody: string;
+    errorGeneric: string;
+    windowClosedBody: string;
+    callLink: string;
+    emailLink: string;
+    backLink: string;
+    configMissing: string;
+    notFound: string;
+  };
+  tokenPage: {
+    reservationLabel: string;
+    alreadyCancelledTitle: string;
+    alreadyCancelledBody: string;
+    completedTitle: string;
+    completedBody: string;
+    notFoundTitle: string;
+    notFoundBody: string;
+    configMissingTitle: string;
+    configMissingBody: string;
+    contactLabel: string;
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -227,6 +345,10 @@ const CATALOGS = {
   menu: { ro: roMenu, en: enMenu, de: deMenu } as Record<
     Locale,
     MenuMessages
+  >,
+  booking: { ro: roBooking, en: enBooking, de: deBooking } as Record<
+    Locale,
+    BookingMessages
   >,
 } as const;
 

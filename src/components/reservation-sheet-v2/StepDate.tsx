@@ -4,6 +4,7 @@ import { DayPicker } from "react-day-picker";
 import { ro } from "date-fns/locale";
 import "react-day-picker/style.css";
 import { isoDate, addDays, localDateFromIso } from "./helpers";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepDateProps {
   value: string | null; // ISO yyyy-mm-dd
@@ -11,6 +12,7 @@ interface StepDateProps {
 }
 
 export function StepDate({ value, onSelect }: StepDateProps) {
+  const t = useT("booking");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const maxDate = addDays(today, 90);
@@ -20,7 +22,7 @@ export function StepDate({ value, onSelect }: StepDateProps) {
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        Când vrei să rezervi?
+        {t("sheet.stepDate.title")}
       </h2>
 
       {/* Chip shortcuts */}
@@ -30,14 +32,14 @@ export function StepDate({ value, onSelect }: StepDateProps) {
           onClick={() => onSelect(isoDate(today))}
           className="px-4 py-2 rounded-pill border border-border text-sm font-semibold text-text-primary bg-surface-white hover:bg-surface-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
-          Astăzi
+          {t("sheet.stepDate.today")}
         </button>
         <button
           type="button"
           onClick={() => onSelect(isoDate(addDays(today, 1)))}
           className="px-4 py-2 rounded-pill border border-border text-sm font-semibold text-text-primary bg-surface-white hover:bg-surface-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
-          Mâine
+          {t("sheet.stepDate.tomorrow")}
         </button>
       </div>
 

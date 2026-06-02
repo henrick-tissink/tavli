@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/messages-provider";
+
 interface StepSlotProps {
   availableSlots: string[]; // e.g. ["18:00", "19:30", "20:00"]
   zones?: string[]; // e.g. ["Terasă", "Interior"]
@@ -19,19 +21,20 @@ export function StepSlot({
   onSelectSlot,
   onSelectZone,
 }: StepSlotProps) {
+  const t = useT("booking");
   const hasZones = zones && zones.length > 0;
 
   return (
     <div className="space-y-4">
       <h2 className="font-display text-xl font-bold text-text-primary">
-        La ce oră?
+        {t("sheet.stepSlot.title")}
       </h2>
       <p className="text-sm text-text-secondary">
-        Alege intervalul de sosire.
+        {t("sheet.stepSlot.subtitle")}
       </p>
 
       {loading ? (
-        <div className="grid grid-cols-3 tablet:grid-cols-4 gap-2" aria-label="Se încarcă locurile" aria-busy="true">
+        <div className="grid grid-cols-3 tablet:grid-cols-4 gap-2" aria-label={t("sheet.stepSlot.loadingAriaLabel")} aria-busy="true">
           {Array.from({ length: 12 }).map((_, i) => (
             <div key={i} className="h-11 rounded-button bg-surface-bg animate-pulse" />
           ))}
@@ -39,9 +42,9 @@ export function StepSlot({
       ) : availableSlots.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-text-secondary">
-            Nu sunt locuri disponibile pentru această dată.
+            {t("sheet.stepSlot.noSlots")}
           </p>
-          <p className="text-text-muted text-xs mt-1">Încearcă altă zi.</p>
+          <p className="text-text-muted text-xs mt-1">{t("sheet.stepSlot.noSlotsHint")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-3 tablet:grid-cols-4 gap-2">
@@ -69,7 +72,7 @@ export function StepSlot({
       {hasZones && (
         <div className="space-y-2">
           <p className="text-sm font-semibold text-text-primary">
-            Zonă (opțional)
+            {t("sheet.stepSlot.zoneLabel")}
           </p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -82,7 +85,7 @@ export function StepSlot({
                   : "bg-surface-white text-text-primary border-border hover:bg-surface-bg"
               }`}
             >
-              Toate zonele
+              {t("sheet.stepSlot.allZones")}
             </button>
             {zones!.map((zone) => {
               const isSelected = zone === selectedZone;
