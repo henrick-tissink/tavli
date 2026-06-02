@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapPin, ExternalLink, FileText, Star } from "lucide-react";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
 import type { RestaurantDetail, MenuItem } from "@/lib/types";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { StatusBadge } from "@/components/status-badge";
@@ -95,7 +95,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         saved={isSaved(restaurant.id)}
         onSave={() => toggleSave(restaurant.id)}
         overlayTitle={restaurant.name}
-        overlaySubtitle={`${formatCuisines(restaurant.cuisines)} · ${PRICE_LABELS[restaurant.priceLevel]}${restaurant.zone ? ` · ${restaurant.zone}` : ""}`}
+        overlaySubtitle={`${formatCuisines(restaurant.cuisines, locale)} · ${PRICE_LABELS[restaurant.priceLevel]}${restaurant.zone ? ` · ${zoneLabel(restaurant.zone, locale)}` : ""}`}
         overlayRating={restaurant.voteCount > 0 ? { value: restaurant.rating, voteCount: restaurant.voteCount } : undefined}
       />
 
@@ -278,6 +278,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                     lat={restaurant.lat}
                     lng={restaurant.lng}
                     name={restaurant.name}
+                    title={t("detail.mapTitle", { name: restaurant.name })}
                   />
                 </div>
               )}
@@ -327,6 +328,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                   lat={restaurant.lat}
                   lng={restaurant.lng}
                   name={restaurant.name}
+                  title={t("detail.mapTitle", { name: restaurant.name })}
                 />
               </div>
             )}

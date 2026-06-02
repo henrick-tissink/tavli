@@ -3,6 +3,11 @@ interface GoogleMapEmbedProps {
   lng: number | null;
   name: string;
   className?: string;
+  /**
+   * Localized iframe title for screen readers. Defaults to the RO-source
+   * `Map of {name}` label when the caller omits it.
+   */
+  title?: string;
 }
 
 const PLACEHOLDER_VALUES = new Set([
@@ -11,7 +16,7 @@ const PLACEHOLDER_VALUES = new Set([
   "REPLACE_ME",
 ]);
 
-export function GoogleMapEmbed({ lat, lng, name, className }: GoogleMapEmbedProps) {
+export function GoogleMapEmbed({ lat, lng, name, className, title }: GoogleMapEmbedProps) {
   if (lat == null || lng == null) return null;
   const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
   if (!key || PLACEHOLDER_VALUES.has(key)) return null;
@@ -24,7 +29,7 @@ export function GoogleMapEmbed({ lat, lng, name, className }: GoogleMapEmbedProp
 
   return (
     <iframe
-      title={`Map of ${name}`}
+      title={title ?? `Map of ${name}`}
       src={src}
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"

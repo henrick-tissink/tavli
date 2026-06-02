@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface TimeSlotPillsProps {
   slots: string[];
@@ -22,6 +23,7 @@ export function TimeSlotPills({
   onSelect,
   onMore,
 }: TimeSlotPillsProps) {
+  const t = useT("booking");
   // Drop past slots after mount so SSR matches first render exactly.
   const [cutoff, setCutoff] = useState<string | null>(null);
   useEffect(() => {
@@ -42,7 +44,7 @@ export function TimeSlotPills({
           className="text-brand-primary text-sm font-semibold inline-flex min-h-[24px] items-center gap-1 px-1 py-1"
           onClick={onMore}
         >
-          Rezervă pentru altă zi →
+          {t("slots.anotherDay")}
         </button>
       </div>
     );
@@ -74,7 +76,7 @@ export function TimeSlotPills({
           onClick={onMore}
           className="rounded-lg px-3 py-1.5 text-xs font-semibold text-brand-primary"
         >
-          Mai multe →
+          {t("slots.more")}
         </button>
       )}
     </div>

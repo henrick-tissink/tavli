@@ -15,7 +15,7 @@ export default async function VerifyEmailPage({
 }) {
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "partner.onboarding").auth;
-  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding"]);
+  const bundle = buildBundle(locale, ["ui", "partner.common", "partner.onboarding"]);
 
   const params = (await searchParams) ?? {};
   // If a session exists (e.g. the gate redirected here), prefill the email.

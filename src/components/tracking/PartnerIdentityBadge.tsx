@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export function PartnerIdentityBadge({
   name,
@@ -11,6 +12,7 @@ export function PartnerIdentityBadge({
   heroPath: string | null;
   viewing: boolean;
 }) {
+  const t = useT("events");
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const url = heroPath
     ? `${base}/storage/v1/object/public/restaurant-photos/${heroPath}`
@@ -24,14 +26,16 @@ export function PartnerIdentityBadge({
         {viewing && (
           <span
             className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[color:var(--color-occasion-product)] rounded-full ring-2 ring-surface-bg animate-pulse"
-            aria-label="se uită acum"
+            aria-label={t("tracking.partnerBadge.viewingAriaLabel")}
           />
         )}
       </span>
       <span>
         <span className="block font-semibold text-sm">{name}</span>
         <span className="block text-xs text-text-secondary">
-          {viewing ? "Vede cererea ta acum" : "Restaurant verificat"}
+          {viewing
+            ? t("tracking.partnerBadge.viewingText")
+            : t("tracking.partnerBadge.verifiedText")}
         </span>
       </span>
     </div>

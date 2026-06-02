@@ -1,3 +1,7 @@
+"use client";
+
+import { useT } from "@/lib/i18n/messages-provider";
+
 interface PillProps {
   label: string;
   active?: boolean;
@@ -19,6 +23,7 @@ export function Pill({
   onToggle,
   onDismiss,
 }: PillProps) {
+  const t = useT("ui");
   const baseClasses = [
     "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1",
     active ? "bg-brand-primary text-white" : "bg-surface-bg text-text-secondary",
@@ -42,7 +47,7 @@ export function Pill({
         </button>
         <button
           type="button"
-          aria-label={`Remove ${label} filter`}
+          aria-label={t("removeFilter", { label })}
           onClick={onDismiss}
           className="ml-1 bg-transparent border-none p-0 text-inherit font-inherit cursor-pointer"
         >

@@ -20,7 +20,7 @@ export async function OnboardingShell({
 }: Props) {
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "partner.onboarding");
-  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding"]);
+  const bundle = buildBundle(locale, ["partner.common", "partner.onboarding", "ui"]);
   const stepLabels = m.wizard.shell.steps;
   const percent = ((currentStepIndex + 1) / STEPS.length) * 100;
 

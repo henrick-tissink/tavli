@@ -19,7 +19,8 @@
     },
     "viewItem": "Vezi →",
     "noMatchBody": "Niciun fel nu se potrivește cu filtrele alese.",
-    "clearFilters": "Șterge filtrele"
+    "clearFilters": "Șterge filtrele",
+    "qrScanPrompt": "Scanează pentru a vedea meniul nostru"
   },
   "itemCard": {
     "chefPickAriaLabel": "Recomandarea bucătarului",
@@ -44,5 +45,6 @@
     "noMenuTitle": "Menu coming soon",
     "noMenuBody": "Please ask your server for a printed copy.",
     "backTo": "Back to {name}"
-  }
+  },
+  "poweredBy": "oferit de"
 }

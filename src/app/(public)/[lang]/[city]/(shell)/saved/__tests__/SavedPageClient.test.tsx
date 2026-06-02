@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 function renderWithProviders(ui: React.ReactElement) {
-  const bundle = buildBundle("ro", ["profile"]);
+  const bundle = buildBundle("ro", ["ui", "profile"]);
   return render(
     <MessagesProvider locale="ro" bundle={bundle}>
       <SavedProvider>

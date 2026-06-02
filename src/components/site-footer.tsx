@@ -3,38 +3,42 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Scale } from "lucide-react";
+import type { Locale } from "@/lib/i18n/locale";
 
 const HIDDEN_PREFIXES = ["/admin", "/partner", "/onboard", "/reservations", "/reviews"];
 
-const ROUTE_PAIRS: Record<string, string> = {
-  "/confidentialitate": "/en/privacy",
-  "/termeni": "/en/terms",
-  "/cookie-uri": "/en/cookies",
-  "/anpc": "/en/anpc",
-  "/en/privacy": "/confidentialitate",
-  "/en/terms": "/termeni",
-  "/en/cookies": "/cookie-uri",
-  "/en/anpc": "/anpc",
+/** Home/landing href per locale, used by the language switcher. */
+const LOCALE_HOME: Record<Locale, string> = {
+  ro: "/",
+  en: "/en",
+  de: "/de",
 };
 
-function pairedRouteFor(pathname: string): { href: string; label: string } {
-  if (pathname in ROUTE_PAIRS) {
-    const href = ROUTE_PAIRS[pathname];
-    return {
-      href,
-      label: href.startsWith("/en") ? "English" : "Română",
-    };
-  }
-  return pathname.startsWith("/en") ? { href: "/", label: "Română" } : { href: "/en/privacy", label: "English" };
+const LOCALE_LABEL: Record<Locale, string> = {
+  ro: "Română",
+  en: "English",
+  de: "Deutsch",
+};
+
+function localeFromPathname(pathname: string): Locale {
+  return pathname.startsWith("/de") ? "de" : pathname.startsWith("/en") ? "en" : "ro";
 }
 
-export function SiteFooter() {
+/** Legal slug href for the current locale (mirrors the en pattern for de). */
+function legalHref(locale: Locale, slug: "privacy" | "terms" | "cookies" | "anpc"): string {
+  if (locale === "ro") {
+    return { privacy: "/confidentialitate", terms: "/termeni", cookies: "/cookie-uri", anpc: "/anpc" }[slug];
+  }
+  return `/${locale}/${slug}`;
+}
+
+export function SiteFooter({ locale }: { locale?: Locale }) {
   const pathname = usePathname();
   if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
 
-  const isEn = pathname.startsWith("/en");
-  const t = isEn ? COPY.en : COPY.ro;
-  const langPair = pairedRouteFor(pathname);
+  const lang: Locale = locale ?? localeFromPathname(pathname);
+  const t = COPY[lang];
+  const otherLocales = (["ro", "en", "de"] as const).filter((l) => l !== lang);
 
   return (
     <footer
@@ -59,10 +63,10 @@ export function SiteFooter() {
         <div>
           <h4 className="text-xs font-bold uppercase tracking-wider text-text-secondary mb-3">{t.legalHeader}</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href={isEn ? "/en/privacy" : "/confidentialitate"} className="text-text-secondary hover:text-text-primary">{t.privacy}</Link></li>
-            <li><Link href={isEn ? "/en/terms" : "/termeni"} className="text-text-secondary hover:text-text-primary">{t.terms}</Link></li>
-            <li><Link href={isEn ? "/en/cookies" : "/cookie-uri"} className="text-text-secondary hover:text-text-primary">{t.cookies}</Link></li>
-            <li><Link href={isEn ? "/en/anpc" : "/anpc"} className="text-text-secondary hover:text-text-primary">{t.anpcLink}</Link></li>
+            <li><Link href={legalHref(lang, "privacy")} className="text-text-secondary hover:text-text-primary">{t.privacy}</Link></li>
+            <li><Link href={legalHref(lang, "terms")} className="text-text-secondary hover:text-text-primary">{t.terms}</Link></li>
+            <li><Link href={legalHref(lang, "cookies")} className="text-text-secondary hover:text-text-primary">{t.cookies}</Link></li>
+            <li><Link href={legalHref(lang, "anpc")} className="text-text-secondary hover:text-text-primary">{t.anpcLink}</Link></li>
           </ul>
         </div>
       </div>
@@ -90,9 +94,11 @@ export function SiteFooter() {
         </div>
         <div className="flex items-center gap-4 text-xs text-text-muted">
           <span>© {new Date().getFullYear()} Tavli</span>
-          <Link href={langPair.href} className="font-semibold text-text-secondary hover:text-text-primary">
-            {langPair.label}
-          </Link>
+          {otherLocales.map((l) => (
+            <Link key={l} href={LOCALE_HOME[l]} className="font-semibold text-text-secondary hover:text-text-primary">
+              {LOCALE_LABEL[l]}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>
@@ -121,6 +127,18 @@ const COPY = {
     legalHeader: "Legal",
     privacy: "Privacy",
     terms: "Terms",
+    cookies: "Cookies",
+    anpcLink: "ANPC",
+  },
+  de: {
+    tagline: "Finden Sie Ihren Tisch.",
+    aboutHeader: "Über uns",
+    howItWorks: "So funktioniert's",
+    forRestaurants: "Für Restaurants",
+    contact: "Kontakt",
+    legalHeader: "Rechtliches",
+    privacy: "Datenschutz",
+    terms: "AGB",
     cookies: "Cookies",
     anpcLink: "ANPC",
   },

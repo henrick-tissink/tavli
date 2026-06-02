@@ -1,6 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { MapCarousel } from "../map-carousel";
 import type { Restaurant } from "@/lib/types";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roBooking from "@/messages/ro/booking.json";
+
+// MapCarousel renders TimeSlotPills, which reads useT("booking").
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ booking: roBooking }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 // Mock next/image
 jest.mock("next/image", () => ({

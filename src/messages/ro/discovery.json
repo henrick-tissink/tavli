@@ -115,5 +115,93 @@
     "searchPlaceholder": "Caută restaurante, bucătării…",
     "savedAriaLabel": "Restaurante salvate",
     "profileAriaLabel": "Profil"
+  },
+  "timeContext": {
+    "greetings": {
+      "morning": "Bună dimineața",
+      "brunch": "E timpul de brunch",
+      "lunch": "E ora prânzului",
+      "afternoon": "Bună ziua",
+      "evening": "Bună seara",
+      "late": "Tot mai e poftă?",
+      "default": "Descoperă"
+    },
+    "subtexts": {
+      "morning": {
+        "one": "{count} loc pentru cafea sau brunch lângă tine",
+        "few": "{count} locuri pentru cafea sau brunch lângă tine",
+        "other": "{count} locuri pentru cafea sau brunch lângă tine"
+      },
+      "brunch": {
+        "one": "{count} loc pentru brunch cu mese libere",
+        "few": "{count} locuri pentru brunch cu mese libere",
+        "other": "{count} locuri pentru brunch cu mese libere"
+      },
+      "lunch": {
+        "one": "{count} loc cu servire rapidă",
+        "few": "{count} locuri cu servire rapidă",
+        "other": "{count} locuri cu servire rapidă"
+      },
+      "afternoon": {
+        "one": "{count} cafenea lângă tine",
+        "few": "{count} cafenele lângă tine",
+        "other": "{count} cafenele lângă tine"
+      },
+      "evening": {
+        "one": "{count} loc disponibil diseară",
+        "few": "{count} locuri disponibile diseară",
+        "other": "{count} locuri disponibile diseară"
+      },
+      "late": {
+        "one": "{count} loc deschis până târziu lângă tine",
+        "few": "{count} locuri deschise până târziu lângă tine",
+        "other": "{count} locuri deschise până târziu lângă tine"
+      },
+      "default": {
+        "one": "{count} loc de explorat",
+        "few": "{count} locuri de explorat",
+        "other": "{count} locuri de explorat"
+      }
+    },
+    "chips": {
+      "morning": "Mic dejun",
+      "brunch": "Brunch",
+      "lunch": "Prânz rapid",
+      "afternoon": "Cafea",
+      "evening": "Cină",
+      "late": "Deschis până târziu",
+      "terrace": "Terasă",
+      "cocktails": "Cocktailuri"
+    },
+    "pullQuotes": {
+      "morning": {
+        "eyebrow": "PUȚINĂ INSPIRAȚIE",
+        "body": "Cei mai buni meseni încep planificarea de dimineață. Caută masă pentru diseară."
+      },
+      "brunch": {
+        "eyebrow": "TIMP DE BRUNCH",
+        "body": "Sâmbătă, duminică — orașul își aranjează mesele lente. Găsește-ți a ta."
+      },
+      "lunch": {
+        "eyebrow": "ORA PRÂNZULUI",
+        "body": "Cele mai bune mese de prânz se găsesc cu o oră înainte. Caută acum."
+      },
+      "afternoon": {
+        "eyebrow": "DUPĂ-AMIAZĂ",
+        "body": "{city} devine un alt oraș la apus. Reține-ți locul."
+      },
+      "evening": {
+        "eyebrow": "SEARA",
+        "body": "În seara asta, în {city}, oamenii deja stau la mese. Și tu poți."
+      },
+      "late": {
+        "eyebrow": "DUPĂ MIEZ DE NOAPTE",
+        "body": "Oraș nedormit. Sunt locuri care încă au lumini aprinse."
+      },
+      "default": {
+        "eyebrow": "DESCOPERĂ",
+        "body": "Mese pregătite pentru tine, oriunde te-ai afla."
+      }
+    }
   }
 }

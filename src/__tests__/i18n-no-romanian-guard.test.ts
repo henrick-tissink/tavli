@@ -44,19 +44,42 @@ const ROOTS = [
   join(__dirname, "..", "app", "(app)", "partner"),
   join(__dirname, "..", "app", "(app)", "onboard"),
   join(__dirname, "..", "app", "(app)", "admin"),
-  join(__dirname, "..", "components", "partner"),
-  join(__dirname, "..", "components", "onboarding"),
-  join(__dirname, "..", "components", "admin"),
+  // The entire shared component tree (consumer + partner + admin + onboarding).
+  join(__dirname, "..", "components"),
 ];
+/**
+ * Individual non-component modules that render user-facing UI and must stay
+ * localized. (We don't scan all of `src/lib` — it holds legitimate RO data like
+ * the `ro` column of cuisine labels and email content.)
+ */
+const EXTRA_FILES = [join(__dirname, "..", "lib", "time-context.tsx")];
 const SRC = join(__dirname, "..");
 const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
 
 /**
  * Files whose Romanian strings are knowingly deferred to a localization
- * follow-up. All Phase 1b-finalize items have been resolved; this list is now
- * empty — tracked here for documentation purposes only.
+ * follow-up.
+ * - ParallelRunBanner: an unused (not-mounted) partner setup/migration banner;
+ *   localize when the parallel-run feature is wired up.
  */
-const DEFERRED_FILES: string[] = [];
+const DEFERRED_FILES: string[] = [
+  join(__dirname, "..", "components", "setup", "ParallelRunBanner.tsx"),
+];
+
+/**
+ * Components that ARE localized, but via an inline `{ ro, en, de }` COPY map
+ * keyed by a resolved-locale prop rather than the message catalogue — because
+ * they render OUTSIDE any `<MessagesProvider>` (mounted in RootScaffold), or are
+ * the language switcher itself. Their `ro` column is legitimately Romanian, so
+ * the diacritic guard (which can't tell a locale-map column from an
+ * un-extracted string) does not apply.
+ */
+const INLINE_LOCALE_FILES: string[] = [
+  join(__dirname, "..", "components", "legal", "cookie-footnote.tsx"),
+  join(__dirname, "..", "components", "site-footer.tsx"),
+  join(__dirname, "..", "components", "toast.tsx"),
+  join(__dirname, "..", "components", "i18n", "LocaleSwitcher.tsx"),
+];
 
 function walk(dir: string): string[] {
   const out: string[] = [];
@@ -99,8 +122,9 @@ function offendingLines(source: string): { line: number; text: string }[] {
 }
 
 describe("i18n regression guard: no hardcoded Romanian in the localized trees", () => {
-  const files = ROOTS.flatMap((root) => walk(root)).filter(
-    (f) => !DEFERRED_FILES.includes(f),
+  const excluded = new Set([...DEFERRED_FILES, ...INLINE_LOCALE_FILES]);
+  const files = [...ROOTS.flatMap((root) => walk(root)), ...EXTRA_FILES].filter(
+    (f) => !excluded.has(f),
   );
 
   it("scans a non-trivial number of files (guard is wired)", () => {

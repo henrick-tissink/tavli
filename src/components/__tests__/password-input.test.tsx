@@ -1,6 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import userEvent from "@testing-library/user-event";
 import { PasswordInput } from "../password-input";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roUi from "@/messages/ro/ui.json";
+
+// PasswordInput reads useT("ui") for the show/hide aria-label.
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ ui: roUi }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("PasswordInput", () => {
   it("renders type=password by default", () => {
@@ -20,19 +32,19 @@ describe("PasswordInput", () => {
     const input = screen.getByLabelText("Password") as HTMLInputElement;
     expect(input.type).toBe("password");
 
-    const toggle = screen.getByRole("button", { name: /show password/i });
+    const toggle = screen.getByRole("button", { name: /arată parola/i });
     await user.click(toggle);
     expect(input.type).toBe("text");
-    expect(screen.getByRole("button", { name: /hide password/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /ascunde parola/i })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /hide password/i }));
+    await user.click(screen.getByRole("button", { name: /ascunde parola/i }));
     expect(input.type).toBe("password");
   });
 
   it("toggle button reflects state via aria-pressed", async () => {
     const user = userEvent.setup();
     render(<PasswordInput name="pw" />);
-    const toggle = screen.getByRole("button", { name: /show password/i });
+    const toggle = screen.getByRole("button", { name: /arată parola/i });
     expect(toggle).toHaveAttribute("aria-pressed", "false");
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-pressed", "true");
@@ -49,7 +61,7 @@ describe("PasswordInput", () => {
     const input = screen.getByLabelText("Password") as HTMLInputElement;
     input.focus();
     expect(input).toHaveFocus();
-    await user.click(screen.getByRole("button", { name: /show password/i }));
+    await user.click(screen.getByRole("button", { name: /arată parola/i }));
     expect(input).toHaveFocus();
   });
 
@@ -64,7 +76,7 @@ describe("PasswordInput", () => {
     const input = screen.getByLabelText("Password") as HTMLInputElement;
     await user.type(input, "secret123");
     expect(input.value).toBe("secret123");
-    await user.click(screen.getByRole("button", { name: /show password/i }));
+    await user.click(screen.getByRole("button", { name: /arată parola/i }));
     expect(input.value).toBe("secret123");
   });
 

@@ -1,6 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CuiLookupField } from "../CuiLookupField";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roEvents from "@/messages/ro/events.json";
+
+function renderField(props: React.ComponentProps<typeof CuiLookupField>) {
+  return render(
+    <MessagesProvider locale="ro" bundle={{ events: roEvents }}>
+      <CuiLookupField {...props} />
+    </MessagesProvider>,
+  );
+}
 
 describe("CuiLookupField", () => {
   beforeEach(() => {
@@ -19,7 +29,7 @@ describe("CuiLookupField", () => {
 
   it("calls the onChange handler when the user types", async () => {
     const onChange = jest.fn();
-    render(<CuiLookupField cui="" denumire="" onChange={onChange} />);
+    renderField({ cui: "", denumire: "", onChange });
     const input = screen.getByLabelText(/cui/i);
     await userEvent.type(input, "R");
     // Controlled component — every keystroke forwards via onChange.
@@ -27,13 +37,7 @@ describe("CuiLookupField", () => {
   });
 
   it("renders the fallback denumire when no fresh lookup result exists", () => {
-    render(
-      <CuiLookupField
-        cui=""
-        denumire="Existing S.R.L."
-        onChange={() => {}}
-      />,
-    );
+    renderField({ cui: "", denumire: "Existing S.R.L.", onChange: () => {} });
     expect(screen.getByText(/existing s\.r\.l\./i)).toBeInTheDocument();
   });
 });

@@ -1,3 +1,7 @@
+"use client";
+
+import { useT } from "@/lib/i18n/messages-provider";
+
 type Status = "open" | "closed";
 type StatusVariant = "full" | "compact";
 
@@ -14,6 +18,7 @@ export function StatusBadge({
   opensAt,
   variant = "full",
 }: StatusBadgeProps) {
+  const t = useT("ui");
   const isOpen = status === "open";
   const dot = <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: isOpen ? "var(--color-success)" : "var(--color-error)" }} />;
 
@@ -26,7 +31,7 @@ export function StatusBadge({
         ].join(" ")}
       >
         {dot}
-        {isOpen ? "Deschis acum" : "Închis"}
+        {isOpen ? t("statusBadge.openNow") : t("statusBadge.closed")}
       </span>
     );
   }
@@ -36,9 +41,9 @@ export function StatusBadge({
       className={`inline-flex items-center gap-1.5 text-sm font-semibold ${isOpen ? "text-success" : "text-error"}`}
     >
       {dot}
-      <span>{isOpen ? "Deschis acum" : "Închis"}</span>
-      {isOpen && closesAt && <span>· Se închide la {closesAt}</span>}
-      {!isOpen && opensAt && <span>· Se deschide la {opensAt}</span>}
+      <span>{isOpen ? t("statusBadge.openNow") : t("statusBadge.closed")}</span>
+      {isOpen && closesAt && <span>{t("statusBadge.closesAt", { closesAt })}</span>}
+      {!isOpen && opensAt && <span>{t("statusBadge.opensAt", { opensAt })}</span>}
     </span>
   );
 }

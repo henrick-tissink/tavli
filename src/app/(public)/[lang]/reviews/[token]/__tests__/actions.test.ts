@@ -11,7 +11,9 @@ jest.mock("@/lib/db/admin", () => ({
 }));
 jest.mock("next/headers", () => ({
   headers: jest.fn(async () => new Map<string, string>()),
-  cookies: jest.fn(async () => ({ get: () => undefined })),
+  // Resolve the locale cookie to English so error strings returned by the
+  // action are the verbatim English originals the assertions below expect.
+  cookies: jest.fn(async () => ({ get: () => ({ value: "en" }) })),
 }));
 jest.mock("@/lib/rate-limit/enforce", () => ({
   enforceRateLimit: jest.fn(async () => ({ allowed: true, remaining: 4, resetsAt: new Date() })),
@@ -36,7 +38,7 @@ beforeEach(() => {
   jest.resetAllMocks();
   freezeClock(new Date(Date.UTC(2099, 0, 1, 9, 0, 0)));
   (headers as jest.Mock).mockResolvedValue(new Map<string, string>());
-  (cookies as jest.Mock).mockResolvedValue({ get: () => undefined });
+  (cookies as jest.Mock).mockResolvedValue({ get: () => ({ value: "en" }) });
   (enforceRateLimit as jest.Mock).mockResolvedValue({ allowed: true, remaining: 4, resetsAt: new Date() });
   (recordAudit as jest.Mock).mockResolvedValue(undefined);
   process.env = {

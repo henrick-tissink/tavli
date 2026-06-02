@@ -2,10 +2,12 @@
 
 import { useRef, useState, type InputHTMLAttributes } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type">;
 
 export function PasswordInput({ className, ...rest }: Props) {
+  const t = useT("ui");
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
 
@@ -31,7 +33,7 @@ export function PasswordInput({ className, ...rest }: Props) {
         type="button"
         onClick={toggle}
         aria-pressed={visible}
-        aria-label={visible ? "Hide password" : "Show password"}
+        aria-label={visible ? t("hidePassword") : t("showPassword")}
         tabIndex={-1}
         className="absolute inset-y-0 right-0 flex items-center px-2 text-text-muted hover:text-text-primary"
       >

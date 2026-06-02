@@ -176,6 +176,44 @@
       "cancelled": "Anfrage storniert",
       "expired": "Anfrage abgelaufen",
       "completed": "Veranstaltung abgeschlossen"
+    },
+    "timeline": {
+      "ariaLabel": "Anfragefortschritt",
+      "steps": {
+        "submitted": "Gesendet",
+        "viewing": "Angesehen",
+        "quoted": "Angebot",
+        "decided": "Entscheidung"
+      }
+    },
+    "expiry": {
+      "expired": "Das Angebot ist abgelaufen",
+      "prefix": "Läuft ab in ",
+      "days": {
+        "one": "{days} Tag",
+        "few": "{days} Tagen",
+        "other": "{days} Tagen"
+      },
+      "dayHours": "{days} Tag {hours} Stunden",
+      "today": "Läuft heute ab (in {hours}h)"
+    },
+    "partnerBadge": {
+      "viewingAriaLabel": "sieht gerade",
+      "viewingText": "Sieht Ihre Anfrage gerade",
+      "verifiedText": "Verifiziertes Restaurant"
+    }
+  },
+  "cuiLookup": {
+    "searchingAriaLabel": "wird gesucht",
+    "foundAriaLabel": "gefunden",
+    "denumirePrefix": "Firmenname: "
+  },
+  "roomPicker": {
+    "capacityRange": "{capacityMin}–{capacityMax} Personen",
+    "fits": {
+      "one": "Für {partySize} Person geeignet",
+      "few": "Für {partySize} Personen geeignet",
+      "other": "Für {partySize} Personen geeignet"
     }
   }
 }

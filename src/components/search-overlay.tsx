@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, Clock } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines, cuisineLabel } from "@/lib/types";
-import { useT } from "@/lib/i18n/messages-provider";
+import { PRICE_LABELS, formatCuisines, cuisineLabel, zoneLabel } from "@/lib/types";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -70,6 +70,7 @@ export function SearchOverlay({
   onSelectCuisine,
 }: SearchOverlayProps) {
   const t = useT("discovery");
+  const locale = useLocale();
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -275,7 +276,7 @@ export function SearchOverlay({
                           <div>
                             <p className="text-sm font-semibold text-text-primary">{r.name}</p>
                             <p className="text-xs text-text-secondary">
-                              {r.rating} · {formatCuisines(r.cuisines)} · {PRICE_LABELS[r.priceLevel]} · {r.zone}
+                              {r.rating} · {formatCuisines(r.cuisines, locale)} · {PRICE_LABELS[r.priceLevel]} · {zoneLabel(r.zone, locale)}
                             </p>
                           </div>
                         </button>
@@ -299,7 +300,7 @@ export function SearchOverlay({
                           className="flex items-center w-full text-left py-3 border-b border-border last:border-b-0"
                         >
                           <span className="text-sm text-text-primary">
-                            {cuisineLabel(cuisine)} ({t("search.cuisineCount", { count })})
+                            {cuisineLabel(cuisine, locale)} ({t("search.cuisineCount", { count })})
                           </span>
                         </button>
                       ))}

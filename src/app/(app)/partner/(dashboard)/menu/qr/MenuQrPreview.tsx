@@ -68,6 +68,7 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
             restaurantName={restaurant.name}
             menuUrl={menuUrl}
             size="single"
+            caption={t("qr.scanPrompt")}
           />
         ) : (
           <div className="grid grid-cols-3 gap-2">
@@ -77,6 +78,7 @@ export function MenuQrPreview({ restaurant, menuUrl }: MenuQrPreviewProps) {
                 restaurantName={restaurant.name}
                 menuUrl={menuUrl}
                 size="tile"
+                caption={t("qr.scanPrompt")}
               />
             ))}
           </div>

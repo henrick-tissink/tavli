@@ -105,7 +105,7 @@ export default async function ReservationPage({
   const { lang: rawLang, token } = await params;
   const locale = isLocale(rawLang) ? rawLang : "ro";
   const m = getMessages(locale, "booking");
-  const bundle = buildBundle(locale, ["common", "booking"]);
+  const bundle = buildBundle(locale, ["ui", "common", "booking"]);
   const result = await loadReservation(token);
 
   if (result.kind === "confirmed") {

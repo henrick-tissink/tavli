@@ -29,6 +29,7 @@ jest.mock("@/app/(app)/locale-action", () => ({
 }));
 
 import roDiscovery from "@/messages/ro/discovery.json";
+import roUi from "@/messages/ro/ui.json";
 
 const commonBundle = {
   languageName: "Română",
@@ -39,7 +40,7 @@ const commonBundle = {
 
 const baseProps = {
   lang: "ro" as const,
-  bundle: { common: commonBundle, discovery: roDiscovery },
+  bundle: { ui: roUi, common: commonBundle, discovery: roDiscovery },
   city: "bucuresti",
   displayCity: "București",
   restaurants: [],

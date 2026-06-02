@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useId } from "react";
 import { X } from "lucide-react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 interface BottomSheetProps {
   open: boolean;
@@ -14,6 +15,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
+  const t = useT("ui");
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -114,7 +116,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
           )}
           <button
             type="button"
-            aria-label="Închide"
+            aria-label={t("close")}
             onClick={onClose}
             className="p-1 rounded-full hover:bg-surface-bg text-text-secondary"
           >

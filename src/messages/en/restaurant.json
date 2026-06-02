@@ -32,7 +32,8 @@
     "nearbySubtitle": "Places on the same street with a similar spirit.",
     "bookTable": "Book a table",
     "stickyBookCta": "Book",
-    "stickyNextSlot": "Next available: {slot}"
+    "stickyNextSlot": "Next available: {slot}",
+    "mapTitle": "Map of {name}"
   },
   "gallery": {
     "backAriaLabel": "Back",

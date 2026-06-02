@@ -1,4 +1,8 @@
 {
+  "slots": {
+    "more": "Mehr →",
+    "anotherDay": "Anderen Tag buchen →"
+  },
   "sheet": {
     "headerLabel": "Reservierung",
     "progress": "Schritt {current} von {total}",

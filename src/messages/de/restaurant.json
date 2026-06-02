@@ -32,7 +32,8 @@
     "nearbySubtitle": "Lokale in derselben Straße mit ähnlichem Geist.",
     "bookTable": "Tisch reservieren",
     "stickyBookCta": "Reservieren",
-    "stickyNextSlot": "Nächste Verfügbarkeit: {slot}"
+    "stickyNextSlot": "Nächste Verfügbarkeit: {slot}",
+    "mapTitle": "Karte zu {name}"
   },
   "gallery": {
     "backAriaLabel": "Zurück",

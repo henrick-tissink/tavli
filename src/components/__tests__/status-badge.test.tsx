@@ -1,5 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { StatusBadge } from "../status-badge";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roUi from "@/messages/ro/ui.json";
+
+// StatusBadge reads useT("ui") for its open/closed labels.
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ ui: roUi }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("StatusBadge", () => {
   it("renders 'Deschis acum' for open status (full)", () => {

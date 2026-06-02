@@ -19,7 +19,8 @@
     },
     "viewItem": "Ansehen →",
     "noMatchBody": "Kein Gericht entspricht den gewählten Filtern.",
-    "clearFilters": "Filter löschen"
+    "clearFilters": "Filter löschen",
+    "qrScanPrompt": "Scannen, um unsere Speisekarte zu sehen"
   },
   "itemCard": {
     "chefPickAriaLabel": "Empfehlung des Küchenchefs",
@@ -44,5 +45,6 @@
     "noMenuTitle": "Speisekarte folgt in Kürze",
     "noMenuBody": "Bitte fragen Sie das Servicepersonal nach einer gedruckten Speisekarte.",
     "backTo": "Zurück zu {name}"
-  }
+  },
+  "poweredBy": "bereitgestellt von"
 }

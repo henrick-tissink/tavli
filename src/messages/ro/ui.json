@@ -1,0 +1,14 @@
+{
+  "close": "Închide",
+  "clear": "Șterge",
+  "removeFilter": "Elimină filtrul {label}",
+  "showPassword": "Arată parola",
+  "hidePassword": "Ascunde parola",
+  "openMap": "Deschide harta",
+  "statusBadge": {
+    "openNow": "Deschis acum",
+    "closed": "Închis",
+    "closesAt": "· Se închide la {closesAt}",
+    "opensAt": "· Se deschide la {opensAt}"
+  }
+}

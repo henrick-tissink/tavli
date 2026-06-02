@@ -42,7 +42,7 @@ export default async function CityEventsPage({
   const m = getMessages(locale, "events");
   // "discovery" is required because the venues section renders <RestaurantCard>,
   // which reads useT("discovery"); without it the page throws at render.
-  const bundle = buildBundle(locale, ["common", "events", "discovery"]);
+  const bundle = buildBundle(locale, ["ui", "common", "events", "discovery"]);
 
   const rows = await listRestaurants({
     citySlug: city,

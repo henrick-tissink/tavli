@@ -3,9 +3,10 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
 import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
+import { useLocale } from "@/lib/i18n/messages-provider";
 
 interface MapCarouselProps {
   restaurants: Restaurant[];
@@ -21,6 +22,7 @@ export function MapCarousel({
   onSlotSelect,
 }: MapCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const locale = useLocale();
 
   useEffect(() => {
     if (!selectedId || !scrollRef.current) return;
@@ -79,8 +81,8 @@ export function MapCarousel({
                   {restaurant.name}
                 </h3>
                 <p className="text-xs text-text-secondary truncate">
-                  {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
-                  {restaurant.zone}
+                  {formatCuisines(restaurant.cuisines, locale)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+                  {zoneLabel(restaurant.zone, locale)}
                 </p>
                 <RatingChip
                   rating={restaurant.rating}

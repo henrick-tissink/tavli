@@ -1,5 +1,9 @@
 import { type Locale, DEFAULT_LOCALE, isLocale } from "./locale";
 
+import roUi from "@/messages/ro/ui.json";
+import enUi from "@/messages/en/ui.json";
+import deUi from "@/messages/de/ui.json";
+
 import roCommon from "@/messages/ro/common.json";
 import enCommon from "@/messages/en/common.json";
 import deCommon from "@/messages/de/common.json";
@@ -127,6 +131,27 @@ import roPartnerReviews from "@/messages/ro/partner.reviews.json";
 import enPartnerReviews from "@/messages/en/partner.reviews.json";
 import dePartnerReviews from "@/messages/de/partner.reviews.json";
 
+/**
+ * Structural contract for the universal `ui` namespace — generic micro-labels
+ * used by primitive components rendered across multiple shells (consumer,
+ * partner, admin). This namespace is added to every `buildBundle` call so that
+ * `useT("ui")` is safe on any render path.
+ */
+export interface UiMessages {
+  close: string;
+  clear: string;
+  removeFilter: string;
+  showPassword: string;
+  hidePassword: string;
+  openMap: string;
+  statusBadge: {
+    openNow: string;
+    closed: string;
+    closesAt: string;
+    opensAt: string;
+  };
+}
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -227,6 +252,45 @@ export interface DiscoveryMessages {
     savedAriaLabel: string;
     profileAriaLabel: string;
   };
+  timeContext: {
+    greetings: {
+      morning: string;
+      brunch: string;
+      lunch: string;
+      afternoon: string;
+      evening: string;
+      late: string;
+      default: string;
+    };
+    subtexts: {
+      morning: { one: string; few: string; other: string };
+      brunch: { one: string; few: string; other: string };
+      lunch: { one: string; few: string; other: string };
+      afternoon: { one: string; few: string; other: string };
+      evening: { one: string; few: string; other: string };
+      late: { one: string; few: string; other: string };
+      default: { one: string; few: string; other: string };
+    };
+    chips: {
+      morning: string;
+      brunch: string;
+      lunch: string;
+      afternoon: string;
+      evening: string;
+      late: string;
+      terrace: string;
+      cocktails: string;
+    };
+    pullQuotes: {
+      morning: { eyebrow: string; body: string };
+      brunch: { eyebrow: string; body: string };
+      lunch: { eyebrow: string; body: string };
+      afternoon: { eyebrow: string; body: string };
+      evening: { eyebrow: string; body: string };
+      late: { eyebrow: string; body: string };
+      default: { eyebrow: string; body: string };
+    };
+  };
 }
 
 /** Structural contract for the `restaurant` namespace. */
@@ -258,6 +322,7 @@ export interface RestaurantMessages {
     bookTable: string;
     stickyBookCta: string;
     stickyNextSlot: string;
+    mapTitle: string;
   };
   gallery: { backAriaLabel: string; saveAriaLabel: string; shareAriaLabel: string };
   reviewCard: {
@@ -291,6 +356,7 @@ export interface MenuMessages {
     viewItem: string;
     noMatchBody: string;
     clearFilters: string;
+    qrScanPrompt: string;
   };
   itemCard: {
     chefPickAriaLabel: string;
@@ -316,10 +382,15 @@ export interface MenuMessages {
     noMenuBody: string;
     backTo: string;
   };
+  poweredBy: string;
 }
 
 /** Structural contract for the `booking` namespace. */
 export interface BookingMessages {
+  slots: {
+    more: string;
+    anotherDay: string;
+  };
   sheet: {
     headerLabel: string;
     progress: string;
@@ -477,6 +548,13 @@ export interface ReviewsMessages {
     editWindowExpired: string;
     editHidden: string;
     editFailed: string;
+    ratingRange: string;
+    commentTooLong: string;
+    platformNotConfigured: string;
+    reservationNotFound: string;
+    ineligible: string;
+    alreadyReviewed: string;
+    couldNotSave: string;
   };
 }
 
@@ -595,6 +673,31 @@ export interface EventsMessages {
     declineReasonPrefix: string;
     cancelRequest: string;
     status: Record<string, string>;
+    timeline: {
+      ariaLabel: string;
+      steps: { submitted: string; viewing: string; quoted: string; decided: string };
+    };
+    expiry: {
+      expired: string;
+      prefix: string;
+      days: PluralBag;
+      dayHours: string;
+      today: string;
+    };
+    partnerBadge: {
+      viewingAriaLabel: string;
+      viewingText: string;
+      verifiedText: string;
+    };
+  };
+  cuiLookup: {
+    searchingAriaLabel: string;
+    foundAriaLabel: string;
+    denumirePrefix: string;
+  };
+  roomPicker: {
+    capacityRange: string;
+    fits: PluralBag;
   };
 }
 
@@ -1363,6 +1466,7 @@ export interface PartnerMenuMessages {
     single: string;
     sheet: string;
     print: string;
+    scanPrompt: string;
   };
   editor: {
     emptyTitle: string;
@@ -2657,6 +2761,7 @@ export interface PartnerReviewsMessages {
  * contract). Add new namespaces here as later phases extract strings.
  */
 const CATALOGS = {
+  ui: { ro: roUi, en: enUi, de: deUi } as Record<Locale, UiMessages>,
   common: { ro: roCommon, en: enCommon, de: deCommon } as Record<
     Locale,
     CommonMessages

@@ -22,7 +22,7 @@ export default async function AdminSignInPage({
   // password form (graceful degradation — the user must re-authenticate).
   const locale = await resolveAppLocale();
   const m = getMessages(locale, "admin.auth");
-  const bundle = buildBundle(locale, ["admin.common", "admin.auth"]);
+  const bundle = buildBundle(locale, ["ui", "admin.common", "admin.auth"]);
 
   const params = (await searchParams) ?? {};
   let initialState: SignInResult | undefined;

@@ -1,6 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import userEvent from "@testing-library/user-event";
 import { Pill } from "../pill";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roUi from "@/messages/ro/ui.json";
+
+// Pill reads useT("ui") for the dismiss-button aria-label.
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ ui: roUi }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("Pill", () => {
   it("renders label", () => {
@@ -32,7 +44,7 @@ describe("Pill", () => {
 
   it("shows close button when dismissible and active", () => {
     render(<Pill label="Italian" active dismissible />);
-    expect(screen.getByLabelText("Remove Italian filter")).toBeInTheDocument();
+    expect(screen.getByLabelText("Elimină filtrul Italian")).toBeInTheDocument();
   });
 
   it("renders as a span when non-interactive (decorative)", () => {
@@ -96,7 +108,7 @@ describe("Pill", () => {
         onDismiss={handleDismiss}
       />
     );
-    await user.click(screen.getByLabelText("Remove Italian filter"));
+    await user.click(screen.getByLabelText("Elimină filtrul Italian"));
     expect(handleDismiss).toHaveBeenCalledTimes(1);
     expect(handleToggle).not.toHaveBeenCalled();
   });

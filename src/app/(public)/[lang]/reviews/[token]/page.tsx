@@ -75,7 +75,7 @@ export default async function ReviewSubmitPage({
   const [{ lang: rawLang, token }, sp] = await Promise.all([params, searchParams]);
   const locale = isLocale(rawLang) ? rawLang : "ro";
   const m = getMessages(locale, "reviews");
-  const bundle = buildBundle(locale, ["common", "reviews"]);
+  const bundle = buildBundle(locale, ["ui", "common", "reviews"]);
   const ctx = await loadContext(token);
   const initialRating = parseRating(sp.rating);
 

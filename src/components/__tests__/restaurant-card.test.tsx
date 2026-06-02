@@ -5,10 +5,15 @@ import type { Restaurant } from "@/lib/types";
 import { freezeClock, unfreezeClock } from "@/test-support/clock";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roDiscovery from "@/messages/ro/discovery.json";
+import roUi from "@/messages/ro/ui.json";
+import roBooking from "@/messages/ro/booking.json";
 
 function renderCard(props: React.ComponentProps<typeof RestaurantCard>) {
   return render(
-    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+    <MessagesProvider
+      locale="ro"
+      bundle={{ ui: roUi, discovery: roDiscovery, booking: roBooking }}
+    >
       <RestaurantCard {...props} />
     </MessagesProvider>,
   );

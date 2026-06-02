@@ -115,5 +115,93 @@
     "searchPlaceholder": "Restaurants, Küchen suchen…",
     "savedAriaLabel": "Gespeicherte Restaurants",
     "profileAriaLabel": "Profil"
+  },
+  "timeContext": {
+    "greetings": {
+      "morning": "Guten Morgen",
+      "brunch": "Zeit für Brunch",
+      "lunch": "Zeit fürs Mittagessen",
+      "afternoon": "Guten Tag",
+      "evening": "Guten Abend",
+      "late": "Noch Appetit?",
+      "default": "Entdecken"
+    },
+    "subtexts": {
+      "morning": {
+        "one": "{count} Ort für Kaffee oder Brunch in Ihrer Nähe",
+        "few": "{count} Orte für Kaffee oder Brunch in Ihrer Nähe",
+        "other": "{count} Orte für Kaffee oder Brunch in Ihrer Nähe"
+      },
+      "brunch": {
+        "one": "{count} Ort für Brunch mit freien Tischen",
+        "few": "{count} Orte für Brunch mit freien Tischen",
+        "other": "{count} Orte für Brunch mit freien Tischen"
+      },
+      "lunch": {
+        "one": "{count} Ort mit schnellem Service",
+        "few": "{count} Orte mit schnellem Service",
+        "other": "{count} Orte mit schnellem Service"
+      },
+      "afternoon": {
+        "one": "{count} Café in Ihrer Nähe",
+        "few": "{count} Cafés in Ihrer Nähe",
+        "other": "{count} Cafés in Ihrer Nähe"
+      },
+      "evening": {
+        "one": "{count} Ort heute Abend verfügbar",
+        "few": "{count} Orte heute Abend verfügbar",
+        "other": "{count} Orte heute Abend verfügbar"
+      },
+      "late": {
+        "one": "{count} Ort in Ihrer Nähe, der lange geöffnet hat",
+        "few": "{count} Orte in Ihrer Nähe, die lange geöffnet haben",
+        "other": "{count} Orte in Ihrer Nähe, die lange geöffnet haben"
+      },
+      "default": {
+        "one": "{count} Ort zum Entdecken",
+        "few": "{count} Orte zum Entdecken",
+        "other": "{count} Orte zum Entdecken"
+      }
+    },
+    "chips": {
+      "morning": "Frühstück",
+      "brunch": "Brunch",
+      "lunch": "Schnelles Mittagessen",
+      "afternoon": "Kaffee",
+      "evening": "Abendessen",
+      "late": "Lange geöffnet",
+      "terrace": "Terrasse",
+      "cocktails": "Cocktails"
+    },
+    "pullQuotes": {
+      "morning": {
+        "eyebrow": "EIN WENIG INSPIRATION",
+        "body": "Die besten Gäste planen schon am Morgen. Finden Sie einen Tisch für heute Abend."
+      },
+      "brunch": {
+        "eyebrow": "ZEIT FÜR BRUNCH",
+        "body": "Samstag, Sonntag — die Stadt deckt ihre gemütlichen Tische. Finden Sie Ihren."
+      },
+      "lunch": {
+        "eyebrow": "MITTAGSZEIT",
+        "body": "Die besten Mittagstische findet man eine Stunde im Voraus. Suchen Sie jetzt."
+      },
+      "afternoon": {
+        "eyebrow": "NACHMITTAG",
+        "body": "{city} wird bei Sonnenuntergang zu einer anderen Stadt. Sichern Sie sich Ihren Platz."
+      },
+      "evening": {
+        "eyebrow": "ABENDS",
+        "body": "Heute Abend sitzen die Menschen in {city} schon an ihren Tischen. Sie auch."
+      },
+      "late": {
+        "eyebrow": "NACH MITTERNACHT",
+        "body": "Eine Stadt, die niemals schläft. Manche Orte haben noch das Licht an."
+      },
+      "default": {
+        "eyebrow": "ENTDECKEN",
+        "body": "Tische, die für Sie bereitstehen, wo immer Sie auch sind."
+      }
+    }
   }
 }

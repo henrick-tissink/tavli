@@ -18,7 +18,7 @@ export default async function EventRequestTrackingPage({
 }) {
   const { lang: rawLang, token } = await params;
   const locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
-  const bundle = buildBundle(locale, ["common", "events"]);
+  const bundle = buildBundle(locale, ["ui", "common", "events"]);
 
   const er = await getByTrackingToken(token);
   if (!er) notFound();

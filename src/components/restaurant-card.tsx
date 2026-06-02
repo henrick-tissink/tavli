@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
-import { PRICE_LABELS, formatCuisines } from "@/lib/types";
+import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
 import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -33,6 +33,7 @@ export function RestaurantCard({
   highlightCapability,
 }: RestaurantCardProps) {
   const t = useT("discovery");
+  const locale = useLocale();
   const isClosed = restaurant.status === "closed";
 
   const hasReviewIntelligence =
@@ -140,8 +141,8 @@ export function RestaurantCard({
 
         {/* Row 2: Cuisine · Price · Zone */}
         <p className="text-xs text-text-secondary truncate">
-          {formatCuisines(restaurant.cuisines)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
-          {restaurant.zone}
+          {formatCuisines(restaurant.cuisines, locale)} · {PRICE_LABELS[restaurant.priceLevel]} ·{" "}
+          {zoneLabel(restaurant.zone, locale)}
         </p>
 
         {/* Row 3: Review intelligence or fallback */}

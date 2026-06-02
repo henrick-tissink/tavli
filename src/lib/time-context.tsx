@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export type TimeContextId =
   | "morning"
@@ -13,12 +14,45 @@ export type TimeContextId =
   | "weekend"
   | "holiday";
 
+/** Catalogue key used to look up greeting / subtext / pull-quote copy. */
+export type ContextCopyKey =
+  | "morning"
+  | "brunch"
+  | "lunch"
+  | "afternoon"
+  | "evening"
+  | "late"
+  | "default";
+
+/** Catalogue key for a single injected filter/trending chip. */
+export type PillKey =
+  | "morning"
+  | "brunch"
+  | "lunch"
+  | "afternoon"
+  | "evening"
+  | "late"
+  | "terrace"
+  | "cocktails";
+
 export interface TimeContextValue {
   active: TimeContextId[];
   greeting: string;
   subtextTemplate: string;
   injectedPills: { label: string; icon: string }[];
   pullQuote: { eyebrow: string; body: string };
+  /**
+   * Catalogue keys resolved from the active time-of-day. The pure
+   * `computeTimeContext` emits ONLY these stable keys (plus `active` flags and
+   * pill icons) — it carries no display text. `localizeTimeContext` (run in the
+   * React provider) maps every key to the `discovery.timeContext.*` catalogue
+   * for the active locale, populating `greeting` / `subtextTemplate` /
+   * `pullQuote` / pill `label`. The catalogue is the sole source of these
+   * strings; no display copy lives in this module.
+   */
+  copyKey: ContextCopyKey;
+  pullQuoteKey: ContextCopyKey;
+  pillKeys: { key: PillKey; icon: string }[];
 }
 
 const GREETING_PRIORITY: TimeContextId[] = [
@@ -30,35 +64,9 @@ const GREETING_PRIORITY: TimeContextId[] = [
   "late",
 ];
 
-const GREETING_MAP: Record<string, { greeting: string; subtextTemplate: string }> = {
-  morning: {
-    greeting: "Bună dimineața",
-    subtextTemplate: "{N} {P:loc|locuri} pentru cafea sau brunch lângă tine",
-  },
-  brunch: {
-    greeting: "E timpul de brunch",
-    subtextTemplate: "{N} {P:loc|locuri} pentru brunch cu mese libere",
-  },
-  lunch: {
-    greeting: "E ora prânzului",
-    subtextTemplate: "{N} {P:loc|locuri} cu servire rapidă",
-  },
-  afternoon: {
-    greeting: "Bună ziua",
-    subtextTemplate: "{N} {P:cafenea|cafenele} lângă tine",
-  },
-  evening: {
-    greeting: "Bună seara",
-    subtextTemplate: "{N} {P:loc disponibil|locuri disponibile} diseară",
-  },
-  late: {
-    greeting: "Tot mai e poftă?",
-    subtextTemplate: "{N} {P:loc deschis|locuri deschise} până târziu lângă tine",
-  },
-};
-
 // Romanian agrees in singular vs plural with no special handling for 0/many,
-// so the rule is simply N === 1 → singular, otherwise plural.
+// so the rule is simply N === 1 → singular, otherwise plural. Retained for the
+// historic `{N}`/`{P:…}` micro-template contract exercised by unit tests.
 export function fillSubtext(template: string, n: number): string {
   const isSingular = n === 1;
   return template
@@ -68,15 +76,30 @@ export function fillSubtext(template: string, n: number): string {
     .replace(/\{N\}/g, String(n));
 }
 
-const PILL_MAP: Record<string, { label: string; icon: string }> = {
-  morning: { label: "Mic dejun", icon: "☕" },
-  brunch: { label: "Brunch", icon: "🥂" },
-  lunch: { label: "Prânz rapid", icon: "🍽" },
-  afternoon: { label: "Cafea", icon: "☕" },
-  evening: { label: "Cină", icon: "🍷" },
-  late: { label: "Deschis până târziu", icon: "🌙" },
-  terrace: { label: "Terasă", icon: "☀️" },
-  "weekend+evening": { label: "Cocktailuri", icon: "🍸" },
+// Pill icons keyed by priority slot. Icons are locale-agnostic glyphs; the
+// human-readable label is sourced from the catalogue in `localizeTimeContext`.
+const PILL_ICON: Record<string, string> = {
+  morning: "☕",
+  brunch: "🥂",
+  lunch: "🍽",
+  afternoon: "☕",
+  evening: "🍷",
+  late: "🌙",
+  terrace: "☀️",
+  "weekend+evening": "🍸",
+};
+
+// Maps each pill-priority slot to its catalogue chip key (the catalogue is keyed
+// by time-of-day, with the weekend+evening combo surfacing as "cocktails").
+const PILL_CATALOGUE_KEY: Record<string, PillKey> = {
+  morning: "morning",
+  brunch: "brunch",
+  lunch: "lunch",
+  afternoon: "afternoon",
+  evening: "evening",
+  late: "late",
+  terrace: "terrace",
+  "weekend+evening": "cocktails",
 };
 
 const PILL_PRIORITY = [
@@ -90,44 +113,18 @@ const PILL_PRIORITY = [
   "weekend+evening",
 ];
 
-// Pull-quote copy keyed by greeting priority. Stays in lock-step with the
-// greeting so the cover hero's "Bună seara" never clashes with a "DUPĂ-AMIAZĂ"
-// interstitial. `body` accepts a `{city}` placeholder that the consumer
-// substitutes; eyebrows are static, uppercase, tracked.
-const PULL_QUOTE_MAP: Record<TimeContextId, { eyebrow: string; body: string }> = {
-  morning: {
-    eyebrow: "PUȚINĂ INSPIRAȚIE",
-    body: "Cei mai buni meseni încep planificarea de dimineață. Caută masă pentru diseară.",
-  },
-  brunch: {
-    eyebrow: "TIMP DE BRUNCH",
-    body: "Sâmbătă, duminică — orașul își aranjează mesele lente. Găsește-ți a ta.",
-  },
-  lunch: {
-    eyebrow: "ORA PRÂNZULUI",
-    body: "Cele mai bune mese de prânz se găsesc cu o oră înainte. Caută acum.",
-  },
-  afternoon: {
-    eyebrow: "DUPĂ-AMIAZĂ",
-    body: "Bucureștiul devine un alt oraș la apus. Reține-ți locul.",
-  },
-  evening: {
-    eyebrow: "SEARA",
-    body: "În seara asta, în {city}, oamenii deja stau la mese. Și tu poți.",
-  },
-  late: {
-    eyebrow: "DUPĂ MIEZ DE NOAPTE",
-    body: "Oraș nedormit. Sunt locuri care încă au lumini aprinse.",
-  },
-  terrace: { eyebrow: "", body: "" },
-  weekend: { eyebrow: "", body: "" },
-  holiday: { eyebrow: "", body: "" },
-};
-
-const DEFAULT_PULL_QUOTE = {
-  eyebrow: "DESCOPERĂ",
-  body: "Mese pregătite pentru tine, oriunde te-ai afla.",
-};
+// Time-of-day buckets that carry a pull-quote in the catalogue. The pull-quote
+// is resolved by the SAME priority as the greeting (keeping the cover hero and
+// editorial interstitial in lock-step); the remaining contexts (terrace /
+// weekend / holiday) intentionally have no pull-quote and fall back to default.
+const PULL_QUOTE_KEYS: ReadonlySet<TimeContextId> = new Set([
+  "morning",
+  "brunch",
+  "lunch",
+  "afternoon",
+  "evening",
+  "late",
+]);
 
 export function computeTimeContext(now: Date, temperature?: number): TimeContextValue {
   const hour = now.getHours();
@@ -161,47 +158,91 @@ export function computeTimeContext(now: Date, temperature?: number): TimeContext
   // weekend: Friday(5) hour>=17 OR Saturday(6) OR Sunday(0)
   if ((day === 5 && hour >= 17) || day === 6 || day === 0) active.push("weekend");
 
-  // Determine greeting using priority
-  let greeting = "Descoperă";
-  let subtextTemplate = "{N} {P:loc|locuri} de explorat";
-
+  // Resolve the greeting/subtext catalogue key using priority order.
+  let copyKey: ContextCopyKey = "default";
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
-      const mapped = GREETING_MAP[id];
-      greeting = mapped.greeting;
-      subtextTemplate = mapped.subtextTemplate;
+      copyKey = id as ContextCopyKey;
       break;
     }
   }
 
-  // Determine injected pills (max 2, priority order)
-  const injectedPills: { label: string; icon: string }[] = [];
+  // Determine injected pill keys (max 2, priority order). Display labels are
+  // resolved from the catalogue later; here we only emit the catalogue key and
+  // the locale-agnostic icon glyph.
+  const pillKeys: { key: PillKey; icon: string }[] = [];
   for (const key of PILL_PRIORITY) {
-    if (injectedPills.length >= 2) break;
+    if (pillKeys.length >= 2) break;
 
-    if (key === "weekend+evening") {
-      if (active.includes("weekend") && active.includes("evening")) {
-        injectedPills.push(PILL_MAP[key]);
-      }
-    } else {
-      if (active.includes(key as TimeContextId)) {
-        injectedPills.push(PILL_MAP[key]);
-      }
+    const isActive =
+      key === "weekend+evening"
+        ? active.includes("weekend") && active.includes("evening")
+        : active.includes(key as TimeContextId);
+
+    if (isActive) {
+      pillKeys.push({ key: PILL_CATALOGUE_KEY[key], icon: PILL_ICON[key] });
     }
   }
 
-  // Resolve pullQuote by the SAME priority as greeting — keeps cover hero
-  // and editorial interstitial in lock-step.
-  let pullQuote = DEFAULT_PULL_QUOTE;
+  // Resolve the pull-quote key by the SAME priority as the greeting — keeps the
+  // cover hero and editorial interstitial in lock-step. Contexts without a
+  // pull-quote (terrace/weekend/holiday) fall through to the default.
+  let pullQuoteKey: ContextCopyKey = "default";
   for (const id of GREETING_PRIORITY) {
     if (active.includes(id)) {
-      const mapped = PULL_QUOTE_MAP[id];
-      if (mapped.body) pullQuote = mapped;
+      if (PULL_QUOTE_KEYS.has(id)) {
+        pullQuoteKey = id as ContextCopyKey;
+      }
       break;
     }
   }
 
-  return { active, greeting, subtextTemplate, injectedPills, pullQuote };
+  // Display fields are intentionally left blank here; `localizeTimeContext`
+  // fills them from the `discovery.timeContext.*` catalogue for the active
+  // locale. No localized copy is emitted by the pure layer.
+  return {
+    active,
+    greeting: "",
+    subtextTemplate: "",
+    injectedPills: [],
+    pullQuote: { eyebrow: "", body: "" },
+    copyKey,
+    pullQuoteKey,
+    pillKeys,
+  };
+}
+
+type Translator = (key: string, vars?: Record<string, string | number>) => string;
+
+/**
+ * Populate the display fields of a computed time context with strings resolved
+ * from the `discovery` catalogue for the active locale. The structural fields
+ * (`active`, resolved keys, pill icons) are untouched, and the `{city}` token in
+ * the pull-quote body is preserved for the consumer to substitute.
+ *
+ * `subtextTemplate` is surfaced from the catalogue's plural bag with the
+ * `{count}` token left intact for any downstream caller. No live consumer reads
+ * `subtextTemplate`, but it is kept on the public shape for compatibility.
+ */
+export function localizeTimeContext(
+  base: TimeContextValue,
+  t: Translator,
+): TimeContextValue {
+  return {
+    ...base,
+    greeting: t(`timeContext.greetings.${base.copyKey}`),
+    // `count` drives plural selection; leave the {count} token unresolved by
+    // omitting the var so the returned template still reads naturally.
+    subtextTemplate: t(`timeContext.subtexts.${base.copyKey}.other`),
+    injectedPills: base.pillKeys.map(({ key, icon }) => ({
+      label: t(`timeContext.chips.${key}`),
+      icon,
+    })),
+    pullQuote: {
+      eyebrow: t(`timeContext.pullQuotes.${base.pullQuoteKey}.eyebrow`),
+      body: t(`timeContext.pullQuotes.${base.pullQuoteKey}.body`),
+    },
+  };
 }
 
 const TimeContext = createContext<TimeContextValue | null>(null);
@@ -210,26 +251,34 @@ const MOCK_TEMPERATURE = 22;
 
 // Neutral, render-safe initial value so SSR (UTC) and first client paint match.
 // useEffect below replaces it with the real time-aware context after mount.
+// Carries only structural defaults (the "default" catalogue keys); display
+// fields are filled by `localizeTimeContext`.
 const NEUTRAL_CTX: TimeContextValue = {
   active: [],
-  greeting: "Descoperă",
-  subtextTemplate: "{N} {P:loc|locuri} de explorat",
+  greeting: "",
+  subtextTemplate: "",
   injectedPills: [],
-  pullQuote: DEFAULT_PULL_QUOTE,
+  pullQuote: { eyebrow: "", body: "" },
+  copyKey: "default",
+  pullQuoteKey: "default",
+  pillKeys: [],
 };
 
 export function TimeContextProvider({ children }: { children: ReactNode }) {
-  const [ctx, setCtx] = useState<TimeContextValue>(NEUTRAL_CTX);
+  const [base, setBase] = useState<TimeContextValue>(NEUTRAL_CTX);
+  const t = useT("discovery");
 
   useEffect(() => {
-    setCtx(computeTimeContext(new Date(), MOCK_TEMPERATURE));
+    setBase(computeTimeContext(new Date(), MOCK_TEMPERATURE));
 
     const interval = setInterval(() => {
-      setCtx(computeTimeContext(new Date(), MOCK_TEMPERATURE));
+      setBase(computeTimeContext(new Date(), MOCK_TEMPERATURE));
     }, 60_000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const ctx = localizeTimeContext(base, t);
 
   return <TimeContext value={ctx}>{children}</TimeContext>;
 }

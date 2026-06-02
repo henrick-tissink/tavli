@@ -46,4 +46,21 @@ describe("<CookieFootnote>", () => {
     const { container } = render(<CookieFootnote />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("lets the locale prop win over the pathname", () => {
+    // Partner dashboard pathname has no /de or /en segment; without the prop
+    // it would fall back to Romanian. The locale prop must force German.
+    usePathnameMock.mockReturnValue("/partner/abc123");
+    render(<CookieFootnote locale="de" />);
+    expect(screen.getByText(/essentielle Cookies/i)).toBeInTheDocument();
+    expect(screen.queryByText(/cookie-uri esențiale/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Details/ })).toHaveAttribute(
+      "href",
+      "/de/cookies",
+    );
+    expect(screen.getByRole("region")).toHaveAttribute(
+      "aria-label",
+      "Cookie-Hinweis",
+    );
+  });
 });

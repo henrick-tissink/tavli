@@ -7,6 +7,12 @@ interface MenuQrCardProps {
   restaurantName: string;
   menuUrl: string;
   size?: "single" | "tile";
+  /**
+   * Localized scan-prompt caption. Rendered in both the consumer menu page and
+   * the partner QR generator — each parent passes the string from its own
+   * namespace. Defaults to the RO source string for callers that omit it.
+   */
+  caption?: string;
 }
 
 const QR_PIXELS: Record<"single" | "tile", number> = {
@@ -31,6 +37,7 @@ export function MenuQrCard({
   restaurantName,
   menuUrl,
   size = "single",
+  caption = "Scanează pentru a vedea meniul nostru", // i18n-allow: RO default; real caller (partner QR) passes a localized caption
 }: MenuQrCardProps) {
   const qrHostRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +85,7 @@ export function MenuQrCard({
       <p
         className={`font-display italic ${captionSizing} text-text-secondary text-center`}
       >
-        Scanează pentru a vedea meniul nostru
+        {caption}
       </p>
       <p className={`text-text-muted ${creditSizing}`}>tavli.ro</p>
     </div>

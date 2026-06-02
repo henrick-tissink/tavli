@@ -5,6 +5,7 @@ import { FilterProvider, useFilters } from "@/lib/filter-context";
 import { getRestaurants } from "@/lib/mock-data";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roDiscovery from "@/messages/ro/discovery.json";
+import roUi from "@/messages/ro/ui.json";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn() }),
@@ -22,7 +23,7 @@ function renderBar(
   props: Partial<React.ComponentProps<typeof FilterPillBar>> = {},
 ) {
   return render(
-    <MessagesProvider locale="ro" bundle={{ discovery: roDiscovery }}>
+    <MessagesProvider locale="ro" bundle={{ ui: roUi, discovery: roDiscovery }}>
       <FilterProvider>
         <CtxSpy />
         <FilterPillBar

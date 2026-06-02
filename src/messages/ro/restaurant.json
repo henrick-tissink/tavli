@@ -32,7 +32,8 @@
     "nearbySubtitle": "Locuri pe aceeași stradă cu spiritul ăsta.",
     "bookTable": "Rezervă o masă",
     "stickyBookCta": "Rezervă",
-    "stickyNextSlot": "Următor disponibil: {slot}"
+    "stickyNextSlot": "Următor disponibil: {slot}",
+    "mapTitle": "Harta către {name}"
   },
   "gallery": {
     "backAriaLabel": "Înapoi",

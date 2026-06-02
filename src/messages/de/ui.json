@@ -1,0 +1,14 @@
+{
+  "close": "Schließen",
+  "clear": "Löschen",
+  "removeFilter": "Filter {label} entfernen",
+  "showPassword": "Passwort anzeigen",
+  "hidePassword": "Passwort ausblenden",
+  "openMap": "Karte öffnen",
+  "statusBadge": {
+    "openNow": "Jetzt geöffnet",
+    "closed": "Geschlossen",
+    "closesAt": "· Schließt um {closesAt}",
+    "opensAt": "· Öffnet um {opensAt}"
+  }
+}

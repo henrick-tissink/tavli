@@ -1,7 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import userEvent from "@testing-library/user-event";
 import { TimeSlotPills } from "../time-slot-pills";
 import { freezeClock, unfreezeClock } from "@/test-support/clock";
+import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import roBooking from "@/messages/ro/booking.json";
+
+// TimeSlotPills reads useT("booking") for the more / another-day labels.
+function render(ui: ReactElement) {
+  return rtlRender(
+    <MessagesProvider locale="ro" bundle={{ booking: roBooking }}>
+      {ui}
+    </MessagesProvider>,
+  );
+}
 
 describe("TimeSlotPills", () => {
   const slots = ["18:00", "18:30", "19:00", "19:30", "20:00"];

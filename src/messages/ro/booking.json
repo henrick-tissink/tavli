@@ -1,4 +1,8 @@
 {
+  "slots": {
+    "more": "Mai multe →",
+    "anotherDay": "Rezervă pentru altă zi →"
+  },
   "sheet": {
     "headerLabel": "Rezervare",
     "progress": "Pas {current} din {total}",

@@ -1,0 +1,14 @@
+{
+  "close": "Close",
+  "clear": "Clear",
+  "removeFilter": "Remove {label} filter",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "openMap": "Open map",
+  "statusBadge": {
+    "openNow": "Open now",
+    "closed": "Closed",
+    "closesAt": "· Closes at {closesAt}",
+    "opensAt": "· Opens at {opensAt}"
+  }
+}
