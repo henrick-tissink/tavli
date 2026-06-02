@@ -36,6 +36,10 @@ import roEmails from "@/messages/ro/emails.json";
 import enEmails from "@/messages/en/emails.json";
 import deEmails from "@/messages/de/emails.json";
 
+import roPartnerCommon from "@/messages/ro/partner.common.json";
+import enPartnerCommon from "@/messages/en/partner.common.json";
+import dePartnerCommon from "@/messages/de/partner.common.json";
+
 /** Structural contract for the `common` namespace. */
 export interface CommonMessages {
   languageName: string;
@@ -693,6 +697,52 @@ export interface EmailsMessages {
   };
 }
 
+/** Plural-bag type used across partner namespaces. */
+type PartnerPluralBag = { one: string; few: string; other: string };
+
+/** Structural contract for the `partner.common` namespace (shell chrome). */
+export interface PartnerCommonMessages {
+  nav: {
+    eyebrow: string;
+    signOut: string;
+    openMenu: string;
+    closeMenu: string;
+    openRequestsBadge: PartnerPluralBag;
+    items: {
+      dashboard: string;
+      profile: string;
+      hours: string;
+      photos: string;
+      menu: string;
+      translations: string;
+      availability: string;
+      reservations: string;
+      floor: string;
+      staff: string;
+      diners: string;
+      reviews: string;
+      corporate: string;
+      spaces: string;
+      marketing: string;
+      org: string;
+      billing: string;
+      preview: string;
+    };
+  };
+  bell: {
+    ariaLabel: string;
+    empty: string;
+    kinds: {
+      new_event_request: string;
+      event_request_replied: string;
+      event_request_quoted: string;
+      quote_accepted: string;
+      quote_declined: string;
+      event_request_cancelled: string;
+    };
+  };
+}
+
 /**
  * Registry of namespaces. Each entry is Record<Locale, NsMessages>, so a missing
  * key in any locale is a TypeScript error at build time (the locked completeness
@@ -735,6 +785,11 @@ const CATALOGS = {
     Locale,
     EmailsMessages
   >,
+  "partner.common": {
+    ro: roPartnerCommon,
+    en: enPartnerCommon,
+    de: dePartnerCommon,
+  } as Record<Locale, PartnerCommonMessages>,
 } as const;
 
 export type Namespace = keyof typeof CATALOGS;

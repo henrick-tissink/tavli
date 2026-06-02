@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { BCP47 } from "@/lib/i18n/locale";
 
 interface Item {
   id: string;
@@ -10,16 +12,9 @@ interface Item {
   createdAt: string;
 }
 
-const KIND_LABEL: Record<string, string> = {
-  new_event_request: "Cerere nouă",
-  event_request_replied: "Răspuns nou",
-  event_request_quoted: "Ofertă trimisă",
-  quote_accepted: "Ofertă acceptată",
-  quote_declined: "Ofertă refuzată",
-  event_request_cancelled: "Cerere anulată",
-};
-
 export function PartnerNotificationBell() {
+  const t = useT("partner.common");
+  const locale = useLocale();
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
   const [open, setOpen] = useState(false);
@@ -65,7 +60,7 @@ export function PartnerNotificationBell() {
     <div className="relative">
       <button
         type="button"
-        aria-label="Notificări"
+        aria-label={t("bell.ariaLabel")}
         onClick={onBellClick}
         className="relative p-2 rounded-lg hover:bg-surface-bg text-text-secondary"
       >
@@ -79,16 +74,19 @@ export function PartnerNotificationBell() {
       {open && (
         <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg p-2 z-10">
           {items.length === 0 ? (
-            <p className="text-sm text-zinc-500 p-3">Nimic nou.</p>
+            <p className="text-sm text-zinc-500 p-3">{t("bell.empty")}</p>
           ) : (
-            items.map((n) => (
-              <div key={n.id} className="text-sm p-2 hover:bg-zinc-50">
-                <span className="font-medium">
-                  {KIND_LABEL[n.kind] ?? n.kind}
-                </span>{" "}
-                · {new Date(n.createdAt).toLocaleString("ro-RO")}
-              </div>
-            ))
+            items.map((n) => {
+              const label = t(`bell.kinds.${n.kind}`);
+              return (
+                <div key={n.id} className="text-sm p-2 hover:bg-zinc-50">
+                  <span className="font-medium">
+                    {label === `bell.kinds.${n.kind}` ? n.kind : label}
+                  </span>{" "}
+                  · {new Date(n.createdAt).toLocaleString(BCP47[locale])}
+                </div>
+              );
+            })
           )}
         </div>
       )}
