@@ -44,10 +44,15 @@ const ROOTS = [
   join(__dirname, "..", "app", "(app)", "partner"),
   join(__dirname, "..", "app", "(app)", "onboard"),
   join(__dirname, "..", "app", "(app)", "admin"),
-  join(__dirname, "..", "components", "partner"),
-  join(__dirname, "..", "components", "onboarding"),
-  join(__dirname, "..", "components", "admin"),
+  // The entire shared component tree (consumer + partner + admin + onboarding).
+  join(__dirname, "..", "components"),
 ];
+/**
+ * Individual non-component modules that render user-facing UI and must stay
+ * localized. (We don't scan all of `src/lib` — it holds legitimate RO data like
+ * the `ro` column of cuisine labels and email content.)
+ */
+const EXTRA_FILES = [join(__dirname, "..", "lib", "time-context.tsx")];
 const SRC = join(__dirname, "..");
 const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
 
@@ -99,7 +104,7 @@ function offendingLines(source: string): { line: number; text: string }[] {
 }
 
 describe("i18n regression guard: no hardcoded Romanian in the localized trees", () => {
-  const files = ROOTS.flatMap((root) => walk(root)).filter(
+  const files = [...ROOTS.flatMap((root) => walk(root)), ...EXTRA_FILES].filter(
     (f) => !DEFERRED_FILES.includes(f),
   );
 

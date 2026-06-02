@@ -188,7 +188,7 @@
       },
       "afternoon": {
         "eyebrow": "DUPĂ-AMIAZĂ",
-        "body": "Bucureștiul devine un alt oraș la apus. Reține-ți locul."
+        "body": "{city} devine un alt oraș la apus. Reține-ți locul."
       },
       "evening": {
         "eyebrow": "SEARA",
