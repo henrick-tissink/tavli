@@ -85,9 +85,12 @@ export function CookieFootnote({ locale }: { locale?: Locale }) {
     <div
       role="region"
       aria-label={ARIA_LABEL[lang]}
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface-white border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.04)]"
+      // Mobile: a docked full-width bar. Desktop: the bar chrome is dropped so the
+      // inner element reads as a single floating card (it carries its own surface,
+      // border and shadow there) instead of an outlined box over a white strip.
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface-white border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.04)] desktop:bg-transparent desktop:border-t-0 desktop:shadow-none desktop:pointer-events-none"
     >
-      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3 desktop:rounded-card desktop:mb-4 desktop:border desktop:shadow-card">
+      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3 desktop:rounded-card desktop:mb-4 desktop:border desktop:border-border desktop:bg-surface-white desktop:shadow-card desktop:pointer-events-auto">
         <p className="text-sm text-text-primary flex-1">{copy.body}</p>
         <Link
           href={copy.detailsHref}
