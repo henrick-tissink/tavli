@@ -1,10 +1,10 @@
 "use client";
 
 import { DayPicker } from "react-day-picker";
-import { ro } from "date-fns/locale";
 import { addDays, format } from "date-fns";
 import "react-day-picker/style.css";
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { DATE_FNS_LOCALES } from "@/lib/i18n/date-fns-locale";
 
 interface Props {
   minLeadDays: number;
@@ -29,6 +29,8 @@ export function StepDate({
   onNext,
 }: Props) {
   const t = useT("events");
+  const locale = useLocale();
+  const dfLocale = DATE_FNS_LOCALES[locale];
   const today = new Date();
   const minDate = addDays(today, minLeadDays);
   const selected = value ? new Date(value) : undefined;
@@ -46,10 +48,10 @@ export function StepDate({
           {leadAfter}
         </p>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center tavli-calendar">
         <DayPicker
           mode="single"
-          locale={ro}
+          locale={dfLocale}
           weekStartsOn={1}
           selected={selected}
           onSelect={(d) => d && onChange({ eventDate: format(d, "yyyy-MM-dd") })}
@@ -58,7 +60,7 @@ export function StepDate({
       </div>
       {selected && (
         <p className="text-sm text-center text-text-primary">
-          {format(selected, "EEEE, d MMMM yyyy", { locale: ro })}
+          {format(selected, "EEEE, d MMMM yyyy", { locale: dfLocale })}
         </p>
       )}
       <label className="block">

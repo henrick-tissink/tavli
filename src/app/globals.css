@@ -99,6 +99,32 @@ body {
   }
 }
 
+/* Brand theme for react-day-picker (booking + event-request date steps). The
+   library's default accent is blue — it leaks into the nav chevrons and today's
+   number. Retint to the Tavli palette and make the selected day (including when
+   it is also today) a filled brand circle with a white number. Scoped to
+   .tavli-calendar; the .rdp-root selector is targeted directly so it outranks the
+   library's own `.rdp-root { --rdp-accent-color: blue }`. */
+.tavli-calendar .rdp-root {
+  --rdp-accent-color: var(--color-brand-primary);
+  --rdp-accent-background-color: var(--color-brand-primary-soft);
+  --rdp-today-color: var(--color-brand-primary);
+  --rdp-day-width: 40px;
+  --rdp-day-height: 40px;
+  --rdp-day_button-width: 38px;
+  --rdp-day_button-height: 38px;
+}
+.tavli-calendar .rdp-chevron {
+  fill: var(--color-text-secondary);
+}
+.tavli-calendar .rdp-selected .rdp-day_button {
+  background-color: var(--color-brand-primary);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }

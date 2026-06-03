@@ -1,10 +1,11 @@
 "use client";
 
 import { DayPicker } from "react-day-picker";
-import { ro } from "date-fns/locale";
 import "react-day-picker/style.css";
 import { isoDate, addDays, localDateFromIso } from "./helpers";
-import { useT } from "@/lib/i18n/messages-provider";
+import { useT, useLocale } from "@/lib/i18n/messages-provider";
+import { BCP47 } from "@/lib/i18n/locale";
+import { DATE_FNS_LOCALES } from "@/lib/i18n/date-fns-locale";
 
 interface StepDateProps {
   value: string | null; // ISO yyyy-mm-dd
@@ -13,6 +14,7 @@ interface StepDateProps {
 
 export function StepDate({ value, onSelect }: StepDateProps) {
   const t = useT("booking");
+  const locale = useLocale();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const maxDate = addDays(today, 90);
@@ -44,16 +46,15 @@ export function StepDate({ value, onSelect }: StepDateProps) {
       </div>
 
       {/* Calendar */}
-      <div className="flex justify-center">
+      <div className="flex justify-center tavli-calendar">
         <DayPicker
           mode="single"
-          locale={ro}
+          locale={DATE_FNS_LOCALES[locale]}
           weekStartsOn={1}
           selected={selected}
           onSelect={(d) => d && onSelect(isoDate(d))}
           disabled={[{ before: today }, { after: maxDate }]}
           modifiersClassNames={{
-            selected: "bg-brand-primary text-white rounded-full",
             disabled: "opacity-40 cursor-not-allowed",
           }}
         />
@@ -61,7 +62,7 @@ export function StepDate({ value, onSelect }: StepDateProps) {
 
       {selected && (
         <p className="text-sm text-center text-text-secondary">
-          {new Intl.DateTimeFormat("ro-RO", {
+          {new Intl.DateTimeFormat(BCP47[locale], {
             weekday: "long",
             day: "numeric",
             month: "long",

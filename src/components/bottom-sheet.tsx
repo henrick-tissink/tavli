@@ -94,6 +94,10 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={[
+          // The panel is programmatically focused on open (tabIndex -1) only to
+          // scope keyboard nav; its own boundary is the affordance, so suppress
+          // the browser's default (blue) focus outline. Inner controls keep theirs.
+          "outline-none",
           "absolute bg-surface-white shadow-modal overflow-y-auto",
           // Mobile: bottom sheet — pad bottom past the iOS home indicator so
           // sticky action buttons inside the sheet remain tappable.
