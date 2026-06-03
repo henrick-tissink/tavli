@@ -38,7 +38,10 @@
   "gallery": {
     "backAriaLabel": "Back",
     "saveAriaLabel": "Save",
-    "shareAriaLabel": "Share"
+    "shareAriaLabel": "Share",
+    "prevAriaLabel": "Previous photo",
+    "nextAriaLabel": "Next photo",
+    "goToPhotoAriaLabel": "Go to photo {n}"
   },
   "reviewCard": {
     "bookedContext": "Booked: {date} · {count} {unit}",

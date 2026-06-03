@@ -38,7 +38,10 @@
   "gallery": {
     "backAriaLabel": "Înapoi",
     "saveAriaLabel": "Salvează",
-    "shareAriaLabel": "Trimite"
+    "shareAriaLabel": "Trimite",
+    "prevAriaLabel": "Fotografia anterioară",
+    "nextAriaLabel": "Fotografia următoare",
+    "goToPhotoAriaLabel": "Mergi la fotografia {n}"
   },
   "reviewCard": {
     "bookedContext": "Rezervat: {date} · {count} {unit}",

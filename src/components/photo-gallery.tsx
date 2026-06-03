@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { ArrowLeft, Heart, Share2, Star } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Share2, Star } from "lucide-react";
 import { useT } from "@/lib/i18n/messages-provider";
 
 interface PhotoGalleryProps {
@@ -40,6 +40,16 @@ export function PhotoGallery({
     const index = Math.round(scrollLeft / width);
     setCurrentIndex(index);
   }, []);
+
+  const scrollToIndex = useCallback(
+    (i: number) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const clamped = Math.max(0, Math.min(i, photos.length - 1));
+      el.scrollTo({ left: clamped * el.clientWidth, behavior: "smooth" });
+    },
+    [photos.length],
+  );
 
   if (photos.length === 0) {
     return (
@@ -113,11 +123,24 @@ export function PhotoGallery({
 
   return (
     <div className="relative w-full h-[280px] desktop:h-[400px]">
-      {/* Scrollable photo container */}
+      {/* Scrollable photo container — keyboard-navigable carousel */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="w-full h-full overflow-x-auto snap-x snap-mandatory flex hide-scrollbar"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            scrollToIndex(currentIndex + 1);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            scrollToIndex(currentIndex - 1);
+          }
+        }}
+        tabIndex={photos.length > 1 ? 0 : undefined}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={restaurantName}
+        className="w-full h-full overflow-x-auto snap-x snap-mandatory flex hide-scrollbar focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
       >
         {photos.map((photo, i) => (
           <div key={i} className="snap-start w-full h-full flex-shrink-0 relative">
@@ -156,16 +179,51 @@ export function PhotoGallery({
         </>
       )}
 
-      {/* Dot indicators */}
-      <div className={`absolute ${overlayTitle && currentIndex === 0 ? "bottom-[72px] desktop:bottom-[88px]" : "bottom-4"} left-0 right-0 flex justify-center gap-1.5`}>
-        {photos.map((_, i) => (
-          <div
-            key={i}
-            data-testid="gallery-dot"
-            className={`w-2 h-2 rounded-full ${
-              i === currentIndex ? "bg-brand-primary" : "bg-gray-400"
+      {/* Desktop prev/next arrows — the discoverable affordance for mouse users
+          (touch users swipe; the dots work everywhere). Hidden at the ends. */}
+      {photos.length > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label={t("gallery.prevAriaLabel")}
+            onClick={() => scrollToIndex(currentIndex - 1)}
+            className={`hidden desktop:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm items-center justify-center text-white transition-opacity hover:bg-black/50 ${
+              currentIndex === 0 ? "opacity-0 pointer-events-none" : ""
             }`}
-          />
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            type="button"
+            aria-label={t("gallery.nextAriaLabel")}
+            onClick={() => scrollToIndex(currentIndex + 1)}
+            className={`hidden desktop:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm items-center justify-center text-white transition-opacity hover:bg-black/50 ${
+              currentIndex === photos.length - 1 ? "opacity-0 pointer-events-none" : ""
+            }`}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </>
+      )}
+
+      {/* Dot indicators — clickable, so they double as navigation everywhere. */}
+      <div className={`absolute ${overlayTitle && currentIndex === 0 ? "bottom-[72px] desktop:bottom-[88px]" : "bottom-4"} left-0 right-0 flex justify-center gap-0.5`}>
+        {photos.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            data-testid="gallery-dot"
+            onClick={() => scrollToIndex(i)}
+            aria-label={t("gallery.goToPhotoAriaLabel", { n: i + 1 })}
+            aria-current={i === currentIndex ? "true" : undefined}
+            className="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          >
+            <span
+              className={`block h-2 rounded-full transition-all ${
+                i === currentIndex ? "w-5 bg-white" : "w-2 bg-white/50"
+              }`}
+            />
+          </button>
         ))}
       </div>
 

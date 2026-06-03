@@ -1,7 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { PhotoGallery } from "../photo-gallery";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roRestaurant from "@/messages/ro/restaurant.json";
+
+// jsdom doesn't implement Element.prototype.scrollTo; the gallery calls it to
+// advance. Stub it so interaction tests can assert navigation was triggered.
+beforeAll(() => {
+  Element.prototype.scrollTo = jest.fn();
+});
 
 function renderGallery(props: React.ComponentProps<typeof PhotoGallery>) {
   return render(
@@ -54,6 +60,29 @@ describe("PhotoGallery", () => {
     expect(screen.getByLabelText("Înapoi")).toBeInTheDocument();
     expect(screen.getByLabelText("Salvează")).toBeInTheDocument();
     expect(screen.getByLabelText("Trimite")).toBeInTheDocument();
+  });
+
+  it("dots are clickable navigation controls (not passive indicators)", () => {
+    renderGallery({ photos, restaurantName: "Test Restaurant" });
+    const dotButtons = screen.getAllByRole("button", { name: /Mergi la fotografia/ });
+    expect(dotButtons).toHaveLength(3);
+    (Element.prototype.scrollTo as jest.Mock).mockClear();
+    fireEvent.click(dotButtons[2]);
+    expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it("renders prev/next arrow affordances when there is more than one photo", () => {
+    renderGallery({ photos, restaurantName: "Test Restaurant" });
+    expect(screen.getByLabelText("Fotografia anterioară")).toBeInTheDocument();
+    const next = screen.getByLabelText("Fotografia următoare");
+    (Element.prototype.scrollTo as jest.Mock).mockClear();
+    fireEvent.click(next);
+    expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it("shows no arrows for a single photo", () => {
+    renderGallery({ photos: [photos[0]], restaurantName: "Test Restaurant" });
+    expect(screen.queryByLabelText("Fotografia următoare")).not.toBeInTheDocument();
   });
 
   it("shows fallback when photos array is empty", () => {

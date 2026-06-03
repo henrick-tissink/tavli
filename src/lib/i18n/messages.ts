@@ -326,7 +326,14 @@ export interface RestaurantMessages {
     stickyNextSlot: string;
     mapTitle: string;
   };
-  gallery: { backAriaLabel: string; saveAriaLabel: string; shareAriaLabel: string };
+  gallery: {
+    backAriaLabel: string;
+    saveAriaLabel: string;
+    shareAriaLabel: string;
+    prevAriaLabel: string;
+    nextAriaLabel: string;
+    goToPhotoAriaLabel: string;
+  };
   reviewCard: {
     bookedContext: string;
     guestOne: string;
