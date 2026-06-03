@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Scale } from "lucide-react";
 import type { Locale } from "@/lib/i18n/locale";
+import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 
 const HIDDEN_PREFIXES = ["/admin", "/partner", "/onboard", "/reservations", "/reviews"];
 
@@ -95,7 +96,15 @@ export function SiteFooter({ locale }: { locale?: Locale }) {
         <div className="flex items-center gap-4 text-xs text-text-muted">
           <span>© {new Date().getFullYear()} Tavli</span>
           {otherLocales.map((l) => (
-            <Link key={l} href={LOCALE_HOME[l]} className="font-semibold text-text-secondary hover:text-text-primary">
+            <Link
+              key={l}
+              href={LOCALE_HOME[l]}
+              // Persist the choice so the middleware honours it. Without this, the
+              // remembered cookie wins on the unprefixed RO route ("/") and bounces
+              // the user back to their previous locale — so "Română" never sticks.
+              onClick={() => setLocaleCookieClient(l)}
+              className="font-semibold text-text-secondary hover:text-text-primary"
+            >
               {LOCALE_LABEL[l]}
             </Link>
           ))}

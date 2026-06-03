@@ -1,12 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
+import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 
 jest.mock("next/navigation", () => ({
   usePathname: jest.fn(),
 }));
 
+jest.mock("@/lib/i18n/cookie-client", () => ({
+  setLocaleCookieClient: jest.fn(),
+}));
+
 const usePathnameMock = usePathname as jest.MockedFunction<typeof usePathname>;
+const setLocaleCookieClientMock =
+  setLocaleCookieClient as jest.MockedFunction<typeof setLocaleCookieClient>;
 
 describe("<SiteFooter>", () => {
   it("renders on consumer routes", () => {
@@ -47,6 +54,16 @@ describe("<SiteFooter>", () => {
     expect(screen.getByRole("link", { name: /English/i })).toHaveAttribute("href", "/en");
     expect(screen.getByRole("link", { name: /Deutsch/i })).toHaveAttribute("href", "/de");
     expect(screen.queryByRole("link", { name: /Română/i })).not.toBeInTheDocument();
+  });
+
+  it("persists the chosen locale to the cookie on click (so RO doesn't bounce back)", () => {
+    // Simulate an EN visitor (cookie already 'en'): clicking 'Română' must set the
+    // cookie to 'ro', otherwise the middleware redirects '/' back to '/en'.
+    setLocaleCookieClientMock.mockClear();
+    usePathnameMock.mockReturnValue("/en");
+    render(<SiteFooter locale="en" />);
+    fireEvent.click(screen.getByRole("link", { name: /Română/i }));
+    expect(setLocaleCookieClientMock).toHaveBeenCalledWith("ro");
   });
 
   it("renders German copy and locale-aware legal hrefs when locale='de'", () => {
