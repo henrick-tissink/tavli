@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { SignInForm } from "@/components/admin/SignInForm";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import {
@@ -48,8 +48,8 @@ export default async function AdminSignInPage({
       <div className="min-h-screen flex flex-col desktop:flex-row">
         {/* Left panel — desktop only */}
         <div className="hidden desktop:flex desktop:w-1/2 bg-gradient-to-br from-brand-primary-soft via-white to-white p-12 items-center justify-center">
-          <div className="flex flex-col items-center max-w-md w-full">
-            <div className="self-start">
+          <div className="flex flex-col items-start max-w-md w-full">
+            <div>
               <Link
                 href="/admin"
                 className="font-display text-3xl font-bold text-brand-primary tracking-tight"
@@ -60,18 +60,16 @@ export default async function AdminSignInPage({
                 {m.page.brandEyebrow}
               </p>
             </div>
-            <Image
-              src="/illustrations/auth-partner.svg"
-              alt=""
-              width={280}
-              height={280}
-              className="mt-8 text-brand-primary"
+            <div
+              className="mt-16 w-16 h-16 rounded-2xl bg-brand-primary-soft border border-brand-primary/15 flex items-center justify-center"
               aria-hidden="true"
-            />
-            <h2 className="font-display text-2xl font-bold text-text-primary mt-6 self-start">
+            >
+              <ShieldCheck size={32} className="text-brand-primary" strokeWidth={1.75} />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-text-primary mt-6">
               {m.page.panelHeading}
             </h2>
-            <p className="text-sm text-text-secondary mt-2 self-start">
+            <p className="text-sm text-text-secondary mt-2">
               {m.page.restrictedNotice}
             </p>
           </div>
