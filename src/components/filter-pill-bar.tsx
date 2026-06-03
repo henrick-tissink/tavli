@@ -186,10 +186,10 @@ export function FilterPillBar({
           onClick={onOpenAdvanced}
           aria-label={t("filters.moreAriaLabel")}
           className={[
-            "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1.5",
+            "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1.5 cursor-pointer transition-colors",
             advancedActive
-              ? "bg-brand-primary text-white"
-              : "bg-surface-bg text-text-secondary border border-border",
+              ? "bg-brand-primary text-white hover:bg-brand-primary-dark"
+              : "bg-surface-white text-text-secondary border border-border hover:bg-surface-bg hover:text-text-primary",
           ].join(" ")}
         >
           <SlidersHorizontal size={14} />
@@ -287,10 +287,10 @@ function PopoverPill({
       aria-expanded={open}
       aria-controls={popoverId}
       className={[
-        "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1",
+        "rounded-pill px-3 py-1.5 text-xs font-semibold whitespace-nowrap inline-flex items-center gap-1 cursor-pointer transition-colors",
         active
-          ? "bg-brand-primary text-white"
-          : "bg-surface-bg text-text-secondary",
+          ? "bg-brand-primary text-white hover:bg-brand-primary-dark"
+          : "bg-surface-white text-text-secondary border border-border hover:bg-surface-bg hover:text-text-primary",
       ].join(" ")}
     >
       <span>{label}</span>
