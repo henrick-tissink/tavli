@@ -379,18 +379,19 @@ Post-launch content management for the public storefront. **Profile**: name, cui
 address, zone, phone, website, hero note/tagline, status. **Photos**: upload/reorder/
 delete, with a `kind` (hero/gallery/dish/venue) and alt text, stored in Supabase Storage.
 **Translations**: partners can author EN/DE versions of tagline, hero subtitle, short/long
-descriptions, chef bio, and ambience, with RO as the always-present base. A loader
-(`loadRestaurantTranslation`, with RO fallback) exists, **but it currently has no
-consumer-side caller** — the storefront does not yet read these translations, so authored
-EN/DE restaurant copy is stored but not surfaced to diners. (Treat this feature as authored-
-but-dormant, not live.) **Preview**: a quick link to the live public page (with a note if the
-venue isn't `live`).
+descriptions, chef bio, and ambience, with RO as the always-present base. The loader
+(`loadRestaurantTranslation`, with per-field RO fallback) **is consumed by the consumer
+storefront** — the restaurant detail page (`(public)/[lang]/[city]/(shell)/[slug]`) and the
+menu page apply these overrides, so authored EN/DE restaurant copy is surfaced to diners on the
+`/en` and `/de` storefronts (menu section/item copy loads via `loadMenuTranslations`, same RO
+fallback). **Preview**: a quick link to the live public page (with a note if the venue isn't
+`live`).
 
 ### Diner perspective
 The Profile and Photos here are exactly what the diner sees on the storefront — the hero
-image and gallery, and the name/cuisines/zones/price/hours. Translations are **not** yet
-reflected on the storefront: regardless of the diner's locale, restaurant content currently
-renders in Romanian (the consumer storefront has no EN/DE routes — see §15).
+image and gallery, and the name/cuisines/zones/price/hours. Translations **are** reflected on
+the storefront: on the `/en` and `/de` routes the diner sees the authored EN/DE restaurant and
+menu copy, with per-field fallback to the Romanian base wherever an override is missing (see §15).
 
 ### Partner perspective
 1. **Profil** (`/profile`): edit all profile fields; changes go live within minutes.
@@ -519,14 +520,20 @@ record, or a suspended venue.
 
 These underpin every feature above.
 
-- **Localization** — **the product itself is Romanian-only**; there is no `[locale]` routing
-  and no EN/DE versions of the consumer storefront (city home, restaurant pages, menus,
-  booking, reviews, events), the partner dashboard, or the admin console. EN/DE exist only as
-  standalone routes for two surfaces: the **pricing page** (`/en/pricing`, `/de/pricing`) and
-  the **legal/policy pages** (`/en/*`, `/de/*`). The root is `<html lang="ro">`; the `/en` and
-  `/de` subtrees set the correct `lang`. Pricing copy is per-locale JSON with build-time key
-  validation, falling back to RO. (The partner Translations feature can author EN/DE restaurant
-  copy, but nothing consumes it yet — see §10.)
+- **Localization** — **the product is fully trilingual (Romanian / English / German)**, with RO
+  the default and source language. The consumer storefront is locale-routed under
+  `(public)/[lang]/` with `[lang] ∈ {ro, en, de}` (`dynamicParams = false`, so any other prefix
+  404s); the unprefixed root serves RO and `/en`·`/de` carry the other locales, each emitting the
+  correct `<html lang>`. Public-page locale resolution lives in middleware (`src/proxy.ts` →
+  `decideLocaleAction`), which redirects/rewrites and persists a `NEXT_LOCALE` cookie. The `(app)`
+  group (partner dashboard + admin console) has no URL locale segment; `resolveAppLocale()` picks
+  the locale from the signed-in user's profile → `NEXT_LOCALE` cookie → `Accept-Language` → default
+  (`ro`). UI strings live in per-locale message catalogues (`src/messages/{ro,en,de}/*.json`)
+  loaded as namespace bundles via `getMessages`/`buildBundle`, with TypeScript interfaces enforcing
+  all-locale key parity and a CI guard (`i18n-no-romanian-guard`) preventing un-extracted Romanian
+  from leaking into the localized trees. Partner-authored EN/DE restaurant and menu copy is surfaced
+  on the storefront with per-field RO fallback (see §10), and transactional emails are localized
+  RO/EN/DE. Pricing copy remains per-locale JSON with build-time key validation, falling back to RO.
 - **Public marketing & legal pages** — a root landing page (`/`), localized pricing
   (`/pricing`, `/en/pricing`, `/de/pricing`, statically generated from per-locale JSON), and a
   full legal set in RO/EN/DE: terms, privacy/confidentiality, cookies, data processing,
