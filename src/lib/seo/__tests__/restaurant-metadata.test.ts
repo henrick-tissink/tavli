@@ -47,19 +47,19 @@ describe("buildRestaurantMetadata", () => {
   });
 
   test("title follows the per-restaurant pattern", () => {
-    const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail(), "bucuresti", "ro");
     expect(m.title).toBe("Casa Veche — Românească în București | Tavli");
   });
 
   test("description is taken from the restaurant description", () => {
-    const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail(), "bucuresti", "ro");
     expect(m.description).toContain("traditional Romanian restaurant");
   });
 
   test("long descriptions are truncated at a word boundary near 160 chars", () => {
     const long =
       "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat";
-    const m = buildRestaurantMetadata(makeDetail({ description: long }), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail({ description: long }), "bucuresti", "ro");
     expect(m.description!.length).toBeLessThanOrEqual(163); // 160 + "..."
     expect(m.description).toMatch(/\.\.\.$/);
     // The kept text (before "...") must be a prefix of the original — no half-words inserted.
@@ -71,17 +71,17 @@ describe("buildRestaurantMetadata", () => {
   });
 
   test("falls back to a tagline when description is empty", () => {
-    const m = buildRestaurantMetadata(makeDetail({ description: "" }), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail({ description: "" }), "bucuresti", "ro");
     expect(m.description).toBe("Bucătărie românească în București. Rezervă o masă pe Tavli.");
   });
 
   test("canonical URL is absolute and uses citySlug", () => {
-    const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail(), "bucuresti", "ro");
     expect(m.alternates?.canonical).toBe("https://tavli.ro/bucuresti/casa-veche");
   });
 
   test("openGraph carries url, title, description, and hero image", () => {
-    const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail(), "bucuresti", "ro");
     expect(m.openGraph?.url).toBe("https://tavli.ro/bucuresti/casa-veche");
     expect(m.openGraph?.title).toBe("Casa Veche — Românească în București | Tavli");
     expect(m.openGraph?.images).toEqual([
@@ -93,12 +93,13 @@ describe("buildRestaurantMetadata", () => {
     const m = buildRestaurantMetadata(
       makeDetail({ photoUrl: null }),
       "bucuresti",
+      "ro",
     );
     expect(m.openGraph?.images).toBeUndefined();
   });
 
   test("twitter card mirrors openGraph as summary_large_image", () => {
-    const m = buildRestaurantMetadata(makeDetail(), "bucuresti");
+    const m = buildRestaurantMetadata(makeDetail(), "bucuresti", "ro");
     const twitter = m.twitter as { card: string; title: string };
     expect(twitter.card).toBe("summary_large_image");
     expect(twitter.title).toBe("Casa Veche — Românească în București | Tavli");

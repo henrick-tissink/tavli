@@ -83,5 +83,9 @@
     "Burger": "cu burger-uri artizanale",
     "Vegan": "vegan și creativ",
     "Vegetarian": "vegetarian și sănătos"
+  },
+  "meta": {
+    "titlePattern": "{name} — {cuisines} în {city} | Tavli",
+    "descriptionFallback": "Bucătărie {cuisines} în {city}. Rezervă o masă pe Tavli."
   }
 }

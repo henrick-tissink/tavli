@@ -30,7 +30,7 @@ export async function generateMetadata({
   const { lang, city, slug } = await params;
   const restaurant = await getRestaurantDetail(slug);
   if (!restaurant) return {};
-  const base = buildRestaurantMetadata(restaurant, city);
+  const base = buildRestaurantMetadata(restaurant, city, isLocale(lang) ? lang : "ro");
   return {
     ...base,
     alternates: buildAlternates(`/${city}/${slug}`, isLocale(lang) ? lang : "ro", getSiteUrl()),

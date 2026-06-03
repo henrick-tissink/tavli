@@ -339,6 +339,7 @@ export interface RestaurantMessages {
     bestForTitle: string;
   };
   cuisineAdjectives: Record<string, string>;
+  meta: { titlePattern: string; descriptionFallback: string };
 }
 
 /** Structural contract for the `menu` namespace. */

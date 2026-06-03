@@ -83,5 +83,9 @@
     "Burger": "with artisan burgers",
     "Vegan": "vegan and creative",
     "Vegetarian": "vegetarian and wholesome"
+  },
+  "meta": {
+    "titlePattern": "{name} — {cuisines} in {city} | Tavli",
+    "descriptionFallback": "{cuisines} cuisine in {city}. Book a table on Tavli."
   }
 }
