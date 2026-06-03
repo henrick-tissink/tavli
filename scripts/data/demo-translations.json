@@ -1,0 +1,3021 @@
+[
+  {
+    "id": "5f38f971-dadc-45c3-866a-6c079f666d89",
+    "slug": "atelier-de-cocktailuri",
+    "descriptionLong": {
+      "en": "A 1920s-style speakeasy bar with 40 seats at marble tables and a brass bar that wraps around three sides. Bartender Marius (15 years at the London Negroni Bar) mixes the classics and his own seasonally rotating creations. A small-plates menu to accompany them (caviar, oysters, carpaccio). Jazz vinyl spins on Friday nights.",
+      "de": "Eine Speakeasy-Bar im Stil der 1920er-Jahre mit 40 Plätzen an Marmortischen und einer Messingbar, die sich über drei Seiten erstreckt. Barkeeper Marius (15 Jahre in der London Negroni Bar) mixt die Klassiker sowie seine eigenen, saisonal wechselnden Kreationen. Eine Karte mit Small Plates zur Begleitung (Kaviar, Austern, Carpaccio). Freitagabends drehen sich Jazz-Schallplatten."
+    },
+    "heroSubtitle": {
+      "en": "Classic cocktails, mixed by the hands that created them. An atmosphere of times gone by.",
+      "de": "Klassische Cocktails, gemixt von den Händen, die sie geschaffen haben. Atmosphäre vergangener Zeiten."
+    },
+    "sections": [
+      {
+        "id": "d11550ad-e1f2-4c07-ae72-a137eae323d5",
+        "name": {
+          "en": "Classic cocktails",
+          "de": "Klassische Cocktails"
+        },
+        "intro": {
+          "en": "The recipes that defined the bar. Made exactly as they should be.",
+          "de": "Die Rezepte, die die Bar geprägt haben. Genau so zubereitet, wie es sein soll."
+        }
+      },
+      {
+        "id": "ba1106fd-7c75-4fd7-a672-e089ec917d00",
+        "name": {
+          "en": "Our own creations",
+          "de": "Eigene Kreationen"
+        },
+        "intro": {
+          "en": "Changing with the season. Ask Marius about the latest one.",
+          "de": "Wechselnd mit der Saison. Fragen Sie Marius nach der neuesten."
+        }
+      },
+      {
+        "id": "7f63fe7e-6a72-4a2c-a1df-2bbe3f8f05d4",
+        "name": {
+          "en": "Wines & spirits",
+          "de": "Weine & Spirituosen"
+        },
+        "intro": {
+          "en": "A short, carefully chosen list. Rare whiskies are also served by the glass.",
+          "de": "Eine kurze, sorgfältig ausgewählte Liste. Auch seltene Whiskys werden glasweise serviert."
+        }
+      },
+      {
+        "id": "d7b12c3f-466d-4b25-92a1-e1007eb1b970",
+        "name": {
+          "en": "Small plates",
+          "de": "Small Plates"
+        },
+        "intro": {
+          "en": "To accompany the cocktails, without becoming dinner.",
+          "de": "Zur Begleitung der Cocktails, ohne zum Abendessen zu werden."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "829ae8d8-ffd3-484d-af7e-2c864a3bce52",
+        "name": {
+          "en": "Negroni",
+          "de": "Negroni"
+        },
+        "description": {
+          "en": "Campari, Cinzano Rosso 1757, Beefeater, large ice cube, flame-charred orange slice.",
+          "de": "Campari, Cinzano Rosso 1757, Beefeater, großer Eiswürfel, flambierte Orangenscheibe."
+        }
+      },
+      {
+        "id": "c9d5542b-e878-4499-b8ed-826b8e5e6b63",
+        "name": {
+          "en": "Old Fashioned with Bulleit Rye",
+          "de": "Old Fashioned mit Bulleit Rye"
+        },
+        "description": {
+          "en": "Bulleit Rye 95% rye, homemade demerara, Angostura, Peychaud's, charred orange peel.",
+          "de": "Bulleit Rye 95% Rye, hausgemachter Demerara, Angostura, Peychaud's, flambierte Orangenschale."
+        }
+      },
+      {
+        "id": "4c6fc40f-d6b8-47ed-b4b1-e85cc23492e0",
+        "name": {
+          "en": "Manhattan",
+          "de": "Manhattan"
+        },
+        "description": {
+          "en": "Bulleit Bourbon, Carpano Antica Formula, Angostura, Luxardo cherry, cubed ice.",
+          "de": "Bulleit Bourbon, Carpano Antica Formula, Angostura, Luxardo-Kirsche, Eiswürfel."
+        }
+      },
+      {
+        "id": "94306074-c5ba-42d1-9f7a-e5eeda30cb78",
+        "name": {
+          "en": "Sazerac with absinthe",
+          "de": "Sazerac mit Absinth"
+        },
+        "description": {
+          "en": "Chilled glass rinsed with Pernod absinthe, Sazerac Rye, demerara, Peychaud's, lemon peel.",
+          "de": "Gekühltes Glas mit Pernod-Absinth ausgespült, Sazerac Rye, Demerara, Peychaud's, Zitronenschale."
+        }
+      },
+      {
+        "id": "679b2558-733b-43e7-9b28-0ce27dcc3488",
+        "name": {
+          "en": "Whiskey Sour with egg white",
+          "de": "Whiskey Sour mit Eiweiß"
+        },
+        "description": {
+          "en": "Buffalo Trace, fresh lemon, demerara, egg white whipped to a foam, dots of Angostura.",
+          "de": "Buffalo Trace, frische Zitrone, Demerara, schaumig geschlagenes Eiweiß, Angostura-Tropfen."
+        }
+      },
+      {
+        "id": "7aa2ac1e-5e78-408c-b195-fe72a043e973",
+        "name": {
+          "en": "Vesper Martini",
+          "de": "Vesper Martini"
+        },
+        "description": {
+          "en": "Tanqueray No. Ten, Stoli Elit, Lillet Blanc, long lemon peel. Served very cold.",
+          "de": "Tanqueray No. Ten, Stoli Elit, Lillet Blanc, lange Zitronenschale. Sehr kalt serviert."
+        }
+      },
+      {
+        "id": "f0acac7b-fdd0-411b-86c5-67069a076c29",
+        "name": {
+          "en": "Atelier Spritz",
+          "de": "Atelier Spritz"
+        },
+        "description": {
+          "en": "Aperol, Prosecco DOC, Hendrick's gin, ginger-lavender syrup, soda, charred rosemary sprig.",
+          "de": "Aperol, Prosecco DOC, Hendrick's Gin, Ingwer-Lavendel-Sirup, Soda, flambierter Rosmarinzweig."
+        }
+      },
+      {
+        "id": "f290dd7c-f3f7-469e-a348-d17c40762879",
+        "name": {
+          "en": "Smokey Mary (Bloody Mary with smoked vodka)",
+          "de": "Smokey Mary (Bloody Mary mit geräuchertem Wodka)"
+        },
+        "description": {
+          "en": "House beechwood-smoked vodka, fresh tomato juice, horseradish, Worcester, chilli, smoked paprika salt, celery.",
+          "de": "Hausgemachter, mit Buchenholz geräucherter Wodka, frischer Tomatensaft, Meerrettich, Worcester, Chili, geräuchertes Paprikasalz, Sellerie."
+        }
+      },
+      {
+        "id": "d24f244c-5ed9-4e0e-9543-e8cb95960f7c",
+        "name": {
+          "en": "Earl Grey Martini",
+          "de": "Earl Grey Martini"
+        },
+        "description": {
+          "en": "Tanqueray gin infused for 24 hours in Earl Grey tea, lemon sugar syrup, egg white, lemon peel.",
+          "de": "Tanqueray Gin, 24 Stunden in Earl-Grey-Tee infundiert, Zitronen-Zuckersirup, Eiweiß, Zitronenschale."
+        }
+      },
+      {
+        "id": "89946e52-9fe5-472b-8e00-a5a480dd9077",
+        "name": {
+          "en": "Autumn Espresso Martini",
+          "de": "Espresso Martini im Herbststil"
+        },
+        "description": {
+          "en": "Vodka, Origo espresso, Kahlúa, cinnamon-vanilla syrup, coffee beans on the foam.",
+          "de": "Wodka, Origo-Espresso, Kahlúa, Zimt-Vanille-Sirup, Kaffeebohnen auf dem Schaum."
+        }
+      },
+      {
+        "id": "47b5079d-dd40-4e90-9fed-9436ce41736d",
+        "name": {
+          "en": "Drappier rosé Champagne (glass)",
+          "de": "Champagner Drappier Rosé (Glas)"
+        },
+        "description": {
+          "en": "Brut rosé Champagne, Pinot Noir-dominant, with notes of red fruit and brioche.",
+          "de": "Brut Rosé Champagner, Pinot-Noir-dominiert, mit Noten von roten Früchten und Brioche."
+        }
+      },
+      {
+        "id": "03d9a847-28dd-4989-a320-86e835ec0faa",
+        "name": {
+          "en": "Glenfarclas 21-year-old whisky (40ml)",
+          "de": "Whisky Glenfarclas 21 Jahre (40 ml)"
+        },
+        "description": {
+          "en": "Speyside single malt, aged 21 years in Sherry casks. Notes of dried fruit, chocolate and oak.",
+          "de": "Speyside Single Malt, 21 Jahre in Sherryfässern gereift. Noten von Trockenfrüchten, Schokolade und Eiche."
+        }
+      },
+      {
+        "id": "b2f75f5d-a309-4be6-b724-24c6abbbea81",
+        "name": {
+          "en": "House vermouth with botanicals",
+          "de": "Hausvermouth mit Botanicals"
+        },
+        "description": {
+          "en": "White vermouth infused in-house with wormwood, lavender and citrus peel, Castelvetrano olives, large ice cube.",
+          "de": "Weißer Wermut, im Haus mit Wermutkraut, Lavendel und Zitrusschale infundiert, Castelvetrano-Oliven, großer Eiswürfel."
+        }
+      },
+      {
+        "id": "309c44c0-e9ed-42ef-81f0-d475b1f29872",
+        "name": {
+          "en": "Beluga caviar 15g with blini and sour cream",
+          "de": "Beluga-Kaviar 15 g mit Blinis und Schmand"
+        },
+        "description": {
+          "en": "Beluga caviar, warm buckwheat blini, rich sour cream, chopped spring onion, quail eggs.",
+          "de": "Beluga-Kaviar, warme Buchweizen-Blinis, Schmand, gehackte Frühlingszwiebeln, Wachteleier."
+        }
+      },
+      {
+        "id": "8b44ab1e-c366-4a66-a405-395ba738553e",
+        "name": {
+          "en": "Beef carpaccio with rocket and parmesan",
+          "de": "Rinder-Carpaccio mit Rucola und Parmesan"
+        },
+        "description": {
+          "en": "Thinly sliced Black Angus beef, rocket, grated parmesan, fried capers, lemon olive oil.",
+          "de": "Dünn geschnittenes Black-Angus-Rind, Rucola, geriebener Parmesan, frittierte Kapern, Zitronen-Olivenöl."
+        }
+      },
+      {
+        "id": "58b0ecde-e4cd-4da8-a87e-8bd42eebd663",
+        "name": {
+          "en": "Galway oysters (3 pcs)",
+          "de": "Galway-Austern (3 Stück)"
+        },
+        "description": {
+          "en": "Irish oysters, shallot mignonette with Champagne vinegar, lemon, crushed ice.",
+          "de": "Irische Austern, Schalotten-Mignonette mit Champagneressig, Zitrone, zerstoßenes Eis."
+        }
+      },
+      {
+        "id": "09f97ff7-2d2c-457d-b295-21b2c8e10e4f",
+        "name": {
+          "en": "Sea bream ceviche with tiger's milk",
+          "de": "Doraden-Ceviche mit Tiger's Milk"
+        },
+        "description": {
+          "en": "Thinly sliced sea bream, lime tiger's milk, coriander, chilli, red onion, sweet potato.",
+          "de": "Dünn geschnittene Dorade, Tiger's Milk mit Limette, Koriander, Chili, rote Zwiebel, Süßkartoffel."
+        }
+      },
+      {
+        "id": "3f3e1078-5121-4e4e-81c8-a39316828d8a",
+        "name": {
+          "en": "Cheese board with 4 cheeses",
+          "de": "Käseplatte mit 4 Käsesorten"
+        },
+        "description": {
+          "en": "Comté 24 months, gorgonzola dolce, Brie de Meaux, manchego, fig honey, grapes, walnuts.",
+          "de": "Comté 24 Monate, Gorgonzola Dolce, Brie de Meaux, Manchego, Feigenhonig, Trauben, Walnüsse."
+        }
+      },
+      {
+        "id": "49eb93ed-df9d-4b9a-9da7-66d8c83b501b",
+        "name": {
+          "en": "Berry and mascarpone trifle",
+          "de": "Trifle mit Waldbeeren und Mascarpone"
+        },
+        "description": {
+          "en": "Marsala sponge, whipped mascarpone, fresh berries, coulis, pistachio.",
+          "de": "Biskuit mit Marsala, geschlagener Mascarpone, frische Waldbeeren, Coulis, Pistazien."
+        }
+      }
+    ]
+  },
+  {
+    "id": "18ed759e-209d-4d3f-943a-df7ff9382e52",
+    "slug": "atelier-floreasca",
+    "descriptionLong": {
+      "en": "Contemporary Romanian cuisine in an intimate 38-seat atelier in the heart of Floreasca. We change the menu weekly, according to the producers we work with. A short list of natural wines and old recipes reinterpreted.",
+      "de": "Zeitgenössische rumänische Küche in einem intimen Atelier mit 38 Plätzen im Herzen von Floreasca. Wir wechseln die Karte wöchentlich, je nach den Erzeugern, mit denen wir arbeiten. Eine kurze Liste an Naturweinen und neu interpretierte alte Rezepte."
+    },
+    "heroSubtitle": {
+      "en": "From the farm to the plate. From the forest to the glass.",
+      "de": "Vom Hof auf den Teller. Aus dem Wald ins Glas."
+    },
+    "sections": [
+      {
+        "id": "efc35d32-13db-4f01-aa9d-291a9222954b",
+        "name": {
+          "en": "Starters",
+          "de": "Vorspeisen"
+        },
+        "intro": {
+          "en": "Seasonal starters to share at the table, at your leisure.",
+          "de": "Saisonale Vorspeisen zum Teilen am Tisch, in aller Ruhe."
+        }
+      },
+      {
+        "id": "c9ad2aa1-4cf8-4928-8405-61f71ea464ab",
+        "name": {
+          "en": "Mains",
+          "de": "Hauptgerichte"
+        },
+        "intro": {
+          "en": "Slow-cooked meat, fish caught this week and two no-compromise vegetarian dishes.",
+          "de": "Langsam gegartes Fleisch, diese Woche gefangener Fisch und zwei kompromisslose vegetarische Gerichte."
+        }
+      },
+      {
+        "id": "2bc50d73-dced-48b0-9d08-cfbc8f4955b3",
+        "name": {
+          "en": "Desserts",
+          "de": "Nachspeisen"
+        },
+        "intro": {
+          "en": "Three ways to end the meal: a Romanian classic, a European classic and a little surprise.",
+          "de": "Drei Möglichkeiten, das Mahl zu beschließen: ein rumänischer Klassiker, ein europäischer Klassiker und eine kleine Überraschung."
+        }
+      },
+      {
+        "id": "d92506c6-652f-47b3-a0b8-5484196c04c2",
+        "name": {
+          "en": "Select drinks",
+          "de": "Ausgewählte Getränke"
+        },
+        "intro": {
+          "en": "Natural wines, still water and a carefully chosen espresso.",
+          "de": "Naturweine, stilles Wasser und ein sorgfältig ausgewählter Espresso."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "5acaff51-5ff4-4fa2-b630-7a79e49843c4",
+        "name": {
+          "en": "Homemade bread with smoked butter and Praid salt",
+          "de": "Hausbrot mit geräucherter Butter und Praid-Salz"
+        },
+        "description": {
+          "en": "Naturally leavened sourdough bread, fermented for 36 hours. Beechwood-smoked butter and coarse Praid salt.",
+          "de": "Natürlich gesäuertes Sauerteigbrot, 36 Stunden fermentiert. Mit Buchenholz geräucherte Butter und grobes Praid-Salz."
+        }
+      },
+      {
+        "id": "f0569c44-8687-440d-b72f-bb66551db75f",
+        "name": {
+          "en": "Burrata from Andria, roast beetroot and lovage pesto",
+          "de": "Burrata aus Andria, gebackene Rote Bete und Liebstöckel-Pesto"
+        },
+        "description": {
+          "en": "Burrata from Puglia, beetroot baked in a salt crust, lovage pesto and cold-pressed linseed oil.",
+          "de": "Burrata aus Apulien, in einer Salzkruste gebackene Rote Bete, Liebstöckel-Pesto und kaltgepresstes Leinöl."
+        }
+      },
+      {
+        "id": "46fad3c3-483e-453d-9e78-da994cffc22d",
+        "name": {
+          "en": "Beef tartare with confit yolk and toasted bread",
+          "de": "Rindertatar mit confiertem Eigelb und geröstetem Brot"
+        },
+        "description": {
+          "en": "Hand-cut Black Angus beef, yolk confit at 60 °C, fried capers, bread toasted in brown butter.",
+          "de": "Mit dem Messer geschnittenes Black-Angus-Rind, bei 60 °C confiertes Eigelb, frittierte Kapern, in brauner Butter geröstetes Brot."
+        }
+      },
+      {
+        "id": "6849659c-a572-4006-9578-e7cd0143ecb5",
+        "name": {
+          "en": "Wild mushrooms on soft polenta",
+          "de": "Wildpilze auf cremiger Polenta"
+        },
+        "description": {
+          "en": "Porcini, chanterelles and morels sautéed with thyme and black garlic. Polenta with butter and bellows cheese, fresh dill.",
+          "de": "Steinpilze, Pfifferlinge und Morcheln mit Thymian und schwarzem Knoblauch sautiert. Polenta mit Butter und Burduf-Käse, frischer Dill."
+        }
+      },
+      {
+        "id": "6a6f2bac-a992-430f-89aa-e729e7e54d94",
+        "name": {
+          "en": "Mangalitsa pork stew, polenta and fried egg",
+          "de": "Mangalitza-Schweinepfanne, Polenta und Spiegelei"
+        },
+        "description": {
+          "en": "Mangalitsa pork from Banat slow-cooked for 6 hours. Polenta with sheep's telemea cheese, fried egg and homemade pickles.",
+          "de": "Mangalitza-Schwein aus dem Banat, 6 Stunden langsam gegart. Polenta mit Schafs-Telemea, Spiegelei und hausgemachten Pickles."
+        }
+      },
+      {
+        "id": "4167d136-57e8-4dd3-80d8-591523d145eb",
+        "name": {
+          "en": "House cabbage rolls with polenta and sour cream",
+          "de": "Krautwickel des Hauses mit Polenta und Schmand"
+        },
+        "description": {
+          "en": "Cabbage rolls in vine leaves, with pork and veal, cooked in white wine with sweet paprika. Creamy polenta, rich sour cream.",
+          "de": "Krautwickel in Weinblättern, mit Schweine- und Kalbfleisch, in Weißwein mit edelsüßem Paprika gegart. Cremige Polenta, Schmand."
+        }
+      },
+      {
+        "id": "06173e7d-ef30-4d28-bb4e-05725337e54a",
+        "name": {
+          "en": "Sea bass fillet with seasonal vegetables",
+          "de": "Wolfsbarschfilet mit Saisongemüse"
+        },
+        "description": {
+          "en": "Sea bass glazed with brown butter and toasted almonds. Fresh peas, green asparagus, parsley oil.",
+          "de": "Mit brauner Butter und gerösteten Mandeln glasierter Wolfsbarsch. Frische Erbsen, grüner Spargel, Petersilienöl."
+        }
+      },
+      {
+        "id": "07fb96f0-a3a3-4d38-897d-8ccaa6bacf4a",
+        "name": {
+          "en": "Porcini risotto with 36-month parmigiano",
+          "de": "Steinpilz-Risotto mit 36 Monate gereiftem Parmigiano"
+        },
+        "description": {
+          "en": "Carnaroli rice with a stock made from dried porcini. 36-month Parmigiano Reggiano, white truffle oil.",
+          "de": "Carnaroli-Reis mit einem Fond aus getrockneten Steinpilzen. 36 Monate gereifter Parmigiano Reggiano, weißes Trüffelöl."
+        }
+      },
+      {
+        "id": "54346bf9-f4a7-4306-9ae5-993da0eb2916",
+        "name": {
+          "en": "14-hour smoked beef rib",
+          "de": "14 Stunden geräucherte Rinderrippe"
+        },
+        "description": {
+          "en": "Cherrywood-smoked rib, red wine and monastery honey glaze. Potatoes confit in duck fat.",
+          "de": "Mit Kirschholz geräucherte Rippe, Glasur aus Rotwein und Klosterhonig. In Entenfett confierte Kartoffeln."
+        }
+      },
+      {
+        "id": "0a44ffa6-cdde-42d1-86dc-0ad109fa4e54",
+        "name": {
+          "en": "Papanași with blueberry jam and sour cream",
+          "de": "Papanași mit Heidelbeerkonfitüre und Schmand"
+        },
+        "description": {
+          "en": "Papanași fried to order. Homemade mountain blueberry jam. Rich Bucovina sour cream, fresh mint.",
+          "de": "Auf Bestellung frittierte Papanași. Hausgemachte Bergheidelbeer-Konfitüre. Schmand aus der Bukowina, frische Minze."
+        }
+      },
+      {
+        "id": "602c32bb-ede2-4199-ac2b-e38cfd042938",
+        "name": {
+          "en": "Apple tart with almond crust and cinnamon ice cream",
+          "de": "Apfeltarte mit Mandelboden und Zimteis"
+        },
+        "description": {
+          "en": "Romanian golden apples baked with brown sugar, a delicate almond crust, homemade cinnamon ice cream.",
+          "de": "Rumänische Golden-Äpfel mit braunem Zucker gebacken, ein zarter Mandelboden, hausgemachtes Zimteis."
+        }
+      },
+      {
+        "id": "3f379eea-8980-4075-83bf-f0e223e73f6c",
+        "name": {
+          "en": "Lavender crème brûlée",
+          "de": "Lavendel-Crème-brûlée"
+        },
+        "description": {
+          "en": "A fine cream with fresh lavender. Brown sugar crust caramelised at the table.",
+          "de": "Eine feine Creme mit frischem Lavendel. Am Tisch karamellisierte Kruste aus braunem Zucker."
+        }
+      },
+      {
+        "id": "f87ee7ee-7e83-40b4-b24c-bb254c7332de",
+        "name": {
+          "en": "Fetească Neagră 2021 — Crama Bauer (bottle)",
+          "de": "Fetească Neagră 2021 — Crama Bauer (Flasche)"
+        },
+        "description": {
+          "en": "Dealu Mare. Berries, gentle spices, a delicate hint of smoke. Pairs with the Mangalitsa and the beef rib.",
+          "de": "Dealu Mare. Waldbeeren, sanfte Gewürze, eine feine Rauchnote. Passt zum Mangalitza und zur Rinderrippe."
+        }
+      },
+      {
+        "id": "817c7f6f-9f48-4d23-9674-212ba8aa4a48",
+        "name": {
+          "en": "Elderflower lemonade with mint and watermelon",
+          "de": "Holunderblüten-Limonade mit Minze und Wassermelone"
+        },
+        "description": {
+          "en": "Fresh elderflower from the forests of Transylvania, fresh mint, watermelon and an ice sphere.",
+          "de": "Frischer Holunder aus den Wäldern Transsilvaniens, frische Minze, Wassermelone und eine Eiskugel."
+        }
+      },
+      {
+        "id": "0437fa90-4e6a-4b6a-9f66-12253426d28c",
+        "name": {
+          "en": "Specialty espresso — Origo",
+          "de": "Spezialitäten-Espresso — Origo"
+        },
+        "description": {
+          "en": "Single-farm Arabica from Yirgacheffe, Ethiopia. Roasted weekly at Origo in Bucharest.",
+          "de": "Single-Farm-Arabica aus Yirgacheffe, Äthiopien. Wöchentlich bei Origo in Bukarest geröstet."
+        }
+      }
+    ]
+  },
+  {
+    "id": "b5aec8d1-714c-499f-b15d-3c5b304cbc97",
+    "slug": "beirut-express",
+    "descriptionLong": {
+      "en": "A small 25-seat space, open around the clock. Hummus made fresh each morning from slow-cooked chickpeas, shawarma carved off the spit to order, falafel fried per portion, Cypriot halloumi, Kalamata olives, pita baked continuously on site in the stone oven. Lebanese olive oil. Cardamom coffee served in fildjan cups.",
+      "de": "Ein kleiner Raum mit 25 Plätzen, rund um die Uhr geöffnet. Hummus, jeden Morgen frisch aus langsam gekochten Kichererbsen zubereitet, Shawarma auf Bestellung vom Spieß geschnitten, portionsweise frittierte Falafel, zyprischer Halloumi, Kalamata-Oliven, Pita laufend vor Ort im Steinofen gebacken. Libanesisches Olivenöl. Kardamom-Kaffee, serviert in Fildjan-Tässchen."
+    },
+    "heroSubtitle": {
+      "en": "Mezze, hummus and shawarma, just like in Beirut. Real Lebanese food.",
+      "de": "Mezze, Hummus und Shawarma, wie in Beirut. Echte libanesische Küche."
+    },
+    "sections": [
+      {
+        "id": "b4199343-332c-470a-af5e-115ea17c27ca",
+        "name": {
+          "en": "Mezze",
+          "de": "Mezze"
+        },
+        "intro": {
+          "en": "To share at the table, with warm pita baked on the spot.",
+          "de": "Zum Teilen am Tisch, mit warmer, frisch gebackener Pita."
+        }
+      },
+      {
+        "id": "c7a8d11a-99dd-48cd-a7b7-1e785bc6d95a",
+        "name": {
+          "en": "Shawarma & sandwiches",
+          "de": "Shawarma & Sandwiches"
+        },
+        "intro": {
+          "en": "Meat carved straight off the spit, wrapped in pita.",
+          "de": "Fleisch direkt vom Spieß geschnitten, in Pita gewickelt."
+        }
+      },
+      {
+        "id": "96dd5564-93de-4b2a-9089-4d11cc6e9ff7",
+        "name": {
+          "en": "Grill",
+          "de": "Vom Grill"
+        },
+        "intro": {
+          "en": "Over charcoal, just like in Lebanon. Marinated for 24 hours.",
+          "de": "Über Holzkohle, wie im Libanon. 24 Stunden mariniert."
+        }
+      },
+      {
+        "id": "de9ae156-7af1-4b25-bbca-865bb1af5380",
+        "name": {
+          "en": "Desserts",
+          "de": "Nachspeisen"
+        },
+        "intro": {
+          "en": "Two Lebanese sweets, with cardamom coffee.",
+          "de": "Zwei libanesische Süßspeisen, mit Kardamom-Kaffee."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "db46fb6f-923d-4f85-b861-fda2ba7c0848",
+        "name": {
+          "en": "Classic hummus",
+          "de": "Klassischer Hummus"
+        },
+        "description": {
+          "en": "Slow-cooked chickpeas, tahini, lemon, garlic, Lebanese olive oil, smoked paprika, warm pita.",
+          "de": "Langsam gekochte Kichererbsen, Tahini, Zitrone, Knoblauch, libanesisches Olivenöl, geräuchertes Paprikapulver, warme Pita."
+        }
+      },
+      {
+        "id": "2912416b-e673-4089-808f-7d02f535b81c",
+        "name": {
+          "en": "Hummus with minced meat and pine nuts",
+          "de": "Hummus mit Hackfleisch und Pinienkernen"
+        },
+        "description": {
+          "en": "Base hummus, minced lamb with cinnamon and sumac, toasted pine nuts, parsley, olive oil.",
+          "de": "Basis-Hummus, Lammhackfleisch mit Zimt und Sumach, geröstete Pinienkerne, Petersilie, Olivenöl."
+        }
+      },
+      {
+        "id": "5f931462-371b-4bfc-beb1-19bdc46112d2",
+        "name": {
+          "en": "Baba ghanoush with pomegranate",
+          "de": "Baba Ghanoush mit Granatapfel"
+        },
+        "description": {
+          "en": "Aubergines roasted over an open flame, tahini, lemon, garlic, sumac, pomegranate seeds, olive oil.",
+          "de": "Über offener Flamme gegrillte Auberginen, Tahini, Zitrone, Knoblauch, Sumach, Granatapfelkerne, Olivenöl."
+        }
+      },
+      {
+        "id": "07f3ee74-37a2-417e-80d8-c7eb05af7f31",
+        "name": {
+          "en": "Falafel with tahini and sumac (6 pcs)",
+          "de": "Falafel mit Tahini und Sumach (6 Stück)"
+        },
+        "description": {
+          "en": "Chickpeas, herbs, spices, fried per portion, tahini sauce with lemon, salad, sumac, pita.",
+          "de": "Kichererbsen, Kräuter, Gewürze, portionsweise frittiert, Tahini-Sauce mit Zitrone, Salat, Sumach, Pita."
+        }
+      },
+      {
+        "id": "09a57811-ab7d-4fee-8e74-4182645a7bdc",
+        "name": {
+          "en": "Tabbouleh with parsley and mint",
+          "de": "Tabbouleh mit Petersilie und Minze"
+        },
+        "description": {
+          "en": "Finely chopped parsley, mint, tomatoes, spring onion, bulgur, lemon, olive oil.",
+          "de": "Fein gehackte Petersilie, Minze, Tomaten, Frühlingszwiebeln, Bulgur, Zitrone, Olivenöl."
+        }
+      },
+      {
+        "id": "0037732c-191e-4b19-8007-e42698d3fde5",
+        "name": {
+          "en": "Fried halloumi with sumac and honey",
+          "de": "Gebratener Halloumi mit Sumach und Honig"
+        },
+        "description": {
+          "en": "Fried Cypriot halloumi, sumac, thyme honey, sesame, lemon, fresh mint.",
+          "de": "Gebratener zyprischer Halloumi, Sumach, Thymianhonig, Sesam, Zitrone, frische Minze."
+        }
+      },
+      {
+        "id": "e9885f42-cbd7-4de1-bb65-2a928796fc36",
+        "name": {
+          "en": "Chicken shawarma in pita with garlic sauce",
+          "de": "Hähnchen-Shawarma in Pita mit Knoblauchsauce"
+        },
+        "description": {
+          "en": "Spit-roasted chicken, toum sauce (garlic aioli), salad, tomatoes, pickled cucumbers, warm pita.",
+          "de": "Hähnchen vom Spieß, Toum-Sauce (Knoblauch-Aioli), Salat, Tomaten, eingelegte Gurken, warme Pita."
+        }
+      },
+      {
+        "id": "338eec77-3d35-496d-bb95-60b37cf69419",
+        "name": {
+          "en": "Lamb shawarma with tahini",
+          "de": "Lamm-Shawarma mit Tahini"
+        },
+        "description": {
+          "en": "Marinated lamb off the spit, tahini sauce, onion with sumac, parsley, chilli, warm pita.",
+          "de": "Mariniertes Lamm vom Spieß, Tahini-Sauce, Zwiebeln mit Sumach, Petersilie, Chili, warme Pita."
+        }
+      },
+      {
+        "id": "95bcb1d3-48b4-48f8-a471-ed27deeee2ce",
+        "name": {
+          "en": "Manakish with za'atar",
+          "de": "Manakish mit Za'atar"
+        },
+        "description": {
+          "en": "Stone-baked dough, olive oil, Lebanese za'atar (wild thyme, sumac, sesame).",
+          "de": "Auf Stein gebackener Teig, Olivenöl, libanesisches Za'atar (wilder Thymian, Sumach, Sesam)."
+        }
+      },
+      {
+        "id": "87bf55f3-3ce9-4c9c-9fe3-d470985e853f",
+        "name": {
+          "en": "Manakish with cheese and walnut",
+          "de": "Manakish mit Käse und Walnuss"
+        },
+        "description": {
+          "en": "Stone-baked dough, akkawi (Lebanese cheese), chopped walnuts, mint, black sesame.",
+          "de": "Auf Stein gebackener Teig, Akkawi (libanesischer Käse), gehackte Walnüsse, Minze, schwarzer Sesam."
+        }
+      },
+      {
+        "id": "a334395c-b414-4268-9850-e0e6981597c6",
+        "name": {
+          "en": "Lebanese mixed grill (kebab, kofta, taouk)",
+          "de": "Libanesischer Mixed Grill (Kebab, Kofta, Taouk)"
+        },
+        "description": {
+          "en": "Lamb kebab skewers, beef kofta with parsley and onion, taouk chicken marinated in yoghurt and garlic, hummus, pita.",
+          "de": "Lamm-Kebab-Spieße, Rinder-Kofta mit Petersilie und Zwiebeln, in Joghurt und Knoblauch mariniertes Taouk-Hähnchen, Hummus, Pita."
+        }
+      },
+      {
+        "id": "e38a3b07-94a4-4cd2-bb34-f6e8eaf641f5",
+        "name": {
+          "en": "Lamb kafta with tahini and sumac",
+          "de": "Lamm-Kafta mit Tahini und Sumach"
+        },
+        "description": {
+          "en": "Minced lamb skewers with parsley, onion, cinnamon, sumac, cooked over charcoal. Tahini sauce, pita.",
+          "de": "Lammhack-Spieße mit Petersilie, Zwiebeln, Zimt, Sumach, über Holzkohle gegart. Tahini-Sauce, Pita."
+        }
+      },
+      {
+        "id": "7ba15885-2395-414f-aec6-d793a3bf39ef",
+        "name": {
+          "en": "Taouk chicken with yoghurt and garlic",
+          "de": "Taouk-Hähnchen mit Joghurt und Knoblauch"
+        },
+        "description": {
+          "en": "Chicken cubes marinated for 24h in yoghurt, garlic, lemon and red pepper. Charcoal-grilled skewers, pita.",
+          "de": "Hähnchenwürfel, 24 Stunden in Joghurt, Knoblauch, Zitrone und rotem Paprika mariniert. Spieße über Holzkohle, Pita."
+        }
+      },
+      {
+        "id": "a0f4128f-c26d-4005-9ee0-a533730fbce0",
+        "name": {
+          "en": "Lebanese pistachio baklava",
+          "de": "Libanesische Pistazien-Baklava"
+        },
+        "description": {
+          "en": "Thin filo layers, ground Aleppo pistachios, rosewater and thyme honey syrup, cinnamon.",
+          "de": "Dünne Filoblätter, gemahlene Aleppo-Pistazien, Sirup aus Rosenwasser und Thymianhonig, Zimt."
+        }
+      },
+      {
+        "id": "120cdd8b-9ee0-437c-8ce6-275d2fa48169",
+        "name": {
+          "en": "Mhalabia with pistachio and rosewater",
+          "de": "Mhalabia mit Pistazie und Rosenwasser"
+        },
+        "description": {
+          "en": "A fine milk pudding, rosewater, ground pistachio, honey, mastic.",
+          "de": "Ein feiner Milchpudding, Rosenwasser, gemahlene Pistazie, Honig, Mastix."
+        }
+      },
+      {
+        "id": "b1d04654-25ba-4d97-bcaf-82a6333ecec1",
+        "name": {
+          "en": "Cardamom coffee (fildjan)",
+          "de": "Kardamom-Kaffee (Fildjan)"
+        },
+        "description": {
+          "en": "Lebanese coffee brewed with cardamom, served in a fildjan, with cardamom Turkish delight.",
+          "de": "Libanesischer Kaffee mit Kardamom gekocht, im Fildjan serviert, mit Kardamom-Lokum."
+        }
+      },
+      {
+        "id": "6b8e93e2-b2f1-4f4b-b7cd-995e1c2a6a1c",
+        "name": {
+          "en": "Lemonade with mint and rosewater",
+          "de": "Limonade mit Minze und Rosenwasser"
+        },
+        "description": {
+          "en": "Fresh lemons, mint, rosewater, crushed ice.",
+          "de": "Frische Zitronen, Minze, Rosenwasser, zerstoßenes Eis."
+        }
+      }
+    ]
+  },
+  {
+    "id": "e0386425-6f86-418e-bd4c-eab288111620",
+    "slug": "cafe-etage",
+    "descriptionLong": {
+      "en": "A two-storey café with its own roastery in the basement. Beans sourced directly from Ethiopia (Yirgacheffe), Colombia (Huila) and Costa Rica (Tarrazú), roasted weekly. All-day breakfast, fast Wi-Fi for working, and monthly cupping events open to the public. A light-filled space with plants and pale oak tables.",
+      "de": "Ein zweistöckiges Café mit eigener Rösterei im Untergeschoss. Die Bohnen beziehen wir im Direkthandel aus Äthiopien (Yirgacheffe), Kolumbien (Huila) und Costa Rica (Tarrazú) und rösten sie wöchentlich. Den ganzen Tag Frühstück, schnelles WLAN zum Arbeiten und monatliche, öffentliche Cupping-Veranstaltungen. Ein lichtdurchfluteter Raum mit Pflanzen und Tischen aus hellem Eichenholz."
+    },
+    "heroSubtitle": {
+      "en": "Speciality coffee roasted here. Breakfast until 2pm, fast Wi-Fi.",
+      "de": "Spezialitätenkaffee, hier geröstet. Frühstück bis 14 Uhr, schnelles WLAN."
+    },
+    "sections": [
+      {
+        "id": "0217e85e-9af3-469f-8f83-05cabc8c629c",
+        "name": {
+          "en": "Coffees",
+          "de": "Kaffees"
+        },
+        "intro": {
+          "en": "Single-origin beans, roasted weekly downstairs. Ask the barista about the current lot.",
+          "de": "Single-Origin-Bohnen, wöchentlich im Untergeschoss geröstet. Fragen Sie den Barista nach der aktuellen Charge."
+        }
+      },
+      {
+        "id": "63d04461-f584-4e5b-902c-7b0ba1adc65d",
+        "name": {
+          "en": "Breakfast",
+          "de": "Frühstück"
+        },
+        "intro": {
+          "en": "Available until 2pm. With our own sourdough bread.",
+          "de": "Erhältlich bis 14 Uhr. Mit unserem hausgemachten Sauerteigbrot."
+        }
+      },
+      {
+        "id": "18864905-afc1-469a-a683-62820995d447",
+        "name": {
+          "en": "Brunch",
+          "de": "Brunch"
+        },
+        "intro": {
+          "en": "For the weekend (or for the lucky ones who work when they please).",
+          "de": "Für das Wochenende (oder für die Glücklichen, die arbeiten, wann sie wollen)."
+        }
+      },
+      {
+        "id": "7fa70af5-fbd3-4560-ab02-1d9a74a499d9",
+        "name": {
+          "en": "Pastries & desserts",
+          "de": "Gebäck & Nachspeisen"
+        },
+        "intro": {
+          "en": "Baked daily at the patisserie around the corner, exclusively for us.",
+          "de": "Täglich frisch in der Konditorei um die Ecke gebacken, exklusiv für uns."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "d872eaea-c2dc-4855-9713-c4dcf0cf4df0",
+        "name": {
+          "en": "Espresso",
+          "de": "Espresso"
+        },
+        "description": {
+          "en": "House blend: 70% Brazil Cerrado, 30% Ethiopia Yirgacheffe. Notes of cocoa and citrus.",
+          "de": "Hausmischung: 70% Brasilien Cerrado, 30% Äthiopien Yirgacheffe. Noten von Kakao und Zitrus."
+        }
+      },
+      {
+        "id": "7bee260b-ad71-4151-b6da-c8b17204d5bf",
+        "name": {
+          "en": "Oat cappuccino",
+          "de": "Hafer-Cappuccino"
+        },
+        "description": {
+          "en": "Double espresso, Oatly Barista oat milk, silky microfoam.",
+          "de": "Doppelter Espresso, Oatly Barista Hafermilch, samtiger Microfoam."
+        }
+      },
+      {
+        "id": "79140df6-93b5-4b96-8d3d-50cc064c471c",
+        "name": {
+          "en": "Yirgacheffe latte",
+          "de": "Yirgacheffe Latte"
+        },
+        "description": {
+          "en": "Single-origin Ethiopia Yirgacheffe espresso (floral, citrus notes), whole milk, latte art.",
+          "de": "Single-Origin-Espresso aus Äthiopien Yirgacheffe (florale, zitrische Noten), Vollmilch, Latte Art."
+        }
+      },
+      {
+        "id": "1a0692c7-2960-4ede-a9b4-4f19b2c13501",
+        "name": {
+          "en": "V60 Colombia Huila",
+          "de": "V60 Kolumbien Huila"
+        },
+        "description": {
+          "en": "Hand-poured V60, washed Huila beans, medium roast. 250ml, no milk. Notes of caramel and plum.",
+          "de": "Handgefilterter V60, gewaschene Huila-Bohnen, mittlere Röstung. 250 ml, ohne Milch. Noten von Karamell und Pflaume."
+        }
+      },
+      {
+        "id": "7a2bb3c2-d99d-48ff-832d-2cabdf562e35",
+        "name": {
+          "en": "Cold brew carafe (500ml)",
+          "de": "Cold Brew in der Karaffe (500 ml)"
+        },
+        "description": {
+          "en": "Costa Rica Tarrazú beans cold-extracted for 18 hours, served in a carafe over ice. For two.",
+          "de": "Costa Rica Tarrazú Bohnen, 18 Stunden kalt extrahiert, in der Karaffe auf Eis serviert. Für zwei Personen."
+        }
+      },
+      {
+        "id": "7c5b4881-d191-4544-80e2-70b9eccf8c1a",
+        "name": {
+          "en": "Uji matcha latte",
+          "de": "Uji Matcha Latte"
+        },
+        "description": {
+          "en": "Ceremonial-grade Uji matcha from Kyoto, whole or oat milk, rice syrup (optional).",
+          "de": "Matcha in Zeremonienqualität aus Uji bei Kyoto, Voll- oder Hafermilch, Reissirup (optional)."
+        }
+      },
+      {
+        "id": "a7cbe059-d852-4ba5-8384-96b7ec8c0f87",
+        "name": {
+          "en": "Green smoothie (kale, apple, ginger)",
+          "de": "Grüner Smoothie (Grünkohl, Apfel, Ingwer)"
+        },
+        "description": {
+          "en": "Kale, green apple, banana, fresh ginger, lemon, almond milk.",
+          "de": "Grünkohl, grüner Apfel, Banane, frischer Ingwer, Zitrone, Mandelmilch."
+        }
+      },
+      {
+        "id": "7c2639e4-835a-49ff-8e86-29b8e0dc1e5c",
+        "name": {
+          "en": "Avocado toast with hemp and sumac",
+          "de": "Avocado-Toast mit Hanf und Sumach"
+        },
+        "description": {
+          "en": "Homemade sourdough, smashed avocado, hemp seeds, sumac, sliced radish, olive oil.",
+          "de": "Hausgemachtes Sauerteigbrot, zerdrückte Avocado, Hanfsamen, Sumach, Radieschenscheiben, Olivenöl."
+        }
+      },
+      {
+        "id": "e5e14963-65eb-4674-87ba-5e3b26f46d16",
+        "name": {
+          "en": "Eggs Benedict with smoked salmon",
+          "de": "Eggs Benedict mit Räucherlachs"
+        },
+        "description": {
+          "en": "2 poached eggs, Aqua Carpatica smoked salmon, lemon hollandaise, English muffin.",
+          "de": "2 pochierte Eier, Räucherlachs von Aqua Carpatica, Zitronen-Sauce-hollandaise, English Muffin."
+        }
+      },
+      {
+        "id": "e7b188dc-83f3-4f9b-8b9a-5871b31f67ed",
+        "name": {
+          "en": "Croque monsieur with Comté",
+          "de": "Croque Monsieur mit Comté"
+        },
+        "description": {
+          "en": "Homemade bread, 12-month Comté, Prague ham, béchamel, baked au gratin.",
+          "de": "Hausgemachtes Brot, 12 Monate gereifter Comté, Prager Schinken, Béchamel, im Ofen gratiniert."
+        }
+      },
+      {
+        "id": "b5c5f62a-d19e-44c2-8a14-b2be18547680",
+        "name": {
+          "en": "Pancakes with maple syrup and berries",
+          "de": "Pancakes mit Ahornsirup und Waldbeeren"
+        },
+        "description": {
+          "en": "3 fluffy pancakes, Grade A Quebec maple syrup, fresh berries, melted butter.",
+          "de": "3 luftige Pancakes, Ahornsirup aus Quebec Grad A, frische Waldbeeren, geschmolzene Butter."
+        }
+      },
+      {
+        "id": "30ef36a2-6e99-4523-b34f-09bbdc17cb07",
+        "name": {
+          "en": "Açaí bowl with granola",
+          "de": "Açaí-Bowl mit Granola"
+        },
+        "description": {
+          "en": "Brazilian açaí, banana, coconut milk, homemade granola, berries, pistachios, honey.",
+          "de": "Brasilianisches Açaí, Banane, Kokosmilch, hausgemachtes Granola, Waldbeeren, Pistazien, Honig."
+        }
+      },
+      {
+        "id": "b0dc81f8-69cf-42d3-8404-159295056c0b",
+        "name": {
+          "en": "Shakshuka with feta and dill",
+          "de": "Schakschuka mit Feta und Dill"
+        },
+        "description": {
+          "en": "Tomato sauce with peppers and cumin, 2 baked eggs, crumbled feta, dill, toast.",
+          "de": "Tomatensauce mit Paprika und Kreuzkümmel, 2 gebackene Eier, zerbröckelter Feta, Dill, Röstbrot."
+        }
+      },
+      {
+        "id": "04c01046-b14a-405e-9faf-ffdff9d8c6ce",
+        "name": {
+          "en": "Homemade granola with Greek yoghurt and acacia honey",
+          "de": "Hausgemachtes Granola mit griechischem Joghurt und Akazienhonig"
+        },
+        "description": {
+          "en": "House-baked granola with nuts and coconut flakes, 10% Greek yoghurt, acacia honey, fruit.",
+          "de": "Hausgebackenes Granola mit Nüssen und Kokosflocken, griechischer Joghurt 10%, Akazienhonig, Früchte."
+        }
+      },
+      {
+        "id": "6d173fa5-7d3c-4a38-b7db-e74aee8c84a0",
+        "name": {
+          "en": "Cardamom cinnamon roll",
+          "de": "Kardamom-Zimtschnecke"
+        },
+        "description": {
+          "en": "Swedish cinnamon roll with freshly ground cardamom, cream cheese glaze.",
+          "de": "Schwedische Zimtschnecke mit frisch gemahlenem Kardamom, Frischkäse-Glasur."
+        }
+      },
+      {
+        "id": "43472362-4ec6-46c2-b6cb-40044c1bcb06",
+        "name": {
+          "en": "Croissant with French butter",
+          "de": "Croissant mit französischer Butter"
+        },
+        "description": {
+          "en": "Croissant made with Beurre d'Isigny French butter, straight, flaky layers, baked fresh each morning.",
+          "de": "Croissant aus französischer Beurre d'Isigny Butter, gerade, blättrige Schichten, jeden Morgen frisch gebacken."
+        }
+      },
+      {
+        "id": "0f55c40f-d775-4fa2-91bd-72578eb87afb",
+        "name": {
+          "en": "Berry cheesecake",
+          "de": "Waldbeeren-Käsekuchen"
+        },
+        "description": {
+          "en": "Classic cheesecake, cocoa biscuit base, fresh berry topping.",
+          "de": "Klassischer Käsekuchen, Boden aus Kakaokeksen, Topping aus frischen Waldbeeren."
+        }
+      },
+      {
+        "id": "41a6cda2-22a3-4b0d-aa71-c0510a97593e",
+        "name": {
+          "en": "Brownie with pecan and Maldon salt",
+          "de": "Brownie mit Pekannuss und Maldon-Salz"
+        },
+        "description": {
+          "en": "Dense 70% chocolate brownie, caramelised pecans, Maldon salt flakes.",
+          "de": "Dichter Brownie mit 70% Schokolade, karamellisierte Pekannüsse, Maldon-Salzflocken."
+        }
+      }
+    ]
+  },
+  {
+    "id": "db411505-0a7d-4590-836d-91dd6879442e",
+    "slug": "casa-doina",
+    "descriptionLong": {
+      "en": "A family tavern open for 25 years, with inherited recipes and trusted producers: the Bujenița butcher in Cluj, polenta from Suceava and cheeses from the Pleșa sheepfold in Sibiu. A warm atmosphere, old brick walls and tables dressed in embroidered cloths. The house plum brandy from our own cellar is served chilled in little clay cups.",
+      "de": "Eine seit 25 Jahren bestehende Familientaverne mit überlieferten Rezepten und verlässlichen Erzeugern: dem Metzger Bujenița aus Cluj, dem Maisgrieß aus Suceava und den Käsesorten von der Schäferei Pleșa in Sibiu. Eine warme Atmosphäre, alte Ziegelwände und mit besticktem Leinen gedeckte Tische. Der hauseigene Pflaumenschnaps aus dem Keller wird kühl in kleinen Tonbechern serviert."
+    },
+    "heroSubtitle": {
+      "en": "Grandmother's cooking in the heart of Lipscani. Soups simmered for 6 hours.",
+      "de": "Großmutters Küche im Herzen von Lipscani. Suppen, die 6 Stunden köcheln."
+    },
+    "sections": [
+      {
+        "id": "896bc9d4-560a-4e14-b58d-5ec64d9f4da7",
+        "name": {
+          "en": "Cold starters",
+          "de": "Kalte Vorspeisen"
+        },
+        "intro": {
+          "en": "To put on the table for everyone, with homemade bread.",
+          "de": "Zum Teilen für alle am Tisch, mit hausgemachtem Brot."
+        }
+      },
+      {
+        "id": "d90e14dc-5fb2-49a7-a194-e1b1c0aca6cf",
+        "name": {
+          "en": "Soups",
+          "de": "Suppen"
+        },
+        "intro": {
+          "en": "Simmered for 6 hours in bone broth, finished with sour cream and chilli.",
+          "de": "6 Stunden in Knochenbrühe geköchelt, verfeinert mit saurer Sahne und Chili."
+        }
+      },
+      {
+        "id": "144ef8bd-5ce2-41d0-aa9a-49a96ed460bb",
+        "name": {
+          "en": "Mains",
+          "de": "Hauptgerichte"
+        },
+        "intro": {
+          "en": "Slow-cooked meat, warm polenta, homemade pickles.",
+          "de": "Langsam gegartes Fleisch, warme Polenta, hausgemachte Eingelegtes."
+        }
+      },
+      {
+        "id": "6618bce2-d329-4261-a501-28e3e755dd1e",
+        "name": {
+          "en": "Desserts",
+          "de": "Nachspeisen"
+        },
+        "intro": {
+          "en": "Three sweets, all made here, none bought in.",
+          "de": "Drei Süßspeisen, alle hier hergestellt, keine zugekauft."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "a2f41feb-6c76-4427-b330-6fdcb52ee716",
+        "name": {
+          "en": "Homemade zacuscă with wood-roasted aubergines",
+          "de": "Hausgemachte Zacuscă mit holzgerösteten Auberginen"
+        },
+        "description": {
+          "en": "Aubergines roasted over beechwood, roasted peppers, caramelised onion, sunflower oil. Served with homemade bread.",
+          "de": "Über Buchenholz geröstete Auberginen, geröstete Paprika, karamellisierte Zwiebeln, Sonnenblumenöl. Serviert mit hausgemachtem Brot."
+        }
+      },
+      {
+        "id": "fe4f65ce-e201-49f7-a03a-5c1e8aaa0e9f",
+        "name": {
+          "en": "Traditional beef salad (salată de boeuf)",
+          "de": "Traditioneller Rindfleischsalat (Salată de boeuf)"
+        },
+        "description": {
+          "en": "Potatoes, carrots, peas, slow-cooked beef, hand-whipped mayonnaise, garnished with roasted pepper and olives.",
+          "de": "Kartoffeln, Karotten, Erbsen, langsam gegartes Rindfleisch, handgeschlagene Mayonnaise, garniert mit gerösteter Paprika und Oliven."
+        }
+      },
+      {
+        "id": "fc380615-075e-4d81-b810-4a897aa259cd",
+        "name": {
+          "en": "Sibiu telemea cheese with tomatoes and spring onion",
+          "de": "Telemea-Käse aus Sibiu mit Tomaten und Frühlingszwiebeln"
+        },
+        "description": {
+          "en": "Sheep's telemea cheese from the Pleșa sheepfold, Buzău tomatoes, spring onion, basil, olive oil.",
+          "de": "Schafs-Telemea von der Schäferei Pleșa, Tomaten aus Buzău, Frühlingszwiebeln, Basilikum, Olivenöl."
+        }
+      },
+      {
+        "id": "23d9f21e-5d64-45ff-8077-8ac15d9681cd",
+        "name": {
+          "en": "Smoked farmhouse pork fat with dill",
+          "de": "Geräucherter bäuerlicher Speck mit Dill"
+        },
+        "description": {
+          "en": "Pork fat smoked over plum wood, red onion, chilli, fresh dill, toasted bread.",
+          "de": "Über Pflaumenholz geräucherter Speck, rote Zwiebel, Chili, frischer Dill, Röstbrot."
+        }
+      },
+      {
+        "id": "c26a050e-ec6c-4509-9588-906e42f4cf43",
+        "name": {
+          "en": "Tripe soup with sour cream and chilli",
+          "de": "Kuttelsuppe mit saurer Sahne und Chili"
+        },
+        "description": {
+          "en": "Beef tripe simmered for 6 hours, finished with rich sour cream and egg yolk, vinegar and crushed garlic.",
+          "de": "Rinderkutteln, 6 Stunden geköchelt, verfeinert mit reichhaltiger saurer Sahne und Eigelb, Essig und zerstoßenem Knoblauch."
+        }
+      },
+      {
+        "id": "b8d5b246-bccc-4c61-b869-1c350cc07f30",
+        "name": {
+          "en": "Beef sour soup with lovage",
+          "de": "Saure Rindfleischsuppe mit Liebstöckel"
+        },
+        "description": {
+          "en": "Slow-cooked beef with root vegetables, soured with homemade Bucovina borsch, fresh lovage.",
+          "de": "Langsam gegartes Rindfleisch mit Wurzelgemüse, gesäuert mit hausgemachtem Borsch aus der Bucovina, frischer Liebstöckel."
+        }
+      },
+      {
+        "id": "83e5003f-5d32-4461-a639-432c8a3a1eb0",
+        "name": {
+          "en": "Bean soup with smoked ham hock",
+          "de": "Bohnensuppe mit geräucherter Eisbein"
+        },
+        "description": {
+          "en": "White beans, smoked ham hock from the Bujenița butcher, onion, carrot, bay leaves.",
+          "de": "Weiße Bohnen, geräuchertes Eisbein vom Metzger Bujenița, Zwiebel, Karotte, Lorbeerblätter."
+        }
+      },
+      {
+        "id": "b6ae1a2b-d96f-4043-99c3-7068f5f2372f",
+        "name": {
+          "en": "Cabbage rolls with polenta and sour cream",
+          "de": "Kohlrouladen mit Polenta und saurer Sahne"
+        },
+        "description": {
+          "en": "Cabbage rolls in sauerkraut leaves, with pork and veal, cooked overnight with paprika and thyme. Polenta with butter, rich sour cream.",
+          "de": "Kohlrouladen in Sauerkrautblättern, mit Schweine- und Kalbfleisch, über Nacht mit Paprika und Thymian gegart. Polenta mit Butter, reichhaltige saure Sahne."
+        }
+      },
+      {
+        "id": "fa5a8045-f80c-4a3c-a346-65ca613daa57",
+        "name": {
+          "en": "Homemade mici (grilled minced rolls) with mustard and bread",
+          "de": "Hausgemachte Mici (gegrillte Hackfleischröllchen) mit Senf und Brot"
+        },
+        "description": {
+          "en": "Mici made fresh daily in house, cooked over charcoal. Sweet horseradish mustard, homemade bread, pickles.",
+          "de": "Täglich frisch im Haus zubereitete Mici, über Holzkohle gegrillt. Süßer Meerrettich-Senf, hausgemachtes Brot, Eingelegtes."
+        }
+      },
+      {
+        "id": "81514756-bb24-4c60-a963-8a94f1d3f7b3",
+        "name": {
+          "en": "Pork tochitură with polenta and fried egg",
+          "de": "Schweine-Tochitură mit Polenta und Spiegelei"
+        },
+        "description": {
+          "en": "Pork slow-cooked in its own fat with white wine and paprika, fresh fried egg, warm polenta, sheep's bellows cheese.",
+          "de": "Schweinefleisch, langsam im eigenen Fett mit Weißwein und Paprika gegart, frisches Spiegelei, warme Polenta, Burduf-Käse."
+        }
+      },
+      {
+        "id": "e77dd058-2aba-47b9-9188-88ede263fea1",
+        "name": {
+          "en": "Chicken paprikash with dumplings",
+          "de": "Hühner-Paprikasch mit Klößchen"
+        },
+        "description": {
+          "en": "Chicken cooked with paprika, peppers, onion and sour cream. Soft semolina dumplings, dill.",
+          "de": "Huhn gegart mit Paprika, Paprikaschoten, Zwiebeln und saurer Sahne. Weiche Grießklößchen, Dill."
+        }
+      },
+      {
+        "id": "c66b07a9-7aa8-4fb9-a223-f771f8ce460f",
+        "name": {
+          "en": "Grilled pork belly (pleșcăviță) with rustic potatoes",
+          "de": "Gegrillter Schweinebauch (Pleșcăviță) mit rustikalen Kartoffeln"
+        },
+        "description": {
+          "en": "Pork belly marinated with garlic and thyme, cooked over the grill. Thick-cut potatoes cooked with bacon and onion.",
+          "de": "Mit Knoblauch und Thymian marinierter Schweinebauch, über dem Grill gegart. Dick geschnittene Kartoffeln, mit Speck und Zwiebeln gegart."
+        }
+      },
+      {
+        "id": "f6e767ba-5e99-454e-9df7-ded70b01dfa4",
+        "name": {
+          "en": "Bean purée with ham hock and caramelised onion",
+          "de": "Bohnenpüree mit Eisbein und karamellisierten Zwiebeln"
+        },
+        "description": {
+          "en": "White beans slow-cooked, mashed with oil and garlic, smoked ham hock, onion caramelised with paprika.",
+          "de": "Langsam gegarte weiße Bohnen, mit Öl und Knoblauch zerdrückt, geräuchertes Eisbein, mit Paprika karamellisierte Zwiebeln."
+        }
+      },
+      {
+        "id": "50f1a255-186c-4203-b4b6-3e5d18562633",
+        "name": {
+          "en": "Fried sweet cheese doughnuts with blueberry jam and sour cream",
+          "de": "Frittierte Quarkbällchen mit Heidelbeermarmelade und saurer Sahne"
+        },
+        "description": {
+          "en": "Papanași made to order, fried until crisp, homemade mountain blueberry jam, Bucovina sour cream.",
+          "de": "Papanași auf Bestellung zubereitet, knusprig frittiert, hausgemachte Bergheidelbeermarmelade, saure Sahne aus der Bucovina."
+        }
+      },
+      {
+        "id": "673de0da-29d8-4490-9750-c0d6d7e0ca29",
+        "name": {
+          "en": "Apple and cinnamon pie",
+          "de": "Apfel-Zimt-Strudel"
+        },
+        "description": {
+          "en": "Hand-stretched thin pastry, golden apples, brown sugar, cinnamon, melted butter. Served warm.",
+          "de": "Von Hand ausgezogener dünner Teig, goldene Äpfel, brauner Zucker, Zimt, geschmolzene Butter. Warm serviert."
+        }
+      },
+      {
+        "id": "0fe4d485-fd80-4dfb-95cb-f418a85a657b",
+        "name": {
+          "en": "Sweet bread with walnut and Turkish delight (slice)",
+          "de": "Hefekuchen mit Walnuss und Lokum (Stück)"
+        },
+        "description": {
+          "en": "House-baked cozonac, generously filled with ground walnut and Turkish delight, dusted with icing sugar.",
+          "de": "Hausgebackener Cozonac, großzügig gefüllt mit gemahlener Walnuss und Lokum, mit Puderzucker bestäubt."
+        }
+      },
+      {
+        "id": "b305e4d6-5ce9-42b8-b67f-a5460192a745",
+        "name": {
+          "en": "House plum brandy (50ml)",
+          "de": "Hauseigener Pflaumenschnaps (50 ml)"
+        },
+        "description": {
+          "en": "House plum brandy from our own cellar, distilled in Maramureș, aged 3 years. Served chilled in clay cups.",
+          "de": "Hauseigener Pflaumenschnaps aus dem Keller, in Maramureș destilliert, 3 Jahre gereift. Kühl in Tonbechern serviert."
+        }
+      },
+      {
+        "id": "5ba26368-c366-4db0-85f5-c73a06419e3e",
+        "name": {
+          "en": "Homemade sour cherry liqueur (50ml)",
+          "de": "Hausgemachter Sauerkirschlikör (50 ml)"
+        },
+        "description": {
+          "en": "Sour cherries steeped in alcohol with sugar and cinnamon, left for 6 months in an oak barrel.",
+          "de": "Sauerkirschen in Alkohol mit Zucker und Zimt angesetzt, 6 Monate im Eichenfass gereift."
+        }
+      },
+      {
+        "id": "104255f7-89bd-458e-b3a6-79fc3256e023",
+        "name": {
+          "en": "Lemonade with mint and acacia honey",
+          "de": "Limonade mit Minze und Akazienhonig"
+        },
+        "description": {
+          "en": "Fresh lemons, mint from grandmother's garden, acacia honey, crushed ice.",
+          "de": "Frische Zitronen, Minze aus Großmutters Garten, Akazienhonig, zerstoßenes Eis."
+        }
+      }
+    ]
+  },
+  {
+    "id": "d4add444-7d12-4580-a38b-d4caa542d11e",
+    "slug": "frunza-si-lingurita",
+    "descriptionLong": {
+      "en": "An intimate 28-seat space for weekend brunch, with vegetables brought straight from the Stănescu family (Stejaru farm, near Călărași) and eggs from Ileana in Vidra. On the last Sunday of each month we change the menu for a farmer collab — the farmer cooks a dish with their own produce. White walls, marble slabs, plants hanging in macramé.",
+      "de": "Ein intimer Raum mit 28 Plätzen für den Wochenend-Brunch, mit Gemüse direkt von der Familie Stănescu (Hof Stejaru, bei Călărași) und Eiern von Ileana aus Vidra. Am letzten Sonntag jedes Monats ändern wir die Speisekarte für eine Farmer-Kollaboration — der Erzeuger kocht ein Gericht mit seinen eigenen Produkten. Weiße Wände, Marmorplatten, in Makramee hängende Pflanzen."
+    },
+    "heroSubtitle": {
+      "en": "Slow brunch, plants from local farmers, Cotroceni light.",
+      "de": "Langsamer Brunch, Pflanzen von lokalen Bauern, das Licht von Cotroceni."
+    },
+    "sections": [
+      {
+        "id": "8c2e746d-d3e5-4744-b5aa-a04b199018a7",
+        "name": {
+          "en": "Smoothies & juices",
+          "de": "Smoothies & Säfte"
+        },
+        "intro": {
+          "en": "Pressed fresh daily, cold-pressed, with no added sweeteners.",
+          "de": "Täglich frisch gepresst, kaltgepresst, ohne zugesetzte Süßungsmittel."
+        }
+      },
+      {
+        "id": "1db29c95-b719-46ed-8684-b816e2615329",
+        "name": {
+          "en": "Toasts",
+          "de": "Toasts"
+        },
+        "intro": {
+          "en": "Sourdough bread, fermented in house, toasted to order.",
+          "de": "Sauerteigbrot, im Haus fermentiert, auf Bestellung getoastet."
+        }
+      },
+      {
+        "id": "29b01cdb-0f1e-4b5c-a1f5-0bd13655a328",
+        "name": {
+          "en": "Eggs & waffles",
+          "de": "Eier & Waffeln"
+        },
+        "intro": {
+          "en": "Eggs from Ileana in Vidra, Belgian waffles made on the spot.",
+          "de": "Eier von Ileana aus Vidra, belgische Waffeln frisch zubereitet."
+        }
+      },
+      {
+        "id": "6d611908-3ca7-4830-ad7d-eb4b40ba4732",
+        "name": {
+          "en": "Daytime cocktails",
+          "de": "Tages-Cocktails"
+        },
+        "intro": {
+          "en": "For slow Sundays. Mimosa by the carafe.",
+          "de": "Für gemütliche Sonntage. Mimosa in der Karaffe."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "05ce8da6-3222-4cfc-8743-5622109eae67",
+        "name": {
+          "en": "Green smoothie (spinach, green apple, ginger)",
+          "de": "Grüner Smoothie (Spinat, grüner Apfel, Ingwer)"
+        },
+        "description": {
+          "en": "Fresh spinach, green apple, banana, fresh ginger, mint, almond milk.",
+          "de": "Frischer Spinat, grüner Apfel, Banane, frischer Ingwer, Minze, Mandelmilch."
+        }
+      },
+      {
+        "id": "869f9570-975d-4d02-ba86-c2d957359d88",
+        "name": {
+          "en": "Pink smoothie (beetroot, mango, lime)",
+          "de": "Pinker Smoothie (Rote Bete, Mango, Limette)"
+        },
+        "description": {
+          "en": "Roasted beetroot, mango, banana, lime, coconut milk, chia seeds.",
+          "de": "Geröstete Rote Bete, Mango, Banane, Limette, Kokosmilch, Chiasamen."
+        }
+      },
+      {
+        "id": "fa856417-ae64-4943-bd71-b24a41a83be0",
+        "name": {
+          "en": "Açaí bowl with granola and fruit",
+          "de": "Açaí-Bowl mit Granola und Früchten"
+        },
+        "description": {
+          "en": "Brazilian açaí, banana, homemade granola, kiwi, wild strawberries, pistachios, acacia honey, coconut flakes.",
+          "de": "Brasilianisches Açaí, Banane, hausgemachtes Granola, Kiwi, Walderdbeeren, Pistazien, Akazienhonig, Kokosflocken."
+        }
+      },
+      {
+        "id": "4773b08e-ba4d-4063-b07e-e898f21118cc",
+        "name": {
+          "en": "Cold-pressed juice (carrot, orange, ginger, turmeric)",
+          "de": "Kaltgepresster Saft (Karotte, Orange, Ingwer, Kurkuma)"
+        },
+        "description": {
+          "en": "Juices cold-pressed this morning. Carrot, orange, ginger, turmeric, black pepper.",
+          "de": "Heute Morgen kaltgepresste Säfte. Karotte, Orange, Ingwer, Kurkuma, schwarzer Pfeffer."
+        }
+      },
+      {
+        "id": "390ea567-107b-49ca-ac62-c8ce547542b4",
+        "name": {
+          "en": "Avocado toast with pickled radish and sumac",
+          "de": "Avocado-Toast mit eingelegtem Radieschen und Sumach"
+        },
+        "description": {
+          "en": "Sourdough bread, smashed avocado, pickled radishes, sumac, microgreens, hemp seeds.",
+          "de": "Sauerteigbrot, zerdrückte Avocado, eingelegte Radieschen, Sumach, Microgreens, Hanfsamen."
+        }
+      },
+      {
+        "id": "f4dd2850-348e-4616-ae6e-0f5905d52f66",
+        "name": {
+          "en": "Ricotta toast with honey and walnut",
+          "de": "Ricotta-Toast mit Honig und Walnuss"
+        },
+        "description": {
+          "en": "Sourdough bread, whipped fresh ricotta, acacia honey, caramelised walnuts, thyme.",
+          "de": "Sauerteigbrot, aufgeschlagene frische Ricotta, Akazienhonig, karamellisierte Walnüsse, Thymian."
+        }
+      },
+      {
+        "id": "ca229264-93c2-4ff3-99ce-1760723b94b7",
+        "name": {
+          "en": "Burrata toast with roasted cherry tomatoes",
+          "de": "Burrata-Toast mit gerösteten Kirschtomaten"
+        },
+        "description": {
+          "en": "Sourdough bread, Puglia burrata, cherry tomatoes roasted with thyme, basil, olive oil.",
+          "de": "Sauerteigbrot, Burrata aus Apulien, mit Thymian geröstete Kirschtomaten, Basilikum, Olivenöl."
+        }
+      },
+      {
+        "id": "2877850b-a85a-43ab-bcce-e718a6bd2779",
+        "name": {
+          "en": "Mushroom toast with poached egg",
+          "de": "Pilz-Toast mit pochiertem Ei"
+        },
+        "description": {
+          "en": "Sourdough bread, porcini sautéed with thyme, poached egg, grated parmigiano, fresh dill.",
+          "de": "Sauerteigbrot, mit Thymian sautierte Steinpilze, pochiertes Ei, geriebener Parmigiano, frischer Dill."
+        }
+      },
+      {
+        "id": "91793a23-a57c-4ee4-a427-c195386cd456",
+        "name": {
+          "en": "Poached eggs with pea hummus and sumac",
+          "de": "Pochierte Eier mit Erbsen-Hummus und Sumach"
+        },
+        "description": {
+          "en": "2 poached eggs from Ileana, fresh pea hummus, sumac, pumpkin seeds, toasted bread.",
+          "de": "2 pochierte Eier von Ileana, frischer Erbsen-Hummus, Sumach, Kürbiskerne, Röstbrot."
+        }
+      },
+      {
+        "id": "ced12f07-1e5a-48fb-b2a2-defd45b6c4f0",
+        "name": {
+          "en": "Shakshuka with feta and dill",
+          "de": "Schakschuka mit Feta und Dill"
+        },
+        "description": {
+          "en": "Tomato sauce with peppers, cumin and smoked paprika, 2 baked eggs, crumbled feta, dill, bread.",
+          "de": "Tomatensauce mit Paprika, Kreuzkümmel und geräuchertem Paprikapulver, 2 gebackene Eier, zerbröckelter Feta, Dill, Brot."
+        }
+      },
+      {
+        "id": "a52b8c98-f756-4706-bcac-d237a598fea1",
+        "name": {
+          "en": "Belgian waffles with berries and mascarpone",
+          "de": "Belgische Waffeln mit Waldbeeren und Mascarpone"
+        },
+        "description": {
+          "en": "Fluffy waffles made on the spot, fresh berries, mascarpone, maple syrup.",
+          "de": "Frisch zubereitete, luftige Waffeln, frische Waldbeeren, Mascarpone, Ahornsirup."
+        }
+      },
+      {
+        "id": "9e80b4bc-277e-4144-b83d-3d82ab471642",
+        "name": {
+          "en": "Pancakes with lemon curd and wild strawberries",
+          "de": "Pancakes mit Lemon Curd und Walderdbeeren"
+        },
+        "description": {
+          "en": "3 fluffy pancakes, homemade lemon curd, fresh wild strawberries, mint leaves, icing sugar.",
+          "de": "3 luftige Pancakes, hausgemachter Lemon Curd, frische Walderdbeeren, Minzblätter, Puderzucker."
+        }
+      },
+      {
+        "id": "60780ed0-33c7-4f7e-8063-43a9d1cd0df7",
+        "name": {
+          "en": "Mimosa (500ml carafe)",
+          "de": "Mimosa (500-ml-Karaffe)"
+        },
+        "description": {
+          "en": "Prosecco DOC, freshly squeezed blood orange juice. For two.",
+          "de": "Prosecco DOC, frisch gepresster Blutorangensaft. Für zwei Personen."
+        }
+      },
+      {
+        "id": "49598dad-9e6f-4e89-98d0-8e4418d275f4",
+        "name": {
+          "en": "Bloody Mary with celery and chilli",
+          "de": "Bloody Mary mit Sellerie und Chili"
+        },
+        "description": {
+          "en": "Vodka, tomato juice, lemon, Worcestershire sauce, fresh celery, chilli.",
+          "de": "Wodka, Tomatensaft, Zitrone, Worcestershiresauce, frischer Sellerie, Chili."
+        }
+      },
+      {
+        "id": "34b6ac28-dc88-470e-83e6-697c471fae32",
+        "name": {
+          "en": "Aperol Spritz with rosemary",
+          "de": "Aperol Spritz mit Rosmarin"
+        },
+        "description": {
+          "en": "Aperol, Prosecco, soda, a sprig of fresh rosemary, orange.",
+          "de": "Aperol, Prosecco, Soda, ein Zweig frischer Rosmarin, Orange."
+        }
+      }
+    ]
+  },
+  {
+    "id": "15bf7747-ff50-446d-a57f-089605f30dbb",
+    "slug": "pizzeria-margherita",
+    "descriptionLong": {
+      "en": "A Neapolitan pizzeria with a beechwood oven fired to 480°C. Our dough cold-ferments for 48 hours, so the crusts come out airy, light and easy to digest. San Marzano DOP, mozzarella di bufala flown in weekly from Campania, basil cut from the rooftop. Pizzaiolo Marco trained in Naples. 70 seats, with a terrace in summer.",
+      "de": "Eine neapolitanische Pizzeria mit Buchenholzofen, der auf 480°C befeuert wird. Unser Teig reift 48 Stunden kalt, sodass die Ränder luftig, leicht und gut bekömmlich werden. San Marzano DOP, wöchentlich aus Kampanien eingeflogene Mozzarella di bufala, Basilikum frisch vom Dach geschnitten. Pizzaiolo Marco hat in Neapel gelernt. 70 Plätze, im Sommer mit Terrasse."
+    },
+    "heroSubtitle": {
+      "en": "Dough fermented for 48 hours. Wood-fired oven at 480°. Pizza out in 90 seconds.",
+      "de": "48 Stunden gereifter Teig. Holzofen bei 480°. Pizza in 90 Sekunden fertig."
+    },
+    "sections": [
+      {
+        "id": "6cbe66fd-d534-48ed-95c4-f0aead3a87a3",
+        "name": {
+          "en": "Antipasti",
+          "de": "Antipasti"
+        },
+        "intro": {
+          "en": "To share before the pizza, with a glass of chilled Lambrusco.",
+          "de": "Zum Teilen vor der Pizza, mit einem Glas kühlem Lambrusco."
+        }
+      },
+      {
+        "id": "ffae2ce7-802a-4f0d-a935-8534b5f0ff1f",
+        "name": {
+          "en": "Pizza Rosse",
+          "de": "Pizza Rosse"
+        },
+        "intro": {
+          "en": "Built on San Marzano DOP tomatoes. Crusts baked in 90 seconds.",
+          "de": "Auf der Basis von San Marzano DOP Tomaten. Ränder in 90 Sekunden gebacken."
+        }
+      },
+      {
+        "id": "e169659a-eb8b-47f3-b0ab-aa00dfca0ed2",
+        "name": {
+          "en": "Pizza Bianche",
+          "de": "Pizza Bianche"
+        },
+        "intro": {
+          "en": "Without tomato sauce. For those who fancy something different.",
+          "de": "Ohne Tomatensauce. Für alle, die etwas anderes möchten."
+        }
+      },
+      {
+        "id": "0d5a7b1a-6eaf-4adf-ad17-e37970e647d6",
+        "name": {
+          "en": "Dolci",
+          "de": "Dolci"
+        },
+        "intro": {
+          "en": "Two Italian sweets, both brought in from the pasticceria.",
+          "de": "Zwei italienische Süßspeisen, beide aus der Pasticceria bezogen."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "1d73fac2-a066-4f35-9be1-dc294d443e81",
+        "name": {
+          "en": "Antipasto della casa (for 2)",
+          "de": "Antipasto della casa (für 2)"
+        },
+        "description": {
+          "en": "A selection of cured meats (prosciutto crudo, salame Felino, mortadella) and cheeses (pecorino, gorgonzola), grissini, taggiasche olives, fig honey.",
+          "de": "Eine Auswahl an Wurstwaren (Prosciutto crudo, Salame Felino, Mortadella) und Käse (Pecorino, Gorgonzola), Grissini, Taggiasche-Oliven, Feigenhonig."
+        }
+      },
+      {
+        "id": "32b3e622-28fa-4289-8017-c3cc3299be8e",
+        "name": {
+          "en": "Bruschetta with tomato and basil",
+          "de": "Bruschetta mit Tomate und Basilikum"
+        },
+        "description": {
+          "en": "Toasted bread rubbed with garlic, diced San Marzano tomatoes, fresh basil, olive oil, coarse salt.",
+          "de": "Mit Knoblauch geriebenes geröstetes Brot, gewürfelte San-Marzano-Tomaten, frisches Basilikum, Olivenöl, grobes Salz."
+        }
+      },
+      {
+        "id": "fe9fa65c-429c-4c5b-a0db-af321bda7076",
+        "name": {
+          "en": "Burrata with prosciutto crudo and figs",
+          "de": "Burrata mit Prosciutto crudo und Feigen"
+        },
+        "description": {
+          "en": "Pugliese burrata, prosciutto crudo di Parma, fresh figs (in season), basil, olive oil.",
+          "de": "Pugliese-Burrata, Prosciutto crudo di Parma, frische Feigen (saisonal), Basilikum, Olivenöl."
+        }
+      },
+      {
+        "id": "208a5d6e-2255-42ea-8be8-d657c07f00f6",
+        "name": {
+          "en": "Caprese with mozzarella di bufala",
+          "de": "Caprese mit Mozzarella di bufala"
+        },
+        "description": {
+          "en": "Mozzarella di bufala DOP, sliced San Marzano tomatoes, fresh rooftop basil, olive oil.",
+          "de": "Mozzarella di bufala DOP, in Scheiben geschnittene San-Marzano-Tomaten, frisches Basilikum vom Dach, Olivenöl."
+        }
+      },
+      {
+        "id": "6eede9db-cf20-47d0-acfc-768a6aebb773",
+        "name": {
+          "en": "Pizza Margherita",
+          "de": "Pizza Margherita"
+        },
+        "description": {
+          "en": "San Marzano DOP, mozzarella di bufala, fresh basil, olive oil. The Neapolitan classic.",
+          "de": "San Marzano DOP, Mozzarella di bufala, frisches Basilikum, Olivenöl. Der neapolitanische Klassiker."
+        }
+      },
+      {
+        "id": "3addddef-db48-4837-a2b8-0794b73df9fc",
+        "name": {
+          "en": "Pizza Marinara",
+          "de": "Pizza Marinara"
+        },
+        "description": {
+          "en": "San Marzano DOP, garlic, oregano, olive oil. No cheese — the fishermen's pizza, the oldest of them all.",
+          "de": "San Marzano DOP, Knoblauch, Oregano, Olivenöl. Ohne Käse — die Pizza der Fischer, die älteste von allen."
+        }
+      },
+      {
+        "id": "1eb1ec46-1be8-406f-b038-b3e801223c2e",
+        "name": {
+          "en": "Pizza Diavola",
+          "de": "Pizza Diavola"
+        },
+        "description": {
+          "en": "San Marzano, mozzarella fior di latte, spicy Calabrian salami, chilli, hot oil.",
+          "de": "San Marzano, Mozzarella Fior di Latte, scharfe kalabrische Salami, Chili, scharfes Öl."
+        }
+      },
+      {
+        "id": "f9c6bc7a-14d7-442a-8666-9885ab51c922",
+        "name": {
+          "en": "Pizza Capricciosa",
+          "de": "Pizza Capricciosa"
+        },
+        "description": {
+          "en": "San Marzano, mozzarella, prosciutto cotto, mushrooms, jarred artichokes, black olives, egg.",
+          "de": "San Marzano, Mozzarella, Prosciutto cotto, Champignons, eingelegte Artischocken, schwarze Oliven, Ei."
+        }
+      },
+      {
+        "id": "46df5897-83ae-44b6-bdc0-133bbbec0a0a",
+        "name": {
+          "en": "Pizza Quattro Formaggi",
+          "de": "Pizza Quattro Formaggi"
+        },
+        "description": {
+          "en": "A light tomato base, mozzarella di bufala, gorgonzola dolce, grated parmesan, dollops of ricotta.",
+          "de": "Eine leichte Tomatenbasis, Mozzarella di bufala, Gorgonzola dolce, geriebener Parmesan, Ricotta-Tupfer."
+        }
+      },
+      {
+        "id": "234a6f41-0390-4d98-9b0e-900335fb5a80",
+        "name": {
+          "en": "Pizza Bianca with Tartufo",
+          "de": "Pizza Bianca mit Tartufo"
+        },
+        "description": {
+          "en": "A white base with mozzarella di bufala, porcini mushrooms, black truffle oil, parmesan, rocket.",
+          "de": "Eine weiße Basis mit Mozzarella di bufala, Steinpilzen, schwarzem Trüffelöl, Parmesan, Rucola."
+        }
+      },
+      {
+        "id": "9a7a5165-3f4b-403a-b509-018df1f1e38e",
+        "name": {
+          "en": "Pizza Bianca with Mortadella and pistachio",
+          "de": "Pizza Bianca mit Mortadella und Pistazie"
+        },
+        "description": {
+          "en": "A white base, mozzarella, mortadella di Bologna, coarsely chopped Bronte pistachios, grated lemon zest, rocket.",
+          "de": "Eine weiße Basis, Mozzarella, Mortadella di Bologna, grob gehackte Bronte-Pistazien, geriebene Zitronenschale, Rucola."
+        }
+      },
+      {
+        "id": "2586abae-c2fb-4738-993c-549bb2f4f2e8",
+        "name": {
+          "en": "Pizza Bianca with Salsiccia and friarielli",
+          "de": "Pizza Bianca mit Salsiccia und Friarielli"
+        },
+        "description": {
+          "en": "A white base, mozzarella, Italian sausage, friarielli (broccoli rabe), garlic, chilli.",
+          "de": "Eine weiße Basis, Mozzarella, italienische Salsiccia, Friarielli (Stängelkohl), Knoblauch, Chili."
+        }
+      },
+      {
+        "id": "bfc9c16f-2a55-41ae-8e06-d9331e763241",
+        "name": {
+          "en": "Tiramisù della casa",
+          "de": "Tiramisù della casa"
+        },
+        "description": {
+          "en": "Mascarpone, savoiardi soaked in espresso and Marsala, bitter cocoa. Made daily.",
+          "de": "Mascarpone, in Espresso und Marsala getränkte Savoiardi, bittere Kakao. Täglich frisch zubereitet."
+        }
+      },
+      {
+        "id": "fbfc0573-b1b1-414a-b4fa-c8bd826e9380",
+        "name": {
+          "en": "Cannoli siciliani with ricotta and pistachio",
+          "de": "Cannoli siciliani mit Ricotta und Pistazie"
+        },
+        "description": {
+          "en": "Crisp shells filled to order with sweetened ricotta, Bronte pistachios, dark chocolate.",
+          "de": "Knusprige Hüllen, auf Bestellung gefüllt mit gesüßtem Ricotta, Bronte-Pistazien, dunkler Schokolade."
+        }
+      },
+      {
+        "id": "9b8bff59-7078-47f0-9201-3421f4ca65ca",
+        "name": {
+          "en": "Lambrusco rosso (500ml carafe)",
+          "de": "Lambrusco rosso (500-ml-Karaffe)"
+        },
+        "description": {
+          "en": "Lambrusco di Sorbara, a sparkling red wine, served chilled. Pairs well with the Pizza Diavola.",
+          "de": "Lambrusco di Sorbara, ein perlender Rotwein, kühl serviert. Passt gut zur Pizza Diavola."
+        }
+      },
+      {
+        "id": "0d31d0af-3ef9-4638-b63d-a243c79720bf",
+        "name": {
+          "en": "Aperol Spritz",
+          "de": "Aperol Spritz"
+        },
+        "description": {
+          "en": "Aperol, Prosecco, soda, a slice of orange.",
+          "de": "Aperol, Prosecco, Soda, eine Orangenscheibe."
+        }
+      }
+    ]
+  },
+  {
+    "id": "b52fcfd8-f8c4-462b-8fe6-9b0b3c5def95",
+    "slug": "sakura-house",
+    "descriptionLong": {
+      "en": "Authentic sushi and ramen, with fish flown in weekly from Tokyo's Toyosu market (successor to Tsukiji). Tonkotsu simmered for 14 hours, a 4-seat omakase counter (book a week ahead). Chef Hiroshi spent 12 years at a Sapporo izakaya before coming to Bucharest. Junmai daiginjo sake imported directly, a list of 18 labels.",
+      "de": "Authentisches Sushi und Ramen mit Fisch, der wöchentlich vom Tokioter Toyosu-Markt (dem Nachfolger von Tsukiji) eingeflogen wird. 14 Stunden geköchelte Tonkotsu, ein Omakase-Tresen mit 4 Plätzen (Reservierung eine Woche im Voraus). Chefkoch Hiroshi hat zwölf Jahre in einer Izakaya in Sapporo gearbeitet, bevor er nach Bukarest kam. Direkt importierter Junmai-Daiginjo-Sake, eine Karte mit 18 Etiketten."
+    },
+    "heroSubtitle": {
+      "en": "Sushi from Tsukiji, ramen from Sapporo. Hands trained in the izakaya.",
+      "de": "Sushi wie aus Tsukiji, Ramen wie aus Sapporo. Hände, geschult in der Izakaya."
+    },
+    "sections": [
+      {
+        "id": "b2545791-a574-46e0-b13c-ec7ce9eb9f4d",
+        "name": {
+          "en": "Sushi & Sashimi",
+          "de": "Sushi & Sashimi"
+        },
+        "intro": {
+          "en": "Fish flown in weekly. Koshihikari rice, Mizkan rice vinegar.",
+          "de": "Wöchentlich eingeflogener Fisch. Koshihikari-Reis, Mizkan-Reisessig."
+        }
+      },
+      {
+        "id": "aa46635e-102c-4114-a147-1300e94ad063",
+        "name": {
+          "en": "Ramen & Donburi",
+          "de": "Ramen & Donburi"
+        },
+        "intro": {
+          "en": "Tonkotsu simmered for 14 hours. Fresh noodles, made in-house.",
+          "de": "14 Stunden geköchelte Tonkotsu. Frische, hausgemachte Nudeln."
+        }
+      },
+      {
+        "id": "6388bbf9-196f-4566-92d1-c1623615ebe0",
+        "name": {
+          "en": "Izakaya",
+          "de": "Izakaya"
+        },
+        "intro": {
+          "en": "Small plates to share, just like in the bars of Sapporo.",
+          "de": "Kleine Gerichte zum Teilen, wie in den Bars von Sapporo."
+        }
+      },
+      {
+        "id": "a65d75a9-4bd4-472b-8761-6abed308f51f",
+        "name": {
+          "en": "Dessert & Sake",
+          "de": "Dessert & Sake"
+        },
+        "intro": {
+          "en": "Mochi made daily. 18 junmai sake labels.",
+          "de": "Täglich frisches Mochi. 18 Junmai-Sake-Etiketten."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "002b033a-2243-4530-b22c-7b12f8fa247e",
+        "name": {
+          "en": "Sashimi assortment (12 slices)",
+          "de": "Sashimi-Auswahl (12 Scheiben)"
+        },
+        "description": {
+          "en": "The chef's selection: otoro red tuna, hamachi, Norwegian salmon, sea bream, ikura, freshly grated wasabi.",
+          "de": "Die Auswahl des Küchenchefs: Otoro-Rotthunfisch, Hamachi, norwegischer Lachs, Dorade, Ikura, frisch geriebener Wasabi."
+        }
+      },
+      {
+        "id": "8a7d2fcd-4e5e-4e68-83f8-851d5973bd4d",
+        "name": {
+          "en": "Nigiri selection (8 pieces)",
+          "de": "Nigiri-Auswahl (8 Stück)"
+        },
+        "description": {
+          "en": "8 nigiri chosen by the sushi chef: tuna, hamachi, salmon, unagi eel, ebi, tamago. Fresh wasabi, Kikkoman soy sauce.",
+          "de": "8 vom Sushi-Koch ausgewählte Nigiri: Thunfisch, Hamachi, Lachs, Unagi-Aal, Ebi, Tamago. Frischer Wasabi, Kikkoman-Sojasauce."
+        }
+      },
+      {
+        "id": "d48c80d2-c1fc-4bc2-955d-a3e3895526c2",
+        "name": {
+          "en": "California Maki with real crab",
+          "de": "California Maki mit echtem Krebsfleisch"
+        },
+        "description": {
+          "en": "Hokkaido red crab (not surimi), avocado, Japanese cucumber, sesame, plus 8 pieces.",
+          "de": "Roter Krebs aus Hokkaido (kein Surimi), Avocado, japanische Gurke, Sesam, dazu 8 Stück."
+        }
+      },
+      {
+        "id": "9be3c364-c0af-4db6-bddc-6a99ac0ef065",
+        "name": {
+          "en": "Spider Maki with soft-shell crab",
+          "de": "Spider Maki mit Soft-Shell-Krebs"
+        },
+        "description": {
+          "en": "Fried soft-shell crab, avocado, cucumber, eel teriyaki sauce, 8 pieces.",
+          "de": "Frittierter Soft-Shell-Krebs, Avocado, Gurke, Aal-Teriyaki-Sauce, 8 Stück."
+        }
+      },
+      {
+        "id": "16959646-cfda-4231-8dfb-72462a4a3d49",
+        "name": {
+          "en": "Chirashi don",
+          "de": "Chirashi Don"
+        },
+        "description": {
+          "en": "A bowl of sushi rice topped with slices of assorted fish, tamago, ikura, wasabi, gari, nori seaweed.",
+          "de": "Eine Schale Sushi-Reis, belegt mit Scheiben verschiedener Fischsorten, Tamago, Ikura, Wasabi, Gari, Nori-Algen."
+        }
+      },
+      {
+        "id": "790f1b7f-45b3-49bc-a9c5-6134aa3bd007",
+        "name": {
+          "en": "14h Tonkotsu ramen with pork chashu",
+          "de": "14-Stunden-Tonkotsu-Ramen mit Schweine-Chashu"
+        },
+        "description": {
+          "en": "Pork bone broth simmered for 14 hours, fresh noodles, chashu, ajitsuke egg, bamboo shoots, nori seaweed, spring onion.",
+          "de": "14 Stunden geköchelte Schweineknochenbrühe, frische Nudeln, Chashu, Ajitsuke-Ei, Bambussprossen, Nori-Algen, Frühlingszwiebeln."
+        }
+      },
+      {
+        "id": "18758398-4319-4ec4-b003-474312722b76",
+        "name": {
+          "en": "Shoyu ramen with chicken karaage",
+          "de": "Shoyu-Ramen mit Hähnchen-Karaage"
+        },
+        "description": {
+          "en": "Chicken-based shoyu broth, ajitsuke egg, crispy chicken karaage, spring onion, wakame seaweed.",
+          "de": "Shoyu-Brühe auf Hähnchenbasis, Ajitsuke-Ei, knuspriges Hähnchen-Karaage, Frühlingszwiebeln, Wakame-Algen."
+        }
+      },
+      {
+        "id": "2cbccf85-8395-41c5-9666-2da3d728c850",
+        "name": {
+          "en": "Miso ramen with butter and corn",
+          "de": "Miso-Ramen mit Butter und Mais"
+        },
+        "description": {
+          "en": "Red miso broth with butter, sweet corn, alfalfa, chashu, thick Sapporo-style noodles. The northern style.",
+          "de": "Rote Miso-Brühe mit Butter, Zuckermais, Alfalfa, Chashu, dicke Nudeln nach Sapporo-Art. Der Stil des Nordens."
+        }
+      },
+      {
+        "id": "db439d74-760d-422b-af4a-81a60218f051",
+        "name": {
+          "en": "Vegan ramen with shiitake and white miso",
+          "de": "Veganes Ramen mit Shiitake und weißem Miso"
+        },
+        "description": {
+          "en": "White miso broth with shiitake and kombu, silken tofu, enoki mushrooms, spring onion, black sesame oil.",
+          "de": "Weiße Miso-Brühe mit Shiitake und Kombu, Seidentofu, Enoki-Pilze, Frühlingszwiebeln, schwarzes Sesamöl."
+        }
+      },
+      {
+        "id": "6480c637-38c2-4656-89e0-de6ddb74ce20",
+        "name": {
+          "en": "Edamame with yuzu salt",
+          "de": "Edamame mit Yuzu-Salz"
+        },
+        "description": {
+          "en": "Blanched edamame beans, salt with dried yuzu zest, sesame oil.",
+          "de": "Blanchierte Edamame-Bohnen, Salz mit getrockneter Yuzu-Schale, Sesamöl."
+        }
+      },
+      {
+        "id": "a1931d6b-46c0-4130-83b0-c59567c66c50",
+        "name": {
+          "en": "Gyoza with Iberico pork",
+          "de": "Gyoza mit Iberico-Schwein"
+        },
+        "description": {
+          "en": "5 gyoza filled with Iberico pork, cabbage and ginger, steam-fried, ponzu sauce with rayu oil.",
+          "de": "5 Gyoza gefüllt mit Iberico-Schwein, Kohl und Ingwer, dampfgebraten, Ponzu-Sauce mit Rayu-Öl."
+        }
+      },
+      {
+        "id": "d976567d-df00-410e-b22d-69d2c751bd5c",
+        "name": {
+          "en": "Chicken karaage with Kewpie mayo",
+          "de": "Hähnchen-Karaage mit Kewpie-Mayonnaise"
+        },
+        "description": {
+          "en": "Chicken marinated in sake and ginger, coated in potato starch, fried. Kewpie mayonnaise with shichimi.",
+          "de": "In Sake und Ingwer mariniertes Hähnchen, in Kartoffelstärke gewendet, frittiert. Kewpie-Mayonnaise mit Shichimi."
+        }
+      },
+      {
+        "id": "a0e691ae-4643-49c0-b23b-c8cb72a941ca",
+        "name": {
+          "en": "Chicken and leek yakitori",
+          "de": "Hähnchen-Lauch-Yakitori"
+        },
+        "description": {
+          "en": "3 yakitori skewers with tare sauce, grilled over binchotan. Chicken, leek, shishito peppers.",
+          "de": "3 Yakitori-Spieße mit Tare-Sauce, über Binchotan gegrillt. Hähnchen, Lauch, Shishito-Paprika."
+        }
+      },
+      {
+        "id": "8e25b531-f3d6-46bd-b450-0d18c794cb1e",
+        "name": {
+          "en": "Wagyu tartare with egg yolk",
+          "de": "Wagyu-Tatar mit Eigelb"
+        },
+        "description": {
+          "en": "A5 Wagyu cut by hand, quail egg yolk, nori seaweed, pickled daikon radish, sesame oil.",
+          "de": "Mit dem Messer geschnittenes A5-Wagyu, Wachteleigelb, Nori-Algen, eingelegter Daikon-Rettich, Sesamöl."
+        }
+      },
+      {
+        "id": "d1636ca6-5381-4883-a902-ae64b0e2e4f6",
+        "name": {
+          "en": "Mochi with matcha and hojicha ice cream",
+          "de": "Mochi mit Matcha- und Hojicha-Eis"
+        },
+        "description": {
+          "en": "Two fresh mochi (Uji matcha and hojicha), made daily, in a fine glutinous rice wrapping.",
+          "de": "Zwei frische Mochi (Uji-Matcha und Hojicha), täglich frisch zubereitet, in einer feinen Klebreishülle."
+        }
+      },
+      {
+        "id": "9dbdbd42-3499-4c21-b034-fff1d0752c2a",
+        "name": {
+          "en": "Japanese cheesecake (jiggly)",
+          "de": "Japanischer Cheesecake (jiggly)"
+        },
+        "description": {
+          "en": "Steam-risen cheesecake with a pillowy texture, berries, yuzu syrup.",
+          "de": "Im Dampf aufgegangener Cheesecake mit kissenweicher Textur, Beeren, Yuzu-Sirup."
+        }
+      },
+      {
+        "id": "054a3bf5-428e-445e-aaa6-ace08ba0e2fe",
+        "name": {
+          "en": "Junmai daiginjo sake Dassai 39 (180ml)",
+          "de": "Junmai-Daiginjo-Sake Dassai 39 (180 ml)"
+        },
+        "description": {
+          "en": "Premium sake from Yamaguchi, rice polished to 39%, with notes of pear and honeydew melon. Served chilled.",
+          "de": "Premium-Sake aus Yamaguchi, auf 39 % polierter Reis, mit Noten von Birne und Honigmelone. Kühl serviert."
+        }
+      },
+      {
+        "id": "f573a90a-abea-44d6-89ae-323931cd70ac",
+        "name": {
+          "en": "Asahi Super Dry (330ml)",
+          "de": "Asahi Super Dry (330 ml)"
+        },
+        "description": {
+          "en": "A dry Japanese beer, imported directly, served cold in a frosted glass.",
+          "de": "Ein trockenes japanisches Bier, direkt importiert, eiskalt im gefrorenen Glas serviert."
+        }
+      }
+    ]
+  },
+  {
+    "id": "88416eec-6077-43d1-aabe-33a98228e1bc",
+    "slug": "taverna-egeea",
+    "descriptionLong": {
+      "en": "A taverna inspired by Mykonos, with 55 seats indoors and a covered 35-seat terrace looking straight out over Lake Herăstrău. Feta from the Cyclades, fresh octopus from the Mediterranean, Black Sea sea bream brought in daily. A list of Greek wines (Assyrtiko, Agiorgitiko) and ouzo flights. Blue-and-white surroundings, weathered wood, bougainvillea along the walls.",
+      "de": "Eine von Mykonos inspirierte Taverne mit 55 Plätzen im Innenbereich und einer überdachten Terrasse für 35 Gäste mit direktem Blick auf den Herăstrău-See. Feta von den Kykladen, frischer Tintenfisch aus dem Mittelmeer, täglich frisch gelieferte Dorade aus dem Schwarzen Meer. Eine Karte mit griechischen Weinen (Assyrtiko, Agiorgitiko) und Ouzo-Flights. Blau-weißes Ambiente, verwittertes Holz, Bougainvillea an den Wänden."
+    },
+    "heroSubtitle": {
+      "en": "Mezze and grills, with a view over Herăstrău. Fish caught today.",
+      "de": "Mezze und Gegrilltes, mit Blick auf den Herăstrău. Heute gefangener Fisch."
+    },
+    "sections": [
+      {
+        "id": "e38d9607-f557-4a94-9bdd-fa171c41feb4",
+        "name": {
+          "en": "Mezze",
+          "de": "Mezze"
+        },
+        "intro": {
+          "en": "On the table, to share, with warm pita bread. This is how every Greek dinner begins.",
+          "de": "Auf dem Tisch, zum Teilen, mit warmem Pita-Brot. So beginnt jedes griechische Abendessen."
+        }
+      },
+      {
+        "id": "b1ebef8c-388e-44a8-9023-442a19334b3f",
+        "name": {
+          "en": "Salads",
+          "de": "Salate"
+        },
+        "intro": {
+          "en": "With Mykonos feta and Kalamata olive oil.",
+          "de": "Mit Mykonos-Feta und Kalamata-Olivenöl."
+        }
+      },
+      {
+        "id": "b756323b-5c31-4268-8245-32e59c40c669",
+        "name": {
+          "en": "Fish & seafood",
+          "de": "Fisch & Meeresfrüchte"
+        },
+        "intro": {
+          "en": "Fish caught this morning. Ask about the catch of the day.",
+          "de": "Heute Morgen gefangener Fisch. Fragen Sie nach dem Fang des Tages."
+        }
+      },
+      {
+        "id": "da82ee57-b8a0-4b93-afd0-ed8a7d13cdb1",
+        "name": {
+          "en": "Sweets",
+          "de": "Süßspeisen"
+        },
+        "intro": {
+          "en": "Two Greek sweets with Cretan honey.",
+          "de": "Zwei griechische Süßspeisen mit kretischem Honig."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "6b06b3fa-111c-4795-9615-5dcb535a5a8c",
+        "name": {
+          "en": "Tzatziki with cucumber and dill",
+          "de": "Tzatziki mit Gurke und Dill"
+        },
+        "description": {
+          "en": "Greek yoghurt 10%, grated and wrung-out cucumber, crushed garlic, dill, olive oil, white wine vinegar. Served with warm pita.",
+          "de": "Griechischer Joghurt 10 %, geriebene und ausgedrückte Gurke, zerdrückter Knoblauch, Dill, Olivenöl, Weißweinessig. Mit warmem Pita serviert."
+        }
+      },
+      {
+        "id": "b5f8cef0-3e93-4287-924c-9869f1bc171f",
+        "name": {
+          "en": "Pea hummus with sumac",
+          "de": "Erbsen-Hummus mit Sumach"
+        },
+        "description": {
+          "en": "Hummus made from fresh green peas, tahini, lemon, sumac, olive oil, pumpkin seeds.",
+          "de": "Hummus aus frischen grünen Erbsen, Tahini, Zitrone, Sumach, Olivenöl, Kürbiskernen."
+        }
+      },
+      {
+        "id": "e5c35a2f-b06d-4df6-951a-444fd697ffc2",
+        "name": {
+          "en": "Saganaki with lemon and honey",
+          "de": "Saganaki mit Zitrone und Honig"
+        },
+        "description": {
+          "en": "Kefalograviera cheese pan-fried, thyme honey, sesame, a slice of lemon. Served piping hot.",
+          "de": "In der Pfanne gebratener Kefalograviera-Käse, Thymianhonig, Sesam, eine Zitronenscheibe. Glühend heiß serviert."
+        }
+      },
+      {
+        "id": "c7ebec4a-f9e2-4303-a56d-3f97deff2ef2",
+        "name": {
+          "en": "Dolmades (stuffed vine leaves)",
+          "de": "Dolmades (gefüllte Weinblätter)"
+        },
+        "description": {
+          "en": "Vine leaves filled with rice, dill, mint and onion, cooked in lemon and olive oil. 6 pieces.",
+          "de": "Weinblätter gefüllt mit Reis, Dill, Minze und Zwiebel, in Zitrone und Olivenöl gegart. 6 Stück."
+        }
+      },
+      {
+        "id": "a84bb439-5052-473e-af65-28ffeeea0919",
+        "name": {
+          "en": "Taramasalata with sturgeon roe",
+          "de": "Taramasalata mit Störrogen"
+        },
+        "description": {
+          "en": "A cream of sturgeon roe, lemon, olive oil, onion, bread, served with warm pita.",
+          "de": "Eine Creme aus Störrogen, Zitrone, Olivenöl, Zwiebel, Brot, mit warmem Pita serviert."
+        }
+      },
+      {
+        "id": "1e1725e6-b88c-4471-ac77-05b725d0ccc3",
+        "name": {
+          "en": "Greek salad with Mykonos feta",
+          "de": "Griechischer Salat mit Mykonos-Feta"
+        },
+        "description": {
+          "en": "Ripe tomatoes, cucumber, green peppers, red onion, Kalamata olives, Mykonos feta, oregano, olive oil.",
+          "de": "Reife Tomaten, Gurke, grüne Paprika, rote Zwiebel, Kalamata-Oliven, Mykonos-Feta, Oregano, Olivenöl."
+        }
+      },
+      {
+        "id": "fc1714fb-31a3-43c0-b27c-328346f83d93",
+        "name": {
+          "en": "Roasted beetroot salad with feta and walnuts",
+          "de": "Salat mit gebackener Roter Bete, Feta und Walnüssen"
+        },
+        "description": {
+          "en": "Roasted beetroot, crumbled feta, candied walnuts, rocket, honey-mustard dressing, pomegranate seeds.",
+          "de": "Gebackene Rote Bete, zerbröselter Feta, karamellisierte Walnüsse, Rucola, Honig-Senf-Dressing, Granatapfelkerne."
+        }
+      },
+      {
+        "id": "411c18e2-a188-43d8-92ed-bd3dfce3730e",
+        "name": {
+          "en": "Grilled octopus with confit potatoes",
+          "de": "Gegrillter Tintenfisch mit Confit-Kartoffeln"
+        },
+        "description": {
+          "en": "Octopus slow-cooked for 4 hours, finished on the grill, olive oil, lemon, oregano. Potatoes confit in olive fat with thyme.",
+          "de": "4 Stunden langsam gegarter Tintenfisch, auf dem Grill vollendet, Olivenöl, Zitrone, Oregano. In Olivenfett mit Thymian confierte Kartoffeln."
+        }
+      },
+      {
+        "id": "c6e7f0b2-985f-4c66-ab15-684e27298050",
+        "name": {
+          "en": "Salt-baked branzino with lemon",
+          "de": "In Salzkruste gebackener Branzino mit Zitrone"
+        },
+        "description": {
+          "en": "A whole sea bass baked in a coarse salt crust, deboned at the table, olive oil with lemon and capers, herbs.",
+          "de": "Ein ganzer Wolfsbarsch in einer Kruste aus grobem Salz gebacken, am Tisch entgrätet, Olivenöl mit Zitrone und Kapern, Kräuter."
+        }
+      },
+      {
+        "id": "86cfebf3-7626-4a09-b22d-ee96b91b6e83",
+        "name": {
+          "en": "Grilled sea bream with Mediterranean vegetables",
+          "de": "Gegrillte Dorade mit mediterranem Gemüse"
+        },
+        "description": {
+          "en": "A whole Black Sea sea bream, grilled, courgette, aubergine, red pepper, olives, lemon.",
+          "de": "Eine ganze Dorade aus dem Schwarzen Meer, gegrillt, Zucchini, Aubergine, rote Paprika, Oliven, Zitrone."
+        }
+      },
+      {
+        "id": "57ccafff-1dd0-4b1e-8dbf-d6f76e562d65",
+        "name": {
+          "en": "Lamb souvlaki with pita and tzatziki",
+          "de": "Lamm-Souvlaki mit Pita und Tzatziki"
+        },
+        "description": {
+          "en": "Lamb skewers marinated with oregano and garlic, warm pita, tzatziki, red onion, salad.",
+          "de": "Mit Oregano und Knoblauch marinierte Lammspieße, warmes Pita, Tzatziki, rote Zwiebel, Salat."
+        }
+      },
+      {
+        "id": "ffb3a867-aa78-4534-aa42-63bb5ae05413",
+        "name": {
+          "en": "Traditional Moussaka",
+          "de": "Traditionelle Moussaka"
+        },
+        "description": {
+          "en": "Layers of aubergine, potato, lamb with cinnamon and tomato, béchamel with kefalograviera, gratinated.",
+          "de": "Schichten aus Aubergine, Kartoffel, Lamm mit Zimt und Tomate, Béchamel mit Kefalograviera, überbacken."
+        }
+      },
+      {
+        "id": "4668af3d-da9e-4f41-90b9-7b653005bcd5",
+        "name": {
+          "en": "Grilled gambas with lemon butter",
+          "de": "Gegrillte Gambas mit Zitronenbutter"
+        },
+        "description": {
+          "en": "Whole tiger prawns, grilled with olive oil, garlic, lemon, parsley.",
+          "de": "Ganze Tigergarnelen, gegrillt mit Olivenöl, Knoblauch, Zitrone, Petersilie."
+        }
+      },
+      {
+        "id": "e02cbc5d-3faa-4ba5-8874-15ac8d60cb16",
+        "name": {
+          "en": "Baklava with pistachio and honey",
+          "de": "Baklava mit Pistazie und Honig"
+        },
+        "description": {
+          "en": "Thin layers of pastry, walnut and pistachio, thyme honey and orange blossom syrup, cinnamon.",
+          "de": "Dünne Teigschichten, Walnuss und Pistazie, Thymianhonig- und Orangenblütensirup, Zimt."
+        }
+      },
+      {
+        "id": "f69b87c2-60ae-47d0-a4c8-d77c87c2d56d",
+        "name": {
+          "en": "Loukoumades with honey and walnuts",
+          "de": "Loukoumades mit Honig und Walnüssen"
+        },
+        "description": {
+          "en": "Warm fried Greek doughnuts, drenched in Cretan honey, chopped walnuts, cinnamon.",
+          "de": "Warme frittierte griechische Krapfen, getränkt in kretischem Honig, gehackte Walnüsse, Zimt."
+        }
+      },
+      {
+        "id": "226eedb0-0f73-4080-8370-6e4c869cf9ae",
+        "name": {
+          "en": "Ouzo flight (3 × 30ml)",
+          "de": "Ouzo-Flight (3 × 30 ml)"
+        },
+        "description": {
+          "en": "Three kinds of Greek ouzo — Plomari, Mini, Barbayanni — with cold water and ice on the side.",
+          "de": "Drei Sorten griechischer Ouzo — Plomari, Mini, Barbayanni — mit kaltem Wasser und Eis separat."
+        }
+      },
+      {
+        "id": "53b4fb48-1d0c-4efd-a355-3edc3aceb1ba",
+        "name": {
+          "en": "Assyrtiko Santorini (150ml glass)",
+          "de": "Assyrtiko Santorini (150-ml-Glas)"
+        },
+        "description": {
+          "en": "A Greek white wine from Santorini, grown on volcanic lava. Mineral, citrusy, perfect with fish.",
+          "de": "Ein griechischer Weißwein von Santorini, auf vulkanischer Lava gewachsen. Mineralisch, zitrusartig, perfekt zu Fisch."
+        }
+      },
+      {
+        "id": "8240a61e-1720-4fa9-80df-cc9f284e0008",
+        "name": {
+          "en": "Greek coffee with Turkish delight",
+          "de": "Griechischer Kaffee mit Lokum"
+        },
+        "description": {
+          "en": "Coffee brewed on hot sand, rose Turkish delight, cold water. Let it settle.",
+          "de": "Auf heißem Sand gebrühter Kaffee, Rosen-Lokum, kaltes Wasser. Lassen Sie ihn sich setzen."
+        }
+      }
+    ]
+  },
+  {
+    "id": "176a95df-cf0c-46c9-98ef-799272f3495f",
+    "slug": "the-hop-and-hammer",
+    "descriptionLong": {
+      "en": "Industrial two-storey gastropub seating 80, with a covered terrace. Smash burgers made from Black Angus beef from a family farm in the Banat, 12 taps pouring rotating Romanian IPAs — Hop Hooligans, Bereta, Ground Zero, Ground Hog. On Saturday nights, local blues plays on the second floor. The kitchen opens at noon, with late-night service until 1 am.",
+      "de": "Industrieller Gastropub auf zwei Etagen mit 80 Plätzen und überdachter Terrasse. Smash Burger aus Black-Angus-Rind von einem Familienhof im Banat, 12 Zapfhähne mit wechselnden rumänischen IPAs — Hop Hooligans, Bereta, Ground Zero, Ground Hog. Samstagabends spielt im Obergeschoss lokaler Blues. Die Küche öffnet um 12 Uhr, Spätküche bis 1 Uhr nachts."
+    },
+    "heroSubtitle": {
+      "en": "Smash burgers seared on a screaming-hot grill. 12 IPAs on tap, switched up every week.",
+      "de": "Smash Burger auf dem glühend heißen Grill gebraten. 12 IPAs vom Fass, wöchentlich gewechselt."
+    },
+    "sections": [
+      {
+        "id": "fa659fce-97b0-4d8c-8a93-4c35c7c25724",
+        "name": {
+          "en": "Starters",
+          "de": "Vorspeisen"
+        },
+        "intro": {
+          "en": "To kick things off and to share around the table.",
+          "de": "Zum Auftakt und zum Teilen am Tisch."
+        }
+      },
+      {
+        "id": "89b83124-f4cd-49a2-ad85-f31dde6e0a5a",
+        "name": {
+          "en": "Burgers",
+          "de": "Burger"
+        },
+        "intro": {
+          "en": "Black Angus beef from a family farm in the Banat, smashed on a screaming-hot grill.",
+          "de": "Black-Angus-Rind von einem Familienhof im Banat, auf dem glühend heißen Grill gesmasht."
+        }
+      },
+      {
+        "id": "8f49173c-7801-4a81-a0ec-7dba39735227",
+        "name": {
+          "en": "Sides",
+          "de": "Beilagen"
+        },
+        "intro": {
+          "en": "To round out your plate. Made for sharing.",
+          "de": "Zur Abrundung Ihres Tellers. Zum Teilen gemacht."
+        }
+      },
+      {
+        "id": "6f8098f7-1b43-44df-9e00-1efb4edf8480",
+        "name": {
+          "en": "Beers & Cocktails",
+          "de": "Biere & Cocktails"
+        },
+        "intro": {
+          "en": "12 rotating IPAs on tap, switched up every week.",
+          "de": "12 wechselnde IPAs vom Fass, wöchentlich gewechselt."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "1ec9e502-9129-41d7-ae99-a574332c603e",
+        "name": {
+          "en": "Buffalo Wings with Blue Cheese",
+          "de": "Buffalo Wings mit Blue Cheese"
+        },
+        "description": {
+          "en": "8 marinated wings, fried and glazed in buffalo sauce, with a blue cheese dip and celery.",
+          "de": "8 marinierte Wings, frittiert und mit Buffalo-Sauce glasiert, dazu ein Blue-Cheese-Dip und Sellerie."
+        }
+      },
+      {
+        "id": "799d4bcf-6af7-4c29-96c1-8709f651d11e",
+        "name": {
+          "en": "Skinny Fries with Garlic Aioli",
+          "de": "Pommes frites mit Knoblauch-Aioli"
+        },
+        "description": {
+          "en": "Twice-fried fries, coarse salt, hand-made aioli dip.",
+          "de": "Zweifach frittierte Pommes, grobes Salz, hausgemachter Aioli-Dip."
+        }
+      },
+      {
+        "id": "c4e7588b-02c2-42f9-898a-8c5f803b7183",
+        "name": {
+          "en": "Onion Rings with Chipotle Ranch",
+          "de": "Onion Rings mit Chipotle-Ranch"
+        },
+        "description": {
+          "en": "Thick onion rings in a crisp batter, with a smoky chipotle ranch dip.",
+          "de": "Dicke Zwiebelringe in knusprigem Teig, dazu ein rauchiger Chipotle-Ranch-Dip."
+        }
+      },
+      {
+        "id": "b6c361e2-dd36-417b-af57-399671151e0d",
+        "name": {
+          "en": "Mozzarella Sticks with Marinara",
+          "de": "Mozzarella Sticks mit Marinara"
+        },
+        "description": {
+          "en": "6 mozzarella sticks in a panko crumb, with a basil marinara sauce.",
+          "de": "6 Mozzarella Sticks in Panko-Panade, dazu eine Marinara-Sauce mit Basilikum."
+        }
+      },
+      {
+        "id": "4c264631-dda6-4130-9cf0-33ac8d7c6b07",
+        "name": {
+          "en": "Loaded Fries with Bacon & Melted Cheddar",
+          "de": "Loaded Fries mit Bacon & geschmolzenem Cheddar"
+        },
+        "description": {
+          "en": "Fries, melted cheddar, crisp fried bacon, spring onion, jalapeño sauce.",
+          "de": "Pommes, geschmolzener Cheddar, knusprig gebratener Bacon, Frühlingszwiebeln, Jalapeño-Sauce."
+        }
+      },
+      {
+        "id": "a199bc3e-19f5-4c91-b0a6-ff16309e7852",
+        "name": {
+          "en": "Classic Cheeseburger",
+          "de": "Classic Cheeseburger"
+        },
+        "description": {
+          "en": "180g Black Angus smash patty, melted cheddar, smoked bacon, caramelised onion, lettuce, tomato, house sauce, brioche bun.",
+          "de": "180 g Black-Angus-Smash-Patty, geschmolzener Cheddar, geräucherter Bacon, karamellisierte Zwiebeln, Salat, Tomate, Haussauce, Brioche-Bun."
+        }
+      },
+      {
+        "id": "b07ae331-6aa0-449d-b0c2-8379bdf46e92",
+        "name": {
+          "en": "Smokestack Burger (BBQ)",
+          "de": "Smokestack Burger (BBQ)"
+        },
+        "description": {
+          "en": "180g beef smash patty, house BBQ sauce, pickled jalapeños, double cheddar, crispy onions, brioche bun.",
+          "de": "180 g Rind-Smash-Patty, hauseigene BBQ-Sauce, eingelegte Jalapeños, doppelter Cheddar, knusprige Zwiebeln, Brioche-Bun."
+        }
+      },
+      {
+        "id": "396131ba-eb80-4f42-8080-bdd33c2428a6",
+        "name": {
+          "en": "Truffle Burger with Brie & Truffle Oil",
+          "de": "Trüffel-Burger mit Brie & Trüffelöl"
+        },
+        "description": {
+          "en": "180g beef smash patty, melted brie, rocket, caramelised onion, black truffle oil, truffle mayo, brioche bun.",
+          "de": "180 g Rind-Smash-Patty, geschmolzener Brie, Rucola, karamellisierte Zwiebeln, schwarzes Trüffelöl, Trüffelmayonnaise, Brioche-Bun."
+        }
+      },
+      {
+        "id": "6b4dd60e-79ae-42d3-b01b-abfff78f067d",
+        "name": {
+          "en": "Double Smash Cheese",
+          "de": "Double Smash Cheese"
+        },
+        "description": {
+          "en": "Two 100g beef smash patties, double melted cheddar, caramelised onion, house sauce, brioche bun.",
+          "de": "Zwei 100-g-Rind-Smash-Patties, doppelter geschmolzener Cheddar, karamellisierte Zwiebeln, Haussauce, Brioche-Bun."
+        }
+      },
+      {
+        "id": "4f38d83b-f074-403f-82d3-757f445063c3",
+        "name": {
+          "en": "Vegan Beyond Burger",
+          "de": "Vegan Beyond Burger"
+        },
+        "description": {
+          "en": "180g Beyond Meat patty, vegan cheese, lettuce, tomato, red onion, special vegan sauce, vegan bun.",
+          "de": "180 g Beyond-Meat-Patty, veganer Käse, Salat, Tomate, rote Zwiebeln, vegane Spezialsauce, veganes Bun."
+        }
+      },
+      {
+        "id": "d801f6e7-aeea-4a4a-9481-38420ed6183a",
+        "name": {
+          "en": "BBQ Pulled Pork Mangalitsa, 12-Hour",
+          "de": "BBQ Pulled Pork vom Mangalitza, 12 Stunden"
+        },
+        "description": {
+          "en": "12-hour smoked Mangalitsa pork, house BBQ sauce, dill coleslaw, jalapeños, brioche bun.",
+          "de": "12 Stunden geräuchertes Mangalitza-Schwein, hauseigene BBQ-Sauce, Coleslaw mit Dill, Jalapeños, Brioche-Bun."
+        }
+      },
+      {
+        "id": "9d6bac88-4392-4a18-a7c1-b79a4c49da55",
+        "name": {
+          "en": "Sweet Potato Fries with Honey-Mustard Sauce",
+          "de": "Süßkartoffelpommes mit Honig-Senf-Sauce"
+        },
+        "description": {
+          "en": "Sweet potato fries, rosemary salt, honey-mustard dip.",
+          "de": "Süßkartoffelpommes, Rosmarinsalz, Honig-Senf-Dip."
+        }
+      },
+      {
+        "id": "1cfb3534-6890-4376-8f1e-c7e6b8ab64ed",
+        "name": {
+          "en": "Coleslaw with Dill & Spring Onion",
+          "de": "Coleslaw mit Dill & Frühlingszwiebeln"
+        },
+        "description": {
+          "en": "Finely shredded white and red cabbage, carrot, dill, lemon mayonnaise.",
+          "de": "Fein geschnittener Weiß- und Rotkohl, Karotte, Dill, Zitronenmayonnaise."
+        }
+      },
+      {
+        "id": "72a21c4f-ee2e-430d-90c9-b253b487dfe1",
+        "name": {
+          "en": "Three-Cheese Mac & Cheese",
+          "de": "Mac & Cheese mit drei Käsesorten"
+        },
+        "description": {
+          "en": "Macaroni with cheddar, gruyère and parmesan, gratinated with a panko crumb.",
+          "de": "Makkaroni mit Cheddar, Gruyère und Parmesan, mit Panko-Bröseln gratiniert."
+        }
+      },
+      {
+        "id": "db1e0618-7fb5-4d5d-b0e4-a62d2583b33b",
+        "name": {
+          "en": "Hop Hooligans IPA on Tap (500ml)",
+          "de": "Hop Hooligans IPA vom Fass (500 ml)"
+        },
+        "description": {
+          "en": "This week — Hop Hooligans Apex Predator, an IPA with Citra and Mosaic, 6.5%.",
+          "de": "Diese Woche — Hop Hooligans Apex Predator, ein IPA mit Citra und Mosaic, 6,5 %."
+        }
+      },
+      {
+        "id": "ebf4bfd8-1b4b-4e9e-8af9-678ce979983f",
+        "name": {
+          "en": "Bereta NEIPA on Tap (500ml)",
+          "de": "Bereta NEIPA vom Fass (500 ml)"
+        },
+        "description": {
+          "en": "New England IPA with Galaxy and Nelson Sauvin, hazy, 6.2%.",
+          "de": "New England IPA mit Galaxy und Nelson Sauvin, trüb, 6,2 %."
+        }
+      },
+      {
+        "id": "b945dfbb-1038-4079-8ab7-bf326521cb66",
+        "name": {
+          "en": "Ground Zero Pilsner on Tap (500ml)",
+          "de": "Ground Zero Pilsner vom Fass (500 ml)"
+        },
+        "description": {
+          "en": "Classic Czech-style pilsner, lager, 4.8%, for a break between IPAs.",
+          "de": "Klassisches Pilsner nach böhmischer Art, Lager, 4,8 %, für eine Pause zwischen den IPAs."
+        }
+      },
+      {
+        "id": "c65ca9b4-d48f-4576-8ce8-d6eda1cc8552",
+        "name": {
+          "en": "Classic Negroni",
+          "de": "Classic Negroni"
+        },
+        "description": {
+          "en": "Campari, Cinzano Rosso, Tanqueray gin, ice, slice of orange.",
+          "de": "Campari, Cinzano Rosso, Tanqueray Gin, Eis, Orangenscheibe."
+        }
+      },
+      {
+        "id": "3708a5ed-30ba-491b-9234-73c31e3c1b34",
+        "name": {
+          "en": "Brownie with Vanilla & Maldon Salt",
+          "de": "Brownie mit Vanille & Maldon-Salz"
+        },
+        "description": {
+          "en": "Warm brownie, Madagascar vanilla ice cream, Maldon salt, melted chocolate sauce.",
+          "de": "Warmer Brownie, Madagaskar-Vanilleeis, Maldon-Salz, geschmolzene Schokoladensauce."
+        }
+      }
+    ]
+  },
+  {
+    "id": "83331f39-9e77-40a6-a7f0-329c2e6158e6",
+    "slug": "trattoria-buongiorno",
+    "descriptionLong": {
+      "en": "A neighbourhood trattoria with pasta made by hand every day, following the recipe of nonna Carla from Bologna. Parmigiano Reggiano aged 24 months, prosciutto from the Bolognani butchers, San Marzano with protected designation of origin. Weekly specials that follow the market. The wine list focuses on Tuscany and Emilia-Romagna, with a house Sangiovese by the carafe.",
+      "de": "Eine Trattoria im Viertel, in der die Pasta täglich von Hand gemacht wird, nach dem Rezept von Nonna Carla aus Bologna. Parmigiano Reggiano, 24 Monate gereift, Prosciutto von der Metzgerei Bolognani, San Marzano mit geschützter Ursprungsbezeichnung. Wöchentliche Spezialitäten, die dem Markt folgen. Die Weinkarte konzentriert sich auf die Toskana und die Emilia-Romagna, mit einem hauseigenen Sangiovese in der Karaffe."
+    },
+    "heroSubtitle": {
+      "en": "Fresh pasta every single day. The recipe — grandmother's, from Bologna. The rest — ours.",
+      "de": "Jeden Tag frische Pasta. Das Rezept — von der Großmutter aus Bologna. Der Rest — von uns."
+    },
+    "sections": [
+      {
+        "id": "ad308332-fbf8-4595-9502-664fac9f8b89",
+        "name": {
+          "en": "Antipasti",
+          "de": "Antipasti"
+        },
+        "intro": {
+          "en": "To share around the table, with a glass of chilled Prosecco.",
+          "de": "Zum Teilen am Tisch, mit einem Glas gekühltem Prosecco."
+        }
+      },
+      {
+        "id": "0cbd8bcf-2e63-4c46-815f-137cabf6abbc",
+        "name": {
+          "en": "Primi",
+          "de": "Primi"
+        },
+        "intro": {
+          "en": "Fresh pasta, rolled out at 6 in the morning. Nonna Carla's recipe.",
+          "de": "Frische Pasta, um 6 Uhr morgens ausgerollt. Nonna Carlas Rezept."
+        }
+      },
+      {
+        "id": "e0707fee-4d46-4fdd-b6b0-94362f8bc83a",
+        "name": {
+          "en": "Secondi",
+          "de": "Secondi"
+        },
+        "intro": {
+          "en": "Meat and fish, cooked simply, just like in Italy.",
+          "de": "Fleisch und Fisch, schlicht zubereitet, ganz wie in Italien."
+        }
+      },
+      {
+        "id": "573227e8-289d-4f21-b53c-cc2db8c6c418",
+        "name": {
+          "en": "Dolci",
+          "de": "Dolci"
+        },
+        "intro": {
+          "en": "Three Italian sweets, none of them shop-bought.",
+          "de": "Drei italienische Süßspeisen, keine davon gekauft."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "4cc6f09c-f64e-467d-b3fb-dc8cb116318b",
+        "name": {
+          "en": "Bruschetta with San Marzano Tomatoes & Basil",
+          "de": "Bruschetta mit San-Marzano-Tomaten & Basilikum"
+        },
+        "description": {
+          "en": "Garlic-rubbed toasted bread, San Marzano DOP tomatoes, fresh basil, extra-virgin olive oil, coarse salt.",
+          "de": "Mit Knoblauch eingeriebenes geröstetes Brot, San-Marzano-DOP-Tomaten, frisches Basilikum, natives Olivenöl extra, grobes Salz."
+        }
+      },
+      {
+        "id": "0ce81d72-bf53-4fd7-8f45-31fc65232645",
+        "name": {
+          "en": "Apulian Burrata with Prosciutto di Parma",
+          "de": "Apulische Burrata mit Prosciutto di Parma"
+        },
+        "description": {
+          "en": "Fresh burrata from Puglia, 24-month Parma prosciutto, rocket, olive oil, black pepper.",
+          "de": "Frische Burrata aus Apulien, 24 Monate gereifter Parmaschinken, Rucola, Olivenöl, schwarzer Pfeffer."
+        }
+      },
+      {
+        "id": "8074dbfb-27a4-459a-8070-5cefef6318fc",
+        "name": {
+          "en": "Vitello Tonnato with Capers & Lemon",
+          "de": "Vitello Tonnato mit Kapern & Zitrone"
+        },
+        "description": {
+          "en": "Slow-cooked veal, tuna sauce with capers, lemon mayonnaise, taggiasche olives, parsley.",
+          "de": "Langsam gegartes Kalbfleisch, Thunfischsauce mit Kapern, Zitronenmayonnaise, Taggiasche-Oliven, Petersilie."
+        }
+      },
+      {
+        "id": "8e2c529c-d0d4-4f8b-95b1-6c7d410f7b59",
+        "name": {
+          "en": "Tagliere di Salumi e Formaggi",
+          "de": "Tagliere di Salumi e Formaggi"
+        },
+        "description": {
+          "en": "A selection of Italian cured meats (prosciutto, salame Felino, mortadella) and cheeses (24-month Parmigiano, gorgonzola dolce, pecorino), with grissini and honey.",
+          "de": "Eine Auswahl italienischer Wurstwaren (Prosciutto, Salame Felino, Mortadella) und Käse (24 Monate gereifter Parmigiano, Gorgonzola dolce, Pecorino), dazu Grissini und Honig."
+        }
+      },
+      {
+        "id": "49a127e2-3136-452b-ba98-f7d0d132d403",
+        "name": {
+          "en": "Tagliatelle al Ragù di Bologna",
+          "de": "Tagliatelle al Ragù di Bologna"
+        },
+        "description": {
+          "en": "Fresh tagliatelle, a Bolognese ragù simmered for 5 hours with Sangiovese wine, 24-month parmesan grated at the table.",
+          "de": "Frische Tagliatelle, ein Bologneser Ragù, 5 Stunden mit Sangiovese-Wein geschmort, 24 Monate gereifter Parmesan, am Tisch gerieben."
+        }
+      },
+      {
+        "id": "f0ca1109-986a-4d7d-bb71-f650673f2218",
+        "name": {
+          "en": "Cacio e Pepe",
+          "de": "Cacio e Pepe"
+        },
+        "description": {
+          "en": "Fresh tonnarelli, Pecorino Romano DOP, freshly ground black pepper, pasta water for creaminess.",
+          "de": "Frische Tonnarelli, Pecorino Romano DOP, frisch gemahlener schwarzer Pfeffer, Nudelwasser für die Cremigkeit."
+        }
+      },
+      {
+        "id": "0d914f36-cdc1-4898-a445-b40537fac79f",
+        "name": {
+          "en": "Spaghetti alle Vongole Veraci",
+          "de": "Spaghetti alle Vongole Veraci"
+        },
+        "description": {
+          "en": "Spaghetti, vongole veraci clams, Vermentino white wine, garlic, parsley, chilli, olive oil.",
+          "de": "Spaghetti, Vongole-Veraci-Muscheln, Vermentino-Weißwein, Knoblauch, Petersilie, Chili, Olivenöl."
+        }
+      },
+      {
+        "id": "33336e77-d9e1-4075-a34d-5d1b056681f5",
+        "name": {
+          "en": "Risotto ai Porcini",
+          "de": "Risotto ai Porcini"
+        },
+        "description": {
+          "en": "Carnaroli cooked with a dried porcini stock, fresh sautéed porcini, 24-month parmesan, mountain butter, parsley.",
+          "de": "Carnaroli, gekocht mit einem Fond aus getrockneten Steinpilzen, frische sautierte Steinpilze, 24 Monate gereifter Parmesan, Bergbutter, Petersilie."
+        }
+      },
+      {
+        "id": "e71f100d-159e-4eaf-a95e-1b2e9e65fbed",
+        "name": {
+          "en": "Lasagne alla Bolognese",
+          "de": "Lasagne alla Bolognese"
+        },
+        "description": {
+          "en": "Sheets of fresh pasta, Bolognese ragù, béchamel, parmesan, gratinated in the wood-fired oven.",
+          "de": "Frische Pastablätter, Bologneser Ragù, Béchamel, Parmesan, im Holzofen gratiniert."
+        }
+      },
+      {
+        "id": "18c5e772-a327-4f2c-92b8-2902cc08274f",
+        "name": {
+          "en": "Saltimbocca alla Romana",
+          "de": "Saltimbocca alla Romana"
+        },
+        "description": {
+          "en": "Veal with prosciutto crudo and sage, saltimbocca in butter and Frascati white wine, rosemary roast potatoes.",
+          "de": "Kalbfleisch mit Prosciutto crudo und Salbei, Saltimbocca in Butter und Frascati-Weißwein, Bratkartoffeln mit Rosmarin."
+        }
+      },
+      {
+        "id": "f92defbb-7c88-401b-841a-a73154f862f1",
+        "name": {
+          "en": "Branzino al Sale",
+          "de": "Branzino al Sale"
+        },
+        "description": {
+          "en": "Whole sea bass baked in a salt crust, filleted at the table, olive oil with lemon, seasonal vegetables.",
+          "de": "Ganzer Wolfsbarsch in der Salzkruste gebacken, am Tisch filetiert, Olivenöl mit Zitrone, Saisongemüse."
+        }
+      },
+      {
+        "id": "9bece6ba-4ef9-47ae-bc49-741d0ae12b75",
+        "name": {
+          "en": "Ossobuco with Polenta Gialla",
+          "de": "Ossobuco mit Polenta Gialla"
+        },
+        "description": {
+          "en": "Slow-cooked veal shank with white wine and gremolata, soft polenta with butter and parmesan.",
+          "de": "Langsam geschmorte Kalbshaxe mit Weißwein und Gremolata, cremige Polenta mit Butter und Parmesan."
+        }
+      },
+      {
+        "id": "312056db-cc9a-4f07-9337-45d6341b6336",
+        "name": {
+          "en": "Tiramisù della Casa",
+          "de": "Tiramisù della Casa"
+        },
+        "description": {
+          "en": "Fresh mascarpone, savoiardi soaked in Origo espresso and Marsala, bitter cocoa. Made daily.",
+          "de": "Frischer Mascarpone, in Origo-Espresso und Marsala getränkte Savoiardi, bittere Kakaobestäubung. Täglich frisch."
+        }
+      },
+      {
+        "id": "31b631db-c4f7-40bf-8f89-708c9e880959",
+        "name": {
+          "en": "Panna Cotta with Berries",
+          "de": "Panna Cotta mit Waldfrüchten"
+        },
+        "description": {
+          "en": "Cream set with Madagascar vanilla, berry coulis, fresh mint.",
+          "de": "Sahnecreme mit Madagaskar-Vanille, Waldfrucht-Coulis, frische Minze."
+        }
+      },
+      {
+        "id": "cc9d9303-e0ae-4a5e-8b60-c003cfdbdc33",
+        "name": {
+          "en": "Cannoli Siciliani with Ricotta & Pistachio",
+          "de": "Cannoli Siciliani mit Ricotta & Pistazie"
+        },
+        "description": {
+          "en": "Crisp shells filled to order with sweetened sheep's ricotta, Bronte pistachio, dark chocolate.",
+          "de": "Knusprige Hörnchen, auf Bestellung gefüllt mit gesüßtem Schafs-Ricotta, Bronte-Pistazie, dunkle Schokolade."
+        }
+      },
+      {
+        "id": "b587a519-1817-4e8b-b43b-72be2722ce85",
+        "name": {
+          "en": "House Sangiovese (500ml Carafe)",
+          "de": "Hauseigener Sangiovese (Karaffe 500 ml)"
+        },
+        "description": {
+          "en": "Sangiovese red wine from a small winery in Romagna, half-litre carafe. Pairs with the ragù and saltimbocca.",
+          "de": "Sangiovese-Rotwein von einem kleinen Weingut in der Romagna, Halbliter-Karaffe. Passt zum Ragù und zur Saltimbocca."
+        }
+      },
+      {
+        "id": "ed593df7-abcc-4183-aeba-7438dde63d69",
+        "name": {
+          "en": "Aperol Spritz",
+          "de": "Aperol Spritz"
+        },
+        "description": {
+          "en": "Aperol, Prosecco DOC, soda, slice of orange, green olive.",
+          "de": "Aperol, Prosecco DOC, Soda, Orangenscheibe, grüne Olive."
+        }
+      },
+      {
+        "id": "7afde0d4-504f-4242-9cfc-9d74f863f38d",
+        "name": {
+          "en": "Espresso Ristretto",
+          "de": "Espresso Ristretto"
+        },
+        "description": {
+          "en": "A short espresso, a Sicilian-Tuscan Italian blend, roasted weekly.",
+          "de": "Ein kurzer Espresso, ein sizilianisch-toskanischer italienischer Blend, wöchentlich geröstet."
+        }
+      }
+    ]
+  },
+  {
+    "id": "32a55462-cd51-4bfc-aba8-89e1d255fe2b",
+    "slug": "verde",
+    "descriptionLong": {
+      "en": "A new plant-based fine-dining space with just 32 seats, beside Cișmigiu park. Chef Iulian has returned after 6 years at Eleven Madison Park (New York) and applies classic fine-dining technique exclusively to plant-based ingredients. An almond cream that stands in for béchamel, a porcini stock that plays the role of demi-glace, cashew fermented for 8 weeks. Reservations recommended.",
+      "de": "Ein neues pflanzenbasiertes Fine-Dining-Lokal mit nur 32 Plätzen, direkt am Cișmigiu-Park. Chefkoch Iulian ist nach 6 Jahren im Eleven Madison Park (New York) zurückgekehrt und wendet klassische Fine-Dining-Technik ausschließlich auf pflanzliche Zutaten an. Eine Mandelcreme, die die Béchamel ersetzt, ein Steinpilzfond, der die Rolle der Demi-glace übernimmt, 8 Wochen fermentierte Cashews. Reservierung empfohlen."
+    },
+    "heroSubtitle": {
+      "en": "100% plant-based kitchen, zero compromises.",
+      "de": "100 % pflanzenbasierte Küche, null Kompromisse."
+    },
+    "sections": [
+      {
+        "id": "6eea815d-f0c4-467d-bfa1-773f7a5c3cb8",
+        "name": {
+          "en": "Breakfast & Brunch",
+          "de": "Frühstück & Brunch"
+        },
+        "intro": {
+          "en": "Available until 2 pm on Saturdays and Sundays. The eggs? Silken tofu, no lies.",
+          "de": "Samstags und sonntags bis 14 Uhr erhältlich. Die Eier? Seidentofu, ganz ehrlich."
+        }
+      },
+      {
+        "id": "643c044b-4002-435e-8f06-0b34f73473aa",
+        "name": {
+          "en": "Bowls",
+          "de": "Bowls"
+        },
+        "intro": {
+          "en": "Seasonal bowls, developed with our nutritionist, never boring.",
+          "de": "Saisonale Bowls, gemeinsam mit unserer Ernährungsberaterin entwickelt, niemals langweilig."
+        }
+      },
+      {
+        "id": "0c47baf3-9e6c-4c8b-a0a4-d6f1b6ee8b9d",
+        "name": {
+          "en": "Mains",
+          "de": "Hauptgerichte"
+        },
+        "intro": {
+          "en": "Plant-based fine dining. The technique is identical to Eleven Madison.",
+          "de": "Pflanzenbasiertes Fine Dining. Die Technik ist identisch mit der von Eleven Madison."
+        }
+      },
+      {
+        "id": "9767469f-ed7d-4647-848f-e6036d5b69bc",
+        "name": {
+          "en": "Desserts",
+          "de": "Nachspeisen"
+        },
+        "intro": {
+          "en": "Three vegan desserts that don't taste vegan.",
+          "de": "Drei vegane Desserts, die nicht vegan schmecken."
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "62ff2837-a1e0-4de6-8a20-758b6b684e18",
+        "name": {
+          "en": "Avocado Toast with Pickled Radish & Sumac",
+          "de": "Avocado-Toast mit eingelegtem Radieschen & Sumach"
+        },
+        "description": {
+          "en": "Sourdough bread, smashed avocado, apple-cider-vinegar pickled radish, sumac, microgreens, hemp seeds, olive oil.",
+          "de": "Sauerteigbrot, zerdrückte Avocado, in Apfelessig eingelegtes Radieschen, Sumach, Microgreens, Hanfsamen, Olivenöl."
+        }
+      },
+      {
+        "id": "49f5f21f-ec55-45e5-8ee9-04e7fdf63d6e",
+        "name": {
+          "en": "Açaí Smoothie Bowl with Granola & Pistachio",
+          "de": "Açaí-Smoothie-Bowl mit Granola & Pistazie"
+        },
+        "description": {
+          "en": "Brazilian açaí, banana, coconut milk, sugar-free house granola, pistachio, fresh strawberries, acacia honey, coconut flakes.",
+          "de": "Brasilianische Açaí, Banane, Kokosmilch, zuckerfreies hausgemachtes Granola, Pistazie, frische Erdbeeren, Akazienhonig, Kokosraspeln."
+        }
+      },
+      {
+        "id": "8812a03b-494e-4dfd-a71f-c6023d4b95a1",
+        "name": {
+          "en": "Tofu Benedict with Vegan Hollandaise",
+          "de": "Tofu Benedict mit veganer Sauce hollandaise"
+        },
+        "description": {
+          "en": "Poached silken tofu in place of egg, almond-and-turmeric hollandaise, English muffin, sautéed spinach, dill.",
+          "de": "Pochierter Seidentofu anstelle von Ei, Sauce hollandaise auf Mandel- und Kurkumabasis, English Muffin, sautierter Spinat, Dill."
+        }
+      },
+      {
+        "id": "95721ca1-975f-44ea-a2a3-b84776a5fa0a",
+        "name": {
+          "en": "Green Smoothie (Kale, Apple, Ginger)",
+          "de": "Green Smoothie (Grünkohl, Apfel, Ingwer)"
+        },
+        "description": {
+          "en": "Kale, green apple, banana, fresh ginger, lemon, almond milk, chia seeds, mint.",
+          "de": "Grünkohl, grüner Apfel, Banane, frischer Ingwer, Zitrone, Mandelmilch, Chiasamen, Minze."
+        }
+      },
+      {
+        "id": "cbd6633c-8246-4ea0-ae0e-a1badc00d4ed",
+        "name": {
+          "en": "Buddha Bowl (Quinoa, Chickpeas, Baby Spinach)",
+          "de": "Buddha Bowl (Quinoa, Kichererbsen, Babyspinat)"
+        },
+        "description": {
+          "en": "Quinoa with lemon, chickpeas roasted with smoked paprika, baby spinach, avocado, edamame, hemp seeds, tahini-lemon dressing.",
+          "de": "Quinoa mit Zitrone, mit geräuchertem Paprika gerösteten Kichererbsen, Babyspinat, Avocado, Edamame, Hanfsamen, Tahini-Zitronen-Dressing."
+        }
+      },
+      {
+        "id": "687d0379-bcc9-4ef8-9a33-2a463194b700",
+        "name": {
+          "en": "Black Rice Bowl with Edamame & Breaded Tofu",
+          "de": "Schwarzreis-Bowl mit Edamame & paniertem Tofu"
+        },
+        "description": {
+          "en": "Forbidden black rice, edamame, crunchy red cabbage, carrot, sesame-breaded tofu, vegan teriyaki sauce, spring onion.",
+          "de": "Schwarzer Forbidden-Reis, Edamame, knackiger Rotkohl, Karotte, in Sesam panierter Tofu, vegane Teriyaki-Sauce, Frühlingszwiebeln."
+        }
+      },
+      {
+        "id": "a1335b49-c792-427b-8f8f-5e7f1ad42938",
+        "name": {
+          "en": "Mediterranean Bowl with Beetroot Hummus",
+          "de": "Mediterrane Bowl mit Rote-Bete-Hummus"
+        },
+        "description": {
+          "en": "Bulgur with mint, beetroot hummus, house falafel, cucumber, cherry tomatoes, Kalamata olives, dill, tahini.",
+          "de": "Bulgur mit Minze, Rote-Bete-Hummus, hausgemachte Falafel, Gurke, Kirschtomaten, Kalamata-Oliven, Dill, Tahini."
+        }
+      },
+      {
+        "id": "421b671f-b4c9-492b-8008-11478857fd90",
+        "name": {
+          "en": "Porcini Risotto with Black Truffle",
+          "de": "Steinpilzrisotto mit schwarzem Trüffel"
+        },
+        "description": {
+          "en": "Carnaroli cooked with a dried porcini stock (in place of chicken stock), fresh sautéed porcini, black truffle oil, vegan parmesan from cashew fermented for 8 weeks.",
+          "de": "Carnaroli, gekocht mit einem Fond aus getrockneten Steinpilzen (anstelle von Hühnerfond), frische sautierte Steinpilze, schwarzes Trüffelöl, veganer Parmesan aus 8 Wochen fermentierten Cashews."
+        }
+      },
+      {
+        "id": "436db8ce-05ec-40e4-9481-1527d86b6cce",
+        "name": {
+          "en": "Cannelloni with Spinach & Vegan Ricotta",
+          "de": "Cannelloni mit Spinat & veganem Ricotta"
+        },
+        "description": {
+          "en": "Cannelloni filled with sautéed spinach, almond-based vegan ricotta, San Marzano tomato sauce, almond cream (in place of béchamel), vegan parmesan, basil.",
+          "de": "Cannelloni gefüllt mit sautiertem Spinat, veganem Ricotta aus Mandeln, San-Marzano-Tomatensauce, Mandelcreme (anstelle von Béchamel), veganem Parmesan, Basilikum."
+        }
+      },
+      {
+        "id": "ef591c9f-b20b-4713-8536-d22380fb86aa",
+        "name": {
+          "en": "Thai Vegetable Curry with Coconut Milk",
+          "de": "Thailändisches Gemüsecurry mit Kokosmilch"
+        },
+        "description": {
+          "en": "Green curry paste, coconut milk, courgette, red pepper, aubergine, green beans, Thai basil, jasmine rice, lime, chilli.",
+          "de": "Grüne Currypaste, Kokosmilch, Zucchini, rote Paprika, Aubergine, grüne Bohnen, Thai-Basilikum, Jasminreis, Limette, Chili."
+        }
+      },
+      {
+        "id": "1bd6df67-6f12-411e-be74-4c23e55ad8ef",
+        "name": {
+          "en": "Beyond Burger with Chipotle & Sweet Potato",
+          "de": "Beyond Burger mit Chipotle & Süßkartoffel"
+        },
+        "description": {
+          "en": "180g Beyond Meat patty, melted vegan cheese, lettuce, caramelised onion, chipotle sauce, ancient-grain vegan bun, sweet potato fries.",
+          "de": "180 g Beyond-Meat-Patty, geschmolzener veganer Käse, Salat, karamellisierte Zwiebeln, Chipotle-Sauce, veganes Bun aus alten Getreidesorten, Süßkartoffelpommes."
+        }
+      },
+      {
+        "id": "9d9f9616-0bf2-454d-953f-86673a896186",
+        "name": {
+          "en": "Beluga Lentils with Root Vegetables",
+          "de": "Beluga-Linsen mit Wurzelgemüse"
+        },
+        "description": {
+          "en": "Beluga lentils slow-cooked in a porcini stock, roasted beetroot, heritage carrot, parsnip, apple vinaigrette, pumpkin seeds.",
+          "de": "Beluga-Linsen, langsam in Steinpilzfond gegart, geröstete Rote Bete, Heritage-Karotte, Pastinake, Apfel-Vinaigrette, Kürbiskerne."
+        }
+      },
+      {
+        "id": "108ad88b-d437-44a7-825b-79034d6490d9",
+        "name": {
+          "en": "Vegan Tiramisù with Coconut Cream",
+          "de": "Veganes Tiramisù mit Kokoscreme"
+        },
+        "description": {
+          "en": "Vegan savoiardi soaked in Origo espresso, whipped coconut cream with Madagascar vanilla, bitter cocoa. Made daily.",
+          "de": "Vegane Savoiardi, getränkt in Origo-Espresso, aufgeschlagene Kokoscreme mit Madagaskar-Vanille, bittere Kakaobestäubung. Täglich frisch."
+        }
+      },
+      {
+        "id": "1a77f674-85a2-48e7-9a57-c1931ea2a7ca",
+        "name": {
+          "en": "Cashew-Based Blueberry Cheesecake",
+          "de": "Heidelbeer-Cheesecake auf Cashewbasis"
+        },
+        "description": {
+          "en": "Cashews soaked for 24 hours, coconut milk, maple syrup, vanilla, an almond-and-date base, fresh blueberry topping, mint.",
+          "de": "24 Stunden eingeweichte Cashews, Kokosmilch, Ahornsirup, Vanille, ein Boden aus Mandeln und Datteln, Topping aus frischen Heidelbeeren, Minze."
+        }
+      },
+      {
+        "id": "fc47ee97-f09e-4e9c-80e7-6691b6a390c3",
+        "name": {
+          "en": "Chocolate Mousse with Avocado & Maldon Salt",
+          "de": "Schokoladenmousse mit Avocado & Maldon-Salz"
+        },
+        "description": {
+          "en": "70% chocolate mousse with avocado and maple syrup, fresh strawberries, Maldon salt flakes, pistachio.",
+          "de": "Mousse aus 70%iger Schokolade mit Avocado und Ahornsirup, frische Erdbeeren, Maldon-Salzflocken, Pistazie."
+        }
+      },
+      {
+        "id": "4d40db3c-1ea7-4599-917c-1338a408fe6f",
+        "name": {
+          "en": "House Kombucha (Ginger-Turmeric)",
+          "de": "Hausgemachte Kombucha (Ingwer-Kurkuma)"
+        },
+        "description": {
+          "en": "House-fermented kombucha, natural ginger-turmeric syrup, lemon, ice.",
+          "de": "Hausfermentierte Kombucha, natürlicher Ingwer-Kurkuma-Sirup, Zitrone, Eis."
+        }
+      },
+      {
+        "id": "6f8f87d2-12b0-4f9a-9bc2-75917f41b242",
+        "name": {
+          "en": "Natural Orange Wine (150ml Glass)",
+          "de": "Natürlicher Orange Wine (Glas 150 ml)"
+        },
+        "description": {
+          "en": "Romanian orange wine, extended skin contact, mineral, with structure. Pairs with the porcini risotto.",
+          "de": "Rumänischer Orange Wine, verlängerte Maischestandzeit, mineralisch, mit Struktur. Passt zum Steinpilzrisotto."
+        }
+      }
+    ]
+  }
+]

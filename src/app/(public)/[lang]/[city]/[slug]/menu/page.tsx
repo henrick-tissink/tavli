@@ -44,7 +44,9 @@ export default async function DinerMenuPage({
 }) {
   const { lang, city, slug } = await params;
   const locale = isLocale(lang) ? lang : "ro";
-  const bundle = buildBundle(locale, ["ui", "common", "menu"]);
+  // `discovery` is needed for the dietary-filter chip labels (DietaryFilterRow
+  // reads `dietary.*` from the discovery namespace) rendered inside MenuViewer.
+  const bundle = buildBundle(locale, ["ui", "common", "menu", "discovery"]);
   const menuMessages = getMessages(locale, "menu");
 
   const [restaurant, detail, menu] = await Promise.all([
