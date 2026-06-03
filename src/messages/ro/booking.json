@@ -24,10 +24,7 @@
       "decrementAriaLabel": "Scade invitat",
       "incrementAriaLabel": "Adaugă invitat",
       "privateEventHint": "Pentru mai mult de 12 persoane, vezi",
-      "privateEventLink": "evenimentele private",
-      "hintDinner": "Cină",
-      "hintLunch": "Prânz",
-      "hintFriends": "Cu prietenii"
+      "privateEventLink": "evenimentele private"
     },
     "stepSlot": {
       "title": "La ce oră?",

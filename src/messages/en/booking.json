@@ -24,10 +24,7 @@
       "decrementAriaLabel": "Remove guest",
       "incrementAriaLabel": "Add guest",
       "privateEventHint": "For more than 12 people, see",
-      "privateEventLink": "private events",
-      "hintDinner": "Dinner",
-      "hintLunch": "Lunch",
-      "hintFriends": "With friends"
+      "privateEventLink": "private events"
     },
     "stepSlot": {
       "title": "What time?",

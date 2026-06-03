@@ -419,9 +419,6 @@ export interface BookingMessages {
       incrementAriaLabel: string;
       privateEventHint: string;
       privateEventLink: string;
-      hintDinner: string;
-      hintLunch: string;
-      hintFriends: string;
     };
     stepSlot: {
       title: string;

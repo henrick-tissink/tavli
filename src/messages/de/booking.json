@@ -24,10 +24,7 @@
       "decrementAriaLabel": "Gast entfernen",
       "incrementAriaLabel": "Gast hinzufügen",
       "privateEventHint": "Für mehr als 12 Personen, siehe",
-      "privateEventLink": "private Veranstaltungen",
-      "hintDinner": "Abendessen",
-      "hintLunch": "Mittagessen",
-      "hintFriends": "Mit Freunden"
+      "privateEventLink": "private Veranstaltungen"
     },
     "stepSlot": {
       "title": "Zu welcher Uhrzeit?",

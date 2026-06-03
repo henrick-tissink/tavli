@@ -15,30 +15,11 @@ export function StepParty({ value, onChange }: StepPartyProps) {
   const canDecrement = value > 1;
   const canIncrement = value < 12;
 
-  const hintChips = [
-    t("sheet.stepParty.hintDinner"),
-    t("sheet.stepParty.hintLunch"),
-    t("sheet.stepParty.hintFriends"),
-  ];
-
   return (
     <div className="space-y-5">
       <h2 className="font-display text-xl font-bold text-text-primary">
         {t("sheet.stepParty.title")}
       </h2>
-
-      {/* Decorative hint chips — purely visual, not interactive */}
-      <div className="flex gap-2 flex-wrap" aria-hidden="true">
-        {hintChips.map((chip) => (
-          <span
-            key={chip}
-            tabIndex={-1}
-            className="px-3 py-1 rounded-pill border border-border text-xs font-medium text-text-secondary bg-surface-bg select-none"
-          >
-            {chip}
-          </span>
-        ))}
-      </div>
 
       {/* ± picker */}
       <div className="flex items-center justify-center gap-6">
