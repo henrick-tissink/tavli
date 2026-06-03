@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Restaurante în {city} | Tavli",
+    "description": "Descoperă și rezervă cele mai bune restaurante din {city} pe Tavli."
+  },
   "search": {
     "placeholder": "Caută restaurante, bucătării…",
     "back": "Înapoi",

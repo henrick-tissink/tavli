@@ -1,6 +1,10 @@
 {
   "languageName": "Română",
   "switchLanguage": "Schimbă limba",
+  "meta": {
+    "title": "Tavli — Găsește-ți masa",
+    "description": "Descoperă și rezervă restaurante din România"
+  },
   "locales": { "ro": "Română", "en": "Engleză", "de": "Germană" },
   "cities": {
     "bucuresti": "București",

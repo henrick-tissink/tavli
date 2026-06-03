@@ -1,6 +1,10 @@
 {
   "languageName": "English",
   "switchLanguage": "Change language",
+  "meta": {
+    "title": "Tavli — Find your table",
+    "description": "Discover and book restaurants in Romania"
+  },
   "locales": { "ro": "Romanian", "en": "English", "de": "German" },
   "cities": {
     "bucuresti": "Bucharest",

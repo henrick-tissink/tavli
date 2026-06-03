@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Restaurants in {city} | Tavli",
+    "description": "Discover and book the best restaurants in {city} on Tavli."
+  },
   "search": {
     "placeholder": "Search restaurants, cuisines…",
     "back": "Back",

@@ -156,12 +156,14 @@ export interface UiMessages {
 export interface CommonMessages {
   languageName: string;
   switchLanguage: string;
+  meta: { title: string; description: string };
   locales: Record<Locale, string>;
   cities: Record<string, string>;
 }
 
 /** Structural contract for the `discovery` namespace. */
 export interface DiscoveryMessages {
+  meta: { title: string; description: string };
   search: {
     placeholder: string;
     back: string;

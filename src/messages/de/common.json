@@ -1,6 +1,10 @@
 {
   "languageName": "Deutsch",
   "switchLanguage": "Sprache ändern",
+  "meta": {
+    "title": "Tavli — Finden Sie Ihren Tisch",
+    "description": "Entdecken und reservieren Sie Restaurants in Rumänien"
+  },
   "locales": { "ro": "Rumänisch", "en": "Englisch", "de": "Deutsch" },
   "cities": {
     "bucuresti": "Bukarest",
