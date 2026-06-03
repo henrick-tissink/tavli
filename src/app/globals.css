@@ -78,6 +78,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Clickable controls should show the pointer cursor. Browsers (and Tailwind v4's
+   reset) leave <button> and role="button" as the default arrow, which makes the
+   whole UI feel non-interactive. Kept in @layer base so explicit cursor-*
+   utilities (e.g. disabled:cursor-not-allowed) and inline styles (drag handles,
+   map pins) still win. Disabled controls are excluded so they keep their own
+   cursor. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  select:not(:disabled),
+  summary,
+  label[for],
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="reset"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
