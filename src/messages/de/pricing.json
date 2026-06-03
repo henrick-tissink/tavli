@@ -10,7 +10,7 @@
     "eyebrow": "Preise",
     "title": "Zwei Tarife.",
     "titleAccent": "Ein Versprechen.",
-    "subtitle": "Tavli ist eine Reservierungsplattform, gebaut wie die Restaurants, die sie nutzen — im Dienst des Gastes, des Raums und der Menschen, die ihn führen. Zwei Abonnements, monatlich oder jährlich. Keine Gebühr pro Gedeck. Keine Einrichtungsgebühr. Kein Vertrag, aus dem Sie nicht herauskommen.",
+    "subtitle": "Tavli ist eine Reservierungsplattform, die so geführt wird wie die Restaurants, die sie nutzen — für den Gast, für den Gastraum und für die Menschen, die den Betrieb am Laufen halten. Zwei Abonnements, monatlich oder jährlich. Keine Gebühr pro Gedeck. Keine Einrichtungsgebühr. Kein Vertrag, aus dem Sie nicht wieder herauskommen.",
     "trialNote": "Die ersten drei Monate kostenlos für jedes neue Restaurant."
   },
   "frequency": {
@@ -28,11 +28,11 @@
       "includedHeading": "Was Sie bekommen",
       "bullets": [
         "Unbegrenzte Reservierungen. Niemals eine Gebühr pro Gedeck.",
-        "Ein Buchungs-Widget, das mit zwei Zeilen Code in Ihre Website passt — und aussieht wie Ihre Marke, nicht wie unsere.",
+        "Ein Buchungs-Widget, das sich mit zwei Zeilen Code in Ihre Website einbinden lässt — und aussieht wie Ihre Marke, nicht wie unsere.",
         "Automatische Bestätigungen und Erinnerungen 24 Stunden vorher, auf Rumänisch, Englisch und Deutsch.",
-        "Selbstbedienungs-Links zum Ändern und Stornieren — weniger Anrufe an Ihrem Empfang.",
+        "Links zum eigenständigen Ändern und Stornieren — weniger Anrufe am Empfang.",
         "Eine dreisprachige Restaurantseite (RO / EN / DE), bis zu 20 Fotos und 2 Speisekarten.",
-        "Bewertungen nur von Gästen mit eingecheckter Reservierung. Keine gefälschten Bewertungen, kein anonymes Trolling.",
+        "Bewertungen nur von Gästen, die auch tatsächlich da waren. Keine gefälschten Bewertungen, kein anonymes Trolling.",
         "12 Monate Buchungsverlauf, jederzeit als CSV exportierbar, plus eine wöchentliche Zusammenfassung per E-Mail.",
         "Google Maps- und Google Business-Synchronisation — lokales SEO von Anfang an."
       ],
@@ -45,9 +45,9 @@
       "perMonth": "/Monat",
       "includedHeading": "Alles aus Tavli, plus:",
       "bullets": [
-        "Den Kanal für Firmen- und Privatevents — qualifizierte Anfragen, passend zu Küche, Kapazität und Preisniveau, direkt an Sie geleitet.",
+        "Den Kanal für Firmen- und Privatevents — qualifizierte Anfragen, die zu Küche, Kapazität und Budget passen, landen direkt bei Ihnen.",
         "Modul für Privaträume und Buyout: Verfügbarkeit über mehrere Räume, individueller Anfrageprozess, Anzahlungen bei Buchung.",
-        "Die Marketing-Suite: E-Mail, SMS und WhatsApp Business, mit sechs automatischen Kampagnen zum Einrichten und Vergessen.",
+        "Die Marketing-Suite: E-Mail, SMS und WhatsApp Business, mit sechs automatischen Kampagnen, die Sie einmal einrichten und dann laufen lassen.",
         "Segmentierung über sechs Dimensionen, begrenzt auf 4 Nachrichten/Gast/Monat — kein Gast wird zugespammt, keine überraschende Rechnung.",
         "Standortübergreifende Kundendatenbank und Buchungszuordnung pro Kampagne.",
         "No-Show-Heatmap, Kohorten-Retention, Vorlaufzeit-Verteilung und eine 4-Wochen-Auslastungsprognose.",
@@ -76,7 +76,7 @@
   },
   "cardOnFile": {
     "title": "Testen Sie Tavli 90 Tage kostenlos.",
-    "body": "Wir hinterlegen bei der Anmeldung eine Karte für eine reibungslose Umstellung an Tag 91.",
+    "body": "Wir hinterlegen bei der Anmeldung eine Karte, damit die Abrechnung an Tag 91 reibungslos startet.",
     "cancelText": "Jederzeit kündbar — wir senden Erinnerungen an Tag 60, 75 und 85 vor der ersten Abbuchung."
   },
   "yearOne": {
@@ -99,7 +99,7 @@
     "intro": "Das sind keine Marketingfloskeln. Das sind Vertragsklauseln. Wir streichen keine davon.",
     "items": [
       { "label": "Niemals eine Gebühr pro Gedeck.", "body": "Sollten wir dieses Preismodell jemals künftig ändern, schützt Ihr aktueller Vertrag Sie für immer davor." },
-      { "label": "Die Daten gehören Ihnen.", "body": "Kündigen Sie jederzeit, und wir übergeben Ihnen einen vollständigen CSV-Export — jeden Gast, jede Buchung, jede Bewertung, jede Kampagne. Keine Daten als Geisel." },
+      { "label": "Ihre Daten gehören Ihnen.", "body": "Kündigen Sie jederzeit, und wir übergeben Ihnen einen vollständigen CSV-Export — jeden Gast, jede Buchung, jede Bewertung, jede Kampagne. Wir halten Ihre Daten niemals zurück." },
       { "label": "Jahreszahlung ist anteilig erstattbar.", "body": "Wenn Sie jährlich zahlen und in Monat 4 entscheiden, dass es nicht passt, erstatten wir die ungenutzten Monate. Ohne Rückfragen." },
       { "label": "Keine Jahresbindung, es sei denn, Sie wählen sie.", "body": "Die monatliche Zahlung ist Standard. Die Jahreszahlung dient dem Rabatt von 2 Gratismonaten, nicht dazu, Sie festzuhalten." },
       { "label": "Kündigung ist ein Klick in der App.", "body": "Kein Support-Ticket, kein Halte-Anruf, kein „wir bearbeiten das in 7–10 Werktagen“." },

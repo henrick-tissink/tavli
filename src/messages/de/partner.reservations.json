@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Reservierungen",
-    "subtitle": "Bestätigen Sie platzierte Gäste, markieren Sie Nichterscheinen oder stornieren Sie Reservierungen. Gäste erhalten bei einer Stornierung eine E-Mail.",
+    "subtitle": "Weisen Sie Gästen einen Tisch zu, markieren Sie Nichterscheinen oder stornieren Sie Reservierungen. Bei einer Stornierung wird der Gast per E-Mail benachrichtigt.",
     "noRestaurant": "Diesem Konto ist kein Restaurant zugeordnet."
   },
   "tabs": {
@@ -19,7 +19,7 @@
   "table": {
     "when": "Wann",
     "client": "Gast",
-    "party": "Gäste",
+    "party": "Personen",
     "zone": "Bereich",
     "status": "Status",
     "actions": "Aktionen"

@@ -133,7 +133,7 @@
     "submit": "Generate export",
     "errors": {
       "notSignedIn": "Not signed in.",
-      "forbidden": "Forbidden.",
+      "forbidden": "Access denied.",
       "invalidInput": "Invalid input.",
       "couldNotCreate": "Could not create export job."
     }

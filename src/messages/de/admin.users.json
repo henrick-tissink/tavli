@@ -9,7 +9,7 @@
     "role": "Rolle",
     "mfa": "MFA",
     "lastSignIn": "Letzte Anmeldung",
-    "lastImpersonated": "Letzte Imit.",
+    "lastImpersonated": "Letzte Übern.",
     "empty": "—",
     "minAgo": { "one": "vor {count} Min.", "few": "vor {count} Min.", "other": "vor {count} Min." },
     "hoursAgo": { "one": "vor {count} Std.", "few": "vor {count} Std.", "other": "vor {count} Std." },
@@ -37,7 +37,7 @@
   "impersonate": {
     "trigger": "Identität übernehmen",
     "title": "Identität von {email} übernehmen",
-    "body": "Sie sehen Tavli so, wie {email} es sieht. Jede Aktion wird im Audit-Log mit Ihrer und deren Identität protokolliert.",
+    "body": "Sie sehen Tavli so, wie {email} es sieht. Jede Aktion wird im Audit-Log protokolliert — mit Ihrer Identität und der des betreffenden Nutzers.",
     "reasonLabel": "Grund (optional)",
     "reasonPlaceholder": "Untersuche Buchungsproblem ALC-1042",
     "cancel": "Abbrechen",

@@ -66,7 +66,7 @@
     "trendingTitle": "Beliebt in {city}",
     "trendingSubtitle": "Meistgebuchte dieser Woche.",
     "availableTodayTitle": "Heute verfügbar",
-    "availableTodaySubtitle": "Lokale mit einem Tisch in den nächsten Stunden.",
+    "availableTodaySubtitle": "Freie Tische in den nächsten Stunden.",
     "newTitle": "Neu bei Tavli",
     "newSubtitle": "Frisch eröffnet oder gerade gelistet.",
     "weekRestaurant": "✦ Restaurant der Woche",
@@ -180,7 +180,7 @@
     "pullQuotes": {
       "morning": {
         "eyebrow": "EIN WENIG INSPIRATION",
-        "body": "Die besten Gäste planen schon am Morgen. Finden Sie einen Tisch für heute Abend."
+        "body": "Die schönsten Abende plant man schon am Morgen. Finden Sie Ihren Tisch für heute Abend."
       },
       "brunch": {
         "eyebrow": "ZEIT FÜR BRUNCH",
@@ -196,7 +196,7 @@
       },
       "evening": {
         "eyebrow": "ABENDS",
-        "body": "Heute Abend sitzen die Menschen in {city} schon an ihren Tischen. Sie auch."
+        "body": "Heute Abend sitzen die Menschen in {city} schon beim Essen. Setzen Sie sich dazu."
       },
       "late": {
         "eyebrow": "NACH MITTERNACHT",

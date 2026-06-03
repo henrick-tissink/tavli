@@ -10,7 +10,7 @@
     "continue": "Continue",
     "submitting": "Sending...",
     "submit": "Send reservation",
-    "errorGeneric": "The reservation could not be sent. Please try again.",
+    "errorGeneric": "We couldn't send your reservation. Please try again.",
     "errorName": "Name is required.",
     "errorPhone": "Phone number is required.",
     "errorEmail": "Invalid email address.",
@@ -31,9 +31,9 @@
     },
     "stepSlot": {
       "title": "What time?",
-      "subtitle": "Choose your arrival window.",
+      "subtitle": "Pick when you'd like to arrive.",
       "loadingAriaLabel": "Loading available slots",
-      "noSlots": "No slots available for this date.",
+      "noSlots": "Nothing available on this date.",
       "noSlotsHint": "Try another day.",
       "zoneLabel": "Zone (optional)",
       "allZones": "All zones"
@@ -70,7 +70,7 @@
     "eyebrow": "CONFIRMED",
     "awaitingYou": "We'll see you {weekday} at {time}.",
     "forParty": "For {partySize} {unit} at {restaurantName}",
-    "waitingBadge": "WHAT AWAITS YOU",
+    "waitingBadge": "WHAT'S IN STORE",
     "addressLabel": "Address",
     "directionsLink": "Get directions →",
     "phoneLabel": "Phone",
@@ -94,7 +94,7 @@
     "confirmDialog": "Cancel reservation at {restaurantName}?",
     "doneTitle": "Reservation cancelled.",
     "doneBody": "We've notified {restaurantName}. You can close this tab.",
-    "errorGeneric": "The cancellation could not be processed."
+    "errorGeneric": "We couldn't cancel your reservation. Please try again."
   },
   "modify": {
     "pageTitle": "Change your reservation",
@@ -105,9 +105,9 @@
     "submitPending": "Saving…",
     "submitLabel": "Save changes",
     "doneTitle": "Your reservation has been updated.",
-    "doneBody": "We've sent the new details to your email.",
-    "errorGeneric": "The change could not be processed.",
-    "windowClosedBody": "This reservation can no longer be changed online (less than 24 hours to go or already completed). Please contact the restaurant directly.",
+    "doneBody": "We've emailed you the new details.",
+    "errorGeneric": "We couldn't save your changes. Please try again.",
+    "windowClosedBody": "This reservation can no longer be changed online — it's either within 24 hours or already past. Please get in touch with the restaurant directly.",
     "callLink": "Call {restaurantName}",
     "emailLink": "Email {restaurantName}",
     "backLink": "Back to reservation",
@@ -117,11 +117,11 @@
   "tokenPage": {
     "reservationLabel": "Reservation",
     "alreadyCancelledTitle": "Already cancelled",
-    "alreadyCancelledBody": "This reservation has already been cancelled. There is nothing more to do here.",
+    "alreadyCancelledBody": "This reservation has already been cancelled — nothing more to do here.",
     "completedTitle": "Cannot be cancelled",
-    "completedBody": "This reservation has already passed. We hope it was a wonderful evening.",
+    "completedBody": "This reservation has already passed. We hope you had a lovely evening.",
     "notFoundTitle": "Reservation not found",
-    "notFoundBody": "The cancellation link was not recognised. It may have been copied incorrectly — please try copying it again from your email.",
+    "notFoundBody": "We didn't recognise this cancellation link. It may have a typo — try copying it straight from your email.",
     "configMissingTitle": "Platform not configured",
     "configMissingBody": "Tavli is still being set up. Please try again later or contact support.",
     "contactLabel": "Contact:"
@@ -130,9 +130,9 @@
     "modifyWindowClosed": "Changes are only permitted more than 24 hours in advance. Please contact the restaurant.",
     "modifyTerminal": "This reservation can no longer be modified.",
     "modifySlotFull": "The selected time slot is full. Please choose another.",
-    "modifyConflict": "The reservation was updated in the meantime. Please reload the page.",
-    "modifyFailed": "The change could not be processed.",
+    "modifyConflict": "This reservation changed while you were here. Please reload the page.",
+    "modifyFailed": "We couldn't save your changes. Please try again.",
     "configMissing": "The platform is not configured.",
-    "cancelFailed": "The cancellation could not be processed."
+    "cancelFailed": "We couldn't cancel your reservation. Please try again."
   }
 }

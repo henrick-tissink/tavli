@@ -29,7 +29,7 @@
     "welcome_series": "Welcome series"
   },
   "manager": {
-    "actionFailed": "The action did not succeed.",
+    "actionFailed": "Something went wrong.",
     "triggeredTitle": "Automated campaigns",
     "triggeredSubtitle": "Set up once, run forever. Turn each one on or off.",
     "toggleOn": "Turn on",
@@ -42,7 +42,7 @@
     "newCampaign": "+ New campaign",
     "cancel": "Cancel",
     "send": "Send",
-    "sent": "Campaign sent for delivery.",
+    "sent": "Campaign queued for delivery.",
     "archive": "Archive",
     "archived": "Campaign archived.",
     "oneOffEmpty": "No one-off campaigns yet."
@@ -59,7 +59,7 @@
     "submit": "Save draft",
     "created": "Campaign created (draft).",
     "errorInvalidInput": "Fill in the name and the message in Romanian.",
-    "errorGeneric": "Creation did not succeed.",
+    "errorGeneric": "Couldn't create the campaign.",
     "localeNames": {
       "ro": "Română",
       "en": "English",
@@ -114,12 +114,12 @@
     "save": "Save segment",
     "saved": "Segment saved.",
     "errorPreviewInvalid": "Add at least one valid condition.",
-    "errorPreviewGeneric": "The estimate did not succeed.",
+    "errorPreviewGeneric": "Couldn't estimate the size.",
     "errorSaveInvalid": "Check the name and the conditions.",
-    "errorSaveGeneric": "Saving did not succeed."
+    "errorSaveGeneric": "Couldn't save the segment."
   },
   "errors": {
     "atLeastOneCondition": "Add at least one condition.",
-    "segmentNameRequired": "The segment name is required."
+    "segmentNameRequired": "Enter a segment name."
   }
 }

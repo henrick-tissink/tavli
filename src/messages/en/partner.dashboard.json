@@ -15,7 +15,7 @@
   },
   "justPublished": {
     "title": "You are live on Tavli.",
-    "body": "{name} can be discovered by customers right now. Copy the public page URL to share it."
+    "body": "{name} is now discoverable by customers. Copy the public page URL to share it."
   },
   "stats": {
     "viewsLabel": "Views this week",

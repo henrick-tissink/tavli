@@ -62,7 +62,7 @@
   },
   "hours": {
     "title": "Opening hours",
-    "subtitle": "Your weekly opening hours. Exceptions for special dates will be available in a later stage.",
+    "subtitle": "Your weekly opening hours. Exceptions for special dates are coming in a later release.",
     "saving": "Saving…",
     "save": "Save opening hours",
     "toastSaved": "Opening hours saved.",

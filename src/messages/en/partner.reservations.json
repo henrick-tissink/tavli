@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Reservations",
-    "subtitle": "Confirm seated guests, mark no-shows, or cancel reservations. Guests receive an email when you cancel.",
+    "subtitle": "Seat your guests, mark no-shows, or cancel reservations. Guests are emailed when you cancel.",
     "noRestaurant": "No restaurant linked to this account."
   },
   "tabs": {
@@ -19,7 +19,7 @@
   "table": {
     "when": "When",
     "client": "Guest",
-    "party": "Guests",
+    "party": "Party",
     "zone": "Zone",
     "status": "Status",
     "actions": "Actions"

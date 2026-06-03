@@ -2,9 +2,9 @@
   "list": {
     "title": "Restaurants",
     "subtitle": {
-      "one": "{count} Restaurant über alle Status",
-      "few": "{count} Restaurants über alle Status",
-      "other": "{count} Restaurants über alle Status"
+      "one": "{count} Restaurant über alle Status hinweg",
+      "few": "{count} Restaurants über alle Status hinweg",
+      "other": "{count} Restaurants über alle Status hinweg"
     },
     "loadError": "Restaurants konnten nicht geladen werden: {message}",
     "table": {

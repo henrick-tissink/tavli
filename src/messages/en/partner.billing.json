@@ -5,7 +5,7 @@
     "noAccess": "Billing is managed by the organisation owner. Your account does not have access to billing."
   },
   "dunning": {
-    "softLockTitle": "Payment has expired — some features are suspended.",
+    "softLockTitle": "Payment past due — some features are suspended.",
     "softLockBody": "Update your card below to restore full access.",
     "readOnlyTitle": "Subscription suspended — the portal is read-only.",
     "readOnlyBody": "Update your card to reactivate the account. Your data is safe."

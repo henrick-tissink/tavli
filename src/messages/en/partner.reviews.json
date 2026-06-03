@@ -8,7 +8,7 @@
       "few": "{count} reviews",
       "other": "{count} reviews"
     },
-    "summaryEmpty": "Reviews appear here once guests with an honoured reservation leave them.",
+    "summaryEmpty": "Reviews appear here once guests who honoured their reservation leave them.",
     "starsAriaLabel": "{rating} out of 5 stars",
     "empty": "No reviews yet."
   },
@@ -28,10 +28,10 @@
     },
     "detailsPlaceholder": "Details (optional)",
     "submit": "Send the report",
-    "toastSuccess": "Review reported. We will check it.",
+    "toastSuccess": "Review reported. We'll review it.",
     "toastError": "Reporting failed."
   },
   "actions": {
-    "respondFailed": "The reply could not be saved."
+    "respondFailed": "Couldn't save your reply."
   }
 }

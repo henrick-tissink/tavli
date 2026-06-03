@@ -5,7 +5,7 @@
     "noAccess": "Die Abrechnung wird vom Inhaber der Organisation verwaltet. Ihr Konto hat keinen Zugriff auf die Abrechnung."
   },
   "dunning": {
-    "softLockTitle": "Die Zahlung ist abgelaufen — einige Funktionen sind ausgesetzt.",
+    "softLockTitle": "Zahlung überfällig — einige Funktionen sind ausgesetzt.",
     "softLockBody": "Aktualisieren Sie unten Ihre Karte, um den vollen Zugriff wiederherzustellen.",
     "readOnlyTitle": "Abonnement ausgesetzt — das Portal ist schreibgeschützt.",
     "readOnlyBody": "Aktualisieren Sie Ihre Karte, um das Konto zu reaktivieren. Ihre Daten sind sicher."

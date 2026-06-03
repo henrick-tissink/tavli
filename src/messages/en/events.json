@@ -73,7 +73,7 @@
         },
         "product_launch": {
           "label": "Product launch",
-          "blurb": "Open bar, cocktails, free floor — an event that says what you mean."
+          "blurb": "Open bar, cocktails, room to mingle — an event that makes your statement."
         },
         "other": {
           "label": "Other",
@@ -149,7 +149,7 @@
         },
         "product_launch": {
           "label": "Product launch",
-          "blurb": "Cocktails, free floor, branding"
+          "blurb": "Cocktails, open floor, branding"
         }
       }
     },

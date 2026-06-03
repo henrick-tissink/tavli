@@ -135,7 +135,7 @@
     "reasons": {
       "no_availability": "Not available",
       "budget_too_low": "Insufficient budget",
-      "space_too_small": "Space does not fit",
+      "space_too_small": "Space too small",
       "other": "Other reason"
     },
     "detailsPlaceholder": "Details (optional)",
@@ -179,7 +179,7 @@
     "saving": "Saving…",
     "errors": {
       "unauthorised": "Unauthorised.",
-      "forbidden": "Forbidden.",
+      "forbidden": "Access denied.",
       "invalidInput": "Invalid input.",
       "capacityOrder": "Maximum capacity must be at least the minimum."
     }

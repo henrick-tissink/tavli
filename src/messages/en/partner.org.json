@@ -78,7 +78,7 @@
   },
   "addVenue": {
     "title": "Add a venue",
-    "subtitle": "Create a new venue in the organisation. After creating it, you configure it (hours, photos, menu).",
+    "subtitle": "Create a new venue in the organisation. Once created, you can set it up (hours, photos, menu).",
     "nameLabel": "Venue name",
     "namePlaceholder": "Bistro Lipscani",
     "cityLabel": "City",

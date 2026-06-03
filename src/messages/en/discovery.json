@@ -66,7 +66,7 @@
     "trendingTitle": "Popular in {city}",
     "trendingSubtitle": "Most booked this week.",
     "availableTodayTitle": "Available today",
-    "availableTodaySubtitle": "Venues with a table in the coming hours.",
+    "availableTodaySubtitle": "Tables free in the next few hours.",
     "newTitle": "New on Tavli",
     "newSubtitle": "Freshly opened or just listed.",
     "weekRestaurant": "✦ Restaurant of the week",
@@ -180,23 +180,23 @@
     "pullQuotes": {
       "morning": {
         "eyebrow": "A LITTLE INSPIRATION",
-        "body": "The best diners start planning in the morning. Find a table for tonight."
+        "body": "The best nights out are planned in the morning. Find your table for tonight."
       },
       "brunch": {
         "eyebrow": "BRUNCH TIME",
-        "body": "Saturday, Sunday — the city sets its slow tables. Find yours."
+        "body": "Saturday, Sunday — the city lingers over long, lazy tables. Find yours."
       },
       "lunch": {
         "eyebrow": "LUNCHTIME",
-        "body": "The best lunch tables are found an hour ahead. Search now."
+        "body": "The best lunch tables go an hour ahead. Search now."
       },
       "afternoon": {
         "eyebrow": "AFTERNOON",
-        "body": "{city} becomes another city at dusk. Hold your place."
+        "body": "{city} turns into a different city after dark. Save your spot."
       },
       "evening": {
         "eyebrow": "EVENING",
-        "body": "Tonight, in {city}, people are already at their tables. So can you."
+        "body": "Tonight in {city}, people are already sitting down to dinner. Join them."
       },
       "late": {
         "eyebrow": "AFTER MIDNIGHT",

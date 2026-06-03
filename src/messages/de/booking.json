@@ -10,7 +10,7 @@
     "continue": "Weiter",
     "submitting": "Wird gesendet...",
     "submit": "Reservierung senden",
-    "errorGeneric": "Die Reservierung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "errorGeneric": "Ihre Reservierung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
     "errorName": "Name ist erforderlich.",
     "errorPhone": "Telefonnummer ist erforderlich.",
     "errorEmail": "Ungültige E-Mail-Adresse.",
@@ -31,9 +31,9 @@
     },
     "stepSlot": {
       "title": "Zu welcher Uhrzeit?",
-      "subtitle": "Wählen Sie Ihr Ankunftsfenster.",
+      "subtitle": "Wählen Sie, wann Sie eintreffen möchten.",
       "loadingAriaLabel": "Verfügbare Zeiten werden geladen",
-      "noSlots": "Für dieses Datum sind keine Tische verfügbar.",
+      "noSlots": "Für dieses Datum ist nichts mehr frei.",
       "noSlotsHint": "Bitte versuchen Sie einen anderen Tag.",
       "zoneLabel": "Bereich (optional)",
       "allZones": "Alle Bereiche"
@@ -88,13 +88,13 @@
   },
   "cancel": {
     "reasonLabel": "Grund (optional)",
-    "reasonPlaceholder": "Pläne haben sich geändert, verspätet, konnte nicht kommen…",
+    "reasonPlaceholder": "Pläne geändert, zu spät dran, doch nicht geschafft …",
     "submitPending": "Wird storniert…",
     "submitLabel": "Reservierung bei {restaurantName} stornieren",
     "confirmDialog": "Reservierung bei {restaurantName} stornieren?",
     "doneTitle": "Reservierung storniert.",
     "doneBody": "Wir haben {restaurantName} benachrichtigt. Sie können diesen Tab schließen.",
-    "errorGeneric": "Die Stornierung konnte nicht durchgeführt werden."
+    "errorGeneric": "Die Stornierung hat nicht geklappt. Bitte versuchen Sie es erneut."
   },
   "modify": {
     "pageTitle": "Reservierung ändern",
@@ -105,9 +105,9 @@
     "submitPending": "Wird gespeichert…",
     "submitLabel": "Änderungen speichern",
     "doneTitle": "Ihre Reservierung wurde aktualisiert.",
-    "doneBody": "Wir haben Ihnen die neuen Details per E-Mail gesendet.",
-    "errorGeneric": "Die Änderung konnte nicht durchgeführt werden.",
-    "windowClosedBody": "Diese Reservierung kann nicht mehr online geändert werden (weniger als 24 Stunden verbleibend oder bereits abgeschlossen). Bitte kontaktieren Sie das Restaurant direkt.",
+    "doneBody": "Wir haben Ihnen die neuen Details per E-Mail geschickt.",
+    "errorGeneric": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "windowClosedBody": "Diese Reservierung lässt sich nicht mehr online ändern — sie liegt weniger als 24 Stunden in der Zukunft oder bereits in der Vergangenheit. Bitte wenden Sie sich direkt an das Restaurant.",
     "callLink": "{restaurantName} anrufen",
     "emailLink": "{restaurantName} schreiben",
     "backLink": "Zurück zur Reservierung",
@@ -117,11 +117,11 @@
   "tokenPage": {
     "reservationLabel": "Reservierung",
     "alreadyCancelledTitle": "Bereits storniert",
-    "alreadyCancelledBody": "Diese Reservierung wurde bereits storniert. Es gibt nichts mehr zu tun.",
+    "alreadyCancelledBody": "Diese Reservierung wurde bereits storniert — hier ist nichts weiter zu tun.",
     "completedTitle": "Kann nicht mehr storniert werden",
-    "completedBody": "Diese Reservierung liegt bereits in der Vergangenheit. Wir hoffen, es war ein schöner Abend.",
+    "completedBody": "Diese Reservierung liegt bereits in der Vergangenheit. Wir hoffen, Sie hatten einen schönen Abend.",
     "notFoundTitle": "Reservierung nicht gefunden",
-    "notFoundBody": "Der Stornierungslink wurde nicht erkannt. Möglicherweise wurde er falsch kopiert — bitte kopieren Sie ihn erneut aus Ihrer E-Mail.",
+    "notFoundBody": "Diesen Stornierungslink konnten wir nicht zuordnen. Vielleicht hat sich ein Tippfehler eingeschlichen — kopieren Sie ihn am besten direkt aus Ihrer E-Mail.",
     "configMissingTitle": "Plattform nicht konfiguriert",
     "configMissingBody": "Tavli wird noch eingerichtet. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.",
     "contactLabel": "Kontakt:"
@@ -130,9 +130,9 @@
     "modifyWindowClosed": "Änderungen sind nur mehr als 24 Stunden im Voraus möglich. Bitte wenden Sie sich direkt an das Restaurant.",
     "modifyTerminal": "Diese Reservierung kann nicht mehr geändert werden.",
     "modifySlotFull": "Das gewählte Zeitfenster ist ausgebucht. Bitte wählen Sie ein anderes.",
-    "modifyConflict": "Die Reservierung wurde zwischenzeitlich aktualisiert. Bitte laden Sie die Seite neu.",
-    "modifyFailed": "Die Änderung konnte nicht durchgeführt werden.",
+    "modifyConflict": "Diese Reservierung hat sich zwischenzeitlich geändert. Bitte laden Sie die Seite neu.",
+    "modifyFailed": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "configMissing": "Die Plattform ist nicht konfiguriert.",
-    "cancelFailed": "Die Stornierung konnte nicht durchgeführt werden."
+    "cancelFailed": "Die Stornierung hat nicht geklappt. Bitte versuchen Sie es erneut."
   }
 }

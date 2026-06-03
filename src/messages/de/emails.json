@@ -31,8 +31,8 @@
     "subject": "Wie war es bei {restaurantName}?",
     "preview": "Ein Antippen hinterlässt eine anonyme Bewertung — nur mit Vornamen.",
     "heading": "Wie war es bei {restaurantName}?",
-    "lede": "Hallo, {firstName} — ein Antippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
-    "greetingNoName": "Hallo — ein Antippen ist alles, was wir brauchen. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
+    "lede": "Hallo, {firstName} — ein Antippen genügt. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
+    "greetingNoName": "Hallo — ein Antippen genügt. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
     "instructionText": "Tippen Sie oben auf einen Stern. Sie gelangen auf eine Seite, auf der Sie einen Kommentar hinzufügen können — oder senden Sie einfach ab.",
     "footer": "Tavli — Restaurantreservierungen."
   },
@@ -47,7 +47,7 @@
     },
     "zoneLabel": "Bereich:",
     "notesLabel": "Hinweise:",
-    "manageText": "Verwalten Sie die Reservierung in Ihrem Partner-Dashboard (stornieren / als sitzend markieren / als nicht erschienen markieren).",
+    "manageText": "Verwalten Sie die Reservierung in Ihrem Partner-Dashboard (stornieren / als eingetroffen markieren / als nicht erschienen markieren).",
     "footer": "Tavli — Partner-Benachrichtigungen."
   },
   "partnerCancelled": {
@@ -115,7 +115,7 @@
     "reasonOutOfCapacity": "Kapazität für Ihre Gruppe nicht ausreichend",
     "reasonBudgetMismatch": "Budget passt nicht",
     "reasonOther": "Sonstiger Grund",
-    "cta": "Andere Veranstaltungslocation suchen"
+    "cta": "Anderes Restaurant suchen"
   },
   "eventExpired": {
     "subject": "Ihre Anfrage ist abgelaufen",

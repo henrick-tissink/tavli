@@ -74,7 +74,7 @@
     "savedSizeEmpty": "—"
   },
   "builder": {
-    "matchPrefix": "Gäste finden, die erfüllen",
+    "matchPrefix": "Gäste, auf die zutrifft:",
     "combinatorAriaLabel": "Verknüpfung",
     "combinatorAll": "alle Bedingungen",
     "combinatorAny": "eine beliebige Bedingung",
@@ -87,10 +87,10 @@
       "channel": "Akquisitionskanal"
     },
     "recencyModeAriaLabel": "Aktualitätsmodus",
-    "recencyWithin": "hat besucht in den letzten",
-    "recencyNotWithin": "hat nicht besucht in den letzten",
+    "recencyWithin": "besuchte in den letzten",
+    "recencyNotWithin": "besuchte nicht in den letzten",
     "daysAriaLabel": "Tage",
-    "daysSuffix": "Tage",
+    "daysSuffix": "Tagen",
     "bucketPlaceholder": "bucket (z. B. regular)",
     "bucketAriaLabel": "Bucket",
     "minPlaceholder": "min",

@@ -18,13 +18,13 @@
     "commentLabel": "Comment",
     "commentOptional": "(optional)",
     "commentPlaceholder": "What impressed you?",
-    "aggregateLabel": "Include my review in the restaurant's <strong>public average rating</strong>. Your review appears regardless; tick this only if you want it to count towards the displayed average.",
+    "aggregateLabel": "Count my review towards the restaurant's <strong>public average rating</strong>. Your review shows either way — only tick this if you'd like it to move the published score.",
     "submitPending": "Submitting…",
     "submitLabel": "Submit review",
     "errorNoRating": "Please select a star rating first.",
     "errorGeneric": "Your review could not be saved.",
     "doneTitle": "Thank you — your review has been saved.",
-    "doneBody": "Verified diners help others choose better."
+    "doneBody": "Reviews from real diners help everyone choose well."
   },
   "errors": {
     "rateLimited": "Too many attempts. Please try again later.",

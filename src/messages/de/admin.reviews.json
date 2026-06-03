@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Bewertungsmeldungen",
-    "subtitle": "DSA-Melde-und-Abhilfe-Warteschlange. Bestätigen Sie, um die Bewertung öffentlich auszublenden; verwerfen Sie, um die Meldung abzulehnen. Bestätigte Meldungen blenden die Bewertung sofort über {flag} aus.",
+    "subtitle": "DSA-Warteschlange für Melde- und Abhilfeverfahren. Bestätigen Sie, um die Bewertung öffentlich auszublenden; verwerfen Sie, um die Meldung abzulehnen. Bestätigte Meldungen blenden die Bewertung sofort über {flag} aus.",
     "subtitleFlag": "is_hidden=true"
   },
   "empty": {

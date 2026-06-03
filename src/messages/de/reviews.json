@@ -2,7 +2,7 @@
   "page": {
     "eyebrow": "Bewertung",
     "readyHeading": "Wie war es in {restaurantName}?",
-    "readyBody": "Sie haben am {date} besucht. Ihre Bewertung ist anonym — es wird nur der Vorname angezeigt.",
+    "readyBody": "Sie waren am {date} zu Gast. Ihre Bewertung ist anonym — angezeigt wird nur Ihr Vorname.",
     "alreadyReviewedTitle": "Bewertung bereits abgegeben",
     "alreadyReviewedBody": "Sie haben für diese Reservierung bereits eine Bewertung hinterlassen. Nochmals vielen Dank!",
     "ineligibleTitle": "Diese Reservierung kann nicht bewertet werden",
@@ -18,13 +18,13 @@
     "commentLabel": "Kommentar",
     "commentOptional": "(optional)",
     "commentPlaceholder": "Was hat Sie beeindruckt?",
-    "aggregateLabel": "Meine Bewertung in die <strong>öffentliche Durchschnittsbewertung</strong> des Restaurants einbeziehen. Ihre Bewertung erscheint ohnehin; wählen Sie diese Option nur, wenn sie in den angezeigten Durchschnitt einfließen soll.",
+    "aggregateLabel": "Meine Bewertung in die <strong>öffentliche Durchschnittsbewertung</strong> des Restaurants einrechnen. Ihre Bewertung erscheint ohnehin — wählen Sie dies nur, wenn sie auch den angezeigten Schnitt beeinflussen soll.",
     "submitPending": "Wird gesendet…",
     "submitLabel": "Bewertung senden",
     "errorNoRating": "Bitte wählen Sie zuerst eine Sternebewertung.",
     "errorGeneric": "Ihre Bewertung konnte nicht gespeichert werden.",
     "doneTitle": "Vielen Dank — Ihre Bewertung wurde gespeichert.",
-    "doneBody": "Verifizierte Gäste helfen anderen, die bessere Wahl zu treffen."
+    "doneBody": "Bewertungen echter Gäste helfen allen, die richtige Wahl zu treffen."
   },
   "errors": {
     "rateLimited": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",

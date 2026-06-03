@@ -22,7 +22,7 @@
     "booked": "Reserved",
     "seated": "Occupied",
     "paying": "Paying",
-    "dirty": "To clean",
+    "dirty": "Needs clearing",
     "combined": "Combined",
     "blocked": "Blocked"
   },
@@ -41,7 +41,7 @@
   },
   "reservationsPanel": {
     "title": "Today's reservations",
-    "empty": "No unseated reservation.",
+    "empty": "No reservations waiting to be seated.",
     "party": {
       "one": "{count} guest",
       "few": "{count} guests",

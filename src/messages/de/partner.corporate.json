@@ -135,7 +135,7 @@
     "reasons": {
       "no_availability": "Nicht verfügbar",
       "budget_too_low": "Unzureichendes Budget",
-      "space_too_small": "Raum passt nicht",
+      "space_too_small": "Raum zu klein",
       "other": "Anderer Grund"
     },
     "detailsPlaceholder": "Details (optional)",

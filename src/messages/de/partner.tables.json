@@ -41,7 +41,7 @@
   },
   "reservationsPanel": {
     "title": "Heutige Reservierungen",
-    "empty": "Keine nicht platzierte Reservierung.",
+    "empty": "Keine Reservierungen, die auf einen Tisch warten.",
     "party": {
       "one": "{count} Gast",
       "few": "{count} Gäste",
