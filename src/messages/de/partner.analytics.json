@@ -8,7 +8,7 @@
     "subtitleBase": "Aktivität der letzten 12 Monate.",
     "exportData": "Daten exportieren",
     "emptyTitle": "Noch keine Daten",
-    "emptyBody": "Nach Ihren ersten Reservierungen sehen Sie hier Gedecke, Nichterscheinen, Gruppenmix und Traffic-Quellen — jede Nacht aktualisiert.",
+    "emptyBody": "Nach Ihren ersten Reservierungen sehen Sie hier Gedecke, Nichterscheinen, Gruppenmix und Besucherquellen — jede Nacht aktualisiert.",
     "delta": {
       "up": "▲ +{n} ggü. Vorwoche",
       "down": "▼ {n} ggü. Vorwoche",
@@ -53,7 +53,7 @@
     },
     "heatMap": {
       "kicker": "Letzte 90 Tage",
-      "title": "Heatmap Nichterscheinen",
+      "title": "Heatmap der Nichterscheinen",
       "empty": "Die Heatmap erscheint nach 30 Tagen mit Reservierungen.",
       "noData": "keine Daten",
       "cellTitle": "{day} {hour}:00 — {pct}% Nichterscheinen"
@@ -79,7 +79,7 @@
     },
     "forecast": {
       "kicker": "Nächste 28 Tage",
-      "title": "Gedecke-Prognose",
+      "title": "Gedeckprognose",
       "empty": "Die Prognose erscheint nach 12 Wochen mit Reservierungen für jeden Wochentag.",
       "seriesPredicted": "Prognose",
       "seriesConfirmed": "Bereits bestätigt"

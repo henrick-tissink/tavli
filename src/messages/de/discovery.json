@@ -87,7 +87,7 @@
       "few": "{count} Bewertungen",
       "other": "{count} Bewertungen"
     },
-    "topDimension": "{percent}% schätzen {dimension}"
+    "topDimension": "{percent}% liebten {dimension}"
   },
   "cover": {
     "tagline": "am Tisch.",

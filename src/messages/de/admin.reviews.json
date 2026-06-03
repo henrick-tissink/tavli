@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Bewertungsmeldungen",
-    "subtitle": "DSA-Warteschlange für Melde- und Abhilfeverfahren. Bestätigen Sie, um die Bewertung öffentlich auszublenden; verwerfen Sie, um die Meldung abzulehnen. Bestätigte Meldungen blenden die Bewertung sofort über {flag} aus.",
+    "subtitle": "DSA-Warteschlange für Melde- und Abhilfeverfahren. Geben Sie der Meldung statt, um die Bewertung öffentlich auszublenden; lehnen Sie sie ab, um die Meldung zurückzuweisen. Wird einer Meldung stattgegeben, wird die Bewertung sofort über {flag} ausgeblendet.",
     "subtitleFlag": "is_hidden=true"
   },
   "empty": {
@@ -17,8 +17,8 @@
     "reporterIp": "· IP {ip}"
   },
   "actions": {
-    "uphold": "Bestätigen (Bewertung ausblenden)",
-    "dismiss": "Verwerfen"
+    "uphold": "Stattgeben (Bewertung ausblenden)",
+    "dismiss": "Ablehnen"
   },
   "reasons": {
     "inappropriate": "Unangemessen",

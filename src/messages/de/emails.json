@@ -9,7 +9,7 @@
       "few": "Personen",
       "other": "Personen"
     },
-    "reminderText": "Bitte kommen Sie einige Minuten früher und teilen Sie dem Gastgeber mit, dass Sie über Tavli gebucht haben.",
+    "reminderText": "Bitte kommen Sie einige Minuten früher und geben Sie an der Rezeption an, dass Sie über Tavli gebucht haben.",
     "cancelButton": "Stornieren oder ändern",
     "footer": "Tavli — Restaurantreservierungen."
   },
@@ -33,7 +33,7 @@
     "heading": "Wie war es bei {restaurantName}?",
     "lede": "Hallo, {firstName} — ein Antippen genügt. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
     "greetingNoName": "Hallo — ein Antippen genügt. Ihre Bewertung bleibt anonym (nur Vorname) und hilft dem nächsten Gast.",
-    "instructionText": "Tippen Sie oben auf einen Stern. Sie gelangen auf eine Seite, auf der Sie einen Kommentar hinzufügen können — oder senden Sie einfach ab.",
+    "instructionText": "Tippen Sie oben auf einen Stern. Sie gelangen auf eine Seite, auf der Sie bei Bedarf einen Kommentar hinzufügen können — oder Sie senden einfach ab, fertig.",
     "footer": "Tavli — Restaurantreservierungen."
   },
   "partnerAlert": {

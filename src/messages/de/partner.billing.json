@@ -72,7 +72,7 @@
   },
   "cancel": {
     "title": "Abonnement kündigen",
-    "intro": "Die Kündigung ist ein einziger Klick — kein Ticket, kein Rückhalteanruf. Wir übergeben Ihnen einen vollständigen Export Ihrer Daten.",
+    "intro": "Die Kündigung ist ein einziger Klick — kein Ticket, kein Rückgewinnungsanruf. Wir übergeben Ihnen einen vollständigen Export Ihrer Daten.",
     "reasonLabel": "Warum gehen Sie?",
     "optional": "(optional)",
     "reasonPlaceholder": "Wählen Sie einen Grund…",

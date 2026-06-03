@@ -40,7 +40,7 @@
     "cascadeEmpty": "Noch keine Kaskaden-Aktivität. Einträge erscheinen, sobald der Orchestrator läuft.",
     "cascadeTable": {
       "time": "Zeit",
-      "subject": "Betreff",
+      "subject": "Objekt",
       "reason": "Grund",
       "columns": "Spalten"
     }

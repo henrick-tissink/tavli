@@ -25,7 +25,7 @@
     "lapsed_60": "Verlorene Gäste zurückgewinnen (60 Tage)",
     "lapsed_120": "Verlorene Gäste zurückgewinnen (120 Tage)",
     "lapsed_180": "Verlorene Gäste zurückgewinnen (180 Tage)",
-    "no_show_followup": "No-Show-Nachfassen",
+    "no_show_followup": "Nachfassen bei Nichterscheinen",
     "welcome_series": "Willkommensserie"
   },
   "manager": {
@@ -74,10 +74,10 @@
     "savedSizeEmpty": "—"
   },
   "builder": {
-    "matchPrefix": "Gäste, auf die zutrifft:",
+    "matchPrefix": "Gäste erfassen, die",
     "combinatorAriaLabel": "Verknüpfung",
-    "combinatorAll": "alle Bedingungen",
-    "combinatorAny": "eine beliebige Bedingung",
+    "combinatorAll": "alle Bedingungen erfüllen",
+    "combinatorAny": "eine beliebige Bedingung erfüllen",
     "dimensionAriaLabel": "Dimension",
     "dimensions": {
       "recency": "Aktualität (letzter Besuch)",

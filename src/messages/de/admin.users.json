@@ -19,10 +19,10 @@
   "drawer": {
     "close": "Schließen",
     "orgMembershipsHeading": "Organisationsmitgliedschaften",
-    "orgMembershipMeta": "{role} · registriert {date}",
+    "orgMembershipMeta": "{role} · Mitglied seit {date}",
     "orgMembershipsEmpty": "Kein Mitglied einer Organisation.",
     "restaurantStaffHeading": "Restaurant-Personal",
-    "restaurantStaffMeta": "{role} · registriert {date}",
+    "restaurantStaffMeta": "{role} · Mitglied seit {date}",
     "restaurantStaffEmpty": "Keinem Restaurant zugewiesen.",
     "mfaFactorsHeading": "MFA-Faktoren",
     "authenticatorFallback": "Authentifizierungs-App",
