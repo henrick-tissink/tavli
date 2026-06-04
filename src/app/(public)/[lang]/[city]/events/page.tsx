@@ -69,7 +69,7 @@ export default async function CityEventsPage({
         venueCountText={venueCountText}
       />
       <OccasionEntryGrid />
-      <section>
+      <section id="event-venues" className="scroll-mt-24">
         <h2 className="font-display text-2xl font-bold mb-4">
           {m.landing.allVenuesHeading}
         </h2>

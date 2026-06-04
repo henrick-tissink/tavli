@@ -36,7 +36,14 @@ export function OccasionEntryGrid() {
         {ENTRIES.map((e) => (
           <a
             key={e.key}
-            href={`#${e.key}`}
+            href="#event-venues"
+            onClick={(ev) => {
+              const target = document.getElementById("event-venues");
+              if (target) {
+                ev.preventDefault();
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }}
             style={{
               background: `color-mix(in oklch, var(${e.accentVar}-soft) 80%, white)`,
             }}
