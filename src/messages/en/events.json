@@ -151,6 +151,14 @@
           "label": "Product launch",
           "blurb": "Cocktails, open floor, branding"
         }
+      },
+      "allLabel": "All occasions",
+      "filteredHeading": "{occasion} venues in {city}",
+      "empty": "No venues for this occasion yet.",
+      "resultCount": {
+        "one": "{count} venue",
+        "few": "{count} venues",
+        "other": "{count} venues"
       }
     },
     "allVenuesHeading": "All venues"

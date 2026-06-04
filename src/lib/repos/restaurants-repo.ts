@@ -16,6 +16,7 @@ import type {
   Menu,
   MenuItem,
   MenuSection,
+  EventOccasion,
 } from "@/lib/types";
 import type { CapabilityFilter } from "@/lib/filter-context";
 import * as mock from "@/lib/mock-data";
@@ -393,7 +394,7 @@ export async function listRestaurants(
     if (input.limit) query = query.limit(input.limit);
 
     const { data } = await query;
-    return Promise.all(
+    const rows = await Promise.all(
       (data ?? []).map(async (r) => {
         const [base, slots] = await Promise.all([
           restaurantFromRow(r),
@@ -402,6 +403,31 @@ export async function listRestaurants(
         return { ...base, availableSlots: slots };
       }),
     );
+    // Attach each venue's accepted event occasions for the events-landing
+    // filter. Only when the caller asked for the events capability, to keep
+    // other list queries lean. Absent/empty settings ⇒ accepts all occasions.
+    if (input.capabilities?.includes("events") && rows.length > 0) {
+      const { data: settings } = await sb
+        .from("restaurant_event_settings")
+        .select("restaurant_id, accepted_occasions")
+        .in(
+          "restaurant_id",
+          rows.map((r) => r.id),
+        );
+      const byId = new Map<string, unknown>(
+        (settings ?? []).map((s) => [
+          s.restaurant_id as string,
+          s.accepted_occasions,
+        ]),
+      );
+      for (const r of rows) {
+        const occ = byId.get(r.id);
+        if (Array.isArray(occ) && occ.length > 0) {
+          r.acceptedOccasions = occ as EventOccasion[];
+        }
+      }
+    }
+    return rows;
   }
   // Mock mode: capability flags aren't surfaced on the demo Restaurant
   // shape, so apply only citySlug + limit. Capability filtering is

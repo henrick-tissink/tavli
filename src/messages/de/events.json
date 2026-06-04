@@ -151,6 +151,14 @@
           "label": "Produkteinführung",
           "blurb": "Cocktails, freie Fläche, Branding"
         }
+      },
+      "allLabel": "Alle Anlässe",
+      "filteredHeading": "{occasion} — Locations in {city}",
+      "empty": "Noch keine Locations für diesen Anlass.",
+      "resultCount": {
+        "one": "{count} Location",
+        "few": "{count} Locations",
+        "other": "{count} Locations"
       }
     },
     "allVenuesHeading": "Alle Locations"

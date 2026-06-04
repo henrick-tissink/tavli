@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { listRestaurants } from "@/lib/repos/restaurants-repo";
-import { RestaurantCard } from "@/components/restaurant-card";
 import { EditorialHero } from "@/components/events-landing/EditorialHero";
-import { OccasionEntryGrid } from "@/components/events-landing/OccasionEntryGrid";
+import { EventsOccasionBrowser } from "@/components/events-landing/EventsOccasionBrowser";
 import { buildAlternates } from "@/lib/i18n/hreflang";
 import { getSiteUrl } from "@/lib/site-url";
 import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
@@ -10,11 +9,6 @@ import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { translate, interpolate } from "@/lib/i18n/t";
 import { cityDisplayName } from "@/lib/i18n/city-name";
-
-/** Prefix a storefront path with the locale segment (skipping for the default locale). */
-function localizedHref(path: string, lang: string): string {
-  return lang === DEFAULT_LOCALE ? path : `/${lang}${path}`;
-}
 
 export async function generateMetadata({
   params,
@@ -68,19 +62,11 @@ export default async function CityEventsPage({
         body={m.landing.hero.body}
         venueCountText={venueCountText}
       />
-      <OccasionEntryGrid />
-      <section id="event-venues" className="scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold mb-4">
-          {m.landing.allVenuesHeading}
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {rows.map((r) => (
-            <a key={r.id} href={localizedHref(`/${city}/${r.slug}`, locale)} className="block">
-              <RestaurantCard restaurant={r} highlightCapability="events" />
-            </a>
-          ))}
-        </div>
-      </section>
+      <EventsOccasionBrowser
+        venues={rows}
+        city={city}
+        cityName={cityCapitalised}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

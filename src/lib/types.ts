@@ -20,6 +20,12 @@ export interface Restaurant {
   distance?: string;
   lat?: number;
   lng?: number;
+  /**
+   * Per-venue accepted event occasions. Populated only for events-capability
+   * listings (the events landing filter). Absent or empty ⇒ the venue accepts
+   * all occasions.
+   */
+  acceptedOccasions?: EventOccasion[];
   privateSpaces?: {
     id: string;
     name: string;

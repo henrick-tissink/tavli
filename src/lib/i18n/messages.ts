@@ -666,6 +666,10 @@ export interface EventsMessages {
     occasionGrid: {
       heading: string;
       occasions: Record<string, { label: string; blurb: string }>;
+      allLabel: string;
+      filteredHeading: string;
+      empty: string;
+      resultCount: { one: string; few: string; other: string };
     };
     allVenuesHeading: string;
   };

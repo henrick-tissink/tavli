@@ -151,6 +151,14 @@
           "label": "Lansare produs",
           "blurb": "Cocktail, podea liberă, branding"
         }
+      },
+      "allLabel": "Toate ocaziile",
+      "filteredHeading": "{occasion} — localuri în {city}",
+      "empty": "Niciun local pentru această ocazie deocamdată.",
+      "resultCount": {
+        "one": "{count} local",
+        "few": "{count} localuri",
+        "other": "{count} de localuri"
       }
     },
     "allVenuesHeading": "Toate locațiile"
