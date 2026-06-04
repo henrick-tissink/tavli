@@ -422,7 +422,10 @@ export async function listRestaurants(
       );
       for (const r of rows) {
         const occ = byId.get(r.id);
-        if (Array.isArray(occ) && occ.length > 0) {
+        // Honour an explicit array as-is (incl. empty ⇒ accepts none). Leave
+        // undefined when there's no settings row or a null column, which the
+        // events filter treats as "accepts all" — matching getRestaurantDetail.
+        if (Array.isArray(occ)) {
           r.acceptedOccasions = occ as EventOccasion[];
         }
       }

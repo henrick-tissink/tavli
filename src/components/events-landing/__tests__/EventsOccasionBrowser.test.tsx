@@ -47,7 +47,8 @@ function setup(venues: Restaurant[]) {
 const venues = [
   venue("alpha", "Alpha", ["wedding"]),
   venue("beta", "Beta", ["birthday"]),
-  venue("gamma", "Gamma"), // no occasions ⇒ accepts all
+  venue("gamma", "Gamma"), // undefined ⇒ no policy ⇒ accepts all
+  venue("delta", "Delta", []), // explicit empty ⇒ accepts none
 ];
 
 const card = (name: string) =>
@@ -59,14 +60,16 @@ describe("EventsOccasionBrowser", () => {
     expect(card("Alpha")).toBeInTheDocument();
     expect(card("Beta")).toBeInTheDocument();
     expect(card("Gamma")).toBeInTheDocument();
+    expect(card("Delta")).toBeInTheDocument();
   });
 
-  it("filters to venues accepting the occasion; venues with no occasions stay (accept all)", () => {
+  it("filters by occasion: undefined accepts all, explicit empty accepts none", () => {
     setup(venues);
     fireEvent.click(screen.getByRole("button", { name: /Wedding/ }));
     expect(card("Alpha")).toBeInTheDocument(); // accepts wedding
     expect(card("Beta")).not.toBeInTheDocument(); // birthday only
-    expect(card("Gamma")).toBeInTheDocument(); // accepts all
+    expect(card("Gamma")).toBeInTheDocument(); // undefined ⇒ accepts all
+    expect(card("Delta")).not.toBeInTheDocument(); // explicit [] ⇒ accepts none
     expect(screen.getByText("Wedding venues in Bucharest")).toBeInTheDocument();
   });
 

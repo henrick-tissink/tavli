@@ -34,11 +34,14 @@ export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
   const locale = useLocale();
   const [occasion, setOccasion] = useState<EventOccasion | null>(null);
 
-  // Absent/empty acceptedOccasions ⇒ the venue accepts all occasions, so it
-  // stays visible under every filter.
+  // `acceptedOccasions` undefined ⇒ no occasion policy set, so the venue accepts
+  // all and stays visible under every filter. An explicit array (incl. empty) is
+  // honoured as-is — matching the detail page's read of the same setting.
   const filtered = occasion
-    ? venues.filter(
-        (v) => !v.acceptedOccasions?.length || v.acceptedOccasions.includes(occasion),
+    ? venues.filter((v) =>
+        v.acceptedOccasions === undefined
+          ? true
+          : v.acceptedOccasions.includes(occasion),
       )
     : venues;
 

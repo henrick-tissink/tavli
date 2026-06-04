@@ -34,7 +34,7 @@ export default async function CityEventsPage({
   const { lang: rawLang, city } = await params;
   const locale = isLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const m = getMessages(locale, "events");
-  // "discovery" is required because the venues section renders <RestaurantCard>,
+  // "discovery" is required because EventsOccasionBrowser renders <RestaurantCard>,
   // which reads useT("discovery"); without it the page throws at render.
   const bundle = buildBundle(locale, ["ui", "common", "events", "discovery"]);
 
