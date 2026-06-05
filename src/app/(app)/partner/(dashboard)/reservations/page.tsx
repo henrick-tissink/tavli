@@ -35,17 +35,33 @@ export default async function PartnerReservationsPage() {
 
   const ymd = todayYmd();
 
-  const { data: rowsRaw } = await supabase
-    .from("reservations")
-    .select(
-      "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at",
-    )
-    .eq("restaurant_id", restaurantId)
-    .order("reservation_date")
-    .order("reservation_time")
-    .limit(500);
+  const cols =
+    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at";
 
-  const rows: ReservationRow[] = (rowsRaw ?? []).map((r) => ({
+  // Fetch today/upcoming and recent past as separate bounded queries. A single
+  // ordered+limited query starves the operationally-important upcoming rows:
+  // with a long booking history the limit fills entirely with past dates and
+  // the future never loads (the screen looks empty even though bookings exist).
+  const [{ data: futureRaw }, { data: pastRaw }] = await Promise.all([
+    supabase
+      .from("reservations")
+      .select(cols)
+      .eq("restaurant_id", restaurantId)
+      .gte("reservation_date", ymd)
+      .order("reservation_date")
+      .order("reservation_time")
+      .limit(500),
+    supabase
+      .from("reservations")
+      .select(cols)
+      .eq("restaurant_id", restaurantId)
+      .lt("reservation_date", ymd)
+      .order("reservation_date", { ascending: false })
+      .order("reservation_time", { ascending: false })
+      .limit(200),
+  ]);
+
+  const mapRow = (r: NonNullable<typeof futureRaw>[number]): ReservationRow => ({
     id: r.id,
     guestName: r.guest_name,
     guestPhone: r.guest_phone,
@@ -57,11 +73,12 @@ export default async function PartnerReservationsPage() {
     notes: r.notes,
     status: r.status,
     createdAt: r.created_at,
-  }));
+  });
 
-  const today = rows.filter((r) => r.reservationDate === ymd);
-  const upcoming = rows.filter((r) => r.reservationDate > ymd);
-  const past = rows.filter((r) => r.reservationDate < ymd);
+  const future = (futureRaw ?? []).map(mapRow);
+  const today = future.filter((r) => r.reservationDate === ymd);
+  const upcoming = future.filter((r) => r.reservationDate > ymd);
+  const past = (pastRaw ?? []).map(mapRow);
 
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
