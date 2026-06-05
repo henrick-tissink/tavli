@@ -8,7 +8,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { dbEnabled } from "@/lib/db/enabled";
 import { restaurantTranslations } from "@/lib/db/schema";
-import { pickTranslationRow } from "./pick";
 
 export type Locale = "ro" | "en" | "de";
 
@@ -51,14 +50,15 @@ export function makeLoadRestaurantTranslation(deps: Deps) {
       return { row: ro, usedFallback: false };
     }
 
+    // Per-field fallback: applyRestaurantTranslation overlays each authored
+    // field and keeps the RO base (already on the detail object) for any empty
+    // one — so we simply hand back the requested locale's row, or null if it
+    // has no row at all. There is deliberately NO all-or-nothing completeness
+    // gate: the previous one discarded the entire row whenever unrelated,
+    // unrendered fields (`tagline`, `name`) were empty, silently hiding
+    // fully-authored content such as the English description.
     const requested = rows.find((r) => r.locale === locale) ?? null;
-
-    if (!ro) {
-      // Edge case: no RO row exists. Return requested as-is (may be null).
-      return { row: requested, usedFallback: false };
-    }
-
-    return pickTranslationRow({ requested, ro });
+    return { row: requested, usedFallback: requested === null };
   };
 }
 

@@ -28,12 +28,19 @@ export async function generateMetadata({
   params: Promise<{ lang: string; city: string; slug: string }>;
 }): Promise<Metadata> {
   const { lang, city, slug } = await params;
-  const restaurant = await getRestaurantDetail(slug);
+  const locale = isLocale(lang) ? lang : "ro";
+  let restaurant = await getRestaurantDetail(slug);
   if (!restaurant) return {};
-  const base = buildRestaurantMetadata(restaurant, city, isLocale(lang) ? lang : "ro");
+  // Localize the SEO metadata too — otherwise an /en or /de page advertises
+  // Romanian title/description/JSON-LD even when the body is translated.
+  if (locale !== "ro") {
+    const { row, usedFallback } = await loadRestaurantTranslation(restaurant.id, locale);
+    restaurant = applyRestaurantTranslation(restaurant, usedFallback ? null : row);
+  }
+  const base = buildRestaurantMetadata(restaurant, city, locale);
   return {
     ...base,
-    alternates: buildAlternates(`/${city}/${slug}`, isLocale(lang) ? lang : "ro", getSiteUrl()),
+    alternates: buildAlternates(`/${city}/${slug}`, locale, getSiteUrl()),
   };
 }
 
@@ -51,9 +58,10 @@ export default async function RestaurantDetailPage({
   ]);
 
   // Overlay partner-authored content translations (non-RO locales only).
-  // loadRestaurantTranslation returns usedFallback=true when the EN/DE row is
-  // incomplete — in that case the loader already returned the RO row, so we
-  // skip the overlay (applyRestaurantTranslation(detail, null) → unchanged).
+  // loadRestaurantTranslation returns usedFallback=true (and row=null) only when
+  // the locale has no translation row at all; otherwise the row is overlaid
+  // field-by-field, with applyRestaurantTranslation keeping the RO base for any
+  // field the partner left empty.
   let localizedRestaurant = restaurant;
   if (restaurant && locale !== "ro") {
     const chefPickIds = restaurant.chefPicks.map((p) => p.id);

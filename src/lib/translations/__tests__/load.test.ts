@@ -92,7 +92,7 @@ describe("loadRestaurantTranslation", () => {
     expect(inArray).toHaveBeenCalledWith(expect.anything(), ["ro", "en"]);
   });
 
-  it("returns the EN row when EN row is complete", async () => {
+  it("returns the EN row for per-field overlay when an EN row exists", async () => {
     const roRow = makeRow("ro", { name: "RO Name", tagline: "RO Tagline", descriptionShort: "RO Desc" });
     const enRow = makeRow("en", { name: "EN Name", tagline: "EN Tagline", descriptionShort: "EN Desc" });
     const db = makeDb([roRow, enRow]);
@@ -104,30 +104,33 @@ describe("loadRestaurantTranslation", () => {
     expect(usedFallback).toBe(false);
   });
 
-  it("falls back to RO when EN row is missing", async () => {
+  it("returns the EN row even when unrelated fields (tagline) are empty — no all-or-nothing gate", async () => {
+    // The key behaviour change: a row with a real descriptionLong but an empty
+    // tagline/name is no longer discarded. applyRestaurantTranslation overlays
+    // the authored fields and keeps RO for the rest.
+    const roRow = makeRow("ro", { name: "RO Name", tagline: "RO Tag", descriptionShort: "RO Desc" });
+    const enRow = makeRow("en", { name: null, tagline: null, descriptionShort: null, descriptionLong: "EN long desc" });
+    const db = makeDb([roRow, enRow]);
+    const load = makeLoadRestaurantTranslation({ db: db as any });
+
+    const { row, usedFallback } = await load("rest-1", "en");
+
+    expect(row).toEqual(enRow);
+    expect(usedFallback).toBe(false);
+  });
+
+  it("usedFallback=true with no row when the EN row is missing", async () => {
     const roRow = makeRow("ro");
     const db = makeDb([roRow]);
     const load = makeLoadRestaurantTranslation({ db: db as any });
 
     const { row, usedFallback } = await load("rest-1", "en");
 
-    expect(row).toEqual(roRow);
+    expect(row).toBeNull();
     expect(usedFallback).toBe(true);
   });
 
-  it("falls back to RO when EN row has null tagline", async () => {
-    const roRow = makeRow("ro", { name: "RO Name", tagline: "RO Tag", descriptionShort: "RO Desc" });
-    const enRow = makeRow("en", { name: "EN Name", tagline: null, descriptionShort: "EN Desc" });
-    const db = makeDb([roRow, enRow]);
-    const load = makeLoadRestaurantTranslation({ db: db as any });
-
-    const { row, usedFallback } = await load("rest-1", "en");
-
-    expect(row).toEqual(roRow);
-    expect(usedFallback).toBe(true);
-  });
-
-  it("returns requested as-is (usedFallback=false) when no RO row exists", async () => {
+  it("returns the EN row even when no RO row exists", async () => {
     const enRow = makeRow("en");
     const db = makeDb([enRow]);
     const load = makeLoadRestaurantTranslation({ db: db as any });
@@ -138,14 +141,14 @@ describe("loadRestaurantTranslation", () => {
     expect(usedFallback).toBe(false);
   });
 
-  it("returns null with usedFallback=false when no rows exist at all", async () => {
+  it("usedFallback=true with no row when no rows exist at all", async () => {
     const db = makeDb([]);
     const load = makeLoadRestaurantTranslation({ db: db as any });
 
     const { row, usedFallback } = await load("rest-1", "en");
 
     expect(row).toBeNull();
-    expect(usedFallback).toBe(false);
+    expect(usedFallback).toBe(true);
   });
 
   it("returns null without querying the DB when enabled() is false (mock mode)", async () => {
