@@ -278,12 +278,19 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
         )
       )}
 
-      <ItemDialog
-        open={itemDialog.open}
-        onClose={() => setItemDialog((d) => ({ ...d, open: false }))}
-        onSaved={() => router.refresh()}
-        item={itemDialog.item}
-      />
+      {/* Keyed + conditionally mounted so the dialog re-seeds its form state
+          from the clicked dish. ItemDialog reads `item` via useState(item),
+          which only runs on mount — without remounting, edits would always
+          show the first/blank item. */}
+      {itemDialog.open && (
+        <ItemDialog
+          key={itemDialog.item.id ?? "new"}
+          open
+          onClose={() => setItemDialog((d) => ({ ...d, open: false }))}
+          onSaved={() => router.refresh()}
+          item={itemDialog.item}
+        />
+      )}
     </div>
   );
 }
