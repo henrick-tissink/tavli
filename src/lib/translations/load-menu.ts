@@ -47,6 +47,12 @@ export interface MenuTranslations {
 
 interface Deps {
   db: typeof dbAdmin;
+  /**
+   * Mirrors the repo layer's mock/db switch. When false (mock mode), loaders
+   * skip the DB entirely — mock fixtures use integer ids that would otherwise
+   * crash against uuid columns. Defaults to true for test injection.
+   */
+  enabled?: () => boolean;
 }
 
 /**
@@ -64,7 +70,8 @@ export function makeLoadMenuTranslations(deps: Deps) {
     locale: Locale,
   ): Promise<MenuTranslations> {
     // RO: no translation needed, return empty maps (caller renders original data).
-    if (locale === "ro") {
+    // Mock mode: no translations exist; skip the DB (mock ids aren't uuids).
+    if (locale === "ro" || !(deps.enabled?.() ?? true)) {
       return { sections: new Map(), items: new Map() };
     }
 
@@ -150,7 +157,10 @@ export function makeLoadMenuTranslations(deps: Deps) {
   };
 }
 
-export const loadMenuTranslations = makeLoadMenuTranslations({ db: dbAdmin });
+export const loadMenuTranslations = makeLoadMenuTranslations({
+  db: dbAdmin,
+  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+});
 
 /**
  * Targeted loader: fetch translations for a specific set of item ids only.
@@ -169,7 +179,7 @@ export function makeLoadMenuItemTranslations(deps: Deps) {
     itemIds: string[],
     locale: Locale,
   ): Promise<Map<string, ItemTranslation>> {
-    if (locale === "ro" || itemIds.length === 0) {
+    if (locale === "ro" || itemIds.length === 0 || !(deps.enabled?.() ?? true)) {
       return new Map();
     }
 
@@ -195,4 +205,7 @@ export function makeLoadMenuItemTranslations(deps: Deps) {
   };
 }
 
-export const loadMenuItemTranslations = makeLoadMenuItemTranslations({ db: dbAdmin });
+export const loadMenuItemTranslations = makeLoadMenuItemTranslations({
+  db: dbAdmin,
+  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+});

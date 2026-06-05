@@ -92,6 +92,18 @@ describe("loadMenuTranslations", () => {
     expect(db.select).not.toHaveBeenCalled();
   });
 
+  it("returns empty maps without querying the DB when enabled() is false (mock mode)", async () => {
+    const db = makeDb([[{ id: "s1" }], [{ id: "i1" }]]);
+    const load = makeLoadMenuTranslations({ db: db as any, enabled: () => false });
+
+    const result = await load("5", "en");
+
+    expect(result.sections.size).toBe(0);
+    expect(result.items.size).toBe(0);
+    expect(result.heroNote).toBeUndefined();
+    expect(db.select).not.toHaveBeenCalled();
+  });
+
   it("returns empty maps when restaurant has no sections/items", async () => {
     const db = makeDb([
       [], // sectionIds query → empty
@@ -248,6 +260,16 @@ describe("makeLoadMenuItemTranslations", () => {
     const load = makeLoadMenuItemTranslations({ db: db as any });
 
     const result = await load([], "en");
+
+    expect(result.size).toBe(0);
+    expect(db.select).not.toHaveBeenCalled();
+  });
+
+  it("returns empty map without querying the DB when enabled() is false (mock mode)", async () => {
+    const db = makeDb([[makeItemTransRow("i1", "en")]]);
+    const load = makeLoadMenuItemTranslations({ db: db as any, enabled: () => false });
+
+    const result = await load(["5", "6"], "en");
 
     expect(result.size).toBe(0);
     expect(db.select).not.toHaveBeenCalled();

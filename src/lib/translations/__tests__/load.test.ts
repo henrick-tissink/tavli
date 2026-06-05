@@ -148,6 +148,17 @@ describe("loadRestaurantTranslation", () => {
     expect(usedFallback).toBe(false);
   });
 
+  it("returns null without querying the DB when enabled() is false (mock mode)", async () => {
+    const db = makeDb([makeRow("ro"), makeRow("en")]);
+    const load = makeLoadRestaurantTranslation({ db: db as any, enabled: () => false });
+
+    const { row, usedFallback } = await load("5", "en");
+
+    expect(row).toBeNull();
+    expect(usedFallback).toBe(false);
+    expect(db.select).not.toHaveBeenCalled();
+  });
+
   it("works for 'de' locale, fetching ['ro', 'de']", async () => {
     const roRow = makeRow("ro");
     const deRow = makeRow("de", { name: "DE Name", tagline: "DE Tag", descriptionShort: "DE Desc" });

@@ -13,6 +13,12 @@ export type Locale = "ro" | "en" | "de";
 
 interface Deps {
   db: typeof dbAdmin;
+  /**
+   * Mirrors the repo layer's mock/db switch. When false (mock mode), loaders
+   * skip the DB entirely — mock fixtures use integer ids that would otherwise
+   * crash against uuid columns. Defaults to true for test injection.
+   */
+  enabled?: () => boolean;
 }
 
 export function makeLoadRestaurantTranslation(deps: Deps) {
@@ -23,6 +29,10 @@ export function makeLoadRestaurantTranslation(deps: Deps) {
     row: typeof restaurantTranslations.$inferSelect | null;
     usedFallback: boolean;
   }> {
+    if (!(deps.enabled?.() ?? true)) {
+      return { row: null, usedFallback: false };
+    }
+
     const localesToFetch = locale === "ro" ? ["ro"] : ["ro", locale];
     const rows = await deps.db
       .select()
@@ -51,4 +61,7 @@ export function makeLoadRestaurantTranslation(deps: Deps) {
   };
 }
 
-export const loadRestaurantTranslation = makeLoadRestaurantTranslation({ db: dbAdmin });
+export const loadRestaurantTranslation = makeLoadRestaurantTranslation({
+  db: dbAdmin,
+  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+});
