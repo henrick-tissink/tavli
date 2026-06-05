@@ -2148,8 +2148,12 @@ export interface PartnerSettingsMessages {
     };
     roPrefix: string;
     save: string;
+    saveAll: string;
     toastSaved: string;
+    toastSavedAll: string;
     toastFailed: string;
+    noRomanian: string;
+    editOnProfile: string;
     errors: {
       invalidLocale: string;
       billing_locked: string;

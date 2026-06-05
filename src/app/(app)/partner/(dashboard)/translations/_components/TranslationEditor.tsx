@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
-import { saveTranslation, type TranslationFields } from "../actions";
+import { LOCALE_ENDONYMS } from "@/lib/i18n/locale";
+import { saveTranslations, type TranslationFields } from "../actions";
 
 type Locale = "en" | "de";
+type FieldKey = keyof TranslationFields;
 
-const FIELD_DEFS: { key: keyof TranslationFields; long?: boolean }[] = [
+const FIELD_DEFS: { key: FieldKey; long?: boolean }[] = [
   { key: "tagline" },
   { key: "heroSubtitle" },
   { key: "descriptionShort", long: true },
@@ -22,23 +25,22 @@ export function TranslationEditor({
   roReference,
 }: {
   initial: Record<Locale, TranslationFields>;
-  roReference: { descriptionShort: string | null; heroSubtitle: string | null };
+  roReference: Record<FieldKey, string | null>;
 }) {
   const t = useT("partner.settings");
   const router = useRouter();
-  const [locale, setLocale] = useState<Locale>("en");
   const [values, setValues] = useState<Record<Locale, TranslationFields>>(initial);
   const [pending, startTransition] = useTransition();
 
-  function update(key: keyof TranslationFields, v: string) {
+  function update(locale: Locale, key: FieldKey, v: string) {
     setValues((prev) => ({ ...prev, [locale]: { ...prev[locale], [key]: v } }));
   }
 
   function save() {
     startTransition(async () => {
-      const res = await saveTranslation(locale, values[locale]);
+      const res = await saveTranslations(values);
       if (res.ok) {
-        toast.success(t("translations.toastSaved", { locale: locale.toUpperCase() }));
+        toast.success(t("translations.toastSavedAll"));
         router.refresh();
       } else {
         const msg =
@@ -51,57 +53,75 @@ export function TranslationEditor({
   }
 
   const inputCls =
-    "mt-1.5 w-full rounded-button border border-border bg-surface-white px-4 py-3 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30";
+    "w-full rounded-button border border-border bg-surface-white px-3.5 py-2.5 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30";
 
   return (
     <div>
-      <div role="tablist" className="inline-flex gap-1 rounded-pill border border-border bg-surface-white p-1">
-        {(["en", "de"] as Locale[]).map((l) => (
-          <button
-            key={l}
-            role="tab"
-            aria-selected={locale === l}
-            onClick={() => setLocale(l)}
-            className={[
-              "min-h-[40px] rounded-pill px-5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
-              locale === l ? "bg-text-primary text-surface-white" : "text-text-secondary hover:text-text-primary",
-            ].join(" ")}
-          >
-            {l === "en" ? "English" : "Deutsch"}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6 space-y-5">
+      <div className="space-y-8">
         {FIELD_DEFS.map((f) => {
-          const ref =
-            f.key === "descriptionShort"
-              ? roReference.descriptionShort
-              : f.key === "heroSubtitle"
-                ? roReference.heroSubtitle
-                : null;
+          const ro = roReference[f.key];
           return (
-            <div key={f.key}>
-              <label className="block text-sm font-semibold text-text-primary" htmlFor={`${locale}-${f.key}`}>
+            <div key={f.key} className="rounded-card border border-border bg-surface-white p-4 desktop:p-5">
+              <h2 className="text-sm font-bold text-text-primary">
                 {t(`translations.fields.${f.key}`)}
-              </label>
-              {ref && <p className="mt-0.5 text-xs italic text-text-muted">{t("translations.roPrefix", { text: ref })}</p>}
-              {f.long ? (
-                <textarea
-                  id={`${locale}-${f.key}`}
-                  rows={3}
-                  value={values[locale][f.key] ?? ""}
-                  onChange={(e) => update(f.key, e.target.value)}
-                  className={`${inputCls} resize-none`}
-                />
-              ) : (
-                <input
-                  id={`${locale}-${f.key}`}
-                  value={values[locale][f.key] ?? ""}
-                  onChange={(e) => update(f.key, e.target.value)}
-                  className={inputCls}
-                />
-              )}
+              </h2>
+              <div
+                className={
+                  f.long
+                    ? "mt-3 space-y-4"
+                    : "mt-3 grid gap-4 desktop:grid-cols-3"
+                }
+              >
+                {/* Romanian — read-only source */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                    {LOCALE_ENDONYMS.ro}
+                  </p>
+                  {ro ? (
+                    <div className="rounded-button border border-border bg-surface-bg px-3.5 py-2.5 text-sm text-text-primary">
+                      {ro}
+                      <Link
+                        href="/partner/profile"
+                        className="mt-1 block text-xs font-semibold text-brand-primary hover:underline"
+                      >
+                        {t("translations.editOnProfile")}
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="rounded-button border border-dashed border-border px-3.5 py-2.5 text-xs italic text-text-muted">
+                      {t("translations.noRomanian")}
+                    </p>
+                  )}
+                </div>
+
+                {/* English + German — editable */}
+                {(["en", "de"] as Locale[]).map((loc) => (
+                  <div key={loc} className="space-y-1.5">
+                    <label
+                      className="text-xs font-semibold uppercase tracking-wide text-text-secondary"
+                      htmlFor={`${loc}-${f.key}`}
+                    >
+                      {LOCALE_ENDONYMS[loc]}
+                    </label>
+                    {f.long ? (
+                      <textarea
+                        id={`${loc}-${f.key}`}
+                        rows={3}
+                        value={values[loc][f.key] ?? ""}
+                        onChange={(e) => update(loc, f.key, e.target.value)}
+                        className={`${inputCls} resize-none`}
+                      />
+                    ) : (
+                      <input
+                        id={`${loc}-${f.key}`}
+                        value={values[loc][f.key] ?? ""}
+                        onChange={(e) => update(loc, f.key, e.target.value)}
+                        className={inputCls}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}
@@ -111,9 +131,9 @@ export function TranslationEditor({
         type="button"
         onClick={save}
         disabled={pending}
-        className="mt-6 inline-flex min-h-[48px] items-center rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        className="mt-8 inline-flex min-h-[48px] items-center rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
-        {t("translations.save", { language: locale === "en" ? "English" : "Deutsch" })}
+        {t("translations.saveAll")}
       </button>
     </div>
   );

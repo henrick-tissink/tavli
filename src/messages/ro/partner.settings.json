@@ -46,7 +46,7 @@
   "translations": {
     "eyebrow": "Pagina de local",
     "title": "Traduceri",
-    "subtitle": "Pagina ta în engleză și germană — fiecare un original paralel, nu o traducere. Câmpurile goale revin la versiunea românească.",
+    "subtitle": "Versiunile în engleză și germană ale paginii tale, alături de română. Româna este sursa — o editezi în Profil. Câmpurile goale revin la română.",
     "noRestaurant": "Niciun restaurant asociat contului.",
     "fields": {
       "tagline": "Tagline",
@@ -63,7 +63,11 @@
     "errors": {
       "invalidLocale": "Limbă invalidă.",
       "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita traducerile."
-    }
+    },
+    "noRomanian": "Fără versiune în română — apare doar pe paginile EN/DE.",
+    "editOnProfile": "Editează în Profil",
+    "saveAll": "Salvează traducerile",
+    "toastSavedAll": "Traduceri salvate."
   },
   "hours": {
     "title": "Program",
