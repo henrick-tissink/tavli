@@ -45,7 +45,7 @@ interface ExistingRes {
   combinationId: string | null;
   autoAssigned: boolean;
 }
-interface FloorState {
+export interface FloorState {
   turn: number;
   tables: FloorTable[];
   existing: ExistingRes[];

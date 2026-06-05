@@ -23,6 +23,13 @@ jest.mock("next/headers", () => ({
 jest.mock("@/lib/db/admin", () => ({
   createSupabaseAdminClient: jest.fn(),
 }));
+// The floor assignment + reservation insert now happen atomically in
+// commitFloorBooking (drizzle transaction under the advisory lock); it has its
+// own coverage. Here we stub it to a successful commit and verify the action's
+// orchestration glue (audit, diner upsert, emails) around it.
+jest.mock("@/lib/reservations/booking-commit", () => ({
+  commitFloorBooking: jest.fn().mockResolvedValue({ ok: true, reservationId: "res-id-1" }),
+}));
 jest.mock("@/lib/email/send-transactional", () => ({
   sendTransactionalEmail: jest.fn().mockResolvedValue({
     ok: true,
