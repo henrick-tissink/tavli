@@ -46,7 +46,7 @@
   "translations": {
     "eyebrow": "Venue page",
     "title": "Translations",
-    "subtitle": "Your page in English and German — each a parallel original, not a translation. Empty fields fall back to the Romanian version.",
+    "subtitle": "Your English and German pages, shown next to the Romanian. Romanian is the source — edit it on Profile. Empty fields fall back to Romanian.",
     "noRestaurant": "No restaurant linked to the account.",
     "fields": {
       "tagline": "Tagline",
@@ -63,7 +63,11 @@
     "errors": {
       "invalidLocale": "Invalid language.",
       "billing_locked": "Billing is suspended on this account — resume payment to edit translations."
-    }
+    },
+    "noRomanian": "No Romanian version — shown only on the EN/DE pages.",
+    "editOnProfile": "Edit on Profile",
+    "saveAll": "Save translations",
+    "toastSavedAll": "Translations saved."
   },
   "hours": {
     "title": "Opening hours",

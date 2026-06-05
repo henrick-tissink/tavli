@@ -67,3 +67,49 @@ export async function saveTranslation(
     return { ok: false, error: String(err) };
   }
 }
+
+function toRow(fields: TranslationFields) {
+  return {
+    tagline: clean(fields.tagline),
+    heroSubtitle: clean(fields.heroSubtitle),
+    descriptionShort: clean(fields.descriptionShort),
+    descriptionLong: clean(fields.descriptionLong),
+    chefBio: clean(fields.chefBio),
+    ambience: clean(fields.ambience),
+  };
+}
+
+/**
+ * Save the English and German translation rows together (one authorization
+ * check, one revalidate). RO is the source and is edited on Profile, so it is
+ * not written here.
+ */
+export async function saveTranslations(payload: {
+  en: TranslationFields;
+  de: TranslationFields;
+}): Promise<SaveTranslationResult> {
+  const appLocale = await resolveAppLocale();
+  const common = getMessages(appLocale, "partner.common");
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: common.errors.notAuthenticated };
+  const restaurantId = await currentUserPrimaryRestaurant(session);
+  if (!restaurantId) return { ok: false, error: common.errors.noRestaurant };
+  if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
+
+  try {
+    for (const locale of ["en", "de"] as const) {
+      const row = toRow(payload[locale]);
+      await dbAdmin
+        .insert(restaurantTranslations)
+        .values({ restaurantId, locale, authoredByUserId: session.userId, ...row })
+        .onConflictDoUpdate({
+          target: [restaurantTranslations.restaurantId, restaurantTranslations.locale],
+          set: { ...row, updatedAt: new Date() },
+        });
+    }
+    revalidatePath("/partner/translations");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}

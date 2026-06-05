@@ -46,7 +46,7 @@
   "translations": {
     "eyebrow": "Lokalseite",
     "title": "Übersetzungen",
-    "subtitle": "Ihre Seite auf Englisch und Deutsch — jeweils ein paralleles Original, keine Übersetzung. Leere Felder greifen auf die rumänische Version zurück.",
+    "subtitle": "Deine englischen und deutschen Seiten, neben dem Rumänischen. Rumänisch ist die Quelle — bearbeite es im Profil. Leere Felder fallen auf Rumänisch zurück.",
     "noRestaurant": "Dem Konto ist kein Restaurant zugeordnet.",
     "fields": {
       "tagline": "Tagline",
@@ -63,7 +63,11 @@
     "errors": {
       "invalidLocale": "Ungültige Sprache.",
       "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um Übersetzungen zu bearbeiten."
-    }
+    },
+    "noRomanian": "Keine rumänische Version — nur auf den EN/DE-Seiten sichtbar.",
+    "editOnProfile": "Im Profil bearbeiten",
+    "saveAll": "Übersetzungen speichern",
+    "toastSavedAll": "Übersetzungen gespeichert."
   },
   "hours": {
     "title": "Öffnungszeiten",
