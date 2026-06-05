@@ -14,6 +14,25 @@ interface ScheduleEntry {
   hours: string;
 }
 
+// ── canonical writer vocabulary ─────────────────────────────────────────
+// Shared with hoursToSchedule (src/lib/onboarding.ts), the writer of
+// restaurants.schedule. Keeping writer and translator on one constant set
+// means new vocabulary cannot ship untranslatable.
+/** RO day names indexed by dayOfWeek (0=Sun..6=Sat). */
+export const RO_SCHEDULE_DAY_NAMES = [
+  "Duminică",
+  "Luni",
+  "Marți",
+  "Miercuri",
+  "Joi",
+  "Vineri",
+  "Sâmbătă",
+] as const;
+/** Joins day ranges, e.g. "Luni – Vineri". */
+export const RO_SCHEDULE_RANGE_SEPARATOR = " – ";
+/** Hours value for closed days. */
+export const RO_SCHEDULE_CLOSED = "Închis";
+
 const DAY_NAMES: Record<Exclude<Locale, "ro">, Record<string, string>> = {
   en: {
     Luni: "Monday",
@@ -48,9 +67,9 @@ export function localizeSchedule(
   const dayMap = DAY_NAMES[locale];
   return schedule.map(({ days, hours }) => ({
     days: days
-      .split(" – ")
+      .split(RO_SCHEDULE_RANGE_SEPARATOR)
       .map((token) => dayMap[token] ?? token)
-      .join(" – "),
-    hours: hours === "Închis" ? CLOSED[locale] : hours,
+      .join(RO_SCHEDULE_RANGE_SEPARATOR),
+    hours: hours === RO_SCHEDULE_CLOSED ? CLOSED[locale] : hours,
   }));
 }

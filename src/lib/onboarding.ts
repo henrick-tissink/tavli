@@ -4,6 +4,11 @@
  */
 
 import "server-only";
+import {
+  RO_SCHEDULE_DAY_NAMES,
+  RO_SCHEDULE_RANGE_SEPARATOR,
+  RO_SCHEDULE_CLOSED,
+} from "@/lib/i18n/schedule";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
@@ -119,9 +124,9 @@ export const DEFAULT_HOURS: DayHours[] = [
  * into the human-readable "Lun–Vin / 12:00 – 23:00" format).
  */
 export function hoursToSchedule(hours: DayHours[]): { days: string; hours: string }[] {
-  // Romanian day names, indexed by dayOfWeek (0=Sun..6=Sat). Full forms +
-  // " – " ranges to match the convention stored for existing venues.
-  const DAY_NAMES = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
+  // Canonical RO display vocabulary, shared with localizeSchedule so the
+  // translator can never drift from what this writer emits.
+  const DAY_NAMES: readonly string[] = RO_SCHEDULE_DAY_NAMES;
   const ordered = [...hours].sort((a, b) => {
     const order = [1, 2, 3, 4, 5, 6, 0];
     return order.indexOf(a.dayOfWeek) - order.indexOf(b.dayOfWeek);
@@ -136,7 +141,7 @@ export function hoursToSchedule(hours: DayHours[]): { days: string; hours: strin
         out.push(flush(groupStart, groupEnd, DAY_NAMES));
         groupStart = null;
       }
-      out.push({ days: DAY_NAMES[row.dayOfWeek]!, hours: "Închis" });
+      out.push({ days: DAY_NAMES[row.dayOfWeek]!, hours: RO_SCHEDULE_CLOSED });
       continue;
     }
     if (
@@ -156,11 +161,11 @@ export function hoursToSchedule(hours: DayHours[]): { days: string; hours: strin
   return out;
 }
 
-function flush(start: DayHours, end: DayHours, names: string[]): { days: string; hours: string } {
+function flush(start: DayHours, end: DayHours, names: readonly string[]): { days: string; hours: string } {
   const daysLabel =
     start.dayOfWeek === end.dayOfWeek
       ? names[start.dayOfWeek]!
-      : `${names[start.dayOfWeek]} – ${names[end.dayOfWeek]}`;
+      : `${names[start.dayOfWeek]}${RO_SCHEDULE_RANGE_SEPARATOR}${names[end.dayOfWeek]}`;
   return {
     days: daysLabel,
     hours: `${start.openAt} – ${end.closeAt}`,
