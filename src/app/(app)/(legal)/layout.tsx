@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { LegalBackLink } from "./legal-back-link";
 
 export default function LegalLayout({ children }: { children: ReactNode }) {
   const isDev = process.env.NODE_ENV !== "production";
@@ -15,7 +15,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
         {children}
         <hr className="my-12 border-border" />
         <p className="text-sm text-text-muted">
-          <Link href="/">← Înapoi la Tavli</Link>
+          <LegalBackLink />
         </p>
       </article>
     </div>
