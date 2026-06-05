@@ -172,7 +172,10 @@ export function planFromState(state: FloorState, partySize: number, startMinutes
       .map((s) => ({ id: s.id, tableId: result.get(s.id) ?? null }));
 
   if (partySize <= maxSingle) {
-    // Single-table path: constructive sweep including the new booking.
+    // Single-table path: constructive sweep including the new booking. Movable
+    // siblings may be reshuffled, but an already-seated guest is never bumped to
+    // make room — if the sweep can only fit the new booking by un-seating
+    // someone, the booking is rejected instead.
     const newRes: SingleReservation = { id: NEW, party: partySize, startMinutes, pinnedTableId: null };
     const result = assignSingles({
       reservations: [...singles, ...phantoms, newRes],
@@ -181,26 +184,22 @@ export function planFromState(state: FloorState, partySize: number, startMinutes
     });
     const tableId = result.get(NEW);
     if (!tableId) return { ok: false, reason: "no_table" };
+    for (const s of singles) {
+      if (s.current !== null && !result.get(s.id)) return { ok: false, reason: "no_table" };
+    }
     return { ok: true, kind: "single", tableId, siblingMoves: movesFrom(result) };
   }
 
-  // Combination path: consolidate movable singles first, then join free tables.
-  const packed = assignSingles({
-    reservations: [...singles, ...phantoms],
-    tables: state.tables,
-    turnMinutes: state.turn,
-  });
-  const usedInWindow = new Set<string>();
-  for (const s of singles) {
-    const tid = packed.get(s.id);
-    if (tid && windowsOverlap(s.startMinutes, startMinutes, state.turn)) usedInWindow.add(tid);
-  }
-  for (const p of phantoms) {
-    if (p.pinnedTableId && windowsOverlap(p.startMinutes, startMinutes, state.turn)) {
-      usedInWindow.add(p.pinnedTableId);
+  // Combination path: join the fewest genuinely-free tables for the window.
+  // (We don't reshuffle singles to free tables here — that risks bumping a
+  // seated guest; a free combination is required.)
+  const held = new Set<string>();
+  for (const e of state.existing) {
+    if (windowsOverlap(e.startMinutes, startMinutes, state.turn)) {
+      for (const tid of physicalTables(e, state.combinationTables)) held.add(tid);
     }
   }
-  const freeTableIds = new Set(state.tables.map((t) => t.id).filter((id) => !usedInWindow.has(id)));
+  const freeTableIds = new Set(state.tables.map((t) => t.id).filter((id) => !held.has(id)));
   const tableIds = pickCombination({
     party: partySize,
     tables: state.tables,
@@ -212,7 +211,7 @@ export function planFromState(state: FloorState, partySize: number, startMinutes
     (s, id) => s + (state.tables.find((t) => t.id === id)?.capacityMax ?? 0),
     0,
   );
-  return { ok: true, kind: "combination", tableIds, combinedCapacity, siblingMoves: movesFrom(packed) };
+  return { ok: true, kind: "combination", tableIds, combinedCapacity, siblingMoves: [] };
 }
 
 export async function planTableAssignment(

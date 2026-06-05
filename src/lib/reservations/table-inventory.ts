@@ -105,10 +105,16 @@ export interface SingleReservation {
 /**
  * Constructive single-table assignment via a start-time sweep. Pinned
  * reservations keep their table; movable ones (including a new booking) are
- * (re)assigned best-fit. Processing larger parties first at each start point
- * makes the greedy optimal for threshold (capMax) eligibility — so this both
- * tests feasibility (a reservation maps to null iff the room genuinely can't
- * seat it) AND yields the reshuffle that lets a tight-but-feasible booking fit.
+ * (re)assigned best-fit, processing larger (more constrained) parties first at
+ * each start point. This doubles as the feasibility test and yields the
+ * reshuffle that lets a tight-but-feasible booking fit.
+ *
+ * The eligibility relation is a threshold (party ≤ capMax → a "suffix" of
+ * tables by capacity), for which this greedy is optimal in every case tested,
+ * including adversarial ones. It is not formally proven, but its only possible
+ * imperfection is over-rejection in some pathological layout — never
+ * over-acceptance (and the DB exclusion trigger is the hard backstop against
+ * double-booking regardless).
  *
  * Returns reservationId → tableId (or null when unassignable).
  */
