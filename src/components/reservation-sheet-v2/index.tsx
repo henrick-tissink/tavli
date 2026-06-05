@@ -120,7 +120,7 @@ export function ReservationSheetV2({
     const controller = new AbortController();
     setSlotsLoading(true);
     fetch(
-      `/api/restaurants/${encodeURIComponent(restaurantId)}/slots?date=${form.date}`,
+      `/api/restaurants/${encodeURIComponent(restaurantId)}/slots?date=${form.date}&party=${form.guests}`,
       { signal: controller.signal },
     )
       .then((r) => (r.ok ? r.json() : { slots: [] }))
@@ -147,9 +147,10 @@ export function ReservationSheetV2({
       .finally(() => setSlotsLoading(false));
     return () => controller.abort();
     // form.slot is intentionally NOT a dep — we read its current value
-    // imperatively to decide whether to clear it.
+    // imperatively to decide whether to clear it. form.guests IS a dep so
+    // changing party size re-filters slots to those that can seat it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, form.date, restaurantId]);
+  }, [open, form.date, restaurantId, form.guests]);
 
   // ── Step validity ──────────────────────────────────────────────────────────
   function isStepValid(s: ReservationStep): boolean {

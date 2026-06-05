@@ -22,6 +22,78 @@ function toMinutes(hhmm: string): number {
   return (h ?? 0) * 60 + (m ?? 0);
 }
 
+interface FloorTable {
+  id: string;
+  capacityMin: number;
+  capacityMax: number;
+}
+interface FloorState {
+  turn: number;
+  tables: FloorTable[];
+  /** active standard (non-event) reservations on the date */
+  existing: { partySize: number; startMinutes: number; tableId: string | null }[];
+}
+
+/** Load the bookable floor + the date's active standard reservations once. */
+export async function loadFloorState(
+  admin: Admin,
+  restaurantId: string,
+  date: string,
+): Promise<FloorState> {
+  const [{ data: rest }, { data: tablesRaw }, { data: existingRaw }] = await Promise.all([
+    admin.from("restaurants").select("turn_time_minutes").eq("id", restaurantId).maybeSingle(),
+    admin
+      .from("restaurant_tables")
+      .select("id, capacity_min, capacity_max")
+      .eq("restaurant_id", restaurantId)
+      .is("archived_at", null)
+      .eq("is_bookable_online", true),
+    admin
+      .from("reservations")
+      .select("party_size, reservation_time, table_id")
+      .eq("restaurant_id", restaurantId)
+      .eq("reservation_date", date)
+      .in("status", ["confirmed", "seated"])
+      .is("event_request_id", null),
+  ]);
+  return {
+    turn: (rest?.turn_time_minutes as number | null) ?? 90,
+    tables: (tablesRaw ?? []).map((t) => ({
+      id: t.id as string,
+      capacityMin: t.capacity_min as number,
+      capacityMax: t.capacity_max as number,
+    })),
+    existing: (existingRaw ?? []).map((e) => ({
+      partySize: e.party_size as number,
+      startMinutes: toMinutes(e.reservation_time as string),
+      tableId: e.table_id as string | null,
+    })),
+  };
+}
+
+/**
+ * Of the given candidate slot times (HH:MM), which can seat `party`? Returns all
+ * candidates unchanged when the restaurant has no bookable floor plan.
+ */
+export async function feasibleSlots(
+  admin: Admin,
+  args: { restaurantId: string; date: string; party: number; candidates: string[] },
+): Promise<string[]> {
+  const { tables, turn, existing } = await loadFloorState(admin, args.restaurantId, args.date);
+  if (tables.length === 0) return args.candidates;
+  const capMaxes = tables.map((t) => t.capacityMax);
+  if (args.party > Math.max(...capMaxes)) return [];
+  return args.candidates.filter((time) =>
+    isBookingFeasible({
+      party: args.party,
+      startMinutes: toMinutes(time),
+      turnMinutes: turn,
+      existing,
+      capMaxes,
+    }),
+  );
+}
+
 export type TablePlan =
   | { ok: true; tableId: string | null }
   | { ok: false; reason: "party_too_large"; maxParty: number }
@@ -32,46 +104,16 @@ export async function planTableAssignment(
   args: { restaurantId: string; date: string; time: string; partySize: number },
 ): Promise<TablePlan> {
   const { restaurantId, date, time, partySize } = args;
-
-  const [{ data: rest }, { data: tablesRaw }] = await Promise.all([
-    admin.from("restaurants").select("turn_time_minutes").eq("id", restaurantId).maybeSingle(),
-    admin
-      .from("restaurant_tables")
-      .select("id, capacity_min, capacity_max")
-      .eq("restaurant_id", restaurantId)
-      .is("archived_at", null)
-      .eq("is_bookable_online", true),
-  ]);
-
-  const tables = (tablesRaw ?? []).map((t) => ({
-    id: t.id as string,
-    capacityMin: t.capacity_min as number,
-    capacityMax: t.capacity_max as number,
-  }));
+  const { tables, turn, existing } = await loadFloorState(admin, restaurantId, date);
 
   // No floor plan → don't gate here; the covers cap still applies in the trigger.
   if (tables.length === 0) return { ok: true, tableId: null };
 
-  const turn = (rest?.turn_time_minutes as number | null) ?? 90;
-  const maxParty = Math.max(...tables.map((t) => t.capacityMax));
+  const capMaxes = tables.map((t) => t.capacityMax);
+  const maxParty = Math.max(...capMaxes);
   if (partySize > maxParty) return { ok: false, reason: "party_too_large", maxParty };
 
-  const { data: existingRaw } = await admin
-    .from("reservations")
-    .select("party_size, reservation_time, table_id")
-    .eq("restaurant_id", restaurantId)
-    .eq("reservation_date", date)
-    .in("status", ["confirmed", "seated"])
-    .is("event_request_id", null);
-
   const startMinutes = toMinutes(time);
-  const existing = (existingRaw ?? []).map((e) => ({
-    partySize: e.party_size as number,
-    startMinutes: toMinutes(e.reservation_time as string),
-    tableId: e.table_id as string | null,
-  }));
-
-  const capMaxes = tables.map((t) => t.capacityMax);
   if (!isBookingFeasible({ party: partySize, startMinutes, turnMinutes: turn, existing, capMaxes })) {
     return { ok: false, reason: "no_table" };
   }
