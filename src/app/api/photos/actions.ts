@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
-import { PHOTO_BUCKET } from "@/lib/storage";
+import { PHOTO_BUCKET, resolvePhotoUrl } from "@/lib/storage";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { stripExif } from "@/lib/photos/strip-exif";
@@ -240,4 +240,139 @@ export async function deletePhoto(photoId: string): Promise<UploadResult> {
   revalidatePath("/partner");
   revalidatePath("/partner/photos");
   return { ok: true };
+}
+
+export interface DishPhotoResult {
+  ok: boolean;
+  error?: string;
+  url?: string | null;
+}
+
+/**
+ * Upload (or replace) a single dish photo. Unlike restaurant photos, dish
+ * images are stored directly on `menu_items.photo_storage_path` — not as
+ * `restaurant_photos` rows — so they stay 1:1 with the dish and do not count
+ * against the gallery cap. Reuses the same ownership check, EXIF strip, and
+ * bucket as uploadRestaurantPhoto.
+ */
+export async function uploadDishPhoto(
+  formData: FormData,
+): Promise<DishPhotoResult> {
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
+
+  const restaurantId = String(formData.get("restaurantId") ?? "");
+  const itemId = String(formData.get("itemId") ?? "");
+  const file = formData.get("file") as File | null;
+
+  if (!restaurantId || !itemId) {
+    return { ok: false, error: "Lipsește id-ul felului." };
+  }
+  if (!file) return { ok: false, error: "Niciun fișier atașat." };
+  if (!file.type.startsWith("image/")) {
+    return { ok: false, error: `${file.name} nu este o imagine.` };
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return { ok: false, error: `${file.name} depășește 10 MB.` };
+  }
+
+  const admin = createSupabaseAdminClient();
+
+  const { data: restaurantRow } = await admin
+    .from("restaurants")
+    .select("organization_id")
+    .eq("id", restaurantId)
+    .maybeSingle();
+  if (!restaurantRow) return { ok: false, error: "Nu este restaurantul tău." };
+  if (
+    !(await can(session, "restaurant.update", {
+      kind: "restaurant",
+      id: restaurantId,
+      organization_id: restaurantRow.organization_id,
+    }))
+  ) {
+    return { ok: false, error: "Nu este restaurantul tău." };
+  }
+
+  // The dish must belong to this restaurant (denormalised restaurant_id).
+  const { data: item } = await admin
+    .from("menu_items")
+    .select("id, photo_storage_path")
+    .eq("id", itemId)
+    .eq("restaurant_id", restaurantId)
+    .maybeSingle();
+  if (!item) return { ok: false, error: "Felul nu a fost găsit." };
+
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const cleanBuffer = await stripExif(rawBuffer);
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+  const storagePath = `${restaurantId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadErr } = await admin.storage
+    .from(PHOTO_BUCKET)
+    .upload(storagePath, cleanBuffer, { contentType: file.type, upsert: false });
+  if (uploadErr) return { ok: false, error: uploadErr.message };
+
+  const { error: updateErr } = await admin
+    .from("menu_items")
+    .update({ photo_storage_path: storagePath })
+    .eq("id", itemId);
+  if (updateErr) {
+    await admin.storage.from(PHOTO_BUCKET).remove([storagePath]);
+    return { ok: false, error: updateErr.message };
+  }
+
+  // Replace: drop the previous blob once the new path is committed.
+  if (item.photo_storage_path) {
+    await admin.storage.from(PHOTO_BUCKET).remove([item.photo_storage_path]);
+  }
+
+  revalidatePath("/partner/menu");
+  revalidatePath("/partner/photos");
+  return { ok: true, url: resolvePhotoUrl(storagePath) };
+}
+
+/** Remove a dish's photo: delete the blob and clear the column. */
+export async function removeDishPhoto(
+  itemId: string,
+): Promise<DishPhotoResult> {
+  const session = await getCurrentSession();
+  if (!session) return { ok: false, error: "Nu ești autentificat." };
+
+  const admin = createSupabaseAdminClient();
+
+  const { data: item } = await admin
+    .from("menu_items")
+    .select("id, restaurant_id, photo_storage_path")
+    .eq("id", itemId)
+    .maybeSingle();
+  if (!item) return { ok: false, error: "Felul nu a fost găsit." };
+
+  const { data: restaurantRow } = await admin
+    .from("restaurants")
+    .select("organization_id")
+    .eq("id", item.restaurant_id)
+    .maybeSingle();
+  if (!restaurantRow) return { ok: false, error: "Nu este restaurantul tău." };
+  if (
+    !(await can(session, "restaurant.update", {
+      kind: "restaurant",
+      id: item.restaurant_id,
+      organization_id: restaurantRow.organization_id,
+    }))
+  ) {
+    return { ok: false, error: "Nu este restaurantul tău." };
+  }
+
+  if (item.photo_storage_path) {
+    await admin.storage.from(PHOTO_BUCKET).remove([item.photo_storage_path]);
+  }
+  await admin
+    .from("menu_items")
+    .update({ photo_storage_path: null })
+    .eq("id", itemId);
+
+  revalidatePath("/partner/menu");
+  revalidatePath("/partner/photos");
+  return { ok: true, url: null };
 }
