@@ -34,6 +34,10 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
         id: restaurantTables.id,
         capacityMin: restaurantTables.capacityMin,
         capacityMax: restaurantTables.capacityMax,
+        positionX: restaurantTables.positionX,
+        positionY: restaurantTables.positionY,
+        width: restaurantTables.width,
+        height: restaurantTables.height,
       })
       .from(restaurantTables)
       .where(
@@ -88,6 +92,10 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
       id: t.id,
       capacityMin: t.capacityMin,
       capacityMax: t.capacityMax,
+      positionX: t.positionX,
+      positionY: t.positionY,
+      width: t.width,
+      height: t.height,
     })),
     existing,
     combinationTables,

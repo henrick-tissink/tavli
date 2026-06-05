@@ -36,6 +36,10 @@ interface FloorTable {
   id: string;
   capacityMin: number;
   capacityMax: number;
+  positionX?: number | null;
+  positionY?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 interface ExistingRes {
   id: string;
@@ -62,7 +66,7 @@ export async function loadFloorState(
     admin.from("restaurants").select("turn_time_minutes").eq("id", restaurantId).maybeSingle(),
     admin
       .from("restaurant_tables")
-      .select("id, capacity_min, capacity_max")
+      .select("id, capacity_min, capacity_max, position_x, position_y, width, height")
       .eq("restaurant_id", restaurantId)
       .is("archived_at", null)
       .eq("is_bookable_online", true),
@@ -100,6 +104,10 @@ export async function loadFloorState(
       id: t.id as string,
       capacityMin: t.capacity_min as number,
       capacityMax: t.capacity_max as number,
+      positionX: (t.position_x as number | null) ?? null,
+      positionY: (t.position_y as number | null) ?? null,
+      width: (t.width as number | null) ?? null,
+      height: (t.height as number | null) ?? null,
     })),
     existing,
     combinationTables,

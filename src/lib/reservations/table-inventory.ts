@@ -81,6 +81,12 @@ interface AssignableTable {
   id: string;
   capacityMin: number;
   capacityMax: number;
+  // Floor geometry (optional — absent in pure capacity-only callers/tests).
+  // Used to keep table combinations physically pushable-together.
+  positionX?: number | null;
+  positionY?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 
 /** Best-fit comparator: prefer respecting capMin, then smallest table, deterministic. */
@@ -163,10 +169,91 @@ export function assignSingles(args: {
   return result;
 }
 
+/** Max gap (in floor units) between two tables' bounding boxes for them to
+ *  count as pushable-together — roughly a chair-width aisle. */
+const ADJACENCY_GAP = 80;
+
+/** Are two tables physically adjacent (can be pushed together)? Tables without
+ *  geometry are treated as adjacent — capacity-only callers shouldn't be gated
+ *  on positions they didn't supply. */
+function tablesAdjacent(a: AssignableTable, b: AssignableTable): boolean {
+  if (a.positionX == null || a.positionY == null || b.positionX == null || b.positionY == null) {
+    return true;
+  }
+  const aw = a.width ?? 0;
+  const ah = a.height ?? 0;
+  const bw = b.width ?? 0;
+  const bh = b.height ?? 0;
+  const acx = a.positionX + aw / 2;
+  const acy = a.positionY + ah / 2;
+  const bcx = b.positionX + bw / 2;
+  const bcy = b.positionY + bh / 2;
+  const gapX = Math.max(0, Math.abs(acx - bcx) - (aw + bw) / 2);
+  const gapY = Math.max(0, Math.abs(acy - bcy) - (ah + bh) / 2);
+  return gapX <= ADJACENCY_GAP && gapY <= ADJACENCY_GAP;
+}
+
+/** Is the subset connected under the adjacency relation (a pushable cluster)? */
+function isConnectedCluster(subset: AssignableTable[]): boolean {
+  if (subset.length <= 1) return true;
+  const seen = new Set<string>([subset[0]!.id]);
+  const stack = [subset[0]!];
+  while (stack.length) {
+    const cur = stack.pop()!;
+    for (const t of subset) {
+      if (!seen.has(t.id) && tablesAdjacent(cur, t)) {
+        seen.add(t.id);
+        stack.push(t);
+      }
+    }
+  }
+  return seen.size === subset.length;
+}
+
+/** Total pairwise box-gap of a subset — a compactness score (lower = tighter). */
+function clusterSpread(subset: AssignableTable[]): number {
+  let total = 0;
+  for (let i = 0; i < subset.length; i++) {
+    for (let j = i + 1; j < subset.length; j++) {
+      const a = subset[i]!;
+      const b = subset[j]!;
+      if (a.positionX == null || b.positionX == null) continue;
+      const acx = (a.positionX ?? 0) + (a.width ?? 0) / 2;
+      const acy = (a.positionY ?? 0) + (a.height ?? 0) / 2;
+      const bcx = (b.positionX ?? 0) + (b.width ?? 0) / 2;
+      const bcy = (b.positionY ?? 0) + (b.height ?? 0) / 2;
+      total += Math.hypot(acx - bcx, acy - bcy);
+    }
+  }
+  return total;
+}
+
+/** Enumerate every size-k subset of `items`. */
+function combinationsOfSize<T>(items: T[], k: number): T[][] {
+  const out: T[][] = [];
+  const pick = (start: number, acc: T[]): void => {
+    if (acc.length === k) {
+      out.push(acc.slice());
+      return;
+    }
+    for (let i = start; i < items.length; i++) {
+      acc.push(items[i]!);
+      pick(i + 1, acc);
+      acc.pop();
+    }
+  };
+  pick(0, []);
+  return out;
+}
+
 /**
- * Choose the fewest free tables whose combined capacity seats a big party
- * (greedy largest-first). Returns the table ids, or null if the free tables
- * can't sum to the party within `maxTables`.
+ * Choose the fewest free tables whose combined capacity seats a big party,
+ * preferring a physically adjacent (pushable-together) cluster. Among the
+ * fewest-table options it minimises capacity waste, then compactness, then is
+ * deterministic by id. When no adjacent cluster fits within `maxTables` it
+ * falls back to a greedy largest-first join (capacity over adjacency) so a
+ * feasible big party is never rejected for want of good floor geometry.
+ * Returns the table ids, or null if the free tables can't sum to the party.
  */
 export function pickCombination(args: {
   party: number;
@@ -175,13 +262,36 @@ export function pickCombination(args: {
   maxTables?: number;
 }): string[] | null {
   const { party, tables, freeTableIds, maxTables = 3 } = args;
-  const free = tables
-    .filter((t) => freeTableIds.has(t.id))
-    .sort((a, b) => b.capacityMax - a.capacityMax || (a.id < b.id ? -1 : 1));
+  const free = tables.filter((t) => freeTableIds.has(t.id));
 
+  // Prefer the smallest adjacent cluster that fits, best waste/compactness.
+  for (let k = 2; k <= Math.min(maxTables, free.length); k++) {
+    let best: { ids: string[]; waste: number; spread: number } | null = null;
+    for (const subset of combinationsOfSize(free, k)) {
+      const sum = subset.reduce((s, t) => s + t.capacityMax, 0);
+      if (sum < party || !isConnectedCluster(subset)) continue;
+      const waste = sum - party;
+      const spread = clusterSpread(subset);
+      const ids = subset.map((t) => t.id).sort();
+      if (
+        best === null ||
+        waste < best.waste ||
+        (waste === best.waste && spread < best.spread) ||
+        (waste === best.waste && spread === best.spread && ids.join() < best.ids.join())
+      ) {
+        best = { ids, waste, spread };
+      }
+    }
+    if (best) return best.ids;
+  }
+
+  // Fallback: greedy largest-first, ignoring adjacency, to still seat the party.
+  const greedy = [...free].sort(
+    (a, b) => b.capacityMax - a.capacityMax || (a.id < b.id ? -1 : 1),
+  );
   const chosen: string[] = [];
   let sum = 0;
-  for (const t of free) {
+  for (const t of greedy) {
     if (sum >= party || chosen.length >= maxTables) break;
     chosen.push(t.id);
     sum += t.capacityMax;
