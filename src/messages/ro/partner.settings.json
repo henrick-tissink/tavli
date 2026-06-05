@@ -27,7 +27,12 @@
     "title": "Fotografii",
     "subtitle": "Încarcă fotografii noi, alege una principală, șterge-le pe cele care nu îți plac.",
     "noRestaurantTitle": "Niciun restaurant asociat acestui cont încă",
-    "noRestaurantBody": "Contactează echipa Tavli dacă ai ajuns aici din greșeală."
+    "noRestaurantBody": "Contactează echipa Tavli dacă ai ajuns aici din greșeală.",
+    "restaurantSectionTitle": "Fotografiile restaurantului",
+    "menuSectionTitle": "Fotografii din meniu",
+    "menuSectionSubtitle": "Fotografiile felurilor de mâncare. Le gestionezi din editorul de meniu.",
+    "menuSectionEmpty": "Niciun fel nu are încă fotografie. Adaugă una din editorul de meniu.",
+    "editInMenu": "Editează în meniu"
   },
   "preview": {
     "title": "Previzualizare",

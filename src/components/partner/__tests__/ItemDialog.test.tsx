@@ -5,6 +5,11 @@ import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roMenu from "@/messages/ro/partner.menu.json";
 import roCommon from "@/messages/ro/partner.common.json";
 
+jest.mock("@/app/api/photos/actions", () => ({
+  uploadDishPhoto: jest.fn(async () => ({ ok: true, url: null })),
+  removeDishPhoto: jest.fn(async () => ({ ok: true, url: null })),
+}));
+
 jest.mock("@/app/(app)/partner/(dashboard)/menu/actions", () => ({
   saveItem: jest.fn(async (payload) => ({ ok: true, payload })),
 }));
@@ -42,7 +47,7 @@ describe("ItemDialog price input", () => {
 
   it("price input uses inputMode=decimal (not type=number)", () => {
     renderDialog(
-      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
+      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} restaurantId="r1" />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     expect(input.getAttribute("inputmode")).toBe("decimal");
@@ -50,7 +55,7 @@ describe("ItemDialog price input", () => {
 
   it("starts empty when initial price is 0 (no stuck '0')", () => {
     renderDialog(
-      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
+      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} restaurantId="r1" />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     expect(input.value).toBe("");
@@ -59,7 +64,7 @@ describe("ItemDialog price input", () => {
   it("typing 1 then 5 yields '15'", async () => {
     const user = userEvent.setup();
     renderDialog(
-      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} />,
+      <ItemDialog open onClose={jest.fn()} onSaved={jest.fn()} item={blankItem()} restaurantId="r1" />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.type(input, "15");
@@ -74,6 +79,7 @@ describe("ItemDialog price input", () => {
         onClose={jest.fn()}
         onSaved={jest.fn()}
         item={blankItem({ name: "Mestechetura", priceLei: 12 })}
+        restaurantId="r1"
       />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
@@ -90,6 +96,7 @@ describe("ItemDialog price input", () => {
         onClose={jest.fn()}
         onSaved={jest.fn()}
         item={blankItem({ name: "Soup" })}
+        restaurantId="r1"
       />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
@@ -106,11 +113,50 @@ describe("ItemDialog price input", () => {
         onClose={jest.fn()}
         onSaved={jest.fn()}
         item={blankItem({ name: "Soup" })}
+        restaurantId="r1"
       />,
     );
     const input = screen.getByLabelText("Preț (lei)") as HTMLInputElement;
     await user.type(input, "1,5");
     await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
     expect(saveItem).toHaveBeenCalledWith(expect.objectContaining({ priceLei: 1.5 }));
+  });
+
+  it("includes EN/DE translations typed in the dialog in the saveItem payload", async () => {
+    const user = userEvent.setup();
+    renderDialog(
+      <ItemDialog
+        open
+        onClose={jest.fn()}
+        onSaved={jest.fn()}
+        item={blankItem({ name: "Pâine" })}
+        restaurantId="r1"
+      />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: roMenu.itemDialog.translations.heading }),
+    );
+    await user.type(
+      screen.getByLabelText(
+        `${roMenu.itemDialog.translations.english} — ${roMenu.itemDialog.translations.nameLabel}`,
+      ),
+      "House bread",
+    );
+    await user.type(
+      screen.getByLabelText(
+        `${roMenu.itemDialog.translations.german} — ${roMenu.itemDialog.translations.nameLabel}`,
+      ),
+      "Hausbrot",
+    );
+    await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
+
+    expect(saveItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        translations: {
+          en: { name: "House bread", description: "" },
+          de: { name: "Hausbrot", description: "" },
+        },
+      }),
+    );
   });
 });

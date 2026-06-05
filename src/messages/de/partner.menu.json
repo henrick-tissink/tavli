@@ -52,9 +52,27 @@
     "saving": "Wird gespeichert…",
     "create": "Erstellen",
     "save": "Speichern",
-    "genericError": "Fehlgeschlagen."
+    "genericError": "Fehlgeschlagen.",
+    "translations": {
+      "heading": "Übersetzungen",
+      "english": "Englisch",
+      "german": "Deutsch",
+      "nameLabel": "Name",
+      "descriptionLabel": "Beschreibung",
+      "hint": "Leer lassen, um die rumänische Version zu verwenden.",
+      "introLabel": "Intro"
+    }
   },
   "itemDialog": {
+    "photo": {
+      "label": "Gerichtsfoto",
+      "add": "Foto hinzufügen",
+      "replace": "Ersetzen",
+      "remove": "Entfernen",
+      "uploading": "Wird hochgeladen…",
+      "saveFirst": "Speichere das Gericht zuerst, dann füge ein Foto hinzu.",
+      "error": "Foto-Upload fehlgeschlagen."
+    },
     "titleNew": "Neues Gericht",
     "titleEdit": "Gericht bearbeiten",
     "close": "Schließen",
@@ -78,7 +96,15 @@
     "saving": "Wird gespeichert…",
     "saveChanges": "Änderungen speichern",
     "addItem": "Gericht hinzufügen",
-    "genericError": "Speichern fehlgeschlagen."
+    "genericError": "Speichern fehlgeschlagen.",
+    "translations": {
+      "heading": "Übersetzungen",
+      "english": "Englisch",
+      "german": "Deutsch",
+      "nameLabel": "Name",
+      "descriptionLabel": "Beschreibung",
+      "hint": "Leer lassen, um die rumänische Version zu verwenden."
+    }
   },
   "errors": {
     "sectionNameRequired": "Der Name des Bereichs ist erforderlich.",

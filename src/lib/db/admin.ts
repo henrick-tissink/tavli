@@ -50,7 +50,9 @@ function getDbAdmin(): DrizzleClient {
       "DATABASE_URL missing. Set it to your Supabase Postgres connection string.",
     );
   }
-  const client = postgres(url, { prepare: false, max: 10 });
+  // See drizzle.ts: combined pool size kept under the session-pooler cap (15)
+  // with idle_timeout to avoid leaking connections across dev HMR reloads.
+  const client = postgres(url, { prepare: false, max: 5, idle_timeout: 20 });
   _dbAdmin = drizzle(client, { schema });
   return _dbAdmin;
 }

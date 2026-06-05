@@ -37,7 +37,14 @@ function makeSupabase() {
           order: jest.fn().mockReturnThis(),
           limit: jest.fn().mockReturnThis(),
           maybeSingle: jest.fn().mockResolvedValue({ data: { sort_order: 0 } }),
-          insert: jest.fn().mockResolvedValue({ error: null }),
+          // insert(...).select("id").single() on the create path
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest
+                .fn()
+                .mockResolvedValue({ data: { id: VALID_UUID }, error: null }),
+            }),
+          }),
           update: jest.fn().mockReturnThis(),
         };
       }

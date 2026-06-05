@@ -52,9 +52,27 @@
     "saving": "Saving…",
     "create": "Create",
     "save": "Save",
-    "genericError": "Failed."
+    "genericError": "Failed.",
+    "translations": {
+      "heading": "Translations",
+      "english": "English",
+      "german": "German",
+      "nameLabel": "Name",
+      "descriptionLabel": "Description",
+      "hint": "Leave blank to use the Romanian version.",
+      "introLabel": "Intro"
+    }
   },
   "itemDialog": {
+    "photo": {
+      "label": "Dish photo",
+      "add": "Add photo",
+      "replace": "Replace",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "saveFirst": "Save the dish first, then add a photo.",
+      "error": "Photo upload failed."
+    },
     "titleNew": "New dish",
     "titleEdit": "Edit dish",
     "close": "Close",
@@ -78,7 +96,15 @@
     "saving": "Saving…",
     "saveChanges": "Save changes",
     "addItem": "Add dish",
-    "genericError": "Saving failed."
+    "genericError": "Saving failed.",
+    "translations": {
+      "heading": "Translations",
+      "english": "English",
+      "german": "German",
+      "nameLabel": "Name",
+      "descriptionLabel": "Description",
+      "hint": "Leave blank to use the Romanian version."
+    }
   },
   "errors": {
     "sectionNameRequired": "Section name is required.",

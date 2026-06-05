@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
-import { ItemDialog, type EditableItem } from "./ItemDialog";
+import { ItemDialog, type EditableItem, type ItemTranslations } from "./ItemDialog";
 import {
   createSection,
   deleteSection,
@@ -13,11 +13,22 @@ import {
   updateSection,
 } from "@/app/(app)/partner/(dashboard)/menu/actions";
 
+export interface SectionTranslations {
+  en: { name: string; intro: string };
+  de: { name: string; intro: string };
+}
+
+const emptySectionTranslations = (): SectionTranslations => ({
+  en: { name: "", intro: "" },
+  de: { name: "", intro: "" },
+});
+
 export interface MenuSectionData {
   id: string;
   name: string;
   intro: string | null;
   sortOrder: number;
+  translations: SectionTranslations;
   items: {
     id: string;
     name: string;
@@ -27,16 +38,30 @@ export interface MenuSectionData {
     isChefPick: boolean;
     isAvailable: boolean;
     sortOrder: number;
+    photoUrl: string | null;
+    translations: ItemTranslations;
   }[];
 }
 
-export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
+export function MenuEditor({
+  sections,
+  restaurantId,
+}: {
+  sections: MenuSectionData[];
+  restaurantId: string;
+}) {
   const t = useT("partner.menu");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(sections.length > 0 ? [sections[0]!.id] : []),
   );
-  const [editingSection, setEditingSection] = useState<{ id: string; name: string; intro: string } | null>(null);
+  const [editingSection, setEditingSection] = useState<{
+    id: string;
+    name: string;
+    intro: string;
+    translations: SectionTranslations;
+  } | null>(null);
   const [newSectionForm, setNewSectionForm] = useState(false);
   const [itemDialog, setItemDialog] = useState<{
     open: boolean;
@@ -54,6 +79,36 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
     },
   });
   const [pending, start] = useTransition();
+
+  // Deep-link from the Photos page Menu section (/partner/menu?dish=<id>):
+  // expand the section and open that dish's editor on mount.
+  useEffect(() => {
+    const dishId = searchParams.get("dish");
+    if (!dishId) return;
+    for (const section of sections) {
+      const it = section.items.find((i) => i.id === dishId);
+      if (it) {
+        setExpanded((prev) => new Set(prev).add(section.id));
+        setItemDialog({
+          open: true,
+          item: {
+            id: it.id,
+            sectionId: section.id,
+            name: it.name,
+            description: it.description ?? "",
+            priceLei: it.priceCents / 100,
+            dietaryTags: it.dietaryTags,
+            isChefPick: it.isChefPick,
+            isAvailable: it.isAvailable,
+            photoUrl: it.photoUrl,
+            translations: it.translations,
+          },
+        });
+        break;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
@@ -130,6 +185,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                     id: section.id,
                     name: section.name,
                     intro: section.intro ?? "",
+                    translations: section.translations,
                   })
                 }
                 aria-label={t("editor.editSection")}
@@ -204,6 +260,8 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                             dietaryTags: it.dietaryTags,
                             isChefPick: it.isChefPick,
                             isAvailable: it.isAvailable,
+                            photoUrl: it.photoUrl,
+                            translations: it.translations,
                           },
                         })
                       }
@@ -263,7 +321,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
 
       {newSectionForm ? (
         <SectionEditorDialog
-          initial={{ id: "", name: "", intro: "" }}
+          initial={{ id: "", name: "", intro: "", translations: emptySectionTranslations() }}
           onClose={() => setNewSectionForm(false)}
           onSaved={() => {
             setNewSectionForm(false);
@@ -278,12 +336,20 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
         )
       )}
 
-      <ItemDialog
-        open={itemDialog.open}
-        onClose={() => setItemDialog((d) => ({ ...d, open: false }))}
-        onSaved={() => router.refresh()}
-        item={itemDialog.item}
-      />
+      {/* Keyed + conditionally mounted so the dialog re-seeds its form state
+          from the clicked dish. ItemDialog reads `item` via useState(item),
+          which only runs on mount — without remounting, edits would always
+          show the first/blank item. */}
+      {itemDialog.open && (
+        <ItemDialog
+          key={itemDialog.item.id ?? "new"}
+          open
+          onClose={() => setItemDialog((d) => ({ ...d, open: false }))}
+          onSaved={() => router.refresh()}
+          item={itemDialog.item}
+          restaurantId={restaurantId}
+        />
+      )}
     </div>
   );
 }
@@ -293,13 +359,17 @@ function SectionEditorDialog({
   onClose,
   onSaved,
 }: {
-  initial: { id: string; name: string; intro: string };
+  initial: { id: string; name: string; intro: string; translations?: SectionTranslations };
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useT("partner.menu");
   const [name, setName] = useState(initial.name);
   const [intro, setIntro] = useState(initial.intro);
+  const [tr, setTr] = useState<SectionTranslations>(
+    initial.translations ?? emptySectionTranslations(),
+  );
+  const [trOpen, setTrOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const isNew = !initial.id;
@@ -309,6 +379,10 @@ function SectionEditorDialog({
       const fd = new FormData();
       fd.set("name", name);
       fd.set("intro", intro);
+      for (const loc of ["en", "de"] as const) {
+        fd.set(`name_${loc}`, tr[loc].name);
+        fd.set(`intro_${loc}`, tr[loc].intro);
+      }
       const result = isNew
         ? await createSection(fd)
         : await updateSection(initial.id, fd);
@@ -352,6 +426,53 @@ function SectionEditorDialog({
               placeholder={t("sectionDialog.introPlaceholder")}
               className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
+          </div>
+          <div className="border-t border-border pt-3">
+            <button
+              type="button"
+              onClick={() => setTrOpen((o) => !o)}
+              className="flex items-center gap-1.5 text-sm font-semibold text-text-primary"
+            >
+              {trOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              {t("sectionDialog.translations.heading")}
+            </button>
+            {trOpen && (
+              <div className="mt-3 space-y-3">
+                {(["en", "de"] as const).map((loc) => {
+                  const localeName =
+                    loc === "en"
+                      ? t("sectionDialog.translations.english")
+                      : t("sectionDialog.translations.german");
+                  return (
+                    <div key={loc} className="space-y-2 rounded-lg bg-surface-bg p-3">
+                      <p className="text-xs font-bold uppercase tracking-wide text-text-secondary">
+                        {localeName}
+                      </p>
+                      <input
+                        type="text"
+                        aria-label={`${localeName} — ${t("sectionDialog.translations.nameLabel")}`}
+                        placeholder={t("sectionDialog.translations.nameLabel")}
+                        value={tr[loc].name}
+                        onChange={(e) =>
+                          setTr((s) => ({ ...s, [loc]: { ...s[loc], name: e.target.value } }))
+                        }
+                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                      />
+                      <textarea
+                        aria-label={`${localeName} — ${t("sectionDialog.translations.introLabel")}`}
+                        placeholder={t("sectionDialog.translations.introLabel")}
+                        rows={2}
+                        value={tr[loc].intro}
+                        onChange={(e) =>
+                          setTr((s) => ({ ...s, [loc]: { ...s[loc], intro: e.target.value } }))
+                        }
+                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
           {error && <p className="text-sm text-error">{error}</p>}
         </div>

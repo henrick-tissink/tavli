@@ -2118,6 +2118,11 @@ export interface PartnerSettingsMessages {
     subtitle: string;
     noRestaurantTitle: string;
     noRestaurantBody: string;
+    restaurantSectionTitle: string;
+    menuSectionTitle: string;
+    menuSectionSubtitle: string;
+    menuSectionEmpty: string;
+    editInMenu: string;
   };
   preview: {
     title: string;
