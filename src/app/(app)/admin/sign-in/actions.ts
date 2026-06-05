@@ -8,8 +8,7 @@ import {
   countUnconsumedRecoveryCodes,
   consumeRecoveryCode,
 } from "@/lib/auth/mfa";
-import { isLocale } from "@/lib/i18n/locale";
-import { setLocaleCookie } from "@/lib/i18n/cookie";
+import { reconcileSignInLocale } from "@/lib/i18n/signin-locale";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -93,10 +92,8 @@ export async function signInAdmin(
           error: m.errors.incorrectCode,
         };
       }
-      // Sync locale cookie on successful MFA sign-in.
-      if (mfaProfile?.locale && isLocale(mfaProfile.locale)) {
-        await setLocaleCookie(mfaProfile.locale);
-      }
+      // Reconcile locale on successful MFA sign-in (cookie wins; see signin-locale.ts).
+      await reconcileSignInLocale(userData.user.id, mfaProfile?.locale ?? null);
       redirect("/admin");
     } else if (recoveryCode) {
       const adminClient = createSupabaseAdminClient();
@@ -115,10 +112,8 @@ export async function signInAdmin(
           error: m.errors.invalidRecoveryCode,
         };
       }
-      // Sync locale cookie on successful recovery-code sign-in.
-      if (mfaProfile?.locale && isLocale(mfaProfile.locale)) {
-        await setLocaleCookie(mfaProfile.locale);
-      }
+      // Reconcile locale on successful recovery-code sign-in (cookie wins; see signin-locale.ts).
+      await reconcileSignInLocale(userData.user.id, mfaProfile?.locale ?? null);
       redirect("/admin/security?enrol=required");
     }
   }
@@ -161,10 +156,8 @@ export async function signInAdmin(
     };
   }
 
-  // Sync locale cookie from profile on successful sign-in (additive — no MFA path).
-  if (profile.locale && isLocale(profile.locale)) {
-    await setLocaleCookie(profile.locale);
-  }
+  // Reconcile locale on successful sign-in (cookie wins; see signin-locale.ts).
+  await reconcileSignInLocale(data.user.id, profile.locale);
   redirect("/admin");
 }
 
