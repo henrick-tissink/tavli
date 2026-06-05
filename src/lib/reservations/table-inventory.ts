@@ -83,6 +83,106 @@ interface AssignableTable {
   capacityMax: number;
 }
 
+/** Best-fit comparator: prefer respecting capMin, then smallest table, deterministic. */
+function bestFit(party: number) {
+  return (a: AssignableTable, b: AssignableTable): number => {
+    const am = party >= a.capacityMin ? 0 : 1;
+    const bm = party >= b.capacityMin ? 0 : 1;
+    if (am !== bm) return am - bm;
+    if (a.capacityMax !== b.capacityMax) return a.capacityMax - b.capacityMax;
+    return a.id < b.id ? -1 : 1;
+  };
+}
+
+export interface SingleReservation {
+  id: string;
+  party: number;
+  startMinutes: number;
+  /** Host-pinned table (auto_assigned=false): kept fixed. null = movable. */
+  pinnedTableId: string | null;
+}
+
+/**
+ * Constructive single-table assignment via a start-time sweep. Pinned
+ * reservations keep their table; movable ones (including a new booking) are
+ * (re)assigned best-fit. Processing larger parties first at each start point
+ * makes the greedy optimal for threshold (capMax) eligibility — so this both
+ * tests feasibility (a reservation maps to null iff the room genuinely can't
+ * seat it) AND yields the reshuffle that lets a tight-but-feasible booking fit.
+ *
+ * Returns reservationId → tableId (or null when unassignable).
+ */
+export function assignSingles(args: {
+  reservations: SingleReservation[];
+  tables: AssignableTable[];
+  turnMinutes: number;
+}): Map<string, string | null> {
+  const { reservations, tables, turnMinutes } = args;
+  const result = new Map<string, string | null>();
+  const heldStarts = new Map<string, number[]>(); // tableId → occupied window starts
+
+  const isFree = (tableId: string, start: number): boolean =>
+    !(heldStarts.get(tableId) ?? []).some((s) => Math.abs(s - start) < turnMinutes);
+  const occupy = (tableId: string, start: number): void => {
+    const arr = heldStarts.get(tableId) ?? [];
+    arr.push(start);
+    heldStarts.set(tableId, arr);
+  };
+
+  for (const r of reservations.filter((x) => x.pinnedTableId)) {
+    result.set(r.id, r.pinnedTableId);
+    occupy(r.pinnedTableId!, r.startMinutes);
+  }
+
+  const movable = reservations
+    .filter((x) => !x.pinnedTableId)
+    .sort(
+      (a, b) =>
+        a.startMinutes - b.startMinutes ||
+        b.party - a.party ||
+        (a.id < b.id ? -1 : 1),
+    );
+
+  for (const r of movable) {
+    const chosen = tables
+      .filter((t) => r.party <= t.capacityMax && isFree(t.id, r.startMinutes))
+      .sort(bestFit(r.party))[0];
+    if (chosen) {
+      result.set(r.id, chosen.id);
+      occupy(chosen.id, r.startMinutes);
+    } else {
+      result.set(r.id, null);
+    }
+  }
+  return result;
+}
+
+/**
+ * Choose the fewest free tables whose combined capacity seats a big party
+ * (greedy largest-first). Returns the table ids, or null if the free tables
+ * can't sum to the party within `maxTables`.
+ */
+export function pickCombination(args: {
+  party: number;
+  tables: AssignableTable[];
+  freeTableIds: Set<string>;
+  maxTables?: number;
+}): string[] | null {
+  const { party, tables, freeTableIds, maxTables = 3 } = args;
+  const free = tables
+    .filter((t) => freeTableIds.has(t.id))
+    .sort((a, b) => b.capacityMax - a.capacityMax || (a.id < b.id ? -1 : 1));
+
+  const chosen: string[] = [];
+  let sum = 0;
+  for (const t of free) {
+    if (sum >= party || chosen.length >= maxTables) break;
+    chosen.push(t.id);
+    sum += t.capacityMax;
+  }
+  return sum >= party ? chosen : null;
+}
+
 /**
  * Pick the best-fit free table for a party: must physically fit (capMax),
  * prefers respecting capacityMin, then the smallest capMax (preserve big tables
