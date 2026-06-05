@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { computeSlots } from "@/lib/availability";
+import { feasibleSlots } from "@/lib/reservations/assign-table";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,19 @@ export async function GET(
       slotEnd: r.slot_end as string,
     })),
   );
+
+  // Floor-plan honesty: if a party size is supplied, only return times that can
+  // actually seat that party (no reject-at-submit). No floor plan → all slots.
+  const partyParam = Number(req.nextUrl.searchParams.get("party"));
+  if (Number.isFinite(partyParam) && partyParam >= 1) {
+    const slots = await feasibleSlots(sb, {
+      restaurantId,
+      date: dateParam,
+      party: partyParam,
+      candidates: allSlots,
+    });
+    return NextResponse.json({ slots });
+  }
 
   return NextResponse.json({ slots: allSlots });
 }

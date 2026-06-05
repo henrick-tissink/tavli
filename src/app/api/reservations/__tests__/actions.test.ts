@@ -65,6 +65,19 @@ import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
 
 const REAL_UUID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
+// A thenable query-builder stub that resolves to an empty result set — covers
+// the floor-plan loads (restaurant_tables + the date's reservations) added by
+// planTableAssignment. Empty tables → no floor plan → tableId null.
+function emptyQuery(): Record<string, jest.Mock> & { then: (r: (v: unknown) => unknown) => unknown } {
+  const q = {} as Record<string, jest.Mock> & { then: (r: (v: unknown) => unknown) => unknown };
+  for (const m of ["select", "eq", "is", "in", "order", "not", "gte", "lt"]) {
+    q[m] = jest.fn(() => q);
+  }
+  q.maybeSingle = jest.fn().mockResolvedValue({ data: null });
+  q.then = (resolve) => resolve({ data: [], error: null });
+  return q;
+}
+
 function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
   const orgId = opts.organizationId === undefined ? "org-1" : opts.organizationId;
   const reservationUpdate = jest.fn().mockReturnValue({
@@ -72,20 +85,25 @@ function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
   });
   const adminMock = {
     from: jest.fn((table: string) => {
+      if (table === "restaurant_tables") {
+        return emptyQuery();
+      }
       if (table === "reservations") {
-        return {
-          insert: jest.fn().mockReturnValue({
-            select: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: { id: "res-id-1", restaurant_id: REAL_UUID },
-                error: null,
-              }),
+        // loadFloorState reads the date's reservations via .select(...).eq()...;
+        // the insert path uses its own .insert().select().single(). Provide both.
+        const q = emptyQuery();
+        q.insert = jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { id: "res-id-1", restaurant_id: REAL_UUID },
+              error: null,
             }),
           }),
-          // §03 §5.2 Wave 3 sub-unit A.3: createReservation stamps the
-          // resolved diner_id onto the reservation row.
-          update: reservationUpdate,
-        };
+        });
+        // §03 §5.2 Wave 3 sub-unit A.3: createReservation stamps the
+        // resolved diner_id onto the reservation row.
+        q.update = reservationUpdate;
+        return q;
       }
       if (table === "restaurants") {
         return {
