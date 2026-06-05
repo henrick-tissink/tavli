@@ -4,16 +4,22 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepPartyProps {
-  value: number; // 1..12
+  value: number; // 1..max
   onChange: (n: number) => void;
+  /** Largest party bookable online (floor-plan combinable cap). Default 12. */
+  max?: number;
 }
 
-const PILL_SHORTCUTS = [2, 4, 6, 8] as const;
+const DEFAULT_MAX = 12;
+const BASE_PILLS = [2, 4, 6, 8] as const;
 
-export function StepParty({ value, onChange }: StepPartyProps) {
+export function StepParty({ value, onChange, max = DEFAULT_MAX }: StepPartyProps) {
   const t = useT("booking");
   const canDecrement = value > 1;
-  const canIncrement = value < 12;
+  const canIncrement = value < max;
+  // Show the combinable ceiling as a pill when the floor plan seats more than
+  // the standard shortcuts (so 13–22 covers are one tap away, not just ±).
+  const pills = max > BASE_PILLS[BASE_PILLS.length - 1] ? [...BASE_PILLS, max] : [...BASE_PILLS];
 
   return (
     <div className="space-y-5">
@@ -50,7 +56,7 @@ export function StepParty({ value, onChange }: StepPartyProps) {
 
       {/* Pill shortcuts */}
       <div className="flex justify-center gap-3">
-        {PILL_SHORTCUTS.map((n) => (
+        {pills.map((n) => (
           <button
             key={n}
             type="button"
@@ -66,8 +72,8 @@ export function StepParty({ value, onChange }: StepPartyProps) {
         ))}
       </div>
 
-      {/* Advisory line — visible at 12 guests */}
-      {value >= 12 && (
+      {/* Advisory line — visible at the combinable ceiling */}
+      {value >= max && (
         <p className="text-sm text-text-secondary text-center">
           {t("sheet.stepParty.privateEventHint")}{" "}
           <Link
