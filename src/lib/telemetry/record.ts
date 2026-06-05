@@ -12,6 +12,7 @@
 import "server-only";
 import { and, eq } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { dbEnabled as sharedDbEnabled } from "@/lib/db/enabled";
 import { restaurantViewEvents, restaurantSaves } from "@/lib/db/schema";
 import type { Locale } from "@/lib/i18n/locale";
 
@@ -20,8 +21,6 @@ interface Deps {
   /** Mirrors the repo layer's mock/db switch; defaults to true for tests. */
   enabled?: () => boolean;
 }
-
-const dbEnabled = () => process.env.NEXT_PUBLIC_USE_DB === "true";
 
 export function makeRecordView(deps: Deps) {
   return async function recordView(
@@ -58,5 +57,5 @@ export function makeSetSaved(deps: Deps) {
   };
 }
 
-export const recordView = makeRecordView({ db: dbAdmin, enabled: dbEnabled });
-export const setSaved = makeSetSaved({ db: dbAdmin, enabled: dbEnabled });
+export const recordView = makeRecordView({ db: dbAdmin, enabled: sharedDbEnabled });
+export const setSaved = makeSetSaved({ db: dbAdmin, enabled: sharedDbEnabled });

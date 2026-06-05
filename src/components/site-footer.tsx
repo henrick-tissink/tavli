@@ -3,23 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Scale } from "lucide-react";
-import type { Locale } from "@/lib/i18n/locale";
+import { LOCALE_ENDONYMS as LOCALE_LABEL, LOCALE_HOME, type Locale } from "@/lib/i18n/locale";
 import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 
 const HIDDEN_PREFIXES = ["/admin", "/partner", "/onboard", "/reservations", "/reviews"];
 
-/** Home/landing href per locale, used by the language switcher. */
-const LOCALE_HOME: Record<Locale, string> = {
-  ro: "/",
-  en: "/en",
-  de: "/de",
-};
-
-const LOCALE_LABEL: Record<Locale, string> = {
-  ro: "Română",
-  en: "English",
-  de: "Deutsch",
-};
 
 function localeFromPathname(pathname: string): Locale {
   return pathname.startsWith("/de") ? "de" : pathname.startsWith("/en") ? "en" : "ro";

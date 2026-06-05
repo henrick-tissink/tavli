@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { LOCALES, type Locale } from "@/lib/i18n/locale";
+import { LOCALES, LOCALE_ENDONYMS, type Locale } from "@/lib/i18n/locale";
 import { withLocale } from "@/lib/i18n/routing";
 import { setAppLocale } from "@/app/(app)/locale-action";
 import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 
 /** Full language names — used as the accessible label (and tooltip). */
-const LABEL: Record<Locale, string> = { ro: "Română", en: "English", de: "Deutsch" };
+const LABEL = LOCALE_ENDONYMS;
 /** Compact codes shown in the segmented control to keep the chrome tidy. */
 const CODE: Record<Locale, string> = { ro: "RO", en: "EN", de: "DE" };
 

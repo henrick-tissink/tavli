@@ -13,6 +13,7 @@
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { dbEnabled } from "@/lib/db/enabled";
 import {
   menuSections,
   menuItems,
@@ -159,7 +160,7 @@ export function makeLoadMenuTranslations(deps: Deps) {
 
 export const loadMenuTranslations = makeLoadMenuTranslations({
   db: dbAdmin,
-  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+  enabled: dbEnabled,
 });
 
 /**
@@ -207,5 +208,5 @@ export function makeLoadMenuItemTranslations(deps: Deps) {
 
 export const loadMenuItemTranslations = makeLoadMenuItemTranslations({
   db: dbAdmin,
-  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+  enabled: dbEnabled,
 });

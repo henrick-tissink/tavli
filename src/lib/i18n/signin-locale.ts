@@ -22,6 +22,7 @@ import { eq } from "drizzle-orm";
 import { isLocale, type Locale } from "./locale";
 import { setLocaleCookie, LOCALE_COOKIE } from "./cookie";
 import { dbAdmin } from "@/lib/db/admin";
+import { dbEnabled } from "@/lib/db/enabled";
 import { profiles } from "@/lib/db/schema";
 
 interface Deps {
@@ -61,7 +62,7 @@ export const reconcileSignInLocale = makeReconcileSignInLocale({
   updateProfileLocale: async (userId, locale) => {
     // Mirrors the repo layer's mock/db switch (like the translations and
     // telemetry helpers): no service-client writes in mock mode.
-    if (process.env.NEXT_PUBLIC_USE_DB !== "true") return;
+    if (!dbEnabled()) return;
     await dbAdmin.update(profiles).set({ locale }).where(eq(profiles.id, userId));
   },
 });

@@ -6,6 +6,7 @@
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { dbEnabled } from "@/lib/db/enabled";
 import { restaurantTranslations } from "@/lib/db/schema";
 import { pickTranslationRow } from "./pick";
 
@@ -63,5 +64,5 @@ export function makeLoadRestaurantTranslation(deps: Deps) {
 
 export const loadRestaurantTranslation = makeLoadRestaurantTranslation({
   db: dbAdmin,
-  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+  enabled: dbEnabled,
 });

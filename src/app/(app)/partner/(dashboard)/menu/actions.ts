@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { UUID_RE } from "@/lib/uuid";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
@@ -8,8 +9,6 @@ import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access"
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s: unknown): s is string => typeof s === "string" && UUID_RE.test(s);
 
 async function ownerRestaurantId(): Promise<string | null> {

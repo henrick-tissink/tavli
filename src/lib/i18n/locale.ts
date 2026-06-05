@@ -12,6 +12,20 @@ export function isLocale(value: string): value is Locale {
   return (LOCALES as readonly string[]).includes(value);
 }
 
+/** Endonyms — every language named in itself, identical in all UIs. */
+export const LOCALE_ENDONYMS: Record<Locale, string> = {
+  ro: "Română", // i18n-allow — endonym: language names stay in their own language
+  en: "English",
+  de: "Deutsch",
+};
+
+/** Home/landing href per locale (RO is served unprefixed). */
+export const LOCALE_HOME: Record<Locale, string> = {
+  ro: "/",
+  en: "/en",
+  de: "/de",
+};
+
 /** BCP-47 tags handed to the native Intl APIs. */
 export const BCP47: Record<Locale, string> = {
   ro: "ro-RO",

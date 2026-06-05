@@ -7,6 +7,7 @@
 import "server-only";
 import { and, count, eq, gte, sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
+import { dbEnabled } from "@/lib/db/enabled";
 import {
   restaurantViewEvents,
   restaurantSaves,
@@ -67,5 +68,5 @@ export function makeGetOverviewStats(deps: Deps) {
 
 export const getOverviewStats = makeGetOverviewStats({
   db: dbAdmin,
-  enabled: () => process.env.NEXT_PUBLIC_USE_DB === "true",
+  enabled: dbEnabled,
 });

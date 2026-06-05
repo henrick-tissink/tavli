@@ -6,9 +6,9 @@
  * must never affect the diner experience.
  */
 
+import { isUuid, UUID_RE } from "@/lib/uuid";
+
 const CLIENT_ID_KEY = "tavli-client-id";
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Device-generated random id persisted alongside the local saved list. */
 export function getTelemetryClientId(): string {
@@ -34,11 +34,11 @@ function post(payload: Record<string, unknown>): void {
 }
 
 export function sendViewBeacon(restaurantId: string, locale: string): void {
-  if (!UUID_RE.test(restaurantId)) return;
+  if (!isUuid(restaurantId)) return;
   post({ type: "view", restaurantId, locale });
 }
 
 export function sendSaveBeacon(restaurantId: string, saved: boolean): void {
-  if (!UUID_RE.test(restaurantId)) return;
+  if (!isUuid(restaurantId)) return;
   post({ type: "save", restaurantId, clientId: getTelemetryClientId(), saved });
 }

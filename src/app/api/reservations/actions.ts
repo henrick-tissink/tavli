@@ -1,6 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { UUID_RE } from "@/lib/uuid";
 import { cookies } from "next/headers";
 import { render } from "@react-email/render";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
@@ -23,7 +24,6 @@ import { logReservationStatus } from "@/lib/reservations/status-log";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface CreateReservationInput {
   restaurantId: string;

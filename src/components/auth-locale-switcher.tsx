@@ -1,15 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LOCALES, type Locale } from "@/lib/i18n/locale";
+import { LOCALES, LOCALE_ENDONYMS } from "@/lib/i18n/locale";
 import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
 import { useLocale } from "@/lib/i18n/messages-provider";
-
-const LOCALE_LABEL: Record<Locale, string> = {
-  ro: "Română", // i18n-allow — endonym: language names stay in their own language
-  en: "English",
-  de: "Deutsch",
-};
 
 /**
  * Locale picker for pre-auth (app) pages (partner/admin sign-in, sign-up).
@@ -28,7 +22,7 @@ export function AuthLocaleSwitcher() {
         <span key={l} className="flex items-center gap-2">
           {i > 0 && <span aria-hidden className="text-border">·</span>}
           {l === locale ? (
-            <span className="font-bold text-text-primary">{LOCALE_LABEL[l]}</span>
+            <span className="font-bold text-text-primary">{LOCALE_ENDONYMS[l]}</span>
           ) : (
             <button
               type="button"
@@ -38,7 +32,7 @@ export function AuthLocaleSwitcher() {
               }}
               className="text-text-muted hover:text-text-primary"
             >
-              {LOCALE_LABEL[l]}
+              {LOCALE_ENDONYMS[l]}
             </button>
           )}
         </span>

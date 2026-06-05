@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordView, setSaved } from "@/lib/telemetry/record";
 import { isLocale } from "@/lib/i18n/locale";
+import { isUuid } from "@/lib/uuid";
 
 export const dynamic = "force-dynamic";
-
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Fire-and-forget telemetry beacon from the public venue pages.
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
   const b = body as Record<string, unknown>;
 
-  if (typeof b.restaurantId !== "string" || !UUID_RE.test(b.restaurantId)) {
+  if (typeof b.restaurantId !== "string" || !isUuid(b.restaurantId)) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
@@ -47,7 +45,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (b.type === "save") {
     if (
       typeof b.clientId !== "string" ||
-      !UUID_RE.test(b.clientId) ||
+      !isUuid(b.clientId) ||
       typeof b.saved !== "boolean"
     ) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
