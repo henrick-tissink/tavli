@@ -53,16 +53,16 @@ export default async function PartnerDashboardPage({
     );
   }
 
-  // Stat-card counts (null in mock mode → cards keep their "—" stubs).
-  const stats = await getOverviewStats(restaurant.id);
-
   const [
+    // Stat-card counts (null in mock mode → cards keep their "—" stubs).
+    stats,
     { count: heroCount },
     { count: galleryCount },
     { data: menuSectionsData },
     { data: menuItemsData },
     { count: availabilityCount },
   ] = await Promise.all([
+    getOverviewStats(restaurant.id),
     supabase
       .from("restaurant_photos")
       .select("id", { count: "exact", head: true })
