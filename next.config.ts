@@ -32,7 +32,14 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withMDX = createMDX({});
+const withMDX = createMDX({
+  options: {
+    // String form (not an imported function) — required for Turbopack,
+    // which needs serializable loader options. Enables GFM tables in the
+    // legal MDX pages (cookies, data-processing).
+    remarkPlugins: ["remark-gfm"],
+  },
+});
 
 // Sentry: source-map upload requires SENTRY_AUTH_TOKEN. Without it the
 // wrapper is harmless — build proceeds, but stack traces in Sentry show
