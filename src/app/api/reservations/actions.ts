@@ -23,6 +23,7 @@ import { consent } from "@/lib/marketing/consent";
 import { logReservationStatus } from "@/lib/reservations/status-log";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
+import { planTableAssignment } from "@/lib/reservations/assign-table";
 
 
 export interface CreateReservationInput {
@@ -53,7 +54,9 @@ export interface CreateReservationResult {
   confirmationToken?: string;
   cancelUrl?: string;
   error?: string;
-  errorCode?: "SLOT_FULL" | "NO_AVAILABILITY" | "OTHER";
+  errorCode?: "SLOT_FULL" | "NO_AVAILABILITY" | "PARTY_TOO_LARGE" | "OTHER";
+  /** For PARTY_TOO_LARGE: the largest party the floor plan can seat online. */
+  maxParty?: number;
 }
 
 /**
@@ -112,6 +115,34 @@ export async function createReservation(
   const lc = (await cookies()).get(LOCALE_COOKIE)?.value;
   const reservationLocale = lc !== undefined && isLocale(lc) ? lc : "ro";
 
+  // Floor-plan capacity: plan a table assignment. For restaurants with a
+  // bookable floor plan this is the binding constraint (feasibility + best-fit
+  // auto-assign); restaurants without one fall through (tableId null) and stay
+  // governed by the coarse covers cap in the trigger.
+  const plan = await planTableAssignment(admin, {
+    restaurantId: input.restaurantId,
+    date: input.date,
+    time: input.time,
+    partySize: input.partySize,
+  });
+  if (!plan.ok) {
+    if (plan.reason === "party_too_large") {
+      return {
+        ok: false,
+        mode: "db",
+        error: `For parties over ${plan.maxParty}, please request a private event.`,
+        errorCode: "PARTY_TOO_LARGE",
+        maxParty: plan.maxParty,
+      };
+    }
+    return {
+      ok: false,
+      mode: "db",
+      error: "That time is fully booked. Try a neighbouring slot.",
+      errorCode: "SLOT_FULL",
+    };
+  }
+
   const { data, error } = await admin
     .from("reservations")
     .insert({
@@ -127,6 +158,8 @@ export async function createReservation(
       status: "confirmed",
       confirmation_token: confirmationToken,
       locale: reservationLocale,
+      table_id: plan.tableId,
+      auto_assigned: plan.tableId != null,
     })
     .select("id, restaurant_id")
     .single();
