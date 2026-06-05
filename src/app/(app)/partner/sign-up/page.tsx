@@ -8,6 +8,7 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
+import { AuthLocaleSwitcher } from "@/components/auth-locale-switcher";
 import { SignUpForm } from "./SignUpForm";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,10 @@ export default async function PartnerSignUpPage() {
 
   return (
     <MessagesProvider locale={locale} bundle={bundle}>
-    <div className="min-h-screen flex flex-col desktop:flex-row">
+    <div className="relative min-h-screen flex flex-col desktop:flex-row">
+      <div className="absolute top-4 right-4 z-10">
+        <AuthLocaleSwitcher />
+      </div>
       {/* Left panel — desktop only */}
       <div className="hidden desktop:flex desktop:w-1/2 bg-gradient-to-br from-brand-primary-soft via-white to-white p-12 items-center justify-center">
         <div className="flex flex-col items-center max-w-md w-full">
