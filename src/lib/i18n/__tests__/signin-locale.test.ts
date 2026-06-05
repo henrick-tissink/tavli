@@ -37,6 +37,18 @@ describe("reconcileSignInLocale", () => {
     expect(deps.updateProfileLocale).not.toHaveBeenCalled();
   });
 
+  it("never throws when the profile write fails (best-effort — must not abort sign-in)", async () => {
+    const deps = makeDeps("en");
+    deps.updateProfileLocale.mockRejectedValue(new Error("DATABASE_URL missing"));
+    await expect(makeReconcileSignInLocale(deps)("user-1", "ro")).resolves.toBeUndefined();
+  });
+
+  it("never throws when the cookie write fails", async () => {
+    const deps = makeDeps(undefined);
+    deps.setCookie.mockRejectedValue(new Error("boom"));
+    await expect(makeReconcileSignInLocale(deps)("user-1", "de")).resolves.toBeUndefined();
+  });
+
   it("does nothing when neither a valid cookie nor a valid profile locale exists", async () => {
     const deps = makeDeps(undefined);
     await makeReconcileSignInLocale(deps)("user-1", null);

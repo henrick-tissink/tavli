@@ -35,15 +35,22 @@ export function makeReconcileSignInLocale(deps: Deps) {
     userId: string,
     profileLocale: string | null | undefined,
   ): Promise<void> {
-    const cookieValue = await deps.readCookie();
-    if (cookieValue && isLocale(cookieValue)) {
-      if (cookieValue !== profileLocale) {
-        await deps.updateProfileLocale(userId, cookieValue);
+    // Strictly best-effort: this runs on the sign-in critical path before
+    // redirect(), and a locale-preference write must never abort a valid
+    // sign-in (e.g. DATABASE_URL absent, transient DB error).
+    try {
+      const cookieValue = await deps.readCookie();
+      if (cookieValue && isLocale(cookieValue)) {
+        if (cookieValue !== profileLocale) {
+          await deps.updateProfileLocale(userId, cookieValue);
+        }
+        return;
       }
-      return;
-    }
-    if (profileLocale && isLocale(profileLocale)) {
-      await deps.setCookie(profileLocale);
+      if (profileLocale && isLocale(profileLocale)) {
+        await deps.setCookie(profileLocale);
+      }
+    } catch (err) {
+      console.error("reconcileSignInLocale: best-effort locale sync failed", err);
     }
   };
 }
@@ -52,6 +59,9 @@ export const reconcileSignInLocale = makeReconcileSignInLocale({
   readCookie: async () => (await cookies()).get(LOCALE_COOKIE)?.value,
   setCookie: setLocaleCookie,
   updateProfileLocale: async (userId, locale) => {
+    // Mirrors the repo layer's mock/db switch (like the translations and
+    // telemetry helpers): no service-client writes in mock mode.
+    if (process.env.NEXT_PUBLIC_USE_DB !== "true") return;
     await dbAdmin.update(profiles).set({ locale }).where(eq(profiles.id, userId));
   },
 });
