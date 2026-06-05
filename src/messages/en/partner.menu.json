@@ -55,6 +55,15 @@
     "genericError": "Failed."
   },
   "itemDialog": {
+    "photo": {
+      "label": "Dish photo",
+      "add": "Add photo",
+      "replace": "Replace",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "saveFirst": "Save the dish first, then add a photo.",
+      "error": "Photo upload failed."
+    },
     "titleNew": "New dish",
     "titleEdit": "Edit dish",
     "close": "Close",

@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { X, Star } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import Image from "next/image";
+import { X, Star, ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
   saveItem,
   type SaveItemPayload,
 } from "@/app/(app)/partner/(dashboard)/menu/actions";
+import {
+  uploadDishPhoto,
+  removeDishPhoto,
+} from "@/app/api/photos/actions";
 
 export interface EditableItem {
   id?: string;
@@ -18,6 +23,7 @@ export interface EditableItem {
   dietaryTags: string[];
   isChefPick: boolean;
   isAvailable: boolean;
+  photoUrl?: string | null;
 }
 
 const TAG_OPTIONS: { value: string; icon?: string }[] = [
@@ -33,6 +39,7 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
   item: EditableItem;
+  restaurantId: string;
 }
 
 function parsePrice(input: string): number {
@@ -41,7 +48,7 @@ function parsePrice(input: string): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-export function ItemDialog({ open, onClose, onSaved, item }: Props) {
+export function ItemDialog({ open, onClose, onSaved, item, restaurantId }: Props) {
   const t = useT("partner.menu");
   const [state, setState] = useState<EditableItem>(item);
   const [priceInput, setPriceInput] = useState<string>(
@@ -49,8 +56,47 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
   );
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [photoUrl, setPhotoUrl] = useState<string | null>(item.photoUrl ?? null);
+  const [photoPending, setPhotoPending] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
+
+  const handlePhotoFile = (file: File) => {
+    if (!state.id) return; // need a persisted dish to attach to
+    setPhotoError(null);
+    setPhotoPending(true);
+    const fd = new FormData();
+    fd.set("restaurantId", restaurantId);
+    fd.set("itemId", state.id);
+    fd.set("file", file);
+    uploadDishPhoto(fd)
+      .then((res) => {
+        if (res.ok) {
+          setPhotoUrl(res.url ?? null);
+          onSaved();
+        } else {
+          setPhotoError(res.error ?? t("itemDialog.photo.error"));
+        }
+      })
+      .finally(() => setPhotoPending(false));
+  };
+
+  const handlePhotoRemove = () => {
+    if (!state.id) return;
+    setPhotoPending(true);
+    removeDishPhoto(state.id)
+      .then((res) => {
+        if (res.ok) {
+          setPhotoUrl(null);
+          onSaved();
+        } else {
+          setPhotoError(res.error ?? t("itemDialog.photo.error"));
+        }
+      })
+      .finally(() => setPhotoPending(false));
+  };
 
   const toggleTag = (tag: string) => {
     setState((s) => ({
@@ -101,6 +147,65 @@ export function ItemDialog({ open, onClose, onSaved, item }: Props) {
           </button>
         </header>
         <div className="px-6 py-5 space-y-5">
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">{t("itemDialog.photo.label")}</p>
+            {!state.id ? (
+              <p className="text-xs text-text-muted italic">
+                {t("itemDialog.photo.saveFirst")}
+              </p>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-surface-bg border border-border flex-shrink-0">
+                  {photoUrl ? (
+                    <Image src={photoUrl} alt={state.name} fill className="object-cover" sizes="80px" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-text-muted">
+                      <ImagePlus size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handlePhotoFile(f);
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInput.current?.click()}
+                    disabled={photoPending}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary hover:underline disabled:opacity-50"
+                  >
+                    <ImagePlus size={14} />
+                    {photoPending
+                      ? t("itemDialog.photo.uploading")
+                      : photoUrl
+                        ? t("itemDialog.photo.replace")
+                        : t("itemDialog.photo.add")}
+                  </button>
+                  {photoUrl && (
+                    <button
+                      type="button"
+                      onClick={handlePhotoRemove}
+                      disabled={photoPending}
+                      className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-red-700 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                      {t("itemDialog.photo.remove")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+            {photoError && <p className="text-xs text-error">{photoError}</p>}
+          </div>
+
           <div className="space-y-1">
             <label className="block text-sm font-medium" htmlFor="item-name">
               {t("itemDialog.nameLabel")}

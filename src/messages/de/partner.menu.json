@@ -55,6 +55,15 @@
     "genericError": "Fehlgeschlagen."
   },
   "itemDialog": {
+    "photo": {
+      "label": "Gerichtsfoto",
+      "add": "Foto hinzufügen",
+      "replace": "Ersetzen",
+      "remove": "Entfernen",
+      "uploading": "Wird hochgeladen…",
+      "saveFirst": "Speichere das Gericht zuerst, dann füge ein Foto hinzu.",
+      "error": "Foto-Upload fehlgeschlagen."
+    },
     "titleNew": "Neues Gericht",
     "titleEdit": "Gericht bearbeiten",
     "close": "Schließen",

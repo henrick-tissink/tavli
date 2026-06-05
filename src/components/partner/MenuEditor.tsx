@@ -27,10 +27,17 @@ export interface MenuSectionData {
     isChefPick: boolean;
     isAvailable: boolean;
     sortOrder: number;
+    photoUrl: string | null;
   }[];
 }
 
-export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
+export function MenuEditor({
+  sections,
+  restaurantId,
+}: {
+  sections: MenuSectionData[];
+  restaurantId: string;
+}) {
   const t = useT("partner.menu");
   const router = useRouter();
   const [expanded, setExpanded] = useState<Set<string>>(
@@ -204,6 +211,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
                             dietaryTags: it.dietaryTags,
                             isChefPick: it.isChefPick,
                             isAvailable: it.isAvailable,
+                            photoUrl: it.photoUrl,
                           },
                         })
                       }
@@ -289,6 +297,7 @@ export function MenuEditor({ sections }: { sections: MenuSectionData[] }) {
           onClose={() => setItemDialog((d) => ({ ...d, open: false }))}
           onSaved={() => router.refresh()}
           item={itemDialog.item}
+          restaurantId={restaurantId}
         />
       )}
     </div>

@@ -10,6 +10,11 @@ jest.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+jest.mock("@/app/api/photos/actions", () => ({
+  uploadDishPhoto: jest.fn(async () => ({ ok: true, url: null })),
+  removeDishPhoto: jest.fn(async () => ({ ok: true, url: null })),
+}));
+
 jest.mock("@/app/(app)/partner/(dashboard)/menu/actions", () => ({
   saveItem: jest.fn(async () => ({ ok: true })),
   createSection: jest.fn(async () => ({ ok: true })),
@@ -33,6 +38,7 @@ const SECTION: MenuSectionData = {
       isChefPick: false,
       isAvailable: true,
       sortOrder: 0,
+      photoUrl: null,
     },
     {
       id: "00000000-0000-0000-0000-000000000002",
@@ -43,6 +49,7 @@ const SECTION: MenuSectionData = {
       isChefPick: true,
       isAvailable: true,
       sortOrder: 1,
+      photoUrl: null,
     },
   ],
 };
@@ -53,7 +60,7 @@ function renderEditor() {
       locale="ro"
       bundle={{ "partner.menu": roMenu, "partner.common": roCommon }}
     >
-      <MenuEditor sections={[SECTION]} />
+      <MenuEditor sections={[SECTION]} restaurantId="00000000-0000-0000-0000-0000000000ff" />
     </MessagesProvider>,
   );
 }

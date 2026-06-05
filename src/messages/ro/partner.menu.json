@@ -55,6 +55,15 @@
     "genericError": "A eșuat."
   },
   "itemDialog": {
+    "photo": {
+      "label": "Fotografie fel",
+      "add": "Adaugă fotografie",
+      "replace": "Înlocuiește",
+      "remove": "Elimină",
+      "uploading": "Se încarcă…",
+      "saveFirst": "Salvează felul mai întâi, apoi adaugi o fotografie.",
+      "error": "Încărcarea fotografiei a eșuat."
+    },
     "titleNew": "Fel nou",
     "titleEdit": "Editează felul",
     "close": "Închide",

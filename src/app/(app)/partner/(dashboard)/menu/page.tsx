@@ -8,6 +8,7 @@ import { PrintQrButton } from "./PrintQrButton";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
+import { resolvePhotoUrl } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export default async function PartnerMenuPage() {
   const { data: itemsRaw } = await supabase
     .from("menu_items")
     .select(
-      "id, section_id, name, description, price_cents, dietary_tags, is_chef_pick, is_available, sort_order",
+      "id, section_id, name, description, price_cents, dietary_tags, is_chef_pick, is_available, sort_order, photo_storage_path",
     )
     .eq("restaurant_id", restaurantId)
     .order("sort_order");
@@ -60,6 +61,7 @@ export default async function PartnerMenuPage() {
         isChefPick: i.is_chef_pick,
         isAvailable: i.is_available,
         sortOrder: i.sort_order,
+        photoUrl: resolvePhotoUrl(i.photo_storage_path),
       })),
   }));
 
@@ -77,7 +79,7 @@ export default async function PartnerMenuPage() {
         <PrintQrButton menuItemCount={(itemsRaw ?? []).length} />
       </header>
 
-      <MenuEditor sections={sections} />
+      <MenuEditor sections={sections} restaurantId={restaurantId} />
     </div>
   );
 }
