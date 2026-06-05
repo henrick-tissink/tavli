@@ -442,6 +442,13 @@
       "when": 1779606000000,
       "tag": "0062_telemetry",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1779607000000,
+      "tag": "0063_view_events_retention",
+      "breakpoints": true
     }
   ]
 }
