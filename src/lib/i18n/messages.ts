@@ -2169,6 +2169,7 @@ export interface PartnerSettingsMessages {
     title: string;
     subtitle: string;
     noRestaurant: string;
+    floorCapacityNote: string;
     weekdaysFull: string;
     emptyTitle: string;
     emptyBody: string;

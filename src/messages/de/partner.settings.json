@@ -98,6 +98,7 @@
       "endAfterStart": "Die Endzeit muss nach der Startzeit liegen.",
       "capacityMin": "Kapazität muss ≥ 1 sein.",
       "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um die Verfügbarkeit zu bearbeiten."
-    }
+    },
+    "floorCapacityNote": "Dein Saalplan fasst {seats} Plätze. Buchungen werden durch deine Tische begrenzt — verwalte sie unter Saal."
   }
 }

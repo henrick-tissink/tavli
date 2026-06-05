@@ -98,6 +98,7 @@
       "endAfterStart": "Ora de sfârșit trebuie să fie după ora de început.",
       "capacityMin": "Capacitatea trebuie să fie ≥ 1.",
       "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita disponibilitatea."
-    }
+    },
+    "floorCapacityNote": "Planul tău de sală are {seats} locuri. Rezervările sunt limitate de mesele tale — le gestionezi în Sală."
   }
 }
