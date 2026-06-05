@@ -166,7 +166,12 @@ export async function createReservation(
 
   if (error) {
     const msg = error.message ?? "";
-    if (msg.includes("Slot is full") || error.code === "TV002") {
+    if (
+      msg.includes("Slot is full") ||
+      msg.includes("Table already booked") ||
+      error.code === "TV002" ||
+      error.code === "TV003"
+    ) {
       return {
         ok: false,
         mode: "db",
