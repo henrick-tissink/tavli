@@ -1,16 +1,19 @@
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { getCurrentSession } from "@/lib/auth/session";
 import { PhotoUploader, type PhotoRow } from "@/components/onboarding/PhotoUploader";
+import { MenuPhotosSection, type DishPhoto } from "@/components/partner/MenuPhotosSection";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
+import { resolvePhotoUrl } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
 export default async function PartnerPhotosPage() {
   const session = await getCurrentSession();
   const supabase = await createSupabaseServerClient();
-  const m = getMessages(await resolveAppLocale(), "partner.settings").photos;
+  const locale = await resolveAppLocale();
+  const m = getMessages(locale, "partner.settings").photos;
 
   const restaurantId = await currentUserPrimaryRestaurant(session!);
   if (!restaurantId) {
@@ -41,6 +44,18 @@ export default async function PartnerPhotosPage() {
     sortOrder: p.sort_order,
   }));
 
+  // Dish photos for the read-only "Menu" section (owned by menu_items).
+  const { data: dishRows } = await supabase
+    .from("menu_items")
+    .select("id, name, photo_storage_path, sort_order")
+    .eq("restaurant_id", restaurantId)
+    .not("photo_storage_path", "is", null)
+    .order("sort_order");
+
+  const dishPhotos: DishPhoto[] = (dishRows ?? [])
+    .map((d) => ({ id: d.id, name: d.name, photoUrl: resolvePhotoUrl(d.photo_storage_path) ?? "" }))
+    .filter((d) => d.photoUrl);
+
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8 max-w-3xl">
       <header className="mb-6">
@@ -52,7 +67,14 @@ export default async function PartnerPhotosPage() {
         </p>
       </header>
 
-      <PhotoUploader restaurantId={restaurantId} initialPhotos={photos} />
+      <section>
+        <h2 className="font-display text-xl font-bold text-text-primary mb-4">
+          {m.restaurantSectionTitle}
+        </h2>
+        <PhotoUploader restaurantId={restaurantId} initialPhotos={photos} />
+      </section>
+
+      <MenuPhotosSection dishes={dishPhotos} locale={locale} />
     </div>
   );
 }

@@ -27,7 +27,12 @@
     "title": "Photos",
     "subtitle": "Upload new photos, choose a main one, delete the ones you don't like.",
     "noRestaurantTitle": "No restaurant linked to this account yet",
-    "noRestaurantBody": "Contact the Tavli team if you've ended up here by mistake."
+    "noRestaurantBody": "Contact the Tavli team if you've ended up here by mistake.",
+    "restaurantSectionTitle": "Restaurant photos",
+    "menuSectionTitle": "Menu photos",
+    "menuSectionSubtitle": "Your dish photos. Manage them from the menu editor.",
+    "menuSectionEmpty": "No dish has a photo yet. Add one from the menu editor.",
+    "editInMenu": "Edit in menu"
   },
   "preview": {
     "title": "Preview",

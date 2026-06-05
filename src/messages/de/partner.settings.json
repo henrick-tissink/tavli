@@ -27,7 +27,12 @@
     "title": "Fotos",
     "subtitle": "Laden Sie neue Fotos hoch, wählen Sie ein Hauptfoto, löschen Sie die, die Ihnen nicht gefallen.",
     "noRestaurantTitle": "Diesem Konto ist noch kein Restaurant zugeordnet",
-    "noRestaurantBody": "Kontaktieren Sie das Tavli-Team, falls Sie versehentlich hier gelandet sind."
+    "noRestaurantBody": "Kontaktieren Sie das Tavli-Team, falls Sie versehentlich hier gelandet sind.",
+    "restaurantSectionTitle": "Restaurantfotos",
+    "menuSectionTitle": "Menüfotos",
+    "menuSectionSubtitle": "Deine Gerichtsfotos. Verwalte sie im Menü-Editor.",
+    "menuSectionEmpty": "Noch kein Gericht hat ein Foto. Füge eines im Menü-Editor hinzu.",
+    "editInMenu": "Im Menü bearbeiten"
   },
   "preview": {
     "title": "Vorschau",

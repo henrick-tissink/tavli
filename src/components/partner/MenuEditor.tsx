@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
@@ -52,6 +52,7 @@ export function MenuEditor({
 }) {
   const t = useT("partner.menu");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(sections.length > 0 ? [sections[0]!.id] : []),
   );
@@ -78,6 +79,36 @@ export function MenuEditor({
     },
   });
   const [pending, start] = useTransition();
+
+  // Deep-link from the Photos page Menu section (/partner/menu?dish=<id>):
+  // expand the section and open that dish's editor on mount.
+  useEffect(() => {
+    const dishId = searchParams.get("dish");
+    if (!dishId) return;
+    for (const section of sections) {
+      const it = section.items.find((i) => i.id === dishId);
+      if (it) {
+        setExpanded((prev) => new Set(prev).add(section.id));
+        setItemDialog({
+          open: true,
+          item: {
+            id: it.id,
+            sectionId: section.id,
+            name: it.name,
+            description: it.description ?? "",
+            priceLei: it.priceCents / 100,
+            dietaryTags: it.dietaryTags,
+            isChefPick: it.isChefPick,
+            isAvailable: it.isAvailable,
+            photoUrl: it.photoUrl,
+            translations: it.translations,
+          },
+        });
+        break;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
