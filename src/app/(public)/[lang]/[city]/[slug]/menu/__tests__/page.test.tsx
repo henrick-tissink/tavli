@@ -116,6 +116,26 @@ describe("DinerMenuPage", () => {
     expect(wordmark!.tagName).not.toBe("A");
   });
 
+  test("wordmark overlays the hero (absolute) when a menu and hero photo exist", async () => {
+    getRestaurantBySlugMock.mockResolvedValue(restaurantFixture);
+    getRestaurantDetailMock.mockResolvedValue(detailFixture);
+    getMenuMock.mockResolvedValue(menuFixture);
+    const { container } = await renderPage();
+    const wrapper = container.querySelector('[data-testid="tavli-wordmark"]')!
+      .parentElement!;
+    expect(wrapper.className).toContain("absolute");
+  });
+
+  test("wordmark falls back to the static strip when there is no menu (no hero)", async () => {
+    getRestaurantBySlugMock.mockResolvedValue(restaurantFixture);
+    getRestaurantDetailMock.mockResolvedValue(detailFixture);
+    getMenuMock.mockResolvedValue(null);
+    const { container } = await renderPage();
+    const wrapper = container.querySelector('[data-testid="tavli-wordmark"]')!
+      .parentElement!;
+    expect(wrapper.className).not.toContain("absolute");
+  });
+
   test("missing restaurant: calls notFound()", async () => {
     getRestaurantBySlugMock.mockResolvedValue(null);
     getRestaurantDetailMock.mockResolvedValue(null);

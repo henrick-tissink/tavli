@@ -70,15 +70,28 @@ export default async function DinerMenuPage({
 
   return (
     <MessagesProvider locale={locale} bundle={bundle}>
-      <div className="min-h-screen bg-surface-bg">
-        <div className="px-4 pt-4">
-          <span
-            data-testid="tavli-wordmark"
-            className="font-display text-xl font-bold text-brand-primary tracking-tight"
-          >
-            Tavli
-          </span>
-        </div>
+      <div className="relative min-h-screen bg-surface-bg">
+        {/* Standalone-menu branding (QR landing). Overlaid on the hero when
+            one renders (mirroring the back button); static strip otherwise. */}
+        {localizedMenu && heroPhoto ? (
+          <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-sm">
+            <span
+              data-testid="tavli-wordmark"
+              className="font-display text-lg font-bold text-white tracking-tight"
+            >
+              Tavli
+            </span>
+          </div>
+        ) : (
+          <div className="px-4 pt-4">
+            <span
+              data-testid="tavli-wordmark"
+              className="font-display text-xl font-bold text-brand-primary tracking-tight"
+            >
+              Tavli
+            </span>
+          </div>
+        )}
 
         <MenuPageClient
           city={city}
