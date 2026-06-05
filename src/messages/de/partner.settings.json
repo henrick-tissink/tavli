@@ -49,22 +49,15 @@
     "subtitle": "Deine englischen und deutschen Seiten, neben dem Rumänischen. Rumänisch ist die Quelle — bearbeite es im Profil. Leere Felder fallen auf Rumänisch zurück.",
     "noRestaurant": "Dem Konto ist kein Restaurant zugeordnet.",
     "fields": {
-      "tagline": "Tagline",
       "heroSubtitle": "Hero-Untertitel",
       "descriptionShort": "Kurzbeschreibung",
-      "descriptionLong": "Lange Beschreibung",
-      "chefBio": "Küchenchef-Bio",
-      "ambience": "Ambiente"
+      "descriptionLong": "Lange Beschreibung"
     },
-    "roPrefix": "RO: {text}",
-    "save": "{language} speichern",
-    "toastSaved": "Übersetzung {locale} gespeichert.",
     "toastFailed": "Speichern fehlgeschlagen.",
     "errors": {
-      "invalidLocale": "Ungültige Sprache.",
       "billing_locked": "Die Abrechnung für dieses Konto ist ausgesetzt — nehmen Sie die Zahlung wieder auf, um Übersetzungen zu bearbeiten."
     },
-    "noRomanian": "Keine rumänische Version — nur auf den EN/DE-Seiten sichtbar.",
+    "noRomanian": "Noch kein rumänischer Text — füge ihn im Profil hinzu.",
     "editOnProfile": "Im Profil bearbeiten",
     "saveAll": "Übersetzungen speichern",
     "toastSavedAll": "Übersetzungen gespeichert."

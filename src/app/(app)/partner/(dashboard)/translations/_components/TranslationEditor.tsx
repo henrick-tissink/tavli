@@ -12,12 +12,9 @@ type Locale = "en" | "de";
 type FieldKey = keyof TranslationFields;
 
 const FIELD_DEFS: { key: FieldKey; long?: boolean }[] = [
-  { key: "tagline" },
   { key: "heroSubtitle" },
   { key: "descriptionShort", long: true },
   { key: "descriptionLong", long: true },
-  { key: "chefBio", long: true },
-  { key: "ambience", long: true },
 ];
 
 export function TranslationEditor({

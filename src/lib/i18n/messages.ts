@@ -2139,23 +2139,16 @@ export interface PartnerSettingsMessages {
     subtitle: string;
     noRestaurant: string;
     fields: {
-      tagline: string;
       heroSubtitle: string;
       descriptionShort: string;
       descriptionLong: string;
-      chefBio: string;
-      ambience: string;
     };
-    roPrefix: string;
-    save: string;
     saveAll: string;
-    toastSaved: string;
     toastSavedAll: string;
     toastFailed: string;
     noRomanian: string;
     editOnProfile: string;
     errors: {
-      invalidLocale: string;
       billing_locked: string;
     };
   };

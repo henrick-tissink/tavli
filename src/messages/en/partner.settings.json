@@ -49,22 +49,15 @@
     "subtitle": "Your English and German pages, shown next to the Romanian. Romanian is the source — edit it on Profile. Empty fields fall back to Romanian.",
     "noRestaurant": "No restaurant linked to the account.",
     "fields": {
-      "tagline": "Tagline",
       "heroSubtitle": "Hero subtitle",
       "descriptionShort": "Short description",
-      "descriptionLong": "Long description",
-      "chefBio": "Chef bio",
-      "ambience": "Ambience"
+      "descriptionLong": "Long description"
     },
-    "roPrefix": "RO: {text}",
-    "save": "Save {language}",
-    "toastSaved": "{locale} translation saved.",
     "toastFailed": "Saving failed.",
     "errors": {
-      "invalidLocale": "Invalid language.",
       "billing_locked": "Billing is suspended on this account — resume payment to edit translations."
     },
-    "noRomanian": "No Romanian version — shown only on the EN/DE pages.",
+    "noRomanian": "No Romanian text yet — add it on Profile.",
     "editOnProfile": "Edit on Profile",
     "saveAll": "Save translations",
     "toastSavedAll": "Translations saved."

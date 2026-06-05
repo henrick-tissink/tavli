@@ -49,22 +49,15 @@
     "subtitle": "Versiunile în engleză și germană ale paginii tale, alături de română. Româna este sursa — o editezi în Profil. Câmpurile goale revin la română.",
     "noRestaurant": "Niciun restaurant asociat contului.",
     "fields": {
-      "tagline": "Tagline",
       "heroSubtitle": "Subtitlu hero",
       "descriptionShort": "Descriere scurtă",
-      "descriptionLong": "Descriere lungă",
-      "chefBio": "Bio chef",
-      "ambience": "Ambianță"
+      "descriptionLong": "Descriere lungă"
     },
-    "roPrefix": "RO: {text}",
-    "save": "Salvează {language}",
-    "toastSaved": "Traducere {locale} salvată.",
     "toastFailed": "Salvarea nu a reușit.",
     "errors": {
-      "invalidLocale": "Limbă invalidă.",
       "billing_locked": "Contul are facturarea suspendată — reia plata pentru a edita traducerile."
     },
-    "noRomanian": "Fără versiune în română — apare doar pe paginile EN/DE.",
+    "noRomanian": "Fără text în română încă — adaugă-l în Profil.",
     "editOnProfile": "Editează în Profil",
     "saveAll": "Salvează traducerile",
     "toastSavedAll": "Traduceri salvate."

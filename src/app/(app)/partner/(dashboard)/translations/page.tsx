@@ -34,12 +34,9 @@ export default async function PartnerTranslationsPage() {
     dbAdmin
       .select({
         locale: restaurantTranslations.locale,
-        tagline: restaurantTranslations.tagline,
         heroSubtitle: restaurantTranslations.heroSubtitle,
         descriptionShort: restaurantTranslations.descriptionShort,
         descriptionLong: restaurantTranslations.descriptionLong,
-        chefBio: restaurantTranslations.chefBio,
-        ambience: restaurantTranslations.ambience,
       })
       .from(restaurantTranslations)
       .where(
@@ -53,12 +50,9 @@ export default async function PartnerTranslationsPage() {
   const pick = (locale: "en" | "de"): TranslationFields => {
     const r = rows.find((x) => x.locale === locale);
     return {
-      tagline: r?.tagline ?? "",
       heroSubtitle: r?.heroSubtitle ?? "",
       descriptionShort: r?.descriptionShort ?? "",
       descriptionLong: r?.descriptionLong ?? "",
-      chefBio: r?.chefBio ?? "",
-      ambience: r?.ambience ?? "",
     };
   };
 
@@ -76,12 +70,10 @@ export default async function PartnerTranslationsPage() {
         <TranslationEditor
           initial={{ en: pick("en"), de: pick("de") }}
           roReference={{
-            tagline: null,
             heroSubtitle: base?.heroNote ?? null,
             descriptionShort: base?.description ?? null,
-            descriptionLong: null,
-            chefBio: null,
-            ambience: null,
+            // RO has a single description; both EN/DE description fields localize it.
+            descriptionLong: base?.description ?? null,
           }}
         />
       </div>
