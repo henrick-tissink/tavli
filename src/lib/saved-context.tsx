@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { sendSaveBeacon } from "@/lib/telemetry/client";
 
 export interface SavedList {
@@ -64,9 +64,21 @@ export function SavedProvider({ children }: { children: ReactNode }) {
     persistSaved(state);
   }, [state]);
 
+  // Synchronously-updated mirror of savedIds for the telemetry beacon: two
+  // toggleSave calls batched into one render would otherwise both read the
+  // same stale state and send the same saved flag (desyncing the server).
+  // Kept outside the setState updater, which may re-run in strict mode.
+  const savedIdsRef = useRef(state.savedIds);
+  useEffect(() => {
+    savedIdsRef.current = state.savedIds;
+  }, [state.savedIds]);
+
   const toggleSave = useCallback((id: string) => {
-    // Telemetry sync outside the updater (updaters may re-run in strict mode).
-    sendSaveBeacon(id, !state.savedIds.includes(id));
+    const willSave = !savedIdsRef.current.includes(id);
+    savedIdsRef.current = willSave
+      ? [...savedIdsRef.current, id]
+      : savedIdsRef.current.filter((s) => s !== id);
+    sendSaveBeacon(id, willSave);
     setState((prev) => {
       const exists = prev.savedIds.includes(id);
       return {
@@ -74,7 +86,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
         savedIds: exists ? prev.savedIds.filter((s) => s !== id) : [...prev.savedIds, id],
       };
     });
-  }, [state.savedIds]);
+  }, []);
 
   const isSaved = useCallback(
     (id: string) => state.savedIds.includes(id),

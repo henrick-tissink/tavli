@@ -50,6 +50,17 @@ describe("SavedContext", () => {
     expect(sendSaveBeaconMock).toHaveBeenLastCalledWith("r1", false);
   });
 
+  it("a rapid double-toggle in one batch sends save then unsave (no stale closure)", () => {
+    const getCtx = renderWithProvider();
+    act(() => {
+      getCtx().toggleSave("r1");
+      getCtx().toggleSave("r1");
+    });
+    expect(sendSaveBeaconMock).toHaveBeenNthCalledWith(1, "r1", true);
+    expect(sendSaveBeaconMock).toHaveBeenNthCalledWith(2, "r1", false);
+    expect(getCtx().savedIds).not.toContain("r1");
+  });
+
   it("isSaved returns correct state", () => {
     const getCtx = renderWithProvider();
     expect(getCtx().isSaved("r1")).toBe(false);
