@@ -98,6 +98,7 @@
       "endAfterStart": "The end time must be after the start time.",
       "capacityMin": "Capacity must be ≥ 1.",
       "billing_locked": "Billing is suspended on this account — resume payment to edit availability."
-    }
+    },
+    "floorCapacityNote": "Your floor plan seats {seats}. Bookings are limited by your tables — manage them in Floor."
   }
 }

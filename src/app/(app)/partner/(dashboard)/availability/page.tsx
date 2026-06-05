@@ -7,6 +7,8 @@ import {
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
+import Link from "next/link";
+import { interpolate } from "@/lib/i18n/t";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +43,19 @@ export default async function PartnerAvailabilityPage() {
     capacity: r.capacity,
   }));
 
+  // Floor plan is the source of truth for capacity. Surface its seat count so
+  // the per-slot covers number reads as a pacing ceiling, not a second source.
+  const { data: tableRows } = await supabase
+    .from("restaurant_tables")
+    .select("capacity_max")
+    .eq("restaurant_id", restaurantId)
+    .is("archived_at", null)
+    .eq("is_bookable_online", true);
+  const floorSeats = (tableRows ?? []).reduce(
+    (s, t) => s + ((t.capacity_max as number) ?? 0),
+    0,
+  );
+
   return (
     <div className="px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
@@ -50,6 +65,14 @@ export default async function PartnerAvailabilityPage() {
         <p className="text-sm text-text-secondary mt-1 max-w-xl">
           {m.subtitle}
         </p>
+        {floorSeats > 0 && (
+          <Link
+            href="/partner/tables/live"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-button bg-surface-bg px-3 py-2 text-sm text-text-secondary hover:text-text-primary"
+          >
+            {interpolate(m.floorCapacityNote, { seats: floorSeats })}
+          </Link>
+        )}
       </header>
 
       <AvailabilityEditor slots={slots} />

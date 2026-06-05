@@ -143,6 +143,22 @@ export async function createReservation(
     };
   }
 
+  // Apply the planner's table assignment. For single bookings we insert the
+  // table directly; for combinations the row goes in unassigned and is linked
+  // to a freshly-created table_combinations row. Movable siblings the planner
+  // reshuffled are cleared-then-set first so the exclusion trigger never sees a
+  // transient collision.
+  const insertTableId = plan.kind === "single" ? plan.tableId : null;
+  const autoAssigned = plan.kind === "single" || plan.kind === "combination";
+  const siblingMoves =
+    plan.kind === "single" || plan.kind === "combination" ? plan.siblingMoves : [];
+  for (const m of siblingMoves) {
+    await admin.from("reservations").update({ table_id: null }).eq("id", m.id);
+  }
+  for (const m of siblingMoves) {
+    if (m.tableId) await admin.from("reservations").update({ table_id: m.tableId }).eq("id", m.id);
+  }
+
   const { data, error } = await admin
     .from("reservations")
     .insert({
@@ -158,8 +174,8 @@ export async function createReservation(
       status: "confirmed",
       confirmation_token: confirmationToken,
       locale: reservationLocale,
-      table_id: plan.tableId,
-      auto_assigned: plan.tableId != null,
+      table_id: insertTableId,
+      auto_assigned: autoAssigned,
     })
     .select("id, restaurant_id")
     .single();
@@ -191,6 +207,25 @@ export async function createReservation(
       };
     }
     return { ok: false, mode: "db", error: msg || "Could not book.", errorCode: "OTHER" };
+  }
+
+  // Big party seated by joining tables: create the combination row and link it.
+  if (plan.kind === "combination" && data) {
+    const { data: combo } = await admin
+      .from("table_combinations")
+      .insert({
+        restaurant_id: input.restaurantId,
+        table_ids: plan.tableIds,
+        primary_table_id: plan.tableIds[0],
+        combined_capacity: plan.combinedCapacity,
+        reservation_id: data.id,
+        status: "booked",
+      })
+      .select("id")
+      .single();
+    if (combo) {
+      await admin.from("reservations").update({ combination_id: combo.id }).eq("id", data.id);
+    }
   }
 
   // Resolve restaurant details for the emails.
