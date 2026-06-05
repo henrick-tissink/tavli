@@ -26,6 +26,7 @@ import {
   jsonb,
   numeric,
   smallint,
+  bigint,
   text,
   timestamp,
   uuid,
@@ -2295,4 +2296,30 @@ export const prospectWaitlist = pgTable("prospect_waitlist", {
   redactedAt: timestamp("redacted_at", { withTimezone: true }),
 }, (t) => [
   uniqueIndex("prospect_waitlist_email_unique").on(sql`lower(${t.email})`).where(sql`invited_at is null and redacted_at is null`),
+]);
+
+// ── telemetry (0062) ────────────────────────────────────────────────────
+// Venue-page view events: no user/device identifier by design (countable,
+// not trackable). Backs the partner overview "views this week" card.
+export const restaurantViewEvents = pgTable("restaurant_view_events", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  locale: char("locale", { length: 2 }),
+}, (t) => [
+  index("restaurant_view_events_restaurant_time").on(t.restaurantId, t.occurredAt.desc()),
+]);
+
+// Server-side mirror of the diner device's saved list (client-generated id).
+// Insert on save, delete on unsave; count backs the "saves" card.
+export const restaurantSaves = pgTable("restaurant_saves", {
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  clientId: uuid("client_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.restaurantId, t.clientId] }),
 ]);

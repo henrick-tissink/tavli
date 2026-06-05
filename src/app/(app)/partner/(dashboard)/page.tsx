@@ -8,6 +8,7 @@ import {
   type ChecklistItem,
 } from "@/components/partner/ContentHealthChecklist";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { getOverviewStats } from "@/lib/repos/overview-stats";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 import { translate, interpolate } from "@/lib/i18n/t";
@@ -51,6 +52,9 @@ export default async function PartnerDashboardPage({
       </div>
     );
   }
+
+  // Stat-card counts (null in mock mode → cards keep their "—" stubs).
+  const stats = await getOverviewStats(restaurant.id);
 
   const [
     { count: heroCount },
@@ -182,23 +186,23 @@ export default async function PartnerDashboardPage({
       <section className="grid grid-cols-1 tablet:grid-cols-3 gap-4 mb-10">
         <StatCard
           label={m.stats.viewsLabel}
-          value="—"
+          value={stats ? stats.viewsThisWeek.toLocaleString(locale) : "—"}
           icon={Eye}
-          tone="muted"
-          hint={m.stats.viewsHint}
+          tone={stats ? "default" : "muted"}
+          hint={stats ? undefined : m.stats.viewsHint}
         />
         <StatCard
           label={m.stats.savesLabel}
-          value="—"
+          value={stats ? stats.saves.toLocaleString(locale) : "—"}
           icon={Heart}
-          tone="muted"
+          tone={stats ? "default" : "muted"}
           hint={m.stats.savesHint}
         />
         <StatCard
           label={m.stats.reservationsLabel}
-          value="—"
+          value={stats ? stats.upcomingReservations.toLocaleString(locale) : "—"}
           icon={CalendarClock}
-          tone="muted"
+          tone={stats ? "default" : "muted"}
           hint={m.stats.reservationsHint}
         />
       </section>

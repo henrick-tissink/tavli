@@ -25,6 +25,8 @@ import { SectionHeader } from "@/components/section-header";
 import { useSaved } from "@/lib/saved-context";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { localizeSchedule } from "@/lib/i18n/schedule";
+import { sendViewBeacon } from "@/lib/telemetry/client";
 import type { Vars } from "@/lib/i18n/t";
 
 interface Props {
@@ -38,6 +40,16 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
   const { isSaved, toggleSave, addBooking } = useSaved();
   const t = useT("restaurant");
   const locale = useLocale();
+  // restaurants.schedule is stored as RO display strings; translate for EN/DE.
+  const schedule = localizeSchedule(restaurant.schedule, locale);
+
+  // One view event per venue visit (ref-guarded against strict-mode re-runs).
+  const viewSent = useRef<string | null>(null);
+  useEffect(() => {
+    if (viewSent.current === restaurant.id) return;
+    viewSent.current = restaurant.id;
+    sendViewBeacon(restaurant.id, locale);
+  }, [restaurant.id, locale]);
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preSelectedSlot, setPreSelectedSlot] = useState<string | undefined>(
@@ -260,7 +272,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
             <section className="mt-8">
               <SectionHeader title={t("detail.scheduleTitle")} subtitle={t("detail.scheduleSubtitle")} />
               <div className="mt-3 space-y-1">
-                {restaurant.schedule.map((entry) => (
+                {schedule.map((entry) => (
                   <div key={entry.days} className="flex justify-between text-sm">
                     <span className="text-text-primary">{entry.days}</span>
                     <span className="text-text-secondary">{entry.hours}</span>
@@ -310,7 +322,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
           <section className="mt-8">
             <SectionHeader title={t("detail.scheduleTitle")} subtitle={t("detail.scheduleSubtitle")} />
             <div className="mt-3 space-y-1">
-              {restaurant.schedule.map((entry) => (
+              {schedule.map((entry) => (
                 <div key={entry.days} className="flex justify-between text-sm">
                   <span className="text-text-primary">{entry.days}</span>
                   <span className="text-text-secondary">{entry.hours}</span>

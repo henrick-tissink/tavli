@@ -1,4 +1,10 @@
 import { render, act } from "@testing-library/react";
+
+const sendSaveBeaconMock = jest.fn();
+jest.mock("@/lib/telemetry/client", () => ({
+  sendSaveBeacon: (...a: unknown[]) => sendSaveBeaconMock(...a),
+}));
+
 import { SavedProvider, useSaved } from "../saved-context";
 
 function TestConsumer({ onRender }: { onRender: (ctx: ReturnType<typeof useSaved>) => void }) {
@@ -19,6 +25,7 @@ function renderWithProvider() {
 
 beforeEach(() => {
   localStorage.clear();
+  sendSaveBeaconMock.mockClear();
 });
 
 describe("SavedContext", () => {
@@ -33,6 +40,14 @@ describe("SavedContext", () => {
     act(() => { getCtx().toggleSave("r1"); });
     act(() => { getCtx().toggleSave("r1"); });
     expect(getCtx().savedIds).not.toContain("r1");
+  });
+
+  it("toggleSave fires a save beacon, then an unsave beacon", () => {
+    const getCtx = renderWithProvider();
+    act(() => { getCtx().toggleSave("r1"); });
+    expect(sendSaveBeaconMock).toHaveBeenLastCalledWith("r1", true);
+    act(() => { getCtx().toggleSave("r1"); });
+    expect(sendSaveBeaconMock).toHaveBeenLastCalledWith("r1", false);
   });
 
   it("isSaved returns correct state", () => {

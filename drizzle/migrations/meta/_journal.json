@@ -435,6 +435,13 @@
       "when": 1779605000000,
       "tag": "0061_reservation_event_locale",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1779606000000,
+      "tag": "0062_telemetry",
+      "breakpoints": true
     }
   ]
 }
