@@ -28,6 +28,7 @@ const SECTION: MenuSectionData = {
   name: "Aperitive",
   intro: null,
   sortOrder: 0,
+  translations: { en: { name: "", intro: "" }, de: { name: "", intro: "" } },
   items: [
     {
       id: "00000000-0000-0000-0000-000000000001",
@@ -39,6 +40,7 @@ const SECTION: MenuSectionData = {
       isAvailable: true,
       sortOrder: 0,
       photoUrl: null,
+      translations: { en: { name: "", description: "" }, de: { name: "", description: "" } },
     },
     {
       id: "00000000-0000-0000-0000-000000000002",
@@ -50,6 +52,7 @@ const SECTION: MenuSectionData = {
       isAvailable: true,
       sortOrder: 1,
       photoUrl: null,
+      translations: { en: { name: "", description: "" }, de: { name: "", description: "" } },
     },
   ],
 };

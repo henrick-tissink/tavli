@@ -52,7 +52,16 @@
     "saving": "Se salvează…",
     "create": "Creează",
     "save": "Salvează",
-    "genericError": "A eșuat."
+    "genericError": "A eșuat.",
+    "translations": {
+      "heading": "Traduceri",
+      "english": "Engleză",
+      "german": "Germană",
+      "nameLabel": "Nume",
+      "descriptionLabel": "Descriere",
+      "hint": "Lasă gol pentru a folosi versiunea în română.",
+      "introLabel": "Intro"
+    }
   },
   "itemDialog": {
     "photo": {
@@ -87,7 +96,15 @@
     "saving": "Se salvează…",
     "saveChanges": "Salvează modificările",
     "addItem": "Adaugă fel",
-    "genericError": "Salvarea a eșuat."
+    "genericError": "Salvarea a eșuat.",
+    "translations": {
+      "heading": "Traduceri",
+      "english": "Engleză",
+      "german": "Germană",
+      "nameLabel": "Nume",
+      "descriptionLabel": "Descriere",
+      "hint": "Lasă gol pentru a folosi versiunea în română."
+    }
   },
   "errors": {
     "sectionNameRequired": "Numele secțiunii este obligatoriu.",

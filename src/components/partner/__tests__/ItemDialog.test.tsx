@@ -121,4 +121,42 @@ describe("ItemDialog price input", () => {
     await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
     expect(saveItem).toHaveBeenCalledWith(expect.objectContaining({ priceLei: 1.5 }));
   });
+
+  it("includes EN/DE translations typed in the dialog in the saveItem payload", async () => {
+    const user = userEvent.setup();
+    renderDialog(
+      <ItemDialog
+        open
+        onClose={jest.fn()}
+        onSaved={jest.fn()}
+        item={blankItem({ name: "Pâine" })}
+        restaurantId="r1"
+      />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: roMenu.itemDialog.translations.heading }),
+    );
+    await user.type(
+      screen.getByLabelText(
+        `${roMenu.itemDialog.translations.english} — ${roMenu.itemDialog.translations.nameLabel}`,
+      ),
+      "House bread",
+    );
+    await user.type(
+      screen.getByLabelText(
+        `${roMenu.itemDialog.translations.german} — ${roMenu.itemDialog.translations.nameLabel}`,
+      ),
+      "Hausbrot",
+    );
+    await user.click(screen.getByRole("button", { name: /adaugă fel/i }));
+
+    expect(saveItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        translations: {
+          en: { name: "House bread", description: "" },
+          de: { name: "Hausbrot", description: "" },
+        },
+      }),
+    );
+  });
 });

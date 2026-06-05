@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { X, Star, ImagePlus, Trash2 } from "lucide-react";
+import { X, Star, ImagePlus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
@@ -14,6 +14,16 @@ import {
   removeDishPhoto,
 } from "@/app/api/photos/actions";
 
+export interface ItemTranslations {
+  en: { name: string; description: string };
+  de: { name: string; description: string };
+}
+
+export const emptyTranslations = (): ItemTranslations => ({
+  en: { name: "", description: "" },
+  de: { name: "", description: "" },
+});
+
 export interface EditableItem {
   id?: string;
   sectionId: string;
@@ -24,6 +34,7 @@ export interface EditableItem {
   isChefPick: boolean;
   isAvailable: boolean;
   photoUrl?: string | null;
+  translations?: ItemTranslations;
 }
 
 const TAG_OPTIONS: { value: string; icon?: string }[] = [
@@ -51,6 +62,10 @@ function parsePrice(input: string): number {
 export function ItemDialog({ open, onClose, onSaved, item, restaurantId }: Props) {
   const t = useT("partner.menu");
   const [state, setState] = useState<EditableItem>(item);
+  const [tr, setTr] = useState<ItemTranslations>(
+    item.translations ?? emptyTranslations(),
+  );
+  const [trOpen, setTrOpen] = useState(false);
   const [priceInput, setPriceInput] = useState<string>(
     item.priceLei > 0 ? String(item.priceLei) : "",
   );
@@ -112,6 +127,7 @@ export function ItemDialog({ open, onClose, onSaved, item, restaurantId }: Props
       const payload: SaveItemPayload = {
         ...state,
         priceLei: parsePrice(priceInput),
+        translations: tr,
       };
       const result = await saveItem(payload);
       if (!result.ok) {
@@ -309,6 +325,59 @@ export function ItemDialog({ open, onClose, onSaved, item, restaurantId }: Props
             />
             {t("itemDialog.chefPick")}
           </label>
+
+          {/* EN/DE translations — collapsed by default; empty fields fall back
+              to the Romanian base on the diner menu. */}
+          <div className="border-t border-border pt-4">
+            <button
+              type="button"
+              onClick={() => setTrOpen((o) => !o)}
+              className="flex items-center gap-1.5 text-sm font-semibold text-text-primary"
+            >
+              {trOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              {t("itemDialog.translations.heading")}
+            </button>
+            {trOpen && (
+              <div className="mt-3 space-y-4">
+                <p className="text-xs text-text-muted">
+                  {t("itemDialog.translations.hint")}
+                </p>
+                {(["en", "de"] as const).map((loc) => {
+                  const localeName =
+                    loc === "en"
+                      ? t("itemDialog.translations.english")
+                      : t("itemDialog.translations.german");
+                  return (
+                    <div key={loc} className="space-y-2 rounded-lg bg-surface-bg p-3">
+                      <p className="text-xs font-bold uppercase tracking-wide text-text-secondary">
+                        {localeName}
+                      </p>
+                      <input
+                        type="text"
+                        aria-label={`${localeName} — ${t("itemDialog.translations.nameLabel")}`}
+                        placeholder={t("itemDialog.translations.nameLabel")}
+                        value={tr[loc].name}
+                        onChange={(e) =>
+                          setTr((s) => ({ ...s, [loc]: { ...s[loc], name: e.target.value } }))
+                        }
+                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                      />
+                      <textarea
+                        aria-label={`${localeName} — ${t("itemDialog.translations.descriptionLabel")}`}
+                        placeholder={t("itemDialog.translations.descriptionLabel")}
+                        rows={2}
+                        value={tr[loc].description}
+                        onChange={(e) =>
+                          setTr((s) => ({ ...s, [loc]: { ...s[loc], description: e.target.value } }))
+                        }
+                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {error && (
             <p className="text-sm text-error" role="alert">
