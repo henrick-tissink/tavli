@@ -164,7 +164,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots, chefPicks, eventSettings, privateSpaces] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks, eventSettings, privateSpaces, bookableCaps] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -192,7 +192,21 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .order("sort_order")
       .order("capacity_min")
       .then(({ data }) => data ?? []),
+    sb
+      .from("restaurant_tables")
+      .select("capacity_max")
+      .eq("restaurant_id", data.id)
+      .is("archived_at", null)
+      .eq("is_bookable_online", true)
+      .then(({ data }) => (data ?? []).map((t) => t.capacity_max as number)),
   ]);
+
+  // Largest online party = sum of the 3 largest bookable tables (the planner's
+  // COMBO_MAX_TABLES), since big parties are seated by joining up to 3 tables.
+  const maxOnlinePartySize =
+    bookableCaps.length > 0
+      ? [...bookableCaps].sort((a, b) => b - a).slice(0, 3).reduce((s, c) => s + c, 0)
+      : null;
 
   const reviews = await getReviewsForRestaurant(data.id as string, 20);
   const reviewIntelligence = processReviews(reviews);
@@ -232,6 +246,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
     minLeadDays: (eventSettings?.min_lead_days as number | undefined) ?? undefined,
     budgetPerHeadGuidance:
       (eventSettings?.budget_per_head_guidance as string | null | undefined) ?? null,
+    maxOnlinePartySize,
     privateSpaces: privateSpaces.map((s) => ({
       id: s.id as string,
       name: s.name as string,

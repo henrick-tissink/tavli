@@ -417,6 +417,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         rating={restaurant.rating}
         voteCount={restaurant.voteCount}
         availableSlots={restaurant.availableSlots}
+        maxPartySize={restaurant.maxOnlinePartySize ?? undefined}
         preSelectedSlot={preSelectedSlot}
         onBookingConfirmed={(data) => {
           addBooking({

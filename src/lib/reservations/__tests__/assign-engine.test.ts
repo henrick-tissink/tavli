@@ -109,3 +109,38 @@ describe("pickCombination (dynamic table joining)", () => {
     expect(new Set(combo)).toEqual(new Set(["t8a", "t6"]));
   });
 });
+
+describe("pickCombination (adjacency-aware)", () => {
+  // Geometry: A and B sit side-by-side (pushable); C is across the room.
+  const G = (id: string, max: number, x: number, y: number) => ({
+    id,
+    capacityMin: 2,
+    capacityMax: max,
+    positionX: x,
+    positionY: y,
+    width: 80,
+    height: 80,
+  });
+
+  it("prefers two adjacent tables over a larger distant one", () => {
+    const tables = [G("a", 6, 0, 0), G("b", 6, 120, 0), G("c", 8, 0, 1000)];
+    // Greedy-largest-first would grab the distant 8-top c; adjacency must pick a+b.
+    const combo = pickCombination({ party: 12, tables, freeTableIds: new Set(["a", "b", "c"]) });
+    expect(new Set(combo)).toEqual(new Set(["a", "b"]));
+  });
+
+  it("falls back to a non-adjacent join rather than reject a feasible big party", () => {
+    // No adjacent subset can reach 14 (a+b = 12); must still seat via a+c or b+c.
+    const tables = [G("a", 6, 0, 0), G("b", 6, 120, 0), G("c", 8, 0, 1000)];
+    const combo = pickCombination({ party: 14, tables, freeTableIds: new Set(["a", "b", "c"]) });
+    expect(combo).not.toBeNull();
+    expect(combo!.reduce((s, id) => s + (tables.find((t) => t.id === id)!.capacityMax), 0)).toBeGreaterThanOrEqual(14);
+  });
+
+  it("chains three adjacent tables in a row", () => {
+    const tables = [G("a", 4, 0, 0), G("b", 4, 120, 0), G("c", 4, 240, 0), G("far", 8, 0, 1000)];
+    const combo = pickCombination({ party: 11, tables, freeTableIds: new Set(["a", "b", "c", "far"]) });
+    // a-b-c form a connected row summing 12 ≥ 11; 'far' is isolated.
+    expect(new Set(combo)).toEqual(new Set(["a", "b", "c"]));
+  });
+});

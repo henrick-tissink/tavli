@@ -23,7 +23,7 @@ import { consent } from "@/lib/marketing/consent";
 import { logReservationStatus } from "@/lib/reservations/status-log";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
-import { planTableAssignment } from "@/lib/reservations/assign-table";
+import { commitFloorBooking } from "@/lib/reservations/booking-commit";
 
 
 export interface CreateReservationInput {
@@ -115,90 +115,39 @@ export async function createReservation(
   const lc = (await cookies()).get(LOCALE_COOKIE)?.value;
   const reservationLocale = lc !== undefined && isLocale(lc) ? lc : "ro";
 
-  // Floor-plan capacity: plan a table assignment. For restaurants with a
-  // bookable floor plan this is the binding constraint (feasibility + best-fit
-  // auto-assign); restaurants without one fall through (tableId null) and stay
-  // governed by the coarse covers cap in the trigger.
-  const plan = await planTableAssignment(admin, {
+  // Floor-plan capacity: plan a table assignment AND persist it atomically.
+  // commitFloorBooking holds the per-(restaurant, date) advisory lock across the
+  // whole read+plan+write, so the floor can't change between deciding the
+  // assignment and committing it, and the sibling reshuffle + insert (+ any
+  // combination row) are all-or-nothing. For restaurants with a bookable floor
+  // plan this is the binding constraint (feasibility + best-fit auto-assign);
+  // restaurants without one fall through (tableId null) and stay governed by the
+  // coarse covers cap in the trigger.
+  const commit = await commitFloorBooking({
     restaurantId: input.restaurantId,
     date: input.date,
     time: input.time,
     partySize: input.partySize,
+    guestName: input.guestName.trim(),
+    guestPhone: guestPhoneE164,
+    guestEmail: input.guestEmail?.trim() || null,
+    zone: input.zone?.trim() || null,
+    notes: input.notes?.trim() || null,
+    confirmationToken,
+    locale: reservationLocale,
   });
-  if (!plan.ok) {
-    if (plan.reason === "party_too_large") {
+
+  if (!commit.ok) {
+    if (commit.reason === "party_too_large") {
       return {
         ok: false,
         mode: "db",
-        error: `For parties over ${plan.maxParty}, please request a private event.`,
+        error: `For parties over ${commit.maxParty}, please request a private event.`,
         errorCode: "PARTY_TOO_LARGE",
-        maxParty: plan.maxParty,
+        maxParty: commit.maxParty,
       };
     }
-    return {
-      ok: false,
-      mode: "db",
-      error: "That time is fully booked. Try a neighbouring slot.",
-      errorCode: "SLOT_FULL",
-    };
-  }
-
-  // Apply the planner's table assignment. For single bookings we insert the
-  // table directly; for combinations the row goes in unassigned and is linked
-  // to a freshly-created table_combinations row. Movable siblings the planner
-  // reshuffled are cleared-then-set first so the exclusion trigger never sees a
-  // transient collision.
-  const insertTableId = plan.kind === "single" ? plan.tableId : null;
-  const autoAssigned = plan.kind === "single" || plan.kind === "combination";
-  const siblingMoves =
-    plan.kind === "single" || plan.kind === "combination" ? plan.siblingMoves : [];
-  for (const m of siblingMoves) {
-    await admin.from("reservations").update({ table_id: null }).eq("id", m.id);
-  }
-  for (const m of siblingMoves) {
-    if (m.tableId) await admin.from("reservations").update({ table_id: m.tableId }).eq("id", m.id);
-  }
-
-  const { data, error } = await admin
-    .from("reservations")
-    .insert({
-      restaurant_id: input.restaurantId,
-      guest_name: input.guestName.trim(),
-      guest_phone: guestPhoneE164,
-      guest_email: input.guestEmail?.trim() || null,
-      party_size: input.partySize,
-      reservation_date: input.date,
-      reservation_time: `${input.time}:00`,
-      zone: input.zone?.trim() || null,
-      notes: input.notes?.trim() || null,
-      status: "confirmed",
-      confirmation_token: confirmationToken,
-      locale: reservationLocale,
-      table_id: insertTableId,
-      auto_assigned: autoAssigned,
-    })
-    .select("id, restaurant_id")
-    .single();
-
-  if (error) {
-    const msg = error.message ?? "";
-    if (
-      msg.includes("Slot is full") ||
-      msg.includes("Table already booked") ||
-      error.code === "TV002" ||
-      error.code === "TV003"
-    ) {
-      return {
-        ok: false,
-        mode: "db",
-        error: "That time is fully booked. Try a neighbouring slot.",
-        errorCode: "SLOT_FULL",
-      };
-    }
-    if (
-      msg.includes("No availability configured") ||
-      error.code === "TV001"
-    ) {
+    if (commit.reason === "no_availability") {
       return {
         ok: false,
         mode: "db",
@@ -206,27 +155,20 @@ export async function createReservation(
         errorCode: "NO_AVAILABILITY",
       };
     }
-    return { ok: false, mode: "db", error: msg || "Could not book.", errorCode: "OTHER" };
+    if (commit.reason === "no_table") {
+      return {
+        ok: false,
+        mode: "db",
+        error: "That time is fully booked. Try a neighbouring slot.",
+        errorCode: "SLOT_FULL",
+      };
+    }
+    return { ok: false, mode: "db", error: commit.message || "Could not book.", errorCode: "OTHER" };
   }
 
-  // Big party seated by joining tables: create the combination row and link it.
-  if (plan.kind === "combination" && data) {
-    const { data: combo } = await admin
-      .from("table_combinations")
-      .insert({
-        restaurant_id: input.restaurantId,
-        table_ids: plan.tableIds,
-        primary_table_id: plan.tableIds[0],
-        combined_capacity: plan.combinedCapacity,
-        reservation_id: data.id,
-        status: "booked",
-      })
-      .select("id")
-      .single();
-    if (combo) {
-      await admin.from("reservations").update({ combination_id: combo.id }).eq("id", data.id);
-    }
-  }
+  // The reservation is committed; remaining steps (emails, audit, diner upsert)
+  // are best-effort back-office work over the supabase client.
+  const data = { id: commit.reservationId, restaurant_id: input.restaurantId };
 
   // Resolve restaurant details for the emails.
   const { data: restaurant } = await admin

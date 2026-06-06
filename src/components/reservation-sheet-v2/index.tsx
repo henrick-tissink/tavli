@@ -35,6 +35,8 @@ interface ReservationSheetV2Props {
   voteCount?: number;
   availableSlots: string[];
   zones?: string[];
+  /** Largest party bookable online (floor-plan combinable cap). Default 12. */
+  maxPartySize?: number;
   preSelectedSlot?: string;
   onBookingConfirmed?: (data: {
     restaurantName: string;
@@ -67,6 +69,7 @@ export function ReservationSheetV2({
   restaurantName,
   availableSlots,
   zones,
+  maxPartySize,
   preSelectedSlot,
   onBookingConfirmed,
 }: ReservationSheetV2Props) {
@@ -290,6 +293,7 @@ export function ReservationSheetV2({
               <StepParty
                 value={form.guests}
                 onChange={(n) => patch({ guests: n })}
+                max={maxPartySize}
               />
             </motion.div>
           )}

@@ -255,4 +255,12 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
   acceptedOccasions: EventOccasion[];
   minLeadDays?: number;
   budgetPerHeadGuidance?: string | null;
+  /**
+   * Largest party the floor plan can seat online — the sum of the largest
+   * combinable tables (top 3 bookable tables by capacity). Drives the party
+   * stepper's upper bound so 13–22 covers can book via table combinations
+   * instead of being pushed to the private-events flow. `null` when the venue
+   * has no bookable floor plan (falls back to the coarse default cap).
+   */
+  maxOnlinePartySize?: number | null;
 }
