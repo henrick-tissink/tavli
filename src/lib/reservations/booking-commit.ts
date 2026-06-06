@@ -55,6 +55,7 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
         tableId: reservations.tableId,
         combinationId: reservations.combinationId,
         autoAssigned: reservations.autoAssigned,
+        status: reservations.status,
       })
       .from(reservations)
       .where(
@@ -74,6 +75,7 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
     tableId: e.tableId,
     combinationId: e.combinationId,
     autoAssigned: e.autoAssigned,
+    status: e.status,
   }));
 
   const comboIds = [...new Set(existing.map((e) => e.combinationId).filter(Boolean))] as string[];
@@ -128,9 +130,13 @@ export async function commitFloorBooking(input: CommitInput): Promise<CommitResu
   try {
     return await dbAdmin.transaction(async (tx): Promise<CommitResult> => {
       // Serialise the whole plan+write against other bookings for this
-      // restaurant-day (same key the capacity trigger uses; re-entrant).
+      // restaurant-day (same key the capacity trigger uses; re-entrant). The
+      // ::uuid::text / ::date::text casts mirror the trigger's `id::text` /
+      // `date::text` exactly so the hash matches regardless of input casing —
+      // otherwise an uppercased id would take a different lock and the
+      // cross-transaction serialisation would silently break.
       await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(hashtextextended(${restaurantId} || ':' || ${date}, 0))`,
+        sql`SELECT pg_advisory_xact_lock(hashtextextended(${restaurantId}::uuid::text || ':' || ${date}::date::text, 0))`,
       );
 
       const state = await loadFloorStateTx(tx, restaurantId, date);

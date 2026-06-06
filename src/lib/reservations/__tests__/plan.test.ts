@@ -17,6 +17,7 @@ interface Ex {
   tableId?: string | null;
   combinationId?: string | null;
   autoAssigned?: boolean;
+  status?: string;
 }
 function state(existing: Ex[] = [], combinationTables: Record<string, string[]> = {}, tables = TABLES) {
   return {
@@ -29,6 +30,7 @@ function state(existing: Ex[] = [], combinationTables: Record<string, string[]> 
       tableId: e.tableId ?? null,
       combinationId: e.combinationId ?? null,
       autoAssigned: e.autoAssigned ?? true,
+      status: e.status ?? "confirmed",
     })),
     combinationTables: new Map(Object.entries(combinationTables)),
   };
@@ -92,6 +94,27 @@ describe("planFromState — single path", () => {
     if (p.ok && p.kind === "single") {
       expect(p.siblingMoves).toEqual([{ id: "a", tableId: "t2" }]); // 'a' reshuffled off t4
     }
+  });
+
+  it("never moves a SEATED auto-assigned guest (they are physically at the table)", () => {
+    // 'seated' party of 2 is auto-assigned to t4a; a new party of 4 overlapping
+    // must route to t4b and leave the seated guest put (no sibling move).
+    const st = state([
+      { id: "s", partySize: 2, startMinutes: 1140, tableId: "t4a", autoAssigned: true, status: "seated" },
+    ]);
+    const p = planFromState(st, 4, 1140);
+    expect(p).toMatchObject({ ok: true, kind: "single", tableId: "t4b" });
+    if (p.ok && p.kind === "single") expect(p.siblingMoves).toEqual([]);
+  });
+
+  it("rejects rather than bump a SEATED guest off the only fitting table", () => {
+    const oneFour = [{ id: "t4", capacityMin: 2, capacityMax: 4 }];
+    const st = state(
+      [{ id: "s", partySize: 4, startMinutes: 1140, tableId: "t4", autoAssigned: true, status: "seated" }],
+      {},
+      oneFour,
+    );
+    expect(planFromState(st, 4, 1140)).toMatchObject({ ok: false, reason: "no_table" });
   });
 
   it("excludes tables held by an existing combination (phantom pins)", () => {

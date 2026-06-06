@@ -127,6 +127,33 @@ async function main() {
     check("C the two parties hold distinct tables", big.table_id !== sib.table_id);
   }
 
+  // ── Scenario C2: a SEATED guest is NEVER relocated ────────────────────────
+  // Seed a SEATED auto-assigned party of 2 on an 8-top at 16:00, then book a
+  // party of 8 at 16:00. The seated guest must stay put (the new party takes the
+  // other 8-top); their table_id must be unchanged.
+  console.log("\n— C2: seated guest not moved —");
+  const seatedTop = eightTops[0]!;
+  await sql`insert into reservations
+    (restaurant_id, guest_name, guest_phone, party_size, reservation_date, reservation_time,
+     status, confirmation_token, locale, table_id, auto_assigned)
+    values (${REST}, ${`${SENTINEL} seated`}, '+40700000006', 2, ${DATE}, '16:00:00',
+     'seated', ${tok()}, 'ro', ${seatedTop}, true)`;
+  const c2 = await commitFloorBooking({
+    restaurantId: REST, date: DATE, time: "16:00", partySize: 8,
+    guestName: `${SENTINEL} c2new`, guestPhone: "+40700000007", guestEmail: null,
+    zone: null, notes: null, confirmationToken: tok(), locale: "ro",
+  });
+  check("commit ok", c2.ok, JSON.stringify(c2));
+  if (c2.ok) {
+    const rows = await rowsForDate();
+    const seated = rows.find((r) => r.guest_name === `${SENTINEL} seated`)!;
+    const c2new = rows.find((r) => r.guest_name === `${SENTINEL} c2new`)!;
+    check("C2 seated guest stayed on their original 8-top", seated.table_id === seatedTop,
+      `was=${seatedTop} now=${seated.table_id}`);
+    check("C2 new party-of-8 took the OTHER 8-top", c2new.table_id !== seatedTop && capOf.get(c2new.table_id!) === 8,
+      `table=${c2new.table_id}`);
+  }
+
   // ── Scenario D: exclusion trigger rejects a physical double-book ───────────
   console.log("\n— D: trigger double-book guard —");
   const occupied = (await rowsForDate()).find((r) => r.guest_name === `${SENTINEL} single`)!;

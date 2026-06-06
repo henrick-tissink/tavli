@@ -48,6 +48,9 @@ interface ExistingRes {
   tableId: string | null;
   combinationId: string | null;
   autoAssigned: boolean;
+  /** confirmed | seated — a seated guest is physically at their table and is
+   *  never relocated, even when auto-assigned. Optional for pure-state callers. */
+  status?: string;
 }
 export interface FloorState {
   turn: number;
@@ -72,7 +75,7 @@ export async function loadFloorState(
       .eq("is_bookable_online", true),
     admin
       .from("reservations")
-      .select("id, party_size, reservation_time, table_id, combination_id, auto_assigned")
+      .select("id, party_size, reservation_time, table_id, combination_id, auto_assigned, status")
       .eq("restaurant_id", restaurantId)
       .eq("reservation_date", date)
       .in("status", ["confirmed", "seated"])
@@ -86,6 +89,7 @@ export async function loadFloorState(
     tableId: e.table_id as string | null,
     combinationId: e.combination_id as string | null,
     autoAssigned: e.auto_assigned as boolean,
+    status: e.status as string,
   }));
 
   const comboIds = [...new Set(existing.map((e) => e.combinationId).filter(Boolean))] as string[];
@@ -151,11 +155,15 @@ function buildSweepInputs(state: FloorState): {
         phantoms.push({ id: `c:${e.id}:${tid}`, party: 1, startMinutes: e.startMinutes, pinnedTableId: tid });
       }
     } else {
+      // Pin host-assigned tables AND any seated guest's table — a seated guest
+      // is physically at the table, so the sweep must route around them and
+      // never reassign their table_id.
+      const immovable = !e.autoAssigned || e.status === "seated";
       singles.push({
         id: e.id,
         party: e.partySize,
         startMinutes: e.startMinutes,
-        pinnedTableId: e.tableId && !e.autoAssigned ? e.tableId : null,
+        pinnedTableId: e.tableId && immovable ? e.tableId : null,
         current: e.tableId,
       });
     }

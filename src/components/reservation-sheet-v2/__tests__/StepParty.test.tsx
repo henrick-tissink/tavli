@@ -43,6 +43,22 @@ test("StepParty clamps at 1 on minus, shows event hint at 12", () => {
   expect(screen.getByText(/evenimentele private/i)).toBeVisible();
 });
 
+test("StepParty never offers a pill above a small floor's cap", () => {
+  const onChange = jest.fn();
+  const { rerender } = renderParty({ value: 2, onChange, max: 6 });
+  // The standard '8' shortcut must NOT render — it exceeds the cap of 6.
+  expect(screen.queryByRole("button", { name: /^8$/ })).toBeNull();
+  expect(screen.getByRole("button", { name: /^6$/ })).toBeVisible();
+  // At the cap, + can't push past it.
+  rerender(
+    <MessagesProvider locale="ro" bundle={bundle}>
+      <StepParty value={6} onChange={onChange} max={6} />
+    </MessagesProvider>,
+  );
+  fireEvent.click(screen.getByRole("button", { name: /Adaugă invitat/i }));
+  expect(onChange).not.toHaveBeenCalled();
+});
+
 test("StepParty exposes the combinable range when the floor plan seats more than 12", () => {
   const onChange = jest.fn();
   const { rerender } = renderParty({ value: 12, onChange, max: 22 });

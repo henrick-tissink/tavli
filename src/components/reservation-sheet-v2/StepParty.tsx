@@ -17,9 +17,11 @@ export function StepParty({ value, onChange, max = DEFAULT_MAX }: StepPartyProps
   const t = useT("booking");
   const canDecrement = value > 1;
   const canIncrement = value < max;
-  // Show the combinable ceiling as a pill when the floor plan seats more than
-  // the standard shortcuts (so 13–22 covers are one tap away, not just ±).
-  const pills = max > BASE_PILLS[BASE_PILLS.length - 1] ? [...BASE_PILLS, max] : [...BASE_PILLS];
+  // Never offer a shortcut above the cap. Above the standard shortcuts, surface
+  // the combinable ceiling as its own pill (so 13–22 covers are one tap away).
+  const topPill = BASE_PILLS[BASE_PILLS.length - 1];
+  const pills =
+    max > topPill ? [...BASE_PILLS.filter((n) => n < max), max] : BASE_PILLS.filter((n) => n <= max);
 
   return (
     <div className="space-y-5">
