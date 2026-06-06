@@ -2201,8 +2201,12 @@ export interface PartnerSettingsMessages {
 export interface PartnerCorporateMessages {
   overview: {
     pageTitle: string;
+    subtitle: string;
     openRequests: PluralBag;
     comingSoon: string;
+    manageRequests: string;
+    enabledHint: string;
+    disabledHint: string;
     cards: {
       events: { title: string; blurb: string };
       corporateMeals: { title: string; blurb: string };
@@ -2231,6 +2235,10 @@ export interface PartnerCorporateMessages {
     quoted: string;
     accepted: string;
     declined: string;
+    cancelled: string;
+    expired: string;
+    expired_quote: string;
+    completed: string;
   };
   occasion: {
     wedding: string;
@@ -2260,6 +2268,9 @@ export interface PartnerCorporateMessages {
     decline: string;
     createReservation: string;
     markViewing: string;
+    markAccepted: string;
+    markAcceptedConfirm: string;
+    noActions: string;
     clientTitle: string;
     fieldName: string;
     fieldEmail: string;

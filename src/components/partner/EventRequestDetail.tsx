@@ -21,8 +21,8 @@ import { RevenueEstimateWidget } from "./RevenueEstimateWidget";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { formatNumber } from "@/lib/i18n/format";
 import {
-  markEventRequestViewing,
   replyToEventRequest,
+  acceptQuoteForEventRequest,
 } from "@/app/api/event-requests/actions";
 
 interface ER {
@@ -245,24 +245,39 @@ export function EventRequestDetail({
                   </div>
                 </>
               )}
+              {er.status === "quoted" && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    disabled={pending}
+                    onClick={() => {
+                      if (!window.confirm(t("detail.markAcceptedConfirm"))) return;
+                      startTransition(() =>
+                        acceptQuoteForEventRequest({ id: er.id }).then(() =>
+                          location.reload(),
+                        ),
+                      );
+                    }}
+                  >
+                    {t("detail.markAccepted")}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setView("decline")}>
+                    {t("detail.decline")}
+                  </Button>
+                </div>
+              )}
               {er.status === "accepted" && (
                 <Button onClick={() => setView("materialize")}>
                   {t("detail.createReservation")}
                 </Button>
               )}
-              {er.status === "new" && (
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    startTransition(() =>
-                      markEventRequestViewing({ id: er.id }).then(() =>
-                        location.reload(),
-                      ),
-                    )
-                  }
-                >
-                  {t("detail.markViewing")}
-                </Button>
+              {(er.status === "declined" ||
+                er.status === "cancelled" ||
+                er.status === "expired" ||
+                er.status === "expired_quote" ||
+                er.status === "completed") && (
+                <p className="text-sm text-text-muted">
+                  {t("detail.noActions", { status: t(`status.${er.status}`) })}
+                </p>
               )}
             </section>
           )}

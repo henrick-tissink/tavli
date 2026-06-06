@@ -24,7 +24,11 @@
         "title": "Räume für Besprechungen",
         "blurb": "Richten Sie stundenweise buchbare Arbeitsräume ein."
       }
-    }
+    },
+    "subtitle": "Verwalte private Events und Firmenangebote deines Lokals.",
+    "manageRequests": "Anfragen verwalten",
+    "enabledHint": "Aktiviert",
+    "disabledHint": "Deaktiviert"
   },
   "inbox": {
     "title": "Veranstaltungsanfragen",
@@ -54,7 +58,11 @@
     "replied": "Geantwortet",
     "quoted": "Angebot gesendet",
     "accepted": "Angenommen",
-    "declined": "Abgelehnt"
+    "declined": "Abgelehnt",
+    "cancelled": "Storniert",
+    "expired": "Abgelaufen",
+    "expired_quote": "Angebot abgelaufen",
+    "completed": "Abgeschlossen"
   },
   "occasion": {
     "wedding": "Hochzeit",
@@ -90,7 +98,10 @@
     "fieldPhone": "Telefon",
     "fieldCompany": "Unternehmen",
     "companyEmpty": "—",
-    "companyCui": "USt-IdNr.: {cui}"
+    "companyCui": "USt-IdNr.: {cui}",
+    "markAccepted": "Als angenommen markieren",
+    "markAcceptedConfirm": "Dieses Angebot als vom Kunden angenommen markieren? Anschließend kannst du die Reservierungen erstellen.",
+    "noActions": "Keine weiteren Aktionen für diese {status}-Anfrage."
   },
   "materialize": {
     "title": "In Reservierung umwandeln",

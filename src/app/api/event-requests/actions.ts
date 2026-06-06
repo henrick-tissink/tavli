@@ -19,6 +19,7 @@ import {
   reply,
   sendQuote,
   decline,
+  acceptQuote,
 } from "@/lib/repos/event-requests-repo";
 import { replaceLineItems } from "@/lib/repos/quote-line-items-repo";
 import { sendOtp } from "@/lib/auth/otp";
@@ -369,6 +370,18 @@ export async function declineEventRequest({
     console.error("[email] sendEventRequestDeclined failed:", err);
   }
   return out;
+}
+
+/**
+ * Partner-side accept: the client confirmed the quote offline (phone/email), so
+ * the partner advances `quoted → accepted` themselves to unblock materialization.
+ * (The consumer can also self-accept via their tracking link.) No email is sent
+ * here — accepting is an internal flip; the client is notified when the booking
+ * is materialised into reservations.
+ */
+export async function acceptQuoteForEventRequest({ id }: { id: string }) {
+  await assertPartnerOwns(id);
+  return acceptQuote(id);
 }
 
 // ─── Materialization (Task 13) ───────────────────────────────────────────

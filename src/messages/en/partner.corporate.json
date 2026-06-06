@@ -24,7 +24,11 @@
         "title": "Meeting spaces",
         "blurb": "Set up hourly bookable work spaces."
       }
-    }
+    },
+    "subtitle": "Manage private events and corporate offerings for your venue.",
+    "manageRequests": "Manage requests",
+    "enabledHint": "Enabled",
+    "disabledHint": "Disabled"
   },
   "inbox": {
     "title": "Event requests",
@@ -54,7 +58,11 @@
     "replied": "Replied",
     "quoted": "Quote sent",
     "accepted": "Accepted",
-    "declined": "Declined"
+    "declined": "Declined",
+    "cancelled": "Cancelled",
+    "expired": "Expired",
+    "expired_quote": "Quote expired",
+    "completed": "Completed"
   },
   "occasion": {
     "wedding": "Wedding",
@@ -90,7 +98,10 @@
     "fieldPhone": "Phone",
     "fieldCompany": "Company",
     "companyEmpty": "—",
-    "companyCui": "VAT no.: {cui}"
+    "companyCui": "VAT no.: {cui}",
+    "markAccepted": "Mark as accepted",
+    "markAcceptedConfirm": "Mark this quote as accepted by the client? You'll then be able to create the reservations.",
+    "noActions": "No further actions for this {status} request."
   },
   "materialize": {
     "title": "Convert to reservation",

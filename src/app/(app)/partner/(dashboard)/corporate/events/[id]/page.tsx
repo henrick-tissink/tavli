@@ -3,7 +3,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests, restaurantPrivateSpaces } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getPartnerRestaurant } from "@/lib/auth/partner";
-import { findOverlappingReservations } from "@/lib/repos/event-requests-repo";
+import { findOverlappingReservations, markViewing } from "@/lib/repos/event-requests-repo";
 import { EventRequestDetail } from "@/components/partner/EventRequestDetail";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,20 @@ export default async function EventDetailPage({
     .where(eq(eventRequests.id, id))
     .limit(1);
   if (!er || er.restaurantId !== r.id) notFound();
+
+  // Opening a request = the partner is viewing it. Advance new → viewing so the
+  // reply/quote/decline actions are all valid transitions (the repo requires
+  // viewing/replied before quoting) and the inbox "New" count stays accurate.
+  let status = er.status;
+  if (status === "new") {
+    try {
+      const moved = await markViewing(er.id);
+      status = moved.status;
+    } catch {
+      // best-effort; fall back to the row's current status
+    }
+  }
+
   let privateSpaceName: string | null = null;
   if (er.privateSpaceId) {
     const [ps] = await dbAdmin
@@ -35,7 +49,7 @@ export default async function EventDetailPage({
     <EventRequestDetail
       er={{
         id: er.id,
-        status: er.status,
+        status,
         occasion: er.occasion,
         eventDate: er.eventDate,
         partySize: er.partySize,

@@ -22,8 +22,13 @@ export default async function CorporatePage() {
       ),
     );
   return (
-    <main className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">{m.overview.pageTitle}</h1>
+    <main className="max-w-4xl px-4 py-6 desktop:px-8 desktop:py-8">
+      <header className="mb-6">
+        <h1 className="font-display text-[36px] font-bold leading-tight text-text-primary">
+          {m.overview.pageTitle}
+        </h1>
+        <p className="mt-1 text-sm text-text-secondary">{m.overview.subtitle}</p>
+      </header>
       <CorporateOverview
         restaurantId={restaurant.id}
         capabilities={{

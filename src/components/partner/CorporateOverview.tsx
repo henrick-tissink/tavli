@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useT } from "@/lib/i18n/messages-provider";
 
 interface CapState {
@@ -30,22 +32,19 @@ export function CorporateOverview({ capabilities, onToggle }: Props) {
       {CARDS.map((c) => {
         const state = capabilities[c.key];
         const title = t(`overview.cards.${c.key}.title`);
+        const isEvents = c.key === "events";
         return (
-          <div key={c.key} className="border rounded-lg p-4 bg-white">
+          <div key={c.key} className="flex flex-col rounded-card border border-border bg-surface-white p-5">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-semibold">{title}</p>
-                <p className="text-sm text-zinc-600 mt-1">
+              <div className="min-w-0">
+                <p className="font-display text-base font-bold text-text-primary">{title}</p>
+                <p className="mt-1 text-sm text-text-secondary">
                   {t(`overview.cards.${c.key}.blurb`)}
                 </p>
-                {state.openCount !== undefined && state.openCount > 0 && (
-                  <p className="text-xs mt-2 text-emerald-700">
-                    {t("overview.openRequests", { count: state.openCount })}
-                  </p>
-                )}
               </div>
               {c.phase1 ? (
                 <button
+                  type="button"
                   role="switch"
                   aria-checked={state.enabled}
                   aria-label={title}
@@ -58,22 +57,43 @@ export function CorporateOverview({ capabilities, onToggle }: Props) {
                       setBusy(null);
                     }
                   }}
-                  className={`h-7 w-12 rounded-full transition ${
-                    state.enabled ? "bg-emerald-500" : "bg-zinc-300"
+                  className={`relative h-[26px] w-11 flex-none rounded-full transition-colors disabled:opacity-60 ${
+                    state.enabled ? "bg-brand-primary" : "bg-stone-300"
                   }`}
                 >
                   <span
-                    className={`block h-5 w-5 bg-white rounded-full transform transition ${
-                      state.enabled ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className="absolute top-[3px] h-5 w-5 rounded-full bg-white transition-all"
+                    style={{ left: state.enabled ? 21 : 3 }}
                   />
                 </button>
               ) : (
-                <span className="text-xs px-2 py-1 rounded bg-zinc-100 text-zinc-500">
+                <span className="flex-none rounded-pill bg-surface-bg px-2.5 py-1 text-xs font-semibold text-text-muted">
                   {t("overview.comingSoon")}
                 </span>
               )}
             </div>
+
+            {isEvents && (
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="text-xs font-semibold text-text-muted">
+                  {state.enabled ? t("overview.enabledHint") : t("overview.disabledHint")}
+                  {state.openCount !== undefined && state.openCount > 0 && (
+                    <>
+                      {" · "}
+                      <span className="text-brand-primary">
+                        {t("overview.openRequests", { count: state.openCount })}
+                      </span>
+                    </>
+                  )}
+                </span>
+                <Link
+                  href="/partner/corporate/events"
+                  className="inline-flex flex-none items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
+                >
+                  {t("overview.manageRequests")} <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
           </div>
         );
       })}

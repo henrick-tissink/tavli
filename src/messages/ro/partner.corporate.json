@@ -24,7 +24,11 @@
         "title": "Spații pentru întâlniri",
         "blurb": "Configurează spații de lucru disponibile cu ora."
       }
-    }
+    },
+    "subtitle": "Gestionează evenimentele private și ofertele corporate ale localului.",
+    "manageRequests": "Gestionează solicitările",
+    "enabledHint": "Activat",
+    "disabledHint": "Dezactivat"
   },
   "inbox": {
     "title": "Solicitări de eveniment",
@@ -54,7 +58,11 @@
     "replied": "Răspuns",
     "quoted": "Ofertă trimisă",
     "accepted": "Acceptat",
-    "declined": "Refuzat"
+    "declined": "Refuzat",
+    "cancelled": "Anulată",
+    "expired": "Expirată",
+    "expired_quote": "Ofertă expirată",
+    "completed": "Finalizată"
   },
   "occasion": {
     "wedding": "Nuntă",
@@ -90,7 +98,10 @@
     "fieldPhone": "Telefon",
     "fieldCompany": "Companie",
     "companyEmpty": "—",
-    "companyCui": "CUI: {cui}"
+    "companyCui": "CUI: {cui}",
+    "markAccepted": "Marchează ca acceptată",
+    "markAcceptedConfirm": "Marchezi această ofertă ca acceptată de client? Apoi vei putea crea rezervările.",
+    "noActions": "Nicio acțiune suplimentară pentru această solicitare {status}."
   },
   "materialize": {
     "title": "Materializează rezervare",
