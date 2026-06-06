@@ -56,6 +56,7 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
         combinationId: reservations.combinationId,
         autoAssigned: reservations.autoAssigned,
         status: reservations.status,
+        eventRequestId: reservations.eventRequestId,
       })
       .from(reservations)
       .where(
@@ -63,7 +64,6 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
           eq(reservations.restaurantId, restaurantId),
           eq(reservations.reservationDate, date),
           inArray(reservations.status, ["confirmed", "seated"]),
-          isNull(reservations.eventRequestId),
         ),
       ),
   ]);
@@ -76,6 +76,7 @@ async function loadFloorStateTx(tx: Tx, restaurantId: string, date: string): Pro
     combinationId: e.combinationId,
     autoAssigned: e.autoAssigned,
     status: e.status,
+    eventRequestId: e.eventRequestId,
   }));
 
   const comboIds = [...new Set(existing.map((e) => e.combinationId).filter(Boolean))] as string[];

@@ -64,6 +64,7 @@ jest.mock("@/lib/diners/upsert", () => ({
 }));
 
 import { createReservation } from "../actions";
+import { commitFloorBooking } from "@/lib/reservations/booking-commit";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { recordAudit } from "@/lib/audit/record";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -249,6 +250,54 @@ describe("createReservation (public flow)", () => {
     expect(result.ok).toBe(true);
     expect(findOrCreateDinerForReservation).not.toHaveBeenCalled();
     expect(reservationUpdate).not.toHaveBeenCalled();
+  });
+
+  it("maps party_too_large → PARTY_TOO_LARGE and surfaces maxParty", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (commitFloorBooking as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "party_too_large", maxParty: 22 });
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 40,
+      guestName: "A", guestPhone: "+40712345678",
+    });
+    expect(r).toMatchObject({ ok: false, errorCode: "PARTY_TOO_LARGE", maxParty: 22 });
+  });
+
+  it("maps no_availability → NO_AVAILABILITY", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (commitFloorBooking as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "no_availability" });
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "03:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678",
+    });
+    expect(r).toMatchObject({ ok: false, errorCode: "NO_AVAILABILITY" });
+  });
+
+  it("maps no_table → SLOT_FULL", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (commitFloorBooking as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "no_table" });
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 4,
+      guestName: "A", guestPhone: "+40712345678",
+    });
+    expect(r).toMatchObject({ ok: false, errorCode: "SLOT_FULL" });
+  });
+
+  it("maps an unexpected commit error → OTHER", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (commitFloorBooking as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "error", message: "boom" });
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 4,
+      guestName: "A", guestPhone: "+40712345678",
+    });
+    expect(r).toMatchObject({ ok: false, errorCode: "OTHER" });
   });
 
   it("still confirms the booking when the diner upsert throws", async () => {

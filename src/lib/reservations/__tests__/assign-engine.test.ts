@@ -1,4 +1,4 @@
-import { assignSingles, pickCombination } from "../table-inventory";
+import { assignSingles, pickCombination, tablesAdjacent, floorGapTolerance } from "../table-inventory";
 
 const T = (id: string, min: number, max: number) => ({ id, capacityMin: min, capacityMax: max });
 
@@ -142,5 +142,48 @@ describe("pickCombination (adjacency-aware)", () => {
     const combo = pickCombination({ party: 11, tables, freeTableIds: new Set(["a", "b", "c", "far"]) });
     // a-b-c form a connected row summing 12 ≥ 11; 'far' is isolated.
     expect(new Set(combo)).toEqual(new Set(["a", "b", "c"]));
+  });
+});
+
+describe("tablesAdjacent / floorGapTolerance (geometry semantics)", () => {
+  const T = (x: number, y: number, w: number, h: number) => ({
+    id: `${x},${y}`, capacityMin: 2, capacityMax: 4, positionX: x, positionY: y, width: w, height: h,
+  });
+
+  it("tolerance scales with the floor's median table size", () => {
+    const small = [T(0, 0, 80, 80), T(120, 0, 80, 80)];
+    const big = [T(0, 0, 800, 800), T(1200, 0, 800, 800)];
+    expect(floorGapTolerance(small)).toBeCloseTo(72);   // 0.9 * 80
+    expect(floorGapTolerance(big)).toBeCloseTo(720);    // 0.9 * 800
+    expect(floorGapTolerance([])).toBe(Infinity);
+  });
+
+  it("treats side-by-side tables sharing an edge as adjacent", () => {
+    const gap = floorGapTolerance([T(0, 0, 80, 80)]); // 72
+    expect(tablesAdjacent(T(0, 0, 80, 80), T(120, 0, 80, 80), gap)).toBe(true); // gapX 40, overlapY
+  });
+
+  it("rejects tables too far apart even when aligned", () => {
+    const gap = floorGapTolerance([T(0, 0, 80, 80)]); // 72
+    expect(tablesAdjacent(T(0, 0, 80, 80), T(180, 0, 80, 80), gap)).toBe(false); // gapX 100 > 72
+  });
+
+  it("rejects corner-only (diagonal) neighbours — no shared edge", () => {
+    const gap = floorGapTolerance([T(0, 0, 80, 80)]); // 72
+    // gapX 40 AND gapY 40 (both small) but neither axis overlaps → not pushable.
+    expect(tablesAdjacent(T(0, 0, 80, 80), T(120, 120, 80, 80), gap)).toBe(false);
+  });
+
+  it("is scale-invariant: the same topology at 10x gives the same combination", () => {
+    const row = (s: number) => [
+      { id: "a", capacityMin: 2, capacityMax: 4, positionX: 0, positionY: 0, width: 80 * s, height: 80 * s },
+      { id: "b", capacityMin: 2, capacityMax: 4, positionX: 120 * s, positionY: 0, width: 80 * s, height: 80 * s },
+      { id: "c", capacityMin: 2, capacityMax: 4, positionX: 240 * s, positionY: 0, width: 80 * s, height: 80 * s },
+      { id: "far", capacityMin: 4, capacityMax: 8, positionX: 0, positionY: 1000 * s, width: 80 * s, height: 80 * s },
+    ];
+    for (const s of [1, 10, 100]) {
+      const combo = pickCombination({ party: 11, tables: row(s), freeTableIds: new Set(["a", "b", "c", "far"]) });
+      expect(new Set(combo)).toEqual(new Set(["a", "b", "c"]));
+    }
   });
 });

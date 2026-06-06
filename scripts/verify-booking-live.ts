@@ -154,6 +154,40 @@ async function main() {
       `table=${c2new.table_id}`);
   }
 
+  // ── Scenario E: an event reservation is an immovable occupant ─────────────
+  // Seat an EVENT on the lower-id 8-top (the one best-fit would pick first), then
+  // book a party of 8 at the same time. Pre-fix the planner ignored events and
+  // would have assigned that very table → trigger rejection. Post-fix it must
+  // route to the OTHER 8-top and leave the event untouched.
+  console.log("\n— E: event reservation routed around —");
+  const [eventReq] = await sql<{ id: string }[]>`
+    select id from event_requests where restaurant_id=${REST} limit 1`;
+  if (!eventReq) {
+    console.log("   (no event_requests row to reuse — skipping)");
+  } else {
+    const eventTop = [...eightTops].sort()[0]!; // lowest id = best-fit's first pick
+    await sql`insert into reservations
+      (restaurant_id, guest_name, guest_phone, party_size, reservation_date, reservation_time,
+       status, confirmation_token, locale, table_id, auto_assigned, event_request_id)
+      values (${REST}, ${`${SENTINEL} event`}, '+40700000008', 2, ${DATE}, '18:00:00',
+       'confirmed', ${tok()}, 'ro', ${eventTop}, true, ${eventReq.id})`;
+    const e = await commitFloorBooking({
+      restaurantId: REST, date: DATE, time: "18:00", partySize: 8,
+      guestName: `${SENTINEL} enew`, guestPhone: "+40700000009", guestEmail: null,
+      zone: null, notes: null, confirmationToken: tok(), locale: "ro",
+    });
+    check("commit ok (routed around the event, no trigger rejection)", e.ok, JSON.stringify(e));
+    if (e.ok) {
+      const rows = await rowsForDate();
+      const ev = rows.find((r) => r.guest_name === `${SENTINEL} event`)!;
+      const enew = rows.find((r) => r.guest_name === `${SENTINEL} enew`)!;
+      check("E new party took the OTHER 8-top", enew.table_id !== eventTop && capOf.get(enew.table_id!) === 8,
+        `event=${eventTop} new=${enew.table_id}`);
+      check("E event reservation left untouched on its table", ev.table_id === eventTop,
+        `now=${ev.table_id}`);
+    }
+  }
+
   // ── Scenario D: exclusion trigger rejects a physical double-book ───────────
   console.log("\n— D: trigger double-book guard —");
   const occupied = (await rowsForDate()).find((r) => r.guest_name === `${SENTINEL} single`)!;

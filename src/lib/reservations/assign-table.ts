@@ -13,7 +13,9 @@
  * is the yield-maximising acceptance + assignment policy. Restaurants without a
  * floor plan fall through (no gating here; the covers cap still applies).
  *
- * Event reservations (event_request_id, private spaces) are excluded.
+ * Event reservations (event_request_id) are loaded too, matching the trigger,
+ * which counts them: one holding a bookable table is an immovable occupant the
+ * sweep routes around; one on a private space (no bookable table) is ignored.
  */
 
 import "server-only";
@@ -51,6 +53,9 @@ interface ExistingRes {
   /** confirmed | seated — a seated guest is physically at their table and is
    *  never relocated, even when auto-assigned. Optional for pure-state callers. */
   status?: string;
+  /** Non-null for private-event reservations: held as immovable occupants if
+   *  they sit on a bookable table, otherwise ignored (private space). */
+  eventRequestId?: string | null;
 }
 export interface FloorState {
   turn: number;
@@ -75,11 +80,10 @@ export async function loadFloorState(
       .eq("is_bookable_online", true),
     admin
       .from("reservations")
-      .select("id, party_size, reservation_time, table_id, combination_id, auto_assigned, status")
+      .select("id, party_size, reservation_time, table_id, combination_id, auto_assigned, status, event_request_id")
       .eq("restaurant_id", restaurantId)
       .eq("reservation_date", date)
-      .in("status", ["confirmed", "seated"])
-      .is("event_request_id", null),
+      .in("status", ["confirmed", "seated"]),
   ]);
 
   const existing: ExistingRes[] = (existingRaw ?? []).map((e) => ({
@@ -90,6 +94,7 @@ export async function loadFloorState(
     combinationId: e.combination_id as string | null,
     autoAssigned: e.auto_assigned as boolean,
     status: e.status as string,
+    eventRequestId: e.event_request_id as string | null,
   }));
 
   const comboIds = [...new Set(existing.map((e) => e.combinationId).filter(Boolean))] as string[];
@@ -150,21 +155,36 @@ function buildSweepInputs(state: FloorState): {
   const singles: (SingleReservation & { current: string | null })[] = [];
   const phantoms: SingleReservation[] = [];
   for (const e of state.existing) {
+    const isEvent = e.eventRequestId != null;
     if (e.combinationId) {
+      // Combinations (incl. event combinations) hold their member tables; model
+      // each as a pinned phantom so the sweep routes around them.
       for (const tid of physicalTables(e, state.combinationTables)) {
         phantoms.push({ id: `c:${e.id}:${tid}`, party: 1, startMinutes: e.startMinutes, pinnedTableId: tid });
       }
-    } else {
-      // Pin host-assigned tables AND any seated guest's table — a seated guest
-      // is physically at the table, so the sweep must route around them and
-      // never reassign their table_id.
-      const immovable = !e.autoAssigned || e.status === "seated";
+    } else if (e.tableId) {
+      // Pin host-assigned tables, any seated guest's table, and event tables.
+      // A seated guest is physically at the table; an event is a special
+      // arrangement — neither is ever reshuffled, so the sweep routes around
+      // them and never reassigns their table_id.
+      const immovable = !e.autoAssigned || e.status === "seated" || isEvent;
       singles.push({
         id: e.id,
         party: e.partySize,
         startMinutes: e.startMinutes,
-        pinnedTableId: e.tableId && immovable ? e.tableId : null,
+        pinnedTableId: immovable ? e.tableId : null,
         current: e.tableId,
+      });
+    } else if (!isEvent) {
+      // A normal booking not yet assigned a table — the sweep will seat it.
+      // (An event holding no bookable table sits on a private space and must
+      // never be auto-seated onto the floor, so it is skipped entirely.)
+      singles.push({
+        id: e.id,
+        party: e.partySize,
+        startMinutes: e.startMinutes,
+        pinnedTableId: null,
+        current: null,
       });
     }
   }

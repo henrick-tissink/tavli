@@ -18,6 +18,7 @@ interface Ex {
   combinationId?: string | null;
   autoAssigned?: boolean;
   status?: string;
+  eventRequestId?: string | null;
 }
 function state(existing: Ex[] = [], combinationTables: Record<string, string[]> = {}, tables = TABLES) {
   return {
@@ -31,6 +32,7 @@ function state(existing: Ex[] = [], combinationTables: Record<string, string[]> 
       combinationId: e.combinationId ?? null,
       autoAssigned: e.autoAssigned ?? true,
       status: e.status ?? "confirmed",
+      eventRequestId: e.eventRequestId ?? null,
     })),
     combinationTables: new Map(Object.entries(combinationTables)),
   };
@@ -125,6 +127,41 @@ describe("planFromState — single path", () => {
     );
     const p = planFromState(st, 4, 1140);
     expect(p).toMatchObject({ ok: true, kind: "single", tableId: "t8" });
+  });
+});
+
+describe("planFromState — event reservations", () => {
+  it("never reshuffles an event reservation, even one sub-optimally placed", () => {
+    // An event auto-assigned to the 8-top (sub-optimal for a party of 2). A
+    // movable sibling here WOULD be relocated to its best-fit 2-top; the event
+    // must stay put. A new party of 2 takes the 2-top, no sibling move emitted.
+    const st = state([
+      { id: "ev", partySize: 2, startMinutes: 1140, tableId: "t8", autoAssigned: true, eventRequestId: "er1" },
+    ]);
+    const p = planFromState(st, 2, 1140);
+    expect(p).toMatchObject({ ok: true, kind: "single", tableId: "t2" });
+    if (p.ok && p.kind === "single") expect(p.siblingMoves).toEqual([]); // event not moved
+  });
+
+  it("never seats an event onto the floor when it holds no bookable table", () => {
+    // A private-space event (no floor table) must not be auto-assigned a table —
+    // it doesn't occupy the bookable floor at all.
+    const st = state([
+      { id: "ev", partySize: 4, startMinutes: 1140, tableId: null, eventRequestId: "er1" },
+    ]);
+    const p = planFromState(st, 4, 1140);
+    expect(p).toMatchObject({ ok: true, kind: "single", tableId: "t4a" });
+    if (p.ok && p.kind === "single") expect(p.siblingMoves).toEqual([]); // event not seated
+  });
+
+  it("rejects when an event holds the only table that fits the new party", () => {
+    const oneEight = [{ id: "t8", capacityMin: 4, capacityMax: 8 }];
+    const st = state(
+      [{ id: "ev", partySize: 8, startMinutes: 1140, tableId: "t8", eventRequestId: "er1" }],
+      {},
+      oneEight,
+    );
+    expect(planFromState(st, 7, 1140)).toMatchObject({ ok: false, reason: "no_table" });
   });
 });
 

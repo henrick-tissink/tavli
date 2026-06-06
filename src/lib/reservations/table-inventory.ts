@@ -169,39 +169,59 @@ export function assignSingles(args: {
   return result;
 }
 
-/** Max gap (in floor units) between two tables' bounding boxes for them to
- *  count as pushable-together — roughly a chair-width aisle. */
-const ADJACENCY_GAP = 80;
+/** Gap tolerance for "pushable together", expressed as a fraction of the
+ *  floor's typical table size — so adjacency is independent of the coordinate
+ *  units a given floor-plan editor happens to use. ~0.9 of a table width is a
+ *  chair/aisle's worth of separation. */
+const ADJACENCY_GAP_RATIO = 0.9;
 
-/** Are two tables physically adjacent (can be pushed together)? Tables without
- *  geometry are treated as adjacent — capacity-only callers shouldn't be gated
- *  on positions they didn't supply. */
-function tablesAdjacent(a: AssignableTable, b: AssignableTable): boolean {
-  if (a.positionX == null || a.positionY == null || b.positionX == null || b.positionY == null) {
+/** Characteristic gap tolerance for a floor: a fraction of the median table
+ *  dimension across the tables that have geometry. Returns Infinity when no
+ *  table has geometry, so callers then treat every pair as combinable rather
+ *  than gating on positions nobody supplied. */
+export function floorGapTolerance(tables: AssignableTable[]): number {
+  const dims: number[] = [];
+  for (const t of tables) {
+    if (t.positionX != null && t.positionY != null && t.width != null && t.height != null) {
+      dims.push(t.width, t.height);
+    }
+  }
+  if (dims.length === 0) return Infinity;
+  dims.sort((a, b) => a - b);
+  const mid = dims.length >> 1;
+  const median = dims.length % 2 ? dims[mid]! : (dims[mid - 1]! + dims[mid]!) / 2;
+  return ADJACENCY_GAP_RATIO * median;
+}
+
+/** Can two tables be pushed together into one surface? They must share an edge:
+ *  their projections overlap on one axis and the gap on the perpendicular axis
+ *  is within `maxGap`. Corner-only (diagonal) neighbours are NOT pushable.
+ *  Tables lacking geometry are treated as combinable (don't over-restrict). */
+export function tablesAdjacent(a: AssignableTable, b: AssignableTable, maxGap: number): boolean {
+  if (
+    a.positionX == null || a.positionY == null || a.width == null || a.height == null ||
+    b.positionX == null || b.positionY == null || b.width == null || b.height == null
+  ) {
     return true;
   }
-  const aw = a.width ?? 0;
-  const ah = a.height ?? 0;
-  const bw = b.width ?? 0;
-  const bh = b.height ?? 0;
-  const acx = a.positionX + aw / 2;
-  const acy = a.positionY + ah / 2;
-  const bcx = b.positionX + bw / 2;
-  const bcy = b.positionY + bh / 2;
-  const gapX = Math.max(0, Math.abs(acx - bcx) - (aw + bw) / 2);
-  const gapY = Math.max(0, Math.abs(acy - bcy) - (ah + bh) / 2);
-  return gapX <= ADJACENCY_GAP && gapY <= ADJACENCY_GAP;
+  const ax0 = a.positionX, ax1 = a.positionX + a.width, ay0 = a.positionY, ay1 = a.positionY + a.height;
+  const bx0 = b.positionX, bx1 = b.positionX + b.width, by0 = b.positionY, by1 = b.positionY + b.height;
+  const overlapX = ax0 < bx1 && bx0 < ax1;
+  const overlapY = ay0 < by1 && by0 < ay1;
+  const gapX = Math.max(0, Math.max(ax0, bx0) - Math.min(ax1, bx1));
+  const gapY = Math.max(0, Math.max(ay0, by0) - Math.min(ay1, by1));
+  return (overlapY && gapX <= maxGap) || (overlapX && gapY <= maxGap);
 }
 
 /** Is the subset connected under the adjacency relation (a pushable cluster)? */
-function isConnectedCluster(subset: AssignableTable[]): boolean {
+function isConnectedCluster(subset: AssignableTable[], maxGap: number): boolean {
   if (subset.length <= 1) return true;
   const seen = new Set<string>([subset[0]!.id]);
   const stack = [subset[0]!];
   while (stack.length) {
     const cur = stack.pop()!;
     for (const t of subset) {
-      if (!seen.has(t.id) && tablesAdjacent(cur, t)) {
+      if (!seen.has(t.id) && tablesAdjacent(cur, t, maxGap)) {
         seen.add(t.id);
         stack.push(t);
       }
@@ -263,13 +283,15 @@ export function pickCombination(args: {
 }): string[] | null {
   const { party, tables, freeTableIds, maxTables = 3 } = args;
   const free = tables.filter((t) => freeTableIds.has(t.id));
+  // Tolerance derived from the whole floor's scale, not just the free tables.
+  const maxGap = floorGapTolerance(tables);
 
   // Prefer the smallest adjacent cluster that fits, best waste/compactness.
   for (let k = 2; k <= Math.min(maxTables, free.length); k++) {
     let best: { ids: string[]; waste: number; spread: number } | null = null;
     for (const subset of combinationsOfSize(free, k)) {
       const sum = subset.reduce((s, t) => s + t.capacityMax, 0);
-      if (sum < party || !isConnectedCluster(subset)) continue;
+      if (sum < party || !isConnectedCluster(subset, maxGap)) continue;
       const waste = sum - party;
       const spread = clusterSpread(subset);
       const ids = subset.map((t) => t.id).sort();
