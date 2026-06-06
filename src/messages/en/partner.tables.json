@@ -76,7 +76,10 @@
     "entrance": "Entrance",
     "toastUpdateFailed": "The change was not saved.",
     "toastAddFailed": "The table was not added.",
-    "toastDeleteFailed": "The table was not deleted."
+    "toastDeleteFailed": "The table was not deleted.",
+    "fitView": "Fit",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   },
   "emptyInspector": {
     "title": "Floor plan",

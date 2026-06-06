@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
-import { restaurants, restaurantTables, restaurantTableSections, reservations } from "@/lib/db/schema";
+import { restaurants, restaurantTables, restaurantTableSections, reservations, tableCombinations } from "@/lib/db/schema";
+import { reservationsByTable } from "@/lib/tables/upcoming";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { walkinQueueOps } from "@/lib/tables/walkin";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
@@ -68,25 +69,60 @@ export default async function LiveFloorPage() {
     walkinQueueOps.listActive(venue.id),
   ]);
 
-  // §08 §6.2 — today's confirmed bookings not yet assigned to a table.
+  // §08 §6.2 — today's bookings. One query feeds both the "to seat" panel
+  // (unassigned) and the per-table badges (assigned, incl. auto-assigned online
+  // bookings and combinations), so the floor reflects reservations as they land.
   const today = new Date().toISOString().slice(0, 10);
-  const unassigned = await dbAdmin
+  const todaysRows = await dbAdmin
     .select({
       id: reservations.id,
       guestName: reservations.guestName,
       partySize: reservations.partySize,
       time: reservations.reservationTime,
+      status: reservations.status,
+      tableId: reservations.tableId,
+      combinationId: reservations.combinationId,
     })
     .from(reservations)
     .where(
       and(
         eq(reservations.restaurantId, venue.id),
-        eq(reservations.status, "confirmed"),
-        isNull(reservations.tableId),
+        inArray(reservations.status, ["confirmed", "seated"]),
         eq(reservations.reservationDate, today),
+        isNull(reservations.eventRequestId),
       ),
     )
     .orderBy(asc(reservations.reservationTime));
+
+  // Member tables for any combination bookings today (so a joined booking badges
+  // on each of its tables).
+  const comboIds = [...new Set(todaysRows.map((r) => r.combinationId).filter(Boolean) as string[])];
+  const comboMembers = new Map<string, string[]>();
+  if (comboIds.length) {
+    const combos = await dbAdmin
+      .select({ id: tableCombinations.id, tableIds: tableCombinations.tableIds })
+      .from(tableCombinations)
+      .where(inArray(tableCombinations.id, comboIds));
+    for (const c of combos) comboMembers.set(c.id, c.tableIds ?? []);
+  }
+
+  const byTable = reservationsByTable(
+    todaysRows.map((r) => ({
+      id: r.id,
+      guestName: r.guestName,
+      partySize: r.partySize,
+      time: String(r.time).slice(0, 5),
+      tableId: r.tableId,
+      combinationId: r.combinationId,
+    })),
+    comboMembers,
+  );
+  const reservationsByTableObj = Object.fromEntries(byTable);
+
+  // The "to seat" panel: confirmed bookings with no table/combination yet.
+  const unassigned = todaysRows.filter(
+    (r) => r.status === "confirmed" && !r.tableId && !r.combinationId,
+  );
 
   const freeCount = tables.filter((t) => t.currentStatus === "free").length;
 
@@ -130,6 +166,7 @@ export default async function LiveFloorPage() {
           partySize: r.partySize,
           time: String(r.time).slice(0, 5),
         }))}
+        reservationsByTable={reservationsByTableObj}
       />
     </div>
   );

@@ -76,7 +76,10 @@
     "entrance": "Eingang",
     "toastUpdateFailed": "Die Änderung wurde nicht gespeichert.",
     "toastAddFailed": "Der Tisch wurde nicht hinzugefügt.",
-    "toastDeleteFailed": "Der Tisch wurde nicht gelöscht."
+    "toastDeleteFailed": "Der Tisch wurde nicht gelöscht.",
+    "fitView": "Einpassen",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern"
   },
   "emptyInspector": {
     "title": "Tischplan",

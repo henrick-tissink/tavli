@@ -1619,6 +1619,9 @@ export interface PartnerTablesMessages {
     toastUpdateFailed: string;
     toastAddFailed: string;
     toastDeleteFailed: string;
+    fitView: string;
+    zoomIn: string;
+    zoomOut: string;
   };
   emptyInspector: {
     title: string;

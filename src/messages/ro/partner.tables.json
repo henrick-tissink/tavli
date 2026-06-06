@@ -76,7 +76,10 @@
     "entrance": "Intrare",
     "toastUpdateFailed": "Modificarea nu a fost salvată.",
     "toastAddFailed": "Masa nu a fost adăugată.",
-    "toastDeleteFailed": "Masa nu a fost ștearsă."
+    "toastDeleteFailed": "Masa nu a fost ștearsă.",
+    "fitView": "Încadrează",
+    "zoomIn": "Mărește",
+    "zoomOut": "Micșorează"
   },
   "emptyInspector": {
     "title": "Plan sală",

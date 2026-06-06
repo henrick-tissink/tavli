@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { allowedTransitions, type TableStatus } from "@/lib/tables/state-machine";
+import type { TableReservation } from "@/lib/tables/upcoming";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
   updateTableStatusAction,
@@ -55,17 +56,36 @@ export function LiveFloor({
   tables,
   walkins,
   reservations,
+  reservationsByTable,
 }: {
   restaurantId: string;
   sections: { id: string; name: string }[];
   tables: TableVM[];
   walkins: WalkinVM[];
   reservations: ReservationVM[];
+  /** Today's reservations occupying each table, sorted by time. */
+  reservationsByTable: Record<string, TableReservation[]>;
 }) {
   const t = useT("partner.tables");
   const statusLabel = (status: TableStatus) => t(`status.${status}`);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+
+  // Keep the board live: re-fetch on an interval while the tab is visible, and
+  // immediately when it regains focus — so bookings and other staff's changes
+  // show up without a manual reload. (Client form/selection state is preserved
+  // across router.refresh(), so in-progress input isn't lost.)
+  useEffect(() => {
+    const refresh = () => {
+      if (typeof document === "undefined" || document.visibilityState === "visible") router.refresh();
+    };
+    const id = setInterval(refresh, 15000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [router]);
   const [combineMode, setCombineMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +177,18 @@ export function LiveFloor({
                         <span className="text-xs">{tbl.capacityMin}–{tbl.capacityMax}</span>
                       </div>
                       <div className="mt-0.5 text-xs font-medium">{statusLabel(tbl.currentStatus)}</div>
+
+                      {(() => {
+                        const upcoming = reservationsByTable[tbl.id];
+                        if (!upcoming || upcoming.length === 0) return null;
+                        const next = upcoming[0]!;
+                        return (
+                          <div className="mt-1.5 rounded-md bg-white/70 px-1.5 py-1 text-[11px] leading-tight">
+                            <span className="font-semibold">{next.time} · {next.guestName}</span>
+                            <span className="opacity-70"> ×{next.partySize}{upcoming.length > 1 ? ` +${upcoming.length - 1}` : ""}</span>
+                          </div>
+                        );
+                      })()}
 
                       {selectable ? (
                         <button

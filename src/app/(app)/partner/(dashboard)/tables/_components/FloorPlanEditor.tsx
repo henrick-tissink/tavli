@@ -12,8 +12,8 @@
  * every change is persisted; the canvas + inspector replace the old
  * shapes-only canvas + list-based editing.
  */
-import { useRef, useState, useTransition } from "react";
-import { Plus, Minus, Trash2, Move } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Plus, Minus, Trash2, Move, Maximize2 } from "lucide-react";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
@@ -21,6 +21,7 @@ import {
   updateTableAction,
   archiveTableAction,
 } from "../actions";
+import { worldBounds, fitZoom, clampZoom } from "./floor-geometry";
 
 export interface EditorTable {
   id: string;
@@ -49,7 +50,7 @@ interface Booking {
   tableId: string | null;
 }
 
-const CANVAS_H = 520;
+const VIEWPORT_H = 520;
 const isRound = (shape: string) => shape === "round";
 
 export function FloorPlanEditor({
@@ -71,7 +72,28 @@ export function FloorPlanEditor({
   const [view, setView] = useState<"layout" | "tonight">("layout");
   const [, startTransition] = useTransition();
   const canvasRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; offX: number; offY: number } | null>(null);
+  const [zoom, setZoom] = useState(1);
+
+  // The scrollable "world" is sized to the actual layout so no table is ever
+  // clipped/unreachable; it grows as tables are dragged outward.
+  const world = worldBounds(tables);
+
+  // Fit the whole plan into the viewport on mount, so every table is visible
+  // straight away rather than hidden past a fixed-size frame.
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (vp) {
+      setZoom(fitZoom(worldBounds(initialTables), { width: vp.clientWidth, height: vp.clientHeight }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function fitView() {
+    const vp = viewportRef.current;
+    if (vp) setZoom(fitZoom(world, { width: vp.clientWidth, height: vp.clientHeight }));
+  }
 
   const sel = tables.find((tbl) => tbl.id === selId) ?? null;
   const sectionColor = (id: string | null) =>
@@ -90,18 +112,24 @@ export function FloorPlanEditor({
   }
 
   // ── drag (layout view only) ────────────────────────────────────────────────
+  // Pointer coords → world coords: the canvas is scaled by `zoom` (its
+  // getBoundingClientRect is already the scaled rect), so divide by zoom.
   function onDown(e: React.PointerEvent, tbl: EditorTable) {
     setSelId(tbl.id);
     if (view !== "layout") return;
     const rect = canvasRef.current!.getBoundingClientRect();
-    drag.current = { id: tbl.id, offX: e.clientX - rect.left - tbl.positionX, offY: e.clientY - rect.top - tbl.positionY };
+    drag.current = {
+      id: tbl.id,
+      offX: (e.clientX - rect.left) / zoom - tbl.positionX,
+      offY: (e.clientY - rect.top) / zoom - tbl.positionY,
+    };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
   function onMove(e: React.PointerEvent, tbl: EditorTable) {
     if (drag.current?.id !== tbl.id) return;
     const rect = canvasRef.current!.getBoundingClientRect();
-    const x = Math.max(0, Math.min(rect.width - tbl.width, Math.round(e.clientX - rect.left - drag.current.offX)));
-    const y = Math.max(0, Math.min(CANVAS_H - tbl.height, Math.round(e.clientY - rect.top - drag.current.offY)));
+    const x = Math.max(0, Math.min(world.width - tbl.width, Math.round((e.clientX - rect.left) / zoom - drag.current.offX)));
+    const y = Math.max(0, Math.min(world.height - tbl.height, Math.round((e.clientY - rect.top) / zoom - drag.current.offY)));
     patch(tbl.id, { positionX: x, positionY: y });
   }
   function onUp(tbl: EditorTable) {
@@ -206,19 +234,59 @@ export function FloorPlanEditor({
       </div>
 
       <div className="grid items-start gap-5 desktop:grid-cols-[1fr_300px]">
-        {/* canvas */}
-        <div
-          ref={canvasRef}
-          onPointerDown={(e) => { if (e.target === canvasRef.current) setSelId(null); }}
-          className="relative w-full overflow-hidden rounded-card border border-border bg-surface-white"
-          style={{
-            height: CANVAS_H,
-            boxShadow: "inset 0 0 0 6px var(--color-surface-bg)",
-            backgroundImage: "linear-gradient(rgba(0,0,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.025) 1px,transparent 1px)",
-            backgroundSize: "28px 28px",
-            touchAction: "none",
-          }}
-        >
+        {/* canvas column: zoom toolbar + scrollable viewport over a world
+            sized to the layout (nothing clips; pan by scroll, zoom to fit). */}
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fitView}
+              className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface-white px-3 py-1.5 text-[12.5px] font-semibold text-text-secondary hover:bg-surface-bg"
+            >
+              <Maximize2 size={14} /> {t("floorPlan.fitView")}
+            </button>
+            <div className="ml-auto inline-flex items-center gap-1 rounded-pill border border-border bg-surface-white p-[3px]">
+              <button
+                type="button"
+                onClick={() => setZoom((z) => clampZoom(z - 0.1))}
+                aria-label={t("floorPlan.zoomOut")}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-text-secondary hover:bg-surface-bg"
+              >
+                <Minus size={14} />
+              </button>
+              <span className="min-w-[3.5ch] text-center text-xs font-semibold tabular-nums text-text-secondary">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setZoom((z) => clampZoom(z + 0.1))}
+                aria-label={t("floorPlan.zoomIn")}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-text-secondary hover:bg-surface-bg"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+          </div>
+          <div
+            ref={viewportRef}
+            className="relative overflow-auto rounded-card border border-border bg-surface-bg"
+            style={{ height: VIEWPORT_H, touchAction: "none" }}
+          >
+            <div style={{ width: world.width * zoom, height: world.height * zoom }}>
+              <div
+                ref={canvasRef}
+                onPointerDown={(e) => { if (e.target === canvasRef.current) setSelId(null); }}
+                className="relative bg-surface-white"
+                style={{
+                  width: world.width,
+                  height: world.height,
+                  transform: `scale(${zoom})`,
+                  transformOrigin: "top left",
+                  boxShadow: "inset 0 0 0 6px var(--color-surface-bg)",
+                  backgroundImage: "linear-gradient(rgba(0,0,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.025) 1px,transparent 1px)",
+                  backgroundSize: "28px 28px",
+                }}
+              >
           {tables.map((tbl) => {
             const color = sectionColor(tbl.sectionId);
             const active = selId === tbl.id;
@@ -264,10 +332,13 @@ export function FloorPlanEditor({
             );
           })}
 
-          {/* entrance marker */}
-          <div className="pointer-events-none absolute bottom-0 left-1/2 flex -translate-x-1/2 flex-col items-center">
-            <span className="mb-0.5 text-[10px] uppercase tracking-[0.12em] text-text-muted">{t("floorPlan.entrance")}</span>
-            <span className="h-1 w-14 rounded-[2px] bg-brand-primary" />
+                {/* entrance marker */}
+                <div className="pointer-events-none absolute bottom-0 left-1/2 flex -translate-x-1/2 flex-col items-center">
+                  <span className="mb-0.5 text-[10px] uppercase tracking-[0.12em] text-text-muted">{t("floorPlan.entrance")}</span>
+                  <span className="h-1 w-14 rounded-[2px] bg-brand-primary" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
