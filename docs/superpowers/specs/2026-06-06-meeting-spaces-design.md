@@ -146,9 +146,9 @@ error if the trigger fires (defensive — `requested` already holds the slot).
   spaces + busy intervals for the chosen date (no guest PII to the client).
 - `submitMeetingBookingDraft` in `src/app/api/meeting-bookings/actions.ts`
   (mirrors `submitEventRequestDraft`): zod-validate, recheck hours/capacity,
-  compute `total_cents = ceil(minutes/60 × rate)` — billed per started hour —
-  insert as `requested`; map TV004/TV005 to a friendly "slot just taken"
-  error so the sheet re-picks.
+  compute `total_cents = round(minutes × hourly_rate_cents / 60)` — pro-rata,
+  matching the 30-minute increments the sheet offers — insert as `requested`;
+  map TV004/TV005 to a friendly "slot just taken" error so the sheet re-picks.
 
 ## 5. i18n
 
