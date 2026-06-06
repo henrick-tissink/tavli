@@ -21,6 +21,9 @@ export interface ReservationRow {
   reservationDate: string;
   reservationTime: string;
   zone: string | null;
+  /** Assigned table label, or joined labels for a combination (e.g. "3+5").
+   *  null when unassigned (no floor plan, or the host hasn't placed it). */
+  table: string | null;
   notes: string | null;
   status: "confirmed" | "cancelled" | "seated" | "completed" | "no_show";
   createdAt: string;
@@ -110,13 +113,14 @@ export function ReservationsList({ today, upcoming, past }: Props) {
         </div>
       ) : (
         <div className="bg-surface-white rounded-card border border-border overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
+          <table className="w-full text-sm min-w-[800px]">
             <thead className="bg-surface-bg">
               <tr className="text-left">
                 <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.when")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.client")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.party")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.zone")}</th>
+                <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.tableAssignment")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary">{t("table.status")}</th>
                 <th className="px-4 py-3 font-semibold text-text-secondary text-right">
                   {t("table.actions")}
@@ -153,6 +157,13 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                     <td className="px-4 py-3 text-text-primary">{r.partySize}</td>
                     <td className="px-4 py-3 text-text-secondary">
                       {r.zone ?? "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.table ? (
+                        <span className="font-semibold text-text-primary tabular-nums">{r.table}</span>
+                      ) : (
+                        <span className="text-text-muted">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span

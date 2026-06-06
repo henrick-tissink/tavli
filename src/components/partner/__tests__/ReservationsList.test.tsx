@@ -41,6 +41,7 @@ function row(overrides: Partial<ReservationRow>): ReservationRow {
     reservationDate: "2026-05-01",
     reservationTime: "19:30:00",
     zone: null,
+    table: null,
     notes: null,
     status: "confirmed",
     createdAt: "2026-04-27T10:00:00Z",
@@ -99,6 +100,25 @@ describe("ReservationsList", () => {
       const scope = within(tr);
       expect(scope.queryByRole("button")).toBeNull();
     }
+  });
+
+  test("shows the assigned table: single label, joined combination, and — when unassigned", () => {
+    renderList(
+      <ReservationsList
+        today={[
+          row({ id: "r1", guestName: "Single", table: "5" }),
+          row({ id: "r2", guestName: "Combo", table: "3+5" }),
+          row({ id: "r3", guestName: "Unassigned", table: null }),
+        ]}
+        upcoming={[]}
+        past={[]}
+      />,
+    );
+    expect(within(screen.getByText("Single").closest("tr")!).getByText("5")).toBeInTheDocument();
+    expect(within(screen.getByText("Combo").closest("tr")!).getByText("3+5")).toBeInTheDocument();
+    // unassigned row renders a dash for the table cell (zone is also null here)
+    const unTr = screen.getByText("Unassigned").closest("tr")!;
+    expect(within(unTr).getAllByText("—").length).toBeGreaterThanOrEqual(2);
   });
 
   test("clicking Cancel on a confirmed row opens the cancel sheet with that reservation", () => {

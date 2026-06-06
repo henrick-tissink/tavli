@@ -1420,6 +1420,7 @@ export interface PartnerReservationsMessages {
     client: string;
     party: string;
     zone: string;
+    tableAssignment: string;
     status: string;
     actions: string;
   };

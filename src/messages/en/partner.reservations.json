@@ -21,6 +21,7 @@
     "client": "Guest",
     "party": "Party",
     "zone": "Zone",
+    "tableAssignment": "Table",
     "status": "Status",
     "actions": "Actions"
   },

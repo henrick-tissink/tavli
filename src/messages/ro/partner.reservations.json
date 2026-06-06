@@ -21,6 +21,7 @@
     "client": "Client",
     "party": "Persoane",
     "zone": "Zonă",
+    "tableAssignment": "Masă",
     "status": "Status",
     "actions": "Acțiuni"
   },

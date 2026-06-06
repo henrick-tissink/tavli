@@ -36,7 +36,7 @@ export default async function PartnerReservationsPage() {
   const ymd = todayYmd();
 
   const cols =
-    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at";
+    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at, table_id, combination_id";
 
   // Fetch today/upcoming and recent past as separate bounded queries. A single
   // ordered+limited query starves the operationally-important upcoming rows:
@@ -61,6 +61,33 @@ export default async function PartnerReservationsPage() {
       .limit(200),
   ]);
 
+  // Resolve table assignments to human labels: a single table shows its label
+  // (e.g. "5"); a combination shows its member labels joined (e.g. "3+5").
+  const rawRows = [...(futureRaw ?? []), ...(pastRaw ?? [])];
+  const comboIds = [
+    ...new Set(rawRows.map((r) => r.combination_id).filter(Boolean) as string[]),
+  ];
+  const [{ data: tableRows }, { data: comboRows }] = await Promise.all([
+    supabase.from("restaurant_tables").select("id, label").eq("restaurant_id", restaurantId),
+    comboIds.length
+      ? supabase.from("table_combinations").select("id, table_ids").in("id", comboIds)
+      : Promise.resolve({ data: [] as { id: string; table_ids: string[] }[] }),
+  ]);
+  const tableLabel = new Map((tableRows ?? []).map((t) => [t.id as string, t.label as string]));
+  const comboLabel = new Map<string, string>();
+  for (const c of comboRows ?? []) {
+    const labels = ((c.table_ids as string[]) ?? [])
+      .map((id) => tableLabel.get(id) ?? "?")
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    comboLabel.set(c.id as string, labels.join("+"));
+  }
+  const resolveTable = (r: { table_id: string | null; combination_id: string | null }): string | null =>
+    r.combination_id
+      ? comboLabel.get(r.combination_id) ?? null
+      : r.table_id
+        ? tableLabel.get(r.table_id) ?? null
+        : null;
+
   const mapRow = (r: NonNullable<typeof futureRaw>[number]): ReservationRow => ({
     id: r.id,
     guestName: r.guest_name,
@@ -70,6 +97,7 @@ export default async function PartnerReservationsPage() {
     reservationDate: r.reservation_date,
     reservationTime: r.reservation_time,
     zone: r.zone,
+    table: resolveTable(r),
     notes: r.notes,
     status: r.status,
     createdAt: r.created_at,
