@@ -27,6 +27,13 @@
     },
     "subtitle": "Gestionează evenimentele private și ofertele corporate ale localului.",
     "manageRequests": "Gestionează solicitările",
+    "manageMeetingSpaces": "Gestionează spațiile",
+    "meetingRequests": "Cereri",
+    "openMeetingRequests": {
+      "one": "{count} cerere în așteptare",
+      "few": "{count} cereri în așteptare",
+      "other": "{count} de cereri în așteptare"
+    },
     "enabledHint": "Activat",
     "disabledHint": "Dezactivat"
   },
@@ -193,6 +200,92 @@
       "forbidden": "Acces interzis.",
       "invalidInput": "Date invalide.",
       "capacityOrder": "Capacitatea maximă trebuie să fie cel puțin egală cu cea minimă."
+    }
+  },
+  "meetingSpaces": {
+    "title": "Spații de întâlnire",
+    "subtitle": "Săli de lucru și întâlnire rezervabile cu ora. Apar pe pagina ta publică atâta timp cât funcția este activă.",
+    "emptyTitle": "Niciun spațiu de întâlnire încă",
+    "emptyBody": "Adaugă sălile pe care clienții le pot rezerva cu ora — săli de ședință, colțuri de lucru, birouri private.",
+    "addFirst": "Adaugă primul spațiu",
+    "addSpace": "Adaugă spațiu",
+    "editTitle": "Editează spațiul",
+    "newTitle": "Spațiu nou",
+    "save": "Salvează",
+    "add": "Adaugă",
+    "cancel": "Renunță",
+    "saving": "Se salvează…",
+    "closeAriaLabel": "Închide",
+    "editAriaLabel": "Editează {name}",
+    "deactivateAriaLabel": "Dezactivează {name}",
+    "deactivateConfirm": "Dezactivezi „{name}”? Nu va mai apărea clienților; rezervările existente rămân intacte.",
+    "nameLabel": "Nume",
+    "namePlaceholder": "ex. Sala Bibliotecă",
+    "nameRequired": "Numele este obligatoriu.",
+    "capacityLabel": "Capacitate (locuri)",
+    "capacityPositive": "Capacitatea trebuie să fie un număr pozitiv.",
+    "rateLabel": "Tarif orar (lei)",
+    "rateInvalid": "Tariful orar trebuie să fie 0 sau mai mare.",
+    "openLabel": "Rezervabil de la",
+    "closeLabel": "Până la",
+    "hoursOrder": "Ora de deschidere trebuie să fie înaintea celei de închidere.",
+    "minDurationLabel": "Rezervare minimă",
+    "minDurationOption": "{minutes} min",
+    "amenitiesLabel": "Dotări",
+    "amenitiesPlaceholder": "ex. ecran, whiteboard, cafea (separate prin virgulă)",
+    "amenitiesOptional": "(opțional)",
+    "descriptionLabel": "Descriere",
+    "descriptionOptional": "(opțional)",
+    "descriptionPlaceholder": "Așezare, echipamente, lumină naturală…",
+    "capacitySeats": "{count} locuri",
+    "ratePerHour": "{amount} lei/h",
+    "hoursValue": "{open}–{close}"
+  },
+  "meetingBookings": {
+    "title": "Cereri pentru spații de întâlnire",
+    "subtitle": "Confirmă sau refuză cererile de rezervare cu ora.",
+    "emptyTitle": "Nicio cerere de rezervare",
+    "emptyBody": "Cererile apar aici imediat ce un client alege un interval.",
+    "filters": {
+      "pending": "În așteptare",
+      "confirmed": "Confirmate",
+      "history": "Istoric",
+      "all": "Toate"
+    },
+    "status": {
+      "requested": "În așteptare",
+      "confirmed": "Confirmată",
+      "declined": "Refuzată",
+      "cancelled": "Anulată",
+      "completed": "Finalizată"
+    },
+    "card": {
+      "when": "{date} · {start}–{end}",
+      "space": "Spațiu: {name}",
+      "party": {
+        "one": "{count} persoană",
+        "few": "{count} persoane",
+        "other": "{count} de persoane"
+      },
+      "total": "{amount} lei",
+      "contact": "{name} · {email}",
+      "company": "Companie: {name}",
+      "notes": "Note"
+    },
+    "actions": {
+      "confirm": "Confirmă",
+      "decline": "Refuză",
+      "cancel": "Anulează rezervarea",
+      "complete": "Marchează finalizată",
+      "confirmPrompt": "Confirmi această rezervare?",
+      "declinePrompt": "Refuzi această cerere? Intervalul devine din nou disponibil.",
+      "cancelPrompt": "Anulezi această rezervare confirmată? Intervalul devine din nou disponibil.",
+      "completePrompt": "Marchezi această rezervare ca finalizată?"
+    },
+    "errors": {
+      "invalidTransition": "Această acțiune nu mai este disponibilă pentru rezervare.",
+      "slotConflict": "O altă rezervare activă ocupă acest interval.",
+      "notFound": "Rezervarea nu a fost găsită."
     }
   }
 }

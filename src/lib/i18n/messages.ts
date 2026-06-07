@@ -2205,6 +2205,9 @@ export interface PartnerCorporateMessages {
     openRequests: PluralBag;
     comingSoon: string;
     manageRequests: string;
+    manageMeetingSpaces: string;
+    meetingRequests: string;
+    openMeetingRequests: PluralBag;
     enabledHint: string;
     disabledHint: string;
     cards: {
@@ -2370,6 +2373,79 @@ export interface PartnerCorporateMessages {
       invalidInput: string;
       capacityOrder: string;
     };
+  };
+  meetingSpaces: {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyBody: string;
+    addFirst: string;
+    addSpace: string;
+    editTitle: string;
+    newTitle: string;
+    save: string;
+    add: string;
+    cancel: string;
+    saving: string;
+    closeAriaLabel: string;
+    editAriaLabel: string;
+    deactivateAriaLabel: string;
+    deactivateConfirm: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    nameRequired: string;
+    capacityLabel: string;
+    capacityPositive: string;
+    rateLabel: string;
+    rateInvalid: string;
+    openLabel: string;
+    closeLabel: string;
+    hoursOrder: string;
+    minDurationLabel: string;
+    minDurationOption: string;
+    amenitiesLabel: string;
+    amenitiesPlaceholder: string;
+    amenitiesOptional: string;
+    descriptionLabel: string;
+    descriptionOptional: string;
+    descriptionPlaceholder: string;
+    capacitySeats: string;
+    ratePerHour: string;
+    hoursValue: string;
+  };
+  meetingBookings: {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyBody: string;
+    filters: { pending: string; confirmed: string; history: string; all: string };
+    status: {
+      requested: string;
+      confirmed: string;
+      declined: string;
+      cancelled: string;
+      completed: string;
+    };
+    card: {
+      when: string;
+      space: string;
+      party: PluralBag;
+      total: string;
+      contact: string;
+      company: string;
+      notes: string;
+    };
+    actions: {
+      confirm: string;
+      decline: string;
+      cancel: string;
+      complete: string;
+      confirmPrompt: string;
+      declinePrompt: string;
+      cancelPrompt: string;
+      completePrompt: string;
+    };
+    errors: { invalidTransition: string; slotConflict: string; notFound: string };
   };
 }
 

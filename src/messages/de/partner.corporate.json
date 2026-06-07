@@ -27,6 +27,13 @@
     },
     "subtitle": "Verwalte private Events und Firmenangebote deines Lokals.",
     "manageRequests": "Anfragen verwalten",
+    "manageMeetingSpaces": "Räume verwalten",
+    "meetingRequests": "Anfragen",
+    "openMeetingRequests": {
+      "one": "{count} offene Anfrage",
+      "few": "{count} offene Anfragen",
+      "other": "{count} offene Anfragen"
+    },
     "enabledHint": "Aktiviert",
     "disabledHint": "Deaktiviert"
   },
@@ -193,6 +200,92 @@
       "forbidden": "Keine Berechtigung.",
       "invalidInput": "Ungültige Eingabe.",
       "capacityOrder": "Die maximale Kapazität muss mindestens der minimalen entsprechen."
+    }
+  },
+  "meetingSpaces": {
+    "title": "Meetingräume",
+    "subtitle": "Stundenweise buchbare Arbeits- und Meetingräume. Sie erscheinen auf Ihrer öffentlichen Seite, solange die Funktion aktiv ist.",
+    "emptyTitle": "Noch keine Meetingräume",
+    "emptyBody": "Fügen Sie die Räume hinzu, die Kunden stundenweise buchen können — Meetingräume, Arbeitsnischen, private Schreibtische.",
+    "addFirst": "Ersten Raum hinzufügen",
+    "addSpace": "Raum hinzufügen",
+    "editTitle": "Raum bearbeiten",
+    "newTitle": "Neuer Raum",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "closeAriaLabel": "Schließen",
+    "editAriaLabel": "{name} bearbeiten",
+    "deactivateAriaLabel": "{name} deaktivieren",
+    "deactivateConfirm": "„{name}“ deaktivieren? Der Raum wird Kunden nicht mehr angezeigt; bestehende Buchungen bleiben erhalten.",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Bibliothekszimmer",
+    "nameRequired": "Der Name ist erforderlich.",
+    "capacityLabel": "Kapazität (Plätze)",
+    "capacityPositive": "Die Kapazität muss eine positive Zahl sein.",
+    "rateLabel": "Stundensatz (Lei)",
+    "rateInvalid": "Der Stundensatz muss 0 oder höher sein.",
+    "openLabel": "Buchbar ab",
+    "closeLabel": "Bis",
+    "hoursOrder": "Die Öffnungszeit muss vor der Schließzeit liegen.",
+    "minDurationLabel": "Mindestbuchung",
+    "minDurationOption": "{minutes} Min.",
+    "amenitiesLabel": "Ausstattung",
+    "amenitiesPlaceholder": "z. B. Bildschirm, Whiteboard, Kaffee (durch Komma getrennt)",
+    "amenitiesOptional": "(optional)",
+    "descriptionLabel": "Beschreibung",
+    "descriptionOptional": "(optional)",
+    "descriptionPlaceholder": "Aufteilung, Ausstattung, Tageslicht…",
+    "capacitySeats": "{count} Plätze",
+    "ratePerHour": "{amount} Lei/Std.",
+    "hoursValue": "{open}–{close}"
+  },
+  "meetingBookings": {
+    "title": "Meetingraum-Anfragen",
+    "subtitle": "Bestätigen oder lehnen Sie stundenweise Buchungsanfragen ab.",
+    "emptyTitle": "Keine Buchungsanfragen",
+    "emptyBody": "Anfragen erscheinen hier, sobald ein Kunde einen Zeitraum wählt.",
+    "filters": {
+      "pending": "Offen",
+      "confirmed": "Bestätigt",
+      "history": "Verlauf",
+      "all": "Alle"
+    },
+    "status": {
+      "requested": "Offen",
+      "confirmed": "Bestätigt",
+      "declined": "Abgelehnt",
+      "cancelled": "Storniert",
+      "completed": "Abgeschlossen"
+    },
+    "card": {
+      "when": "{date} · {start}–{end}",
+      "space": "Raum: {name}",
+      "party": {
+        "one": "{count} Person",
+        "few": "{count} Personen",
+        "other": "{count} Personen"
+      },
+      "total": "{amount} Lei",
+      "contact": "{name} · {email}",
+      "company": "Firma: {name}",
+      "notes": "Notizen"
+    },
+    "actions": {
+      "confirm": "Bestätigen",
+      "decline": "Ablehnen",
+      "cancel": "Buchung stornieren",
+      "complete": "Als abgeschlossen markieren",
+      "confirmPrompt": "Diese Buchung bestätigen?",
+      "declinePrompt": "Diese Anfrage ablehnen? Der Zeitraum wird wieder verfügbar.",
+      "cancelPrompt": "Diese bestätigte Buchung stornieren? Der Zeitraum wird wieder verfügbar.",
+      "completePrompt": "Diese Buchung als abgeschlossen markieren?"
+    },
+    "errors": {
+      "invalidTransition": "Diese Aktion ist für die Buchung nicht mehr verfügbar.",
+      "slotConflict": "Ein anderer aktiver Eintrag belegt diesen Zeitraum.",
+      "notFound": "Buchung nicht gefunden."
     }
   }
 }

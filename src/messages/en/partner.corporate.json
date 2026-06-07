@@ -27,6 +27,13 @@
     },
     "subtitle": "Manage private events and corporate offerings for your venue.",
     "manageRequests": "Manage requests",
+    "manageMeetingSpaces": "Manage spaces",
+    "meetingRequests": "Requests",
+    "openMeetingRequests": {
+      "one": "{count} pending request",
+      "few": "{count} pending requests",
+      "other": "{count} pending requests"
+    },
     "enabledHint": "Enabled",
     "disabledHint": "Disabled"
   },
@@ -193,6 +200,92 @@
       "forbidden": "Access denied.",
       "invalidInput": "Invalid input.",
       "capacityOrder": "Maximum capacity must be at least the minimum."
+    }
+  },
+  "meetingSpaces": {
+    "title": "Meeting spaces",
+    "subtitle": "Hourly bookable work and meeting rooms. They appear on your public page while the capability is on.",
+    "emptyTitle": "No meeting spaces yet",
+    "emptyBody": "Add the rooms clients can book by the hour — meeting rooms, work nooks, private desks.",
+    "addFirst": "Add the first space",
+    "addSpace": "Add space",
+    "editTitle": "Edit space",
+    "newTitle": "New space",
+    "save": "Save",
+    "add": "Add",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "closeAriaLabel": "Close",
+    "editAriaLabel": "Edit {name}",
+    "deactivateAriaLabel": "Deactivate {name}",
+    "deactivateConfirm": "Deactivate “{name}”? It stops appearing to clients; existing bookings stay intact.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. The Library Room",
+    "nameRequired": "The name is required.",
+    "capacityLabel": "Capacity (seats)",
+    "capacityPositive": "Capacity must be a positive number.",
+    "rateLabel": "Hourly rate (lei)",
+    "rateInvalid": "The hourly rate must be 0 or more.",
+    "openLabel": "Bookable from",
+    "closeLabel": "Until",
+    "hoursOrder": "The opening time must be before the closing time.",
+    "minDurationLabel": "Minimum booking",
+    "minDurationOption": "{minutes} min",
+    "amenitiesLabel": "Amenities",
+    "amenitiesPlaceholder": "e.g. screen, whiteboard, coffee (comma-separated)",
+    "amenitiesOptional": "(optional)",
+    "descriptionLabel": "Description",
+    "descriptionOptional": "(optional)",
+    "descriptionPlaceholder": "Layout, equipment, natural light…",
+    "capacitySeats": "{count} seats",
+    "ratePerHour": "{amount} lei/h",
+    "hoursValue": "{open}–{close}"
+  },
+  "meetingBookings": {
+    "title": "Meeting space requests",
+    "subtitle": "Confirm or decline hourly booking requests.",
+    "emptyTitle": "No booking requests",
+    "emptyBody": "Requests appear here as soon as a client picks a slot.",
+    "filters": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "history": "History",
+      "all": "All"
+    },
+    "status": {
+      "requested": "Pending",
+      "confirmed": "Confirmed",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "card": {
+      "when": "{date} · {start}–{end}",
+      "space": "Space: {name}",
+      "party": {
+        "one": "{count} person",
+        "few": "{count} people",
+        "other": "{count} people"
+      },
+      "total": "{amount} lei",
+      "contact": "{name} · {email}",
+      "company": "Company: {name}",
+      "notes": "Notes"
+    },
+    "actions": {
+      "confirm": "Confirm",
+      "decline": "Decline",
+      "cancel": "Cancel booking",
+      "complete": "Mark completed",
+      "confirmPrompt": "Confirm this booking?",
+      "declinePrompt": "Decline this request? The slot becomes available again.",
+      "cancelPrompt": "Cancel this confirmed booking? The slot becomes available again.",
+      "completePrompt": "Mark this booking as completed?"
+    },
+    "errors": {
+      "invalidTransition": "This action is no longer available for this booking.",
+      "slotConflict": "Another active booking holds this slot.",
+      "notFound": "Booking not found."
     }
   }
 }
