@@ -19,6 +19,7 @@ import { ReviewIntelligenceSection } from "@/components/review-intelligence";
 import { ReviewCard } from "@/components/review-card";
 import { ReservationSheetV2 } from "@/components/reservation-sheet-v2";
 import { EventRequestCtaV2 } from "@/components/event-request-cta-v2";
+import { MeetingSpaceCta } from "@/components/meeting-space-cta";
 import { HorizontalSection } from "@/components/horizontal-section";
 import { GoogleMapEmbed } from "@/components/google-map-embed";
 import { SectionHeader } from "@/components/section-header";
@@ -475,6 +476,12 @@ function InfoBlock({
           privateSpaces={restaurant.privateSpaces ?? []}
           minLeadDays={restaurant.minLeadDays}
           budgetPerHeadGuidance={restaurant.budgetPerHeadGuidance}
+        />
+        <MeetingSpaceCta
+          enabled={Boolean(restaurant.acceptsMeetingSpaces)}
+          restaurantId={restaurant.id}
+          restaurantName={restaurant.name}
+          spaces={restaurant.meetingSpaces ?? []}
         />
       </div>
     </div>
