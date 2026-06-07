@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { getCurrentSession } from "@/lib/auth/session";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurantPrivateSpaces } from "@/lib/db/schema";
 import {
@@ -11,9 +10,9 @@ import {
   updatePrivateSpace,
   deactivatePrivateSpace,
 } from "@/lib/repos/private-spaces-repo";
-import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { getMessages, type PartnerCorporateMessages } from "@/lib/i18n/messages";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { assertOwns } from "../assert-owns";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -29,30 +28,6 @@ function parseErrorMessage(
   return error.issues.some((i) => i.message === "capacityMin must be <= capacityMax")
     ? m.spaces.errors.capacityOrder
     : m.spaces.errors.invalidInput;
-}
-
-async function assertOwns(
-  restaurantId: string,
-): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
-  const m = getMessages(await resolveAppLocale(), "partner.corporate");
-  const session = await getCurrentSession();
-  if (!session) return { ok: false, error: m.spaces.errors.unauthorised };
-  if (
-    session.profile.role !== "restaurant_owner" &&
-    session.profile.role !== "admin"
-  ) {
-    return { ok: false, error: m.spaces.errors.forbidden };
-  }
-  // Admins pass through (legacy behaviour from owner_user_id era was an
-  // exact ownership match, so this branch keeps the same surface). The
-  // restaurant_owner branch must hit the helper to confirm the venue
-  // belongs to them per §3.6 sub-unit B.
-  if (session.profile.role === "admin") return { ok: true, userId: session.userId };
-  const primary = await currentUserPrimaryRestaurant(session);
-  if (!primary || primary !== restaurantId) {
-    return { ok: false, error: m.spaces.errors.forbidden };
-  }
-  return { ok: true, userId: session.userId };
 }
 
 const createSchema = z
