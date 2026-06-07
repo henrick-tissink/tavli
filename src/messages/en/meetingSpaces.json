@@ -1,0 +1,65 @@
+{
+  "cta": {
+    "title": "Book a meeting space",
+    "subtitle": "Hourly rooms for meetings and focused work"
+  },
+  "sheet": {
+    "titleSuffix": "· Meeting spaces",
+    "dialogAriaLabel": "Book a meeting space at {restaurantName}",
+    "closeAriaLabel": "Close",
+    "progress": { "stepLabel": "Step {current} of {total}" },
+    "back": "Back",
+    "next": "Continue"
+  },
+  "stepDate": {
+    "title": "When do you need the space?",
+    "dateLabel": "Date",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
+  "stepSpace": {
+    "title": "Pick a space",
+    "seats": {
+      "one": "{count} seat",
+      "few": "{count} seats",
+      "other": "{count} seats"
+    },
+    "ratePerHour": "{amount} lei/h",
+    "rateFree": "Free",
+    "hours": "{open}–{close}",
+    "empty": "No spaces are available for online booking yet."
+  },
+  "stepSlot": {
+    "title": "Pick a time",
+    "durationLabel": "Duration",
+    "durationOptionMinutes": "{minutes} min",
+    "loading": "Checking availability…",
+    "noSlots": "No free slots for this duration. Try another day or a shorter duration.",
+    "totalLabel": "Estimated total: {amount} lei",
+    "totalFree": "Free"
+  },
+  "stepIdentity": {
+    "title": "Your details",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "phoneOptional": "(optional)",
+    "companyLabel": "Company",
+    "companyOptional": "(optional)",
+    "partyLabel": "Number of people",
+    "notesLabel": "Notes",
+    "notesOptional": "(optional)",
+    "notesPlaceholder": "Anything the venue should prepare?",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "errorRequired": "Please fill in your name and a valid email.",
+    "errorPartyTooBig": "This space seats at most {capacity} people.",
+    "errorSlotTaken": "That slot was just taken. Please pick another time.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "stepSent": {
+    "title": "Request sent!",
+    "body": "{restaurantName} will confirm your booking by email shortly.",
+    "summary": "{date} · {start}–{end}"
+  }
+}

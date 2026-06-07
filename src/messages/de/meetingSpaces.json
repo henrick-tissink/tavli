@@ -1,0 +1,65 @@
+{
+  "cta": {
+    "title": "Meetingraum buchen",
+    "subtitle": "Stundenweise Räume für Meetings und konzentriertes Arbeiten"
+  },
+  "sheet": {
+    "titleSuffix": "· Meetingräume",
+    "dialogAriaLabel": "Meetingraum bei {restaurantName} buchen",
+    "closeAriaLabel": "Schließen",
+    "progress": { "stepLabel": "Schritt {current} von {total}" },
+    "back": "Zurück",
+    "next": "Weiter"
+  },
+  "stepDate": {
+    "title": "Wann brauchen Sie den Raum?",
+    "dateLabel": "Datum",
+    "today": "Heute",
+    "tomorrow": "Morgen"
+  },
+  "stepSpace": {
+    "title": "Raum auswählen",
+    "seats": {
+      "one": "{count} Platz",
+      "few": "{count} Plätze",
+      "other": "{count} Plätze"
+    },
+    "ratePerHour": "{amount} Lei/Std.",
+    "rateFree": "Kostenlos",
+    "hours": "{open}–{close}",
+    "empty": "Noch keine Räume für die Online-Buchung verfügbar."
+  },
+  "stepSlot": {
+    "title": "Uhrzeit wählen",
+    "durationLabel": "Dauer",
+    "durationOptionMinutes": "{minutes} Min.",
+    "loading": "Verfügbarkeit wird geprüft…",
+    "noSlots": "Keine freien Zeiten für diese Dauer. Versuchen Sie einen anderen Tag oder eine kürzere Dauer.",
+    "totalLabel": "Geschätzte Summe: {amount} Lei",
+    "totalFree": "Kostenlos"
+  },
+  "stepIdentity": {
+    "title": "Ihre Angaben",
+    "nameLabel": "Name",
+    "emailLabel": "E-Mail",
+    "phoneLabel": "Telefon",
+    "phoneOptional": "(optional)",
+    "companyLabel": "Firma",
+    "companyOptional": "(optional)",
+    "partyLabel": "Anzahl der Personen",
+    "notesLabel": "Notizen",
+    "notesOptional": "(optional)",
+    "notesPlaceholder": "Etwas, das der Veranstaltungsort vorbereiten sollte?",
+    "submit": "Anfrage senden",
+    "submitting": "Wird gesendet…",
+    "errorRequired": "Bitte geben Sie Ihren Namen und eine gültige E-Mail-Adresse ein.",
+    "errorPartyTooBig": "Dieser Raum bietet höchstens {capacity} Personen Platz.",
+    "errorSlotTaken": "Dieser Zeitraum wurde gerade vergeben. Bitte wählen Sie eine andere Zeit.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "stepSent": {
+    "title": "Anfrage gesendet!",
+    "body": "{restaurantName} bestätigt Ihre Buchung in Kürze per E-Mail.",
+    "summary": "{date} · {start}–{end}"
+  }
+}

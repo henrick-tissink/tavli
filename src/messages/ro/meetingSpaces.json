@@ -1,0 +1,65 @@
+{
+  "cta": {
+    "title": "Rezervă un spațiu de întâlnire",
+    "subtitle": "Săli cu ora pentru întâlniri și lucru concentrat"
+  },
+  "sheet": {
+    "titleSuffix": "· Spații de întâlnire",
+    "dialogAriaLabel": "Rezervă un spațiu de întâlnire la {restaurantName}",
+    "closeAriaLabel": "Închide",
+    "progress": { "stepLabel": "Pas {current} din {total}" },
+    "back": "Înapoi",
+    "next": "Continuă"
+  },
+  "stepDate": {
+    "title": "Când ai nevoie de spațiu?",
+    "dateLabel": "Data",
+    "today": "Azi",
+    "tomorrow": "Mâine"
+  },
+  "stepSpace": {
+    "title": "Alege un spațiu",
+    "seats": {
+      "one": "{count} loc",
+      "few": "{count} locuri",
+      "other": "{count} de locuri"
+    },
+    "ratePerHour": "{amount} lei/h",
+    "rateFree": "Gratuit",
+    "hours": "{open}–{close}",
+    "empty": "Niciun spațiu nu este încă disponibil pentru rezervare online."
+  },
+  "stepSlot": {
+    "title": "Alege ora",
+    "durationLabel": "Durată",
+    "durationOptionMinutes": "{minutes} min",
+    "loading": "Verificăm disponibilitatea…",
+    "noSlots": "Niciun interval liber pentru această durată. Încearcă altă zi sau o durată mai scurtă.",
+    "totalLabel": "Total estimat: {amount} lei",
+    "totalFree": "Gratuit"
+  },
+  "stepIdentity": {
+    "title": "Datele tale",
+    "nameLabel": "Nume",
+    "emailLabel": "Email",
+    "phoneLabel": "Telefon",
+    "phoneOptional": "(opțional)",
+    "companyLabel": "Companie",
+    "companyOptional": "(opțional)",
+    "partyLabel": "Număr de persoane",
+    "notesLabel": "Note",
+    "notesOptional": "(opțional)",
+    "notesPlaceholder": "Ceva ce ar trebui să pregătească localul?",
+    "submit": "Trimite cererea",
+    "submitting": "Se trimite…",
+    "errorRequired": "Completează numele și un email valid.",
+    "errorPartyTooBig": "Acest spațiu are cel mult {capacity} locuri.",
+    "errorSlotTaken": "Intervalul tocmai a fost ocupat. Alege altă oră.",
+    "errorGeneric": "Ceva nu a mers. Încearcă din nou."
+  },
+  "stepSent": {
+    "title": "Cerere trimisă!",
+    "body": "{restaurantName} îți va confirma rezervarea prin email în scurt timp.",
+    "summary": "{date} · {start}–{end}"
+  }
+}

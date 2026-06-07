@@ -32,6 +32,10 @@ import roEvents from "@/messages/ro/events.json";
 import enEvents from "@/messages/en/events.json";
 import deEvents from "@/messages/de/events.json";
 
+import roMeetingSpaces from "@/messages/ro/meetingSpaces.json";
+import enMeetingSpaces from "@/messages/en/meetingSpaces.json";
+import deMeetingSpaces from "@/messages/de/meetingSpaces.json";
+
 import roProfile from "@/messages/ro/profile.json";
 import enProfile from "@/messages/en/profile.json";
 import deProfile from "@/messages/de/profile.json";
@@ -710,6 +714,57 @@ export interface EventsMessages {
     capacityRange: string;
     fits: PluralBag;
   };
+}
+
+/** Structural contract for the public `meetingSpaces` namespace (sheet + CTA). */
+export interface MeetingSpacesMessages {
+  cta: { title: string; subtitle: string };
+  sheet: {
+    titleSuffix: string;
+    dialogAriaLabel: string;
+    closeAriaLabel: string;
+    progress: { stepLabel: string };
+    back: string;
+    next: string;
+  };
+  stepDate: { title: string; dateLabel: string; today: string; tomorrow: string };
+  stepSpace: {
+    title: string;
+    seats: PluralBag;
+    ratePerHour: string;
+    rateFree: string;
+    hours: string;
+    empty: string;
+  };
+  stepSlot: {
+    title: string;
+    durationLabel: string;
+    durationOptionMinutes: string;
+    loading: string;
+    noSlots: string;
+    totalLabel: string;
+    totalFree: string;
+  };
+  stepIdentity: {
+    title: string;
+    nameLabel: string;
+    emailLabel: string;
+    phoneLabel: string;
+    phoneOptional: string;
+    companyLabel: string;
+    companyOptional: string;
+    partyLabel: string;
+    notesLabel: string;
+    notesOptional: string;
+    notesPlaceholder: string;
+    submit: string;
+    submitting: string;
+    errorRequired: string;
+    errorPartyTooBig: string;
+    errorSlotTaken: string;
+    errorGeneric: string;
+  };
+  stepSent: { title: string; body: string; summary: string };
 }
 
 /** Structural contract for the `profile` namespace. */
@@ -2895,6 +2950,11 @@ const CATALOGS = {
     Locale,
     EventsMessages
   >,
+  meetingSpaces: {
+    ro: roMeetingSpaces,
+    en: enMeetingSpaces,
+    de: deMeetingSpaces,
+  } as Record<Locale, MeetingSpacesMessages>,
   profile: { ro: roProfile, en: enProfile, de: deProfile } as Record<
     Locale,
     ProfileMessages
