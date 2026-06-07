@@ -83,6 +83,12 @@ export async function submitMeetingBookingRequest(
   if (!parsed.success) return { ok: false, error: "invalid" };
   const data = parsed.data;
 
+  // Backstop for direct callers: the sheet already constrains to today+.
+  // UTC date compare — venue-local precision isn't needed for a backstop.
+  if (data.bookingDate < new Date().toISOString().slice(0, 10)) {
+    return { ok: false, error: "invalid" };
+  }
+
   const [restaurant] = await dbAdmin
     .select({
       status: restaurants.status,
@@ -105,6 +111,11 @@ export async function submitMeetingBookingRequest(
   }
   if (data.partySize > space.capacity) {
     return { ok: false, error: "party_too_big" };
+  }
+  // Backstop: the trigger would reject this as TV005 → "slot_taken", which
+  // would mislead a direct caller; fail it as plain invalid input instead.
+  if (data.durationMinutes < space.minBookingMinutes) {
+    return { ok: false, error: "invalid" };
   }
 
   // Optional phone → E.164, mirroring submitEventRequestDraft.
