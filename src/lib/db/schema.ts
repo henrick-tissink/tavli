@@ -278,6 +278,8 @@ export const restaurants = pgTable("restaurants", {
   eventsIntakeEnabled: boolean("events_intake_enabled").notNull().default(false),
   acceptsCorporateMeals: boolean("accepts_corporate_meals").notNull().default(false),
   acceptsStanding: boolean("accepts_standing").notNull().default(false),
+  // Corporate Phase 2 — hourly bookable meeting spaces (migration 0066).
+  acceptsMeetingSpaces: boolean("accepts_meeting_spaces").notNull().default(false),
   proPlanActive: boolean("pro_plan_active").notNull().default(false),
   transactionalSmsEnabled: boolean("transactional_sms_enabled").notNull().default(false),
   // §02 §6 — opt-in auto-mark-no-show (migration 0056).
@@ -777,6 +779,70 @@ export const restaurantPrivateSpaces = pgTable("restaurant_private_spaces", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("rps_restaurant_active_idx").on(t.restaurantId).where(sql`${t.isActive} = TRUE`),
+]);
+
+// ─── meeting spaces (Corporate Phase 2, migration 0066) ─────────────────
+// Hourly bookable work/meeting rooms. Request-to-book: bookings land as
+// 'requested'; 'requested' and 'confirmed' both hold the slot (guard trigger
+// meeting_space_bookings_check raises TV004 on overlap, TV005 outside hours).
+
+export const meetingSpaceBookingStatus = pgEnum("meeting_space_booking_status", [
+  "requested",
+  "confirmed",
+  "declined",
+  "cancelled",
+  "completed",
+]);
+
+export const meetingSpaces = pgTable("meeting_spaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 120 }).notNull(),
+  description: text("description"),
+  capacity: integer("capacity").notNull(),
+  hourlyRateCents: integer("hourly_rate_cents").notNull().default(0),
+  amenities: text("amenities").array().notNull().default([]).$type<string[]>(),
+  openTime: time("open_time").notNull().default("09:00"),
+  closeTime: time("close_time").notNull().default("18:00"),
+  minBookingMinutes: integer("min_booking_minutes").notNull().default(60),
+  photoStoragePath: text("photo_storage_path"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("ms_restaurant_active_idx").on(t.restaurantId).where(sql`${t.isActive} = TRUE`),
+]);
+
+export const meetingSpaceBookings = pgTable("meeting_space_bookings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  meetingSpaceId: uuid("meeting_space_id")
+    .notNull()
+    .references(() => meetingSpaces.id, { onDelete: "cascade" }),
+  // Denormalised so the partner inbox filters without a join.
+  restaurantId: uuid("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id, { onDelete: "cascade" }),
+  bookingDate: date("booking_date").notNull(),
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
+  partySize: integer("party_size").notNull(),
+  guestName: varchar("guest_name", { length: 120 }).notNull(),
+  guestEmail: varchar("guest_email", { length: 255 }).notNull(),
+  guestPhone: varchar("guest_phone", { length: 40 }),
+  company: varchar("company", { length: 160 }),
+  notes: text("notes"),
+  status: meetingSpaceBookingStatus("status").notNull().default("requested"),
+  totalCents: integer("total_cents").notNull(),
+  confirmationToken: uuid("confirmation_token").notNull().defaultRandom(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("msb_restaurant_status_idx").on(t.restaurantId, t.status),
+  index("msb_space_date_idx").on(t.meetingSpaceId, t.bookingDate),
+  uniqueIndex("msb_confirmation_token_unique").on(t.confirmationToken),
 ]);
 
 // ─── event_request_quote_line_items ─────────────────────────────────────
