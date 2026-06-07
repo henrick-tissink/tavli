@@ -9,12 +9,16 @@ import { getPartnerRestaurant } from "@/lib/auth/partner";
 type Cap = "events" | "corporateMeals" | "standing" | "meetingNooks";
 const COL: Record<
   Cap,
-  "eventsIntakeEnabled" | "acceptsCorporateMeals" | "acceptsStanding" | null
+  | "eventsIntakeEnabled"
+  | "acceptsCorporateMeals"
+  | "acceptsStanding"
+  | "acceptsMeetingSpaces"
+  | null
 > = {
   events: "eventsIntakeEnabled",
   corporateMeals: "acceptsCorporateMeals",
   standing: "acceptsStanding",
-  meetingNooks: null,
+  meetingNooks: "acceptsMeetingSpaces",
 };
 
 export async function toggleCapability(

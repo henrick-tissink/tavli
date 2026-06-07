@@ -21,7 +21,7 @@ const CARDS: Array<{ key: CapKey; phase1: boolean }> = [
   { key: "events", phase1: true },
   { key: "corporateMeals", phase1: false },
   { key: "standing", phase1: false },
-  { key: "meetingNooks", phase1: false },
+  { key: "meetingNooks", phase1: true },
 ];
 
 export function CorporateOverview({ capabilities, onToggle }: Props) {
@@ -92,6 +92,35 @@ export function CorporateOverview({ capabilities, onToggle }: Props) {
                 >
                   {t("overview.manageRequests")} <ArrowRight className="h-4 w-4" />
                 </Link>
+              </div>
+            )}
+            {c.key === "meetingNooks" && (
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="text-xs font-semibold text-text-muted">
+                  {state.enabled ? t("overview.enabledHint") : t("overview.disabledHint")}
+                  {state.openCount !== undefined && state.openCount > 0 && (
+                    <>
+                      {" · "}
+                      <span className="text-brand-primary">
+                        {t("overview.openMeetingRequests", { count: state.openCount })}
+                      </span>
+                    </>
+                  )}
+                </span>
+                <span className="flex flex-none items-center gap-3">
+                  <Link
+                    href="/partner/corporate/meeting-spaces"
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
+                  >
+                    {t("overview.manageMeetingSpaces")}
+                  </Link>
+                  <Link
+                    href="/partner/corporate/meeting-bookings"
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
+                  >
+                    {t("overview.meetingRequests")} <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </span>
               </div>
             )}
           </div>

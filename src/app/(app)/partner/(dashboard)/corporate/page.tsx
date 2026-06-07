@@ -1,6 +1,6 @@
 import { getPartnerRestaurant } from "@/lib/auth/partner";
 import { dbAdmin } from "@/lib/db/admin";
-import { eventRequests } from "@/lib/db/schema";
+import { eventRequests, meetingSpaceBookings } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { CorporateOverview } from "@/components/partner/CorporateOverview";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
@@ -21,6 +21,15 @@ export default async function CorporatePage() {
         inArray(eventRequests.status, ["new", "viewing", "replied", "quoted"]),
       ),
     );
+  const pendingMeetingRows = await dbAdmin
+    .select({ id: meetingSpaceBookings.id })
+    .from(meetingSpaceBookings)
+    .where(
+      and(
+        eq(meetingSpaceBookings.restaurantId, restaurant.id),
+        eq(meetingSpaceBookings.status, "requested"),
+      ),
+    );
   return (
     <main className="max-w-4xl px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
@@ -38,7 +47,10 @@ export default async function CorporatePage() {
           },
           corporateMeals: { enabled: restaurant.acceptsCorporateMeals },
           standing: { enabled: restaurant.acceptsStanding },
-          meetingNooks: { enabled: false },
+          meetingNooks: {
+            enabled: restaurant.acceptsMeetingSpaces,
+            openCount: pendingMeetingRows.length,
+          },
         }}
         onToggle={toggleCapability.bind(null, restaurant.id)}
       />
