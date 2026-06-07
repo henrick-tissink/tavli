@@ -8,7 +8,7 @@
  *     npx jest -t "meeting-space booking public actions"
  */
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
-import { cities, organizations, profiles, restaurants, meetingSpaces, meetingSpaceBookings } from "@/lib/db/schema";
+import { cities, organizations, restaurants, meetingSpaceBookings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { createMeetingSpace } from "@/lib/repos/meeting-spaces-repo";
 import { createMeetingBooking, transitionMeetingBooking } from "@/lib/repos/meeting-space-bookings-repo";
