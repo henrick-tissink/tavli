@@ -157,14 +157,14 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled, accepts_meeting_spaces",
     )
     .eq("slug", slug)
     .eq("status", "live")
     .maybeSingle();
   if (!data) return null;
 
-  const [base, photos, nearby, slots, chefPicks, eventSettings, privateSpaces, bookableCaps] = await Promise.all([
+  const [base, photos, nearby, slots, chefPicks, eventSettings, privateSpaces, meetingSpaceRows, bookableCaps] = await Promise.all([
     restaurantFromRow(data),
     fetchAllPhotos(data.id),
     sb
@@ -191,6 +191,16 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       .eq("is_active", true)
       .order("sort_order")
       .order("capacity_min")
+      .then(({ data }) => data ?? []),
+    sb
+      .from("meeting_spaces")
+      .select(
+        "id, name, description, capacity, hourly_rate_cents, amenities, open_time, close_time, min_booking_minutes, photo_storage_path",
+      )
+      .eq("restaurant_id", data.id)
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("name")
       .then(({ data }) => data ?? []),
     sb
       .from("restaurant_tables")
@@ -253,6 +263,19 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       description: (s.description as string | null) ?? null,
       capacityMin: s.capacity_min as number,
       capacityMax: s.capacity_max as number,
+      photoStoragePath: (s.photo_storage_path as string | null) ?? null,
+    })),
+    acceptsMeetingSpaces: Boolean(data.accepts_meeting_spaces),
+    meetingSpaces: meetingSpaceRows.map((s) => ({
+      id: s.id as string,
+      name: s.name as string,
+      description: (s.description as string | null) ?? null,
+      capacity: s.capacity as number,
+      hourlyRateCents: s.hourly_rate_cents as number,
+      amenities: (s.amenities as string[]) ?? [],
+      openTime: s.open_time as string,
+      closeTime: s.close_time as string,
+      minBookingMinutes: s.min_booking_minutes as number,
       photoStoragePath: (s.photo_storage_path as string | null) ?? null,
     })),
   };

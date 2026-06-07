@@ -263,4 +263,17 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
    * has no bookable floor plan (falls back to the coarse default cap).
    */
   maxOnlinePartySize?: number | null;
+  acceptsMeetingSpaces?: boolean;
+  meetingSpaces?: {
+    id: string;
+    name: string;
+    description: string | null;
+    capacity: number;
+    hourlyRateCents: number;
+    amenities: string[];
+    openTime: string; // "HH:MM:SS"
+    closeTime: string;
+    minBookingMinutes: number;
+    photoStoragePath: string | null;
+  }[];
 }
