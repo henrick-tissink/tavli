@@ -65,6 +65,7 @@ CREATE TABLE "meeting_space_bookings" (
 
 CREATE INDEX "msb_restaurant_status_idx" ON "meeting_space_bookings" ("restaurant_id", "status");
 CREATE INDEX "msb_space_date_idx"        ON "meeting_space_bookings" ("meeting_space_id", "booking_date");
+CREATE UNIQUE INDEX "msb_confirmation_token_unique" ON "meeting_space_bookings" ("confirmation_token");
 
 -- updated_at touch triggers (fn_touch_updated_at exists since 0010-era).
 CREATE TRIGGER "trg_meeting_spaces_touch_updated_at"
