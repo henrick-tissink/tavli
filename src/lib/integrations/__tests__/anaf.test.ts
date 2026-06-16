@@ -1,4 +1,4 @@
-import { lookupCui, normalizeCui, isValidCuiFormat } from "../anaf";
+import { lookupCui, normalizeCui, isValidCuiFormat, canonicalCui } from "../anaf";
 
 describe("normalizeCui", () => {
   it("strips 'RO' prefix and whitespace, uppercases", () => {
@@ -63,5 +63,13 @@ describe("lookupCui", () => {
     const res = await lookupCui("12345678");
     expect(res.ok).toBe(false);
     expect(res.found).toBe(false);
+  });
+});
+
+describe("canonicalCui", () => {
+  it("strips the RO prefix and trims so RO-prefixed and bare CUIs match", () => {
+    expect(canonicalCui(" ro12345678 ")).toBe("12345678");
+    expect(canonicalCui("12345678")).toBe("12345678");
+    expect(canonicalCui("RO12345678")).toBe(canonicalCui("12345678"));
   });
 });

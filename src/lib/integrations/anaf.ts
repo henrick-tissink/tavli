@@ -20,7 +20,12 @@ export function isValidCuiFormat(input: string): boolean {
   return /^(RO)?\d{2,10}$/.test(normalized);
 }
 
-function digitsOnly(input: string): string {
+/**
+ * Canonical storage/dedup key for a CUI: digits-only (RO prefix stripped),
+ * matching ANAF's numeric identity. Use this — NOT normalizeCui — as the
+ * unique key for corporate_clients so "RO12345678" and "12345678" dedupe.
+ */
+export function canonicalCui(input: string): string {
   return normalizeCui(input).replace(/^RO/, "");
 }
 
@@ -34,7 +39,7 @@ export async function lookupCui(input: string): Promise<CuiLookupResult> {
     const res = await fetch(ANAF_BASE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([{ cui: Number(digitsOnly(cui)), data: today }]),
+      body: JSON.stringify([{ cui: Number(canonicalCui(cui)), data: today }]),
       signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return { ok: false, found: false, cui };

@@ -1,12 +1,12 @@
 import { dbAdmin } from "@/lib/db/admin";
 import { corporateClients } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { normalizeCui } from "@/lib/integrations/anaf";
+import { canonicalCui } from "@/lib/integrations/anaf";
 
 export type CorporateClientRow = typeof corporateClients.$inferSelect;
 
 export async function findCorporateClientByCui(cui: string): Promise<CorporateClientRow | null> {
-  const normalized = normalizeCui(cui);
+  const normalized = canonicalCui(cui);
   const rows = await dbAdmin.select().from(corporateClients).where(eq(corporateClients.cui, normalized)).limit(1);
   return rows[0] ?? null;
 }
@@ -21,7 +21,7 @@ export async function insertPendingCorporateClient(input: {
   primaryContactEmail?: string | null;
   primaryContactPhone?: string | null;
 }): Promise<CorporateClientRow> {
-  const cui = normalizeCui(input.cui);
+  const cui = canonicalCui(input.cui);
   const existing = await findCorporateClientByCui(cui);
   if (existing) return existing;
 
