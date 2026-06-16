@@ -364,6 +364,23 @@ describe("createReservation (public flow)", () => {
     expect(commitFloorBooking).toHaveBeenCalledWith(expect.objectContaining({ corporateClientId: null }));
   });
 
+  it("still books (untagged) when company resolution throws", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (lookupCui as jest.Mock).mockResolvedValue({ ok: true, found: true, cui: "12345678", name: "ANAF SRL" });
+    (insertPendingCorporateClient as jest.Mock).mockRejectedValueOnce(new Error("db transient"));
+    const errSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678",
+      companyCui: "RO12345678", companyName: "Typed",
+    });
+    expect(r.ok).toBe(true);
+    expect(commitFloorBooking).toHaveBeenCalledWith(expect.objectContaining({ corporateClientId: null }));
+    errSpy.mockRestore();
+  });
+
   it("still confirms the booking when the diner upsert throws", async () => {
     const { reservationUpdate } = setupSupabaseAdmin();
     (getCurrentSession as jest.Mock).mockResolvedValue(null);

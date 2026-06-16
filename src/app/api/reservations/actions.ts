@@ -131,16 +131,23 @@ export async function createReservation(
     if (!isValidCuiFormat(companyCui)) {
       return { ok: false, mode: "db", error: "Invalid company code (CUI).", errorCode: "OTHER" };
     }
-    const { data: flagRow } = await admin
-      .from("restaurants")
-      .select("accepts_corporate_meals")
-      .eq("id", input.restaurantId)
-      .maybeSingle();
-    if (flagRow?.accepts_corporate_meals) {
-      const anaf = await lookupCui(companyCui);
-      const upsert = buildCorporateUpsert(companyCui, anaf, input.companyName?.trim() || companyCui);
-      const company = await insertPendingCorporateClient(upsert);
-      corporateClientId = company.id;
+    // Resolution is best-effort: a flag/ANAF/insert failure must NOT fail an
+    // otherwise-valid booking — degrade to an untagged (standard) reservation,
+    // matching the diner-upsert/email best-effort steps below.
+    try {
+      const { data: flagRow } = await admin
+        .from("restaurants")
+        .select("accepts_corporate_meals")
+        .eq("id", input.restaurantId)
+        .maybeSingle();
+      if (flagRow?.accepts_corporate_meals) {
+        const anaf = await lookupCui(companyCui);
+        const upsert = buildCorporateUpsert(companyCui, anaf, input.companyName?.trim() || companyCui);
+        const company = await insertPendingCorporateClient(upsert);
+        corporateClientId = company.id;
+      }
+    } catch (e) {
+      console.error("[createReservation] corporate tag resolution failed", e);
     }
   }
 
