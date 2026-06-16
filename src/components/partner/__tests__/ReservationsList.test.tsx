@@ -46,6 +46,7 @@ function row(overrides: Partial<ReservationRow>): ReservationRow {
     status: "confirmed",
     createdAt: "2026-04-27T10:00:00Z",
     corporateClientName: null,
+    bookingType: "standard",
     ...overrides,
   };
 }
