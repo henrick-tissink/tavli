@@ -1,15 +1,16 @@
 # Corporate Orders — Corporate Phase 3 (design spec)
 
 **Date:** 2026-06-16
-**Status:** approved in brainstorming; implementation pending
+**Status:** approved in brainstorming; claims code-verified against `main` (file:line
+anchors below); implementation pending
 **Prior art:** Phase 1 events pipeline; Phase 2 meeting spaces
 (`docs/superpowers/specs/2026-06-06-meeting-spaces-design.md`); handoff
 `docs/handoffs/2026-06-07-corporate-phase3-corporate-orders.md`
 
 Card blurb being delivered: *"Allow reservations assigned to a company
 (direct invoicing)."* A diner books a normal reservation on behalf of a
-verified company; the reservation is tagged to that company so the venue can
-invoice it directly (Romanian e-factura context).
+company; the reservation is tagged to that company so the venue can invoice it
+directly (Romanian e-factura context).
 
 ## Product decisions (resolved with the user)
 
@@ -22,157 +23,238 @@ invoice it directly (Romanian e-factura context).
    No partner-side after-the-fact tagging in v1.
 3. **Instant — `pending_verification` is fine to tag.** A reservation can
    attach to a freshly find-or-created company immediately; verification
-   (`pending_verification → active`) is a later, separate concern and never
-   blocks booking.
+   (`pending_verification → active`) is a later concern and never blocks
+   booking.
 4. **Partner deliverable: badge + filter + light per-company roll-up.** A
    company badge on the reservations list, a "Corporate only" filter toggle,
-   and a read-only per-company roll-up with reservation counts (invoicing
-   reference). E-factura generation is **out of scope**.
+   and a read-only per-company roll-up with reservation counts. E-factura
+   generation is **out of scope**.
 5. **No `booking_type` change.** `corporate_client_id IS NOT NULL` is the tag.
-   (`booking_type` is an enum but not even a column on `reservations`.)
-6. **Shared `CuiLookupField`.** Extract it from `event-request-sheet-v2/` to a
-   shared location and generalise its `onChange` to a neutral `{ cui, name }`;
-   update both call sites (events + reservations).
+   (`booking_type` is a `pgEnum` but not a column on `reservations`.)
+6. **Shared `CuiLookupField`.** Extract from `event-request-sheet-v2/` to a
+   shared location, generalise its `onChange` to neutral `{ cui, name? }`, and
+   make it i18n-agnostic (labels via prop); update both call sites.
 7. **Server re-calls ANAF at commit as best-effort enrichment.** Format-validate
-   first (garbage CUI → non-silent reject); then ANAF: found → use canonical
-   name; ANAF down or not-found → fall back to the client-supplied name. The
-   company is always tagged at `pending_verification`; the booking never fails
-   on ANAF availability.
+   first (garbage CUI → non-silent reject); then ANAF: found → canonical name
+   (+ legal name / address / VAT payer); ANAF down or not-found → fall back to
+   the client-supplied name. The company is always tagged at
+   `pending_verification`; the booking never fails on ANAF availability.
 
 ## 0. Migration
 
-**None.** The data layer already exists and is sufficient:
+**None.** The data layer already exists and is sufficient (verified):
 
 - `reservations.corporate_client_id` (`schema.ts:447`, `ON DELETE SET NULL`).
-- `corporate_clients` (`:602`) — `cui` unique, `name`, `legal_name`, billing
-  fields, `status` (`pending_verification|active|suspended`).
-- `restaurants.accepts_corporate_meals` (`:279`) — capability flag, already
-  wired into `COL.corporateMeals` and the toggle.
+- `corporate_clients` (`schema.ts:602`) — `cui` **unique**, `name` NOT NULL,
+  `legal_name`, `billing_address`, `billing_city`, `vat_payer`, `status`
+  (`pending_verification|active|suspended`, default `pending_verification`).
+- `restaurants.accepts_corporate_meals` (`schema.ts:279`) — capability flag,
+  already wired into `COL.corporateMeals` and the partner toggle.
 - A company is "visible to a partner" purely by appearing on that venue's
   tagged reservations — no per-restaurant link table is needed.
 
-The repo helper `insertPendingCorporateClient()`
-(`src/lib/repos/corporate-clients-repo.ts`) is already find-or-create-by-CUI
-(unique `cui`), returning `pending_verification` rows.
+`src/lib/repos/corporate-clients-repo.ts` already exposes find-or-create-by-CUI
+(`findCorporateClientByCui`, `insertPendingCorporateClient`) returning
+`pending_verification` rows. **It currently has zero app callers** (only its
+unit test) — Phase 3 is the first creator of `corporate_clients` rows, so there
+is no existing data to migrate or back-fill.
 
 ## 1. Capability wiring
 
-- `src/components/partner/CorporateOverview.tsx`: flip
+- `src/components/partner/CorporateOverview.tsx`: flip the CARDS entry
   `{ key: "corporateMeals", phase1: false }` → `phase1: true`; add a footer
-  block mirroring the `meetingNooks` block, linking to the companies roll-up
-  (`/partner/corporate/companies`) and showing a corporate-clients count.
+  block mirroring the `c.key === "meetingNooks"` block, linking to the
+  companies roll-up (`/partner/corporate/companies`) and showing a
+  corporate-clients count when > 0.
 - `src/app/(app)/partner/(dashboard)/corporate/page.tsx`: pass
   `corporateMeals: { enabled: restaurant.acceptsCorporateMeals, count }` where
-  `count` is the number of distinct companies on this venue's reservations.
-- `COL.corporateMeals = "acceptsCorporateMeals"` already exists; toggle works
-  once the card is `phase1: true`.
+  `count` is the number of companies on this venue's reservations (repo helper,
+  §6).
+- `COL.corporateMeals = "acceptsCorporateMeals"` already exists
+  (`corporate/actions.ts`); the toggle works once the card is `phase1: true`.
 
-## 2. Shared `CuiLookupField` (small refactor)
+## 2. Shared `CuiLookupField` (refactor)
 
-Move `src/components/event-request-sheet-v2/CuiLookupField.tsx` →
-`src/components/corporate/CuiLookupField.tsx`. Generalise:
+Today it lives at `src/components/event-request-sheet-v2/CuiLookupField.tsx`,
+calls `useT("events")` internally (keys `cuiLookup.searchingAriaLabel`,
+`cuiLookup.foundAriaLabel`, `cuiLookup.denumirePrefix`), hardcodes the `"CUI"`
+label + `"RO12345678"` placeholder, and emits
+`{ claimedCompanyCui, claimedCompanyName? }`. On raw input it emits the CUI only
+(name untouched); on a successful lookup it emits both.
 
-- Props `{ cui: string; name: string; onChange: (p: { cui: string; name: string }) => void; labels: {…} }`
-  (was `denumire` + `{ claimedCompanyCui, claimedCompanyName }`).
-- Behaviour unchanged: debounced (500ms) GET `/api/anaf/lookup?cui=…`, spinner,
-  resolved name/address panel, emits `{ cui, name }` when found.
-- **i18n-agnostic:** any inline display strings the component currently reads
-  itself become a `labels` prop supplied by each call site, so it carries no
-  message-namespace dependency. Events passes its `events.json` strings;
-  the booking sheet passes `booking.json` strings.
+Move it to `src/components/corporate/CuiLookupField.tsx` and generalise:
 
-Update the events `StepIdentity` to the new prop/onChange shape (map its draft
-`claimedCompanyCui/claimedCompanyName` at the call site, pass its existing
-labels). No behaviour change for events.
+- Props `{ cui: string; name: string; onChange: (p: { cui: string; name?: string }) => void; labels: CuiLookupLabels }`.
+  Preserve the "name optional on raw input" semantics (don't clobber a resolved
+  name until a new lookup overwrites it).
+- **i18n-agnostic:** all display strings (the three aria/prefix keys above, the
+  field label, the placeholder) move to a `labels` prop. The component owns no
+  message namespace.
+- Behaviour otherwise unchanged: debounced (500ms) GET `/api/anaf/lookup?cui=…`,
+  spinner, resolved name/address panel.
 
-## 3. Public booking sheet (`src/components/reservation-sheet-v2/`)
+Update the events `StepIdentity` (`event-request-sheet-v2/StepIdentity.tsx`) to
+the new shape: pass `name={draft.claimedCompanyName}`, map `onChange({cui,name})`
+back to its draft patch (`claimedCompanyCui`/`claimedCompanyName`), and pass its
+existing `events.json` strings as `labels`. No behaviour change for events.
 
-- `ReservationFormState` gains `bookingForCompany: boolean`,
-  `companyCui: string`, `companyName: string`.
-- `StepIdentity` takes a new prop `acceptsCorporateMeals: boolean`. When true,
-  render a "Booking for a company?" checkbox; when checked, render the shared
-  `CuiLookupField`. When the venue does not accept corporate meals, the toggle
-  is not rendered at all.
-- Thread `acceptsCorporateMeals` from the restaurant page that mounts
-  `ReservationSheetV2` (the consumer venue detail page) down through props
-  (implementation locates the exact mount site;
-  `restaurant.acceptsCorporateMeals` is the source).
-- On submit, when `bookingForCompany` is set and a CUI is present, pass
-  `companyCui` + `companyName` to `createReservation`.
+## 3. Plumb `acceptsCorporateMeals` to the public booking sheet
+
+The flag is **not** currently on the public restaurant model (verified). Add the
+full chain:
+
+1. `src/lib/repos/restaurants-repo.ts` — add `accepts_corporate_meals` to the
+   `dbGetRestaurantDetail` select string (line ~160, alongside
+   `accepts_meeting_spaces`) and map `acceptsCorporateMeals: Boolean(data.accepts_corporate_meals)`
+   in `restaurantFromRow` (near line 268).
+2. `src/lib/types.ts` — add `acceptsCorporateMeals?: boolean` to the restaurant
+   detail type (next to `acceptsMeetingSpaces?` at ~line 266).
+3. `…/[slug]/DetailPageClient.tsx` — pass
+   `acceptsCorporateMeals={Boolean(restaurant.acceptsCorporateMeals)}` into the
+   `<ReservationSheetV2 …>` mount (~line 410), mirroring how the meeting-space
+   CTA reads `restaurant.acceptsMeetingSpaces` (~line 481).
+4. `reservation-sheet-v2/index.tsx` — add an `acceptsCorporateMeals?: boolean`
+   prop and forward it to `StepIdentity`.
+
+## 3b. Public booking sheet (`src/components/reservation-sheet-v2/`)
+
+- `types.ts` `ReservationFormState` gains `bookingForCompany: boolean`,
+  `companyCui: string`, `companyName: string`; `makeInitialForm` seeds them
+  (`false`, `""`, `""`).
+- `StepIdentity` props gain `acceptsCorporateMeals: boolean`,
+  `bookingForCompany`, `companyCui`, `companyName`, and an `onPatch:
+  (p: Partial<ReservationFormState>) => void`. **Why `onPatch`:** the container
+  passes `StepIdentity` only the string-typed `patchField(field, value)`
+  (`index.tsx:114`), which can't carry a boolean toggle or a `{cui,name}` pair —
+  so thread the existing full `patch` setter (`index.tsx:111`) as `onPatch` for
+  the company fields. When `acceptsCorporateMeals` is false the toggle is not
+  rendered at all.
+- On check → render the shared `CuiLookupField` (booking.json `labels`),
+  wiring its `{cui,name?}` onChange to `onPatch({ companyCui, companyName })`.
+- `handleSubmit` (`index.tsx:196`) passes `companyCui`/`companyName` to
+  `createReservation` only when `form.bookingForCompany` and `form.companyCui`
+  passes `isValidCuiFormat` (pure helper from `@/lib/integrations/anaf`).
+  Submit is **not** blocked when the toggle is on but the CUI is empty or
+  malformed — those simply aren't sent, and the booking proceeds as standard
+  (company attached only when a valid CUI is present), matching the non-blocking
+  events precedent. The server-side format check in §4 step 2 is then pure
+  defense-in-depth (only a tampered request reaches it).
 
 ## 4. Commit path
 
 ### `createReservation` (`src/app/api/reservations/actions.ts`)
 
 `CreateReservationInput` gains `companyCui?: string`, `companyName?: string`.
-After phone normalisation and **before** `commitFloorBooking`, resolve the
-company (outside the floor transaction):
+The mock early-return (`actions.ts:97–103`) runs first, so company resolution
+lives on the **real-DB path**, after the `admin` client is created
+(`actions.ts:105`) and **before** `commitFloorBooking` (`actions.ts:126`):
 
-1. If `companyCui` is absent → `corporateClientId = null` (standard booking).
-2. Validate format `(RO)?\d{2,10}` (normalise: strip spaces, uppercase). Invalid
-   → return `{ ok:false, errorCode:"OTHER", error:"…invalid company code…" }`
+1. `companyCui` absent → `corporateClientId = null` (standard booking).
+2. `isValidCuiFormat(companyCui)` (from `@/lib/integrations/anaf`,
+   `(RO)?\d{2,10}`). Invalid → return
+   `{ ok:false, mode:"db", errorCode:"OTHER", error: <i18n invalid-company> }`
    (non-silent).
-3. Re-check `restaurants.accepts_corporate_meals` (small select). Off →
-   `corporateClientId = null`, book as standard (defense-in-depth against a
-   stale client or a flag toggled off mid-session).
-4. On (flag true): **best-effort ANAF** via `lookupCui(cui)`.
-   - `found` with a name → use the canonical name.
-   - down (`ok:false`) or `found:false` → fall back to `companyName` (client).
-   - `insertPendingCorporateClient({ cui, name })` → `corporateClientId`.
+3. Re-check the venue flag via the already-created `admin` client:
+   `admin.from("restaurants").select("accepts_corporate_meals").eq("id", restaurantId).maybeSingle()`.
+   Off → `corporateClientId = null`, book as standard (defense-in-depth against
+   a stale client / a flag toggled off mid-session).
+4. Flag on → **best-effort** `lookupCui(companyCui)`:
+   - `found` → use ANAF `name` (and `legalName`, `address`→`billingAddress`,
+     `vatPayer`).
+   - down (`ok:false`) or `found:false` → fall back to the client `companyName`,
+     no extra fields.
+   - `insertPendingCorporateClient({ cui: companyCui, name, legalName?, billingAddress?, vatPayer? })`
+     → `corporateClientId`.
 5. Pass `corporateClientId` into `commitFloorBooking`.
 
-Rationale for resolving outside the tx: the company row is a benign, deduped
-global record; an orphan (created then booking fails on availability) is
-harmless and reused later by CUI. Keeps the floor advisory-lock transaction
-focused on floor state only.
+Resolving outside the floor transaction is deliberate: the company row is a
+benign, deduped global record; an orphan (created, then booking fails on
+availability) is harmless and reused later by CUI. The advisory-lock
+transaction stays focused on floor state.
 
 ### `commitFloorBooking` (`src/lib/reservations/booking-commit.ts`)
 
-`CommitInput` gains `corporateClientId: string | null`; the reservation insert
-(`tx.insert(reservations).values({…})`) sets `corporateClientId`. No other
-change to the floor/plan logic.
+`CommitInput` (`booking-commit.ts:108`) gains `corporateClientId: string | null`;
+the reservation insert (`booking-commit.ts:164`) sets `corporateClientId`. No
+change to the plan/floor logic.
+
+## 4a. CUI canonicalisation (dedup correctness — required)
+
+`normalizeCui` only trims + uppercases (`anaf.ts:14`); it does **not** strip the
+`RO` prefix (pinned by `anaf.test.ts`: `normalizeCui(" ro12345678 ")==="RO12345678"`).
+The repo dedups find-or-create on `normalizeCui` (`corporate-clients-repo.ts:9,24`),
+so `RO12345678` and `12345678` for the same entity would create **two**
+`corporate_clients` rows.
+
+Fix at the dedup source (safe — repo has no other app callers):
+
+- Add `export function canonicalCui(input: string): string` to `anaf.ts` =
+  digits-only (`normalizeCui(input).replace(/^RO/, "")`) — ANAF's authoritative
+  numeric identity (the request body already uses a private `digitsOnly` doing
+  exactly this, `anaf.ts:23`).
+- `findCorporateClientByCui` and `insertPendingCorporateClient` key the `cui`
+  column on `canonicalCui` instead of `normalizeCui`.
+- **Leave `normalizeCui` untouched** (display/format; anaf.test.ts contract
+  intact). The events free-form claim path
+  (`event-requests/actions.ts:89`, stored on `event_requests`, not a dedup key)
+  is unaffected.
+
+The existing repo test asserts idempotency (not stored format), so it stays
+green; add a case asserting `RO123…` and `123…` resolve to the same row.
 
 ## 5. Partner reservations list (`partner/(dashboard)/reservations/`)
 
-- `page.tsx`: add `corporate_client_id` to the reservations select; LEFT JOIN
-  `corporate_clients` to resolve the name. `ReservationRow` (in
-  `ReservationsList`) gains `corporateClientName: string | null`.
-- `ReservationsList`: render a company badge on rows where
-  `corporateClientName` is set; add a lightweight **"Corporate only" filter
-  toggle** above the table that filters the active tab (today/upcoming/past) to
-  corporate-tagged rows. Orthogonal to the existing tabs.
+The page uses the **Supabase JS client** (`page.tsx:46`), so resolve the company
+name the same way table/combination labels are resolved (second bounded query +
+`Map`), **not** a SQL join:
+
+- `page.tsx`: add `corporate_client_id` to the `cols` string (`page.tsx:38`);
+  after fetching rows, collect distinct non-null ids and query
+  `supabase.from("corporate_clients").select("id, name").in("id", ids)` into a
+  `Map`; extend `mapRow` (`page.tsx:91`) to set
+  `corporateClientName: companyName.get(r.corporate_client_id) ?? null`.
+- `ReservationsList` (`@/components/partner/ReservationsList`, a `"use client"`
+  component): `ReservationRow` gains `corporateClientName: string | null`;
+  render a company badge on tagged rows; add a lightweight **"Corporate only"
+  filter toggle** (local `useState`) above the table that filters the active
+  tab (today/upcoming/past). Orthogonal to the existing tabs.
 
 ## 6. Per-company roll-up (`/partner/corporate/companies`)
 
-- New route mirroring the meeting-spaces routes. Read-only list of companies
-  appearing on this venue's reservations: name, CUI, status, reservation count.
-- Repo: `listCorporateClientsForRestaurant(restaurantId)` —
-  `corporate_clients` joined to this venue's `reservations` (where
-  `corporate_client_id IS NOT NULL`), grouped, with `count(*)`.
-- Linked from the overview card footer. For invoicing reference only;
-  e-factura generation out of scope.
+- New route mirroring the meeting-spaces routes. Read-only list of companies on
+  this venue's reservations: name, CUI, status, reservation count.
+- Repo `listCorporateClientsForRestaurant(restaurantId)` (drizzle, `dbAdmin`):
+  `corporate_clients` joined to `reservations` filtered by
+  `restaurant_id = $1 AND corporate_client_id IS NOT NULL`, grouped, `count(*)`.
+  **Restaurant-scoped in the query** (service-role bypasses RLS; the page must
+  pass the authenticated `currentUserPrimaryRestaurant` id). A
+  `countCorporateClientsForRestaurant` helper (or `.length`) feeds the card
+  count (§1). For invoicing reference only; e-factura generation out of scope.
 
 ## 7. i18n
 
 - Public-sheet strings → `src/messages/{ro,en,de}/booking.json`
-  (`BookingMessages` contract): the "Booking for a company?" toggle label plus
-  the `CuiLookupField` `labels` the booking sheet supplies (placeholder, helper,
-  resolved-panel copy). The shared component owns no namespace itself.
+  (`BookingMessages` contract, `messages.ts:403`): the "Booking for a company?"
+  toggle label **plus** the `CuiLookupField` `labels` the booking sheet supplies
+  (field label, placeholder, the searching/found aria labels, resolved-prefix).
+  The sheet uses `useT("booking")` (`index.tsx:76`).
 - Partner strings → `src/messages/{ro,en,de}/partner.corporate.json`
-  (`PartnerCorporateMessages` contract): badge label, filter label, companies
-  roll-up page (title, columns, empty state), card footer link labels +
-  enabled/disabled hint + count.
+  (`PartnerCorporateMessages`): badge label, filter label, companies roll-up
+  page (title, columns, empty state), card footer link labels + hint + count.
 - 3-locale parity (`messages.test`) and `i18n-no-romanian-guard` stay green.
 
 ## 8. Testing & verification
 
-- **TDD order:** CUI format validation + the company-resolution decision
-  (pure: invalid → reject, flag-off → drop, found → canonical name, down/
-  not-found → client name) → `createReservation` action (sets/omits
-  `corporate_client_id`; ANAF mocked) → `listCorporateClientsForRestaurant`
-  repo → sheet step component → i18n parity.
+- **TDD order:** `canonicalCui` + the company-resolution decision (pure:
+  invalid → reject, flag-off → drop, ANAF found → canonical name+fields, ANAF
+  down/not-found → client name) → `createReservation` action (sets/omits
+  `corporate_client_id`) → `listCorporateClientsForRestaurant` repo → sheet
+  step component → i18n parity.
 - **ANAF in tests:** mock `@/lib/integrations/anaf` (`lookupCui`) — the commit
-  path now calls it. Cover found / down / not-found branches.
+  path now calls it. Cover found / down (`ok:false`) / not-found
+  (`found:false`). Align with the existing
+  `src/app/api/reservations/__tests__/actions.test.ts` (and
+  `corporate-clients-repo.test.ts` for the dedup case).
 - **Prod-DB hazard:** `.env.local` is prod. Run only scoped jest by test name
   (`set -a && source .env.local.bak && set +a && npx jest -t "<name>"`); never
   the full suite. Jest path globs break on `(app)`/`(dashboard)` parens.
@@ -180,24 +262,30 @@ change to the floor/plan logic.
   `18ed759e-209d-4d3f-943a-df7ff9382e52`), Playwright MCP with real
   `browser_click`; assert via `browser_snapshot`/`browser_evaluate`, no
   screenshots. DB-mutating checks use a far-future date + `ZZ_VERIFY` guest-name
-  prefix and a `ZZ_VERIFY` company name/sentinel CUI, then self-clean via psql
-  and restore the venue's `accepts_corporate_meals` to its prior value.
+  prefix and a `ZZ_VERIFY`/sentinel company, then self-clean via psql (delete
+  the test reservation **and** any `corporate_clients` row created) and restore
+  the venue's `accepts_corporate_meals` to its prior value.
 - **Gates:** `npx tsc --noEmit`, scoped jest, `npx eslint <changed paths>`,
   i18n parity, live verification.
 
 ## Definition of done
 
 - [ ] No migration (confirmed); data layer reused as-is.
-- [ ] `corporateMeals` card `phase1: true` with a useful footer (no "Coming
-      soon"); toggle + count wired.
-- [ ] `CuiLookupField` extracted to shared + generalised; events call site
+- [ ] `canonicalCui` added; repo find-or-create dedups RO-prefixed vs bare CUIs
+      (test proves it).
+- [ ] `acceptsCorporateMeals` plumbed: repo select + map, public type,
+      DetailPageClient → sheet → StepIdentity.
+- [ ] `CuiLookupField` extracted to shared + i18n-agnostic; events call site
       updated, no behaviour change.
 - [ ] Public booking sheet: "Booking for a company?" toggle → CUI lookup, gated
-      on `accepts_corporate_meals`.
-- [ ] Commit path tags `reservations.corporate_client_id` (best-effort ANAF
-      enrichment; format-validate; flag-gated; never blocks on ANAF).
+      on `accepts_corporate_meals`; submit non-blocking when unresolved.
+- [ ] Commit path tags `reservations.corporate_client_id` (format-validate;
+      flag-gated; best-effort ANAF enrichment incl. legal name / address / VAT;
+      never blocks on ANAF).
 - [ ] Partner: company badge + "Corporate only" filter on the reservations
-      list; per-company roll-up at `/partner/corporate/companies`.
+      list (two-query + Map, not a join); per-company roll-up at
+      `/partner/corporate/companies`.
+- [ ] `corporateMeals` card `phase1: true` with a useful footer + count.
 - [ ] i18n ro/en/de + contracts; TDD tests green; gates green; live-verified
       and self-cleaned.
 - [ ] Committed; pushed only on the user's say-so.
@@ -206,6 +294,7 @@ change to the floor/plan logic.
 
 Member-gated booking (`corporate_client_members`/invitations, sign-in, role
 checks), partner-side after-the-fact tagging, company verification UI / the
-`pending_verification → active` flip and its owner, e-factura generation,
-budgets (`budget_monthly_cents`), reservation-detail company display beyond the
-list badge.
+`pending_verification → active` flip and its owner, suspended-company handling,
+e-factura generation, budgets (`budget_monthly_cents`), reservation-detail
+company display beyond the list badge, confirmation/partner-alert emails
+mentioning the company.
