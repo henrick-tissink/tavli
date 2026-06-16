@@ -65,6 +65,7 @@ export async function cancelStandingSeries(id: string, restaurantId: string, tod
     .set({ status: "cancelled", cancelledAt: new Date(), cancelledReason: "standing series cancelled" })
     .where(and(
       eq(reservations.standingId, id),
+      eq(reservations.restaurantId, restaurantId), // tenant isolation: never touch another venue's rows
       gte(reservations.reservationDate, today),
       inArray(reservations.status, ["confirmed", "seated"]),
     ));

@@ -19,7 +19,7 @@ const createSchema = z.object({
   intervalWeeks: z.union([z.literal(1), z.literal(2)]),
   tableId: z.string().uuid(),
   guestName: z.string().min(1).max(160),
-  guestPhone: z.string().min(3).max(40),
+  guestPhone: z.string().min(3).max(32), // reservations.guest_phone is varchar(32)
   guestEmail: z.string().email().max(255).optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   startDate: z.string().regex(DATE_RE),
