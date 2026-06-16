@@ -40,6 +40,7 @@ import { expireStaleInvitations } from "@/lib/identity/jobs/expire-stale-invitat
 import { sendReminders } from "@/lib/reservations/jobs/send-reminders";
 import { autoMarkNoShow } from "@/lib/reservations/jobs/auto-mark-no-show";
 import { sendPostVisitReviews } from "@/lib/reservations/jobs/send-post-visit-reviews";
+import { materializeAllStanding } from "@/lib/standing/jobs/materialize-all";
 import { purgeStaleUnverifiedOrgs } from "@/lib/identity/jobs/purge-stale-unverified-orgs";
 import {
   handleTrialReminderDay60,
@@ -157,6 +158,12 @@ async function main(): Promise<void> {
     await sendPostVisitReviews();
   });
   await boss.schedule(JOBS.reservation.sendPostVisitReview, "15 * * * *");
+
+  // Corporate Phase 4 — roll standing-reservation horizons forward nightly 02:30 UTC.
+  await boss.work(JOBS.standing.materializeAll, async () => {
+    await materializeAllStanding();
+  });
+  await boss.schedule(JOBS.standing.materializeAll, "30 2 * * *");
 
   // Wave 4 sub-unit B T4: register retentionPurge handler + schedule nightly.
   // Runs 30 min after purgePseudonymised to avoid vacuum/lock contention.

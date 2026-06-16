@@ -48,6 +48,9 @@ export const JOBS = {
     leadRoutingNudge: "corporate.lead-routing-nudge",
     eventExpiry: "corporate.event-expiry",
   },
+  standing: {
+    materializeAll: "standing.materialize-all",
+  },
   // §09 §10. Doc spells the job "multi_location.*"; the registry invariant
   // (keys.test.ts) requires a single lowercase-word domain with no
   // underscores, so the value is "multilocation.*" to match every other key.
