@@ -157,7 +157,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
   const { data } = await sb
     .from("restaurants")
     .select(
-      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled, accepts_meeting_spaces",
+      "id, slug, name, cuisines, zone, price_level, rating, vote_count, photo_count, status, lat, lng, description, hero_note, address, tags, website_url, schedule, events_intake_enabled, accepts_meeting_spaces, accepts_corporate_meals",
     )
     .eq("slug", slug)
     .eq("status", "live")
@@ -266,6 +266,7 @@ async function dbGetRestaurantDetail(slug: string): Promise<RestaurantDetail | n
       photoStoragePath: (s.photo_storage_path as string | null) ?? null,
     })),
     acceptsMeetingSpaces: Boolean(data.accepts_meeting_spaces),
+    acceptsCorporateMeals: Boolean(data.accepts_corporate_meals),
     meetingSpaces: meetingSpaceRows.map((s) => ({
       id: s.id as string,
       name: s.name as string,

@@ -264,6 +264,7 @@ export interface RestaurantDetail extends Omit<Restaurant, "lat" | "lng"> {
    */
   maxOnlinePartySize?: number | null;
   acceptsMeetingSpaces?: boolean;
+  acceptsCorporateMeals?: boolean;
   meetingSpaces?: {
     id: string;
     name: string;
