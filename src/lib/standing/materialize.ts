@@ -84,7 +84,14 @@ export async function materializeStanding(
     } catch (e) {
       const code = (e as { code?: string }).code;
       const msg = String((e as Error)?.message ?? e);
-      if (code === "TV002" || code === "TV003" || /already booked|Slot is full/.test(msg)) {
+      // Any capacity-trigger rejection (TV001 no-availability / TV002 slot-full /
+      // TV003 table-already-booked) is a conflict, NOT a hard failure: skip the
+      // date and let materialized_through advance so the nightly job doesn't
+      // retry it forever. Non-trigger errors still propagate.
+      if (
+        code === "TV001" || code === "TV002" || code === "TV003" ||
+        /already booked|Slot is full|No availability/.test(msg)
+      ) {
         conflicts.push(date);
       } else {
         throw e;
