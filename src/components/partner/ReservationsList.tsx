@@ -27,6 +27,7 @@ export interface ReservationRow {
   notes: string | null;
   status: "confirmed" | "cancelled" | "seated" | "completed" | "no_show";
   createdAt: string;
+  corporateClientName: string | null;
 }
 
 const STATUS_STYLE: Record<ReservationRow["status"], string> = {
@@ -52,6 +53,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
   const [tab, setTab] = useState<Tab>(
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
   );
+  const [corporateOnly, setCorporateOnly] = useState(false);
   const [pending, start] = useTransition();
   const [sheetReservation, setSheetReservation] = useState<ReservationRow | null>(
     null,
@@ -75,7 +77,8 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     });
   };
 
-  const rows = { today, upcoming, past }[tab];
+  const allRows = { today, upcoming, past }[tab];
+  const rows = corporateOnly ? allRows.filter((r) => r.corporateClientName) : allRows;
   const counts = { today: today.length, upcoming: upcoming.length, past: past.length };
 
   return (
@@ -96,6 +99,15 @@ export function ReservationsList({ today, upcoming, past }: Props) {
           </button>
         ))}
       </div>
+
+      <label className="flex items-center gap-2 text-sm text-text-secondary">
+        <input
+          type="checkbox"
+          checked={corporateOnly}
+          onChange={(e) => setCorporateOnly(e.target.checked)}
+        />
+        {t("filters.corporateOnly")}
+      </label>
 
       {rows.length === 0 ? (
         <div className="bg-surface-white rounded-card border border-border p-10 text-center">
@@ -142,6 +154,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                       <p className="font-semibold text-text-primary">
                         {r.guestName}
                       </p>
+                      {r.corporateClientName && (
+                        <span className="mt-0.5 inline-block rounded-pill bg-brand-primary-soft px-2 py-0.5 text-[11px] font-semibold text-brand-primary-dark">
+                          {t("badge.corporate")} · {r.corporateClientName}
+                        </span>
+                      )}
                       <p className="text-xs text-text-muted">{r.guestPhone}</p>
                       {r.guestEmail && (
                         <p className="text-xs text-text-muted truncate">

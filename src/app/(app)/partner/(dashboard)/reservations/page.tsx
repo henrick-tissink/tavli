@@ -36,7 +36,7 @@ export default async function PartnerReservationsPage() {
   const ymd = todayYmd();
 
   const cols =
-    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at, table_id, combination_id";
+    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at, table_id, combination_id, corporate_client_id";
 
   // Fetch today/upcoming and recent past as separate bounded queries. A single
   // ordered+limited query starves the operationally-important upcoming rows:
@@ -88,6 +88,14 @@ export default async function PartnerReservationsPage() {
         ? tableLabel.get(r.table_id) ?? null
         : null;
 
+  const companyIds = [
+    ...new Set(rawRows.map((r) => r.corporate_client_id).filter(Boolean) as string[]),
+  ];
+  const { data: companyRows } = companyIds.length
+    ? await supabase.from("corporate_clients").select("id, name").in("id", companyIds)
+    : { data: [] as { id: string; name: string }[] };
+  const companyName = new Map((companyRows ?? []).map((c) => [c.id as string, c.name as string]));
+
   const mapRow = (r: NonNullable<typeof futureRaw>[number]): ReservationRow => ({
     id: r.id,
     guestName: r.guest_name,
@@ -101,6 +109,7 @@ export default async function PartnerReservationsPage() {
     notes: r.notes,
     status: r.status,
     createdAt: r.created_at,
+    corporateClientName: r.corporate_client_id ? companyName.get(r.corporate_client_id) ?? null : null,
   });
 
   const future = (futureRaw ?? []).map(mapRow);
