@@ -2524,6 +2524,19 @@ export interface PartnerCorporateMessages {
     colReservations: string;
     status: { pending_verification: string; active: string; suspended: string };
   };
+  standingMgmt: {
+    title: string; subtitle: string; emptyTitle: string; emptyBody: string;
+    addFirst: string; addSeries: string; newTitle: string;
+    weekdayLabel: string; weekdays: string[];
+    timeLabel: string; partyLabel: string; intervalLabel: string;
+    intervalWeekly: string; intervalFortnightly: string; tableLabel: string;
+    startDateLabel: string; endDateLabel: string; endDateOptional: string;
+    guestNameLabel: string; guestPhoneLabel: string; guestEmailLabel: string; notesLabel: string;
+    save: string; saving: string; cancel: string;
+    ruleSummary: string; nextOccurrence: string; noUpcoming: string; conflicts: string;
+    statusActive: string; statusCancelled: string; cancelSeries: string; cancelConfirm: string;
+    nameRequired: string;
+  };
 }
 
 /** Structural contract for the `partner.org` namespace. */

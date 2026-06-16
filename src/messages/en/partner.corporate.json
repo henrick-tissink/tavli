@@ -257,6 +257,24 @@
     "colReservations": "Reservations",
     "status": { "pending_verification": "Unverified", "active": "Active", "suspended": "Suspended" }
   },
+  "standingMgmt": {
+    "title": "Recurring reservations",
+    "subtitle": "Weekly or fortnightly reservations that hold a table for a regular guest.",
+    "emptyTitle": "No recurring reservations yet.",
+    "emptyBody": "Create a series to automatically hold the same table every week.",
+    "addFirst": "Add a series", "addSeries": "Add a series", "newTitle": "New series",
+    "weekdayLabel": "Day",
+    "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "timeLabel": "Time", "partyLabel": "Guests", "intervalLabel": "Frequency",
+    "intervalWeekly": "Weekly", "intervalFortnightly": "Fortnightly", "tableLabel": "Table",
+    "startDateLabel": "Starts", "endDateLabel": "Ends", "endDateOptional": "(optional)",
+    "guestNameLabel": "Guest name", "guestPhoneLabel": "Phone", "guestEmailLabel": "Email (optional)", "notesLabel": "Notes (optional)",
+    "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+    "ruleSummary": "{interval} · {weekday} {time} · {count} guests · Table {table}",
+    "nextOccurrence": "Next: {date}", "noUpcoming": "No upcoming occurrence", "conflicts": "{count} conflicts",
+    "statusActive": "Active", "statusCancelled": "Cancelled", "cancelSeries": "Cancel series",
+    "cancelConfirm": "Cancel the series and all future reservations?", "nameRequired": "Guest name is required."
+  },
   "meetingBookings": {
     "title": "Meeting space requests",
     "subtitle": "Confirm or decline hourly booking requests.",

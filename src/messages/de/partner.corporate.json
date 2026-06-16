@@ -257,6 +257,24 @@
     "colReservations": "Reservierungen",
     "status": { "pending_verification": "Nicht verifiziert", "active": "Aktiv", "suspended": "Gesperrt" }
   },
+  "standingMgmt": {
+    "title": "Wiederkehrende Reservierungen",
+    "subtitle": "Wöchentliche oder zweiwöchentliche Reservierungen, die einen Tisch für einen Stammgast freihalten.",
+    "emptyTitle": "Noch keine wiederkehrenden Reservierungen.",
+    "emptyBody": "Erstelle eine Serie, um automatisch jede Woche denselben Tisch freizuhalten.",
+    "addFirst": "Serie hinzufügen", "addSeries": "Serie hinzufügen", "newTitle": "Neue Serie",
+    "weekdayLabel": "Tag",
+    "weekdays": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+    "timeLabel": "Uhrzeit", "partyLabel": "Gäste", "intervalLabel": "Häufigkeit",
+    "intervalWeekly": "Wöchentlich", "intervalFortnightly": "Zweiwöchentlich", "tableLabel": "Tisch",
+    "startDateLabel": "Beginnt", "endDateLabel": "Endet", "endDateOptional": "(optional)",
+    "guestNameLabel": "Gastname", "guestPhoneLabel": "Telefon", "guestEmailLabel": "E-Mail (optional)", "notesLabel": "Notizen (optional)",
+    "save": "Speichern", "saving": "Wird gespeichert…", "cancel": "Abbrechen",
+    "ruleSummary": "{interval} · {weekday} {time} · {count} Gäste · Tisch {table}",
+    "nextOccurrence": "Nächste: {date}", "noUpcoming": "Keine bevorstehende Reservierung", "conflicts": "{count} Konflikte",
+    "statusActive": "Aktiv", "statusCancelled": "Abgebrochen", "cancelSeries": "Serie abbrechen",
+    "cancelConfirm": "Die Serie und alle künftigen Reservierungen abbrechen?", "nameRequired": "Gastname ist erforderlich."
+  },
   "meetingBookings": {
     "title": "Meetingraum-Anfragen",
     "subtitle": "Bestätigen oder lehnen Sie stundenweise Buchungsanfragen ab.",

@@ -257,6 +257,24 @@
     "colReservations": "Rezervări",
     "status": { "pending_verification": "Neverificată", "active": "Activă", "suspended": "Suspendată" }
   },
+  "standingMgmt": {
+    "title": "Rezervări recurente",
+    "subtitle": "Rezervări săptămânale sau bilunare care rezervă o masă pentru un client fidel.",
+    "emptyTitle": "Încă nu există rezervări recurente.",
+    "emptyBody": "Creează o serie pentru a rezerva automat aceeași masă în fiecare săptămână.",
+    "addFirst": "Adaugă o serie", "addSeries": "Adaugă o serie", "newTitle": "Serie nouă",
+    "weekdayLabel": "Ziua",
+    "weekdays": ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"],
+    "timeLabel": "Ora", "partyLabel": "Persoane", "intervalLabel": "Frecvență",
+    "intervalWeekly": "Săptămânal", "intervalFortnightly": "La două săptămâni", "tableLabel": "Masa",
+    "startDateLabel": "Începe la", "endDateLabel": "Se termină la", "endDateOptional": "(opțional)",
+    "guestNameLabel": "Nume client", "guestPhoneLabel": "Telefon", "guestEmailLabel": "Email (opțional)", "notesLabel": "Note (opțional)",
+    "save": "Salvează", "saving": "Se salvează…", "cancel": "Renunță",
+    "ruleSummary": "{interval} · {weekday} {time} · {count} pers. · Masa {table}",
+    "nextOccurrence": "Următoarea: {date}", "noUpcoming": "Nicio rezervare viitoare", "conflicts": "{count} conflicte",
+    "statusActive": "Activă", "statusCancelled": "Anulată", "cancelSeries": "Anulează seria",
+    "cancelConfirm": "Anulezi seria și toate rezervările viitoare?", "nameRequired": "Numele clientului este obligatoriu."
+  },
   "meetingBookings": {
     "title": "Cereri pentru spații de întâlnire",
     "subtitle": "Confirmă sau refuză cererile de rezervare cu ora.",
