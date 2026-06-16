@@ -2283,6 +2283,8 @@ export interface PartnerCorporateMessages {
     };
     manageCompanies: string;
     corporateClientsCount: PluralBag;
+    manageStanding: string;
+    activeStandingCount: PluralBag;
   };
   inbox: { title: string; emptyTitle: string; emptyBody: string };
   filters: {

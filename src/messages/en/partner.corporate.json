@@ -41,6 +41,12 @@
       "one": "{count} company",
       "few": "{count} companies",
       "other": "{count} companies"
+    },
+    "manageStanding": "Recurring",
+    "activeStandingCount": {
+      "one": "{count} active series",
+      "few": "{count} active series",
+      "other": "{count} active series"
     }
   },
   "inbox": {

@@ -41,6 +41,12 @@
       "one": "{count} Unternehmen",
       "few": "{count} Unternehmen",
       "other": "{count} Unternehmen"
+    },
+    "manageStanding": "Wiederkehrend",
+    "activeStandingCount": {
+      "one": "{count} aktive Serie",
+      "few": "{count} aktive Serien",
+      "other": "{count} aktive Serien"
     }
   },
   "inbox": {

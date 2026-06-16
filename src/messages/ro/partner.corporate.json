@@ -41,6 +41,12 @@
       "one": "{count} companie",
       "few": "{count} companii",
       "other": "{count} de companii"
+    },
+    "manageStanding": "Recurente",
+    "activeStandingCount": {
+      "one": "{count} serie activă",
+      "few": "{count} serii active",
+      "other": "{count} de serii active"
     }
   },
   "inbox": {
