@@ -24,6 +24,9 @@ import { logReservationStatus } from "@/lib/reservations/status-log";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { JOBS } from "@/lib/jobs/keys";
 import { commitFloorBooking } from "@/lib/reservations/booking-commit";
+import { isValidCuiFormat, lookupCui } from "@/lib/integrations/anaf";
+import { insertPendingCorporateClient } from "@/lib/repos/corporate-clients-repo";
+import { buildCorporateUpsert } from "@/lib/reservations/corporate-upsert";
 
 
 export interface CreateReservationInput {
@@ -45,6 +48,9 @@ export interface CreateReservationInput {
   // Captured as a marketing_consents 'sms_transactional' row so the SMS path can
   // actually fire once the venue enables it.
   smsConsent?: boolean;
+  /** Phase 3 corporate orders — optional company tag (claim-only). */
+  companyCui?: string;
+  companyName?: string;
 }
 
 export interface CreateReservationResult {
@@ -115,6 +121,29 @@ export async function createReservation(
   const lc = (await cookies()).get(LOCALE_COOKIE)?.value;
   const reservationLocale = lc !== undefined && isLocale(lc) ? lc : "ro";
 
+  // §Phase3 corporate orders — resolve an optional company tag (claim-only).
+  // Format-validate (non-silent), re-check the venue flag, best-effort ANAF
+  // enrich, find-or-create the company. Done outside the floor transaction:
+  // the company row is a benign deduped global record.
+  let corporateClientId: string | null = null;
+  const companyCui = input.companyCui?.trim();
+  if (companyCui) {
+    if (!isValidCuiFormat(companyCui)) {
+      return { ok: false, mode: "db", error: "Invalid company code (CUI).", errorCode: "OTHER" };
+    }
+    const { data: flagRow } = await admin
+      .from("restaurants")
+      .select("accepts_corporate_meals")
+      .eq("id", input.restaurantId)
+      .maybeSingle();
+    if (flagRow?.accepts_corporate_meals) {
+      const anaf = await lookupCui(companyCui);
+      const upsert = buildCorporateUpsert(companyCui, anaf, input.companyName?.trim() || companyCui);
+      const company = await insertPendingCorporateClient(upsert);
+      corporateClientId = company.id;
+    }
+  }
+
   // Floor-plan capacity: plan a table assignment AND persist it atomically.
   // commitFloorBooking holds the per-(restaurant, date) advisory lock across the
   // whole read+plan+write, so the floor can't change between deciding the
@@ -133,6 +162,7 @@ export async function createReservation(
     guestEmail: input.guestEmail?.trim() || null,
     zone: input.zone?.trim() || null,
     notes: input.notes?.trim() || null,
+    corporateClientId,
     confirmationToken,
     locale: reservationLocale,
   });

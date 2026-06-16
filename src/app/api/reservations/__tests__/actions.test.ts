@@ -62,6 +62,13 @@ jest.mock("@/lib/diners/upsert", () => ({
     isNew: true,
   }),
 }));
+jest.mock("@/lib/integrations/anaf", () => ({
+  ...jest.requireActual("@/lib/integrations/anaf"),
+  lookupCui: jest.fn(),
+}));
+jest.mock("@/lib/repos/corporate-clients-repo", () => ({
+  insertPendingCorporateClient: jest.fn().mockResolvedValue({ id: "corp-1" }),
+}));
 
 import { createReservation } from "../actions";
 import { commitFloorBooking } from "@/lib/reservations/booking-commit";
@@ -70,6 +77,8 @@ import { recordAudit } from "@/lib/audit/record";
 import { getCurrentSession } from "@/lib/auth/session";
 import { currentActor } from "@/lib/auth/current-actor";
 import { findOrCreateDinerForReservation } from "@/lib/diners/upsert";
+import { lookupCui } from "@/lib/integrations/anaf";
+import { insertPendingCorporateClient } from "@/lib/repos/corporate-clients-repo";
 
 const REAL_UUID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
@@ -86,8 +95,9 @@ function emptyQuery(): Record<string, jest.Mock> & { then: (r: (v: unknown) => u
   return q;
 }
 
-function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
+function setupSupabaseAdmin(opts: { organizationId?: string | null; acceptsCorporateMeals?: boolean } = {}) {
   const orgId = opts.organizationId === undefined ? "org-1" : opts.organizationId;
+  const acceptsCorporateMeals = opts.acceptsCorporateMeals ?? true;
   const reservationUpdate = jest.fn().mockReturnValue({
     eq: jest.fn().mockResolvedValue({ error: null }),
   });
@@ -123,6 +133,7 @@ function setupSupabaseAdmin(opts: { organizationId?: string | null } = {}) {
               address: null,
               email: null,
               organization_id: orgId,
+              accepts_corporate_meals: acceptsCorporateMeals,
             },
           }),
         };
@@ -298,6 +309,59 @@ describe("createReservation (public flow)", () => {
       guestName: "A", guestPhone: "+40712345678",
     });
     expect(r).toMatchObject({ ok: false, errorCode: "OTHER" });
+  });
+
+  it("tags corporate_client_id when company fields + flag are present (ANAF found)", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    (lookupCui as jest.Mock).mockResolvedValue({ ok: true, found: true, cui: "12345678", name: "ANAF SRL", legalName: "ANAF SRL", address: "Str. X", vatPayer: true });
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678",
+      companyCui: "RO12345678", companyName: "Typed",
+    });
+    expect(r.ok).toBe(true);
+    expect(insertPendingCorporateClient).toHaveBeenCalledWith(
+      expect.objectContaining({ cui: "RO12345678", name: "ANAF SRL", billingAddress: "Str. X", vatPayer: true }),
+    );
+    expect(commitFloorBooking).toHaveBeenCalledWith(expect.objectContaining({ corporateClientId: "corp-1" }));
+  });
+
+  it("does NOT tag when the venue flag is off", async () => {
+    setupSupabaseAdmin({ acceptsCorporateMeals: false });
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678", companyCui: "RO12345678", companyName: "Typed",
+    });
+    expect(r.ok).toBe(true);
+    expect(insertPendingCorporateClient).not.toHaveBeenCalled();
+    expect(commitFloorBooking).toHaveBeenCalledWith(expect.objectContaining({ corporateClientId: null }));
+  });
+
+  it("rejects a malformed company CUI (non-silent)", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678", companyCui: "NOT-A-CUI", companyName: "Typed",
+    });
+    expect(r).toMatchObject({ ok: false, errorCode: "OTHER" });
+    expect(commitFloorBooking).not.toHaveBeenCalled();
+  });
+
+  it("books standard (corporateClientId null) when no company fields are sent", async () => {
+    setupSupabaseAdmin();
+    (getCurrentSession as jest.Mock).mockResolvedValue(null);
+    const r = await createReservation({
+      restaurantId: REAL_UUID, date: "2026-08-01", time: "19:00", partySize: 2,
+      guestName: "A", guestPhone: "+40712345678",
+    });
+    expect(r.ok).toBe(true);
+    expect(commitFloorBooking).toHaveBeenCalledWith(expect.objectContaining({ corporateClientId: null }));
   });
 
   it("still confirms the booking when the diner upsert throws", async () => {

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { ShieldCheck } from "lucide-react";
-import { CuiLookupField } from "./CuiLookupField";
+import { CuiLookupField } from "@/components/corporate/CuiLookupField";
 import { submitEventRequestDraft } from "@/app/api/event-requests/actions";
 import { useT } from "@/lib/i18n/messages-provider";
 import type { DraftState } from "./index";
@@ -115,8 +115,20 @@ export function StepIdentity({
       {draft.bookingForCompany && (
         <CuiLookupField
           cui={draft.claimedCompanyCui}
-          denumire={draft.claimedCompanyName}
-          onChange={onChange}
+          name={draft.claimedCompanyName}
+          onChange={(p) =>
+            onChange({
+              claimedCompanyCui: p.cui,
+              ...(p.name !== undefined ? { claimedCompanyName: p.name } : {}),
+            })
+          }
+          labels={{
+            fieldLabel: "CUI",
+            placeholder: "RO12345678",
+            searchingAriaLabel: t("cuiLookup.searchingAriaLabel"),
+            foundAriaLabel: t("cuiLookup.foundAriaLabel"),
+            resolvedPrefix: t("cuiLookup.denumirePrefix"),
+          }}
         />
       )}
       <div className="text-xs text-text-secondary flex items-start gap-2 bg-surface-bg rounded-card p-3">
