@@ -27,7 +27,7 @@ function toIso(ms: number): string {
  */
 export function generateOccurrenceDates(
   rule: StandingRule,
-  window: { fromDate: string; throughDate: string },
+  range: { fromDate: string; throughDate: string },
 ): string[] {
   const start = toUtc(rule.startDate);
   const startDow = new Date(start).getUTCDay();
@@ -35,8 +35,8 @@ export function generateOccurrenceDates(
   const anchor = start + delta * DAY_MS;
   const stepMs = rule.intervalWeeks * 7 * DAY_MS;
 
-  const lo = Math.max(toUtc(window.fromDate), anchor);
-  const hiCandidates = [toUtc(window.throughDate)];
+  const lo = Math.max(toUtc(range.fromDate), anchor);
+  const hiCandidates = [toUtc(range.throughDate)];
   if (rule.endDate) hiCandidates.push(toUtc(rule.endDate));
   const hi = Math.min(...hiCandidates);
 

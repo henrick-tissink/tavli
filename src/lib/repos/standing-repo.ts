@@ -1,5 +1,5 @@
 import { dbAdmin } from "@/lib/db/admin";
-import { standingReservations, reservations } from "@/lib/db/schema";
+import { standingReservations, reservations, restaurantTables } from "@/lib/db/schema";
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { generateOccurrenceDates, deriveConflictDates, type StandingRule } from "@/lib/standing/occurrences";
 
@@ -78,7 +78,10 @@ export interface StandingListItem {
 }
 
 /** Active + cancelled series for a restaurant, with derived next-occurrence + conflict count. */
-export async function listStandingForRestaurant(restaurantId: string): Promise<StandingListItem[]> {
+export async function listStandingForRestaurant(
+  restaurantId: string,
+  today: string = new Date().toISOString().slice(0, 10),
+): Promise<StandingListItem[]> {
   const series = await dbAdmin.select().from(standingReservations)
     .where(eq(standingReservations.restaurantId, restaurantId))
     .orderBy(standingReservations.createdAt);
@@ -90,12 +93,12 @@ export async function listStandingForRestaurant(restaurantId: string): Promise<S
     .from(reservations)
     .where(inArray(reservations.standingId, ids));
   const tableIds = [...new Set(series.map((s) => s.tableId))];
-  const tableRows = await dbAdmin.execute(
-    `SELECT id, label FROM restaurant_tables WHERE id IN (${tableIds.map((t) => `'${t}'`).join(",")})`,
-  );
-  const labels = new Map((tableRows as unknown as { id: string; label: string }[]).map((t) => [t.id, t.label]));
+  const tableRows = await dbAdmin
+    .select({ id: restaurantTables.id, label: restaurantTables.label })
+    .from(restaurantTables)
+    .where(inArray(restaurantTables.id, tableIds));
+  const labels = new Map(tableRows.map((t) => [t.id, t.label]));
 
-  const today = new Date().toISOString().slice(0, 10);
   return series.map((s) => {
     const myOcc = occ.filter((o) => o.standingId === s.id);
     const existingDates = myOcc.map((o) => o.date);
