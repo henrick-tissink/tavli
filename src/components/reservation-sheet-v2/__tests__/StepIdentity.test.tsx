@@ -19,6 +19,11 @@ function makeProps(overrides = {}) {
     occasionDate: "",
     onChange: jest.fn(),
     errors: {},
+    acceptsCorporateMeals: false,
+    bookingForCompany: false,
+    companyCui: "",
+    companyName: "",
+    onPatch: jest.fn(),
     ...overrides,
   };
 }

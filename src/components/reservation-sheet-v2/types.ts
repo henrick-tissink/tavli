@@ -15,4 +15,8 @@ export interface ReservationFormState {
   // birthday/anniversary triggered campaigns). occasionDate is ISO yyyy-mm-dd.
   occasion: OccasionKind;
   occasionDate: string;
+  // Phase 3 corporate orders — claim-only company tag.
+  bookingForCompany: boolean;
+  companyCui: string;
+  companyName: string;
 }

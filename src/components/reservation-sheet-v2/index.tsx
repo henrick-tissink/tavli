@@ -12,6 +12,7 @@ import { StepSent } from "./StepSent";
 import type { ReservationStep, ReservationFormState } from "./types";
 import { createReservation } from "@/app/api/reservations/actions";
 import { useT } from "@/lib/i18n/messages-provider";
+import { isValidCuiFormat } from "@/lib/integrations/anaf";
 
 const STEP_ORDER: ReservationStep[] = ["date", "party", "slot", "identity"];
 const STEP_INDEX: Record<ReservationStep, number> = {
@@ -37,6 +38,7 @@ interface ReservationSheetV2Props {
   zones?: string[];
   /** Largest party bookable online (floor-plan combinable cap). Default 12. */
   maxPartySize?: number;
+  acceptsCorporateMeals?: boolean;
   preSelectedSlot?: string;
   onBookingConfirmed?: (data: {
     restaurantName: string;
@@ -59,6 +61,9 @@ function makeInitialForm(preSelectedSlot?: string): ReservationFormState {
     notes: "",
     occasion: "",
     occasionDate: "",
+    bookingForCompany: false,
+    companyCui: "",
+    companyName: "",
   };
 }
 
@@ -70,6 +75,7 @@ export function ReservationSheetV2({
   availableSlots,
   zones,
   maxPartySize,
+  acceptsCorporateMeals,
   preSelectedSlot,
   onBookingConfirmed,
 }: ReservationSheetV2Props) {
@@ -219,6 +225,14 @@ export function ReservationSheetV2({
         notes: form.notes || undefined,
         occasion: form.occasion || undefined,
         occasionDate: form.occasionDate || undefined,
+        companyCui:
+          form.bookingForCompany && isValidCuiFormat(form.companyCui)
+            ? form.companyCui
+            : undefined,
+        companyName:
+          form.bookingForCompany && isValidCuiFormat(form.companyCui)
+            ? form.companyName || undefined
+            : undefined,
       });
       if (result.ok) {
         setReservationId(result.reservationId ?? null);
@@ -337,6 +351,11 @@ export function ReservationSheetV2({
                 occasionDate={form.occasionDate}
                 onChange={patchField}
                 errors={errors}
+                acceptsCorporateMeals={Boolean(acceptsCorporateMeals)}
+                bookingForCompany={form.bookingForCompany}
+                companyCui={form.companyCui}
+                companyName={form.companyName}
+                onPatch={patch}
               />
               {submitError && (
                 <p

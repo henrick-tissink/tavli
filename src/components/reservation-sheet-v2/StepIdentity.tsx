@@ -1,7 +1,8 @@
 "use client";
 
 import { RO_DATE_FORMAT, localDateFromIso } from "./helpers";
-import type { OccasionKind } from "./types";
+import { CuiLookupField } from "@/components/corporate/CuiLookupField";
+import type { OccasionKind, ReservationFormState } from "./types";
 import { useT } from "@/lib/i18n/messages-provider";
 
 interface StepIdentityProps {
@@ -25,6 +26,12 @@ interface StepIdentityProps {
 
   // Validation errors (map of field -> message). Empty object means all valid.
   errors: Partial<Record<"name" | "phone" | "email" | "notes", string>>;
+
+  acceptsCorporateMeals: boolean;
+  bookingForCompany: boolean;
+  companyCui: string;
+  companyName: string;
+  onPatch: (p: Partial<ReservationFormState>) => void;
 }
 
 export function StepIdentity({
@@ -40,6 +47,11 @@ export function StepIdentity({
   occasionDate,
   onChange,
   errors,
+  acceptsCorporateMeals,
+  bookingForCompany,
+  companyCui,
+  companyName,
+  onPatch,
 }: StepIdentityProps) {
   const t = useT("booking");
 
@@ -209,6 +221,38 @@ export function StepIdentity({
           <p className="text-xs text-error">{errors.notes}</p>
         )}
       </div>
+
+      {acceptsCorporateMeals && (
+        <div className="space-y-2 border-t border-border pt-4">
+          <label className="flex items-center gap-2 text-sm font-semibold text-text-primary">
+            <input
+              type="checkbox"
+              checked={bookingForCompany}
+              onChange={(e) => onPatch({ bookingForCompany: e.target.checked })}
+            />
+            {t("sheet.stepIdentity.companyToggleLabel")}
+          </label>
+          {bookingForCompany && (
+            <CuiLookupField
+              cui={companyCui}
+              name={companyName}
+              onChange={(p) =>
+                onPatch({
+                  companyCui: p.cui,
+                  ...(p.name !== undefined ? { companyName: p.name } : {}),
+                })
+              }
+              labels={{
+                fieldLabel: t("sheet.stepIdentity.companyCui.fieldLabel"),
+                placeholder: t("sheet.stepIdentity.companyCui.placeholder"),
+                searchingAriaLabel: t("sheet.stepIdentity.companyCui.searchingAriaLabel"),
+                foundAriaLabel: t("sheet.stepIdentity.companyCui.foundAriaLabel"),
+                resolvedPrefix: t("sheet.stepIdentity.companyCui.resolvedPrefix"),
+              }}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
