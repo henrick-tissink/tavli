@@ -115,6 +115,7 @@ export interface CommitInput {
   guestEmail: string | null;
   zone: string | null;
   notes: string | null;
+  corporateClientId: string | null;
   confirmationToken: string;
   locale: "ro" | "en" | "de";
 }
@@ -173,6 +174,7 @@ export async function commitFloorBooking(input: CommitInput): Promise<CommitResu
           reservationTime: `${time}:00`,
           zone: input.zone,
           notes: input.notes,
+          corporateClientId: input.corporateClientId,
           status: "confirmed",
           confirmationToken: input.confirmationToken,
           locale: input.locale,
