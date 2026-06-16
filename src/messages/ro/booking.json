@@ -53,7 +53,9 @@
         "one": "{count} persoană",
         "few": "{count} persoane",
         "other": "{count} persoane"
-      }
+      },
+      "companyToggleLabel": "Rezervare pentru o companie",
+      "companyCui": { "fieldLabel": "CUI", "placeholder": "RO12345678", "searchingAriaLabel": "se caută", "foundAriaLabel": "găsit", "resolvedPrefix": "Denumire: " }
     },
     "stepSent": {
       "title": "Rezervarea ta este confirmată",

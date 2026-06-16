@@ -35,7 +35,9 @@
       "other": "{count} offene Anfragen"
     },
     "enabledHint": "Aktiviert",
-    "disabledHint": "Deaktiviert"
+    "disabledHint": "Deaktiviert",
+    "manageCompanies": "Unternehmen",
+    "corporateClientsCount": "{count} Unternehmen"
   },
   "inbox": {
     "title": "Veranstaltungsanfragen",

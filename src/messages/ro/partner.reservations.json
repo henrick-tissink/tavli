@@ -69,5 +69,7 @@
     "noPermissionCancel": "Nu ai permisiunea de a anula rezervări.",
     "notFound": "Rezervarea nu a fost găsită.",
     "onlyConfirmed": "Doar rezervările confirmate pot fi anulate."
-  }
+  },
+  "badge": { "corporate": "Companie" },
+  "filters": { "corporateOnly": "Doar companii" }
 }

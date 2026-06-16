@@ -448,6 +448,14 @@ export interface BookingMessages {
       summaryToday: string;
       summaryTomorrow: string;
       guests: { one: string; few: string; other: string };
+      companyToggleLabel: string;
+      companyCui: {
+        fieldLabel: string;
+        placeholder: string;
+        searchingAriaLabel: string;
+        foundAriaLabel: string;
+        resolvedPrefix: string;
+      };
     };
     stepSent: {
       title: string;
@@ -1519,6 +1527,8 @@ export interface PartnerReservationsMessages {
     notFound: string;
     onlyConfirmed: string;
   };
+  badge: { corporate: string };
+  filters: { corporateOnly: string };
 }
 
 /** Structural contract for the `partner.menu` namespace. */
@@ -2271,6 +2281,8 @@ export interface PartnerCorporateMessages {
       standing: { title: string; blurb: string };
       meetingNooks: { title: string; blurb: string };
     };
+    manageCompanies: string;
+    corporateClientsCount: string;
   };
   inbox: { title: string; emptyTitle: string; emptyBody: string };
   filters: {

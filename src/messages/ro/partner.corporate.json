@@ -35,7 +35,9 @@
       "other": "{count} de cereri în așteptare"
     },
     "enabledHint": "Activat",
-    "disabledHint": "Dezactivat"
+    "disabledHint": "Dezactivat",
+    "manageCompanies": "Companii",
+    "corporateClientsCount": "{count} companii"
   },
   "inbox": {
     "title": "Solicitări de eveniment",

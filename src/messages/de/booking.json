@@ -53,7 +53,9 @@
         "one": "{count} Person",
         "few": "{count} Personen",
         "other": "{count} Personen"
-      }
+      },
+      "companyToggleLabel": "Buchung für ein Unternehmen",
+      "companyCui": { "fieldLabel": "Unternehmens-ID (CUI)", "placeholder": "RO12345678", "searchingAriaLabel": "wird gesucht", "foundAriaLabel": "gefunden", "resolvedPrefix": "Name: " }
     },
     "stepSent": {
       "title": "Ihre Reservierung ist bestätigt",

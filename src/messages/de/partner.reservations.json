@@ -69,5 +69,7 @@
     "noPermissionCancel": "Sie haben keine Berechtigung, Reservierungen zu stornieren.",
     "notFound": "Reservierung nicht gefunden.",
     "onlyConfirmed": "Nur bestätigte Reservierungen können storniert werden."
-  }
+  },
+  "badge": { "corporate": "Unternehmen" },
+  "filters": { "corporateOnly": "Nur Unternehmen" }
 }

@@ -69,5 +69,7 @@
     "noPermissionCancel": "You do not have permission to cancel reservations.",
     "notFound": "Reservation not found.",
     "onlyConfirmed": "Only confirmed reservations can be cancelled."
-  }
+  },
+  "badge": { "corporate": "Company" },
+  "filters": { "corporateOnly": "Company only" }
 }

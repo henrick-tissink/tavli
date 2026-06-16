@@ -35,7 +35,9 @@
       "other": "{count} pending requests"
     },
     "enabledHint": "Enabled",
-    "disabledHint": "Disabled"
+    "disabledHint": "Disabled",
+    "manageCompanies": "Companies",
+    "corporateClientsCount": "{count} companies"
   },
   "inbox": {
     "title": "Event requests",
