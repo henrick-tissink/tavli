@@ -70,6 +70,6 @@
     "notFound": "Rezervarea nu a fost găsită.",
     "onlyConfirmed": "Doar rezervările confirmate pot fi anulate."
   },
-  "badge": { "corporate": "Companie" },
+  "badge": { "corporate": "Companie", "standing": "Recurentă" },
   "filters": { "corporateOnly": "Doar companii" }
 }

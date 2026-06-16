@@ -70,6 +70,6 @@
     "notFound": "Reservation not found.",
     "onlyConfirmed": "Only confirmed reservations can be cancelled."
   },
-  "badge": { "corporate": "Company" },
+  "badge": { "corporate": "Company", "standing": "Recurring" },
   "filters": { "corporateOnly": "Company only" }
 }

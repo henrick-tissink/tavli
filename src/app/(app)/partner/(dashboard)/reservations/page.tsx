@@ -37,7 +37,7 @@ export default async function PartnerReservationsPage() {
   const ymd = todayYmd();
 
   const cols =
-    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at, table_id, combination_id, corporate_client_id";
+    "id, guest_name, guest_phone, guest_email, party_size, reservation_date, reservation_time, zone, notes, status, created_at, table_id, combination_id, corporate_client_id, booking_type";
 
   // Fetch today/upcoming and recent past as separate bounded queries. A single
   // ordered+limited query starves the operationally-important upcoming rows:
@@ -111,6 +111,7 @@ export default async function PartnerReservationsPage() {
     status: r.status,
     createdAt: r.created_at,
     corporateClientName: r.corporate_client_id ? companyName.get(r.corporate_client_id) ?? null : null,
+    bookingType: r.booking_type,
   });
 
   const future = (futureRaw ?? []).map(mapRow);

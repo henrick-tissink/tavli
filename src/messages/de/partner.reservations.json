@@ -70,6 +70,6 @@
     "notFound": "Reservierung nicht gefunden.",
     "onlyConfirmed": "Nur bestätigte Reservierungen können storniert werden."
   },
-  "badge": { "corporate": "Unternehmen" },
+  "badge": { "corporate": "Unternehmen", "standing": "Wiederkehrend" },
   "filters": { "corporateOnly": "Nur Unternehmen" }
 }

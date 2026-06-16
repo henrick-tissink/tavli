@@ -28,6 +28,7 @@ export interface ReservationRow {
   status: "confirmed" | "cancelled" | "seated" | "completed" | "no_show";
   createdAt: string;
   corporateClientName: string | null;
+  bookingType: string;
 }
 
 const STATUS_STYLE: Record<ReservationRow["status"], string> = {
@@ -157,6 +158,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                       {r.corporateClientName && (
                         <span className="mt-0.5 inline-block rounded-pill bg-brand-primary-soft px-2 py-0.5 text-[11px] font-semibold text-brand-primary-dark">
                           {t("badge.corporate")} · {r.corporateClientName}
+                        </span>
+                      )}
+                      {r.bookingType === "standing" && (
+                        <span className="mt-0.5 inline-block rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+                          {t("badge.standing")}
                         </span>
                       )}
                       <p className="text-xs text-text-muted">{r.guestPhone}</p>

@@ -1527,7 +1527,7 @@ export interface PartnerReservationsMessages {
     notFound: string;
     onlyConfirmed: string;
   };
-  badge: { corporate: string };
+  badge: { corporate: string; standing: string };
   filters: { corporateOnly: string };
 }
 
