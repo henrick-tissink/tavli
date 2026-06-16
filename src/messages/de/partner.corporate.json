@@ -241,6 +241,16 @@
     "ratePerHour": "{amount} Lei/Std.",
     "hoursValue": "{open}–{close}"
   },
+  "companies": {
+    "pageTitle": "Unternehmen",
+    "subtitle": "Unternehmen, die mit den Reservierungen dieses Lokals verknüpft sind.",
+    "empty": "Noch keine Reservierungen sind einem Unternehmen zugeordnet.",
+    "colName": "Unternehmen",
+    "colCui": "CUI",
+    "colStatus": "Status",
+    "colReservations": "Reservierungen",
+    "status": { "pending_verification": "Nicht verifiziert", "active": "Aktiv", "suspended": "Gesperrt" }
+  },
   "meetingBookings": {
     "title": "Meetingraum-Anfragen",
     "subtitle": "Bestätigen oder lehnen Sie stundenweise Buchungsanfragen ab.",

@@ -241,6 +241,16 @@
     "ratePerHour": "{amount} lei/h",
     "hoursValue": "{open}–{close}"
   },
+  "companies": {
+    "pageTitle": "Companies",
+    "subtitle": "Companies tagged on this venue's reservations.",
+    "empty": "No reservations are tagged to a company yet.",
+    "colName": "Company",
+    "colCui": "CUI",
+    "colStatus": "Status",
+    "colReservations": "Reservations",
+    "status": { "pending_verification": "Unverified", "active": "Active", "suspended": "Suspended" }
+  },
   "meetingBookings": {
     "title": "Meeting space requests",
     "subtitle": "Confirm or decline hourly booking requests.",

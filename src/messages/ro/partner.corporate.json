@@ -241,6 +241,16 @@
     "ratePerHour": "{amount} lei/h",
     "hoursValue": "{open}–{close}"
   },
+  "companies": {
+    "pageTitle": "Companii",
+    "subtitle": "Companii asociate rezervărilor acestui local.",
+    "empty": "Încă nu există rezervări asociate unei companii.",
+    "colName": "Companie",
+    "colCui": "CUI",
+    "colStatus": "Stare",
+    "colReservations": "Rezervări",
+    "status": { "pending_verification": "Neverificată", "active": "Activă", "suspended": "Suspendată" }
+  },
   "meetingBookings": {
     "title": "Cereri pentru spații de întâlnire",
     "subtitle": "Confirmă sau refuză cererile de rezervare cu ora.",

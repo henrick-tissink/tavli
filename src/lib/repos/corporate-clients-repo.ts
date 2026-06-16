@@ -1,6 +1,6 @@
 import { dbAdmin } from "@/lib/db/admin";
-import { corporateClients } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { corporateClients, reservations } from "@/lib/db/schema";
+import { and, eq, isNotNull, sql } from "drizzle-orm";
 import { canonicalCui } from "@/lib/integrations/anaf";
 
 export type CorporateClientRow = typeof corporateClients.$inferSelect;
@@ -36,4 +36,32 @@ export async function insertPendingCorporateClient(input: {
     primaryContactPhone: input.primaryContactPhone ?? null,
   }).returning();
   return row;
+}
+
+export interface CorporateClientRollup {
+  id: string;
+  name: string;
+  cui: string;
+  status: CorporateClientRow["status"];
+  reservationCount: number;
+}
+
+/** Companies appearing on a given restaurant's reservations, with counts. */
+export async function listCorporateClientsForRestaurant(
+  restaurantId: string,
+): Promise<CorporateClientRollup[]> {
+  const rows = await dbAdmin
+    .select({
+      id: corporateClients.id,
+      name: corporateClients.name,
+      cui: corporateClients.cui,
+      status: corporateClients.status,
+      reservationCount: sql<number>`count(${reservations.id})::int`,
+    })
+    .from(corporateClients)
+    .innerJoin(reservations, eq(reservations.corporateClientId, corporateClients.id))
+    .where(and(eq(reservations.restaurantId, restaurantId), isNotNull(reservations.corporateClientId)))
+    .groupBy(corporateClients.id)
+    .orderBy(corporateClients.name);
+  return rows;
 }

@@ -3,7 +3,7 @@
  */
 
 import { dbAdmin } from "@/lib/db/admin";
-import { findCorporateClientByCui, insertPendingCorporateClient } from "../corporate-clients-repo";
+import { findCorporateClientByCui, insertPendingCorporateClient, listCorporateClientsForRestaurant } from "../corporate-clients-repo";
 
 describe("corporate-clients-repo", () => {
   beforeEach(async () => {
@@ -27,4 +27,10 @@ describe("corporate-clients-repo", () => {
     expect(b.id).toBe(a.id);
     expect(a.cui).toBe("99990001");
   });
+});
+
+it("listCorporateClientsForRestaurant returns [] for a restaurant with no corporate reservations", async () => {
+  const rows = await listCorporateClientsForRestaurant("00000000-0000-0000-0000-000000000000");
+  expect(Array.isArray(rows)).toBe(true);
+  expect(rows.length).toBe(0);
 });

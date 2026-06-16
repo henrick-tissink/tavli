@@ -2502,6 +2502,16 @@ export interface PartnerCorporateMessages {
     };
     errors: { invalidTransition: string; slotConflict: string; notFound: string };
   };
+  companies: {
+    pageTitle: string;
+    subtitle: string;
+    empty: string;
+    colName: string;
+    colCui: string;
+    colStatus: string;
+    colReservations: string;
+    status: { pending_verification: string; active: string; suspended: string };
+  };
 }
 
 /** Structural contract for the `partner.org` namespace. */
