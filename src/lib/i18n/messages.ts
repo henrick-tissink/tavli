@@ -2282,7 +2282,7 @@ export interface PartnerCorporateMessages {
       meetingNooks: { title: string; blurb: string };
     };
     manageCompanies: string;
-    corporateClientsCount: string;
+    corporateClientsCount: PluralBag;
   };
   inbox: { title: string; emptyTitle: string; emptyBody: string };
   filters: {

@@ -37,7 +37,11 @@
     "enabledHint": "Activat",
     "disabledHint": "Dezactivat",
     "manageCompanies": "Companii",
-    "corporateClientsCount": "{count} companii"
+    "corporateClientsCount": {
+      "one": "{count} companie",
+      "few": "{count} companii",
+      "other": "{count} de companii"
+    }
   },
   "inbox": {
     "title": "Solicitări de eveniment",
