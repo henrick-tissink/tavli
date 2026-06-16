@@ -265,7 +265,7 @@
   },
   "standingMgmt": {
     "title": "Rezervări recurente",
-    "subtitle": "Rezervări săptămânale sau bilunare care rezervă o masă pentru un client fidel.",
+    "subtitle": "Rezervări săptămânale sau la două săptămâni care rezervă o masă pentru un client fidel.",
     "emptyTitle": "Încă nu există rezervări recurente.",
     "emptyBody": "Creează o serie pentru a rezerva automat aceeași masă în fiecare săptămână.",
     "addFirst": "Adaugă o serie", "addSeries": "Adaugă o serie", "newTitle": "Serie nouă",

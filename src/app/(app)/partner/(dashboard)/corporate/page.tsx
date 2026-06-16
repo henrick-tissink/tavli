@@ -7,7 +7,7 @@ import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 import { toggleCapability } from "./actions";
 import { listCorporateClientsForRestaurant } from "@/lib/repos/corporate-clients-repo";
-import { listActiveStandingSeries } from "@/lib/repos/standing-repo";
+import { countActiveStandingForRestaurant } from "@/lib/repos/standing-repo";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,7 @@ export default async function CorporatePage() {
       ),
     );
   const corporateClientRows = await listCorporateClientsForRestaurant(restaurant.id);
-  const activeStanding = (await listActiveStandingSeries()).filter((s) => s.restaurantId === restaurant.id);
+  const activeStandingCount = await countActiveStandingForRestaurant(restaurant.id);
   return (
     <main className="max-w-4xl px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
@@ -55,7 +55,7 @@ export default async function CorporatePage() {
           },
           standing: {
             enabled: restaurant.acceptsStanding,
-            openCount: activeStanding.length,
+            openCount: activeStandingCount,
           },
           meetingNooks: {
             enabled: restaurant.acceptsMeetingSpaces,

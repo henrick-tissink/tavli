@@ -1,6 +1,6 @@
 import { dbAdmin } from "@/lib/db/admin";
 import { standingReservations, reservations, restaurantTables } from "@/lib/db/schema";
-import { and, eq, gte, inArray } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { generateOccurrenceDates, deriveConflictDates, type StandingRule } from "@/lib/standing/occurrences";
 
 export type StandingRow = typeof standingReservations.$inferSelect;
@@ -45,6 +45,15 @@ export async function getStandingSeries(id: string): Promise<StandingRow | null>
 
 export async function listActiveStandingSeries(): Promise<StandingRow[]> {
   return dbAdmin.select().from(standingReservations).where(eq(standingReservations.status, "active"));
+}
+
+/** Restaurant-scoped count of active series (for the overview card). */
+export async function countActiveStandingForRestaurant(restaurantId: string): Promise<number> {
+  const rows = await dbAdmin
+    .select({ n: sql<number>`count(*)::int` })
+    .from(standingReservations)
+    .where(and(eq(standingReservations.restaurantId, restaurantId), eq(standingReservations.status, "active")));
+  return rows[0]?.n ?? 0;
 }
 
 /** Cancel a series + all its future, non-terminal occurrences. */
