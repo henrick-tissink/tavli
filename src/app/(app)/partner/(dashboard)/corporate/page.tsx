@@ -6,6 +6,7 @@ import { CorporateOverview } from "@/components/partner/CorporateOverview";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 import { toggleCapability } from "./actions";
+import { listCorporateClientsForRestaurant } from "@/lib/repos/corporate-clients-repo";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function CorporatePage() {
         eq(meetingSpaceBookings.status, "requested"),
       ),
     );
+  const corporateClientRows = await listCorporateClientsForRestaurant(restaurant.id);
   return (
     <main className="max-w-4xl px-4 py-6 desktop:px-8 desktop:py-8">
       <header className="mb-6">
@@ -45,7 +47,10 @@ export default async function CorporatePage() {
             enabled: restaurant.eventsIntakeEnabled,
             openCount: openRows.length,
           },
-          corporateMeals: { enabled: restaurant.acceptsCorporateMeals },
+          corporateMeals: {
+            enabled: restaurant.acceptsCorporateMeals,
+            openCount: corporateClientRows.length,
+          },
           standing: { enabled: restaurant.acceptsStanding },
           meetingNooks: {
             enabled: restaurant.acceptsMeetingSpaces,
