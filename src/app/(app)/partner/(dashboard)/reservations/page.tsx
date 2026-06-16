@@ -67,11 +67,17 @@ export default async function PartnerReservationsPage() {
   const comboIds = [
     ...new Set(rawRows.map((r) => r.combination_id).filter(Boolean) as string[]),
   ];
-  const [{ data: tableRows }, { data: comboRows }] = await Promise.all([
+  const companyIds = [
+    ...new Set(rawRows.map((r) => r.corporate_client_id).filter(Boolean) as string[]),
+  ];
+  const [{ data: tableRows }, { data: comboRows }, { data: companyRows }] = await Promise.all([
     supabase.from("restaurant_tables").select("id, label").eq("restaurant_id", restaurantId),
     comboIds.length
       ? supabase.from("table_combinations").select("id, table_ids").in("id", comboIds)
       : Promise.resolve({ data: [] as { id: string; table_ids: string[] }[] }),
+    companyIds.length
+      ? supabase.from("corporate_clients").select("id, name").in("id", companyIds)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
   ]);
   const tableLabel = new Map((tableRows ?? []).map((t) => [t.id as string, t.label as string]));
   const comboLabel = new Map<string, string>();
@@ -88,12 +94,6 @@ export default async function PartnerReservationsPage() {
         ? tableLabel.get(r.table_id) ?? null
         : null;
 
-  const companyIds = [
-    ...new Set(rawRows.map((r) => r.corporate_client_id).filter(Boolean) as string[]),
-  ];
-  const { data: companyRows } = companyIds.length
-    ? await supabase.from("corporate_clients").select("id, name").in("id", companyIds)
-    : { data: [] as { id: string; name: string }[] };
   const companyName = new Map((companyRows ?? []).map((c) => [c.id as string, c.name as string]));
 
   const mapRow = (r: NonNullable<typeof futureRaw>[number]): ReservationRow => ({
