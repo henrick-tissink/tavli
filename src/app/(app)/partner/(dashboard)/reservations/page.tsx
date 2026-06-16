@@ -5,6 +5,7 @@ import {
   type ReservationRow,
 } from "@/components/partner/ReservationsList";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
+import { corporateClientNamesByIds } from "@/lib/repos/corporate-clients-repo";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -70,14 +71,14 @@ export default async function PartnerReservationsPage() {
   const companyIds = [
     ...new Set(rawRows.map((r) => r.corporate_client_id).filter(Boolean) as string[]),
   ];
-  const [{ data: tableRows }, { data: comboRows }, { data: companyRows }] = await Promise.all([
+  const [{ data: tableRows }, { data: comboRows }, companyRows] = await Promise.all([
     supabase.from("restaurant_tables").select("id, label").eq("restaurant_id", restaurantId),
     comboIds.length
       ? supabase.from("table_combinations").select("id, table_ids").in("id", comboIds)
       : Promise.resolve({ data: [] as { id: string; table_ids: string[] }[] }),
-    companyIds.length
-      ? supabase.from("corporate_clients").select("id, name").in("id", companyIds)
-      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    // corporate_clients RLS only grants reads to company members; resolve names
+    // via service-role (scoped to ids on this restaurant's own reservations).
+    corporateClientNamesByIds(companyIds),
   ]);
   const tableLabel = new Map((tableRows ?? []).map((t) => [t.id as string, t.label as string]));
   const comboLabel = new Map<string, string>();

@@ -3,7 +3,7 @@
  */
 
 import { dbAdmin } from "@/lib/db/admin";
-import { findCorporateClientByCui, insertPendingCorporateClient, listCorporateClientsForRestaurant } from "../corporate-clients-repo";
+import { corporateClientNamesByIds, findCorporateClientByCui, insertPendingCorporateClient, listCorporateClientsForRestaurant } from "../corporate-clients-repo";
 
 describe("corporate-clients-repo", () => {
   beforeEach(async () => {
@@ -26,6 +26,13 @@ describe("corporate-clients-repo", () => {
     const b = await insertPendingCorporateClient({ cui: "99990001", name: "Acme SRL" });
     expect(b.id).toBe(a.id);
     expect(a.cui).toBe("99990001");
+  });
+
+  it("corporateClientNamesByIds resolves names by id (and [] for empty input)", async () => {
+    expect(await corporateClientNamesByIds([])).toEqual([]);
+    const c = await insertPendingCorporateClient({ cui: "RONAMETEST9", name: "Name Test SRL" });
+    const rows = await corporateClientNamesByIds([c.id]);
+    expect(rows).toEqual([{ id: c.id, name: "Name Test SRL" }]);
   });
 });
 

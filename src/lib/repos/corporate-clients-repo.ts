@@ -1,6 +1,6 @@
 import { dbAdmin } from "@/lib/db/admin";
 import { corporateClients, reservations } from "@/lib/db/schema";
-import { and, eq, isNotNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { canonicalCui } from "@/lib/integrations/anaf";
 
 export type CorporateClientRow = typeof corporateClients.$inferSelect;
@@ -44,6 +44,22 @@ export interface CorporateClientRollup {
   cui: string;
   status: CorporateClientRow["status"];
   reservationCount: number;
+}
+
+/**
+ * Resolve company names by id via service-role. `corporate_clients` RLS only
+ * grants reads to company *members*, so the partner reservations list (which
+ * legitimately shows these companies' reservations) must resolve names this
+ * way — the RLS-bound client returns nothing for a non-member partner.
+ */
+export async function corporateClientNamesByIds(
+  ids: string[],
+): Promise<{ id: string; name: string }[]> {
+  if (ids.length === 0) return [];
+  return dbAdmin
+    .select({ id: corporateClients.id, name: corporateClients.name })
+    .from(corporateClients)
+    .where(inArray(corporateClients.id, ids));
 }
 
 /** Companies appearing on a given restaurant's reservations, with counts. */
