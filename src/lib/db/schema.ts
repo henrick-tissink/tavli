@@ -107,6 +107,8 @@ export const corporateClientMemberRole = pgEnum("corporate_client_member_role", 
   "viewer",
 ]);
 
+export const standingStatus = pgEnum("standing_status", ["active", "cancelled"]);
+
 export const eventOccasion = pgEnum("event_occasion", [
   "wedding",
   "birthday",
@@ -463,6 +465,7 @@ export const reservations = pgTable("reservations", {
   // 0035); omitting .references() here breaks the circular type-inference
   // cycle between reservations ↔ restaurant_tables ↔ table_combinations.
   tableId: uuid("table_id"),
+  standingId: uuid("standing_id"),
   combinationId: uuid("combination_id"),
   autoAssigned: boolean("auto_assigned").notNull().default(false),
   // §11 Wave 7 — marketing attribution. Column owned here (§02 never added it);
@@ -652,6 +655,31 @@ export const corporateClientInvitations = pgTable("corporate_client_invitations"
 }, (t) => [
   index("corporate_client_invitations_corporate_client_idx").on(t.corporateClientId),
   index("corporate_client_invitations_email_status_idx").on(t.email, t.status),
+]);
+
+// ─── standing_reservations (Corporate Phase 4, migration 0067) ────────────
+export const standingReservations = pgTable("standing_reservations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  restaurantId: uuid("restaurant_id").notNull().references(() => restaurants.id, { onDelete: "cascade" }),
+  dayOfWeek: smallint("day_of_week").notNull(),
+  startTime: time("start_time").notNull(),
+  partySize: smallint("party_size").notNull(),
+  intervalWeeks: smallint("interval_weeks").notNull().default(1),
+  // FK -> restaurant_tables lives in the DB (0067); omitted here to match the
+  // reservations.table_id convention and avoid a type-inference cycle.
+  tableId: uuid("table_id").notNull(),
+  guestName: text("guest_name").notNull(),
+  guestPhone: varchar("guest_phone", { length: 40 }).notNull(),
+  guestEmail: varchar("guest_email", { length: 255 }),
+  notes: text("notes"),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date"),
+  status: standingStatus("status").notNull().default("active"),
+  materializedThrough: date("materialized_through"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("sr_restaurant_status_idx").on(t.restaurantId, t.status),
 ]);
 
 // ─── event_requests ─────────────────────────────────────────────────────

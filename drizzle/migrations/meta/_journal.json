@@ -470,6 +470,13 @@
       "when": 1780809938000,
       "tag": "0066_meeting_spaces",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1782000000000,
+      "tag": "0067_standing_reservations",
+      "breakpoints": true
     }
   ]
 }
