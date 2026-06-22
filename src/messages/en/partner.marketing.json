@@ -10,7 +10,15 @@
     "quotaSurcharge": "Sends over the allowance are billed at a surcharge (€0.06/SMS, €0.03/WhatsApp; email free).",
     "usageTitle": "Usage this month",
     "usageHint": "included",
-    "segmentsLink": "Build audience segments →"
+    "meterLeft": "{count} left",
+    "segmentsLink": "Build audience segments →",
+    "summary": {
+      "activeAutomations": "Active automations",
+      "sentThisMonth": "Sent this month",
+      "audienceReach": "Reachable guests",
+      "openRate": "Avg. open rate",
+      "openRateEmpty": "—"
+    }
   },
   "channels": {
     "email": "Email",
@@ -45,7 +53,20 @@
     "sent": "Campaign queued for delivery.",
     "archive": "Archive",
     "archived": "Campaign archived.",
-    "oneOffEmpty": "No one-off campaigns yet."
+    "oneOffEmpty": "No one-off campaigns yet.",
+    "recipients": "{count} recipients",
+    "sentOn": "Sent {date}",
+    "scheduledFor": "Scheduled {date}",
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "sending": "Sending",
+      "sent": "Sent",
+      "active": "On",
+      "paused": "Off",
+      "archived": "Archived",
+      "cancelled": "Cancelled"
+    }
   },
   "newCampaign": {
     "templateLabel": "Start from a template",

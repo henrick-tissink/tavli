@@ -25,6 +25,7 @@ describe("MarketingManager toggle accessibility (audit #18)", () => {
     renderWithMessages(
       <MarketingManager
         organizationId="org-1"
+        locale="ro"
         campaigns={[
           {
             id: "c1",
@@ -33,6 +34,9 @@ describe("MarketingManager toggle accessibility (audit #18)", () => {
             name: "Pre-arrival",
             status: "active",
             channel: "email",
+            sentAt: null,
+            scheduledSendAt: null,
+            recipientCountEstimate: null,
           },
         ]}
       />,

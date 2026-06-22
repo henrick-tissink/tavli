@@ -10,7 +10,15 @@
     "quotaSurcharge": "Sendungen über das Kontingent hinaus werden mit Aufschlag berechnet (0,06 €/SMS, 0,03 €/WhatsApp; E-Mail kostenlos).",
     "usageTitle": "Verbrauch diesen Monat",
     "usageHint": "enthalten",
-    "segmentsLink": "Zielgruppensegmente erstellen →"
+    "meterLeft": "{count} übrig",
+    "segmentsLink": "Zielgruppensegmente erstellen →",
+    "summary": {
+      "activeAutomations": "Aktive Automationen",
+      "sentThisMonth": "Diesen Monat gesendet",
+      "audienceReach": "Erreichbare Gäste",
+      "openRate": "Ø Öffnungsrate",
+      "openRateEmpty": "—"
+    }
   },
   "channels": {
     "email": "E-Mail",
@@ -45,7 +53,20 @@
     "sent": "Kampagne zur Zustellung gesendet.",
     "archive": "Archivieren",
     "archived": "Kampagne archiviert.",
-    "oneOffEmpty": "Noch keine einmaligen Kampagnen."
+    "oneOffEmpty": "Noch keine einmaligen Kampagnen.",
+    "recipients": "{count} Empfänger",
+    "sentOn": "Gesendet {date}",
+    "scheduledFor": "Geplant für {date}",
+    "status": {
+      "draft": "Entwurf",
+      "scheduled": "Geplant",
+      "sending": "Wird gesendet",
+      "sent": "Gesendet",
+      "active": "An",
+      "paused": "Aus",
+      "archived": "Archiviert",
+      "cancelled": "Storniert"
+    }
   },
   "newCampaign": {
     "templateLabel": "Aus einer Vorlage starten",

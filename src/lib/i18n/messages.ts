@@ -1805,7 +1805,15 @@ export interface PartnerMarketingMessages {
     quotaSurcharge: string;
     usageTitle: string;
     usageHint: string;
+    meterLeft: string;
     segmentsLink: string;
+    summary: {
+      activeAutomations: string;
+      sentThisMonth: string;
+      audienceReach: string;
+      openRate: string;
+      openRateEmpty: string;
+    };
   };
   channels: {
     email: string;
@@ -1841,6 +1849,19 @@ export interface PartnerMarketingMessages {
     archive: string;
     archived: string;
     oneOffEmpty: string;
+    recipients: string;
+    sentOn: string;
+    scheduledFor: string;
+    status: {
+      draft: string;
+      scheduled: string;
+      sending: string;
+      sent: string;
+      active: string;
+      paused: string;
+      archived: string;
+      cancelled: string;
+    };
   };
   newCampaign: {
     templateLabel: string;

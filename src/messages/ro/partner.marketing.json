@@ -10,7 +10,15 @@
     "quotaSurcharge": "Trimiterile peste alocare se facturează la suprataxă (€0,06/SMS, €0,03/WhatsApp; email gratuit).",
     "usageTitle": "Consum luna aceasta",
     "usageHint": "incluse",
-    "segmentsLink": "Construiește segmente de public →"
+    "meterLeft": "{count} rămase",
+    "segmentsLink": "Construiește segmente de public →",
+    "summary": {
+      "activeAutomations": "Automatizări active",
+      "sentThisMonth": "Trimise luna aceasta",
+      "audienceReach": "Clienți accesibili",
+      "openRate": "Rată medie de deschidere",
+      "openRateEmpty": "—"
+    }
   },
   "channels": {
     "email": "Email",
@@ -45,7 +53,20 @@
     "sent": "Campanie trimisă spre livrare.",
     "archive": "Arhivează",
     "archived": "Campanie arhivată.",
-    "oneOffEmpty": "Nicio campanie punctuală încă."
+    "oneOffEmpty": "Nicio campanie punctuală încă.",
+    "recipients": "{count} destinatari",
+    "sentOn": "Trimisă {date}",
+    "scheduledFor": "Programată {date}",
+    "status": {
+      "draft": "Schiță",
+      "scheduled": "Programată",
+      "sending": "Se trimite",
+      "sent": "Trimisă",
+      "active": "Activă",
+      "paused": "Oprită",
+      "archived": "Arhivată",
+      "cancelled": "Anulată"
+    }
   },
   "newCampaign": {
     "templateLabel": "Pornește dintr-un șablon",
