@@ -19,6 +19,8 @@ interface Props {
   allowance: number;
   /** "{count} left" template — {count} is interpolated here. */
   leftLabel: string;
+  /** App locale — pin number grouping so SSR and client agree (no hydration drift). */
+  locale: string;
 }
 
 /**
@@ -27,7 +29,7 @@ interface Props {
  * tone shifts brand → amber → red as usage approaches and passes the included
  * allowance (mirrors the §11 80% / 100% quota-alert thresholds).
  */
-export function UsageMeter({ label, channel, sent, allowance, leftLabel }: Props) {
+export function UsageMeter({ label, channel, sent, allowance, leftLabel, locale }: Props) {
   const Icon = CHANNEL_ICON[channel] ?? Mail;
   const pct = allowance > 0 ? Math.min(100, Math.round((sent / allowance) * 100)) : 0;
   const tone = pct >= 100 ? "over" : pct >= 80 ? "near" : "ok";
@@ -53,8 +55,8 @@ export function UsageMeter({ label, channel, sent, allowance, leftLabel }: Props
       </div>
 
       <p className={`mt-3 font-display text-3xl font-bold leading-none tabular-nums ${numberColor}`}>
-        {sent.toLocaleString()}
-        <span className="text-lg font-normal text-text-muted"> / {allowance.toLocaleString()}</span>
+        {sent.toLocaleString(locale)}
+        <span className="text-lg font-normal text-text-muted"> / {allowance.toLocaleString(locale)}</span>
       </p>
 
       <div
@@ -72,7 +74,7 @@ export function UsageMeter({ label, channel, sent, allowance, leftLabel }: Props
       </div>
 
       <p className="mt-2 text-xs text-text-secondary">
-        {leftLabel.replace("{count}", left.toLocaleString())}
+        {leftLabel.replace("{count}", left.toLocaleString(locale))}
       </p>
     </div>
   );

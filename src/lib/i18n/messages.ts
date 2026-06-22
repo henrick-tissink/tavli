@@ -1849,7 +1849,7 @@ export interface PartnerMarketingMessages {
     archive: string;
     archived: string;
     oneOffEmpty: string;
-    recipients: string;
+    recipients: PluralBag;
     sentOn: string;
     scheduledFor: string;
     status: {

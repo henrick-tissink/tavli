@@ -54,7 +54,7 @@
     "archive": "Archivieren",
     "archived": "Kampagne archiviert.",
     "oneOffEmpty": "Noch keine einmaligen Kampagnen.",
-    "recipients": "{count} Empfänger",
+    "recipients": { "one": "{count} Empfänger", "few": "{count} Empfänger", "other": "{count} Empfänger" },
     "sentOn": "Gesendet {date}",
     "scheduledFor": "Geplant für {date}",
     "status": {

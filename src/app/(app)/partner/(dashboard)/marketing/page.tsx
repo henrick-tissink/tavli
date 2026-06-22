@@ -173,9 +173,9 @@ export default async function PartnerMarketingPage() {
   const openRate = delivered > 0 ? Math.round((opened / delivered) * 100) : null;
 
   const summaryStats = [
-    { value: activeAutomations.toLocaleString(), label: m.page.summary.activeAutomations },
-    { value: sentThisMonth.toLocaleString(), label: m.page.summary.sentThisMonth },
-    { value: reachableGuests.toLocaleString(), label: m.page.summary.audienceReach },
+    { value: activeAutomations.toLocaleString(locale), label: m.page.summary.activeAutomations },
+    { value: sentThisMonth.toLocaleString(locale), label: m.page.summary.sentThisMonth },
+    { value: reachableGuests.toLocaleString(locale), label: m.page.summary.audienceReach },
     {
       value: openRate === null ? m.page.summary.openRateEmpty : `${openRate}%`,
       label: m.page.summary.openRate,
@@ -238,9 +238,9 @@ export default async function PartnerMarketingPage() {
             {m.page.usageTitle}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <UsageMeter label={m.channels.email} channel="email" sent={email.sent} allowance={email.allowance} leftLabel={m.page.meterLeft} />
-            <UsageMeter label={m.channels.sms} channel="sms" sent={sms.sent} allowance={sms.allowance} leftLabel={m.page.meterLeft} />
-            <UsageMeter label={m.channels.whatsapp} channel="whatsapp" sent={whatsapp.sent} allowance={whatsapp.allowance} leftLabel={m.page.meterLeft} />
+            <UsageMeter label={m.channels.email} channel="email" sent={email.sent} allowance={email.allowance} leftLabel={m.page.meterLeft} locale={locale} />
+            <UsageMeter label={m.channels.sms} channel="sms" sent={sms.sent} allowance={sms.allowance} leftLabel={m.page.meterLeft} locale={locale} />
+            <UsageMeter label={m.channels.whatsapp} channel="whatsapp" sent={whatsapp.sent} allowance={whatsapp.allowance} leftLabel={m.page.meterLeft} locale={locale} />
           </div>
         </section>
 

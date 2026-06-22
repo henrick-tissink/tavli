@@ -64,7 +64,14 @@ export function MarketingManager({
   const triggered = campaigns.filter((c) => c.kind === "triggered");
   const oneOff = campaigns.filter((c) => c.kind === "one_off");
 
-  const dateFmt = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+  // Pin the timezone (RO market) so the SSR pass and the client agree on the
+  // calendar day — an unpinned formatter uses the runtime zone (server UTC vs
+  // browser local), which flips dates near midnight and trips hydration.
+  const dateFmt = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    timeZone: "Europe/Bucharest",
+  });
   const fmtDate = (iso: string | null) => (iso ? dateFmt.format(new Date(iso)) : null);
 
   const triggeredLabel = (key: string | null, fallback: string) => {
