@@ -2247,6 +2247,8 @@ export const marketingSends = pgTable("marketing_sends", {
   index("marketing_sends_diner").on(t.dinerId, t.sentAt.desc()),
   index("marketing_sends_resend").on(t.resendMessageId).where(sql`resend_message_id is not null`),
   index("marketing_sends_twilio").on(t.twilioMessageSid).where(sql`twilio_message_sid is not null`),
+  // 0068 — supports the Marketing page's org + this-month open-rate aggregate.
+  index("marketing_sends_org_sent").on(t.organizationId, t.sentAt.desc()),
 ]);
 
 // Per-org per-month per-channel usage (§11 §4.9).
