@@ -120,16 +120,30 @@ export function makeFanOutCampaign(deps: Deps) {
 
     if (recipients.length > 0) {
       const identifier = (r: Recipient) => (c.channel === "sms" || c.channel === "whatsapp" ? r.phone : r.email);
+      // dedup_key = diner id: one send per diner per one-off campaign. ON CONFLICT
+      // DO NOTHING makes a retried chunk a no-op (RETURNING yields only genuinely
+      // new rows), so a fan-out retry can never insert — and therefore re-send —
+      // a recipient twice (audit #10).
       const values: SQL[] = recipients.map(
-        (r) => sql`(${c.id}, ${c.campaign_version_id ?? null}, ${r.id}, ${c.organization_id}, ${c.restaurant_id}, ${c.channel}::marketing_channel, ${r.locale}, ${identifier(r)}, 'queued'::marketing_send_status)`,
+        (r) => sql`(${c.id}, ${c.campaign_version_id ?? null}, ${r.id}, ${c.organization_id}, ${c.restaurant_id}, ${c.channel}::marketing_channel, ${r.locale}, ${identifier(r)}, 'queued'::marketing_send_status, ${r.id})`,
       );
-      const inserted = (await deps.db.execute(sql`
+      await deps.db.execute(sql`
         INSERT INTO marketing_sends (campaign_id, campaign_version_id, diner_id, organization_id, restaurant_id, channel, locale,
-          ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status)
+          ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status, dedup_key)
         VALUES ${sql.join(values, sql`, `)}
-        RETURNING id
+        ON CONFLICT (campaign_id, dedup_key) WHERE dedup_key IS NOT NULL DO NOTHING
+      `);
+      // Derive the enqueue set from TABLE STATE, not from INSERT…RETURNING: on a
+      // retry the conflicting insert returns no rows, so a RETURNING-based loop
+      // would strand rows the prior (crashed) attempt inserted but never
+      // enqueued. Re-enqueuing an already-queued row is safe — the leaf job
+      // atomically claims queued→sending, so a duplicate enqueue can't re-send.
+      const dinerIds = recipients.map((r) => r.id);
+      const toSend = (await deps.db.execute(sql`
+        SELECT id FROM marketing_sends
+        WHERE campaign_id = ${c.id} AND status = 'queued' AND dedup_key = ANY(${dinerIds}::text[])
       `)) as unknown as Array<{ id: string }>;
-      for (const row of inserted) {
+      for (const row of toSend) {
         await deps.enqueue(JOBS.marketing.sendMessage, { sendId: row.id });
       }
     }

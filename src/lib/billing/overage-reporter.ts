@@ -33,12 +33,21 @@ export function makeStripeOverageReporter(deps: Deps) {
       );
       return;
     }
-    await deps.stripe.invoiceItems.create({
-      customer: customerId,
-      amount: input.totalCents,
-      currency: "eur",
-      description: `Tavli — taxe marketing peste plafon (${input.yearMonth})`,
-    });
+    // Idempotency key keyed on (org, month): a retried report job (pg-boss
+    // retry, or a re-enqueue after the singletonKey window) cannot create a
+    // second invoice item — Stripe collapses the duplicate request.
+    // VAT: the amount is the net (TVA-exclusive) figure; Romanian TVA is applied
+    // at invoice finalisation by Stripe Tax (registered for RO per the launch
+    // runbook), matching the spec's tax-on-top behaviour.
+    await deps.stripe.invoiceItems.create(
+      {
+        customer: customerId,
+        amount: input.totalCents,
+        currency: "eur",
+        description: `Tavli — taxe marketing peste plafon (${input.yearMonth})`,
+      },
+      { idempotencyKey: `overage:${input.organizationId}:${input.yearMonth}` },
+    );
   };
 }
 

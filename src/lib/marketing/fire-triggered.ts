@@ -23,6 +23,12 @@ export interface FireTriggeredPayload {
   dinerId: string;
   organizationId: string;
   restaurantId?: string | null;
+  // Occurrence id from the emitter (reservationId, dinerId, dinerId:date,
+  // dinerId:season). Sets marketing_sends.dedup_key so a retry of this consumer
+  // can't insert a second send for the same occurrence, while a legitimately
+  // repeated trigger (next visit / next birthday) still sends (audit #11). The
+  // emitters all already carry this value in their enqueue singletonKey.
+  dedupKey?: string | null;
 }
 
 export function makeFireTriggeredCampaign(deps: Deps) {
@@ -46,13 +52,19 @@ export function makeFireTriggeredCampaign(deps: Deps) {
         AND (restaurant_id IS NULL OR restaurant_id = ${payload.restaurantId ?? null})
     `)) as unknown as Array<{ id: string; channel: string; trigger_offset_seconds: number | null; campaign_version_id: string | null }>;
 
+    const dedupKey = payload.dedupKey ?? null;
     for (const c of campaigns) {
       const identifier = c.channel === "sms" || c.channel === "whatsapp" ? diner.phone : diner.email;
+      // dedup_key (the occurrence id) + ON CONFLICT DO NOTHING make a retried
+      // run idempotent per (campaign, occurrence); `if (!rows[0]) continue`
+      // skips the enqueue when the row already existed. dedup_key NULL (no
+      // occurrence supplied) preserves the prior always-insert behaviour.
       const rows = (await deps.db.execute(sql`
         INSERT INTO marketing_sends (campaign_id, campaign_version_id, diner_id, organization_id, restaurant_id, channel, locale,
-          ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status)
+          ${c.channel === "sms" || c.channel === "whatsapp" ? sql`phone` : sql`email`}, status, dedup_key)
         VALUES (${c.id}, ${c.campaign_version_id ?? null}, ${payload.dinerId}, ${payload.organizationId}, ${payload.restaurantId ?? null},
-          ${c.channel}::marketing_channel, ${diner.locale}, ${identifier}, 'queued'::marketing_send_status)
+          ${c.channel}::marketing_channel, ${diner.locale}, ${identifier}, 'queued'::marketing_send_status, ${dedupKey})
+        ON CONFLICT (campaign_id, dedup_key) WHERE dedup_key IS NOT NULL DO NOTHING
         RETURNING id
       `)) as unknown as Array<{ id: string }>;
       if (!rows[0]) continue;

@@ -34,6 +34,7 @@ export function NewCampaignForm({
   const [name, setName] = useState("");
   const [channel, setChannel] = useState<Channel>("email");
   const [copy, setCopy] = useState<Copy>(EMPTY_COPY);
+  const [whatsappContentSid, setWhatsappContentSid] = useState("");
   const [locale, setLocale] = useState<Locale>("ro");
 
   const localeName = (l: Locale) => t(`newCampaign.localeNames.${l}`);
@@ -57,13 +58,25 @@ export function NewCampaignForm({
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     startTransition(async () => {
-      const res = await createOneOffCampaignAction({ organizationId, name, channel, copy });
+      const res = await createOneOffCampaignAction({
+        organizationId,
+        name,
+        channel,
+        copy,
+        whatsappContentSid: channel === "whatsapp" ? whatsappContentSid : undefined,
+      });
       if (res.ok) {
         toast.success(t("newCampaign.created"));
         onCreated();
         router.refresh();
+      } else if (res.code === "invalid_input") {
+        toast.error(
+          res.message === "whatsapp_template_required"
+            ? t("newCampaign.errorWhatsappTemplate")
+            : t("newCampaign.errorInvalidInput"),
+        );
       } else {
-        toast.error(res.code === "invalid_input" ? t("newCampaign.errorInvalidInput") : t("newCampaign.errorGeneric"));
+        toast.error(t("newCampaign.errorGeneric"));
       }
     });
   }
@@ -124,6 +137,21 @@ export function NewCampaignForm({
           </button>
         ))}
       </div>
+
+      {channel === "whatsapp" && (
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted">
+            {t("newCampaign.whatsappTemplateLabel")}
+          </label>
+          <input
+            value={whatsappContentSid}
+            onChange={(e) => setWhatsappContentSid(e.target.value)}
+            required
+            placeholder={t("newCampaign.whatsappTemplatePlaceholder")}
+            className={`${inputCls} mt-1.5`}
+          />
+        </div>
+      )}
 
       {channel === "email" && (
         <input

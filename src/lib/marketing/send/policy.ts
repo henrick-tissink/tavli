@@ -30,6 +30,7 @@ interface Deps {
 }
 
 export interface EvaluateInput {
+  sendId: string; // the row being evaluated — excluded from its own cap count
   dinerId: string;
   organizationId: string;
   channel: MarketingChannel;
@@ -114,15 +115,18 @@ export function makeMarketingPolicy(deps: Deps) {
       return { allow: false, skip: "skipped_suppressed" };
     }
 
-    // Frequency cap — count this calendar month's sends INCLUDING in-flight
-    // ones (audit #14). Counting only delivered rows let a batch of concurrent
-    // leaf sends to one diner all pass the cap before any flipped to 'sent'.
-    // In-flight rows (queued/sending) have no sent_at yet, so window on
-    // coalesce(sent_at, created_at). Conservative by design — over-counting
-    // under-sends, the safe direction for a frequency cap.
+    // Frequency cap — count this calendar month's OTHER sends, INCLUDING
+    // in-flight ones (audit #14). Counting only delivered rows let a batch of
+    // concurrent leaf sends to one diner all pass the cap before any flipped to
+    // 'sent'. In-flight rows (queued/sending) have no sent_at yet, so window on
+    // coalesce(sent_at, created_at). The row being evaluated is itself 'queued'
+    // (pre-inserted) — exclude it (id <> sendId) so it doesn't count against its
+    // own cap (otherwise freqCap=1 would skip every send). Concurrent OTHER
+    // in-flight rows for the diner are still counted, preserving the race guard.
     const capRows = (await deps.db.execute(sql`
       SELECT count(*)::int AS used FROM marketing_sends
       WHERE diner_id = ${input.dinerId}
+        AND id <> ${input.sendId}
         AND coalesce(sent_at, created_at) >= date_trunc('month', now())
         AND status IN ('queued', 'sending', 'sent', 'delivered', 'opened', 'clicked')
     `)) as unknown as Array<{ used: number }>;

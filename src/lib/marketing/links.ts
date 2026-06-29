@@ -41,14 +41,21 @@ export function makeRecordClick(deps: { db: typeof dbAdmin }) {
     if (!verifySendToken(input.sendId, input.token, { campaignId: send.campaign_id, dinerId: send.diner_id })) {
       return { error: "invalid" };
     }
-    await deps.db.execute(sql`
-      INSERT INTO marketing_link_clicks (send_id, link_token, destination_url, ip, user_agent)
-      VALUES (${input.sendId}, ${input.token.slice(0, 20)}, ${input.dst}, ${input.ip ?? null}, ${input.userAgent ?? null})
-    `);
-    await deps.db.execute(sql`
-      UPDATE marketing_sends SET first_clicked_at = COALESCE(first_clicked_at, now()), click_count = click_count + 1
-      WHERE id = ${input.sendId}
-    `);
+    // Token is valid → the redirect is authorised. Click LOGGING is best-effort:
+    // a DB failure here must not drop a legitimate recipient's click-through, so
+    // it never propagates (the route only treats an unverifiable token as a 4xx).
+    try {
+      await deps.db.execute(sql`
+        INSERT INTO marketing_link_clicks (send_id, link_token, destination_url, ip, user_agent)
+        VALUES (${input.sendId}, ${input.token.slice(0, 20)}, ${input.dst}, ${input.ip ?? null}, ${input.userAgent ?? null})
+      `);
+      await deps.db.execute(sql`
+        UPDATE marketing_sends SET first_clicked_at = COALESCE(first_clicked_at, now()), click_count = click_count + 1
+        WHERE id = ${input.sendId}
+      `);
+    } catch (e) {
+      console.error(`[marketing] click logging failed for send ${input.sendId}`, e);
+    }
     return { redirectTo: input.dst };
   };
 }

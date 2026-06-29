@@ -2117,7 +2117,9 @@ export const marketingCampaignStatus = pgEnum("marketing_campaign_status", [
   "draft", "active", "paused", "archived", "scheduled", "sending", "sent", "cancelled",
 ]);
 export const marketingSendStatus = pgEnum("marketing_send_status", [
-  "queued", "sent", "delivered", "bounced", "complained", "failed",
+  // 'sending' = claimed in-flight (sender UPDATEs queued→sending before calling
+  // the provider, so a retry can't re-send). Added in migration 0069.
+  "queued", "sending", "sent", "delivered", "bounced", "complained", "failed",
   "skipped_cap", "skipped_suppressed", "skipped_quiet_hours", "skipped_quota",
   "unsubscribed", "opened", "clicked",
 ]);
@@ -2137,6 +2139,10 @@ export const restaurantMarketingSettings = pgTable("restaurant_marketing_setting
   whatsappEnabled: boolean("whatsapp_enabled").notNull().default(false),
   whatsappBusinessAccountId: varchar("whatsapp_business_account_id", { length: 80 }),
   whatsappPhoneNumberId: varchar("whatsapp_phone_number_id", { length: 80 }),
+  // E.164 of the venue's registered WABA number — the value Twilio accepts as
+  // the `whatsapp:` from (whatsapp_phone_number_id is the opaque Meta id, a gate
+  // only). Added in migration 0070.
+  whatsappSenderE164: varchar("whatsapp_sender_e164", { length: 20 }),
   confirmationPromoEnabled: boolean("confirmation_promo_enabled").notNull().default(true),
   quietHoursStartLocal: time("quiet_hours_start_local").notNull().default("21:00"),
   quietHoursEndLocal: time("quiet_hours_end_local").notNull().default("10:00"),
@@ -2160,6 +2166,9 @@ export const marketingCampaigns = pgTable("marketing_campaigns", {
   previewText: jsonb("preview_text"),
   whatsappTemplateNamespace: varchar("whatsapp_template_namespace", { length: 80 }),
   whatsappTemplateName: varchar("whatsapp_template_name", { length: 80 }),
+  // Twilio Content API template SID (HX…) for business-initiated WhatsApp. A
+  // whatsapp campaign without one is not sendable (enforced in actions). 0070.
+  whatsappContentSid: varchar("whatsapp_content_sid", { length: 40 }),
   triggerOffsetSeconds: integer("trigger_offset_seconds"),
   triggerEvent: varchar("trigger_event", { length: 40 }),
   scheduledSendAt: timestamp("scheduled_send_at", { withTimezone: true }),
@@ -2241,6 +2250,10 @@ export const marketingSends = pgTable("marketing_sends", {
   failureMessage: text("failure_message"),
   attributedReservationId: uuid("attributed_reservation_id").references(() => reservations.id, { onDelete: "set null" }),
   attributionWindowExpiresAt: timestamp("attribution_window_expires_at", { withTimezone: true }),
+  // Idempotency key for send materialization: one logical send per
+  // (campaign_id, dedup_key). Fan-out keys on diner_id; triggered keys on the
+  // occurrence id. NULL = not deduped (legacy / unkeyed). Added in 0070.
+  dedupKey: text("dedup_key"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("marketing_sends_campaign").on(t.campaignId, t.status),
@@ -2249,6 +2262,8 @@ export const marketingSends = pgTable("marketing_sends", {
   index("marketing_sends_twilio").on(t.twilioMessageSid).where(sql`twilio_message_sid is not null`),
   // 0068 — supports the Marketing page's org + this-month open-rate aggregate.
   index("marketing_sends_org_sent").on(t.organizationId, t.sentAt.desc()),
+  // 0070 — idempotent send materialization (partial: only keyed rows).
+  uniqueIndex("marketing_sends_campaign_dedup").on(t.campaignId, t.dedupKey).where(sql`dedup_key is not null`),
 ]);
 
 // Per-org per-month per-channel usage (§11 §4.9).

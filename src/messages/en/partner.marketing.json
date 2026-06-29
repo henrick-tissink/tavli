@@ -54,7 +54,11 @@
     "archive": "Archive",
     "archived": "Campaign archived.",
     "oneOffEmpty": "No one-off campaigns yet.",
-    "recipients": { "one": "{count} recipient", "few": "{count} recipients", "other": "{count} recipients" },
+    "recipients": {
+      "one": "{count} recipient",
+      "few": "{count} recipients",
+      "other": "{count} recipients"
+    },
     "sentOn": "Sent {date}",
     "scheduledFor": "Scheduled {date}",
     "status": {
@@ -81,6 +85,9 @@
     "created": "Campaign created (draft).",
     "errorInvalidInput": "Fill in the name and the message in Romanian.",
     "errorGeneric": "Couldn't create the campaign.",
+    "whatsappTemplateLabel": "Approved WhatsApp template (Content SID)",
+    "whatsappTemplatePlaceholder": "HX… (from your Twilio Content template)",
+    "errorWhatsappTemplate": "WhatsApp campaigns require an approved template (Content SID).",
     "localeNames": {
       "ro": "Română",
       "en": "English",

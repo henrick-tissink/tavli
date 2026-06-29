@@ -17,7 +17,15 @@ interface ResendLike {
   emails: { send: (i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string; headers?: Record<string, string> }) => Promise<{ data?: { id: string } | null; error?: { message: string } | null }> };
 }
 interface TwilioClient {
-  messages: { create: (o: { to: string; from: string; body: string }) => Promise<{ sid: string }> };
+  messages: {
+    create: (o: {
+      to: string;
+      from: string;
+      body?: string;
+      contentSid?: string;
+      contentVariables?: string;
+    }) => Promise<{ sid: string }>;
+  };
 }
 
 function getResend(): ResendLike {
@@ -45,7 +53,8 @@ function getTwilio(): TwilioClient {
       messages: {
         create: async (o) => {
           // B3: never log the recipient phone or message body in plaintext.
-          console.log(`[marketing:dev] sms/wa → ***${o.to.slice(-4)} (${o.body.length} chars)`);
+          const detail = o.contentSid ? `template ${o.contentSid}` : `${o.body?.length ?? 0} chars`;
+          console.log(`[marketing:dev] sms/wa → ***${o.to.slice(-4)} (${detail})`);
           return { sid: `dev-${Date.now()}` };
         },
       },
@@ -64,8 +73,14 @@ export const marketingSenders = makeMarketingSenders({
   enqueue: (key, data, options) => enqueue(key as JobKey, data, options),
   resend: getResend(),
   twilio: getTwilio(),
-  emailFrom: process.env.MARKETING_FROM_EMAIL ?? "hello@tavli.ro",
-  smsFrom: process.env.TWILIO_FROM ?? "Tavli",
+  // Dedicated marketing identity if set, else the operator-configured
+  // transactional sender, else the platform default.
+  emailFrom: process.env.MARKETING_FROM_EMAIL ?? process.env.EMAIL_FROM ?? "Tavli <hello@tavli.ro>",
+  // The documented operator vars. No alphanumeric default: an unset sender
+  // fails the send loudly (STOP replies must reach an inbound-capable number),
+  // and WhatsApp gets a distinct sender (an SMS sender id is invalid for WA).
+  smsFrom: process.env.TWILIO_SMS_FROM ?? null,
+  whatsappFrom: process.env.TWILIO_WHATSAPP_FROM ?? null,
 });
 
 export const sendMessageHandler = makeSendMessageHandler({ db: dbAdmin, senders: marketingSenders });

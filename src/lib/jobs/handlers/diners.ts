@@ -143,6 +143,7 @@ export function makeHandleLapsedScan(deps: LapsedScanDeps) {
           dinerId: d.id,
           organizationId: d.organization_id,
           restaurantId: null,
+          dedupKey: `${d.id}:${today}`,
         },
         { singletonKey: `trig:diner.lapsed_60d:${d.id}:${today}` },
       );
@@ -180,6 +181,7 @@ export function makeHandleBirthdayScan(deps: LapsedScanDeps) {
           dinerId: d.id,
           organizationId: d.organization_id,
           restaurantId: null,
+          dedupKey: `${d.id}:${season}`,
         },
         { singletonKey: `trig:diner.birthday:${d.id}:${season}` },
       );

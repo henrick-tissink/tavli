@@ -54,7 +54,11 @@
     "archive": "Archivieren",
     "archived": "Kampagne archiviert.",
     "oneOffEmpty": "Noch keine einmaligen Kampagnen.",
-    "recipients": { "one": "{count} Empfänger", "few": "{count} Empfänger", "other": "{count} Empfänger" },
+    "recipients": {
+      "one": "{count} Empfänger",
+      "few": "{count} Empfänger",
+      "other": "{count} Empfänger"
+    },
     "sentOn": "Gesendet {date}",
     "scheduledFor": "Geplant für {date}",
     "status": {
@@ -81,6 +85,9 @@
     "created": "Kampagne erstellt (Entwurf).",
     "errorInvalidInput": "Geben Sie den Namen und die Nachricht auf Rumänisch ein.",
     "errorGeneric": "Die Erstellung war nicht erfolgreich.",
+    "whatsappTemplateLabel": "Genehmigte WhatsApp-Vorlage (Content SID)",
+    "whatsappTemplatePlaceholder": "HX… (aus deiner Twilio-Content-Vorlage)",
+    "errorWhatsappTemplate": "WhatsApp-Kampagnen erfordern eine genehmigte Vorlage (Content SID).",
     "localeNames": {
       "ro": "Română",
       "en": "English",

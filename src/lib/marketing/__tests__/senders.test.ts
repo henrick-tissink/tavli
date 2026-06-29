@@ -48,22 +48,29 @@ const emailInput: MarketingSendInput = {
 
 function harness(policyResult: { allow: boolean; skip?: string; deferUntil?: Date }) {
   const db = {
-    execute: jest.fn(async (_q: unknown) => [] as unknown[]),
+    // The atomic claim (queued → sending) RETURNs the claimed row; every other
+    // statement returns []. Returning a row lets deliver() proceed.
+    execute: jest.fn(async (q: unknown) =>
+      /status = 'sending'/.test(JSON.stringify(q)) ? [{ id: "s1" }] : ([] as unknown[]),
+    ),
   };
   const policy = jest.fn(async () => policyResult);
   const enqueue = jest.fn(async () => "job-1");
   const resend = {
     emails: {
       send: jest.fn(
-        async (_i: { from: string; to: string; subject: string; html: string; text: string; headers?: Record<string, string> }) => ({
+        async (
+          _i: { from: string; to: string; replyTo?: string; subject: string; html: string; text: string; headers?: Record<string, string> },
+          _opts?: { idempotencyKey?: string },
+        ) => ({
           data: { id: "re_1" },
           error: null,
         }),
       ),
     },
   };
-  const twilio = { messages: { create: jest.fn(async (_o: { to: string; from: string; body: string }) => ({ sid: "SM1" })) } };
-  const senders = makeMarketingSenders({ db: db as never, policy: policy as never, enqueue, resend, twilio, emailFrom: "hello@tavli.ro", smsFrom: "+10000000000" });
+  const twilio = { messages: { create: jest.fn(async (_o: { to: string; from: string; body?: string; contentSid?: string; contentVariables?: string }) => ({ sid: "SM1" })) } };
+  const senders = makeMarketingSenders({ db: db as never, policy: policy as never, enqueue, resend, twilio, emailFrom: "hello@tavli.ro", smsFrom: "+10000000000", whatsappFrom: "+10000000001" });
   return { db, policy, enqueue, resend, twilio, senders };
 }
 
@@ -74,13 +81,29 @@ describe("marketing senders", () => {
     expect(r.status).toBe("sent");
     expect(r.sendId).toBe("s1"); // NEW-2: operates on the pre-inserted row
     expect(h.resend.emails.send).toHaveBeenCalledTimes(1);
-    // NEW-2: UPDATE the pre-inserted row to sent + quota upsert = 2 execute calls
-    // (NO second INSERT — the fan-out already created the row).
-    expect(h.db.execute.mock.calls.length).toBe(2);
+    // claim (queued→sending) + UPDATE to sent + quota upsert = 3 execute calls
+    // (NO INSERT — the fan-out already created the row).
+    expect(h.db.execute.mock.calls.length).toBe(3);
     // every db statement must target the existing row, never INSERT a new send.
     for (const [q] of h.db.execute.mock.calls) {
       expect(JSON.stringify(q)).not.toContain("INSERT INTO marketing_sends");
     }
+  });
+
+  test("#9 retry safety: a non-queued row (already claimed/sent) is never re-sent", async () => {
+    const h = harness({ allow: true });
+    // Claim returns no row → another attempt already took it (retry after a
+    // successful provider call, or a concurrent duplicate leaf job).
+    h.db.execute.mockImplementation(async () => [] as unknown[]);
+    const r = await h.senders.sendEmail(emailInput);
+    expect(r.status).toBe("already_claimed");
+    expect(h.resend.emails.send).not.toHaveBeenCalled();
+  });
+
+  test("#9 email passes a per-send idempotency key to the provider", async () => {
+    const h = harness({ allow: true });
+    await h.senders.sendEmail(emailInput);
+    expect(h.resend.emails.send.mock.calls[0][1]).toEqual({ idempotencyKey: "s1" });
   });
 
   test("email sets RFC 8058 List-Unsubscribe headers + wraps body links for click tracking", async () => {
@@ -130,14 +153,34 @@ describe("marketing senders", () => {
   test("whatsapp gate: unverified venue throws TV904", async () => {
     const h = harness({ allow: true });
     await expect(
-      h.senders.sendWhatsapp({ ...emailInput, channel: "whatsapp", identifier: "+40712345678" }, { whatsappEnabled: false, whatsappBusinessAccountId: null, whatsappPhoneNumberId: null }),
+      h.senders.sendWhatsapp(
+        { ...emailInput, channel: "whatsapp", identifier: "+40712345678" },
+        { whatsappEnabled: false, whatsappBusinessAccountId: null, whatsappPhoneNumberId: null, whatsappSenderE164: null },
+      ),
     ).rejects.toThrow(/TV904/);
     expect(h.twilio.messages.create).not.toHaveBeenCalled();
   });
 
-  test("whatsapp enabled: sends via whatsapp: address", async () => {
+  test("whatsapp without an approved template fails (never freeform body)", async () => {
     const h = harness({ allow: true });
-    await h.senders.sendWhatsapp({ ...emailInput, channel: "whatsapp", identifier: "+40712345678", body: "Salut" }, { whatsappEnabled: true, whatsappBusinessAccountId: "waba", whatsappPhoneNumberId: "pid" });
-    expect(h.twilio.messages.create.mock.calls[0][0].to).toBe("whatsapp:+40712345678");
+    const r = await h.senders.sendWhatsapp(
+      { ...emailInput, channel: "whatsapp", identifier: "+40712345678", body: "Salut", whatsappContentSid: null },
+      { whatsappEnabled: true, whatsappBusinessAccountId: "waba", whatsappPhoneNumberId: "pid", whatsappSenderE164: "+40700000000" },
+    );
+    expect(r.status).toBe("failed");
+    expect(h.twilio.messages.create).not.toHaveBeenCalled();
+  });
+
+  test("whatsapp enabled: sends the Content template from the venue WABA number", async () => {
+    const h = harness({ allow: true });
+    await h.senders.sendWhatsapp(
+      { ...emailInput, channel: "whatsapp", identifier: "+40712345678", whatsappContentSid: "HX_abc" },
+      { whatsappEnabled: true, whatsappBusinessAccountId: "waba", whatsappPhoneNumberId: "pid", whatsappSenderE164: "+40700000000" },
+    );
+    const call = h.twilio.messages.create.mock.calls[0][0];
+    expect(call.to).toBe("whatsapp:+40712345678");
+    expect(call.from).toBe("whatsapp:+40700000000"); // venue WABA number, NOT the SMS sender
+    expect(call.contentSid).toBe("HX_abc");
+    expect(call.body).toBeUndefined(); // no freeform body
   });
 });

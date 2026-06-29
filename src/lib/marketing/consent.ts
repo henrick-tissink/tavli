@@ -92,14 +92,20 @@ export function makeConsent(deps: Deps) {
         context: { channel: input.channel, source: input.source, locale: input.locale },
       });
 
-      // Opt-out cascades a suppression on the diner's contact for this channel.
-      if (!input.optIn) {
-        const contactRows = (await deps.db.execute(sql`
-          SELECT email, phone FROM diners WHERE id = ${input.dinerId}
-        `)) as unknown as Array<{ email: string | null; phone: string | null }>;
-        const contact = contactRows[0];
-        const identifier = input.channel === "sms" || input.channel === "whatsapp" ? contact?.phone : contact?.email;
-        if (identifier) {
+      // Opt-out cascades a suppression on the diner's contact for this channel;
+      // re-opt-in LIFTS it (otherwise an earlier unsubscribe would permanently
+      // block the channel even after the diner re-consents — audit #20).
+      const contactRows = (await deps.db.execute(sql`
+        SELECT email, phone FROM diners WHERE id = ${input.dinerId}
+      `)) as unknown as Array<{ email: string | null; phone: string | null }>;
+      const contact = contactRows[0];
+      const identifier = input.channel === "sms" || input.channel === "whatsapp" ? contact?.phone : contact?.email;
+      if (identifier) {
+        if (input.optIn) {
+          // Re-consent only clears a prior unsubscribe — never a bounce,
+          // complaint, STOP, GDPR or admin suppression.
+          await deps.suppression.liftSuppression(input.channel, identifier, { reasons: ["unsubscribed"] });
+        } else {
           await deps.suppression.addSuppression({
             organizationId: input.organizationId,
             channel: input.channel,

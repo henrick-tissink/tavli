@@ -137,7 +137,7 @@ export async function updateReservationStatus(
           nextStatus === "completed" ? "reservation.completed" : "reservation.no_show";
         await enqueue(
           JOBS.marketing.fireTriggeredCampaign,
-          { triggerEvent, dinerId, organizationId: orgRow.organization_id, restaurantId },
+          { triggerEvent, dinerId, organizationId: orgRow.organization_id, restaurantId, dedupKey: reservationId },
           { singletonKey: `trig:${triggerEvent}:${reservationId}` },
         );
         // §03 §5.3 — a completed visit changes the diner's visit_count +

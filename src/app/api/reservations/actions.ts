@@ -283,6 +283,7 @@ export async function createReservation(
             dinerId,
             organizationId: restaurant.organization_id,
             restaurantId: data.restaurant_id,
+            dedupKey: dinerId,
           },
           { singletonKey: `trig:diner.created:${dinerId}` },
         );

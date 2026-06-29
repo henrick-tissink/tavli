@@ -19,6 +19,8 @@ describe("makeStripeOverageReporter", () => {
     await report({ organizationId: "org-1", yearMonth: "2026-04", totalCents: 540 });
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({ customer: "cus_123", amount: 540, currency: "eur" }),
+      // idempotency key keyed on (org, month) → a retry can't double-bill.
+      expect.objectContaining({ idempotencyKey: "overage:org-1:2026-04" }),
     );
   });
 

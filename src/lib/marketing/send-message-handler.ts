@@ -28,13 +28,19 @@ interface JoinedSend {
   identifier: string | null;
   subject_template: Record<string, string>;
   body_template: Record<string, string>;
+  whatsapp_content_sid: string | null;
   freq_cap: number;
   timezone: string;
   quiet_start: string;
   quiet_end: string;
+  email_sender_name: string | null;
+  email_reply_to: string | null;
+  sms_sender_id: string | null;
+  sms_stop_shortcode: string | null;
   whatsapp_enabled: boolean;
   whatsapp_business_account_id: string | null;
   whatsapp_phone_number_id: string | null;
+  whatsapp_sender_e164: string | null;
 }
 
 function pick(tpl: Record<string, string>, locale: string): string {
@@ -46,13 +52,14 @@ export function makeSendMessageHandler(deps: Deps) {
     const rows = (await deps.db.execute(sql`
       SELECT ms.id AS send_id, ms.campaign_id, ms.diner_id, ms.organization_id, ms.restaurant_id,
              ms.channel, ms.locale, coalesce(ms.email, ms.phone) AS identifier,
-             c.subject_template, c.body_template,
+             c.subject_template, c.body_template, c.whatsapp_content_sid,
              o.marketing_frequency_cap_per_month AS freq_cap,
              coalesce(r.timezone, 'Europe/Bucharest') AS timezone,
              coalesce(rms.quiet_hours_start_local::text, '21:00') AS quiet_start,
              coalesce(rms.quiet_hours_end_local::text, '10:00') AS quiet_end,
+             rms.email_sender_name, rms.email_reply_to, rms.sms_sender_id, rms.sms_stop_shortcode,
              coalesce(rms.whatsapp_enabled, false) AS whatsapp_enabled,
-             rms.whatsapp_business_account_id, rms.whatsapp_phone_number_id
+             rms.whatsapp_business_account_id, rms.whatsapp_phone_number_id, rms.whatsapp_sender_e164
       FROM marketing_sends ms
       JOIN marketing_campaigns c ON c.id = ms.campaign_id
       JOIN organizations o ON o.id = ms.organization_id
@@ -74,6 +81,11 @@ export function makeSendMessageHandler(deps: Deps) {
       identifier: s.identifier,
       subject: pick(s.subject_template, s.locale),
       body: pick(s.body_template, s.locale),
+      emailSenderName: s.email_sender_name,
+      emailReplyTo: s.email_reply_to,
+      smsSenderId: s.sms_sender_id,
+      smsStopShortcode: s.sms_stop_shortcode,
+      whatsappContentSid: s.whatsapp_content_sid,
       policyConfig: {
         freqCap: s.freq_cap,
         includedAllowance: s.channel === "email" || s.channel === "in_confirmation" ? 1000 : 250,
@@ -91,6 +103,7 @@ export function makeSendMessageHandler(deps: Deps) {
         whatsappEnabled: s.whatsapp_enabled,
         whatsappBusinessAccountId: s.whatsapp_business_account_id,
         whatsappPhoneNumberId: s.whatsapp_phone_number_id,
+        whatsappSenderE164: s.whatsapp_sender_e164,
       });
     } else {
       await deps.senders.sendEmail(input);

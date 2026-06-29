@@ -21,7 +21,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { transactionalEmailLog, marketingSuppressions } from "@/lib/db/schema";
 import { ingestWebhook, type VerifyResult } from "@/lib/webhooks/handle";
@@ -104,6 +104,30 @@ export async function POST(request: Request): Promise<Response> {
           })
           .where(eq(transactionalEmailLog.resendMessageId, messageId));
       }
+
+      // A given resend_message_id lives in exactly one of the two tables, so
+      // this is a no-op for transactional messages and the writer of marketing
+      // delivery/open/bounce state for marketing sends (previously never tracked).
+      // Status transitions are GUARDED so an out-of-order / late webhook can't
+      // clobber a terminal 'unsubscribed' or downgrade 'opened'/'clicked'.
+      // Timestamps are still recorded regardless (audit trail).
+      await dbAdmin.execute(sql`
+        UPDATE marketing_sends SET
+          status = CASE
+            WHEN ${evtType} = 'email.delivered'  AND status IN ('sent','sending')          THEN 'delivered'::marketing_send_status
+            WHEN ${evtType} = 'email.bounced'    AND status <> 'unsubscribed'              THEN 'bounced'::marketing_send_status
+            WHEN ${evtType} = 'email.complained' AND status <> 'unsubscribed'              THEN 'complained'::marketing_send_status
+            WHEN ${evtType} = 'email.failed'     AND status IN ('queued','sending','sent') THEN 'failed'::marketing_send_status
+            WHEN ${evtType} = 'email.opened'     AND status IN ('sent','delivered')        THEN 'opened'::marketing_send_status
+            ELSE status END,
+          delivered_at  = CASE WHEN ${evtType} = 'email.delivered'  THEN now() ELSE delivered_at END,
+          bounced_at    = CASE WHEN ${evtType} = 'email.bounced'    THEN now() ELSE bounced_at END,
+          complained_at = CASE WHEN ${evtType} = 'email.complained' THEN now() ELSE complained_at END,
+          opened_at     = CASE WHEN ${evtType} = 'email.opened'     THEN COALESCE(opened_at, now()) ELSE opened_at END,
+          failure_message = CASE WHEN ${evtType} IN ('email.bounced','email.failed') THEN ${payload.data?.bounce?.message ?? null} ELSE failure_message END,
+          status_updated_at = now()
+        WHERE resend_message_id = ${messageId}
+      `);
 
       if (evtType === "email.bounced" || evtType === "email.complained") {
         const recipient = payload.data?.to?.[0];

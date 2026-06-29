@@ -61,7 +61,15 @@ export function makeMonthlyOverageBilling(deps: Deps) {
     }
 
     for (const [organizationId, lines] of byOrg) {
-      await deps.enqueue(JOBS.billing.reportMarketingOverage, { organizationId, yearMonth: prior, lines });
+      // singletonKey dedups the report job per (org, month) so a cron retry
+      // can't enqueue a second billing job while one is still queued/active.
+      // The reporter additionally passes a Stripe idempotency key keyed the same
+      // way, which collapses duplicate invoice items even across completed runs.
+      await deps.enqueue(
+        JOBS.billing.reportMarketingOverage,
+        { organizationId, yearMonth: prior, lines },
+        { singletonKey: `overage:${organizationId}:${prior}` },
+      );
     }
   };
 }

@@ -25,6 +25,12 @@ const EXTRA_LOCATION_ENV: Record<Frequency, string> = {
   annual: "STRIPE_PRICE_EXTRA_LOCATION_ANNUAL",
 };
 
+// NOTE: marketing overage is billed as a one-off invoice item on the org's next
+// invoice (see lib/billing/overage-reporter.ts), NOT via these metered prices —
+// createUsageRecord was removed in stripe@22. The metered overage prices are
+// still seeded (stripe-price-spec.ts) and retained for a future migration to
+// Billing.meterEvents; priceIdForOverage is the accessor for that path. Don't
+// assume the overage charge flows through here.
 const OVERAGE_ENV: Record<OverageKind, string> = {
   sms_overage: "STRIPE_PRICE_SMS_OVERAGE",
   whatsapp_overage: "STRIPE_PRICE_WHATSAPP_OVERAGE",

@@ -1876,6 +1876,9 @@ export interface PartnerMarketingMessages {
     created: string;
     errorInvalidInput: string;
     errorGeneric: string;
+    whatsappTemplateLabel: string;
+    whatsappTemplatePlaceholder: string;
+    errorWhatsappTemplate: string;
     localeNames: { ro: string; en: string; de: string };
   };
   segments: {

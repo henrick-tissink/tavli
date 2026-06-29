@@ -45,6 +45,6 @@ export async function POST(
   }
   return page(
     "Te-ai dezabonat",
-    `<p>Nu vei mai primi mesaje de marketing pe acest canal. Te-ai răzgândit? Poți reactiva oricând din orice email viitor.</p>`,
+    `<p>Nu vei mai primi mesaje de marketing pe acest canal. Dacă te-ai răzgândit, contactează restaurantul pentru a te reabona.</p>`,
   );
 }

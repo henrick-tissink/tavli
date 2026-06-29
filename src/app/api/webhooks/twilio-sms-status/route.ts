@@ -26,7 +26,7 @@
 
 import "server-only";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import twilio from "twilio";
 import { dbAdmin } from "@/lib/db/admin";
 import { transactionalEmailLog } from "@/lib/db/schema";
@@ -127,6 +127,22 @@ export async function POST(request: Request): Promise<Response> {
           failureReason,
         })
         .where(eq(transactionalEmailLog.twilioMessageSid, messageSid));
+
+      // Mirror onto marketing_sends for marketing SMS/WhatsApp (keyed on the
+      // Twilio SID; a no-op for transactional messages). Previously marketing
+      // delivery/failure state was never tracked.
+      await dbAdmin.execute(sql`
+        UPDATE marketing_sends SET
+          status = CASE
+            WHEN ${mapped} = 'delivered' THEN 'delivered'::marketing_send_status
+            WHEN ${mapped} IN ('undelivered','failed') THEN 'failed'::marketing_send_status
+            ELSE status END,
+          delivered_at = CASE WHEN ${mapped} = 'delivered' THEN now() ELSE delivered_at END,
+          failure_code = CASE WHEN ${isFailure} THEN ${errorCode ?? null} ELSE failure_code END,
+          failure_message = CASE WHEN ${isFailure} THEN ${failureReason} ELSE failure_message END,
+          status_updated_at = now()
+        WHERE twilio_message_sid = ${messageSid}
+      `);
     },
   });
 }

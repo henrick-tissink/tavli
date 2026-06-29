@@ -54,7 +54,11 @@
     "archive": "Arhivează",
     "archived": "Campanie arhivată.",
     "oneOffEmpty": "Nicio campanie punctuală încă.",
-    "recipients": { "one": "{count} destinatar", "few": "{count} destinatari", "other": "{count} destinatari" },
+    "recipients": {
+      "one": "{count} destinatar",
+      "few": "{count} destinatari",
+      "other": "{count} destinatari"
+    },
     "sentOn": "Trimisă {date}",
     "scheduledFor": "Programată {date}",
     "status": {
@@ -81,6 +85,9 @@
     "created": "Campanie creată (ciornă).",
     "errorInvalidInput": "Completează numele și mesajul în română.",
     "errorGeneric": "Crearea nu a reușit.",
+    "whatsappTemplateLabel": "ID șablon WhatsApp aprobat (Content SID)",
+    "whatsappTemplatePlaceholder": "HX… (din șablonul tău Twilio Content)",
+    "errorWhatsappTemplate": "Campaniile WhatsApp necesită un șablon aprobat (Content SID).",
     "localeNames": {
       "ro": "Română",
       "en": "English",

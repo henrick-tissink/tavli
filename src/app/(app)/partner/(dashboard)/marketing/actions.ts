@@ -51,12 +51,20 @@ export async function createOneOffCampaignAction(input: {
   name: string;
   channel: Channel;
   copy: Record<"ro" | "en" | "de", LocaleCopy>;
+  // Twilio Content SID (HX…) of the Meta-approved template. Required for the
+  // whatsapp channel — business-initiated WhatsApp can only send approved
+  // templates, so a campaign without one would never deliver.
+  whatsappContentSid?: string;
 }): Promise<ActionResult<{ campaignId: string }>> {
   const { error, session, restaurantId } = await gate(input.organizationId, "campaign.create");
   if (error) return error;
   const name = input.name.trim();
   const roBody = input.copy.ro?.body?.trim() ?? "";
   if (!name || !roBody) return fail("invalid_input", "Name and Romanian body are required.");
+  const whatsappContentSid = input.whatsappContentSid?.trim() || null;
+  if (input.channel === "whatsapp" && !whatsappContentSid) {
+    return fail("invalid_input", "whatsapp_template_required");
+  }
 
   // Store only locales with body content; RO is always present.
   const subjectTemplate: Record<string, string> = {};
@@ -83,6 +91,7 @@ export async function createOneOffCampaignAction(input: {
         status: "draft",
         subjectTemplate,
         bodyTemplate,
+        whatsappContentSid,
         createdByUserId: actor.actorUserId,
       })
       .returning({ id: marketingCampaigns.id });
@@ -101,6 +110,17 @@ export async function setCampaignStatusAction(
   const { error } = await gate(organizationId, "campaign.create");
   if (error) return error;
   try {
+    // Activating a triggered whatsapp campaign without an approved Content
+    // template would only enqueue failing sends — block it.
+    if (status === "active") {
+      const [c] = await dbAdmin
+        .select({ channel: marketingCampaigns.channel, whatsappContentSid: marketingCampaigns.whatsappContentSid })
+        .from(marketingCampaigns)
+        .where(and(eq(marketingCampaigns.id, campaignId), eq(marketingCampaigns.organizationId, organizationId)));
+      if (c?.channel === "whatsapp" && !c.whatsappContentSid) {
+        return fail("invalid_input", "whatsapp_template_required");
+      }
+    }
     await dbAdmin
       .update(marketingCampaigns)
       .set({ status, archivedAt: status === "archived" ? new Date() : null, updatedAt: new Date() })
@@ -141,12 +161,23 @@ export async function sendCampaignAction(
         ),
       )
       .returning({
+        channel: marketingCampaigns.channel,
+        whatsappContentSid: marketingCampaigns.whatsappContentSid,
         subjectTemplate: marketingCampaigns.subjectTemplate,
         bodyTemplate: marketingCampaigns.bodyTemplate,
         previewText: marketingCampaigns.previewText,
       });
     if (res.length === 0) {
       return fail("invalid_input", "campaign_not_sendable");
+    }
+    // A whatsapp campaign with no approved Content template would only produce
+    // failed sends — block it (and roll the status back to draft).
+    if (res[0].channel === "whatsapp" && !res[0].whatsappContentSid) {
+      await dbAdmin
+        .update(marketingCampaigns)
+        .set({ status: "draft", sentAt: null, updatedAt: new Date() })
+        .where(eq(marketingCampaigns.id, campaignId));
+      return fail("invalid_input", "whatsapp_template_required");
     }
     // §11 §4.4 — snapshot the content version this send used (version 1 for the
     // v1 no-edit flow), so every marketing_sends row the fan-out inserts can be

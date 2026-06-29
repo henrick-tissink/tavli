@@ -17,6 +17,8 @@ function harness(recipientCount: number) {
       if (t.includes("FROM marketing_campaigns")) return [campaignRow];
       if (t.includes("FROM diners")) return recipients;
       if (t.includes("INSERT INTO marketing_sends")) return recipients.map((r) => ({ id: `s_${r.id}` }));
+      // Enqueue set is now derived from a SELECT of queued rows (retry-safe).
+      if (t.includes("status = 'queued'")) return recipients.map((r) => ({ id: `s_${r.id}` }));
       return [];
     }),
   };
@@ -57,6 +59,7 @@ describe("makeFanOutCampaign", () => {
           return recipients;
         }
         if (t.includes("INSERT INTO marketing_sends")) return recipients.map((r) => ({ id: `s_${r.id}` }));
+        if (t.includes("status = 'queued'")) return recipients.map((r) => ({ id: `s_${r.id}` }));
         return [];
       }),
     };
@@ -79,6 +82,7 @@ describe("makeFanOutCampaign", () => {
         if (t.includes("FROM marketing_campaigns")) return [campaignRow];
         if (t.includes("FROM diners d")) return recipients;
         if (t.includes("INSERT INTO marketing_sends")) { insertQuery = t; return recipients.map((r) => ({ id: `s_${r.id}` })); }
+        if (t.includes("status = 'queued'")) return recipients.map((r) => ({ id: `s_${r.id}` }));
         return [];
       }),
     };
@@ -99,6 +103,7 @@ describe("makeFanOutCampaign", () => {
         if (t.includes("FROM marketing_campaigns")) return [noSegment];
         if (t.includes("FROM diners d")) { dinersQuery = t; return recipients; }
         if (t.includes("INSERT INTO marketing_sends")) return recipients.map((r) => ({ id: `s_${r.id}` }));
+        if (t.includes("status = 'queued'")) return recipients.map((r) => ({ id: `s_${r.id}` }));
         return [];
       }),
     };

@@ -68,10 +68,23 @@ export function makeSuppression(deps: Deps) {
       return rows.length > 0;
     },
 
-    async liftSuppression(channel: MarketingChannel, identifier: string): Promise<void> {
+    async liftSuppression(
+      channel: MarketingChannel,
+      identifier: string,
+      // Restrict which suppression reasons may be lifted. A diner re-opting in
+      // may only clear their own prior unsubscribe — NOT a hard bounce, spam
+      // complaint, carrier STOP, GDPR or admin suppression (deliverability +
+      // compliance). Omit to lift regardless of reason (e.g. SMS START).
+      opts?: { reasons?: AddSuppressionInput["reason"][] },
+    ): Promise<void> {
+      const reasonFilter =
+        opts?.reasons && opts.reasons.length
+          ? sql`AND reason = ANY(${opts.reasons}::text[])`
+          : sql``;
       await deps.db.execute(sql`
         UPDATE marketing_suppressions SET unsuppressed_at = now()
-        WHERE channel = ${suppressionChannel(channel)} AND lower(identifier) = lower(${identifier}) AND unsuppressed_at IS NULL
+        WHERE channel = ${suppressionChannel(channel)} AND lower(identifier) = lower(${identifier})
+          AND unsuppressed_at IS NULL ${reasonFilter}
       `);
     },
   };

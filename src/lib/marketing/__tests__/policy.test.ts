@@ -17,6 +17,7 @@ describe("inQuietHours", () => {
 });
 
 const baseInput: EvaluateInput = {
+  sendId: "s1",
   dinerId: "d1",
   organizationId: "o1",
   channel: "email",
@@ -79,6 +80,9 @@ describe("marketing policy evaluate", () => {
     // The cap query must include queued/sending in-window so a batch of
     // concurrent leaf sends to one diner can't all pass before any flips to sent.
     expect(capQuery).toContain("queued");
+    // #19: it must EXCLUDE the row being evaluated (its own pre-inserted queued
+    // row), otherwise freqCap=1 would skip every send.
+    expect(capQuery).toContain("id <>");
   });
   test("over quota hard cap → skipped_quota", async () => {
     const r = await makeMarketingPolicy(deps({ quotaSent: 5000 }) as never)(baseInput);
