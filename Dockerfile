@@ -36,6 +36,31 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN npm run build
 
+# --- Worker (pg-boss background service) ---------------------------------------
+# Separate Coolify service, SAME repo/Dockerfile (build target `worker`). Placed
+# BEFORE `runner` so `runner` stays the DEFAULT (last) build target — the demo app
+# builds the Dockerfile with no explicit target and must keep getting the web
+# image. Unlike `runner`, the worker runs the TypeScript source directly via tsx,
+# so it needs the full source + all deps (tsx is a devDependency, installed by
+# `npm ci` in `deps`). tsconfig.worker.json maps `server-only` → an empty stub
+# (this Next vendors server-only, so `import "server-only"` would otherwise fail
+# under tsx). Nothing sends reminders / fans out marketing / runs GDPR + billing
+# crons without this process.
+FROM node:20-alpine AS worker
+WORKDIR /app
+RUN apk add --no-cache curl
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV WORKER_MODE=true
+ENV OTEL_SERVICE_NAME=tavli-worker
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+# Deps include devDeps (tsx). node_modules is .dockerignore'd, so `COPY . .`
+# below won't clobber this layer.
+COPY --from=deps /app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs . .
+USER nextjs
+CMD ["node_modules/.bin/tsx", "--tsconfig", "tsconfig.worker.json", "scripts/worker.ts"]
+
 FROM node:20-alpine AS runner
 WORKDIR /app
 RUN apk add --no-cache curl

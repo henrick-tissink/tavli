@@ -1,0 +1,13 @@
+{
+  "//": "Worker-only tsconfig. The pg-boss worker (scripts/worker.ts) runs the TS",
+  "// ": "directly via tsx (no Next build). This maps `server-only` → an empty stub",
+  "//  ": "so the many `import \"server-only\"` across src/lib no-op in the worker.",
+  "//   ": "Run: tsx --tsconfig tsconfig.worker.json scripts/worker.ts",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "server-only": ["./scripts/stubs/server-only.ts"]
+    }
+  }
+}
