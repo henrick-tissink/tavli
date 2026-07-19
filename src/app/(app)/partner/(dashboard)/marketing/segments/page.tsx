@@ -6,7 +6,7 @@ import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, marketingSegments } from "@/lib/db/schema";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { interpolate } from "@/lib/i18n/t";
@@ -44,7 +44,8 @@ export default async function MarketingSegmentsPage() {
   if (!organizationId || !allowed) redirect("/partner/marketing");
 
   const sub = await loadActiveSubscription(organizationId);
-  if (sub?.tier !== "pro") redirect("/partner/marketing");
+  const isPro = sub?.tier === "pro" || (await orgHasProComp(organizationId));
+  if (!isPro) redirect("/partner/marketing");
 
   const segments = await dbAdmin
     .select({

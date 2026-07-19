@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { and, eq, inArray } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
-import { subscriptions, subscriptionItems } from "@/lib/db/schema";
+import { subscriptions, subscriptionItems, restaurants } from "@/lib/db/schema";
 
 type SubscriptionStatus =
   | "trialing"
@@ -42,6 +42,31 @@ export interface ActiveSubscriptionState {
  */
 export function isProFeatureActive(sub: ActiveSubscriptionState | null): boolean {
   return sub?.tier === "pro" && (sub.status === "active" || sub.status === "trialing");
+}
+
+/**
+ * Comp / override entitlement (docs/operations/marketing-ownership-model-decision.md,
+ * 2026-07-17). Grants Pro-tier FEATURES without a Stripe subscription — the free /
+ * comped launch-cohort path. This is an ENTITLEMENT read for feature GATES only; OR
+ * it into a site's existing Pro predicate. It must NOT be used by billing-mutation
+ * flows (change-plan, sync-extra-location, the billing page), which operate on the
+ * real Stripe mirror and correctly see "no active subscription" for a comped org.
+ * Comped orgs have no Stripe sub, so multi-location (extra-location billing) stays
+ * gated off — cohort venues are single-location.
+ *
+ * INTERIM SCOPE: the only comp flag that exists is the (previously orphaned) per-
+ * restaurant `restaurants.pro_plan_active`, so "org is comped" = ANY venue in the org
+ * is flagged. For single-venue cohort orgs this is exactly org-level. The clean model
+ * (an org-level `organizations.pro_plan_active` or a `comp_pro_until` expiry) needs a
+ * hand-authored migration — tracked as a follow-up; swap this query when it lands.
+ */
+export async function orgHasProComp(organizationId: string): Promise<boolean> {
+  const [row] = await dbAdmin
+    .select({ id: restaurants.id })
+    .from(restaurants)
+    .where(and(eq(restaurants.organizationId, organizationId), eq(restaurants.proPlanActive, true)))
+    .limit(1);
+  return row !== undefined;
 }
 
 export interface LoadSubscriptionDeps {

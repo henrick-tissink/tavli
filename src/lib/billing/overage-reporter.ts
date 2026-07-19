@@ -44,6 +44,10 @@ export function makeStripeOverageReporter(deps: Deps) {
         customer: customerId,
         amount: input.totalCents,
         currency: "eur",
+        // Explicit tax_behavior 'exclusive' (net; TVA added on top at finalisation
+        // by Stripe Tax) — mirrors the price catalogue (stripe-price-spec.ts) rather
+        // than relying on the account default, so Tavli never eats the TVA.
+        tax_behavior: "exclusive",
         description: `Tavli — taxe marketing peste plafon (${input.yearMonth})`,
       },
       { idempotencyKey: `overage:${input.organizationId}:${input.yearMonth}` },

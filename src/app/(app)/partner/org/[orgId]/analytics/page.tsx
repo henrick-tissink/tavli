@@ -11,7 +11,7 @@ import { sql } from "drizzle-orm";
 import { dbAdmin } from "@/lib/db/admin";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { analyticsQueries, toPartyMixSeries, toCancellationDonut } from "@/lib/analytics/queries";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
@@ -38,7 +38,8 @@ export default async function OrgAnalyticsPage({ params }: { params: Promise<{ o
   if (!org) redirect("/partner");
 
   const sub = await loadActiveSubscription(orgId);
-  const tier: "base" | "pro" = sub?.tier === "pro" && sub.status === "active" ? "pro" : "base";
+  const tier: "base" | "pro" =
+    (sub?.tier === "pro" && sub.status === "active") || (await orgHasProComp(orgId)) ? "pro" : "base";
 
   // Org-summed aggregates across all the org's venues.
   const scope = sql`restaurant_id IN (SELECT id FROM restaurants WHERE organization_id = ${orgId})`;

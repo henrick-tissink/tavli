@@ -29,7 +29,7 @@ import { csvStringify, type CsvColumn, type CsvRow } from "@/lib/csv/stringify";
 import { recordAudit as realRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { ExportReadyEmail, getSubject, type Locale } from "@/emails/ExportReadyEmail";
 
 type StorageClient = {
@@ -352,5 +352,6 @@ export const runExport = makeRunExport({
   storage: lazyStorage,
   sendEmail: sendTransactionalEmail,
   recordAudit: realRecordAudit,
-  loadTier: async (orgId) => ((await loadActiveSubscription(orgId))?.tier === "pro" ? "pro" : "base"),
+  loadTier: async (orgId) =>
+    (await loadActiveSubscription(orgId))?.tier === "pro" || (await orgHasProComp(orgId)) ? "pro" : "base",
 });

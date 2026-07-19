@@ -6,7 +6,7 @@ import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
 import { restaurants, marketingCampaigns, marketingQuotaUsage, marketingSends, diners } from "@/lib/db/schema";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { interpolate } from "@/lib/i18n/t";
@@ -70,7 +70,7 @@ export default async function PartnerMarketingPage() {
   }
 
   const sub = await loadActiveSubscription(organizationId);
-  const isPro = sub?.tier === "pro";
+  const isPro = sub?.tier === "pro" || (await orgHasProComp(organizationId));
 
   if (!isPro) {
     return (

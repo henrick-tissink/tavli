@@ -6,7 +6,7 @@ import { PHOTO_BUCKET, resolvePhotoUrl } from "@/lib/storage";
 import { getCurrentSession } from "@/lib/auth/session";
 import { can } from "@/lib/authz/can";
 import { stripExif } from "@/lib/photos/strip-exif";
-import { loadActiveSubscription, isProFeatureActive } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, isProFeatureActive, orgHasProComp } from "@/lib/billing/load-subscription";
 
 export interface UploadResult {
   ok: boolean;
@@ -79,7 +79,8 @@ export async function uploadRestaurantPhoto(
   // Pro org does NOT keep the unlimited cap — isProFeatureActive gates on a
   // paying/trialing status, not bare tier.
   const subscription = await loadActiveSubscription(restaurantRow.organization_id);
-  const isProActive = isProFeatureActive(subscription);
+  const isProActive =
+    isProFeatureActive(subscription) || (await orgHasProComp(restaurantRow.organization_id));
   const PHOTO_CAP_BASE = 20;
 
   if (!isProActive) {

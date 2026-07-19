@@ -55,6 +55,8 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
         stripeCustomerId: organizations.stripeCustomerId,
         reTrialGranted: organizations.reTrialGranted,
         primaryContactEmail: organizations.primaryContactEmail,
+        billingAddress: organizations.billingAddress,
+        billingCity: organizations.billingCity,
       })
       .from(organizations)
       .where(eq(organizations.id, input.organizationId));
@@ -89,6 +91,14 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
         email: org.primaryContactEmail,
         name: org.legalName ?? org.name,
         metadata: { organization_id: org.id, customer_type: org.customerType },
+        // Address is required for automatic_tax to resolve a tax location (Stripe
+        // Tax otherwise fails to finalise the invoice). country_code is notNull
+        // (default RO); line1/city are passed when captured.
+        address: {
+          country: org.countryCode,
+          ...(org.billingAddress ? { line1: org.billingAddress } : {}),
+          ...(org.billingCity ? { city: org.billingCity } : {}),
+        },
         // RO VAT numbers are EU VAT numbers; Stripe has no "ro_vat" type, so
         // EU businesses (incl. RO) use "eu_vat". v1 is EUR/EU-only (§17 OQ5).
         ...(org.customerType === "business" && org.taxId

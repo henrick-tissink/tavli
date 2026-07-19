@@ -18,7 +18,7 @@ import {
   type SegmentCondition,
   type Combinator,
 } from "@/lib/marketing/segment-compile";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { loadBillingAccess } from "@/lib/billing/dunning";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
@@ -40,7 +40,8 @@ async function gate(organizationId: string, action: "campaign.create" | "campaig
   });
   if (!denied) return { error: forbidden() as ActionResult<never>, session: null, restaurantId: null };
   const sub = await loadActiveSubscription(organizationId);
-  if (sub?.tier !== "pro") return { error: fail("forbidden", "marketing_pro_only") as ActionResult<never>, session: null, restaurantId: null };
+  const isPro = sub?.tier === "pro" || (await orgHasProComp(organizationId));
+  if (!isPro) return { error: fail("forbidden", "marketing_pro_only") as ActionResult<never>, session: null, restaurantId: null };
   return { error: null, session, restaurantId };
 }
 

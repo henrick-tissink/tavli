@@ -12,7 +12,10 @@ jest.mock("@/lib/auth/session", () => ({ getCurrentSession: jest.fn() }));
 jest.mock("@/lib/auth/current-actor", () => ({ currentActor: jest.fn() }));
 jest.mock("@/lib/restaurants/current-user", () => ({ currentUserPrimaryRestaurant: jest.fn() }));
 jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
-jest.mock("@/lib/billing/load-subscription", () => ({ loadActiveSubscription: jest.fn() }));
+jest.mock("@/lib/billing/load-subscription", () => ({
+  loadActiveSubscription: jest.fn(),
+  orgHasProComp: jest.fn().mockResolvedValue(false),
+}));
 jest.mock("@/lib/billing/dunning", () => ({ loadBillingAccess: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/jobs/keys", () => ({ JOBS: { marketing: { fanOut: "marketing.fanOut" } } }));
@@ -24,7 +27,7 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { currentActor } from "@/lib/auth/current-actor";
 import { can } from "@/lib/authz/can";
-import { loadActiveSubscription } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
 import { enqueue } from "@/lib/jobs/enqueue";
 import { dbAdmin } from "@/lib/db/admin";
 import { loadBillingAccess } from "@/lib/billing/dunning";
@@ -78,6 +81,24 @@ describe("sendCampaignAction", () => {
     expect(r.ok).toBe(false);
     expect(enqueue).not.toHaveBeenCalled();
     expect(dbAdmin.update).not.toHaveBeenCalled();
+  });
+
+  it("grants access to a non-Pro org that is comped (pro_plan_active) — free cohort path", async () => {
+    (loadActiveSubscription as jest.Mock).mockResolvedValue({ tier: "base" });
+    (orgHasProComp as jest.Mock).mockResolvedValue(true);
+    mockUpdateReturning([SENT_ROW]);
+    const r = await sendCampaignAction("org-1", "camp-1");
+    expect(r.ok).toBe(true);
+    expect(enqueue).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks a non-Pro org that is NOT comped (marketing_pro_only) — no enqueue", async () => {
+    (loadActiveSubscription as jest.Mock).mockResolvedValue({ tier: "base" });
+    (orgHasProComp as jest.Mock).mockResolvedValue(false);
+    mockUpdateReturning([SENT_ROW]);
+    const r = await sendCampaignAction("org-1", "camp-1");
+    expect(r.ok).toBe(false);
+    expect(enqueue).not.toHaveBeenCalled();
   });
 
   it("does NOT snapshot or enqueue when no draft row matched (already sent / concurrent loser)", async () => {
