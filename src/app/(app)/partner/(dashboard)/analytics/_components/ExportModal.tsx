@@ -5,7 +5,7 @@
  * requestAnalyticsExport. On success it shows the "we'll email you" state
  * (§7.4) rather than a download — the file is generated async.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Download, Loader2, MailCheck } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
@@ -31,6 +31,16 @@ export function ExportModal({
   const [includes, setIncludes] = useState<string[]>(["diners", "reviews"]);
   const [state, setState] = useState<"idle" | "submitting" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  // Close on Escape regardless of where focus currently sits (a handler on the
+  // non-focusable backdrop would never receive it on open).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   const toggle = (key: string) =>
     setIncludes((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
@@ -58,14 +68,11 @@ export function ExportModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-text-primary/40 p-4 backdrop-blur-sm"
       onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-      }}
-      role="button"
-      tabIndex={-1}
-      aria-label={t("export.close")}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("export.title")}
         className="w-full max-w-md rounded-card border border-border bg-surface-white p-7 shadow-card"
         onClick={(e) => e.stopPropagation()}
       >

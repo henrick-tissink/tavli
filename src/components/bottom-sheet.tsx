@@ -20,6 +20,19 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
+  // Keep the latest onClose in a ref so the focus-management effect below does
+  // NOT list onClose in its deps. Consumers routinely pass an inline onClose
+  // (new identity every render); a controlled input inside the sheet re-renders
+  // the parent on every keystroke, so if the effect depended on onClose it would
+  // tear down + re-run each keystroke — its cleanup refocuses the previously
+  // focused element (line ~74), yanking focus off the field and dismissing the
+  // mobile virtual keyboard. Reading onClose via the ref keeps the effect keyed
+  // on `open` alone.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -36,7 +49,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -73,7 +86,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
       // Restore focus to previously focused element
       previousFocusRef.current?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

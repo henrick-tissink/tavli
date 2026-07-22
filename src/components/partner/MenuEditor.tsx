@@ -230,14 +230,7 @@ export function MenuEditor({
                 {section.items.map((it) => (
                   <div
                     key={it.id}
-                    onClick={() => openItemEditor(section.id, it)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") openItemEditor(section.id, it);
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={t("editor.editItem")}
-                    className="flex items-start gap-3 py-2 px-3 rounded-lg cursor-pointer hover:bg-surface-bg"
+                    className="flex items-start gap-3 py-2 px-3 rounded-lg"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-2">
@@ -276,10 +269,7 @@ export function MenuEditor({
                     </span>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openItemEditor(section.id, it);
-                      }}
+                      onClick={() => openItemEditor(section.id, it)}
                       aria-label={t("editor.editItem")}
                       className="p-1.5 rounded-lg hover:bg-surface-white"
                     >
@@ -287,10 +277,7 @@ export function MenuEditor({
                     </button>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteItem(it.id, it.name);
-                      }}
+                      onClick={() => handleDeleteItem(it.id, it.name)}
                       aria-label={t("editor.deleteItem")}
                       disabled={pending}
                       className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"

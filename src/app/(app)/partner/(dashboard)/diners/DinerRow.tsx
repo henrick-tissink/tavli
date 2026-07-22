@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 /**
- * Table row for the diners list. The whole row is clickable (not just the
- * guest-name cell) so the row-wide hover highlight actually navigates. The
- * name stays a real `<Link>` for accessibility; its click stops propagation
- * so the row's onClick doesn't double-navigate to the same profile.
+ * Table row for the diners list. Row-wide click is a POINTER-ONLY enhancement
+ * (so the hover highlight actually navigates) — the row keeps its native table
+ * semantics (no role override, no tab stop). The guest-name `<Link>` remains the
+ * accessible keyboard/AT affordance; it stops propagation so a click on it
+ * doesn't also fire the row's onClick.
  */
 export function DinerRow({
   href,
@@ -28,11 +29,6 @@ export function DinerRow({
   return (
     <tr
       onClick={() => router.push(href)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") router.push(href);
-      }}
-      role="link"
-      tabIndex={0}
       className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-bg"
     >
       <td className="px-4 py-3">
