@@ -49,6 +49,25 @@ export function makeModifyReservationByToken(deps: Deps) {
       return fail("invalid_input", "TV003 modification_window_closed");
     }
 
+    // Floor-plan feasibility: cap the new party at the largest online party this
+    // venue can seat (sum of its 3 largest bookable tables — the planner's
+    // COMBO_MAX_TABLES, mirroring restaurants-repo.maxOnlinePartySize). The create
+    // path enforces this via the planner; here the covers trigger only guards
+    // total slot capacity, not per-party seatability, so without this a diner
+    // could modify to a party no table can hold. Venues with no bookable floor
+    // plan (no rows) fall through and stay governed by the coarse covers trigger.
+    const capRows = (await deps.db.execute(sql`
+      SELECT capacity_max FROM restaurant_tables
+      WHERE restaurant_id = ${r.restaurant_id} AND archived_at IS NULL AND is_bookable_online = true
+      ORDER BY capacity_max DESC LIMIT 3
+    `)) as unknown as Array<{ capacity_max: number }>;
+    if (capRows.length > 0) {
+      const maxParty = capRows.reduce((s, c) => s + Number(c.capacity_max), 0);
+      if (input.partySize > maxParty) {
+        return fail("invalid_input", `TV004 party_too_large max=${maxParty}`);
+      }
+    }
+
     let updated: Array<{ id: string }>;
     try {
       updated = (await deps.db.execute(sql`

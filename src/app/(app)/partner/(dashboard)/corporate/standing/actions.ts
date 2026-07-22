@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { sql } from "drizzle-orm";
 import { assertOwns } from "../assert-owns";
+import { dbAdmin } from "@/lib/db/admin";
 import { insertStandingSeries, cancelStandingSeries } from "@/lib/repos/standing-repo";
 import { materializeStanding } from "@/lib/standing/materialize";
 
@@ -32,6 +34,15 @@ export async function createStandingAction(input: z.infer<typeof createSchema>):
   const data = parsed.data;
   const auth = await assertOwns(data.restaurantId);
   if (!auth.ok) return auth;
+  // Bind the table to the owned restaurant — assertOwns validates restaurantId
+  // but not the client-supplied tableId, so without this a standing series (and
+  // its materialized reservations) could reference another venue's table.
+  const tbl = (await dbAdmin.execute(sql`
+    SELECT restaurant_id FROM restaurant_tables WHERE id = ${data.tableId}
+  `)) as unknown as Array<{ restaurant_id: string }>;
+  if (!tbl[0] || tbl[0].restaurant_id !== data.restaurantId) {
+    return { ok: false, error: "Invalid table." };
+  }
   const series = await insertStandingSeries({
     restaurantId: data.restaurantId, dayOfWeek: data.dayOfWeek, startTime: data.startTime,
     partySize: data.partySize, intervalWeeks: data.intervalWeeks, tableId: data.tableId,

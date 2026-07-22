@@ -10,6 +10,7 @@
  */
 
 import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import {
   enrolTotpFactor,
@@ -35,6 +36,18 @@ async function securityErrors() {
   return getMessages(locale, "admin.security").errors;
 }
 
+// §01 §4 — every action here stamps its audit row with a hardcoded
+// `tavli_admin` actor role, so each must first confirm the caller actually
+// holds the admin role (the (gated) layout guards the page, but the server
+// actions are independently reachable). Mirrors the `assertAdmin` guard in the
+// sibling admin action files.
+async function assertAdmin(): Promise<void> {
+  const session = await getCurrentSession();
+  if (session?.profile.role !== "admin") {
+    throw new Error("unauthorised");
+  }
+}
+
 export async function startTotpEnrolment(): Promise<
   ActionResult<{
     factorId: string;
@@ -43,6 +56,7 @@ export async function startTotpEnrolment(): Promise<
     secret: string;
   }>
 > {
+  await assertAdmin();
   const supabase = await createSupabaseServerClient();
   const result = await enrolTotpFactor(supabase, "Authenticator app");
   if (!result.ok) return { ok: false, error: result.error };
@@ -61,6 +75,7 @@ export async function verifyTotpStep(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
+  await assertAdmin();
   const factorId = String(formData.get("factor_id") ?? "");
   const code = String(formData.get("code") ?? "");
   const e = await securityErrors();
@@ -85,6 +100,7 @@ export async function unenrolFactorAction(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
+  await assertAdmin();
   const factorId = String(formData.get("factor_id") ?? "");
   const e = await securityErrors();
   if (!factorId) return { ok: false, error: e.factorRequired };
@@ -105,6 +121,7 @@ export async function unenrolFactorAction(
 export async function regenerateRecoveryCodes(): Promise<
   ActionResult<{ codes: string[] }>
 > {
+  await assertAdmin();
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) {
@@ -119,6 +136,7 @@ export async function changePasswordAction(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
+  await assertAdmin();
   const currentPassword = String(formData.get("current_password") ?? "");
   const newPassword = String(formData.get("new_password") ?? "");
   const confirm = String(formData.get("confirm_password") ?? "");
@@ -151,6 +169,7 @@ export async function changePasswordAction(
 }
 
 export async function signOutEverywhereAction(): Promise<void> {
+  await assertAdmin();
   const supabase = await createSupabaseServerClient();
   await signOutEverywhere(supabase, "tavli_admin");
   redirect("/admin/sign-in?signed_out=1");

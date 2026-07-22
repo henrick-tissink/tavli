@@ -4,6 +4,9 @@ import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roDiscovery from "@/messages/ro/discovery.json";
 import roEvents from "@/messages/ro/events.json";
 
+// EventsOccasionBrowser navigates via useRouter (cards route on click).
+jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn() }) }));
+
 jest.mock("@/lib/repos/restaurants-repo", () => ({
   listRestaurants: jest.fn().mockResolvedValue([
     {

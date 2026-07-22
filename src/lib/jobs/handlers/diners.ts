@@ -113,13 +113,25 @@ export const handleFrequencyBucketRebalance =
   makeHandleFrequencyBucketRebalance({ db: dbAdmin });
 
 /**
- * Nightly lapsed scan — §11 §6.4. Finds diners whose last completed visit was
- * exactly 60 days ago (the day they cross the lapsed threshold) and enqueues the
- * `diner.lapsed_60d` triggered campaign for each. Date-equality on the 60-day
- * boundary fires once per lapse episode; the singletonKey (diner + date) makes
- * a same-day retry idempotent, and the campaign's own frequency cap is the
- * second line. restaurantId is null → matches the org-level lapsed campaign.
+ * Nightly lapsed scan — §11 §6.4. Finds diners who crossed the 60-day lapsed
+ * threshold and enqueues the `diner.lapsed_60d` triggered campaign for each.
+ *
+ * Catch-up window: instead of exact single-day equality on the 60-day boundary
+ * (which permanently skips a cohort whenever the worker is down that night or
+ * the scan dead-letters), match any diner whose boundary fell within the last
+ * LAPSED_CATCHUP_DAYS days. The occurrence id keyed into dedup_key / singletonKey
+ * is the diner's actual lapse-boundary date (last_visited_at + 60d) — NOT the
+ * scan date — so a diner that stays inside the rolling window on consecutive
+ * nights always produces the same key. That pins idempotency to the lapse
+ * episode: marketing_sends' UNIQUE (campaign_id, dedup_key) + ON CONFLICT DO
+ * NOTHING (see fire-triggered.ts) makes the repeat enqueue a no-op, so a diner
+ * is never double-fired. On the on-time night boundary === today, so the key
+ * value is identical to the previous exact-day behaviour. A later visit moves
+ * last_visited_at → a new boundary date → a new episode can fire again.
+ * restaurantId is null → matches the org-level lapsed campaign.
  */
+const LAPSED_CATCHUP_DAYS = 3;
+
 interface LapsedScanDeps {
   db: typeof dbAdmin;
   enqueue: typeof realEnqueue;
@@ -128,13 +140,15 @@ interface LapsedScanDeps {
 export function makeHandleLapsedScan(deps: LapsedScanDeps) {
   return async function handleLapsedScan(): Promise<void> {
     const rows = (await deps.db.execute(sql`
-      SELECT id, organization_id FROM diners
+      SELECT id, organization_id,
+             (last_visited_at + interval '60 days')::date::text AS lapse_date
+      FROM diners
       WHERE redacted_at IS NULL
         AND last_visited_at IS NOT NULL
-        AND last_visited_at::date = (now() - interval '60 days')::date
-    `)) as unknown as Array<{ id: string; organization_id: string }>;
+        AND (last_visited_at + interval '60 days')::date
+            BETWEEN (now() - make_interval(days => ${LAPSED_CATCHUP_DAYS}::int))::date AND now()::date
+    `)) as unknown as Array<{ id: string; organization_id: string; lapse_date: string }>;
 
-    const today = new Date().toISOString().slice(0, 10);
     for (const d of rows) {
       await deps.enqueue(
         JOBS.marketing.fireTriggeredCampaign,
@@ -143,9 +157,9 @@ export function makeHandleLapsedScan(deps: LapsedScanDeps) {
           dinerId: d.id,
           organizationId: d.organization_id,
           restaurantId: null,
-          dedupKey: `${d.id}:${today}`,
+          dedupKey: `${d.id}:${d.lapse_date}`,
         },
-        { singletonKey: `trig:diner.lapsed_60d:${d.id}:${today}` },
+        { singletonKey: `trig:diner.lapsed_60d:${d.id}:${d.lapse_date}` },
       );
     }
   };
@@ -158,18 +172,33 @@ export const handleLapsedScan = makeHandleLapsedScan({
 
 /**
  * Nightly birthday scan — §11 §6.3. Finds diners whose birthday (month/day) is
- * exactly 7 days out and enqueues the `diner.birthday` triggered campaign, which
- * sends immediately (the −7d lead time lives here, not in the campaign offset —
- * the consumer clamps negative offsets to 0). singletonKey (diner + year) makes
- * it fire once per birthday season. restaurantId null → org-level campaign.
+ * coming up and enqueues the `diner.birthday` triggered campaign, which sends
+ * immediately (the −7d lead time lives here, not in the campaign offset — the
+ * consumer clamps negative offsets to 0). restaurantId null → org-level campaign.
+ *
+ * Catch-up window: instead of exact equality on the +7d date (which permanently
+ * skips a cohort whenever the worker is down that night or the scan dead-letters),
+ * match any birthday landing 7 down to (7 − BIRTHDAY_CATCHUP_DAYS) days out, i.e.
+ * the scheduled −7d night plus BIRTHDAY_CATCHUP_DAYS later nights — the send still
+ * lands comfortably before the birthday. Each MM-DD candidate is built from its
+ * own now()+k offset so month / year wrap is handled correctly. Idempotency is
+ * unchanged: the dedup_key / singletonKey stay keyed on `season` (the birthday
+ * year), which is stable across the window, so marketing_sends' UNIQUE
+ * (campaign_id, dedup_key) + ON CONFLICT DO NOTHING makes a diner caught on
+ * multiple nights a no-op after the first send.
  */
+const BIRTHDAY_CATCHUP_DAYS = 3;
+
 export function makeHandleBirthdayScan(deps: LapsedScanDeps) {
   return async function handleBirthdayScan(): Promise<void> {
     const rows = (await deps.db.execute(sql`
       SELECT id, organization_id FROM diners
       WHERE redacted_at IS NULL
         AND birthday_date IS NOT NULL
-        AND to_char(birthday_date, 'MM-DD') = to_char((now() + interval '7 days'), 'MM-DD')
+        AND to_char(birthday_date, 'MM-DD') = ANY (
+          SELECT to_char(now() + make_interval(days => g), 'MM-DD')
+          FROM generate_series(${7 - BIRTHDAY_CATCHUP_DAYS}::int, 7) AS g
+        )
     `)) as unknown as Array<{ id: string; organization_id: string }>;
 
     const season = new Date(Date.now() + 7 * 86_400_000).getUTCFullYear();

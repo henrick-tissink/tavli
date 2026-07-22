@@ -38,7 +38,9 @@ export function makeRecordClick(deps: { db: typeof dbAdmin }) {
   }): Promise<{ redirectTo: string } | { error: "not_found" | "invalid" }> {
     const send = await loadSend(deps.db, input.sendId);
     if (!send || !send.diner_id) return { error: "not_found" };
-    if (!verifySendToken(input.sendId, input.token, { campaignId: send.campaign_id, dinerId: send.diner_id })) {
+    // Verify the token against THIS dst — a click token is bound to its exact
+    // destination, so a valid /c link can't be replayed with a different ?dst=.
+    if (!verifySendToken(input.sendId, input.token, { campaignId: send.campaign_id, dinerId: send.diner_id }, input.dst)) {
       return { error: "invalid" };
     }
     // Token is valid → the redirect is authorised. Click LOGGING is best-effort:

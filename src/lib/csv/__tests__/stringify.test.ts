@@ -37,4 +37,14 @@ describe("csvStringify", () => {
       'Note\r\n"has ""quotes"""\r\n"has, comma"\r\n"line\nbreak"\r\n',
     );
   });
+
+  it("neutralizes leading formula characters against CSV injection", () => {
+    const out = csvStringify(
+      [{ payload: "=1+1" }],
+      [{ key: "payload", header: "Payload" }],
+    );
+    // The `=` is defused with a leading single quote so spreadsheets treat the
+    // cell as literal text rather than evaluating it as a formula.
+    expect(out).toBe("Payload\r\n'=1+1");
+  });
 });

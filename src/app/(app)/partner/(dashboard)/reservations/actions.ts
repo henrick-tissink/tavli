@@ -66,13 +66,23 @@ export async function updateReservationStatus(
     .eq("restaurant_id", restaurantId)
     .maybeSingle();
 
-  const { error } = await supabase
+  // §01 §4 — apply seated/completed/no_show only from a non-terminal status.
+  // A terminal reservation (cancelled/no_show/completed) must not be flipped
+  // (e.g. back to 'completed'), which would fire spurious marketing + inflate
+  // aggregates. The `.in("status", …)` makes the claim atomic against races;
+  // 0 rows affected means the reservation was already terminal (or gone).
+  const { data: updatedRows, error } = await supabase
     .from("reservations")
     .update({ status: nextStatus })
     .eq("id", reservationId)
-    .eq("restaurant_id", restaurantId);
+    .eq("restaurant_id", restaurantId)
+    .in("status", ["confirmed", "seated"])
+    .select("id");
 
   if (error) return { ok: false, error: error.message };
+  if (!updatedRows || updatedRows.length === 0) {
+    return { ok: false, error: m.errors.notFound };
+  }
 
   // §02 §3.3 — append the status transition to the operational history.
   try {

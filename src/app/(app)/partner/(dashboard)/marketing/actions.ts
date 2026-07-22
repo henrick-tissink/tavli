@@ -12,13 +12,13 @@ import { currentActor } from "@/lib/auth/current-actor";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { can } from "@/lib/authz/can";
 import { dbAdmin } from "@/lib/db/admin";
-import { marketingCampaigns, marketingCampaignVersions, marketingSegments } from "@/lib/db/schema";
+import { marketingCampaigns, marketingCampaignVersions, marketingSegments, restaurants } from "@/lib/db/schema";
 import {
   compileSegmentFilter,
   type SegmentCondition,
   type Combinator,
 } from "@/lib/marketing/segment-compile";
-import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp, isProFeatureActive } from "@/lib/billing/load-subscription";
 import { loadBillingAccess } from "@/lib/billing/dunning";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
@@ -33,6 +33,17 @@ async function gate(organizationId: string, action: "campaign.create" | "campaig
   if (!session) return { error: unauthenticated() as ActionResult<never>, session: null, restaurantId: null };
   const restaurantId = await currentUserPrimaryRestaurant(session);
   if (!restaurantId) return { error: forbidden() as ActionResult<never>, session: null, restaurantId: null };
+  // Bind the client-supplied organizationId to the caller's OWN venue. can()
+  // only scopes to the venue, and loadActiveSubscription reads whatever org id
+  // is passed — so without this a partner could create/send campaigns under any
+  // other Pro org's identity by passing its id.
+  const [rest] = await dbAdmin
+    .select({ organizationId: restaurants.organizationId })
+    .from(restaurants)
+    .where(eq(restaurants.id, restaurantId));
+  if (!rest || rest.organizationId !== organizationId) {
+    return { error: forbidden() as ActionResult<never>, session: null, restaurantId: null };
+  }
   const denied = await can(session, action, {
     kind: "campaign",
     restaurant_id: restaurantId,
@@ -40,7 +51,9 @@ async function gate(organizationId: string, action: "campaign.create" | "campaig
   });
   if (!denied) return { error: forbidden() as ActionResult<never>, session: null, restaurantId: null };
   const sub = await loadActiveSubscription(organizationId);
-  const isPro = sub?.tier === "pro" || (await orgHasProComp(organizationId));
+  // isProFeatureActive (not a bare tier check) so a delinquent/paused Pro org
+  // does not keep marketing access.
+  const isPro = isProFeatureActive(sub) || (await orgHasProComp(organizationId));
   if (!isPro) return { error: fail("forbidden", "marketing_pro_only") as ActionResult<never>, session: null, restaurantId: null };
   return { error: null, session, restaurantId };
 }

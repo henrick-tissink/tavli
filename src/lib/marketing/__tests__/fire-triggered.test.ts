@@ -10,6 +10,7 @@ function harness(
   const db = {
     execute: jest.fn(async (q: unknown) => {
       const t = JSON.stringify(q);
+      if (t.includes("pro_active")) return [{ pro_active: true, comped: false }];
       if (t.includes("FROM diners")) return [{ email: "a@b.com", phone: "+40712345678", locale: "ro" }];
       if (t.includes("FROM marketing_campaigns")) return campaigns;
       if (t.includes("INSERT INTO marketing_sends")) { insertQuery = t; return [{ id: "s1" }]; }

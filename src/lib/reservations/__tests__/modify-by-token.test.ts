@@ -12,12 +12,13 @@ const NOW = new Date("2026-05-25T12:00:00Z");
 // Far-future slot (well beyond the 24h cutoff).
 const FAR = "2026-06-10T18:00:00Z";
 
-function makeDeps(opts: { row?: Record<string, unknown> | null; updated?: unknown[]; throwOnUpdate?: string } = {}) {
+function makeDeps(opts: { row?: Record<string, unknown> | null; updated?: unknown[]; throwOnUpdate?: string; tableCaps?: Array<{ capacity_max: number }> } = {}) {
   const row = "row" in opts ? opts.row : { id: "res-1", status: "confirmed", version: 0, restaurant_id: "rest-1", slot_at: FAR };
   const db = {
     execute: jest.fn(async (q: unknown) => {
       const t = JSON.stringify(q);
       if (t.includes("FROM reservations r JOIN restaurants")) return row ? [row] : [];
+      if (t.includes("restaurant_tables")) return opts.tableCaps ?? [];
       if (t.includes("UPDATE reservations")) {
         if (opts.throwOnUpdate) throw new Error(opts.throwOnUpdate);
         return opts.updated ?? [{ id: "res-1" }];
@@ -57,6 +58,14 @@ describe("modifyReservationByToken (F14)", () => {
     const r = await makeModifyReservationByToken(d as never)({ token: "t", version: 5, date: "2026-06-11", time: "19:00", partySize: 4 });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.code).toBe("conflict");
+  });
+
+  it("TV004 when the new party exceeds the floor-plan max (sum of top 3 tables)", async () => {
+    // Largest bookable tables: 4 + 2 + 2 = 8; a party of 9 can't be seated.
+    const d = makeDeps({ tableCaps: [{ capacity_max: 4 }, { capacity_max: 2 }, { capacity_max: 2 }] });
+    const r = await makeModifyReservationByToken(d as never)({ token: "t", version: 0, date: "2026-06-11", time: "19:00", partySize: 9 });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.message).toContain("TV004");
   });
 
   it("maps a capacity-trigger TV002 to slot_full conflict", async () => {

@@ -39,6 +39,29 @@ export function makeFireTriggeredCampaign(deps: Deps) {
     const diner = diners[0];
     if (!diner) return;
 
+    // Entitlement gate. Campaign ACTIVATION is Pro-gated (setCampaignStatusAction),
+    // but an already-active triggered campaign outlives a downgrade / cancel /
+    // paused / dunning transition — so re-check here and skip firing for an org
+    // that no longer has Pro. Mirrors isProFeatureActive (pro tier + active/
+    // trialing status + a real customer) OR the comped-cohort flag; kept as one
+    // query on deps.db so the worker (and tests) stay self-contained without the
+    // react-cache'd billing singletons.
+    const ent = (await deps.db.execute(sql`
+      SELECT
+        EXISTS(
+          SELECT 1 FROM subscriptions s
+          WHERE s.organization_id = ${payload.organizationId}
+            AND s.tier = 'pro' AND s.status IN ('active','trialing')
+            AND s.stripe_customer_id IS NOT NULL
+        ) AS pro_active,
+        EXISTS(
+          SELECT 1 FROM restaurants r
+          WHERE r.organization_id = ${payload.organizationId}
+            AND r.pro_plan_active = true
+        ) AS comped
+    `)) as unknown as Array<{ pro_active: boolean; comped: boolean }>;
+    if (!ent[0]?.pro_active && !ent[0]?.comped) return;
+
     // §11 §4.4 — resolve the campaign's content-version snapshot (the triggered
     // seed creates version 1) so each send is attributable to the exact content.
     const campaigns = (await deps.db.execute(sql`

@@ -20,9 +20,15 @@ export type CsvRow = Record<string, Cell>;
 
 const SHOULD_ESCAPE = /[",\r\n]/;
 
+// Spreadsheet formula injection: Excel/Sheets evaluate a cell as a formula when
+// it begins with `=`, `+`, `-`, `@`, a tab, or a carriage return. Prefix such a
+// field with a single quote so the value is treated as literal text.
+const FORMULA_TRIGGER = /^[=+\-@\t\r]/;
+
 function escapeField(value: Cell): string {
   if (value === null || value === undefined) return "";
-  const str = String(value);
+  let str = String(value);
+  if (FORMULA_TRIGGER.test(str)) str = `'${str}`;
   if (!SHOULD_ESCAPE.test(str)) return str;
   return `"${str.replace(/"/g, '""')}"`;
 }

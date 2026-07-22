@@ -52,6 +52,11 @@ export interface ErasureExecutePayload {
   requestId: string;
 }
 
+// Phase-C sentinel dinerId minted by resolveDinersProd for a non-diner subject
+// (pure prospect / event-request guest). It is NOT a real diners row, so it must
+// never be written to a diner_id FK — see the confirmation-email send below.
+const SENTINEL_DINER_ID = "00000000-0000-0000-0000-000000000000";
+
 interface DsrRow {
   id: string;
   status: string;
@@ -114,7 +119,16 @@ export function makeHandleErasureExecute(deps: OrchestratorDeps) {
               subject,
               html,
               text,
-              context: { diner_id: ci.dinerId },
+              // For the Phase-C sentinel (non-diner subject) there is no real
+              // diners row, so pass diner_id undefined → the log insert writes
+              // NULL (the FK column is nullable). Stamping the sentinel here
+              // would violate the transactional_email_log FK, the insert would
+              // throw, the catch below would swallow it, and the GDPR deletion-
+              // confirmation email would silently never send. Real-diner
+              // erasures keep their real diner_id unchanged.
+              context: {
+                diner_id: ci.dinerId === SENTINEL_DINER_ID ? undefined : ci.dinerId,
+              },
             });
           } catch {
             // Send failure does NOT roll back the cascade. transactional_email_log

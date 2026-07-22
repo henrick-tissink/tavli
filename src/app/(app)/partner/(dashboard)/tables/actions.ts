@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { tableActions } from "@/lib/tables/actions";
 import type { CreateTableInput } from "@/lib/tables/actions";
-import { isOrgBillingLocked } from "@/lib/billing/require-billing-access";
+import { isRestaurantBillingLocked } from "@/lib/billing/require-billing-access";
 
 const LOCKED = { ok: false as const, error: "billing_locked" };
 
@@ -23,7 +23,7 @@ async function toResult<T>(fn: () => Promise<T>) {
 export async function createTableAction(
   input: CreateTableInput,
 ): Promise<{ ok: true; data: { id: string } } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.createTable(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true; data: { id: string } } | { ok: false; error: string };
@@ -35,7 +35,7 @@ export async function updateTableAction(input: {
   organizationId: string;
   changes: Partial<Omit<CreateTableInput, "restaurantId" | "organizationId">>;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.updateTable(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true } | { ok: false; error: string };
@@ -46,7 +46,7 @@ export async function archiveTableAction(input: {
   restaurantId: string;
   organizationId: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.archiveTable(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true } | { ok: false; error: string };
@@ -59,7 +59,7 @@ export async function createSectionAction(input: {
   color?: string;
   sortOrder?: number;
 }): Promise<{ ok: true; data: { id: string } } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.createSection(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true; data: { id: string } } | { ok: false; error: string };
@@ -71,7 +71,7 @@ export async function updateSectionAction(input: {
   organizationId: string;
   changes: { name?: string; color?: string; sortOrder?: number };
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.updateSection(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true } | { ok: false; error: string };
@@ -82,7 +82,7 @@ export async function archiveSectionAction(input: {
   restaurantId: string;
   organizationId: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (await isOrgBillingLocked(input.organizationId)) return LOCKED;
+  if (await isRestaurantBillingLocked(input.restaurantId)) return LOCKED;
   const result = await toResult(() => tableActions.archiveSection(input));
   if (result.ok) revalidatePath("/partner/tables");
   return result as { ok: true } | { ok: false; error: string };

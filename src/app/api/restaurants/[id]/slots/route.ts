@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { computeSlots } from "@/lib/availability";
 import { feasibleSlots } from "@/lib/reservations/assign-table";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,14 @@ export async function GET(
 
   if (!dateParam || !ISO_DATE.test(dateParam)) {
     return NextResponse.json({ slots: [] });
+  }
+
+  // Rate-limit this public, unauthenticated lookup per client IP (scope
+  // `widget_slot_lookup`, 200 / 5min, defined in rate-limit/scopes.ts).
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await enforceRateLimit({ scope: "widget_slot_lookup", key: ip });
+  if (!rl.allowed) {
+    return NextResponse.json({ slots: [] }, { status: 429 });
   }
   // YYYY-MM-DD → local-midnight Date so getDay() is timezone-stable.
   const [y, m, d] = dateParam.split("-").map(Number);

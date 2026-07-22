@@ -10,7 +10,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { recordAudit as realRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
-import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp, isProFeatureActive } from "@/lib/billing/load-subscription";
 import { render } from "@react-email/render";
 import { WeeklySummaryEmail, getSubject } from "@/emails/WeeklySummaryEmail";
 import {
@@ -150,5 +150,5 @@ export const weeklySummary = makeWeeklySummary({
   sendEmail: sendTransactionalEmail,
   recordAudit: realRecordAudit,
   loadTier: async (orgId) =>
-    (await loadActiveSubscription(orgId))?.tier === "pro" || (await orgHasProComp(orgId)) ? "pro" : "base",
+    isProFeatureActive(await loadActiveSubscription(orgId)) || (await orgHasProComp(orgId)) ? "pro" : "base",
 });

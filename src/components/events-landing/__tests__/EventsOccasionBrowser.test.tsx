@@ -5,6 +5,9 @@ import enEvents from "@/messages/en/events.json";
 import enDiscovery from "@/messages/en/discovery.json";
 import type { EventOccasion, Restaurant } from "@/lib/types";
 
+// EventsOccasionBrowser navigates via useRouter (cards route on click).
+jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn() }) }));
+
 // jsdom lacks scrollIntoView; the grid calls it on selection.
 beforeAll(() => {
   Element.prototype.scrollIntoView = jest.fn();

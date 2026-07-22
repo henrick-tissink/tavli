@@ -2,7 +2,8 @@
 
 import { randomBytes } from "node:crypto";
 import { UUID_RE } from "@/lib/uuid";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { enforceRateLimit } from "@/lib/rate-limit/enforce";
 import { render } from "@react-email/render";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { LOCALE_COOKIE } from "@/lib/i18n/cookie";
@@ -105,6 +106,19 @@ export async function createReservation(
       ok: true,
       mode: "mock",
       reservationId: `mock-${Date.now()}`,
+    };
+  }
+
+  // Rate-limit public bookings per client IP (this action is unauthenticated).
+  // Scope `widget_booking` (30 / 5min) is defined in rate-limit/scopes.ts.
+  const bookingIp = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await enforceRateLimit({ scope: "widget_booking", key: bookingIp });
+  if (!rl.allowed) {
+    return {
+      ok: false,
+      mode: "db",
+      error: "Too many booking attempts. Please wait a moment and try again.",
+      errorCode: "OTHER",
     };
   }
 

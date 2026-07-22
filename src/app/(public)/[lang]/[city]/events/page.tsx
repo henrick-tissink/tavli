@@ -3,6 +3,7 @@ import { listRestaurants } from "@/lib/repos/restaurants-repo";
 import { EditorialHero } from "@/components/events-landing/EditorialHero";
 import { EventsOccasionBrowser } from "@/components/events-landing/EventsOccasionBrowser";
 import { buildAlternates } from "@/lib/i18n/hreflang";
+import { serializeJsonLd } from "@/lib/seo/restaurant-jsonld";
 import { getSiteUrl } from "@/lib/site-url";
 import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n/locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
@@ -70,7 +71,9 @@ export default async function CityEventsPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          // serializeJsonLd escapes `<` so a partner-controlled name/zone can't
+          // break out of this <script> tag (stored XSS). Matches the detail page.
+          __html: serializeJsonLd(
             rows.map((r) => ({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",

@@ -117,6 +117,15 @@ export async function decline(id: string, reason: string): Promise<EventRequest>
 }
 
 export async function acceptQuote(id: string): Promise<EventRequest> {
+  // Reject an expired quote even if the hourly expiry cron hasn't yet flipped it
+  // to 'expired_quote' — otherwise a consumer could lock in a lapsed price. The
+  // expiry timestamp is static, so a single pre-check (not a race) suffices; the
+  // status guard inside transitionTo still makes the accept atomic.
+  const [current] = await dbAdmin.select().from(eventRequests).where(eq(eventRequests.id, id)).limit(1);
+  if (!current) throw new Error(`event_request ${id} not found`);
+  if (current.quoteExpiresAt && new Date(current.quoteExpiresAt).getTime() < Date.now()) {
+    throw new Error("TVQUOTE_EXPIRED quote_expired");
+  }
   return transitionTo(id, "accepted", { acceptedAt: new Date() });
 }
 

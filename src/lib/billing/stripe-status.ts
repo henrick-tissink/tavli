@@ -27,7 +27,12 @@ export function mapStripeStatus(s: Stripe.Subscription.Status): LocalSubscriptio
     case "incomplete_expired":
       return "cancelled";
     case "paused":
-      return "trialing"; // trial paused (missing payment method) — no charge yet
+      // Trial ended with no payment method (Stripe pauses collection). The org
+      // has NOT paid, so it must NOT keep Pro-tier access. Map to `unpaid` — a
+      // non-entitled but still-visible status (isProFeatureActive() returns false
+      // for it, and billing access is locked), rather than `trialing`, which
+      // would grant indefinite free Pro.
+      return "unpaid";
     default:
       return "incomplete";
   }

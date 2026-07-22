@@ -34,11 +34,18 @@ interface ResendLike {
  */
 export function wrapTrackingLinks(
   html: string,
-  opts: { base: string; sendId: string; token: string },
+  opts: { base: string; sendId: string; campaignId: string; dinerId: string },
 ): string {
   return html.replace(/href="(https?:\/\/[^"]+)"/gi, (_m, url: string) => {
     const dst = Buffer.from(url, "utf8").toString("base64url");
-    return `href="${opts.base}/c/${opts.sendId}/${opts.token}?dst=${dst}"`;
+    // Per-destination token: the HMAC binds this exact url, so the /c link can't
+    // be replayed with a different ?dst= (open redirect).
+    const token = signSendToken(
+      opts.sendId,
+      { campaignId: opts.campaignId, dinerId: opts.dinerId },
+      url,
+    );
+    return `href="${opts.base}/c/${opts.sendId}/${token}?dst=${dst}"`;
   });
 }
 interface TwilioClient {
@@ -228,10 +235,11 @@ export function makeMarketingSenders(
   return {
     sendEmail(input: MarketingSendInput): Promise<MarketingSendResult> {
       return dispatch(deps, input, async () => {
-        // §11 §5.2 / §11.3: mint the send-bound HMAC token, wrap body links for
-        // click tracking, and attach the RFC 8058 one-click List-Unsubscribe
-        // header pointing at /u/<sendId>/<token>. (signSendToken's only producer.)
-        const token = signSendToken(input.sendId, { campaignId: input.campaignId, dinerId: input.dinerId });
+        // §11 §5.2 / §11.3: wrap body links for click tracking (each /c link
+        // gets a per-destination HMAC token, minted inside wrapTrackingLinks),
+        // and attach the RFC 8058 one-click List-Unsubscribe header pointing at
+        // /u/<sendId>/<unsubToken> (the destination-less send token).
+        const unsubToken = signSendToken(input.sendId, { campaignId: input.campaignId, dinerId: input.dinerId });
         const base = appOrigin();
         const res = await deps.resend.emails.send(
           {
@@ -239,10 +247,10 @@ export function makeMarketingSenders(
             to: input.identifier,
             replyTo: input.emailReplyTo ?? undefined,
             subject: input.subject,
-            html: wrapTrackingLinks(input.body, { base, sendId: input.sendId, token }),
+            html: wrapTrackingLinks(input.body, { base, sendId: input.sendId, campaignId: input.campaignId, dinerId: input.dinerId }),
             text: input.text ?? "",
             headers: {
-              "List-Unsubscribe": `<${base}/u/${input.sendId}/${token}>`,
+              "List-Unsubscribe": `<${base}/u/${input.sendId}/${unsubToken}>`,
               "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
             },
           },

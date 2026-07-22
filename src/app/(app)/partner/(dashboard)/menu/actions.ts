@@ -122,13 +122,21 @@ export async function updateSection(
   if (await isRestaurantBillingLocked(restaurantId)) return { ok: false, error: "billing_locked" };
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("menu_sections")
     .update({ name, intro: intro || null })
     .eq("id", sectionId)
-    .eq("restaurant_id", restaurantId);
+    .eq("restaurant_id", restaurantId)
+    .select("id");
 
   if (error) return { ok: false, error: error.message };
+  // A 0-row update means this section isn't owned by the caller's restaurant
+  // (or was deleted). Bail BEFORE upsertSectionTranslations, which writes via
+  // the RLS-bypassing service role — otherwise an attacker could edit another
+  // venue's translations for an unowned sectionId.
+  if (!updated || updated.length === 0) {
+    return { ok: false, error: m.errors.invalidItemRef };
+  }
   await upsertSectionTranslations(sectionId, formData);
   revalidatePath("/partner/menu");
   return { ok: true };
@@ -228,7 +236,7 @@ export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
   const supabase = await createSupabaseServerClient();
 
   if (payload.id) {
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("menu_items")
       .update({
         section_id: payload.sectionId,
@@ -241,8 +249,14 @@ export async function saveItem(payload: SaveItemPayload): Promise<Ok> {
         updated_at: new Date().toISOString(),
       })
       .eq("id", payload.id)
-      .eq("restaurant_id", restaurantId);
+      .eq("restaurant_id", restaurantId)
+      .select("id");
     if (error) return { ok: false, error: error.message };
+    // 0 rows ⇒ item not owned by this restaurant; bail before writing
+    // translations via the RLS-bypassing service role (cross-tenant IDOR).
+    if (!updated || updated.length === 0) {
+      return { ok: false, error: m.errors.invalidItemRef };
+    }
     await upsertItemTranslations(payload.id, payload.translations);
   } else {
     const { data: existing } = await supabase

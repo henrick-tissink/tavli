@@ -29,7 +29,7 @@ import { csvStringify, type CsvColumn, type CsvRow } from "@/lib/csv/stringify";
 import { recordAudit as realRecordAudit } from "@/lib/audit/record";
 import { AUDIT } from "@/lib/audit/actions";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
-import { loadActiveSubscription, orgHasProComp } from "@/lib/billing/load-subscription";
+import { loadActiveSubscription, orgHasProComp, isProFeatureActive } from "@/lib/billing/load-subscription";
 import { ExportReadyEmail, getSubject, type Locale } from "@/emails/ExportReadyEmail";
 
 type StorageClient = {
@@ -263,11 +263,26 @@ async function fetchTable(
   }
 
   if (table === "diners") {
+    // Diners carry PII and were previously exported in full regardless of tier.
+    // Apply the Base 12-month floor (and any requested date range) on recency —
+    // COALESCE(last_visited_at, created_at) so a recently-created but never-
+    // visited diner isn't wrongly dropped, while stale PII is bounded like the
+    // reservations/reviews exports.
+    const dinerFloor = applyFloor
+      ? sql`AND COALESCE(d.last_visited_at, d.created_at) >= (current_date - interval '12 months')`
+      : sql``;
+    const dinerFrom = job.date_from
+      ? sql`AND COALESCE(d.last_visited_at, d.created_at) >= ${job.date_from}::date`
+      : sql``;
+    const dinerTo = job.date_to
+      ? sql`AND COALESCE(d.last_visited_at, d.created_at) <= ${job.date_to}::date`
+      : sql``;
     const rows = (await db.execute(sql`
       SELECT d.id, d.full_name, d.phone, d.email, d.acquisition_source,
              d.first_visited_at, d.last_visited_at, d.visit_count, d.created_at
       FROM diners d
       WHERE d.organization_id = ${job.organization_id} AND d.redacted_at IS NULL
+        ${dinerFloor} ${dinerFrom} ${dinerTo}
       ORDER BY d.created_at DESC
     `)) as unknown as CsvRow[];
     return {
@@ -353,5 +368,5 @@ export const runExport = makeRunExport({
   sendEmail: sendTransactionalEmail,
   recordAudit: realRecordAudit,
   loadTier: async (orgId) =>
-    (await loadActiveSubscription(orgId))?.tier === "pro" || (await orgHasProComp(orgId)) ? "pro" : "base",
+    isProFeatureActive(await loadActiveSubscription(orgId)) || (await orgHasProComp(orgId)) ? "pro" : "base",
 });

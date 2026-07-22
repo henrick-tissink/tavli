@@ -6,9 +6,10 @@ describe("wrapTrackingLinks", () => {
     const html = wrapTrackingLinks('<a href="https://example.com/x?y=1">Go</a>', {
       base: "https://tavli.ro",
       sendId: "s1",
-      token: "tok",
+      campaignId: "c1",
+      dinerId: "d1",
     });
-    expect(html).toContain("https://tavli.ro/c/s1/tok?dst=");
+    expect(html).toMatch(/https:\/\/tavli\.ro\/c\/s1\/[^"?]+\?dst=/);
     expect(html).not.toContain('href="https://example.com/x?y=1"');
     expect(html).toContain(Buffer.from("https://example.com/x?y=1").toString("base64url"));
   });
@@ -17,7 +18,8 @@ describe("wrapTrackingLinks", () => {
     const html = wrapTrackingLinks('<a href="mailto:a@b.com">m</a><a href="#x">a</a>', {
       base: "https://tavli.ro",
       sendId: "s1",
-      token: "tok",
+      campaignId: "c1",
+      dinerId: "d1",
     });
     expect(html).toContain('href="mailto:a@b.com"');
     expect(html).toContain('href="#x"');

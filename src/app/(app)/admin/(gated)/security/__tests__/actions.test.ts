@@ -16,6 +16,11 @@
 jest.mock("@/lib/db/server", () => ({
   createSupabaseServerClient: jest.fn(),
 }));
+// assertAdmin() (added to close the missing admin-role check) reads the session;
+// mock it as an admin so the happy-path tests exercise the action bodies.
+jest.mock("@/lib/auth/session", () => ({
+  getCurrentSession: jest.fn().mockResolvedValue({ userId: "u1", profile: { role: "admin" } }),
+}));
 jest.mock("@/lib/auth/mfa");
 jest.mock("@/lib/auth/password-policy");
 // Localized action error strings resolve via resolveAppLocale → pin to "en" so

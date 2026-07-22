@@ -5,7 +5,10 @@ import { makeRecordClick, makeUnsubscribe } from "@/lib/marketing/links";
 import { signSendToken } from "@/lib/marketing/tokens";
 
 const SEND = { campaign_id: "c1", diner_id: "d1", organization_id: "o1", channel: "email", identifier: "a@b.com" };
+// /u (destination-less) token; used by the unsubscribe tests.
 const goodToken = signSendToken("s1", { campaignId: "c1", dinerId: "d1" });
+// /c click token bound to its destination.
+const clickToken = signSendToken("s1", { campaignId: "c1", dinerId: "d1" }, "https://x.com");
 
 function db(send: typeof SEND | null) {
   return {
@@ -16,8 +19,13 @@ function db(send: typeof SEND | null) {
 describe("recordClick", () => {
   test("valid token → records click + redirects", async () => {
     const d = db(SEND);
-    const r = await makeRecordClick({ db: d as never })({ sendId: "s1", token: goodToken, dst: "https://x.com" });
+    const r = await makeRecordClick({ db: d as never })({ sendId: "s1", token: clickToken, dst: "https://x.com" });
     expect(r).toEqual({ redirectTo: "https://x.com" });
+  });
+  test("token replayed with a different dst → invalid (no open redirect)", async () => {
+    const d = db(SEND);
+    const r = await makeRecordClick({ db: d as never })({ sendId: "s1", token: clickToken, dst: "https://evil.example" });
+    expect(r).toEqual({ error: "invalid" });
   });
   test("invalid token → error, no insert", async () => {
     const d = db(SEND);
