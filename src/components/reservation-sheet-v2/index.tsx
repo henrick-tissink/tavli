@@ -40,6 +40,10 @@ interface ReservationSheetV2Props {
   maxPartySize?: number;
   acceptsCorporateMeals?: boolean;
   preSelectedSlot?: string;
+  /** Deep-link preselection: opening date. Paired with `preSelectedSlot`. */
+  preSelectedDate?: string;
+  /** Deep-link preselection: party size. Falls back to the default (2). */
+  preSelectedParty?: number;
   onBookingConfirmed?: (data: {
     restaurantName: string;
     date: string;
@@ -49,10 +53,24 @@ interface ReservationSheetV2Props {
   }) => void;
 }
 
-function makeInitialForm(preSelectedSlot?: string): ReservationFormState {
+// A deep link that carries BOTH a date and a slot opens straight on the slot
+// step (date known, party defaulted/known) so the tapped time is shown already
+// selected — otherwise we start at the date picker as usual.
+function initialStep(
+  preSelectedSlot?: string,
+  preSelectedDate?: string,
+): ReservationStep {
+  return preSelectedSlot && preSelectedDate ? "slot" : "date";
+}
+
+function makeInitialForm(
+  preSelectedSlot?: string,
+  preSelectedDate?: string,
+  preSelectedParty?: number,
+): ReservationFormState {
   return {
-    date: "",
-    guests: 2,
+    date: preSelectedDate ?? "",
+    guests: preSelectedParty ?? 2,
     slot: preSelectedSlot ?? null,
     zone: null,
     name: "",
@@ -77,12 +95,16 @@ export function ReservationSheetV2({
   maxPartySize,
   acceptsCorporateMeals,
   preSelectedSlot,
+  preSelectedDate,
+  preSelectedParty,
   onBookingConfirmed,
 }: ReservationSheetV2Props) {
   const t = useT("booking");
-  const [step, setStep] = useState<ReservationStep>("date");
+  const [step, setStep] = useState<ReservationStep>(
+    initialStep(preSelectedSlot, preSelectedDate),
+  );
   const [form, setForm] = useState<ReservationFormState>(
-    makeInitialForm(preSelectedSlot),
+    makeInitialForm(preSelectedSlot, preSelectedDate, preSelectedParty),
   );
   const [reservationId, setReservationId] = useState<string | null>(null);
   const [confirmationToken, setConfirmationToken] = useState<string | null>(null);
@@ -104,8 +126,8 @@ export function ReservationSheetV2({
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
-      setStep("date");
-      setForm(makeInitialForm(preSelectedSlot));
+      setStep(initialStep(preSelectedSlot, preSelectedDate));
+      setForm(makeInitialForm(preSelectedSlot, preSelectedDate, preSelectedParty));
       setErrors({});
       setSubmitError(null);
       setSubmitting(false);

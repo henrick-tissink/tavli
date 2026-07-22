@@ -17,6 +17,7 @@ export function ImpersonateModal({
   if (!open) {
     return (
       <button
+        type="button"
         onClick={() => setOpen(true)}
         className="text-sm text-brand-primary hover:underline"
       >

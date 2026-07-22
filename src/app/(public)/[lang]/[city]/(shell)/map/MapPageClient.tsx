@@ -17,6 +17,7 @@ import { RatingChip } from "@/components/rating-chip";
 import { TimeSlotPills } from "@/components/time-slot-pills";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { bookingSlotHref } from "@/lib/booking-link";
 
 interface Props {
   city: string;
@@ -115,11 +116,19 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                     rating={restaurant.rating}
                     voteCount={restaurant.voteCount}
                   />
-                  <TimeSlotPills
-                    slots={restaurant.availableSlots}
-                    maxVisible={3}
-                    onSelect={() => navigate(`/${city}/${restaurant.slug}`)}
-                  />
+                  {/* Stop pill clicks/keys from also firing the row's select. */}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <TimeSlotPills
+                      slots={restaurant.availableSlots}
+                      maxVisible={3}
+                      onSelect={(slot) =>
+                        navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
             );
@@ -176,9 +185,9 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             restaurants={restaurants}
             selectedId={selectedId}
             onSelect={(r) => setSelectedId(r.id)}
-            onSlotSelect={(id) => {
+            onSlotSelect={(id, slot) => {
               const r = restaurants.find((r) => r.id === id);
-              if (r) navigate(`/${city}/${r.slug}`);
+              if (r) navigate(bookingSlotHref(`/${city}/${r.slug}`, slot));
             }}
           />
         </div>

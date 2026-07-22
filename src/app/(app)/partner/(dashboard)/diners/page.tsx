@@ -10,6 +10,7 @@ import { searchDiners, listRecentDiners } from "@/lib/diners/search";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 import { BCP47 } from "@/lib/i18n/locale";
+import { DinerRow } from "./DinerRow";
 
 export const dynamic = "force-dynamic";
 
@@ -102,21 +103,19 @@ export default async function DinersPage({
               </tr>
             ) : (
               rows.map((diner) => (
-                <tr key={diner.id} className="border-b border-border last:border-0 hover:bg-surface-bg">
-                  <td className="px-4 py-3">
-                    <Link href={`/partner/diners/${diner.id}`} className="font-medium text-text-primary hover:text-brand-primary">
-                      {diner.fullName ?? "—"}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-text-muted">
-                    <div>{diner.phoneMasked}</div>
-                    <div className="text-xs">{diner.emailMasked}</div>
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary">{diner.visitCount}</td>
-                  <td className="px-4 py-3 text-text-muted">
-                    {diner.lastVisitedAt ? new Date(diner.lastVisitedAt).toLocaleDateString(BCP47[locale]) : "—"}
-                  </td>
-                </tr>
+                <DinerRow
+                  key={diner.id}
+                  href={`/partner/diners/${diner.id}`}
+                  fullName={diner.fullName}
+                  phoneMasked={diner.phoneMasked}
+                  emailMasked={diner.emailMasked}
+                  visitCount={diner.visitCount}
+                  lastVisitLabel={
+                    diner.lastVisitedAt
+                      ? new Date(diner.lastVisitedAt).toLocaleDateString(BCP47[locale])
+                      : "—"
+                  }
+                />
               ))
             )}
           </tbody>

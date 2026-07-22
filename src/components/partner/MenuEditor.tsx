@@ -135,6 +135,27 @@ export function MenuEditor({
     });
   };
 
+  const openItemEditor = (
+    sectionId: string,
+    it: MenuSectionData["items"][number],
+  ) => {
+    setItemDialog({
+      open: true,
+      item: {
+        id: it.id,
+        sectionId,
+        name: it.name,
+        description: it.description ?? "",
+        priceLei: it.priceCents / 100,
+        dietaryTags: it.dietaryTags,
+        isChefPick: it.isChefPick,
+        isAvailable: it.isAvailable,
+        photoUrl: it.photoUrl,
+        translations: it.translations,
+      },
+    });
+  };
+
   return (
     <div className="space-y-4 max-w-4xl">
       {sections.length === 0 && !newSectionForm && (
@@ -209,7 +230,14 @@ export function MenuEditor({
                 {section.items.map((it) => (
                   <div
                     key={it.id}
-                    className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-surface-bg"
+                    onClick={() => openItemEditor(section.id, it)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") openItemEditor(section.id, it);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t("editor.editItem")}
+                    className="flex items-start gap-3 py-2 px-3 rounded-lg cursor-pointer hover:bg-surface-bg"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-2">
@@ -248,23 +276,10 @@ export function MenuEditor({
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setItemDialog({
-                          open: true,
-                          item: {
-                            id: it.id,
-                            sectionId: section.id,
-                            name: it.name,
-                            description: it.description ?? "",
-                            priceLei: it.priceCents / 100,
-                            dietaryTags: it.dietaryTags,
-                            isChefPick: it.isChefPick,
-                            isAvailable: it.isAvailable,
-                            photoUrl: it.photoUrl,
-                            translations: it.translations,
-                          },
-                        })
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openItemEditor(section.id, it);
+                      }}
                       aria-label={t("editor.editItem")}
                       className="p-1.5 rounded-lg hover:bg-surface-white"
                     >
@@ -272,7 +287,10 @@ export function MenuEditor({
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDeleteItem(it.id, it.name)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteItem(it.id, it.name);
+                      }}
                       aria-label={t("editor.deleteItem")}
                       disabled={pending}
                       className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"

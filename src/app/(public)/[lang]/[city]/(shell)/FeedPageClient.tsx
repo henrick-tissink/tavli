@@ -20,6 +20,7 @@ import { useTimeContext } from "@/lib/time-context";
 import { useSaved } from "@/lib/saved-context";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { bookingSlotHref } from "@/lib/booking-link";
 
 interface Props {
   city: string;
@@ -121,7 +122,9 @@ export function FeedPageClient({
             <RestaurantSpotlight
               restaurant={filteredRestaurants[0]}
               onClick={() => navigate(`/${city}/${filteredRestaurants[0].slug}`)}
-              onSlotSelect={() => navigate(`/${city}/${filteredRestaurants[0].slug}`)}
+              onSlotSelect={(slot) =>
+                navigate(bookingSlotHref(`/${city}/${filteredRestaurants[0].slug}`, slot))
+              }
             />
           </div>
         ) : (
@@ -135,9 +138,9 @@ export function FeedPageClient({
                   isSaved={isSaved}
                   onSave={toggleSave}
                   onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
-                  onSlotSelect={(_id) => {
+                  onSlotSelect={(_id, slot) => {
                     const target = trendingRestaurants.find((r) => r.id === _id);
-                    if (target) navigate(`/${city}/${target.slug}`);
+                    if (target) navigate(bookingSlotHref(`/${city}/${target.slug}`, slot));
                   }}
                 />
               </div>
@@ -164,7 +167,9 @@ export function FeedPageClient({
                       saved={isSaved(restaurant.id)}
                       onSave={() => toggleSave(restaurant.id)}
                       onClick={(r) => navigate(`/${city}/${r.slug}`)}
-                      onSlotSelect={() => navigate(`/${city}/${restaurant.slug}`)}
+                      onSlotSelect={(_id, slot) =>
+                        navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
+                      }
                     />
                   ))}
                 </div>
@@ -184,9 +189,9 @@ export function FeedPageClient({
                   isSaved={isSaved}
                   onSave={toggleSave}
                   onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
-                  onSlotSelect={(_id) => {
+                  onSlotSelect={(_id, slot) => {
                     const target = newRestaurants.find((r) => r.id === _id);
-                    if (target) navigate(`/${city}/${target.slug}`);
+                    if (target) navigate(bookingSlotHref(`/${city}/${target.slug}`, slot));
                   }}
                 />
               </div>
@@ -199,7 +204,9 @@ export function FeedPageClient({
                   saved={isSaved(restaurant.id)}
                   onSave={() => toggleSave(restaurant.id)}
                   onClick={(r) => navigate(`/${city}/${r.slug}`)}
-                  onSlotSelect={() => navigate(`/${city}/${restaurant.slug}`)}
+                  onSlotSelect={(_id, slot) =>
+                    navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
+                  }
                 />
               ))}
             </div>
@@ -226,7 +233,7 @@ function RestaurantSpotlight({
 }: {
   restaurant: Restaurant;
   onClick: () => void;
-  onSlotSelect: () => void;
+  onSlotSelect: (slot: string) => void;
 }) {
   const t = useT("discovery");
   const locale = useLocale();
@@ -292,7 +299,7 @@ function RestaurantSpotlight({
               slots={restaurant.availableSlots}
               maxVisible={4}
               onSelect={onSlotSelect}
-              onMore={onSlotSelect}
+              onMore={onClick}
             />
           </div>
         ) : (

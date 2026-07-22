@@ -88,11 +88,18 @@ export function MapCarousel({
                   rating={restaurant.rating}
                   voteCount={restaurant.voteCount}
                 />
-                <TimeSlotPills
-                  slots={restaurant.availableSlots}
-                  maxVisible={3}
-                  onSelect={(slot) => onSlotSelect?.(restaurant.id, slot)}
-                />
+                {/* Pills are DOM-nested in the role="button" card, so stop a
+                    slot tap/key from also firing the card's onSelect. */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
+                  <TimeSlotPills
+                    slots={restaurant.availableSlots}
+                    maxVisible={3}
+                    onSelect={(slot) => onSlotSelect?.(restaurant.id, slot)}
+                  />
+                </div>
               </div>
             </div>
           </div>

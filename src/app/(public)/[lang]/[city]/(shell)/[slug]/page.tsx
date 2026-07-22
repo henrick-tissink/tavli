@@ -18,6 +18,7 @@ import { loadRestaurantTranslation } from "@/lib/translations/load";
 import { applyRestaurantTranslation } from "@/lib/translations/apply-restaurant-translation";
 import { loadMenuItemTranslations } from "@/lib/translations/load-menu";
 import { applyChefPickTranslations } from "@/lib/translations/apply-menu-translation";
+import { parseBookingPreselect } from "@/lib/booking-link";
 import { DetailPageClient } from "./DetailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -46,10 +47,13 @@ export async function generateMetadata({
 
 export default async function RestaurantDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string; city: string; slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { lang, city, slug } = await params;
+  const preselect = parseBookingPreselect(await searchParams);
   const m = getMessages(lang, "restaurant");
   const locale = isLocale(lang) ? lang : "ro";
   const [restaurant, seo] = await Promise.all([
@@ -110,7 +114,12 @@ export default async function RestaurantDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <DetailPageClient city={city} slug={slug} restaurant={localizedRestaurant} />
+      <DetailPageClient
+        city={city}
+        slug={slug}
+        restaurant={localizedRestaurant}
+        preselect={preselect}
+      />
     </>
   );
 }

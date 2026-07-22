@@ -26,6 +26,7 @@ import { SectionHeader } from "@/components/section-header";
 import { useSaved } from "@/lib/saved-context";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { bookingSlotHref, todayIso, type BookingPreselect } from "@/lib/booking-link";
 import { localizeSchedule } from "@/lib/i18n/schedule";
 import { sendViewBeacon } from "@/lib/telemetry/client";
 import type { Vars } from "@/lib/i18n/t";
@@ -34,9 +35,11 @@ interface Props {
   city: string;
   slug: string;
   restaurant: RestaurantDetail;
+  /** Booking deep-link (?date=&time=&party=) — opens the sheet on mount. */
+  preselect?: BookingPreselect;
 }
 
-export function DetailPageClient({ city, slug, restaurant }: Props) {
+export function DetailPageClient({ city, slug, restaurant, preselect }: Props) {
   const router = useRouter();
   const { isSaved, toggleSave, addBooking } = useSaved();
   const t = useT("restaurant");
@@ -56,6 +59,12 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
   const [preSelectedSlot, setPreSelectedSlot] = useState<string | undefined>(
     undefined,
   );
+  const [preSelectedDate, setPreSelectedDate] = useState<string | undefined>(
+    undefined,
+  );
+  const [preSelectedParty, setPreSelectedParty] = useState<number | undefined>(
+    undefined,
+  );
   const [expanded, setExpanded] = useState(false);
   const [showStickyCta, setShowStickyCta] = useState(false);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -73,10 +82,24 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  const openSheet = (slot?: string) => {
+  const openSheet = (slot?: string, date?: string, party?: number) => {
     setPreSelectedSlot(slot);
+    // A date only makes sense alongside a slot; a bare "Book" opens on the date step.
+    setPreSelectedDate(slot ? date : undefined);
+    setPreSelectedParty(party);
     setSheetOpen(true);
   };
+
+  // Arrived via a slot deep link (?date=&time=&party=)? Open the booking sheet
+  // straight away with the slot preselected. Runs once on mount.
+  useEffect(() => {
+    if (!preselect?.time) return;
+    setPreSelectedSlot(preselect.time);
+    setPreSelectedDate(preselect.date);
+    setPreSelectedParty(preselect.party);
+    setSheetOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const descriptionNeedsTruncation =
     restaurant.description.length > 200 && !expanded;
@@ -94,9 +117,12 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
     router.push(localizedHref(`/${city}/${r.slug}`, locale));
   };
 
-  const handleSlotSelect = (restaurantId: string) => {
+  const handleSlotSelect = (restaurantId: string, slot: string) => {
     const target = restaurant.nearby.find((r) => r.id === restaurantId);
-    if (target) router.push(localizedHref(`/${city}/${target.slug}`, locale));
+    if (target)
+      router.push(
+        localizedHref(bookingSlotHref(`/${city}/${target.slug}`, slot), locale),
+      );
   };
 
   return (
@@ -148,7 +174,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 <TimeSlotPills
                   slots={restaurant.availableSlots}
                   maxVisible={6}
-                  onSelect={(slot) => openSheet(slot)}
+                  onSelect={(slot) => openSheet(slot, todayIso())}
                   onMore={() => openSheet()}
                 />
               )}
@@ -257,7 +283,7 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
                 <TimeSlotPills
                   slots={restaurant.availableSlots}
                   maxVisible={6}
-                  onSelect={(slot) => openSheet(slot)}
+                  onSelect={(slot) => openSheet(slot, todayIso())}
                   onMore={() => openSheet()}
                 />
               )}
@@ -412,6 +438,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         onClose={() => {
           setSheetOpen(false);
           setPreSelectedSlot(undefined);
+          setPreSelectedDate(undefined);
+          setPreSelectedParty(undefined);
         }}
         restaurantId={restaurant.id}
         restaurantName={restaurant.name}
@@ -421,6 +449,8 @@ export function DetailPageClient({ city, slug, restaurant }: Props) {
         maxPartySize={restaurant.maxOnlinePartySize ?? undefined}
         acceptsCorporateMeals={Boolean(restaurant.acceptsCorporateMeals)}
         preSelectedSlot={preSelectedSlot}
+        preSelectedDate={preSelectedDate}
+        preSelectedParty={preSelectedParty}
         onBookingConfirmed={(data) => {
           addBooking({
             id: data.reservationId ?? crypto.randomUUID(),

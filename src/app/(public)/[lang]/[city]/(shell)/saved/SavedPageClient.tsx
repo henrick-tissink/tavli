@@ -9,6 +9,7 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { EmptyState } from "@/components/empty-state";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { bookingSlotHref } from "@/lib/booking-link";
 
 interface Props {
   city: string;
@@ -48,6 +49,11 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
                 saved={isSaved(restaurant.id)}
                 onSave={() => toggleSave(restaurant.id)}
                 onClick={(r) => router.push(localizedHref(`/${city}/${r.slug}`, locale))}
+                onSlotSelect={(_id, slot) =>
+                  router.push(
+                    localizedHref(bookingSlotHref(`/${city}/${restaurant.slug}`, slot), locale),
+                  )
+                }
               />
             ))}
           </div>

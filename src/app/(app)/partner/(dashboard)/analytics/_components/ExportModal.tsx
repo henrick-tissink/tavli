@@ -58,6 +58,12 @@ export function ExportModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-text-primary/40 p-4 backdrop-blur-sm"
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+      role="button"
+      tabIndex={-1}
+      aria-label={t("export.close")}
     >
       <div
         className="w-full max-w-md rounded-card border border-border bg-surface-white p-7 shadow-card"

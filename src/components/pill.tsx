@@ -35,7 +35,7 @@ export function Pill({
   ].join(" ");
   const interactiveClasses = [
     layout,
-    "cursor-pointer transition-colors",
+    "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
     active
       ? "bg-brand-primary text-white hover:bg-brand-primary-dark"
       : "bg-surface-white text-text-secondary border border-border hover:bg-surface-bg hover:text-text-primary",

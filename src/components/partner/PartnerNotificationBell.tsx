@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Bell } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { BCP47 } from "@/lib/i18n/locale";
@@ -78,13 +79,26 @@ export function PartnerNotificationBell() {
           ) : (
             items.map((n) => {
               const label = t(`bell.kinds.${n.kind}`);
+              // Every notification kind references an event request; deep-link
+              // to its detail page, falling back to the inbox if the id is
+              // missing for any reason.
+              const eventRequestId = n.payload?.eventRequestId;
+              const href =
+                typeof eventRequestId === "string"
+                  ? `/partner/corporate/events/${eventRequestId}`
+                  : "/partner/corporate/events";
               return (
-                <div key={n.id} className="text-sm p-2 hover:bg-zinc-50">
+                <Link
+                  key={n.id}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="block text-sm p-2 hover:bg-zinc-50"
+                >
                   <span className="font-medium">
                     {label === `bell.kinds.${n.kind}` ? n.kind : label}
                   </span>{" "}
                   · {new Date(n.createdAt).toLocaleString(BCP47[locale])}
-                </div>
+                </Link>
               );
             })
           )}

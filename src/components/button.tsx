@@ -25,7 +25,7 @@ export function Button({
     <button
       disabled={disabled}
       className={[
-        "rounded-button px-6 py-3 font-bold text-sm transition-all",
+        "rounded-button px-6 py-3 font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
         !disabled && "active:scale-[0.98]",
         variantClasses[variant],
         fullWidth && "w-full",

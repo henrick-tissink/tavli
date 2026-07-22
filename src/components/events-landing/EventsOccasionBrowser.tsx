@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Check } from "lucide-react";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
+import { bookingSlotHref } from "@/lib/booking-link";
 import type { Restaurant, EventOccasion } from "@/lib/types";
 
 interface OccasionEntry {
@@ -32,6 +34,7 @@ interface Props {
 export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
   const t = useT("events");
   const locale = useLocale();
+  const router = useRouter();
   const [occasion, setOccasion] = useState<EventOccasion | null>(null);
 
   // `acceptedOccasions` undefined ⇒ no occasion policy set, so the venue accepts
@@ -147,13 +150,19 @@ export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((r) => (
-              <a
+              <RestaurantCard
                 key={r.id}
-                href={localizedHref(`/${city}/${r.slug}`, locale)}
-                className="block"
-              >
-                <RestaurantCard restaurant={r} highlightCapability="events" />
-              </a>
+                restaurant={r}
+                highlightCapability="events"
+                onClick={(rr) =>
+                  router.push(localizedHref(`/${city}/${rr.slug}`, locale))
+                }
+                onSlotSelect={(_id, slot) =>
+                  router.push(
+                    localizedHref(bookingSlotHref(`/${city}/${r.slug}`, slot), locale),
+                  )
+                }
+              />
             ))}
           </div>
         )}

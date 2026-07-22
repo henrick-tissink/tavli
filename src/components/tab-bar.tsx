@@ -33,7 +33,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
               key={tab.id}
               type="button"
               aria-label={tab.label}
-              className={`flex flex-col items-center gap-0.5 text-xs font-medium ${
+              className={`flex flex-col items-center gap-0.5 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                 isActive ? "text-brand-primary" : "text-text-muted"
               }`}
               onClick={() => onTabChange(tab.id)}

@@ -41,7 +41,7 @@ export function TimeSlotPills({
       <div className="text-center py-3">
         <button
           type="button"
-          className="text-brand-primary text-sm font-semibold inline-flex min-h-[24px] items-center gap-1 px-1 py-1"
+          className="text-brand-primary text-sm font-semibold inline-flex min-h-[24px] items-center gap-1 px-1 py-1 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           onClick={onMore}
         >
           {t("slots.anotherDay")}
@@ -61,10 +61,10 @@ export function TimeSlotPills({
           type="button"
           onClick={() => onSelect?.(slot)}
           className={[
-            "rounded-lg px-3 py-1.5 text-xs font-semibold",
+            "rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
             slot === selected
               ? "bg-brand-primary text-white"
-              : "bg-brand-primary-soft text-brand-primary-dark",
+              : "bg-brand-primary-soft text-brand-primary-dark hover:bg-brand-primary-soft/70",
           ].join(" ")}
         >
           {slot}
@@ -74,7 +74,7 @@ export function TimeSlotPills({
         <button
           type="button"
           onClick={onMore}
-          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-brand-primary"
+          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-brand-primary cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           {t("slots.more")}
         </button>

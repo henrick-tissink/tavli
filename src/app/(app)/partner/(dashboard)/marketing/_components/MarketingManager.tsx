@@ -119,7 +119,7 @@ export function MarketingManager({
               return (
                 <li
                   key={c.id}
-                  className="flex items-center gap-4 rounded-card border border-border bg-surface-white px-5 py-4 transition-shadow hover:shadow-card-hover"
+                  className="flex items-center gap-4 rounded-card border border-border bg-surface-white px-5 py-4"
                 >
                   <ChannelChip channel={c.channel} />
                   <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ export function MarketingManager({
               return (
                 <li
                   key={c.id}
-                  className="flex items-center gap-4 rounded-card border border-border bg-surface-white px-5 py-4 transition-shadow hover:shadow-card-hover"
+                  className="flex items-center gap-4 rounded-card border border-border bg-surface-white px-5 py-4"
                 >
                   <ChannelChip channel={c.channel} />
                   <div className="min-w-0 flex-1">
