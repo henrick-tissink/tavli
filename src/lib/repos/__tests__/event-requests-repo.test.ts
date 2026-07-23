@@ -24,6 +24,7 @@ import {
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedRestaurant() {
   await dbAdmin.insert(cities).values({ slug: "test-city", name: "Test", countryCode: "RO" }).onConflictDoNothing();
@@ -58,7 +59,7 @@ async function seedConsumerProfile(emailHint?: string): Promise<typeof profiles.
   return row;
 }
 
-describe("event-requests-repo", () => {
+describeDb("event-requests-repo", () => {
   it("createEventRequestDraft returns a row with status='draft' and a tracking token", async () => {
     const r = await seedRestaurant();
     const er = await createEventRequestDraft({

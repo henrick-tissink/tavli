@@ -28,6 +28,7 @@ import {
 import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import { createClientForUser } from "@/lib/db/test-helpers";
+import { describeDb } from "@/lib/test/db-describe";
 
 // Create a real auth.users entry so PostgREST recognises the user. The
 // `on_auth_user_created` trigger backfills the profiles row.
@@ -45,7 +46,7 @@ async function seedAuthUser(emailHint: string): Promise<string> {
   return data.user.id;
 }
 
-describe("event_requests RLS", () => {
+describeDb("event_requests RLS", () => {
   let restaurantId = "";
   let ownerId = "";
   let strangerId = "";

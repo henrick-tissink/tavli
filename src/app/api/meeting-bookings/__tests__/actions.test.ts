@@ -13,6 +13,7 @@ import { eq } from "drizzle-orm";
 import { createMeetingSpace } from "@/lib/repos/meeting-spaces-repo";
 import { createMeetingBooking, transitionMeetingBooking } from "@/lib/repos/meeting-space-bookings-repo";
 import { submitMeetingBookingRequest, getMeetingSpaceBusyIntervals } from "../actions";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedVenueWithSpace(overrides?: { acceptsMeetingSpaces?: boolean }) {
   const admin = createSupabaseAdminClient();
@@ -57,7 +58,7 @@ const GUEST = {
   guestEmail: "zz-verify@example.com",
 };
 
-describe("meeting-space booking public actions", () => {
+describeDb("meeting-space booking public actions", () => {
   it("creates a 'requested' booking with a pro-rata total", async () => {
     const { restaurantId, spaceId } = await seedVenueWithSpace();
     const res = await submitMeetingBookingRequest({

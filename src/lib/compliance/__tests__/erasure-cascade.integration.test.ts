@@ -54,6 +54,7 @@ import {
 } from "@/lib/jobs/handlers/compliance";
 import { PII_TABLE_REGISTRY } from "@/lib/compliance/pii-table-registry";
 import { makeRunErasureVerification } from "@/lib/compliance/verify";
+import { describeDb } from "@/lib/test/db-describe";
 
 // ─── Deterministic test UUIDs ───────────────────────────────────────────────
 const CITY_ID = "00000000-aaaa-aaaa-aaaa-000000000001";
@@ -162,7 +163,7 @@ async function cleanup() {
 
 // ─── Test suite ─────────────────────────────────────────────────────────────
 
-(SKIP ? describe.skip : describe)("erasure cascade end-to-end (integration)", () => {
+describeDb("erasure cascade end-to-end (integration)", () => {
   beforeAll(async () => {
     await cleanup();
 

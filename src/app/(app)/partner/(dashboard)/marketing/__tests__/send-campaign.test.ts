@@ -15,11 +15,15 @@ jest.mock("@/lib/authz/can", () => ({ can: jest.fn() }));
 jest.mock("@/lib/billing/load-subscription", () => ({
   loadActiveSubscription: jest.fn(),
   orgHasProComp: jest.fn().mockResolvedValue(false),
+  // gate() now uses isProFeatureActive(sub) (not a bare tier check). The test
+  // fixtures only carry `tier`, so key the mock off that: a "pro" sub is active,
+  // a "base" sub falls through to the orgHasProComp comp path.
+  isProFeatureActive: jest.fn((sub: { tier?: string } | null) => sub?.tier === "pro"),
 }));
 jest.mock("@/lib/billing/dunning", () => ({ loadBillingAccess: jest.fn() }));
 jest.mock("@/lib/jobs/enqueue", () => ({ enqueue: jest.fn() }));
 jest.mock("@/lib/jobs/keys", () => ({ JOBS: { marketing: { fanOut: "marketing.fanOut" } } }));
-jest.mock("@/lib/db/admin", () => ({ dbAdmin: { update: jest.fn(), insert: jest.fn() } }));
+jest.mock("@/lib/db/admin", () => ({ dbAdmin: { update: jest.fn(), insert: jest.fn(), select: jest.fn() } }));
 jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("ro") }));
 
 import { sendCampaignAction } from "../actions";
@@ -58,6 +62,15 @@ beforeEach(() => {
   (loadActiveSubscription as jest.Mock).mockResolvedValue({ tier: "pro" });
   (loadBillingAccess as jest.Mock).mockResolvedValue("full");
   (dbAdmin.insert as jest.Mock).mockReturnValue({ values: versionValues });
+  // gate() binds the client-supplied organizationId to the caller's OWN venue:
+  //   dbAdmin.select({ organizationId }).from(restaurants).where(eq(id, restaurantId))
+  // The happy-path tests all pass "org-1", so return that so the ownership
+  // check (rest.organizationId === organizationId) passes.
+  (dbAdmin.select as jest.Mock).mockReturnValue({
+    from: jest.fn().mockReturnValue({
+      where: jest.fn().mockResolvedValue([{ organizationId: "org-1" }]),
+    }),
+  });
 });
 
 describe("sendCampaignAction", () => {

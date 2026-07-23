@@ -8,6 +8,7 @@ import {
   updatePrivateSpace,
   deactivatePrivateSpace,
 } from "../private-spaces-repo";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedVenue() {
   await dbAdmin.insert(cities)
@@ -27,7 +28,7 @@ async function seedVenue() {
   return r;
 }
 
-describe("private-spaces-repo", () => {
+describeDb("private-spaces-repo", () => {
   it("creates, lists, updates, and soft-deletes a space", async () => {
     const r = await seedVenue();
     const created = await createPrivateSpace({

@@ -33,7 +33,7 @@ describe("requestAnalyticsExport", () => {
     (can as jest.Mock).mockResolvedValue(false);
     const r = await requestAnalyticsExport({ organizationId: ORG } as never);
     expect(r.ok).toBe(false);
-    expect(r.error).toBe("Forbidden.");
+    expect(r.error).toBe("Access denied.");
   });
 
   test("rejects campaigns export without campaigns.read", async () => {

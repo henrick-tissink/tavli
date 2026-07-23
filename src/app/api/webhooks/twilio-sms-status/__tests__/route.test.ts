@@ -3,8 +3,21 @@
  */
 
 jest.mock("@/lib/db/admin", () => ({
-  dbAdmin: { update: jest.fn() },
+  // The route now mirrors delivery/failure state onto `marketing_sends` via a
+  // raw `dbAdmin.execute(sql`...`)` alongside the transactional log update.
+  dbAdmin: { update: jest.fn(), execute: jest.fn(async () => []) },
 }));
+
+// Extract the raw SQL text from a drizzle `sql` template object so tests can
+// assert against the query without depending on drizzle internals shape.
+function sqlText(arg: unknown): string {
+  const chunks = (arg as { queryChunks?: Array<{ value?: string[] }> })
+    ?.queryChunks;
+  if (!Array.isArray(chunks)) return String(arg);
+  return chunks
+    .map((c) => (Array.isArray(c?.value) ? c.value.join("") : ""))
+    .join("");
+}
 jest.mock("@/lib/webhooks/handle", () => ({
   ingestWebhook: jest.fn(),
 }));
@@ -113,6 +126,11 @@ describe("POST /api/webhooks/twilio-sms-status", () => {
     expect(res.status).toBe(200);
     expect(updateSet).toHaveBeenCalledWith(
       expect.objectContaining({ smsStatus: "delivered", failureReason: null }),
+    );
+    // The route also mirrors delivery onto marketing_sends via raw SQL.
+    expect(dbAdmin.execute).toHaveBeenCalledTimes(1);
+    expect(sqlText((dbAdmin.execute as jest.Mock).mock.calls[0][0])).toContain(
+      "marketing_sends",
     );
   });
 

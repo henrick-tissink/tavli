@@ -7,6 +7,7 @@ import {
   listLineItems,
   sumLineItemCents,
 } from "../quote-line-items-repo";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedRequest() {
   await dbAdmin.insert(cities).values({ slug: "ql", name: "Q", countryCode: "RO" }).onConflictDoNothing();
@@ -29,7 +30,7 @@ async function seedRequest() {
   return er;
 }
 
-describe("quote-line-items-repo", () => {
+describeDb("quote-line-items-repo", () => {
   it("replaces lines atomically and totals correctly", async () => {
     const er = await seedRequest();
     await replaceLineItems(er.id, [

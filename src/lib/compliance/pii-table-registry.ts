@@ -23,7 +23,9 @@ import { handleProspectWaitlist, REDACTED_EMAIL } from "./handlers/prospect-wait
 import { handleEventRequests, REDACTED_EMAIL as EVENT_REDACTED_EMAIL, REDACTED_NAME as EVENT_REDACTED_NAME } from "./handlers/event-requests";
 import { handleWalkinQueue, verifyWalkinQueueRedacted } from "./handlers/walkin-queue";
 import { handleAuditLogs } from "./handlers/audit-logs";
-import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist, eventRequests } from "@/lib/db/schema";
+import { handleStandingReservations, REDACTED_NAME as STANDING_REDACTED_NAME, REDACTED_PHONE as STANDING_REDACTED_PHONE } from "./handlers/standing-reservations";
+import { handleMeetingSpaceBookings, REDACTED_NAME as MSB_REDACTED_NAME, REDACTED_EMAIL as MSB_REDACTED_EMAIL } from "./handlers/meeting-space-bookings";
+import { partnerNotifications, diners, reservations, reviews, transactionalEmailLog, auditLogs, marketingSends, prospectWaitlist, eventRequests, standingReservations, meetingSpaceBookings } from "@/lib/db/schema";
 
 export type HandlerDeps = {
   db: PostgresJsDatabase<any>;
@@ -227,6 +229,42 @@ async function verifyEventRequestsRedacted({ db }: VerifyDeps): Promise<Verifica
   };
 }
 
+async function verifyStandingReservationsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: standingReservations.id })
+    .from(standingReservations)
+    .where(sql`${standingReservations.redactedAt} IS NOT NULL
+            AND (${standingReservations.guestName} != ${STANDING_REDACTED_NAME}
+                 OR ${standingReservations.guestPhone} != ${STANDING_REDACTED_PHONE}
+                 OR ${standingReservations.guestEmail} IS NOT NULL
+                 OR ${standingReservations.notes} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "standing_reservations",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
+async function verifyMeetingSpaceBookingsRedacted({ db }: VerifyDeps): Promise<VerificationResult> {
+  const rows = await db
+    .select({ id: meetingSpaceBookings.id })
+    .from(meetingSpaceBookings)
+    .where(sql`${meetingSpaceBookings.redactedAt} IS NOT NULL
+            AND (${meetingSpaceBookings.guestName} != ${MSB_REDACTED_NAME}
+                 OR ${meetingSpaceBookings.guestEmail} != ${MSB_REDACTED_EMAIL}
+                 OR ${meetingSpaceBookings.guestPhone} IS NOT NULL
+                 OR ${meetingSpaceBookings.notes} IS NOT NULL)`)
+    .limit(100);
+  return {
+    tableName: "meeting_space_bookings",
+    rowsScanned: rows.length,
+    rowsWithResidualPii: rows.length,
+    residualRowIds: rows.map((r) => r.id),
+  };
+}
+
 export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
   {
     tableName: "marketing_suppressions",
@@ -377,6 +415,31 @@ export const PII_TABLE_REGISTRY: readonly PiiTableEntry[] = [
     verificationQuery: verifyWalkinQueueRedacted,
     twoPhase: false,
     piiColumns: ["guest_name", "guest_phone", "notes"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    // Corporate Phase 2 (0066) — meeting-room booking guest contact. No diner_id;
+    // DSR path matches captured diner email/phone. Time-based purge is the 0071
+    // retention policy (hard-delete after 5y). `company` is a B2B entity name,
+    // not a data subject → left intact.
+    tableName: "meeting_space_bookings",
+    shipped: true,
+    handler: handleMeetingSpaceBookings,
+    verificationQuery: verifyMeetingSpaceBookingsRedacted,
+    twoPhase: false,
+    piiColumns: ["guest_name", "guest_email", "guest_phone", "notes"],
+    defaultReason: "gdpr_art_17",
+  },
+  {
+    // Corporate Phase 4 (0067) — standing (recurring) reservation guest contact.
+    // No diner_id; DSR path matches captured diner phone/email. Time-based purge
+    // is the 0071 retention policy (hard-delete after 5y).
+    tableName: "standing_reservations",
+    shipped: true,
+    handler: handleStandingReservations,
+    verificationQuery: verifyStandingReservationsRedacted,
+    twoPhase: false,
+    piiColumns: ["guest_name", "guest_phone", "guest_email", "notes"],
     defaultReason: "gdpr_art_17",
   },
   {

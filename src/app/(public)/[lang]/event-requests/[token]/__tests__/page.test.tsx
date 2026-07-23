@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { TrackingClient } from "../TrackingClient";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import roEvents from "@/messages/ro/events.json";
+import { describeDb } from "@/lib/test/db-describe";
 
 // `./actions` reaches into dbAdmin / Drizzle on import, which blows up in
 // jsdom. We're rendering only — the buttons are not clicked — so a thin
@@ -35,7 +36,7 @@ function renderTracking(status = "quoted") {
   );
 }
 
-describe("TrackingClient", () => {
+describeDb("TrackingClient", () => {
   it("renders quoted state with amount + Accept/Decline buttons", () => {
     renderTracking();
     expect(screen.getByText(/7[\.,]500 lei/)).toBeInTheDocument();

@@ -15,6 +15,7 @@ import { transitionMeetingBookingAction } from "../actions";
 import { createMeetingSpace } from "@/lib/repos/meeting-spaces-repo";
 import { createMeetingBooking } from "@/lib/repos/meeting-space-bookings-repo";
 import { getCurrentSession } from "@/lib/auth/session";
+import { describeDb } from "@/lib/test/db-describe";
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
 beforeEach(() => {
@@ -87,7 +88,7 @@ async function seedBooking(restaurantId: string, date: string) {
   });
 }
 
-describe("meeting-bookings partner actions", () => {
+describeDb("meeting-bookings partner actions", () => {
   it("owner confirms a requested booking, then completes it", async () => {
     const { restaurantId } = await seedOwnerWithVenue();
     const booking = await seedBooking(restaurantId, "2031-04-01");

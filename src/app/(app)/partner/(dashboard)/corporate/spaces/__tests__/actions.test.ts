@@ -7,6 +7,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("en") }));
 import { createSpaceAction, updateSpaceAction, deactivateSpaceAction } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
+import { describeDb } from "@/lib/test/db-describe";
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
 beforeEach(() => {
@@ -58,7 +59,7 @@ async function seedOwnerWithVenue() {
   return { userId: data!.user!.id, restaurantId: r.id };
 }
 
-describe("private-spaces partner actions", () => {
+describeDb("private-spaces partner actions", () => {
   it("owner creates, updates, deactivates a space", async () => {
     const { restaurantId } = await seedOwnerWithVenue();
     const created = await createSpaceAction({

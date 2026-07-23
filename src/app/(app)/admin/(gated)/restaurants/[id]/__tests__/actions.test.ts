@@ -27,6 +27,7 @@ jest.mock("@/lib/i18n/app-locale", () => ({
 
 import { suspendRestaurant, unsuspendRestaurant } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
+import { describeDb } from "@/lib/test/db-describe";
 
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
@@ -89,7 +90,7 @@ async function seedEventRequest(restaurantId: string, status: "new" | "viewing" 
   return er;
 }
 
-describe("admin restaurant suspend/unsuspend", () => {
+describeDb("admin restaurant suspend/unsuspend", () => {
   beforeAll(async () => {
     const userId = await seedAdminProfile();
     mockSession.mockResolvedValue({

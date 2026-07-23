@@ -18,6 +18,14 @@ jest.mock("@react-email/render", () => ({
 // next/headers so the unit tests don't require a Next.js request context.
 jest.mock("next/headers", () => ({
   cookies: jest.fn(async () => ({ get: () => undefined })),
+  // createReservation rate-limits per client IP via (await headers()).get("x-forwarded-for").
+  headers: jest.fn(async () => ({ get: () => "127.0.0.1" })),
+}));
+
+// createReservation now rate-limits public bookings (scope widget_booking).
+// Default to "allowed" so the happy-path unit tests proceed.
+jest.mock("@/lib/rate-limit/enforce", () => ({
+  enforceRateLimit: jest.fn(async () => ({ allowed: true, remaining: 30, resetsAt: new Date() })),
 }));
 
 jest.mock("@/lib/db/admin", () => ({

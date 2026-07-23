@@ -5,6 +5,7 @@
 import { dbAdmin } from "@/lib/db/admin";
 import { listExceptionsForDate, insertWholeVenueBlock } from "../availability-exceptions-repo";
 import { cities, organizations, restaurants } from "@/lib/db/schema";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedR() {
   await dbAdmin.insert(cities).values({ slug: "x", name: "X", countryCode: "RO" }).onConflictDoNothing();
@@ -22,7 +23,7 @@ async function seedR() {
   return r;
 }
 
-describe("availability-exceptions-repo", () => {
+describeDb("availability-exceptions-repo", () => {
   it("insertWholeVenueBlock creates a zero-capacity row for the date", async () => {
     const r = await seedR();
     const row = await insertWholeVenueBlock({

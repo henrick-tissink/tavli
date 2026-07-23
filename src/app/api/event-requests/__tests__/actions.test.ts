@@ -50,6 +50,7 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { recordAudit } from "@/lib/audit/record";
 import { currentActor } from "@/lib/auth/current-actor";
 import { AUDIT } from "@/lib/audit/actions";
+import { describeDb } from "@/lib/test/db-describe";
 
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
@@ -126,7 +127,7 @@ async function seedVenueWithOwner() {
   return { restaurant: r, ownerId: owner.id };
 }
 
-describe("submitEventRequestDraft", () => {
+describeDb("submitEventRequestDraft", () => {
   it("rejects when restaurant has events_intake_enabled=false", async () => {
     const r = await seedR({ eventsIntakeEnabled: false });
     await expect(
@@ -181,7 +182,7 @@ describe("submitEventRequestDraft", () => {
   });
 });
 
-describe("sendQuoteForEventRequest", () => {
+describeDb("sendQuoteForEventRequest", () => {
   beforeEach(() => {
     mockSession.mockReset();
   });
@@ -230,7 +231,7 @@ describe("sendQuoteForEventRequest", () => {
   });
 });
 
-describe("materializeAcceptedEventRequest", () => {
+describeDb("materializeAcceptedEventRequest", () => {
   beforeEach(() => {
     mockSession.mockReset();
     (recordAudit as jest.Mock).mockClear();

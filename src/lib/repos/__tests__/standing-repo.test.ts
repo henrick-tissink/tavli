@@ -8,6 +8,7 @@ import {
   listStandingForRestaurant,
   cancelStandingSeries,
 } from "../standing-repo";
+import { describeDb } from "@/lib/test/db-describe";
 
 // Resolve ANY real (restaurant, table) pair from the local seed so the test
 // doesn't depend on a specific venue being present.
@@ -19,7 +20,7 @@ async function aPair(): Promise<{ restaurantId: string; tableId: string } | null
   return row ? { restaurantId: row.r, tableId: row.t } : null;
 }
 
-describe("standing-repo", () => {
+describeDb("standing-repo", () => {
   beforeEach(async () => {
     await dbAdmin.execute(`DELETE FROM standing_reservations WHERE guest_name LIKE 'ZZ_REPO_TEST%'`);
   });

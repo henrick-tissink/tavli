@@ -6,8 +6,9 @@ import { GET } from "../route";
 import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests, cities, organizations, restaurants } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { describeDb } from "@/lib/test/db-describe";
 
-describe("expire-event-request-drafts cron", () => {
+describeDb("expire-event-request-drafts cron", () => {
   beforeEach(() => {
     process.env.CRON_SECRET = "s";
   });

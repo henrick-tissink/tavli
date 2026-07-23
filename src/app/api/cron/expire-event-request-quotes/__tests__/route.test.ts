@@ -12,6 +12,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { eventRequests, cities, organizations, restaurants } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { sendEventRequestExpired } from "@/lib/email/event-requests";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedRestaurant() {
   await dbAdmin
@@ -38,7 +39,7 @@ async function seedRestaurant() {
   return r;
 }
 
-describe("expire-event-request-quotes cron", () => {
+describeDb("expire-event-request-quotes cron", () => {
   beforeEach(() => {
     process.env.CRON_SECRET = "s";
     (sendEventRequestExpired as jest.Mock).mockClear();

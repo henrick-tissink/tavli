@@ -4,8 +4,9 @@
 
 import { dbAdmin } from "@/lib/db/admin";
 import { corporateClientNamesByIds, findCorporateClientByCui, insertPendingCorporateClient, listCorporateClientsForRestaurant } from "../corporate-clients-repo";
+import { describeDb } from "@/lib/test/db-describe";
 
-describe("corporate-clients-repo", () => {
+describeDb("corporate-clients-repo", () => {
   beforeEach(async () => {
     await dbAdmin.execute(`DELETE FROM corporate_clients WHERE cui LIKE '%TEST%' OR cui IN ('99990001')`);
   });

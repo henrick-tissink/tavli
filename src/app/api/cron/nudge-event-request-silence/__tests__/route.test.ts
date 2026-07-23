@@ -15,6 +15,7 @@ import {
   sendEventRequestExpired,
   sendEventRequestNudge,
 } from "@/lib/email/event-requests";
+import { describeDb } from "@/lib/test/db-describe";
 
 async function seedRestaurant(email = "partner@test.co") {
   await dbAdmin
@@ -42,7 +43,7 @@ async function seedRestaurant(email = "partner@test.co") {
   return r;
 }
 
-describe("nudge-event-request-silence cron", () => {
+describeDb("nudge-event-request-silence cron", () => {
   beforeEach(() => {
     process.env.CRON_SECRET = "s";
     (sendEventRequestExpired as jest.Mock).mockClear();

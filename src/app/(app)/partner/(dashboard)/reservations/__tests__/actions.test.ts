@@ -401,16 +401,25 @@ function setupSupabaseForUpdate(
           update: jest.fn().mockReturnThis(),
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
+          // Atomic guarded claim: .update().eq().eq().in("status", [...]).select("id").
+          in: jest.fn().mockReturnThis(),
           // F5 status-log: the prior-status read calls .select("status")…maybeSingle().
           maybeSingle: jest.fn().mockResolvedValue({ data: { status: "confirmed" } }),
+          // The claim UPDATE terminates at .select("id"), awaited directly. It must
+          // resolve to at least one affected row for the happy path (0 rows → notFound).
           then: (
-            resolve: (v: { error: Error | null }) => unknown,
+            resolve: (v: { data: Array<{ id: string }> | null; error: Error | null }) => unknown,
             reject: (e: unknown) => unknown,
-          ) => Promise.resolve({ error: updateError }).then(resolve, reject),
+          ) =>
+            Promise.resolve({
+              data: updateError ? null : [{ id: "res-1" }],
+              error: updateError,
+            }).then(resolve, reject),
         };
         (chain.update as jest.Mock).mockReturnValue(chain);
         (chain.select as jest.Mock).mockReturnValue(chain);
         (chain.eq as jest.Mock).mockReturnValue(chain);
+        (chain.in as jest.Mock).mockReturnValue(chain);
         return chain;
       }
       throw new Error(`Unexpected from(${table})`);

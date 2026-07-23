@@ -676,6 +676,8 @@ export const standingReservations = pgTable("standing_reservations", {
   endDate: date("end_date"),
   status: standingStatus("status").notNull().default("active"),
   materializedThrough: date("materialized_through"),
+  // GDPR erasure marker (migration 0071). Set by handleStandingReservations.
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -865,6 +867,8 @@ export const meetingSpaceBookings = pgTable("meeting_space_bookings", {
   status: meetingSpaceBookingStatus("status").notNull().default("requested"),
   totalCents: integer("total_cents").notNull(),
   confirmationToken: uuid("confirmation_token").notNull().defaultRandom(),
+  // GDPR erasure marker (migration 0071). Set by handleMeetingSpaceBookings.
+  redactedAt: timestamp("redacted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [

@@ -13,6 +13,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 jest.mock("@/lib/i18n/app-locale", () => ({ resolveAppLocale: jest.fn().mockResolvedValue("en") }));
 import { createMeetingSpaceAction, updateMeetingSpaceAction, deactivateMeetingSpaceAction } from "../actions";
 import { getCurrentSession } from "@/lib/auth/session";
+import { describeDb } from "@/lib/test/db-describe";
 const mockSession = getCurrentSession as jest.MockedFunction<typeof getCurrentSession>;
 
 beforeEach(() => {
@@ -73,7 +74,7 @@ const VALID = {
   minBookingMinutes: 60,
 };
 
-describe("meeting-spaces partner actions", () => {
+describeDb("meeting-spaces partner actions", () => {
   it("owner creates, updates, deactivates a meeting space", async () => {
     const { restaurantId } = await seedOwnerWithVenue();
     const created = await createMeetingSpaceAction({ restaurantId, ...VALID });

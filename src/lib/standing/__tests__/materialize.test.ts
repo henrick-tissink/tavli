@@ -4,6 +4,7 @@
 import { dbAdmin } from "@/lib/db/admin";
 import { insertStandingSeries } from "@/lib/repos/standing-repo";
 import { materializeStanding } from "../materialize";
+import { describeDb } from "@/lib/test/db-describe";
 
 // Resolve ANY real (restaurant, table) pair from the local seed.
 async function aPair(): Promise<{ restaurantId: string; tableId: string } | null> {
@@ -14,7 +15,7 @@ async function aPair(): Promise<{ restaurantId: string; tableId: string } | null
   return row ? { restaurantId: row.r, tableId: row.t } : null;
 }
 
-describe("materializeStanding", () => {
+describeDb("materializeStanding", () => {
   beforeEach(async () => {
     await dbAdmin.execute(`DELETE FROM reservations WHERE guest_name LIKE 'ZZ_MAT_TEST%'`);
     await dbAdmin.execute(`DELETE FROM standing_reservations WHERE guest_name LIKE 'ZZ_MAT_TEST%'`);

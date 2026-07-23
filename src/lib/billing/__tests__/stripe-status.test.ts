@@ -19,7 +19,7 @@ describe("mapStripeStatus", () => {
     expect(mapStripeStatus("incomplete_expired")).toBe("cancelled");
   });
 
-  it("maps 'paused' to 'trialing' (no charge yet)", () => {
-    expect(mapStripeStatus("paused")).toBe("trialing");
+  it("maps 'paused' to 'unpaid' (trial ended with no payment method — must not keep Pro)", () => {
+    expect(mapStripeStatus("paused")).toBe("unpaid");
   });
 });
