@@ -1,0 +1,38 @@
+{
+  "pkg": "tavli",
+  "globalName": "Tavli",
+  "projectId": "95ba54ef-187e-4fd4-b6e5-e41132dc6903",
+  "shape": "package",
+  "srcDir": "src",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".design-sync/compiled.css",
+  "extraEntries": ["./.design-sync/preview-bundle.ts"],
+  "provider": {
+    "component": "MessagesProvider",
+    "props": { "locale": "ro", "bundle": { "$ref": "roBundle" } }
+  },
+  "componentSrcMap": {
+    "Button": "src/components/button.tsx",
+    "Avatar": "src/components/avatar.tsx",
+    "RatingChip": "src/components/rating-chip.tsx",
+    "SectionHeader": "src/components/section-header.tsx",
+    "SentimentBar": "src/components/sentiment-bar.tsx",
+    "Toaster": "src/components/toast.tsx",
+    "EditorialInterstitial": "src/components/editorial-interstitial.tsx",
+    "MapPin": "src/components/map-pin.tsx",
+    "Pill": "src/components/pill.tsx",
+    "TimeSlotPills": "src/components/time-slot-pills.tsx",
+    "TabBar": "src/components/tab-bar.tsx",
+    "BottomSheet": "src/components/bottom-sheet.tsx",
+    "StatusBadge": "src/components/status-badge.tsx",
+    "ReviewCard": "src/components/review-card.tsx",
+    "DietaryFilterRow": "src/components/dietary-filter-row.tsx",
+    "CitySelector": "src/components/city-selector.tsx",
+    "PillPopover": "src/components/pill-popover.tsx",
+    "PasswordInput": "src/components/password-input.tsx",
+    "RestaurantCard": "src/components/restaurant-card.tsx",
+    "MenuItemCard": "src/components/menu-item-card.tsx",
+    "CityCoverHero": "src/components/city-cover-hero.tsx",
+    "PhotoGallery": "src/components/photo-gallery.tsx"
+  }
+}
