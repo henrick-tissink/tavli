@@ -4,12 +4,16 @@
   "projectId": "95ba54ef-187e-4fd4-b6e5-e41132dc6903",
   "shape": "package",
   "srcDir": "src",
-  "tsconfig": "tsconfig.json",
+  "tsconfig": ".design-sync/tsconfig.ds.json",
   "cssEntry": ".design-sync/compiled.css",
-  "extraEntries": ["./.design-sync/preview-bundle.ts"],
   "provider": {
     "component": "MessagesProvider",
-    "props": { "locale": "ro", "bundle": { "$ref": "roBundle" } }
+    "props": {
+      "locale": "ro",
+      "bundle": {
+        "$ref": "roBundle"
+      }
+    }
   },
   "componentSrcMap": {
     "Button": "src/components/button.tsx",
@@ -34,5 +38,12 @@
     "MenuItemCard": "src/components/menu-item-card.tsx",
     "CityCoverHero": "src/components/city-cover-hero.tsx",
     "PhotoGallery": "src/components/photo-gallery.tsx"
-  }
+  },
+  "entry": ".design-sync/ds-entry.ts",
+  "overrides": {
+    "Button": {
+      "cardMode": "column"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
 }
