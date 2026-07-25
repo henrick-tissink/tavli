@@ -1,6 +1,7 @@
 {
   "notFound": {
     "title": "Restaurant not found",
+    "body": "This restaurant may have closed or moved. Let's find you another table.",
     "back": "Back"
   },
   "detail": {

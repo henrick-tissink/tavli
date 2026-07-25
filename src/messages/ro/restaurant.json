@@ -1,6 +1,7 @@
 {
   "notFound": {
     "title": "Restaurantul nu a fost găsit",
+    "body": "Poate că acest local s-a închis sau s-a mutat. Hai să-ți găsim altă masă.",
     "back": "Înapoi"
   },
   "detail": {
