@@ -82,6 +82,16 @@ export function ReservationsList({ today, upcoming, past }: Props) {
   const rows = corporateOnly ? allRows.filter((r) => r.corporateClientName) : allRows;
   const counts = { today: today.length, upcoming: upcoming.length, past: past.length };
 
+  // Row-action hierarchy: the primary next step is a filled button; the rest
+  // stay as quiet text so the important action reads first and the destructive
+  // one (cancel) is de-emphasised.
+  const primaryBtn =
+    "inline-flex items-center rounded-button bg-brand-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary-dark disabled:opacity-40 disabled:cursor-not-allowed";
+  const quietBtn =
+    "text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed";
+  const dangerBtn =
+    "text-xs font-semibold text-text-muted transition-colors hover:text-error disabled:opacity-40 disabled:cursor-not-allowed";
+
   return (
     <div className="space-y-4 max-w-5xl">
       <div className="flex items-center gap-2 border-b border-border">
@@ -197,12 +207,12 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {r.status === "confirmed" ? (
-                        <>
+                        <div className="inline-flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "seated")}
                             disabled={pending}
-                            className="text-brand-primary text-xs font-semibold hover:underline mr-3"
+                            className={primaryBtn}
                           >
                             {t("actions.seat")}
                           </button>
@@ -210,7 +220,7 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             type="button"
                             onClick={() => handleStatusChange(r.id, "no_show")}
                             disabled={pending}
-                            className="text-amber-700 text-xs font-semibold hover:underline mr-3"
+                            className={quietBtn}
                           >
                             {t("actions.noShow")}
                           </button>
@@ -218,18 +228,18 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             type="button"
                             onClick={() => setSheetReservation(r)}
                             disabled={pending}
-                            className="text-error text-xs font-semibold hover:underline"
+                            className={dangerBtn}
                           >
                             {t("actions.cancel")}
                           </button>
-                        </>
+                        </div>
                       ) : r.status === "seated" ? (
-                        <>
+                        <div className="inline-flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "completed")}
                             disabled={pending}
-                            className="text-brand-primary text-xs font-semibold hover:underline mr-3"
+                            className={primaryBtn}
                           >
                             {t("actions.complete")}
                           </button>
@@ -237,11 +247,11 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                             type="button"
                             onClick={() => handleStatusChange(r.id, "no_show")}
                             disabled={pending}
-                            className="text-amber-700 text-xs font-semibold hover:underline"
+                            className={quietBtn}
                           >
                             {t("actions.noShow")}
                           </button>
-                        </>
+                        </div>
                       ) : (
                         <span className="text-xs text-text-muted">—</span>
                       )}
