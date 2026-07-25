@@ -301,7 +301,7 @@ export interface DiscoveryMessages {
 
 /** Structural contract for the `restaurant` namespace. */
 export interface RestaurantMessages {
-  notFound: { title: string; back: string };
+  notFound: { title: string; body: string; back: string };
   detail: {
     availableToday: string;
     noSlotsTitle: string;
