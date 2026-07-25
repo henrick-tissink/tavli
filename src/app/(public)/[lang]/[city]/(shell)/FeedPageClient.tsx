@@ -65,6 +65,27 @@ export function FeedPageClient({
   const firstChunk = openFiltered.slice(0, 8);
   const restChunk = openFiltered.slice(8);
 
+  // Editorial lead for "Available today": open the section on one strong venue
+  // rendered as a wide spotlight, then the grid beneath. Prefer a venue that
+  // isn't already headlining the "Popular" carousel above (avoid repeating a
+  // card the eye just passed), and only when there are enough venues to keep
+  // the grid balanced underneath.
+  const notInCarousel = (r: Restaurant) =>
+    !trendingRestaurants.some((tr) => tr.id === r.id);
+  const featured =
+    firstChunk.length >= 3
+      ? // Prefer a photographed venue (the lead is a showcase) that isn't already
+        // headlining the carousel above (fresh), then relax each constraint in turn.
+        firstChunk.find((r) => r.photoUrl && notInCarousel(r)) ??
+        firstChunk.find((r) => r.photoUrl && r.id !== trendingRestaurants[0]?.id) ??
+        firstChunk.find((r) => r.photoUrl) ??
+        firstChunk.find(notInCarousel) ??
+        firstChunk[0]
+      : null;
+  const gridChunk = featured
+    ? firstChunk.filter((r) => r.id !== featured.id)
+    : firstChunk;
+
   // Pull-quote derives from the SAME `timeContext` priority as the cover-hero
   // greeting (see `PULL_QUOTE_MAP` in time-context). The `{city}` token in the
   // body is substituted client-side so eyebrow + greeting are always in sync.
@@ -153,14 +174,26 @@ export function FeedPageClient({
 
             {firstChunk.length > 0 && (
               <>
-                <div className="mt-8">
+                <div className="mt-12">
                   <SectionHeader
                     title={t("feed.availableTodayTitle")}
                     subtitle={t("feed.availableTodaySubtitle")}
                   />
                 </div>
-                <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
-                  {firstChunk.map((restaurant) => (
+                {featured && (
+                  <div className="mt-5">
+                    <RestaurantSpotlight
+                      restaurant={featured}
+                      eyebrow={t("feed.featuredLead")}
+                      onClick={() => navigate(`/${city}/${featured.slug}`)}
+                      onSlotSelect={(slot) =>
+                        navigate(bookingSlotHref(`/${city}/${featured.slug}`, slot))
+                      }
+                    />
+                  </div>
+                )}
+                <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5 mt-5">
+                  {gridChunk.map((restaurant) => (
                     <RestaurantCard
                       key={restaurant.id}
                       restaurant={restaurant}
@@ -230,10 +263,13 @@ function RestaurantSpotlight({
   restaurant,
   onClick,
   onSlotSelect,
+  eyebrow,
 }: {
   restaurant: Restaurant;
   onClick: () => void;
   onSlotSelect: (slot: string) => void;
+  /** Overrides the default "Restaurant of the week" label. */
+  eyebrow?: string;
 }) {
   const t = useT("discovery");
   const locale = useLocale();
@@ -242,7 +278,7 @@ function RestaurantSpotlight({
     <div className="rounded-card overflow-hidden bg-surface-white border border-border shadow-card">
       <div className="flex items-center justify-between mb-0 px-4 desktop:px-6 pt-4">
         <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-brand-primary">
-          {t("feed.weekRestaurant")}
+          {eyebrow ?? t("feed.weekRestaurant")}
         </span>
       </div>
 
@@ -262,7 +298,14 @@ function RestaurantSpotlight({
               priority
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-dark" />
+            <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-brand-primary to-brand-primary-dark">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 flex items-center justify-center select-none font-display text-[14rem] font-bold leading-none text-white/10"
+              >
+                {(restaurant.name.trim()[0] ?? "•").toUpperCase()}
+              </span>
+            </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 desktop:p-8">
