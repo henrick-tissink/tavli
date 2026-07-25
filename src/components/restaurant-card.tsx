@@ -56,10 +56,20 @@ export function RestaurantCard({
             className={`object-cover ${isClosed ? "opacity-60" : ""}`}
           />
         ) : (
-          <div className={`absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center p-4 ${isClosed ? "opacity-60" : ""}`}>
-            <span className="font-display text-white text-2xl font-bold text-center">
-              {restaurant.name}
+          <div className={`absolute inset-0 overflow-hidden bg-gradient-to-br from-brand-primary to-brand-primary-dark ${isClosed ? "opacity-60" : ""}`}>
+            {/* Editorial monogram: a large ghosted initial makes a photo-less
+                venue read as intentional rather than a missing image. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -bottom-8 -right-3 select-none font-display text-[9rem] font-bold leading-none text-white/10"
+            >
+              {(restaurant.name.trim()[0] ?? "•").toUpperCase()}
             </span>
+            <div className="absolute inset-0 flex items-center justify-center p-4">
+              <span className="font-display text-white text-2xl font-bold text-center leading-tight">
+                {restaurant.name}
+              </span>
+            </div>
           </div>
         )}
 
