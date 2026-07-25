@@ -85,13 +85,22 @@ export default async function RestaurantDetailPage({
 
   if (!localizedRestaurant) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <h1 className="text-xl font-bold text-text-primary">
+      <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center">
+        <span
+          aria-hidden
+          className="font-display text-[7rem] leading-none text-brand-primary/20 select-none"
+        >
+          ?
+        </span>
+        <h1 className="mt-4 font-display text-3xl desktop:text-4xl font-bold text-text-primary">
           {m.notFound.title}
         </h1>
+        <p className="mt-3 max-w-sm text-sm text-text-secondary">
+          {m.notFound.body}
+        </p>
         <Link
           href={localizedHref(`/${city}`, isLocale(lang) ? lang : "ro")}
-          className="mt-4 text-brand-primary font-semibold text-sm"
+          className="mt-6 inline-flex items-center gap-1.5 rounded-button bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           {m.notFound.back}
         </Link>
