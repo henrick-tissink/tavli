@@ -40,14 +40,19 @@ interface WalkinVM {
   estimatedWaitMinutes: number | null;
 }
 
+// A calmer, warmer status palette than the default Tailwind rainbow: softer
+// borders and warm-leaning hues so the board reads as a designed, on-brand
+// surface while each status stays clearly distinguishable at a glance.
+// Semantic anchors kept: green = available, amber = actively dining,
+// red = blocked, stone = needs bussing.
 const STATUS_STYLE: Record<TableStatus, string> = {
-  free: "bg-emerald-50 border-emerald-300 text-emerald-800",
-  booked: "bg-blue-50 border-blue-300 text-blue-800",
-  seated: "bg-amber-50 border-amber-300 text-amber-900",
-  paying: "bg-violet-50 border-violet-300 text-violet-800",
-  dirty: "bg-stone-100 border-stone-300 text-stone-700",
-  combined: "bg-indigo-50 border-indigo-300 text-indigo-800",
-  blocked: "bg-red-50 border-red-300 text-red-800",
+  free: "bg-emerald-50 border-emerald-200 text-emerald-700",
+  booked: "bg-sky-50 border-sky-200 text-sky-700",
+  seated: "bg-amber-50 border-amber-200 text-amber-800",
+  paying: "bg-rose-50 border-rose-200 text-rose-700",
+  dirty: "bg-stone-100 border-stone-300 text-stone-600",
+  combined: "bg-violet-50 border-violet-200 text-violet-700",
+  blocked: "bg-red-50 border-red-200 text-red-700",
 };
 
 export function LiveFloor({
