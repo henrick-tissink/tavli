@@ -54,9 +54,19 @@ export function PhotoGallery({
   if (photos.length === 0) {
     return (
       <div className="relative w-full h-[280px] desktop:h-[400px]">
-        <div className="w-full h-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+        <div className="relative w-full h-full overflow-hidden bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+          {/* Editorial monogram so a photo-less venue reads as intentional
+              rather than as a missing image (matches the card/spotlight). */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 flex items-center justify-center select-none font-display text-[16rem] font-bold leading-none text-white/10"
+          >
+            {(restaurantName.trim()[0] ?? "•").toUpperCase()}
+          </span>
           {!overlayTitle && (
-            <span className="text-white text-2xl font-bold">{restaurantName}</span>
+            <span className="relative font-display text-white text-2xl font-bold">
+              {restaurantName}
+            </span>
           )}
         </div>
         {/* Overlay content on fallback */}
