@@ -40,14 +40,29 @@ export function ReviewIntelligenceSection({
       <hr className="border-border my-4" />
 
       <h4 className="text-base font-bold text-text-primary mt-4">{t("reviewIntelligence.topMentionsTitle")}</h4>
-      <ul className="mt-2 space-y-1">
+      {/* Recurring guest phrases as editorial quote-chips — the italic display
+          serif gives them a "what people keep saying" voice; the most-mentioned
+          one is highlighted. */}
+      <div className="mt-3 flex flex-wrap gap-2">
         {intelligence.topMentions.map((mention, i) => (
-          <li key={mention.phrase} className="text-sm text-text-primary">
-            {i === 0 && "🔥 "}
-            &ldquo;{mention.phrase}&rdquo; &middot;&middot;&middot; {mention.count}&times;
-          </li>
+          <span
+            key={mention.phrase}
+            className={`inline-flex items-center gap-2 rounded-pill border px-3 py-1.5 ${
+              i === 0
+                ? "border-brand-primary/30 bg-brand-primary-soft"
+                : "border-border bg-surface-bg"
+            }`}
+          >
+            {i === 0 && <span aria-hidden>🔥</span>}
+            <span className="font-display italic text-sm text-text-primary">
+              &ldquo;{mention.phrase}&rdquo;
+            </span>
+            <span className="text-xs font-bold text-brand-primary-dark tabular-nums">
+              {mention.count}&times;
+            </span>
+          </span>
         ))}
-      </ul>
+      </div>
 
       <hr className="border-border my-4" />
 
