@@ -5,7 +5,13 @@ import { getMessages } from "@/lib/i18n/messages";
 import { RootScaffold } from "@/components/RootScaffold";
 import "@/app/globals.css";
 
-export const dynamicParams = false; // only ro/en/de; anything else 404s
+// NOTE: deliberately NOT `dynamicParams = false`. With it, any global cache
+// purge (`revalidatePath("/", "layout")`) leaves these prerendered entries with
+// nothing to serve, and the whole storefront 404s until the next deploy — this
+// is what took demo.tavli.ro's homepage down for nine days. Allowing on-demand
+// rendering lets a purged entry regenerate instead. Nothing is lost: the proxy
+// prefixes every unprefixed path with a real locale, so only ro/en/de ever
+// reach this segment, and the `notFound()` below still rejects anything else.
 
 export async function generateMetadata({
   params,
