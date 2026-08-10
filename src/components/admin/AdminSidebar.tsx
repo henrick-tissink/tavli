@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { LayoutDashboard, Store, Mail, LogOut, Menu, X } from "lucide-react";
 import { signOutAdmin } from "@/app/(app)/admin/sign-in/actions";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { TavliLogo } from "@/components/tavli-logo";
 import { useT } from "@/lib/i18n/messages-provider";
 import { type Locale } from "@/lib/i18n/locale";
 
@@ -44,11 +45,8 @@ export function AdminSidebar({
   const navContent = (
     <>
       <div className="px-5 py-6">
-        <Link
-          href="/admin"
-          className="font-display text-2xl font-bold text-brand-primary tracking-tight"
-        >
-          Tavli
+        <Link href="/admin" className="inline-block">
+          <TavliLogo className="h-7 w-auto" />
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
           {t("nav.eyebrow")}
@@ -114,11 +112,8 @@ export function AdminSidebar({
         >
           <Menu size={20} />
         </button>
-        <Link
-          href="/admin"
-          className="font-display text-xl font-bold text-brand-primary tracking-tight"
-        >
-          Tavli
+        <Link href="/admin" className="inline-flex items-center">
+          <TavliLogo className="h-6 w-auto" />
         </Link>
         <span className="w-10" aria-hidden />
       </header>

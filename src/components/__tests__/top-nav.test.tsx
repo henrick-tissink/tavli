@@ -32,7 +32,11 @@ const defaultProps = {
 describe("TopNav", () => {
   it("renders the Tavli logo", () => {
     renderWithProvider(<TopNav {...defaultProps} />);
-    expect(screen.getByText("Tavli")).toBeInTheDocument();
+    const logoLink = screen.getByLabelText("Tavli — acasă");
+    expect(logoLink).toBeInTheDocument();
+    expect(
+      logoLink.querySelector('img[src*="tavli-logo-horizontal"]'),
+    ).toBeInTheDocument();
   });
 
   it("renders the search input", () => {

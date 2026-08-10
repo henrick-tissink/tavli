@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ShieldCheck, Scale } from "lucide-react";
 import { LOCALE_ENDONYMS as LOCALE_LABEL, LOCALE_HOME, type Locale } from "@/lib/i18n/locale";
 import { setLocaleCookieClient } from "@/lib/i18n/cookie-client";
+import { TavliLogo } from "@/components/tavli-logo";
 
 const HIDDEN_PREFIXES = ["/admin", "/partner", "/onboard", "/reservations", "/reviews"];
 
@@ -36,7 +37,7 @@ export function SiteFooter({ locale }: { locale?: Locale }) {
     >
       <div className="max-w-[var(--container-content)] mx-auto px-6 py-10 grid grid-cols-3 gap-8">
         <div>
-          <p className="font-display text-xl font-bold text-brand-primary leading-none">Tavli</p>
+          <TavliLogo className="h-6 w-auto" />
           <p className="text-sm text-text-muted mt-2">{t.tagline}</p>
         </div>
 

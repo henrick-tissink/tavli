@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Search, Heart, User } from "lucide-react";
 import { CitySelector } from "@/components/city-selector";
+import { TavliLogo } from "@/components/tavli-logo";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { type Locale } from "@/lib/i18n/locale";
 import { useT } from "@/lib/i18n/messages-provider";
@@ -39,20 +40,7 @@ export function TopNav({
             className="flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             aria-label={t("nav.logoAriaLabel")}
           >
-            <svg
-              viewBox="0 0 256 256"
-              className="w-7 h-7 rounded-[6px]"
-              aria-hidden="true"
-            >
-              <rect width="256" height="256" rx="56" fill="#F97316" />
-              <path d="M56 70 L92 70 L74 150 Z" fill="#FFFFFF" />
-              <path d="M92 186 L128 186 L110 106 Z" fill="#FFE0C2" />
-              <path d="M128 70 L164 70 L146 150 Z" fill="#FFFFFF" />
-              <path d="M164 186 L200 186 L182 106 Z" fill="#FFE0C2" />
-            </svg>
-            <span className="font-display text-2xl font-bold tracking-tight text-brand-primary leading-none">
-              Tavli
-            </span>
+            <TavliLogo className="h-7 w-auto" alt="" />
           </Link>
           <CitySelector currentSlug={currentSlug} onSelect={onCityChange} />
         </div>

@@ -5,6 +5,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Pill } from "@/components/pill";
 import { PillPopover } from "@/components/pill-popover";
+import { TavliLogo } from "@/components/tavli-logo";
 import { useFilters } from "@/lib/filter-context";
 import type { Restaurant } from "@/lib/types";
 import { cuisineLabel, zoneLabel } from "@/lib/types";
@@ -104,13 +105,7 @@ export function FilterPillBar({
           aria-hidden="true"
           className="sticky left-0 shrink-0 self-center desktop:hidden bg-surface-bg z-1 pr-1"
         >
-          <svg viewBox="0 0 256 256" className="w-6 h-6 rounded-[5px] block">
-            <rect width="256" height="256" rx="56" fill="#F97316" />
-            <path d="M56 70 L92 70 L74 150 Z" fill="#FFFFFF" />
-            <path d="M92 186 L128 186 L110 106 Z" fill="#FFE0C2" />
-            <path d="M128 70 L164 70 L146 150 Z" fill="#FFFFFF" />
-            <path d="M164 186 L200 186 L182 106 Z" fill="#FFE0C2" />
-          </svg>
+          <TavliLogo variant="icon" className="w-6 h-6 block" alt="" />
         </div>
         <Pill
           label={t("filters.all")}

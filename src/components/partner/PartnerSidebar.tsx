@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { signOutPartner } from "@/app/(app)/partner/sign-in/actions";
 import { VenueSwitcher } from "./VenueSwitcher";
+import { TavliLogo } from "@/components/tavli-logo";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useT } from "@/lib/i18n/messages-provider";
 import { type Locale } from "@/lib/i18n/locale";
@@ -92,11 +93,8 @@ export function PartnerSidebar({
   const navContent = (
     <>
       <div className="px-5 py-6">
-        <Link
-          href="/partner"
-          className="font-display text-2xl font-bold text-brand-primary tracking-tight"
-        >
-          Tavli
+        <Link href="/partner" className="inline-block">
+          <TavliLogo className="h-7 w-auto" />
         </Link>
         <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
           {t("nav.eyebrow")}
@@ -183,11 +181,8 @@ export function PartnerSidebar({
         >
           <Menu size={20} />
         </button>
-        <Link
-          href="/partner"
-          className="font-display text-xl font-bold text-brand-primary tracking-tight"
-        >
-          Tavli
+        <Link href="/partner" className="inline-flex items-center">
+          <TavliLogo className="h-6 w-auto" />
         </Link>
         <span className="w-10" aria-hidden />
       </header>

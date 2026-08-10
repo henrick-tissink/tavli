@@ -5,6 +5,7 @@ import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { ResendVerification } from "./ResendVerification";
+import { TavliLogo } from "@/components/tavli-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function VerifyEmailPage({
     <MessagesProvider locale={locale} bundle={bundle}>
     <div className="min-h-screen flex items-center justify-center bg-surface-bg px-4">
       <div className="w-full max-w-lg bg-surface-white rounded-card border border-border p-8 shadow-card">
-        <p className="font-display text-2xl font-bold text-brand-primary tracking-tight">Tavli</p>
+        <TavliLogo className="h-7 w-auto" />
         <div className="mt-6 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary-soft">
           <MailCheck size={22} className="text-brand-primary" aria-hidden />
         </div>

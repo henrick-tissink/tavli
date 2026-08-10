@@ -11,6 +11,7 @@ import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages, buildBundle } from "@/lib/i18n/messages";
 import { MessagesProvider } from "@/lib/i18n/messages-provider";
 import { AuthLocaleSwitcher } from "@/components/auth-locale-switcher";
+import { TavliLogo } from "@/components/tavli-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -56,11 +57,8 @@ export default async function PartnerSignInPage({
       <div className="hidden desktop:flex desktop:w-1/2 bg-gradient-to-br from-brand-primary-soft via-white to-white p-12 items-center justify-center">
         <div className="flex flex-col items-center max-w-md w-full">
           <div className="self-start">
-            <Link
-              href="/partner"
-              className="font-display text-3xl font-bold text-brand-primary tracking-tight"
-            >
-              Tavli
+            <Link href="/partner" className="inline-block">
+              <TavliLogo className="h-9 w-auto" />
             </Link>
             <p className="text-xs text-text-muted tracking-[0.2em] uppercase mt-1">
               {m.brandPartner}
@@ -90,11 +88,8 @@ export default async function PartnerSignInPage({
           {/* Mobile wordmark — hidden on desktop */}
           <div className="flex items-center justify-center mb-6 desktop:hidden">
             <div className="w-12 h-12 rounded-full bg-brand-primary-soft flex items-center justify-center">
-              <Link
-                href="/partner"
-                className="font-display text-xl font-bold text-brand-primary tracking-tight"
-              >
-                T
+              <Link href="/partner" aria-label="Tavli" className="inline-flex">
+                <TavliLogo variant="mark" className="h-7 w-auto" alt="" />
               </Link>
             </div>
           </div>

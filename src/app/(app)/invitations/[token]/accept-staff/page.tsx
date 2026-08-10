@@ -9,6 +9,7 @@ import {
 import { hashInvitationToken } from "@/lib/invitations";
 import { getCurrentSession } from "@/lib/auth/session";
 import { AcceptStaffForm } from "./AcceptStaffForm";
+import { TavliLogo } from "@/components/tavli-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +66,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-bg px-4">
       <div className="w-full max-w-lg bg-surface-white rounded-card border border-border p-8 shadow-card">
-        <p className="font-display text-2xl font-bold text-brand-primary tracking-tight">Tavli</p>
+        <TavliLogo className="h-7 w-auto" />
         {children}
       </div>
     </div>
