@@ -17,23 +17,33 @@ import { makeStartSubscription } from "@/lib/billing/start-subscription";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { appOrigin } from "@/lib/app-origin";
 import { PartnerWelcomeEmail, getSubject } from "@/emails/PartnerWelcomeEmail";
+import {
+  PartnerVerifyEmail,
+  getSubject as getVerifySubject,
+} from "@/emails/PartnerVerifyEmail";
 import { seedTriggeredCampaigns } from "@/lib/marketing/triggered-defaults";
 import { makeSignupPartner, type SignupAuthAdmin } from "./signup-partner";
 
 const authAdmin: SignupAuthAdmin = {
   async createUser({ email, password, locale }) {
     const admin = createSupabaseAdminClient();
-    const { data, error } = await admin.auth.admin.createUser({
+    // §5.2 step 3 — creates the unverified user AND hands back the
+    // confirmation link without sending anything. Supabase's stock template is
+    // bypassed entirely; `sendVerifyEmail` delivers our own via Resend.
+    const { data, error } = await admin.auth.admin.generateLink({
+      type: "signup",
       email,
       password,
-      // §5.2 step 3 — unverified; Supabase sends the confirmation email.
-      email_confirm: false,
-      user_metadata: { locale },
+      options: {
+        data: { locale },
+        redirectTo: `${appOrigin()}/auth/callback`,
+      },
     });
-    if (error || !data.user) {
+    const verifyUrl = data?.properties?.action_link;
+    if (error || !data?.user || !verifyUrl) {
       throw new Error(error?.message ?? "auth user creation failed");
     }
-    return { userId: data.user.id };
+    return { userId: data.user.id, verifyUrl };
   },
   async deleteUser(userId) {
     const admin = createSupabaseAdminClient();
@@ -66,6 +76,30 @@ async function sendWelcomeEmail(input: {
   });
 }
 
+async function sendVerifyEmail(input: {
+  to: string;
+  locale: "ro" | "en" | "de";
+  fullName: string;
+  verifyUrl: string;
+}) {
+  const node = PartnerVerifyEmail({
+    fullName: input.fullName,
+    verifyUrl: input.verifyUrl,
+    locale: input.locale,
+  });
+  const html = await render(node);
+  const text = await render(node, { plainText: true });
+  await sendTransactionalEmail({
+    to: input.to,
+    locale: input.locale,
+    templateKey: "partner_verify",
+    subject: getVerifySubject(input.locale),
+    html,
+    text,
+    context: {},
+  });
+}
+
 export const signupPartner = makeSignupPartner({
   db: dbAdmin,
   authAdmin,
@@ -74,6 +108,7 @@ export const signupPartner = makeSignupPartner({
     makeStartSubscription({ stripe: getStripe(), db: dbAdmin, enqueue, recordBillingAudit })(input),
   recordAudit,
   sendWelcomeEmail,
+  sendVerifyEmail,
   seedTriggeredCampaigns: (organizationId, db) =>
     seedTriggeredCampaigns(organizationId, db as Parameters<typeof seedTriggeredCampaigns>[1]),
 });

@@ -75,6 +75,17 @@
       "resendSubmitPending": "Se trimite…",
       "resendSuccess": "Am retrimis emailul. Verifică-ți inboxul."
     },
+    "verified": {
+      "title": "Adresa ta de email este confirmată",
+      "body": "Mulțumim — adresa este verificată, iar contul tău Tavli este activ. Urmează: adaugă fotografiile, meniul și programul.",
+      "cta": "Mergi la panoul meu"
+    },
+    "linkError": {
+      "title": "Linkul nu mai este valabil",
+      "body": "Poate a expirat sau a fost deja folosit. Cere unul nou și ți-l trimitem imediat.",
+      "cta": "Cere un link nou",
+      "home": "Înapoi la Tavli"
+    },
     "errors": {
       "supabaseNotConfigured": "Supabase nu este încă configurat.",
       "sessionExpired": "Sesiunea a expirat. Conectează-te din nou.",

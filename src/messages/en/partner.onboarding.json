@@ -75,6 +75,17 @@
       "resendSubmitPending": "Sending…",
       "resendSuccess": "We have resent the email. Check your inbox."
     },
+    "verified": {
+      "title": "Your email is confirmed",
+      "body": "Thanks — your address is verified and your Tavli account is active. Next: add your photos, menu and opening hours.",
+      "cta": "Go to my dashboard"
+    },
+    "linkError": {
+      "title": "This link is no longer valid",
+      "body": "It may have expired or already been used. Request a new one and we'll send it straight over.",
+      "cta": "Request a new link",
+      "home": "Back to Tavli"
+    },
     "errors": {
       "supabaseNotConfigured": "Supabase is not configured yet.",
       "sessionExpired": "Your session has expired. Please sign in again.",

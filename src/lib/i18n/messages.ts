@@ -2738,6 +2738,19 @@ export interface PartnerOnboardingMessages {
       resendSubmitPending: string;
       resendSuccess: string;
     };
+    /** `/partner/verified` — the post-confirmation landing page. */
+    verified: {
+      title: string;
+      body: string;
+      cta: string;
+    };
+    /** `/auth/error` — expired, malformed, or already-consumed auth links. */
+    linkError: {
+      title: string;
+      body: string;
+      cta: string;
+      home: string;
+    };
     errors: {
       supabaseNotConfigured: string;
       sessionExpired: string;

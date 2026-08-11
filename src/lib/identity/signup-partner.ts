@@ -64,8 +64,14 @@ export interface SignupSuccess {
 }
 
 export interface SignupAuthAdmin {
-  /** Create an unverified auth user (sends the verification email). */
-  createUser(input: { email: string; password: string; locale: string }): Promise<{ userId: string }>;
+  /**
+   * Create an unverified auth user and return the confirmation link. Creation
+   * does NOT send any email — Tavli mails `verifyUrl` itself via
+   * `sendVerifyEmail` so the message is branded and localised.
+   */
+  createUser(
+    input: { email: string; password: string; locale: string },
+  ): Promise<{ userId: string; verifyUrl: string }>;
   /** Compensation — hard-delete the auth user when the tx rolls back. */
   deleteUser(userId: string): Promise<void>;
 }
@@ -84,6 +90,12 @@ export interface SignupPartnerDeps {
     locale: "ro" | "en" | "de";
     fullName: string;
     restaurantName: string;
+  }) => Promise<unknown>;
+  sendVerifyEmail: (input: {
+    to: string;
+    locale: "ro" | "en" | "de";
+    fullName: string;
+    verifyUrl: string;
   }) => Promise<unknown>;
   /** §11 §6 — seed the org's default triggered campaigns inside the signup tx. */
   seedTriggeredCampaigns: (organizationId: string, db: unknown) => Promise<unknown>;
@@ -143,8 +155,13 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
 
     // §5.2 step 3 — create the auth user (outside the Drizzle tx).
     let userId: string;
+    let verifyUrl: string;
     try {
-      ({ userId } = await deps.authAdmin.createUser({ email, password: input.password, locale }));
+      ({ userId, verifyUrl } = await deps.authAdmin.createUser({
+        email,
+        password: input.password,
+        locale,
+      }));
     } catch (err) {
       // Most commonly: email already registered.
       return fail("conflict", (err as Error)?.message ?? "Could not create the account.");
@@ -262,6 +279,20 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
       });
     } catch {
       /* best-effort */
+    }
+
+    // §5.2 step 10 — the confirmation email (best-effort). Sent before the
+    // Stripe handoff so a slow or failing billing call cannot delay the one
+    // email the operator is actively waiting on.
+    try {
+      await deps.sendVerifyEmail({
+        to: email,
+        locale,
+        fullName: input.fullName.trim(),
+        verifyUrl,
+      });
+    } catch {
+      /* best-effort — the operator can resend from /partner/verify-email */
     }
 
     // §5.2 step 9 — Stripe handoff (outside the tx). Requires customer_type;

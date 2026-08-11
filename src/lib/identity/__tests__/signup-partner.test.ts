@@ -77,11 +77,15 @@ function makeDb(opts: { priorTrial?: boolean; txThrow?: unknown } = {}) {
 function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = {}, dbOpts = {}) {
   const { db, inserts } = makeDb(dbOpts);
   const authAdmin = {
-    createUser: jest.fn(async () => ({ userId: "user-1" })),
+    createUser: jest.fn(async () => ({
+      userId: "user-1",
+      verifyUrl: "https://supabase.test/auth/v1/verify?token=abc",
+    })),
     deleteUser: jest.fn(async () => {}),
   };
   const startSubscription = jest.fn(async () => ({ stripeCheckoutUrl: "https://stripe/checkout" }));
   const sendWelcomeEmail = jest.fn(async () => {});
+  const sendVerifyEmail = jest.fn(async () => {});
   const recordAudit = jest.fn(async (_i: { action: string }) => {});
   const seedTriggeredCampaigns = jest.fn(async () => 5);
   const deps = {
@@ -89,12 +93,13 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
     authAdmin,
     startSubscription,
     sendWelcomeEmail,
+    sendVerifyEmail,
     recordAudit,
     seedTriggeredCampaigns,
     genSlugSuffix: () => "abc123",
     ...overrides,
   } as Parameters<typeof makeSignupPartner>[0];
-  return { deps, authAdmin, startSubscription, sendWelcomeEmail, recordAudit, seedTriggeredCampaigns, inserts };
+  return { deps, authAdmin, startSubscription, sendWelcomeEmail, sendVerifyEmail, recordAudit, seedTriggeredCampaigns, inserts };
 }
 
 describe("signupPartner", () => {
@@ -136,6 +141,29 @@ describe("signupPartner", () => {
     expect(inserts.find((i) => i.table === "restaurantStaff")!.values).toMatchObject({ role: "owner" });
     // §11 §6 — default triggered campaigns seeded inside the signup tx
     expect(seedTriggeredCampaigns).toHaveBeenCalledWith("org-1", expect.anything());
+  });
+
+  it("mails the confirmation link returned by the auth admin", async () => {
+    const { deps, sendVerifyEmail } = makeDeps();
+    const res = await makeSignupPartner(deps)(BASE_INPUT);
+
+    expect(res.ok).toBe(true);
+    expect(sendVerifyEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "owner@example.ro",
+        verifyUrl: "https://supabase.test/auth/v1/verify?token=abc",
+      }),
+    );
+  });
+
+  it("still completes the signup when the confirmation email fails to send", async () => {
+    const sendVerifyEmail = jest.fn(async () => {
+      throw new Error("resend down");
+    });
+    const { deps } = makeDeps({ sendVerifyEmail });
+    const res = await makeSignupPartner(deps)(BASE_INPUT);
+
+    expect(res.ok).toBe(true);
   });
 
   it("audits user.created alongside organization/restaurant (M2 — §12 audit hooks)", async () => {
