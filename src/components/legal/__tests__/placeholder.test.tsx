@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { ENTITY } from "@/content/legal/entity";
 import { Placeholder } from "../placeholder";
 
 describe("<Placeholder>", () => {
@@ -10,7 +11,7 @@ describe("<Placeholder>", () => {
     });
 
     render(<Placeholder name="name" />);
-    const el = screen.getByText(/ENTITY NAME — TBD/);
+    const el = screen.getByText(ENTITY.name);
     expect(el).toBeInTheDocument();
     expect(el).not.toHaveClass("border-dashed");
 
@@ -30,7 +31,7 @@ describe("<Placeholder>", () => {
     const { container } = render(<Placeholder name="name" />);
     const box = container.querySelector(".border-dashed");
     expect(box).not.toBeNull();
-    expect(box).toHaveTextContent(/ENTITY NAME — TBD/);
+    expect(box).toHaveTextContent(ENTITY.name);
     expect(box).toHaveTextContent("PLACEHOLDER");
 
     Object.defineProperty(process.env, "NODE_ENV", {
