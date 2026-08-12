@@ -58,8 +58,12 @@ async function main(): Promise<void> {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is required.");
 
-  const host = new URL(url).hostname;
-  console.log(`⟳ bootstrapping against ${host}`);
+  // Name the target unmistakably. Supabase poolers share hostnames across
+  // regions, so the host alone does not identify the project — the ref lives
+  // in the username as `postgres.<ref>`. Never print the password.
+  const parsed = new URL(url);
+  const projectRef = parsed.username.split(".")[1] ?? "(unknown)";
+  console.log(`⟳ bootstrapping project ${projectRef} at ${parsed.hostname}`);
 
   const client = postgres(url, { prepare: false, max: 1 });
   const db = drizzle(client);
