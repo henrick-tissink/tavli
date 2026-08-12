@@ -60,7 +60,9 @@ async function sendWelcomeEmail(input: {
   const node = PartnerWelcomeEmail({
     fullName: input.fullName,
     restaurantName: input.restaurantName,
-    onboardingUrl: `${appOrigin()}/partner/onboarding`,
+    // /partner/onboarding is not a route — this CTA 404'd. The portal root
+    // renders the setup checklist, which is what the copy promises.
+    onboardingUrl: `${appOrigin()}/partner`,
     locale: input.locale,
   });
   const html = await render(node);

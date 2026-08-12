@@ -108,14 +108,22 @@ export async function proxy(request: NextRequest) {
   const publicRoutes = [
     "/admin/sign-in",
     "/partner/sign-in",
+    // Self-serve operator sign-up. The public pricing page links straight here
+    // (PricingTiers.tsx), so gating it bounced every prospect to sign-in.
+    "/partner/sign-up",
     "/onboard",
     "/reservations",
   ];
   const isPublic = publicRoutes.some((p) => pathname.startsWith(p));
   const needsAdmin =
     pathname.startsWith("/admin") && !pathname.startsWith("/admin/sign-in");
+  // Sign-in and sign-up are the two /partner routes a signed-out visitor must
+  // reach. Listing them in publicRoutes is not enough on its own — needsPartner
+  // drives the redirect below independently of isPublic.
   const needsPartner =
-    pathname.startsWith("/partner") && !pathname.startsWith("/partner/sign-in");
+    pathname.startsWith("/partner") &&
+    !pathname.startsWith("/partner/sign-in") &&
+    !pathname.startsWith("/partner/sign-up");
 
   if (!needsAdmin && !needsPartner && !isPublic) {
     return response;

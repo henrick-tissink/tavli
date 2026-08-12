@@ -453,7 +453,10 @@ export function DetailPageClient({ city, slug, restaurant, preselect }: Props) {
                   <p className="text-xs text-text-secondary leading-tight">{t("detail.stickyNextSlot", { slot: restaurant.availableSlots[0] })}</p>
                 )}
               </div>
-              <Button onClick={() => openSheet()} className="px-4">{t("detail.stickyBookCta")}</Button>
+              {/* px-4! not px-4: Button's own px-6 sorts later in the
+                  generated stylesheet, so an unmodified override is a no-op.
+                  There is no tailwind-merge in this project. */}
+              <Button onClick={() => openSheet()} className="px-4!">{t("detail.stickyBookCta")}</Button>
             </div>
           </motion.div>
         )}

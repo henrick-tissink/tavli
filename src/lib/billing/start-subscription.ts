@@ -166,8 +166,13 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
       mode: "setup",
       customer: stripeCustomerId,
       setup_intent_data: { metadata: { subscription_id: sub.id, organization_id: org.id } },
-      success_url: `${siteUrl}/partner/onboarding?card=success`,
-      cancel_url: `${siteUrl}/partner/onboarding?card=cancel`,
+      // /partner/onboarding has never existed as a route, so both of these
+      // returned the operator to a 404 immediately after entering card
+      // details. /partner is the portal root and renders the setup checklist.
+      // The card= params are preserved for logs and a future toast; nothing
+      // reads them yet.
+      success_url: `${siteUrl}/partner?card=success`,
+      cancel_url: `${siteUrl}/partner?card=cancel`,
     });
 
     // §7.1 step 8 — reminder jobs (fire via startAfter, not cron).

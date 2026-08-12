@@ -32,13 +32,15 @@ import { proxy } from "../proxy";
 
 interface MockRequestOpts {
   pathname?: string;
+  /** Include the leading "?" — e.g. "?tier=pro". */
+  search?: string;
   nextAction?: string | null;
   acceptLanguage?: string;
   cookies?: Record<string, string>;
 }
 
 function mockRequest(opts: MockRequestOpts = {}): NextRequest {
-  const url = `http://localhost${opts.pathname ?? "/"}`;
+  const url = `http://localhost${opts.pathname ?? "/"}${opts.search ?? ""}`;
   const headers = new Headers();
   if (opts.nextAction) headers.set("next-action", opts.nextAction);
   if (opts.acceptLanguage) headers.set("accept-language", opts.acceptLanguage);
@@ -247,6 +249,27 @@ describe("proxy", () => {
     });
     (createServerClient as jest.Mock).mockReturnValue(sb);
     const req = mockRequest({ pathname: "/admin/users" });
+    const res = await proxy(req);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("lets a signed-out visitor reach /partner/sign-up", async () => {
+    // Regression guard: the public pricing page links straight to
+    // /partner/sign-up (PricingTiers.tsx), and gating it bounced every
+    // prospect to sign-in. Listing it in publicRoutes is not sufficient on its
+    // own — needsPartner drives the redirect independently.
+    const sb = mockSupabase({ user: null });
+    (createServerClient as jest.Mock).mockReturnValue(sb);
+    const req = mockRequest({ pathname: "/partner/sign-up" });
+    const res = await proxy(req);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("keeps the sign-up query string reachable too", async () => {
+    // PricingTiers links with ?tier=…, so the prefix match must not be exact.
+    const sb = mockSupabase({ user: null });
+    (createServerClient as jest.Mock).mockReturnValue(sb);
+    const req = mockRequest({ pathname: "/partner/sign-up", search: "?tier=pro" });
     const res = await proxy(req);
     expect(res.headers.get("location")).toBeNull();
   });
