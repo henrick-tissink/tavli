@@ -45,9 +45,16 @@ export function makeEnforceRateLimit(deps: Deps) {
     // +60s buffer so cleanup job doesn't race with an in-flight window
     const expiresAt = new Date(windowEnd.getTime() + 60_000);
 
+    // ISO strings, not Date objects. Interpolating a Date into a raw `sql`
+    // template makes the driver throw "The 'string' argument must be of type
+    // string ... Received an instance of Date", which took down EVERY
+    // rate-limited path in production — signup, verification resend, review
+    // submission, wait-list, widget booking. It went unnoticed because the
+    // unit tests fake `db`, so the driver never serialises anything.
+    // The columns are timestamptz, which accepts an ISO-8601 string directly.
     const result = await deps.db.execute<{ count: number }>(sql`
       INSERT INTO rate_limits (key, scope, window_start, window_end, count, expires_at)
-      VALUES (${input.key}, ${input.scope}, ${windowStart}, ${windowEnd}, 1, ${expiresAt})
+      VALUES (${input.key}, ${input.scope}, ${windowStart.toISOString()}, ${windowEnd.toISOString()}, 1, ${expiresAt.toISOString()})
       ON CONFLICT (key, window_start) DO UPDATE
         SET count = rate_limits.count + 1
       RETURNING count;

@@ -40,6 +40,29 @@ function makeDb(count: number) {
 }
 
 describe("makeEnforceRateLimit", () => {
+  it("passes timestamps as ISO strings, never Date objects", async () => {
+    // Regression guard. Interpolating a Date into a raw `sql` template makes
+    // the postgres driver throw ("Received an instance of Date") at runtime,
+    // which took down every rate-limited path in production — signup,
+    // verification resend, review submission, wait-list, widget booking.
+    // Nothing caught it because these tests fake `db`, so the driver never
+    // serialises anything; this asserts the parameter types directly instead.
+    const db = makeDb(1);
+    const fn = makeEnforceRateLimit({
+      db: db as unknown as Parameters<typeof makeEnforceRateLimit>[0]["db"],
+      now: () => new Date(NOW_MS),
+    });
+    await fn({ key: KEY, scope: SCOPE });
+
+    const values = (db.execute.mock.calls[0][0] as { values: unknown[] }).values;
+    expect(values.filter((v) => v instanceof Date)).toEqual([]);
+    // window_start, window_end and expires_at are all timestamptz.
+    const isoStrings = values.filter(
+      (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v),
+    );
+    expect(isoStrings).toHaveLength(3);
+  });
+
   it("first call: count=1 → allowed=true, remaining=limit-1", async () => {
     const db = makeDb(1);
     const fn = makeEnforceRateLimit({ db: db as any, now: () => new Date(NOW_MS) });
