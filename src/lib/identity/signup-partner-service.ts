@@ -67,7 +67,7 @@ async function sendWelcomeEmail(input: {
   });
   const html = await render(node);
   const text = await render(node, { plainText: true });
-  await sendTransactionalEmail({
+  const res = await sendTransactionalEmail({
     to: input.to,
     locale: input.locale,
     templateKey: "partner_welcome",
@@ -76,6 +76,12 @@ async function sendWelcomeEmail(input: {
     text,
     context: {},
   });
+  // Reports failure rather than throwing; signupPartner treats a throw as
+  // best-effort and carries on, which is the behaviour we want — but only if
+  // the failure is actually visible.
+  if (!res.ok) {
+    throw new Error(`transactional send failed: ${res.error ?? "unknown"}`);
+  }
 }
 
 async function sendVerifyEmail(input: {
@@ -91,7 +97,7 @@ async function sendVerifyEmail(input: {
   });
   const html = await render(node);
   const text = await render(node, { plainText: true });
-  await sendTransactionalEmail({
+  const res = await sendTransactionalEmail({
     to: input.to,
     locale: input.locale,
     templateKey: "partner_verify",
@@ -100,6 +106,9 @@ async function sendVerifyEmail(input: {
     text,
     context: {},
   });
+  if (!res.ok) {
+    throw new Error(`transactional send failed: ${res.error ?? "unknown"}`);
+  }
 }
 
 export const signupPartner = makeSignupPartner({

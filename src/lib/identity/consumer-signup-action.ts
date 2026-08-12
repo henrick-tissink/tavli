@@ -43,7 +43,7 @@ async function mailVerification(
   const node = ConsumerVerifyEmail({ verifyUrl, locale });
   const html = await render(node);
   const text = await render(node, { plainText: true });
-  await sendTransactionalEmail({
+  const res = await sendTransactionalEmail({
     to,
     locale,
     templateKey: "consumer_verify",
@@ -52,6 +52,12 @@ async function mailVerification(
     text,
     context: {},
   });
+  // sendTransactionalEmail REPORTS failure, it does not throw. Ignoring the
+  // result made a silent outage: with PLATFORM_ORG_ID unset it bails before
+  // ever calling Resend, so signups looked fine and no email was sent.
+  if (!res.ok) {
+    throw new Error(`transactional send failed: ${res.error ?? "unknown"}`);
+  }
 }
 
 /**

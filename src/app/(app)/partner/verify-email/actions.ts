@@ -72,7 +72,7 @@ export async function resendVerificationAction(
       const node = PartnerVerifyEmail({ verifyUrl, locale });
       const html = await render(node);
       const text = await render(node, { plainText: true });
-      await sendTransactionalEmail({
+      const sent = await sendTransactionalEmail({
         to: email,
         locale,
         templateKey: "partner_verify",
@@ -81,6 +81,11 @@ export async function resendVerificationAction(
         text,
         context: {},
       });
+      // It reports failure rather than throwing, so the catch below never saw
+      // it and the Supabase fallback never fired — the operator got nothing.
+      if (!sent.ok) {
+        throw new Error(`transactional send failed: ${sent.error ?? "unknown"}`);
+      }
       return { ok: true };
     } catch (err) {
       console.error("[verify-email] branded resend failed, falling back:", err);
