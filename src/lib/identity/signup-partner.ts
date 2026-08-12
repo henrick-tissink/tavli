@@ -173,13 +173,30 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
     let restaurantId: string;
     try {
       const result = await deps.db.transaction(async (tx) => {
-        await tx.insert(profiles).values({
-          id: userId,
-          role: "restaurant_owner",
-          fullName: input.fullName.trim(),
-          email,
-          locale,
-        });
+        // The `on_auth_user_created` trigger (0001_rls_and_triggers.sql) already
+        // committed a profiles row with this id when the auth user was created,
+        // so a bare INSERT here raises 23505 — which isUniqueViolation would
+        // then mis-report as TV1403 "tax ID already claimed". Upsert instead, so
+        // this works whether or not the trigger is present. The invite path does
+        // the same thing via the claim_invitation RPC, which UPDATEs.
+        await tx
+          .insert(profiles)
+          .values({
+            id: userId,
+            role: "restaurant_owner",
+            fullName: input.fullName.trim(),
+            email,
+            locale,
+          })
+          .onConflictDoUpdate({
+            target: profiles.id,
+            set: {
+              role: "restaurant_owner",
+              fullName: input.fullName.trim(),
+              email,
+              locale,
+            },
+          });
 
         const [org] = await tx
           .insert(organizations)

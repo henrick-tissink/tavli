@@ -44,19 +44,35 @@ const BASE_INPUT: SignupInput = {
   locale: "ro",
 };
 
+/** Minimal stand-in for drizzle's insert builder chain. */
+interface InsertThenable {
+  returning: () => Promise<unknown>;
+  onConflictDoUpdate: (cfg?: unknown) => InsertThenable;
+  then: (res: (v: unknown) => unknown) => unknown;
+}
+
 function makeDb(opts: { priorTrial?: boolean; txThrow?: unknown } = {}) {
   const inserts: { table: string; values: Record<string, unknown> }[] = [];
+  // Tables whose insert was chained with .onConflictDoUpdate(). The
+  // `on_auth_user_created` trigger pre-creates the profiles row, so a bare
+  // insert there raises 23505 in production — this records the upsert so the
+  // regression cannot come back silently.
+  const upserts: string[] = [];
   const tx = {
     insert: (table: { __t: string }) => ({
       values: (vals: Record<string, unknown>) => {
         inserts.push({ table: table.__t, values: vals });
         if (opts.txThrow && table.__t === "organizations") throw opts.txThrow;
-        const thenable = {
+        const makeThenable = (): InsertThenable => ({
           returning: () =>
             Promise.resolve([{ id: table.__t === "organizations" ? "org-1" : "rest-1" }]),
+          onConflictDoUpdate: () => {
+            upserts.push(table.__t);
+            return makeThenable();
+          },
           then: (res: (v: unknown) => unknown) => res(undefined),
-        };
-        return thenable;
+        });
+        return makeThenable();
       },
     }),
     update: () => ({ set: () => ({ where: () => Promise.resolve(undefined) }) }),
@@ -71,11 +87,11 @@ function makeDb(opts: { priorTrial?: boolean; txThrow?: unknown } = {}) {
     }),
     transaction: async (cb: (t: typeof tx) => Promise<unknown>) => cb(tx),
   };
-  return { db: db as never, inserts };
+  return { db: db as never, inserts, upserts };
 }
 
 function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = {}, dbOpts = {}) {
-  const { db, inserts } = makeDb(dbOpts);
+  const { db, inserts, upserts } = makeDb(dbOpts);
   const authAdmin = {
     createUser: jest.fn(async () => ({
       userId: "user-1",
@@ -99,7 +115,7 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
     genSlugSuffix: () => "abc123",
     ...overrides,
   } as Parameters<typeof makeSignupPartner>[0];
-  return { deps, authAdmin, startSubscription, sendWelcomeEmail, sendVerifyEmail, recordAudit, seedTriggeredCampaigns, inserts };
+  return { deps, authAdmin, startSubscription, sendWelcomeEmail, sendVerifyEmail, recordAudit, seedTriggeredCampaigns, inserts, upserts };
 }
 
 describe("signupPartner", () => {
@@ -141,6 +157,18 @@ describe("signupPartner", () => {
     expect(inserts.find((i) => i.table === "restaurantStaff")!.values).toMatchObject({ role: "owner" });
     // §11 §6 — default triggered campaigns seeded inside the signup tx
     expect(seedTriggeredCampaigns).toHaveBeenCalledWith("org-1", expect.anything());
+  });
+
+  it("upserts the profiles row, since the auth trigger already created it", async () => {
+    // Regression guard: `on_auth_user_created` commits a profiles row when the
+    // auth user is created, so a bare INSERT raises 23505 and signupPartner
+    // mis-reports it as TV1403 "tax ID already claimed". Verified live: the
+    // trigger is present and enabled, and profiles' primary key is `id`.
+    const { deps, upserts } = makeDeps();
+    const res = await makeSignupPartner(deps)(BASE_INPUT);
+
+    expect(res.ok).toBe(true);
+    expect(upserts).toContain("profiles");
   });
 
   it("mails the confirmation link returned by the auth admin", async () => {
