@@ -325,8 +325,14 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
         });
         stripeCheckoutUrl = res.stripeCheckoutUrl;
         billingDeferred = false;
-      } catch {
+      } catch (err) {
         // Account is usable; billing completed later. Stays pending_verification.
+        //
+        // Deferring is the right behaviour — a Stripe outage must not fail an
+        // account — but swallowing the reason is not. A missing `currency` on
+        // the setup-mode Checkout session broke card collection for every
+        // signup and left no trace anywhere, because this catch was bare.
+        console.error("[signup] Stripe handoff failed, billing deferred:", err);
         billingDeferred = true;
       }
     }

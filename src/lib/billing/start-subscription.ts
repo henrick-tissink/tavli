@@ -164,6 +164,13 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
     // §7.1 step 7 — Checkout (setup-mode) for card-on-file.
     const session = await deps.stripe.checkout.sessions.create({
       mode: "setup",
+      // Required by Stripe in setup mode: there are no line items to infer it
+      // from. Without it the call fails with
+      //   invalid_request_error / parameter_missing / param: currency
+      // and signupPartner's catch silently set billingDeferred — so card
+      // collection never worked and nothing said so. Every TAVLI_PRICE_SPEC
+      // is EUR.
+      currency: "eur",
       customer: stripeCustomerId,
       setup_intent_data: { metadata: { subscription_id: sub.id, organization_id: org.id } },
       // /partner/onboarding has never existed as a route, so both of these
