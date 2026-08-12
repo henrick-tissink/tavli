@@ -46,6 +46,40 @@ describe("Button", () => {
     expect(btn.className).not.toContain("active:scale");
   });
 
+  it("is disabled and marked busy while loading", () => {
+    render(<Button loading>Saving…</Button>);
+    const btn = screen.getByRole("button");
+    expect(btn).toBeDisabled();
+    expect(btn).toHaveAttribute("aria-busy", "true");
+    expect(btn).toHaveClass("opacity-50", "cursor-not-allowed");
+  });
+
+  it("keeps the label visible while loading", () => {
+    // The reduced-motion guard in globals.css freezes the spinner, so the text
+    // is the only remaining cue for those users.
+    render(<Button loading>Saving…</Button>);
+    expect(screen.getByRole("button", { name: /Saving/ })).toBeInTheDocument();
+  });
+
+  it("does not fire onClick while loading", async () => {
+    // pointer-events-none is part of the disabled styling, so the default
+    // pointer-events assertion would throw before the click is attempted.
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    const handleClick = jest.fn();
+    render(
+      <Button loading onClick={handleClick}>
+        Saving…
+      </Button>,
+    );
+    await user.click(screen.getByRole("button"));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it("is not busy when idle", () => {
+    render(<Button>Idle</Button>);
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-busy");
+  });
+
   it("calls onClick handler", async () => {
     const user = userEvent.setup();
     const handleClick = jest.fn();
