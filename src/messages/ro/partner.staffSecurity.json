@@ -48,6 +48,18 @@
       "revoke": "Anulează",
       "resent": "Retrimisă",
       "error": "Eroare"
+    },
+    "acceptInvitation": {
+      "pending": "Se acceptă…",
+      "submit": "Acceptă invitația",
+      "errors": {
+        "auth_required": "Trebuie să fii conectat pentru a accepta invitația.",
+        "not_found": "Invitația nu a fost găsită.",
+        "invalid_input": "Invitația a expirat sau nu mai este validă.",
+        "forbidden": "Adresa de email a contului tău nu se potrivește cu invitația.",
+        "already_member": "Faci deja parte din această echipă.",
+        "generic": "A apărut o eroare. Încearcă din nou."
+      }
     }
   },
   "security": {

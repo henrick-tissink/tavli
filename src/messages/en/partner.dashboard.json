@@ -58,5 +58,11 @@
     "scheduleHint": "Your weekly schedule",
     "availabilityLabel": "Availability (reservations) set",
     "availabilityHint": "How many customers per slot"
+  },
+  "parallelRun": {
+    "title": "Running in parallel with your old system?",
+    "body": "Keep it live for 30 days as a safety net. When you’re ready to consolidate, bring your past reservations over with a CSV import — everything lands in Tavli in one go.",
+    "cta": "Make Tavli the main system",
+    "ctaPending": "Processing…"
   }
 }

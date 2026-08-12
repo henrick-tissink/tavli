@@ -48,6 +48,18 @@
       "revoke": "Cancel",
       "resent": "Resent",
       "error": "Error"
+    },
+    "acceptInvitation": {
+      "pending": "Accepting…",
+      "submit": "Accept invitation",
+      "errors": {
+        "auth_required": "You must be signed in to accept the invitation.",
+        "not_found": "The invitation was not found.",
+        "invalid_input": "The invitation has expired or is no longer valid.",
+        "forbidden": "Your account’s email address doesn’t match the invitation.",
+        "already_member": "You’re already part of this team.",
+        "generic": "Something went wrong. Please try again."
+      }
     }
   },
   "security": {

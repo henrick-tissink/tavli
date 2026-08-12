@@ -1315,6 +1315,22 @@ export interface AdminUsersMessages {
     submit: string;
     submitPending: string;
   };
+  /**
+   * Persistent banner rendered in the hijacked session while impersonation is
+   * active. Read server-side by `ImpersonationBanner` (partner shell chrome),
+   * but the copy is admin-support voice, so it lives with the rest of the
+   * impersonation flow.
+   */
+  impersonationBanner: {
+    ariaLabel: string;
+    viewingAs: string;
+    actingAs: string;
+    started: string;
+    stop: string;
+    justNow: string;
+    minAgo: PluralBag;
+    hrAgo: PluralBag;
+  };
 }
 
 /** Structural contract for the `admin.setups` namespace (in-flight onboarding monitor). */
@@ -2149,6 +2165,23 @@ export interface PartnerStaffSecurityMessages {
       revoke: string;
       resent: string;
       error: string;
+    };
+    /**
+     * Invitee-facing accept screen (`/invitations/[token]/accept-staff`). It
+     * renders outside any MessagesProvider, so the server page reads these and
+     * hands them to the client form as a prop.
+     */
+    acceptInvitation: {
+      pending: string;
+      submit: string;
+      errors: {
+        auth_required: string;
+        not_found: string;
+        invalid_input: string;
+        forbidden: string;
+        already_member: string;
+        generic: string;
+      };
     };
   };
   security: {
@@ -2992,6 +3025,13 @@ export interface PartnerDashboardMessages {
     scheduleHint: string;
     availabilityLabel: string;
     availabilityHint: string;
+  };
+  /** Parallel-run coaching banner (setup/migration, partner dashboard chrome). */
+  parallelRun: {
+    title: string;
+    body: string;
+    cta: string;
+    ctaPending: string;
   };
 }
 

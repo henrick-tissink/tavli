@@ -58,13 +58,9 @@ const RO_DIACRITIC = /[ăâîșțĂÂÎȘȚ]/;
 
 /**
  * Files whose Romanian strings are knowingly deferred to a localization
- * follow-up.
- * - ParallelRunBanner: an unused (not-mounted) partner setup/migration banner;
- *   localize when the parallel-run feature is wired up.
+ * follow-up. Empty — every scanned file is extracted.
  */
-const DEFERRED_FILES: string[] = [
-  join(__dirname, "..", "components", "setup", "ParallelRunBanner.tsx"),
-];
+const DEFERRED_FILES: string[] = [];
 
 /**
  * Components that ARE localized, but via an inline `{ ro, en, de }` COPY map

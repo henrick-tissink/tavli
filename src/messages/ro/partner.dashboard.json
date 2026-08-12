@@ -58,5 +58,11 @@
     "scheduleHint": "Programul tău săptămânal",
     "availabilityLabel": "Disponibilitate (rezervări) setată",
     "availabilityHint": "Câți clienți pe interval"
+  },
+  "parallelRun": {
+    "title": "Rulezi în paralel cu sistemul vechi?",
+    "body": "Păstrează-l activ 30 de zile ca plasă de siguranță. Când ești gata să consolidezi, importă rezervările istorice prin import CSV — aduce totul în Tavli dintr-o singură mișcare.",
+    "cta": "Tavli devine sistemul principal",
+    "ctaPending": "Se procesează…"
   }
 }

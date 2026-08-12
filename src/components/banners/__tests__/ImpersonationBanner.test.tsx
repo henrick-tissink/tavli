@@ -10,6 +10,13 @@ jest.mock("@/lib/auth/impersonation-session", () => ({
   stopImpersonationSession: jest.fn(),
 }));
 
+// The banner reads its copy from the `admin.users` catalogue via
+// resolveAppLocale(), which needs a request store. Pin it to "en" so the
+// assertions below match the English (source) column.
+jest.mock("@/lib/i18n/app-locale", () => ({
+  resolveAppLocale: jest.fn().mockResolvedValue("en"),
+}));
+
 import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 
 describe("ImpersonationBanner", () => {

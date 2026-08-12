@@ -43,5 +43,15 @@
     "cancel": "Cancel",
     "submit": "Start impersonating →",
     "submitPending": "Starting…"
+  },
+  "impersonationBanner": {
+    "ariaLabel": "Impersonation session active",
+    "viewingAs": "Tavli support viewing this account as {email}",
+    "actingAs": "Acting as {email}",
+    "started": "Started {time}",
+    "stop": "Stop impersonating →",
+    "justNow": "just now",
+    "minAgo": { "one": "{count} min ago", "few": "{count} min ago", "other": "{count} min ago" },
+    "hrAgo": { "one": "{count} hr ago", "few": "{count} hr ago", "other": "{count} hr ago" }
   }
 }

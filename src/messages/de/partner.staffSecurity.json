@@ -48,6 +48,18 @@
       "revoke": "Abbrechen",
       "resent": "Erneut gesendet",
       "error": "Fehler"
+    },
+    "acceptInvitation": {
+      "pending": "Wird angenommen…",
+      "submit": "Einladung annehmen",
+      "errors": {
+        "auth_required": "Sie müssen angemeldet sein, um die Einladung anzunehmen.",
+        "not_found": "Die Einladung wurde nicht gefunden.",
+        "invalid_input": "Die Einladung ist abgelaufen oder nicht mehr gültig.",
+        "forbidden": "Die E-Mail-Adresse Ihres Kontos stimmt nicht mit der Einladung überein.",
+        "already_member": "Sie gehören bereits zu diesem Team.",
+        "generic": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+      }
     }
   },
   "security": {

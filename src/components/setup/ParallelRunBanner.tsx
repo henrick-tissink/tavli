@@ -8,12 +8,15 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/button";
+import { useT } from "@/lib/i18n/messages-provider";
 
 export function ParallelRunBanner({
   onConsolidate,
 }: {
   onConsolidate: () => Promise<{ ok: boolean }>;
 }) {
+  const t = useT("partner.dashboard");
+  const tUi = useT("ui");
   const [dismissed, setDismissed] = useState(false);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -23,15 +26,14 @@ export function ParallelRunBanner({
     <div className="relative rounded-card border border-border bg-brand-primary-soft p-5">
       <button
         onClick={() => setDismissed(true)}
-        aria-label="Închide"
+        aria-label={tUi("close")}
         className="absolute right-3 top-3 text-text-muted hover:text-text-primary"
       >
         <X size={18} />
       </button>
-      <p className="font-display text-lg font-bold text-text-primary">Rulezi în paralel cu sistemul vechi?</p>
+      <p className="font-display text-lg font-bold text-text-primary">{t("parallelRun.title")}</p>
       <p className="mt-1 max-w-2xl text-sm text-text-secondary leading-relaxed">
-        Păstrează-l activ 30 de zile ca plasă de siguranță. Când ești gata să consolidezi, importă
-        rezervările istorice prin import CSV — aduce totul în Tavli dintr-o singură mișcare.
+        {t("parallelRun.body")}
       </p>
       <Button
         variant="secondary"
@@ -44,7 +46,7 @@ export function ParallelRunBanner({
           if (r.ok) setDone(true);
         }}
       >
-        {busy ? "Se procesează…" : "Tavli devine sistemul principal"}
+        {busy ? t("parallelRun.ctaPending") : t("parallelRun.cta")}
       </Button>
     </div>
   );

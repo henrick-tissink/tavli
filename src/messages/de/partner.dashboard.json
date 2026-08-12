@@ -58,5 +58,11 @@
     "scheduleHint": "Ihr Wochenplan",
     "availabilityLabel": "Verfügbarkeit (Reservierungen) gesetzt",
     "availabilityHint": "Wie viele Kundinnen und Kunden pro Zeitfenster"
+  },
+  "parallelRun": {
+    "title": "Laufen Sie parallel zu Ihrem alten System?",
+    "body": "Lassen Sie es 30 Tage als Sicherheitsnetz aktiv. Wenn Sie bereit sind zu konsolidieren, übernehmen Sie Ihre bisherigen Reservierungen per CSV-Import — alles landet in einem Zug in Tavli.",
+    "cta": "Tavli zum Hauptsystem machen",
+    "ctaPending": "Wird verarbeitet…"
   }
 }

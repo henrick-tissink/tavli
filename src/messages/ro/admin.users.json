@@ -43,5 +43,15 @@
     "cancel": "Anulează",
     "submit": "Începe preluarea identității →",
     "submitPending": "Se pornește…"
+  },
+  "impersonationBanner": {
+    "ariaLabel": "Sesiune de preluare a identității activă",
+    "viewingAs": "Suportul Tavli vede acest cont ca {email}",
+    "actingAs": "Acționează ca {email}",
+    "started": "Început {time}",
+    "stop": "Oprește preluarea identității →",
+    "justNow": "chiar acum",
+    "minAgo": { "one": "acum {count} min", "few": "acum {count} min", "other": "acum {count} min" },
+    "hrAgo": { "one": "acum {count} h", "few": "acum {count} h", "other": "acum {count} h" }
   }
 }

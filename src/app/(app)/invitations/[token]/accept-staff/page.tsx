@@ -8,6 +8,8 @@ import {
 } from "@/lib/db/schema";
 import { hashInvitationToken } from "@/lib/invitations";
 import { getCurrentSession } from "@/lib/auth/session";
+import { resolveAppLocale } from "@/lib/i18n/app-locale";
+import { getMessages } from "@/lib/i18n/messages";
 import { AcceptStaffForm } from "./AcceptStaffForm";
 import { TavliLogo } from "@/components/tavli-logo";
 
@@ -146,7 +148,13 @@ export default async function AcceptStaffInvitationPage({
           <strong>{inv.email}</strong>. Conectează-te cu adresa corectă pentru a accepta.
         </p>
       ) : (
-        <AcceptStaffForm token={token} />
+        <AcceptStaffForm
+          token={token}
+          msgs={
+            getMessages(await resolveAppLocale(), "partner.staffSecurity").staff
+              .acceptInvitation
+          }
+        />
       )}
     </Shell>
   );

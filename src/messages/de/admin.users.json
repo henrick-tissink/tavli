@@ -43,5 +43,15 @@
     "cancel": "Abbrechen",
     "submit": "Übernahme starten →",
     "submitPending": "Wird gestartet…"
+  },
+  "impersonationBanner": {
+    "ariaLabel": "Identitätsübernahme aktiv",
+    "viewingAs": "Tavli-Support sieht dieses Konto als {email}",
+    "actingAs": "Handelt als {email}",
+    "started": "Gestartet {time}",
+    "stop": "Übernahme beenden →",
+    "justNow": "gerade eben",
+    "minAgo": { "one": "vor {count} Min.", "few": "vor {count} Min.", "other": "vor {count} Min." },
+    "hrAgo": { "one": "vor {count} Std.", "few": "vor {count} Std.", "other": "vor {count} Std." }
   }
 }
