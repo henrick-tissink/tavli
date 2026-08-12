@@ -12,7 +12,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/db/server";
-import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
+import { dbAdmin } from "@/lib/db/admin";
+import { resolvePostAuthPath } from "@/lib/auth/post-auth-redirect";
 import { eventRequests, organizations, profiles, restaurants } from "@/lib/db/schema";
 import { promoteDraftToNew } from "@/lib/repos/event-requests-repo";
 import { insertNotification } from "@/lib/repos/partner-notifications-repo";
@@ -141,40 +142,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     }
   }
 
-  // A partner confirming their email address lands here with a freshly
-  // exchanged session and no `token`. Dropping them on the consumer storefront
-  // strands them outside the portal they just signed up for, so route by role.
-  // Consumers (and anyone without a session) keep the storefront.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    // Reaching this point means Supabase validated a token mailed to this
-    // address, so mailbox control is proven. Magic links (used by the resend
-    // path) do not reliably stamp email_confirmed_at, and an unconfirmed user
-    // is bounced straight back to /partner/verify-email by the dashboard gate.
-    // Confirm explicitly so the journey cannot loop.
-    if (!user.email_confirmed_at) {
-      try {
-        const admin = createSupabaseAdminClient();
-        await admin.auth.admin.updateUserById(user.id, { email_confirm: true });
-      } catch (err) {
-        console.error("[auth/callback] explicit email confirm failed:", err);
-      }
-    }
-
-    const [profile] = await dbAdmin
-      .select({ role: profiles.role })
-      .from(profiles)
-      .where(eq(profiles.id, user.id))
-      .limit(1);
-    if (profile?.role === "restaurant_owner" || profile?.role === "admin") {
-      return NextResponse.redirect(new URL("/partner/verified", publicOrigin));
-    }
-    // Diners get their own confirmation rather than being dropped on the
-    // storefront with no sign that anything happened.
-    return NextResponse.redirect(new URL("/auth/verified", publicOrigin));
-  }
-
-  return NextResponse.redirect(new URL("/", publicOrigin));
+  // Shared with /auth/confirm so the two entry points route identically.
+  const path = await resolvePostAuthPath(supabase);
+  return NextResponse.redirect(new URL(path, publicOrigin));
 }

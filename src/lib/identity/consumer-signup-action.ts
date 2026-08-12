@@ -20,7 +20,7 @@ import { eq } from "drizzle-orm";
 import { dbAdmin, createSupabaseAdminClient } from "@/lib/db/admin";
 import { profiles } from "@/lib/db/schema";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
-import { appOrigin } from "@/lib/app-origin";
+import { buildConfirmUrl } from "@/lib/auth/confirm-url";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { ConsumerVerifyEmail, getSubject } from "@/emails/ConsumerVerifyEmail";
 import { isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locale";
@@ -84,11 +84,10 @@ async function resendIfUnconfirmed(email: string, locale: Locale): Promise<void>
   const { data, error } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: { redirectTo: `${appOrigin()}/auth/callback` },
   });
-  const verifyUrl = data?.properties?.action_link;
-  if (error || !verifyUrl) return;
-  await mailVerification(email, locale, verifyUrl);
+  const hashedToken = data?.properties?.hashed_token;
+  if (error || !hashedToken) return;
+  await mailVerification(email, locale, buildConfirmUrl(hashedToken, "magiclink"));
 }
 
 export async function consumerSignUpAction(input: {
@@ -126,14 +125,14 @@ export async function consumerSignUpAction(input: {
     type: "signup",
     email,
     password: input.password,
-    options: {
-      data: { locale },
-      redirectTo: `${appOrigin()}/auth/callback`,
-    },
+    options: { data: { locale } },
   });
 
-  const verifyUrl = data?.properties?.action_link;
-  if (error || !data?.user || !verifyUrl) {
+  // hashed_token, not action_link: see buildConfirmUrl. The action_link points
+  // at Supabase's verify endpoint, which uses the implicit flow and hands the
+  // session back in a URL fragment the server can never see.
+  const hashedToken = data?.properties?.hashed_token;
+  if (error || !data?.user || !hashedToken) {
     // Almost always "email already registered". Returning the same
     // check-your-email result as a fresh signup keeps this from becoming an
     // enumeration oracle — the old client-side signUp leaked this via a raw
@@ -159,7 +158,7 @@ export async function consumerSignUpAction(input: {
   }
 
   try {
-    await mailVerification(email, locale, verifyUrl);
+    await mailVerification(email, locale, buildConfirmUrl(hashedToken, "signup"));
   } catch (err) {
     // The account exists either way; a retry now routes through
     // resendIfUnconfirmed, so this is recoverable rather than terminal.

@@ -4,6 +4,10 @@ import { render } from "@react-email/render";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { createSupabaseAdminClient } from "@/lib/db/admin";
 import { enforceRateLimit } from "@/lib/rate-limit/enforce";
+import { buildConfirmUrl } from "@/lib/auth/confirm-url";
+// Still needed by the Supabase fallback below: auth.resend() goes through the
+// SSR client, which uses PKCE and does produce a `code`, so that path
+// correctly targets /auth/callback rather than /auth/confirm.
 import { appOrigin } from "@/lib/app-origin";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
@@ -30,10 +34,11 @@ async function generateVerifyLink(email: string): Promise<string | null> {
     const { data, error } = await admin.auth.admin.generateLink({
       type: "magiclink",
       email,
-      options: { redirectTo: `${appOrigin()}/auth/callback` },
     });
     if (error) return null;
-    return data?.properties?.action_link ?? null;
+    const hashedToken = data?.properties?.hashed_token;
+    // hashed_token, not action_link — see buildConfirmUrl.
+    return hashedToken ? buildConfirmUrl(hashedToken, "magiclink") : null;
   } catch {
     return null;
   }

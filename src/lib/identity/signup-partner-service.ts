@@ -16,6 +16,7 @@ import { getStripe } from "@/lib/stripe/client";
 import { makeStartSubscription } from "@/lib/billing/start-subscription";
 import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { appOrigin } from "@/lib/app-origin";
+import { buildConfirmUrl } from "@/lib/auth/confirm-url";
 import { PartnerWelcomeEmail, getSubject } from "@/emails/PartnerWelcomeEmail";
 import {
   PartnerVerifyEmail,
@@ -34,16 +35,16 @@ const authAdmin: SignupAuthAdmin = {
       type: "signup",
       email,
       password,
-      options: {
-        data: { locale },
-        redirectTo: `${appOrigin()}/auth/callback`,
-      },
+      options: { data: { locale } },
     });
-    const verifyUrl = data?.properties?.action_link;
-    if (error || !data?.user || !verifyUrl) {
+    // hashed_token, not action_link — see buildConfirmUrl. action_link points
+    // at Supabase's verify endpoint, which returns the session in a URL
+    // fragment the server cannot read.
+    const hashedToken = data?.properties?.hashed_token;
+    if (error || !data?.user || !hashedToken) {
       throw new Error(error?.message ?? "auth user creation failed");
     }
-    return { userId: data.user.id, verifyUrl };
+    return { userId: data.user.id, verifyUrl: buildConfirmUrl(hashedToken, "signup") };
   },
   async deleteUser(userId) {
     const admin = createSupabaseAdminClient();

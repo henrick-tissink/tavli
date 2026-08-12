@@ -20,6 +20,23 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const SRC = readFileSync(join(__dirname, "..", "route.ts"), "utf8");
+const CONFIRM_SRC = readFileSync(
+  join(__dirname, "..", "..", "confirm", "route.ts"),
+  "utf8",
+);
+
+describe("auth confirm redirect origin", () => {
+  it("never builds a redirect from the request URL", () => {
+    const offenders = CONFIRM_SRC.split("\n").filter((line) =>
+      /NextResponse\.redirect\(\s*new URL\([^)]*,\s*(url|req\.url|request\.url)\s*\)/.test(line),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it("derives the public origin from appOrigin", () => {
+    expect(CONFIRM_SRC).toContain("const publicOrigin = appOrigin();");
+  });
+});
 
 describe("auth callback redirect origin", () => {
   it("never builds a redirect from the request URL", () => {
