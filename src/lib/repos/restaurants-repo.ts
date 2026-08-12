@@ -10,6 +10,7 @@
  * functions and pass the result to client sub-components as props.
  */
 
+import { cache } from "react";
 import type {
   Restaurant,
   RestaurantDetail,
@@ -91,9 +92,64 @@ async function fetchAllPhotos(restaurantId: string): Promise<string[]> {
     .filter((u): u is string => !!u);
 }
 
-async function restaurantFromRow(row: Record<string, unknown>): Promise<Restaurant> {
+/**
+ * Hero photo URL for many restaurants in ONE query.
+ *
+ * The per-row `fetchHeroPhoto` is fine for a single venue but turns a list
+ * render into an N+1 storm — see `dbGetRestaurants` for why that matters.
+ */
+async function fetchHeroPhotos(
+  restaurantIds: string[],
+): Promise<Map<string, string | null>> {
+  const out = new Map<string, string | null>();
+  if (restaurantIds.length === 0) return out;
+  const sb = supabaseAnon()!;
+  const { data } = await sb
+    .from("restaurant_photos")
+    .select("restaurant_id, storage_path")
+    .in("restaurant_id", restaurantIds)
+    .eq("kind", "hero");
+  for (const row of data ?? []) {
+    const id = row.restaurant_id as string;
+    // `maybeSingle()` semantics per restaurant: first hero row wins.
+    if (!out.has(id)) out.set(id, resolvePhotoUrl(row.storage_path));
+  }
+  return out;
+}
+
+/**
+ * Today's bookable slots for many restaurants in ONE query — the batched
+ * counterpart of `fetchTodaySlots`, same windowing rules via `computeSlots`.
+ */
+async function fetchTodaySlotsBatch(
+  restaurantIds: string[],
+): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  if (restaurantIds.length === 0) return out;
+  const sb = supabaseAnon()!;
+  const dayOfWeek = new Date().getDay(); // 0=Sun..6=Sat — matches schema convention
+  const { data } = await sb
+    .from("restaurant_availability")
+    .select("restaurant_id, slot_start, slot_end")
+    .in("restaurant_id", restaurantIds)
+    .eq("day_of_week", dayOfWeek);
+  const windows = new Map<string, { slotStart: string; slotEnd: string }[]>();
+  for (const row of data ?? []) {
+    const id = row.restaurant_id as string;
+    const list = windows.get(id) ?? [];
+    list.push({ slotStart: row.slot_start as string, slotEnd: row.slot_end as string });
+    windows.set(id, list);
+  }
+  for (const [id, list] of windows) out.set(id, computeSlots(list));
+  return out;
+}
+
+/** Row → `Restaurant`, with the hero photo already resolved by the caller. */
+function restaurantFromRowWithHero(
+  row: Record<string, unknown>,
+  heroUrl: string | null,
+): Restaurant {
   const id = row.id as string;
-  const heroUrl = await fetchHeroPhoto(id);
   return {
     id,
     slug: row.slug as string,
@@ -116,7 +172,27 @@ async function restaurantFromRow(row: Record<string, unknown>): Promise<Restaura
   };
 }
 
-async function dbGetRestaurants(): Promise<Restaurant[]> {
+/** Single-row convenience wrapper — used by the detail/menu/nearby paths. */
+async function restaurantFromRow(row: Record<string, unknown>): Promise<Restaurant> {
+  return restaurantFromRowWithHero(row, await fetchHeroPhoto(row.id as string));
+}
+
+/**
+ * Batch-load the live restaurant list: 3 round-trips regardless of corpus
+ * size (rows + hero photos + today's availability).
+ *
+ * This used to fan out 2 extra queries PER ROW (hero photo + today's slots).
+ * With 66 live venues that is 133 concurrent awaits per call — and the city
+ * shell layout plus the feed page's three loaders each call this, so one
+ * `/[lang]/[city]` render issued ~532 PostgREST round-trips. In production
+ * that is merely wasteful, but in `next dev` React's async-debug-info
+ * instrumentation walks the resulting await graph with the RECURSIVE
+ * `visitAsyncNode` (react-server-dom-turbopack-server.node.development.js),
+ * which blew the stack — "RangeError: Maximum call stack size exceeded" —
+ * and dragged the render out to ~2.5 minutes. Keeping the await graph small
+ * is what keeps dev usable; see the `cache()` wrapper below too.
+ */
+async function loadRestaurants(): Promise<Restaurant[]> {
   const sb = supabaseAnon()!;
   const { data } = await sb
     .from("restaurants")
@@ -125,18 +201,31 @@ async function dbGetRestaurants(): Promise<Restaurant[]> {
     )
     .eq("status", "live")
     .order("rating", { ascending: false });
-  // Parallel-fetch today's slots so discovery cards show real availability
-  // instead of always saying "no tables tonight".
-  return Promise.all(
-    (data ?? []).map(async (r) => {
-      const [base, slots] = await Promise.all([
-        restaurantFromRow(r),
-        fetchTodaySlots(r.id as string),
-      ]);
-      return { ...base, availableSlots: slots };
-    }),
-  );
+  const rows = data ?? [];
+  const ids = rows.map((r) => r.id as string);
+  // Batched so discovery cards still show real availability and hero imagery
+  // without a per-row query storm.
+  const [heroes, slotsById] = await Promise.all([
+    fetchHeroPhotos(ids),
+    fetchTodaySlotsBatch(ids),
+  ]);
+  return rows.map((r) => {
+    const id = r.id as string;
+    return {
+      ...restaurantFromRowWithHero(r, heroes.get(id) ?? null),
+      availableSlots: slotsById.get(id) ?? [],
+    };
+  });
 }
+
+/**
+ * Per-request memoization via React's `cache()`. The city shell layout and
+ * the feed page's `getRestaurants` / `getTrendingRestaurants` /
+ * `getNewRestaurants` all want the same list in one render; without this
+ * they each re-query. Outside a React render (jest, scripts, sitemap) this
+ * is a passthrough, so behaviour is unchanged there.
+ */
+const dbGetRestaurants = cache(loadRestaurants);
 
 async function dbGetRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   const sb = supabaseAnon()!;
@@ -433,15 +522,22 @@ export async function listRestaurants(
     if (input.limit) query = query.limit(input.limit);
 
     const { data } = await query;
-    const rows = await Promise.all(
-      (data ?? []).map(async (r) => {
-        const [base, slots] = await Promise.all([
-          restaurantFromRow(r),
-          fetchTodaySlots(r.id as string),
-        ]);
-        return { ...base, availableSlots: slots };
-      }),
-    );
+    // Batched, not per-row — same reason as `loadRestaurants` above: a
+    // per-row fan-out here overflows React's recursive dev-mode async-debug
+    // walker once enough venues match.
+    const listRows = data ?? [];
+    const listIds = listRows.map((r) => r.id as string);
+    const [listHeroes, listSlots] = await Promise.all([
+      fetchHeroPhotos(listIds),
+      fetchTodaySlotsBatch(listIds),
+    ]);
+    const rows = listRows.map((r) => {
+      const id = r.id as string;
+      return {
+        ...restaurantFromRowWithHero(r, listHeroes.get(id) ?? null),
+        availableSlots: listSlots.get(id) ?? [],
+      };
+    });
     // Attach each venue's accepted event occasions for the events-landing
     // filter. Only when the caller asked for the events capability, to keep
     // other list queries lean. Absent/empty settings ⇒ accepts all occasions.

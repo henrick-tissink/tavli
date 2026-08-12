@@ -1,13 +1,21 @@
 /**
  * Playwright E2E — consumer sheet v2 walkthrough.
  *
- * Status: scaffold. Skipped pending resolution of the pre-existing
- * unhandledRejection ("Maximum call stack size exceeded") that fires
- * whenever `next dev` boots with NEXT_PUBLIC_USE_DB=true (unrelated to
- * corporate-bookings; surfaces on any DB-mode route).
+ * Walks the 4-step EventRequestSheetV2 against a seeded venue.
  *
- * Once that blocker clears, remove the .skip and the test should walk
- * the 4-step EventRequestSheetV2 against a seeded venue.
+ * The long-standing "Maximum call stack size exceeded" unhandledRejection that
+ * used to block every DB-mode dev route is FIXED (it was the N+1 fan-out in
+ * restaurants-repo overflowing React's dev-only recursive `visitAsyncNode`
+ * async-debug walker). Verified: the seeded venue page now renders in ~250ms
+ * with zero unhandledRejections, and the heading assertion below passes.
+ *
+ * Still `.skip`ped for a DIFFERENT, unrelated reason: this spec is an
+ * unfinished scaffold that was never green. The venue detail page renders no
+ * "Organizează un eveniment privat" CTA for a bare seeded venue, so step 1
+ * times out. Un-skipping needs the fixture to seed whatever gates that CTA
+ * (a `restaurant_event_settings` row and/or the private-spaces/occasions data)
+ * and the step 2-4 selectors re-checked against current copy — product work,
+ * not an infrastructure blocker.
  */
 
 import { test, expect } from "@playwright/test";
@@ -30,7 +38,10 @@ test.afterAll(async () => {
 test.skip("v2 sheet walks the 4 steps and submits", async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto(`/${venue.citySlug}/${venue.slug}`);
-  await expect(page.getByRole("heading", { name: /E2E Test Venue/i })).toBeVisible({ timeout: 60_000 });
+  // The venue name appears in both the hero h1 and the sticky desktop h2.
+  await expect(
+    page.getByRole("heading", { name: /E2E Test Venue/i }).first(),
+  ).toBeVisible({ timeout: 60_000 });
 
   await page.getByRole("button", { name: /Organizează un eveniment privat/i }).click();
   await expect(page.getByText(/Pas 1 din 4/i)).toBeVisible();

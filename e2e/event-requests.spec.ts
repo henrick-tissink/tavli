@@ -1,18 +1,22 @@
 /**
  * Playwright E2E — event-request flow.
  *
- * Status: skeleton committed alongside Playwright install. The infra is
- * in place (Mailpit helper, DB seed fixtures, playwright.config.ts that
- * boots `next dev` with NEXT_PUBLIC_USE_DB=true) but both tests are
- * `test.skip` until the pre-existing dev-mode stack-overflow under
- * USE_DB=true is fixed (unrelated to corporate-bookings — surfaces on any
- * route that hits the DB-backed restaurants-repo path).
+ * "consumer submits" validates the EventRequestSheet form + OTP delivery to
+ * Mailpit. The dev-mode stack-overflow under USE_DB=true that used to block
+ * every DB-backed route is FIXED (N+1 fan-out in restaurants-repo overflowing
+ * React's dev-only recursive `visitAsyncNode` async-debug walker). The dev
+ * server now boots and serves seeded venue pages cleanly under USE_DB=true.
  *
- * Once the dev server boots cleanly under USE_DB=true:
- *   - Un-skip "consumer submits": validates EventRequestSheet form +
- *     OTP delivery to Mailpit.
- *   - Build the full happy path (partner sign-in helper, quote flow,
- *     consumer accept, partner materialize, DB assertion on reservations).
+ * It stays `.skip`ped for a DIFFERENT, unrelated reason: the spec is a stale
+ * scaffold that was never green. Two known gaps, both reproduced locally:
+ *   1. `getByRole("heading", { name: /E2E Test Venue/i })` is a strict-mode
+ *      violation — the name renders in both the hero h1 and the sticky h2;
+ *      needs `.first()`.
+ *   2. A bare seeded venue renders no "organizează un eveniment" CTA, so the
+ *      form is unreachable. The fixture must also seed whatever gates it.
+ *
+ * Still to build: the full happy path (partner sign-in helper, quote flow,
+ * consumer accept, partner materialize, DB assertion on reservations).
  *
  * Prerequisites:
  *   - `npx supabase start` (Mailpit on 54324, Postgres on 54322)

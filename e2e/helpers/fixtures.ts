@@ -30,10 +30,29 @@ export async function seedEventVenue(slugHint: string): Promise<EventVenue> {
     RETURNING id, slug
   `;
 
+  // `restaurants.organization_id` is NOT NULL, so every venue needs an owning
+  // org. There is no unique index to ON CONFLICT against, so look it up by the
+  // stable e2e contact email first and only insert when missing.
+  const org =
+    (
+      await sql<{ id: string }[]>`
+        SELECT id FROM organizations
+        WHERE primary_contact_email = 'e2e-org@example.local'
+        LIMIT 1
+      `
+    )[0] ??
+    (
+      await sql<{ id: string }[]>`
+        INSERT INTO organizations (name, primary_contact_email, status)
+        VALUES ('E2E Org', 'e2e-org@example.local', 'active')
+        RETURNING id
+      `
+    )[0];
+
   const slug = `e2e-${slugHint}-${Date.now()}`;
   const [r] = await sql<{ id: string; slug: string }[]>`
-    INSERT INTO restaurants (slug, name, city_id, status, events_intake_enabled)
-    VALUES (${slug}, ${"E2E Test Venue"}, ${city.id}, 'live', true)
+    INSERT INTO restaurants (slug, name, city_id, organization_id, status, events_intake_enabled)
+    VALUES (${slug}, ${"E2E Test Venue"}, ${city.id}, ${org.id}, 'live', true)
     RETURNING id, slug
   `;
 
