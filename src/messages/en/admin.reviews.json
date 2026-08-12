@@ -18,7 +18,9 @@
   },
   "actions": {
     "uphold": "Uphold (hide review)",
-    "dismiss": "Dismiss"
+    "upholdPending": "Hiding…",
+    "dismiss": "Dismiss",
+    "dismissPending": "Dismissing…"
   },
   "reasons": {
     "inappropriate": "Inappropriate",

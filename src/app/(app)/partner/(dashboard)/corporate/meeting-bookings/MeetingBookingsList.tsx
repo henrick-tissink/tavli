@@ -136,7 +136,9 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {actionBusy("confirmed") ? <Spinner size={14} /> : <Check size={14} />}{" "}
-                    {t("meetingBookings.actions.confirm")}
+                    {actionBusy("confirmed")
+                      ? t("meetingBookings.actions.pending")
+                      : t("meetingBookings.actions.confirm")}
                   </button>
                   <button
                     type="button"
@@ -146,7 +148,9 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                   >
                     {actionBusy("declined") ? <Spinner size={14} /> : <X size={14} />}{" "}
-                    {t("meetingBookings.actions.decline")}
+                    {actionBusy("declined")
+                      ? t("meetingBookings.actions.pending")
+                      : t("meetingBookings.actions.decline")}
                   </button>
                 </>
               )}
@@ -160,7 +164,9 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {actionBusy("completed") ? <Spinner size={14} /> : <Flag size={14} />}{" "}
-                    {t("meetingBookings.actions.complete")}
+                    {actionBusy("completed")
+                      ? t("meetingBookings.actions.pending")
+                      : t("meetingBookings.actions.complete")}
                   </button>
                   <button
                     type="button"
@@ -170,7 +176,9 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                   >
                     {actionBusy("cancelled") ? <Spinner size={14} /> : <Ban size={14} />}{" "}
-                    {t("meetingBookings.actions.cancel")}
+                    {actionBusy("cancelled")
+                      ? t("meetingBookings.actions.pending")
+                      : t("meetingBookings.actions.cancel")}
                   </button>
                 </>
               )}

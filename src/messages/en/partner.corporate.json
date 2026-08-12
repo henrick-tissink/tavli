@@ -196,6 +196,7 @@
     "capacitySingle": "{count} guests",
     "editAriaLabel": "Edit {name}",
     "deactivateAriaLabel": "Deactivate {name}",
+    "deactivatePending": "Deactivating…",
     "addSpace": "Add space",
     "closeAriaLabel": "Close",
     "nameLabel": "Name",
@@ -230,6 +231,7 @@
     "closeAriaLabel": "Close",
     "editAriaLabel": "Edit {name}",
     "deactivateAriaLabel": "Deactivate {name}",
+    "deactivatePending": "Deactivating…",
     "deactivateConfirm": "Deactivate “{name}”? It stops appearing to clients; existing bookings stay intact.",
     "nameLabel": "Name",
     "namePlaceholder": "e.g. The Library Room",
@@ -278,7 +280,7 @@
     "save": "Save", "saving": "Saving…", "cancel": "Cancel",
     "ruleSummary": "{interval} · {weekday} {time} · {count} guests · Table {table}",
     "nextOccurrence": "Next: {date}", "noUpcoming": "No upcoming occurrence", "conflicts": "{count} conflicts",
-    "statusActive": "Active", "statusCancelled": "Cancelled", "cancelSeries": "Cancel series",
+    "statusActive": "Active", "statusCancelled": "Cancelled", "cancelSeries": "Cancel series", "cancelSeriesPending": "Cancelling…",
     "cancelConfirm": "Cancel the series and all future reservations?", "nameRequired": "Guest name is required."
   },
   "meetingBookings": {
@@ -317,6 +319,7 @@
       "decline": "Decline",
       "cancel": "Cancel booking",
       "complete": "Mark completed",
+      "pending": "Working…",
       "confirmPrompt": "Confirm this booking?",
       "declinePrompt": "Decline this request? The slot becomes available again.",
       "cancelPrompt": "Cancel this confirmed booking? The slot becomes available again.",

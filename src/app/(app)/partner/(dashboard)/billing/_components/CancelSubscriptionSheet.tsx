@@ -114,7 +114,7 @@ export function CancelSubscriptionSheet({
           >
             <span className="inline-flex items-center gap-2">
               {busy === "period_end" && <Spinner />}
-              {t("cancel.submitPeriodEnd")}
+              {busy === "period_end" ? t("cancel.submitPending") : t("cancel.submitPeriodEnd")}
             </span>
             {periodEndLabel && (
               <span className="mt-0.5 text-xs font-normal text-surface-white/70">
@@ -130,7 +130,7 @@ export function CancelSubscriptionSheet({
             className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-button border border-error/40 px-6 py-2.5 text-sm font-semibold text-error transition-colors hover:bg-error/5 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
           >
             {busy === "immediate" && <Spinner />}
-            {t("cancel.submitImmediate")}
+            {busy === "immediate" ? t("cancel.submitPending") : t("cancel.submitImmediate")}
           </button>
         </div>
       </div>

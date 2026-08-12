@@ -153,6 +153,7 @@
     "orgLabel": "Restaurant name (optional)",
     "orgPlaceholder": "Bistro Lipscani",
     "submit": "Add me",
+    "submitPending": "Sending…",
     "success": "You're on the list. We'll write the moment we open in your area.",
     "close": "Close",
     "errorDuplicate": "This email is already on the list. We'll be in touch soon.",

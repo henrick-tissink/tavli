@@ -42,6 +42,7 @@
   },
   "actionsBar": {
     "updateCard": "Karte aktualisieren",
+    "updateCardPending": "Stripe wird geöffnet…",
     "changePlan": "Tarif wechseln",
     "cancelSubscription": "Abonnement kündigen",
     "portalUnavailable": "Das Zahlungsportal ist derzeit nicht verfügbar."
@@ -62,6 +63,7 @@
     "frequencyCurrentMonthly": "monatlich",
     "switchToAnnual": "Jährliche Zahlung anfragen (2 Monate gratis)",
     "switchToMonthly": "Monatliche Zahlung anfragen",
+    "switchPending": "Wird gespeichert…",
     "toastSwitchedPro": "Sie sind zu Tavli Pro gewechselt.",
     "toastSwitchedBase": "Sie sind zu Tavli gewechselt.",
     "toastTierLimit": "Sie können mit mehr als einem Standort nicht zu Base wechseln. Entfernen Sie zuerst die zusätzlichen Standorte.",
@@ -88,6 +90,7 @@
     "submitPeriodEnd": "Abrechnung zum Ende des Zeitraums beenden",
     "accessUntil": "Voller Zugriff bis {date}",
     "submitImmediate": "Sofort kündigen",
+    "submitPending": "Wird storniert…",
     "toastPeriodEnd": "Ihr Abonnement endet zum Ende des Zeitraums. Bis dahin haben Sie vollen Zugriff.",
     "toastRefund": "Abonnement gekündigt. Wir erstatten Ihnen €{amount} anteilig.",
     "toastCancelled": "Abonnement gekündigt.",

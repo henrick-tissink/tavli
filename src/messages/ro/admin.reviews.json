@@ -18,7 +18,9 @@
   },
   "actions": {
     "uphold": "Confirmă (ascunde recenzia)",
-    "dismiss": "Respinge"
+    "upholdPending": "Se ascunde…",
+    "dismiss": "Respinge",
+    "dismissPending": "Se respinge…"
   },
   "reasons": {
     "inappropriate": "Nepotrivit",

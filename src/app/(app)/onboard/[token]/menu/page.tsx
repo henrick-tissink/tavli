@@ -59,7 +59,9 @@ export default async function OnboardingMenuPage({
         <form action={continueAction}>
           {/* Advancing the step writes state and redirects — a slow hop the
               wizard previously spent silent. */}
-          <SubmitButton>{m.wizard.menu.skip}</SubmitButton>
+          <SubmitButton pendingLabel={m.wizard.menu.skipPending}>
+            {m.wizard.menu.skip}
+          </SubmitButton>
         </form>
       </div>
     </OnboardingShell>

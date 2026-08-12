@@ -60,7 +60,9 @@
   },
   "actions": {
     "suspend": "Suspend",
-    "unsuspend": "Unsuspend"
+    "suspendPending": "Suspending…",
+    "unsuspend": "Unsuspend",
+    "unsuspendPending": "Restoring…"
   },
   "errors": {
     "unauthorised": "Unauthorised."

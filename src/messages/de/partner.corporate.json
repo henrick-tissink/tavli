@@ -196,6 +196,7 @@
     "capacitySingle": "{count} Gäste",
     "editAriaLabel": "{name} bearbeiten",
     "deactivateAriaLabel": "{name} deaktivieren",
+    "deactivatePending": "Wird deaktiviert…",
     "addSpace": "Raum hinzufügen",
     "closeAriaLabel": "Schließen",
     "nameLabel": "Name",
@@ -230,6 +231,7 @@
     "closeAriaLabel": "Schließen",
     "editAriaLabel": "{name} bearbeiten",
     "deactivateAriaLabel": "{name} deaktivieren",
+    "deactivatePending": "Wird deaktiviert…",
     "deactivateConfirm": "„{name}“ deaktivieren? Der Raum wird Kunden nicht mehr angezeigt; bestehende Buchungen bleiben erhalten.",
     "nameLabel": "Name",
     "namePlaceholder": "z. B. Bibliothekszimmer",
@@ -278,7 +280,7 @@
     "save": "Speichern", "saving": "Wird gespeichert…", "cancel": "Abbrechen",
     "ruleSummary": "{interval} · {weekday} {time} · {count} Gäste · Tisch {table}",
     "nextOccurrence": "Nächste: {date}", "noUpcoming": "Keine bevorstehende Reservierung", "conflicts": "{count} Konflikte",
-    "statusActive": "Aktiv", "statusCancelled": "Abgebrochen", "cancelSeries": "Serie abbrechen",
+    "statusActive": "Aktiv", "statusCancelled": "Abgebrochen", "cancelSeries": "Serie abbrechen", "cancelSeriesPending": "Wird storniert…",
     "cancelConfirm": "Die Serie und alle künftigen Reservierungen abbrechen?", "nameRequired": "Gastname ist erforderlich."
   },
   "meetingBookings": {
@@ -317,6 +319,7 @@
       "decline": "Ablehnen",
       "cancel": "Buchung stornieren",
       "complete": "Als abgeschlossen markieren",
+      "pending": "Wird verarbeitet…",
       "confirmPrompt": "Diese Buchung bestätigen?",
       "declinePrompt": "Diese Anfrage ablehnen? Der Zeitraum wird wieder verfügbar.",
       "cancelPrompt": "Diese bestätigte Buchung stornieren? Der Zeitraum wird wieder verfügbar.",

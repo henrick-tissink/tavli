@@ -66,7 +66,9 @@ export default async function OnboardingPhotosPage({
         <form action={continueAction}>
           {/* Advancing the step writes state and redirects — a slow hop the
               wizard previously spent silent. */}
-          <SubmitButton>{m.wizard.photos.continue}</SubmitButton>
+          <SubmitButton pendingLabel={m.wizard.photos.continuePending}>
+            {m.wizard.photos.continue}
+          </SubmitButton>
         </form>
       </div>
     </OnboardingShell>

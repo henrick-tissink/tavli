@@ -41,6 +41,7 @@
     "reasonLabel": "Reason (optional)",
     "reasonPlaceholder": "Investigating booking issue ALC-1042",
     "cancel": "Cancel",
-    "submit": "Start impersonating →"
+    "submit": "Start impersonating →",
+    "submitPending": "Starting…"
   }
 }

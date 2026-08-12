@@ -272,7 +272,7 @@ export function MarketingManager({
                         className="inline-flex min-h-[36px] items-center gap-1.5 rounded-button bg-brand-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
                       >
                         {isBusy(c.id, "send") && <Spinner size={12} />}
-                        {t("manager.send")}
+                        {isBusy(c.id, "send") ? t("manager.sendPending") : t("manager.send")}
                       </button>
                       <button
                         type="button"
@@ -288,7 +288,7 @@ export function MarketingManager({
                         className="inline-flex min-h-[36px] items-center gap-1.5 rounded-button px-3 py-1.5 text-xs font-semibold text-text-secondary hover:text-error disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
                       >
                         {isBusy(c.id, "archive") && <Spinner size={12} />}
-                        {t("manager.archive")}
+                        {isBusy(c.id, "archive") ? t("manager.archivePending") : t("manager.archive")}
                       </button>
                     </div>
                   )}

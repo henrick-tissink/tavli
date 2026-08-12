@@ -41,6 +41,7 @@
     "reasonLabel": "Motiv (opțional)",
     "reasonPlaceholder": "Investighez problema de rezervare ALC-1042",
     "cancel": "Anulează",
-    "submit": "Începe preluarea identității →"
+    "submit": "Începe preluarea identității →",
+    "submitPending": "Se pornește…"
   }
 }

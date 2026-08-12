@@ -150,8 +150,18 @@ export function StandingEditor({
               <button type="button" onClick={() => cancelSeries(s.id)} disabled={cancellingId === s.id}
                 aria-busy={cancellingId === s.id || undefined}
                 aria-label={t("standingMgmt.cancelSeries")}
-                className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50 shrink-0">
-                {cancellingId === s.id ? <Spinner size={16} /> : <Trash2 size={16} />}
+                className="inline-flex items-center gap-1.5 p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50 shrink-0">
+                {/* Icon-only at rest; in flight the spinner gains a word,
+                    because a frozen spinner (prefers-reduced-motion) on a bare
+                    icon button says nothing at all. */}
+                {cancellingId === s.id ? (
+                  <>
+                    <Spinner size={16} />
+                    <span className="text-xs font-semibold">{t("standingMgmt.cancelSeriesPending")}</span>
+                  </>
+                ) : (
+                  <Trash2 size={16} />
+                )}
               </button>
             )}
           </div>

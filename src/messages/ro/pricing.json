@@ -153,6 +153,7 @@
     "orgLabel": "Numele restaurantului (opțional)",
     "orgPlaceholder": "Bistro Lipscani",
     "submit": "Înscrie-mă",
+    "submitPending": "Se trimite…",
     "success": "Ești pe listă. Îți scriem imediat ce deschidem în zona ta.",
     "close": "Închide",
     "errorDuplicate": "Acest email e deja pe listă. Te anunțăm în curând.",

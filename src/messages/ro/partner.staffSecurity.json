@@ -74,6 +74,7 @@
       "factorFallback": "Autentificator",
       "added": "Adăugat {date}",
       "remove": "Elimină",
+      "removePending": "Se elimină…",
       "errorRemove": "Nu s-a putut elimina factorul."
     },
     "recovery": {

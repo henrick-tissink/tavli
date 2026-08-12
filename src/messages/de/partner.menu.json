@@ -38,7 +38,8 @@
     },
     "price": "{amount} Lei",
     "confirmDeleteSection": "„{name}“ und alle darin enthaltenen Gerichte löschen?",
-    "confirmDeleteItem": "„{name}“ löschen?"
+    "confirmDeleteItem": "„{name}“ löschen?",
+    "deleteError": "Löschen fehlgeschlagen."
   },
   "sectionDialog": {
     "titleNew": "Neuer Bereich",

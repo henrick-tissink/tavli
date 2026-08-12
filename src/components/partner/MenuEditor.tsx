@@ -134,7 +134,7 @@ export function MenuEditor({
       try {
         const result = await deleteSection(id);
         if (!result.ok) {
-          toast.error(result.error ?? t("sectionDialog.genericError"));
+          toast.error(result.error ?? t("editor.deleteError"));
           return;
         }
         router.refresh();
@@ -152,7 +152,7 @@ export function MenuEditor({
       try {
         const result = await deleteItem(id);
         if (!result.ok) {
-          toast.error(result.error ?? t("sectionDialog.genericError"));
+          toast.error(result.error ?? t("editor.deleteError"));
           return;
         }
         router.refresh();

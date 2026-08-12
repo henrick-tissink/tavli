@@ -150,6 +150,7 @@ export interface PricingMessages {
     orgLabel: string;
     orgPlaceholder: string;
     submit: string;
+    submitPending: string;
     success: string;
     close: string;
     errorDuplicate: string;

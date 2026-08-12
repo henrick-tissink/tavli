@@ -221,7 +221,9 @@ export function TwoFactorSection({
             className="inline-flex items-center gap-1.5 text-sm text-error hover:underline disabled:opacity-50"
           >
             {unenrollingId === f.id && <Spinner size={14} />}
-            {t("security.twoFactor.remove")}
+            {unenrollingId === f.id
+              ? t("security.twoFactor.removePending")
+              : t("security.twoFactor.remove")}
           </button>
         </div>
       ))}

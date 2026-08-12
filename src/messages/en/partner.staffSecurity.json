@@ -74,6 +74,7 @@
       "factorFallback": "Authenticator",
       "added": "Added {date}",
       "remove": "Remove",
+      "removePending": "Removing…",
       "errorRemove": "Could not remove factor."
     },
     "recovery": {

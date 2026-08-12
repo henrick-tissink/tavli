@@ -192,7 +192,8 @@
       "title": "Add a few photos",
       "subtitle": "One main photo plus a few for the gallery are enough for now. You can add more any time from the dashboard. Mark your best photo as the main one — it's the first thing guests see.",
       "back": "← Back",
-      "continue": "Continue"
+      "continue": "Continue",
+      "continuePending": "Continuing…"
     },
     "menu": {
       "title": "Your menu, your way",
@@ -201,7 +202,8 @@
       "cardBody": "The partner menu editor lets you create sections, add dishes with photos, mark vegetarian / gluten-free / spicy and highlight the chef's recommendations — all with autosave.",
       "cardNote": "During the beta, the editor ships with the partner dashboard (M10). Your page can be published without a menu — guests will see “Menu coming soon” on your restaurant page.",
       "back": "← Back",
-      "skip": "Skip and go to review"
+      "skip": "Skip and go to review",
+      "skipPending": "Skipping…"
     },
     "review": {
       "title": "Ready to launch?",

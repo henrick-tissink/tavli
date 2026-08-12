@@ -59,7 +59,7 @@ export function ImpersonateModal({
             {/* Starting a session takes a round-trip during which the modal
                 stays open; without a pending state the button reads as inert
                 and gets clicked again. */}
-            <SubmitButton className="px-4! py-2!">
+            <SubmitButton className="px-4! py-2!" pendingLabel={t("impersonate.submitPending")}>
               {t("impersonate.submit")}
             </SubmitButton>
           </div>

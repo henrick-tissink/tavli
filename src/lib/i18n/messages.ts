@@ -1061,7 +1061,9 @@ export interface AdminRestaurantsMessages {
   };
   actions: {
     suspend: string;
+    suspendPending: string;
     unsuspend: string;
+    unsuspendPending: string;
   };
   errors: {
     unauthorised: string;
@@ -1154,7 +1156,9 @@ export interface AdminReviewsMessages {
   };
   actions: {
     uphold: string;
+    upholdPending: string;
     dismiss: string;
+    dismissPending: string;
   };
   reasons: Record<string, string>;
 }
@@ -1309,6 +1313,7 @@ export interface AdminUsersMessages {
     reasonPlaceholder: string;
     cancel: string;
     submit: string;
+    submitPending: string;
   };
 }
 
@@ -1580,6 +1585,8 @@ export interface PartnerMenuMessages {
     price: string;
     confirmDeleteSection: string;
     confirmDeleteItem: string;
+    /** Fallback when a section/item delete comes back without its own error. */
+    deleteError: string;
   };
   sectionDialog: {
     titleNew: string;
@@ -1863,8 +1870,10 @@ export interface PartnerMarketingMessages {
     newCampaign: string;
     cancel: string;
     send: string;
+    sendPending: string;
     sent: string;
     archive: string;
+    archivePending: string;
     archived: string;
     oneOffEmpty: string;
     recipients: PluralBag;
@@ -1937,10 +1946,12 @@ export interface PartnerMarketingMessages {
     removeConditionAriaLabel: string;
     addCondition: string;
     estimateSize: string;
+    estimateSizePending: string;
     sizeResult: PluralBag;
     nameAriaLabel: string;
     namePlaceholder: string;
     save: string;
+    savePending: string;
     saved: string;
     errorPreviewInvalid: string;
     errorPreviewGeneric: string;
@@ -2035,6 +2046,7 @@ export interface PartnerBillingMessages {
   none: { title: string; body: string; cta: string };
   actionsBar: {
     updateCard: string;
+    updateCardPending: string;
     changePlan: string;
     cancelSubscription: string;
     portalUnavailable: string;
@@ -2055,6 +2067,7 @@ export interface PartnerBillingMessages {
     frequencyCurrentMonthly: string;
     switchToAnnual: string;
     switchToMonthly: string;
+    switchPending: string;
     toastSwitchedPro: string;
     toastSwitchedBase: string;
     toastTierLimit: string;
@@ -2081,6 +2094,7 @@ export interface PartnerBillingMessages {
     submitPeriodEnd: string;
     accessUntil: string;
     submitImmediate: string;
+    submitPending: string;
     toastPeriodEnd: string;
     toastRefund: string;
     toastCancelled: string;
@@ -2158,6 +2172,7 @@ export interface PartnerStaffSecurityMessages {
       factorFallback: string;
       added: string;
       remove: string;
+      removePending: string;
       errorRemove: string;
     };
     recovery: {
@@ -2467,6 +2482,7 @@ export interface PartnerCorporateMessages {
     capacitySingle: string;
     editAriaLabel: string;
     deactivateAriaLabel: string;
+    deactivatePending: string;
     addSpace: string;
     closeAriaLabel: string;
     nameLabel: string;
@@ -2501,6 +2517,7 @@ export interface PartnerCorporateMessages {
     closeAriaLabel: string;
     editAriaLabel: string;
     deactivateAriaLabel: string;
+    deactivatePending: string;
     deactivateConfirm: string;
     nameLabel: string;
     namePlaceholder: string;
@@ -2551,6 +2568,8 @@ export interface PartnerCorporateMessages {
       decline: string;
       cancel: string;
       complete: string;
+      /** Shared in-flight label for every row action above. */
+      pending: string;
       confirmPrompt: string;
       declinePrompt: string;
       cancelPrompt: string;
@@ -2578,7 +2597,7 @@ export interface PartnerCorporateMessages {
     guestNameLabel: string; guestPhoneLabel: string; guestEmailLabel: string; notesLabel: string;
     save: string; saving: string; cancel: string;
     ruleSummary: string; nextOccurrence: string; noUpcoming: string; conflicts: string;
-    statusActive: string; statusCancelled: string; cancelSeries: string; cancelConfirm: string;
+    statusActive: string; statusCancelled: string; cancelSeries: string; cancelSeriesPending: string; cancelConfirm: string;
     nameRequired: string;
   };
 }
@@ -2876,6 +2895,7 @@ export interface PartnerOnboardingMessages {
       subtitle: string;
       back: string;
       continue: string;
+      continuePending: string;
     };
     menu: {
       title: string;
@@ -2885,6 +2905,7 @@ export interface PartnerOnboardingMessages {
       cardNote: string;
       back: string;
       skip: string;
+      skipPending: string;
     };
     review: {
       title: string;

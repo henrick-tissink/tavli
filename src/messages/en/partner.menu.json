@@ -38,7 +38,8 @@
     },
     "price": "{amount} lei",
     "confirmDeleteSection": "Delete “{name}” and all the dishes in it?",
-    "confirmDeleteItem": "Delete “{name}”?"
+    "confirmDeleteItem": "Delete “{name}”?",
+    "deleteError": "Delete failed."
   },
   "sectionDialog": {
     "titleNew": "New section",

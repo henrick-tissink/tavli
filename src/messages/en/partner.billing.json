@@ -42,6 +42,7 @@
   },
   "actionsBar": {
     "updateCard": "Update card",
+    "updateCardPending": "Opening Stripe…",
     "changePlan": "Change plan",
     "cancelSubscription": "Cancel subscription",
     "portalUnavailable": "The payment portal is unavailable right now."
@@ -62,6 +63,7 @@
     "frequencyCurrentMonthly": "monthly",
     "switchToAnnual": "Request annual billing (2 months free)",
     "switchToMonthly": "Request monthly billing",
+    "switchPending": "Saving…",
     "toastSwitchedPro": "You've switched to Tavli Pro.",
     "toastSwitchedBase": "You've switched to Tavli.",
     "toastTierLimit": "You can't switch to Base with more than one location. Remove the additional locations first.",
@@ -88,6 +90,7 @@
     "submitPeriodEnd": "Stop billing at the end of the period",
     "accessUntil": "Full access until {date}",
     "submitImmediate": "Cancel immediately",
+    "submitPending": "Cancelling…",
     "toastPeriodEnd": "Your subscription will end at the end of the period. You have full access until then.",
     "toastRefund": "Subscription cancelled. We'll refund you €{amount} pro rata.",
     "toastCancelled": "Subscription cancelled.",

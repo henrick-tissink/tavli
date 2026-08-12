@@ -142,7 +142,10 @@ export default async function AdminRestaurantDetailPage({
               {/* The compact admin sizing has to out-specify the shared
                   Button's own padding/size utilities, which sort later in the
                   generated stylesheet — hence the `!` modifiers. */}
-              <SubmitButton className="px-3! py-1.5! text-xs!">
+              <SubmitButton
+                className="px-3! py-1.5! text-xs!"
+                pendingLabel={m.actions.unsuspendPending}
+              >
                 {m.actions.unsuspend}
               </SubmitButton>
             </form>
@@ -156,6 +159,7 @@ export default async function AdminRestaurantDetailPage({
               <SubmitButton
                 variant="danger"
                 className="px-3! py-1.5! text-xs!"
+                pendingLabel={m.actions.suspendPending}
               >
                 {m.actions.suspend}
               </SubmitButton>

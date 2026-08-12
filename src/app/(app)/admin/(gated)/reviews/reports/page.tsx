@@ -173,8 +173,16 @@ function ReportCard({
 
         {/* Action buttons */}
         <div className="flex gap-2">
-          <UpholdButton reportId={report.id} label={m.actions.uphold} />
-          <DismissButton reportId={report.id} label={m.actions.dismiss} />
+          <UpholdButton
+            reportId={report.id}
+            label={m.actions.uphold}
+            pendingLabel={m.actions.upholdPending}
+          />
+          <DismissButton
+            reportId={report.id}
+            label={m.actions.dismiss}
+            pendingLabel={m.actions.dismissPending}
+          />
         </div>
       </div>
     </article>
@@ -183,7 +191,15 @@ function ReportCard({
 
 // ─── Server action wrappers ───────────────────────────────────────────────
 
-function UpholdButton({ reportId, label }: { reportId: string; label: string }) {
+function UpholdButton({
+  reportId,
+  label,
+  pendingLabel,
+}: {
+  reportId: string;
+  label: string;
+  pendingLabel: string;
+}) {
   async function upholdAction() {
     "use server";
     await reviewModerationActions.upholdReport({
@@ -203,6 +219,7 @@ function UpholdButton({ reportId, label }: { reportId: string; label: string }) 
       <SubmitButton
         variant="danger"
         className="px-3! py-1.5! text-xs!"
+        pendingLabel={pendingLabel}
       >
         {label}
       </SubmitButton>
@@ -210,7 +227,15 @@ function UpholdButton({ reportId, label }: { reportId: string; label: string }) 
   );
 }
 
-function DismissButton({ reportId, label }: { reportId: string; label: string }) {
+function DismissButton({
+  reportId,
+  label,
+  pendingLabel,
+}: {
+  reportId: string;
+  label: string;
+  pendingLabel: string;
+}) {
   async function dismissAction() {
     "use server";
     await reviewModerationActions.dismissReport({ reportId });
@@ -219,7 +244,7 @@ function DismissButton({ reportId, label }: { reportId: string; label: string })
 
   return (
     <form action={dismissAction}>
-      <SubmitButton variant="ghost" className="px-3! py-1.5! text-xs!">
+      <SubmitButton variant="ghost" className="px-3! py-1.5! text-xs!" pendingLabel={pendingLabel}>
         {label}
       </SubmitButton>
     </form>

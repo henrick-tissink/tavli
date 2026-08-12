@@ -194,7 +194,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
           className="inline-flex min-h-[44px] items-center gap-2 rounded-button border border-border bg-surface-white px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
         >
           {busy === "preview" && <Spinner />}
-          {t("builder.estimateSize")}
+          {busy === "preview" ? t("builder.estimateSizePending") : t("builder.estimateSize")}
         </button>
         {size !== null && (
           <span className="text-sm font-medium text-text-primary">
@@ -211,7 +211,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
             className="inline-flex min-h-[44px] items-center gap-2 rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
             {busy === "save" && <Spinner />}
-            {t("builder.save")}
+            {busy === "save" ? t("builder.savePending") : t("builder.save")}
           </button>
         </div>
       </div>

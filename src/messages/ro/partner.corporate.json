@@ -196,6 +196,7 @@
     "capacitySingle": "{count} persoane",
     "editAriaLabel": "Editează {name}",
     "deactivateAriaLabel": "Dezactivează {name}",
+    "deactivatePending": "Se dezactivează…",
     "addSpace": "Adaugă spațiu",
     "closeAriaLabel": "Închide",
     "nameLabel": "Nume",
@@ -230,6 +231,7 @@
     "closeAriaLabel": "Închide",
     "editAriaLabel": "Editează {name}",
     "deactivateAriaLabel": "Dezactivează {name}",
+    "deactivatePending": "Se dezactivează…",
     "deactivateConfirm": "Dezactivezi „{name}”? Nu va mai apărea clienților; rezervările existente rămân intacte.",
     "nameLabel": "Nume",
     "namePlaceholder": "ex. Sala Bibliotecă",
@@ -278,7 +280,7 @@
     "save": "Salvează", "saving": "Se salvează…", "cancel": "Renunță",
     "ruleSummary": "{interval} · {weekday} {time} · {count} pers. · Masa {table}",
     "nextOccurrence": "Următoarea: {date}", "noUpcoming": "Nicio rezervare viitoare", "conflicts": "{count} conflicte",
-    "statusActive": "Activă", "statusCancelled": "Anulată", "cancelSeries": "Anulează seria",
+    "statusActive": "Activă", "statusCancelled": "Anulată", "cancelSeries": "Anulează seria", "cancelSeriesPending": "Se anulează…",
     "cancelConfirm": "Anulezi seria și toate rezervările viitoare?", "nameRequired": "Numele clientului este obligatoriu."
   },
   "meetingBookings": {
@@ -317,6 +319,7 @@
       "decline": "Refuză",
       "cancel": "Anulează rezervarea",
       "complete": "Marchează finalizată",
+      "pending": "Se procesează…",
       "confirmPrompt": "Confirmi această rezervare?",
       "declinePrompt": "Refuzi această cerere? Intervalul devine din nou disponibil.",
       "cancelPrompt": "Anulezi această rezervare confirmată? Intervalul devine din nou disponibil.",

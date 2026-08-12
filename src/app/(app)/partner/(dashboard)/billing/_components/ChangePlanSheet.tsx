@@ -93,7 +93,11 @@ export function ChangePlanSheet({
             className="mt-3 inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
             {busy === "tier" && <Spinner />}
-            {otherTier === "pro" ? t("changePlan.switchToPro") : t("changePlan.switchToBase")}
+            {busy === "tier"
+              ? t("changePlan.switchPending")
+              : otherTier === "pro"
+                ? t("changePlan.switchToPro")
+                : t("changePlan.switchToBase")}
           </button>
         </section>
 
@@ -110,7 +114,11 @@ export function ChangePlanSheet({
             className="mt-3 inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-button border border-border bg-surface-white px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
             {busy === "frequency" && <Spinner />}
-            {otherFrequency === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
+            {busy === "frequency"
+              ? t("changePlan.switchPending")
+              : otherFrequency === "annual"
+                ? t("changePlan.switchToAnnual")
+                : t("changePlan.switchToMonthly")}
           </button>
         </section>
       </div>

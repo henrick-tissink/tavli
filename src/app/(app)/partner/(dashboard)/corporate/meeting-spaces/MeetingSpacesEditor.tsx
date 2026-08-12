@@ -274,9 +274,21 @@ export function MeetingSpacesEditor({
                   disabled={deactivatingId === row.id}
                   aria-busy={deactivatingId === row.id || undefined}
                   aria-label={t("meetingSpaces.deactivateAriaLabel", { name: row.name })}
-                  className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
                 >
-                  {deactivatingId === row.id ? <Spinner size={16} /> : <Trash2 size={16} />}
+                  {/* Icon-only at rest; in flight the spinner gains a word,
+                      because a frozen spinner (prefers-reduced-motion) on a
+                      bare icon button says nothing at all. */}
+                  {deactivatingId === row.id ? (
+                    <>
+                      <Spinner size={16} />
+                      <span className="text-xs font-semibold">
+                        {t("meetingSpaces.deactivatePending")}
+                      </span>
+                    </>
+                  ) : (
+                    <Trash2 size={16} />
+                  )}
                 </button>
               </div>
             </div>

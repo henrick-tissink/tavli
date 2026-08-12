@@ -18,7 +18,9 @@
   },
   "actions": {
     "uphold": "Stattgeben (Bewertung ausblenden)",
-    "dismiss": "Ablehnen"
+    "upholdPending": "Wird ausgeblendet…",
+    "dismiss": "Ablehnen",
+    "dismissPending": "Wird verworfen…"
   },
   "reasons": {
     "inappropriate": "Unangemessen",

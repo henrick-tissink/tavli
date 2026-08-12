@@ -192,7 +192,8 @@
       "title": "Adaugă câteva fotografii",
       "subtitle": "O fotografie principală + câteva pentru galerie sunt suficiente acum. Poți adăuga mai multe oricând din panou. Marchează cea mai bună fotografie drept principală — e prima pe care o văd oaspeții.",
       "back": "← Înapoi",
-      "continue": "Continuă"
+      "continue": "Continuă",
+      "continuePending": "Se continuă…"
     },
     "menu": {
       "title": "Meniul — cum vrei tu",
@@ -201,7 +202,8 @@
       "cardBody": "Editorul de meniu pentru parteneri îți permite să creezi secțiuni, să adaugi feluri cu fotografii, să marchezi vegetarian / fără gluten / picant și să evidențiezi recomandările bucătarului — totul cu salvare automată.",
       "cardNote": "În beta, editorul vine odată cu panoul de partener (M10). Pagina ta poate fi publicată și fără meniu — oaspeții văd „Meniu în curând” pe pagina restaurantului.",
       "back": "← Înapoi",
-      "skip": "Sari peste și mergi la verificare"
+      "skip": "Sari peste și mergi la verificare",
+      "skipPending": "Se omite…"
     },
     "review": {
       "title": "Gata de lansare?",

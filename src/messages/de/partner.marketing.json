@@ -50,8 +50,10 @@
     "newCampaign": "+ Neue Kampagne",
     "cancel": "Abbrechen",
     "send": "Senden",
+    "sendPending": "Wird gesendet…",
     "sent": "Kampagne zur Zustellung gesendet.",
     "archive": "Archivieren",
+    "archivePending": "Wird archiviert…",
     "archived": "Kampagne archiviert.",
     "oneOffEmpty": "Noch keine einmaligen Kampagnen.",
     "recipients": {
@@ -132,6 +134,7 @@
     "removeConditionAriaLabel": "Bedingung entfernen",
     "addCondition": "Bedingung hinzufügen",
     "estimateSize": "Größe schätzen",
+    "estimateSizePending": "Wird berechnet…",
     "sizeResult": {
       "one": "≈ {count} Gast",
       "few": "≈ {count} Gäste",
@@ -140,6 +143,7 @@
     "nameAriaLabel": "Segmentname",
     "namePlaceholder": "Segmentname",
     "save": "Segment speichern",
+    "savePending": "Wird gespeichert…",
     "saved": "Segment gespeichert.",
     "errorPreviewInvalid": "Fügen Sie mindestens eine gültige Bedingung hinzu.",
     "errorPreviewGeneric": "Die Schätzung war nicht erfolgreich.",

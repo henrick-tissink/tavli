@@ -60,7 +60,9 @@
   },
   "actions": {
     "suspend": "Suspendă",
-    "unsuspend": "Reactivează"
+    "suspendPending": "Se suspendă…",
+    "unsuspend": "Reactivează",
+    "unsuspendPending": "Se reactivează…"
   },
   "errors": {
     "unauthorised": "Neautorizat."

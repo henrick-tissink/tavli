@@ -192,7 +192,8 @@
       "title": "Fügen Sie ein paar Fotos hinzu",
       "subtitle": "Ein Hauptfoto plus ein paar für die Galerie reichen vorerst. Sie können jederzeit weitere über das Dashboard hinzufügen. Markieren Sie Ihr bestes Foto als Hauptfoto — es ist das Erste, was Gäste sehen.",
       "back": "← Zurück",
-      "continue": "Weiter"
+      "continue": "Weiter",
+      "continuePending": "Wird fortgesetzt…"
     },
     "menu": {
       "title": "Ihre Speisekarte, nach Ihren Wünschen",
@@ -201,7 +202,8 @@
       "cardBody": "Mit dem Partner-Speisekarteneditor können Sie Abschnitte erstellen, Gerichte mit Fotos hinzufügen, vegetarisch / glutenfrei / scharf markieren und die Empfehlungen des Küchenchefs hervorheben — alles mit automatischem Speichern.",
       "cardNote": "In der Beta-Phase wird der Editor zusammen mit dem Partner-Dashboard (M10) ausgeliefert. Ihre Seite kann auch ohne Speisekarte veröffentlicht werden — Gäste sehen „Speisekarte folgt in Kürze“ auf Ihrer Restaurantseite.",
       "back": "← Zurück",
-      "skip": "Überspringen und zur Überprüfung"
+      "skip": "Überspringen und zur Überprüfung",
+      "skipPending": "Wird übersprungen…"
     },
     "review": {
       "title": "Bereit für den Start?",

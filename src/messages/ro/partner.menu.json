@@ -38,7 +38,8 @@
     },
     "price": "{amount} lei",
     "confirmDeleteSection": "Ștergi „{name}” și toate felurile din ea?",
-    "confirmDeleteItem": "Ștergi „{name}”?"
+    "confirmDeleteItem": "Ștergi „{name}”?",
+    "deleteError": "Ștergerea a eșuat."
   },
   "sectionDialog": {
     "titleNew": "Secțiune nouă",

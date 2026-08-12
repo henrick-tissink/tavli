@@ -153,6 +153,7 @@
     "orgLabel": "Name des Restaurants (optional)",
     "orgPlaceholder": "Bistro Lipscani",
     "submit": "Eintragen",
+    "submitPending": "Wird gesendet…",
     "success": "Sie stehen auf der Liste. Wir schreiben, sobald wir in Ihrer Region öffnen.",
     "close": "Schließen",
     "errorDuplicate": "Diese E-Mail steht bereits auf der Liste. Wir melden uns bald.",

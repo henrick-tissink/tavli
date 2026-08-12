@@ -50,8 +50,10 @@
     "newCampaign": "+ Campanie nouă",
     "cancel": "Anulează",
     "send": "Trimite",
+    "sendPending": "Se trimite…",
     "sent": "Campanie trimisă spre livrare.",
     "archive": "Arhivează",
+    "archivePending": "Se arhivează…",
     "archived": "Campanie arhivată.",
     "oneOffEmpty": "Nicio campanie punctuală încă.",
     "recipients": {
@@ -132,6 +134,7 @@
     "removeConditionAriaLabel": "Elimină condiția",
     "addCondition": "Adaugă o condiție",
     "estimateSize": "Estimează mărimea",
+    "estimateSizePending": "Se calculează…",
     "sizeResult": {
       "one": "≈ {count} oaspete",
       "few": "≈ {count} oaspeți",
@@ -140,6 +143,7 @@
     "nameAriaLabel": "Nume segment",
     "namePlaceholder": "Numele segmentului",
     "save": "Salvează segmentul",
+    "savePending": "Se salvează…",
     "saved": "Segment salvat.",
     "errorPreviewInvalid": "Adaugă cel puțin o condiție validă.",
     "errorPreviewGeneric": "Estimarea nu a reușit.",

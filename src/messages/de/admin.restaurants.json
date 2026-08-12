@@ -60,7 +60,9 @@
   },
   "actions": {
     "suspend": "Sperren",
-    "unsuspend": "Entsperren"
+    "suspendPending": "Wird gesperrt…",
+    "unsuspend": "Entsperren",
+    "unsuspendPending": "Wird reaktiviert…"
   },
   "errors": {
     "unauthorised": "Nicht autorisiert."

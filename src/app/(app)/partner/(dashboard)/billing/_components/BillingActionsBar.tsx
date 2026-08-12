@@ -63,7 +63,7 @@ export function BillingActionsBar({
           className={`${base} bg-brand-primary text-white shadow-card hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60`}
         >
           {portalBusy ? <Spinner /> : <CreditCard size={16} aria-hidden />}{" "}
-          {t("actionsBar.updateCard")}
+          {portalBusy ? t("actionsBar.updateCardPending") : t("actionsBar.updateCard")}
         </button>
         {!readOnly && (
           <button

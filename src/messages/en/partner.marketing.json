@@ -50,8 +50,10 @@
     "newCampaign": "+ New campaign",
     "cancel": "Cancel",
     "send": "Send",
+    "sendPending": "Sending…",
     "sent": "Campaign queued for delivery.",
     "archive": "Archive",
+    "archivePending": "Archiving…",
     "archived": "Campaign archived.",
     "oneOffEmpty": "No one-off campaigns yet.",
     "recipients": {
@@ -132,6 +134,7 @@
     "removeConditionAriaLabel": "Remove condition",
     "addCondition": "Add a condition",
     "estimateSize": "Estimate size",
+    "estimateSizePending": "Estimating…",
     "sizeResult": {
       "one": "≈ {count} guest",
       "few": "≈ {count} guests",
@@ -140,6 +143,7 @@
     "nameAriaLabel": "Segment name",
     "namePlaceholder": "Segment name",
     "save": "Save segment",
+    "savePending": "Saving…",
     "saved": "Segment saved.",
     "errorPreviewInvalid": "Add at least one valid condition.",
     "errorPreviewGeneric": "Couldn't estimate the size.",

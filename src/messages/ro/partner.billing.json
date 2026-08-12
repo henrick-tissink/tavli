@@ -42,6 +42,7 @@
   },
   "actionsBar": {
     "updateCard": "Actualizează cardul",
+    "updateCardPending": "Se deschide Stripe…",
     "changePlan": "Schimbă planul",
     "cancelSubscription": "Anulează abonamentul",
     "portalUnavailable": "Portalul de plată nu e disponibil momentan."
@@ -62,6 +63,7 @@
     "frequencyCurrentMonthly": "lunar",
     "switchToAnnual": "Cere trecerea la plată anuală (2 luni gratuite)",
     "switchToMonthly": "Cere trecerea la plată lunară",
+    "switchPending": "Se salvează…",
     "toastSwitchedPro": "Ai trecut pe Tavli Pro.",
     "toastSwitchedBase": "Ai trecut pe Tavli.",
     "toastTierLimit": "Nu poți trece pe Base cu mai mult de o locație. Elimină locațiile suplimentare întâi.",
@@ -88,6 +90,7 @@
     "submitPeriodEnd": "Oprește facturarea la finalul perioadei",
     "accessUntil": "Acces complet până la {date}",
     "submitImmediate": "Anulează imediat",
+    "submitPending": "Se anulează…",
     "toastPeriodEnd": "Abonamentul se va încheia la finalul perioadei. Ai acces complet până atunci.",
     "toastRefund": "Abonament anulat. Îți rambursăm €{amount} pro-rata.",
     "toastCancelled": "Abonament anulat.",
