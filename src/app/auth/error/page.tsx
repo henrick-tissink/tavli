@@ -6,6 +6,11 @@ import { TavliLogo } from "@/components/tavli-logo";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata() {
+  const locale = await resolveAppLocale();
+  return { title: getMessages(locale, "partner.onboarding").auth.linkError.title };
+}
+
 /**
  * Landing page for a failed `exchangeCodeForSession` in `/auth/callback` —
  * an expired, malformed, or already-consumed link. The callback has always

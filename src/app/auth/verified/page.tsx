@@ -6,6 +6,11 @@ import { TavliLogo } from "@/components/tavli-logo";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata() {
+  const locale = await resolveAppLocale();
+  return { title: getMessages(locale, "profile").auth.verified.title };
+}
+
 /**
  * Diner-facing confirmation screen. `/auth/callback` routes here after a
  * successful code exchange for anyone who is not a partner or admin; those
