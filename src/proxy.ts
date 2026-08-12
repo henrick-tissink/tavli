@@ -111,19 +111,29 @@ export async function proxy(request: NextRequest) {
     // Self-serve operator sign-up. The public pricing page links straight here
     // (PricingTiers.tsx), so gating it bounced every prospect to sign-in.
     "/partner/sign-up",
+    // Sign-up ends by redirecting here, and the operator has no session at
+    // that point — the auth user is created unconfirmed with no sign-in. Gating
+    // it meant the "check your email" screen was never shown: they were
+    // bounced to sign-in immediately after creating an account.
+    "/partner/verify-email",
     "/onboard",
     "/reservations",
   ];
   const isPublic = publicRoutes.some((p) => pathname.startsWith(p));
   const needsAdmin =
     pathname.startsWith("/admin") && !pathname.startsWith("/admin/sign-in");
-  // Sign-in and sign-up are the two /partner routes a signed-out visitor must
-  // reach. Listing them in publicRoutes is not enough on its own — needsPartner
-  // drives the redirect below independently of isPublic.
+  // The /partner routes a signed-out visitor must reach: sign-in, sign-up, and
+  // the verify-email screen sign-up redirects to. Listing them in publicRoutes
+  // is not enough on its own — needsPartner drives the redirect below
+  // independently of isPublic.
+  const PARTNER_PUBLIC = [
+    "/partner/sign-in",
+    "/partner/sign-up",
+    "/partner/verify-email",
+  ];
   const needsPartner =
     pathname.startsWith("/partner") &&
-    !pathname.startsWith("/partner/sign-in") &&
-    !pathname.startsWith("/partner/sign-up");
+    !PARTNER_PUBLIC.some((p) => pathname.startsWith(p));
 
   if (!needsAdmin && !needsPartner && !isPublic) {
     return response;

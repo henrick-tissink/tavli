@@ -274,6 +274,19 @@ describe("proxy", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("lets a signed-out visitor reach /partner/verify-email", async () => {
+    // Regression guard: sign-up ends with redirect("/partner/verify-email?sent=1")
+    // and the operator has no session at that point — the auth user is created
+    // unconfirmed, with no sign-in. Gating this meant the "check your email"
+    // screen was never shown; they were bounced to sign-in right after
+    // creating an account. Confirmed against production before the fix.
+    const sb = mockSupabase({ user: null });
+    (createServerClient as jest.Mock).mockReturnValue(sb);
+    const req = mockRequest({ pathname: "/partner/verify-email", search: "?sent=1" });
+    const res = await proxy(req);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
   it("redirects /partner/* to sign-in when no user", async () => {
     const sb = mockSupabase({ user: null });
     (createServerClient as jest.Mock).mockReturnValue(sb);
