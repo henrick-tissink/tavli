@@ -53,7 +53,18 @@
     "legalPrefix": "Continuând, ești de acord cu",
     "legalTerms": "Termenii",
     "legalAnd": "și",
-    "legalPrivacy": "Confidențialitatea"
+    "legalPrivacy": "Confidențialitatea",
+    "verified": {
+      "title": "Gata, ești înscris",
+      "body": "Adresa ta e confirmată și contul e pregătit. Găsește o masă și rezerv-o.",
+      "cta": "Începe să explorezi"
+    },
+    "errors": {
+      "generic": "Nu am putut crea contul. Încearcă din nou în câteva momente.",
+      "rateLimited": "Prea multe încercări. Așteaptă câteva minute și încearcă din nou.",
+      "invalidEmail": "Introdu o adresă de email validă.",
+      "passwordTooShort": "Folosește cel puțin 6 caractere."
+    }
   },
   "citySelector": {
     "ariaLabel": "Alege orașul",

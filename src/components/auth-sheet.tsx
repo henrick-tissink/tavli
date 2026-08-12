@@ -6,6 +6,7 @@ import { Mail } from "lucide-react";
 import { BottomSheet } from "./bottom-sheet";
 import { Button } from "./button";
 import { useAuth } from "@/lib/auth-context";
+import { consumerSignUpAction } from "@/lib/identity/consumer-signup-action";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { localizedHref } from "@/lib/i18n/routing";
 
@@ -18,7 +19,7 @@ interface AuthSheetProps {
 type Mode = "sign-in" | "sign-up";
 
 export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,20 +51,27 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
     setSubmitting(true);
     setError(null);
 
-    const result =
-      mode === "sign-in"
-        ? await signIn(email, password)
-        : await signUp(email, password);
+    // Sign-up runs server-side so Tavli mints the confirmation link and sends
+    // its own branded, localised email. Sign-in stays on the client, where the
+    // Supabase SSR helper needs to set the session cookie.
+    if (mode === "sign-up") {
+      const result = await consumerSignUpAction({ email, password, locale });
+      setSubmitting(false);
+      if (!result.ok) {
+        setError(t(`auth.errors.${result.error ?? "generic"}`));
+        return;
+      }
+      // Always "check your email", including for an address that is already
+      // registered — anything else would leak which addresses exist.
+      setNeedsConfirmation(true);
+      return;
+    }
 
+    const result = await signIn(email, password);
     setSubmitting(false);
 
     if (result.error) {
       setError(result.error);
-      return;
-    }
-
-    if ("needsConfirmation" in result && result.needsConfirmation) {
-      setNeedsConfirmation(true);
       return;
     }
 

@@ -828,6 +828,24 @@ export interface ProfileMessages {
     legalTerms: string;
     legalAnd: string;
     legalPrivacy: string;
+    /** `/auth/verified` — the diner's post-confirmation landing page. */
+    verified: {
+      title: string;
+      body: string;
+      cta: string;
+    };
+    /**
+     * Mapped sign-up failures. Sign-up deliberately has no "email already
+     * registered" case: surfacing one would turn the endpoint into an
+     * enumeration oracle, so a taken address returns the same
+     * check-your-email state as a fresh one.
+     */
+    errors: {
+      generic: string;
+      rateLimited: string;
+      invalidEmail: string;
+      passwordTooShort: string;
+    };
   };
   citySelector: {
     ariaLabel: string;

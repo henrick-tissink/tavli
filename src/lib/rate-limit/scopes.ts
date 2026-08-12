@@ -23,6 +23,13 @@ export const RATE_LIMIT_SCOPES = {
   // §01 §5.2/§5.3 — operator self-serve sign-up + verification resend.
   partner_signup_per_ip: { limit: 5, windowSeconds: 3600 },
   auth_resend_verification: { limit: 3, windowSeconds: 600 },
+  // §01 — consumer (diner) self-serve sign-up. Moving account creation from
+  // the client to a service-role server action removes Supabase's own signup
+  // throttling, so these are the only abuse control on that endpoint.
+  // Per-email as well as per-IP, because the IP limit is skipped entirely when
+  // x-forwarded-for is absent.
+  consumer_signup_per_ip: { limit: 5, windowSeconds: 3600 },
+  consumer_signup_per_email: { limit: 3, windowSeconds: 3600 },
 } as const;
 
 export type RateLimitScope = keyof typeof RATE_LIMIT_SCOPES;

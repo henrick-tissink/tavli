@@ -53,7 +53,18 @@
     "legalPrefix": "Indem Sie fortfahren, stimmen Sie unseren",
     "legalTerms": "Nutzungsbedingungen",
     "legalAnd": "und",
-    "legalPrivacy": "Datenschutzrichtlinien"
+    "legalPrivacy": "Datenschutzrichtlinien",
+    "verified": {
+      "title": "Alles bereit",
+      "body": "Ihre E-Mail ist bestätigt und Ihr Konto steht bereit. Finden Sie einen Tisch und reservieren Sie ihn.",
+      "cta": "Jetzt entdecken"
+    },
+    "errors": {
+      "generic": "Wir konnten Ihr Konto nicht erstellen. Bitte versuchen Sie es gleich erneut.",
+      "rateLimited": "Zu viele Versuche. Warten Sie einige Minuten und versuchen Sie es erneut.",
+      "invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "passwordTooShort": "Verwenden Sie mindestens 6 Zeichen."
+    }
   },
   "citySelector": {
     "ariaLabel": "Stadt wählen",

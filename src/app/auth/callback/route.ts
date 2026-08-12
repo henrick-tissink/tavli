@@ -158,6 +158,9 @@ export async function GET(req: NextRequest): Promise<Response> {
     if (profile?.role === "restaurant_owner" || profile?.role === "admin") {
       return NextResponse.redirect(new URL("/partner/verified", url));
     }
+    // Diners get their own confirmation rather than being dropped on the
+    // storefront with no sign that anything happened.
+    return NextResponse.redirect(new URL("/auth/verified", url));
   }
 
   return NextResponse.redirect(new URL("/", url));

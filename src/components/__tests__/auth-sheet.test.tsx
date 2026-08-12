@@ -7,15 +7,24 @@ const mockSignIn = jest.fn();
 const mockSignUp = jest.fn();
 const mockSignOut = jest.fn();
 const mockUseAuth = jest.fn();
+const mockConsumerSignUp = jest.fn();
 
 jest.mock("@/lib/auth-context", () => ({
   useAuth: () => mockUseAuth(),
+}));
+
+// Sign-up is a server action now. Jest does not apply Next's "use server"
+// transform, so importing it for real drags Resend (and postal-mime) into
+// jsdom. Next replaces it with a reference in the real client bundle.
+jest.mock("@/lib/identity/consumer-signup-action", () => ({
+  consumerSignUpAction: (...args: unknown[]) => mockConsumerSignUp(...args),
 }));
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockSignIn.mockResolvedValue({});
   mockSignUp.mockResolvedValue({});
+  mockConsumerSignUp.mockResolvedValue({ ok: true });
   mockUseAuth.mockReturnValue({
     auth: { user: null, isAuthenticated: false, loading: false },
     signIn: mockSignIn,
@@ -108,7 +117,6 @@ describe("AuthSheet", () => {
   });
 
   it("shows the confirmation panel when sign-up requires email confirmation", async () => {
-    mockSignUp.mockResolvedValueOnce({ needsConfirmation: true });
     renderSheet();
     fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
     fireEvent.change(screen.getByLabelText("Email"), {
@@ -124,8 +132,7 @@ describe("AuthSheet", () => {
     expect(screen.getByText(/new@test\.com/)).toBeInTheDocument();
   });
 
-  it("calls signUp directly when in sign-up mode", async () => {
-    mockSignUp.mockResolvedValueOnce({});
+  it("calls the server action with the active locale in sign-up mode", async () => {
     const onAuthenticated = jest.fn();
     renderSheet({ onAuthenticated });
     fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
@@ -137,8 +144,50 @@ describe("AuthSheet", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Creează cont" }));
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalledWith("new@test.com", "secret123");
+      expect(mockConsumerSignUp).toHaveBeenCalledWith({
+        email: "new@test.com",
+        password: "secret123",
+        locale: "ro",
+      });
     });
-    expect(onAuthenticated).toHaveBeenCalled();
+    // Sign-up never authenticates inline: the account is unconfirmed until the
+    // emailed link is clicked.
+    expect(onAuthenticated).not.toHaveBeenCalled();
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it("still reports check-your-email for an address that is already taken", async () => {
+    // Enumeration guard: the action returns ok for a taken address, so the UI
+    // must not distinguish it from a fresh signup.
+    mockConsumerSignUp.mockResolvedValueOnce({ ok: true });
+    renderSheet();
+    fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "taken@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Creează cont" }));
+    await waitFor(() => {
+      expect(screen.getByText(/Ți-am trimis un email/)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("surfaces a translated error when the action rejects the input", async () => {
+    mockConsumerSignUp.mockResolvedValueOnce({ ok: false, error: "rateLimited" });
+    renderSheet();
+    fireEvent.click(screen.getByText("Nu ai cont? Creează unul"));
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "new@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Parolă"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Creează cont" }));
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/Prea multe încercări/);
+    });
   });
 });

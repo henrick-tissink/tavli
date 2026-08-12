@@ -53,7 +53,18 @@
     "legalPrefix": "By continuing, you agree to our",
     "legalTerms": "Terms",
     "legalAnd": "and",
-    "legalPrivacy": "Privacy Policy"
+    "legalPrivacy": "Privacy Policy",
+    "verified": {
+      "title": "You're all set",
+      "body": "Your email is confirmed and your account is ready. Find a table and book it.",
+      "cta": "Start exploring"
+    },
+    "errors": {
+      "generic": "We couldn't create your account. Try again in a moment.",
+      "rateLimited": "Too many attempts. Wait a few minutes and try again.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Use at least 6 characters."
+    }
   },
   "citySelector": {
     "ariaLabel": "Choose city",
