@@ -4,9 +4,10 @@
  * §12 §8 — change plan. Tier swap (Base ↔ Pro) applies immediately; frequency
  * change is deferred to period-end (no immediate charge), per §8.2/§8.3.
  */
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import { changeTierAction, requestFrequencyChangeAction } from "../actions";
@@ -32,8 +33,14 @@ export function ChangePlanSheet({
   const t = useT("partner.billing");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  // Which of the two changes is running. Both stay disabled for the duration —
+  // this moves money — but only the pressed one shows a spinner.
+  const [acting, setActing] = useState<"tier" | "frequency" | null>(null);
+  const busy = pending ? acting : null;
 
   function swapTier(target: Tier) {
+    if (pending) return;
+    setActing("tier");
     startTransition(async () => {
       const res = await changeTierAction(organizationId, target);
       if (res.ok) {
@@ -49,6 +56,8 @@ export function ChangePlanSheet({
   }
 
   function switchFrequency(target: Frequency) {
+    if (pending) return;
+    setActing("frequency");
     startTransition(async () => {
       const res = await requestFrequencyChangeAction(organizationId, target);
       if (res.ok) {
@@ -79,9 +88,11 @@ export function ChangePlanSheet({
           <button
             type="button"
             disabled={pending}
+            aria-busy={busy === "tier" || undefined}
             onClick={() => swapTier(otherTier)}
-            className="mt-3 w-full min-h-[48px] rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            className="mt-3 inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-button bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
+            {busy === "tier" && <Spinner />}
             {otherTier === "pro" ? t("changePlan.switchToPro") : t("changePlan.switchToBase")}
           </button>
         </section>
@@ -94,9 +105,11 @@ export function ChangePlanSheet({
           <button
             type="button"
             disabled={pending}
+            aria-busy={busy === "frequency" || undefined}
             onClick={() => switchFrequency(otherFrequency)}
-            className="mt-3 w-full min-h-[48px] rounded-button border border-border bg-surface-white px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            className="mt-3 inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-button border border-border bg-surface-white px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
+            {busy === "frequency" && <Spinner />}
             {otherFrequency === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
           </button>
         </section>

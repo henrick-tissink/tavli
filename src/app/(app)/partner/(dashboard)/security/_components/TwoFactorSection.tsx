@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { Spinner } from "@/components/spinner";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { BCP47 } from "@/lib/i18n/locale";
 import type { ActionResult } from "../actions";
@@ -25,16 +26,21 @@ export interface TwoFactorActions {
   ) => Promise<ActionResult>;
 }
 
-function VerifyButton() {
+function VerifyButton({ reloading }: { reloading: boolean }) {
   const { pending } = useFormStatus();
   const t = useT("partner.staffSecurity");
+  // `reloading` covers the gap between a successful verify and the document
+  // reload actually happening — useFormStatus has already gone idle by then.
+  const busy = pending || reloading;
   return (
     <button
       type="submit"
-      disabled={pending}
-      className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
+      disabled={busy}
+      aria-busy={busy || undefined}
+      className="inline-flex items-center gap-2 rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
     >
-      {pending ? t("security.twoFactor.enrol.verifying") : t("security.twoFactor.enrol.verify")}
+      {busy && <Spinner />}
+      {busy ? t("security.twoFactor.enrol.verifying") : t("security.twoFactor.enrol.verify")}
     </button>
   );
 }
@@ -62,8 +68,17 @@ export function TwoFactorSection({
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [unenrolError, setUnenrolError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Enrolling and un-enrolling change the session's assurance level, so these
+  // deliberately keep the full document reload (router.refresh() would leave the
+  // client holding a stale AAL). `reloading` keeps the control visibly busy from
+  // the moment the action succeeds until the new document paints.
+  const [reloading, setReloading] = useState(false);
+  // Which factor is being removed, so one row's spinner does not dim the others.
+  const [unenrolling, setUnenrolling] = useState<string | null>(null);
+  const unenrollingId = isPending || reloading ? unenrolling : null;
 
   function beginEnrol() {
+    setUnenrolling(null);
     startTransition(async () => {
       const result = await actions.startTotpEnrolment();
       if (!result.ok || !result.data) {
@@ -79,25 +94,30 @@ export function TwoFactorSection({
   }
 
   async function submitVerify(formData: FormData) {
-    if (!enrolment) return;
+    if (!enrolment || reloading) return;
     formData.set("factor_id", enrolment.factorId);
     const result = await actions.verifyTotpStep({ ok: false }, formData);
     if (!result.ok) {
       setVerifyError(result.error ?? t("security.twoFactor.enrol.errorIncorrect"));
       return;
     }
-    setEnrolment(null);
+    // Stay on the enrolment screen with the button busy rather than flashing
+    // the (stale) factor list for the frame before the reload lands.
+    setReloading(true);
     window.location.reload();
   }
 
   function submitUnenrol(factorId: string) {
+    if (reloading) return;
     const fd = new FormData();
     fd.set("factor_id", factorId);
+    setUnenrolling(factorId);
     startTransition(async () => {
       const result = await actions.unenrolFactorAction({ ok: false }, fd);
       if (!result.ok) {
         setUnenrolError(result.error ?? t("security.twoFactor.errorRemove"));
       } else {
+        setReloading(true);
         window.location.reload();
       }
     });
@@ -138,7 +158,7 @@ export function TwoFactorSection({
               {verifyError}
             </p>
           )}
-          <VerifyButton />
+          <VerifyButton reloading={reloading} />
         </form>
       </section>
     );
@@ -161,8 +181,10 @@ export function TwoFactorSection({
         <button
           onClick={beginEnrol}
           disabled={isPending}
-          className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
+          aria-busy={isPending || undefined}
+          className="inline-flex items-center gap-2 rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark disabled:opacity-50"
         >
+          {isPending && <Spinner />}
           {isPending ? t("security.twoFactor.settingUp") : t("security.twoFactor.setUp")}
         </button>
       </section>
@@ -194,9 +216,11 @@ export function TwoFactorSection({
           </div>
           <button
             onClick={() => submitUnenrol(f.id)}
-            disabled={isPending}
-            className="text-sm text-error hover:underline disabled:opacity-50"
+            disabled={unenrollingId === f.id}
+            aria-busy={unenrollingId === f.id || undefined}
+            className="inline-flex items-center gap-1.5 text-sm text-error hover:underline disabled:opacity-50"
           >
+            {unenrollingId === f.id && <Spinner size={14} />}
             {t("security.twoFactor.remove")}
           </button>
         </div>

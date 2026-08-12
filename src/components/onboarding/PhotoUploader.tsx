@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useState, useTransition } from "react";
 import { Upload, Trash2, Star } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { resolvePhotoUrl } from "@/lib/storage";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
@@ -33,7 +34,14 @@ export function PhotoUploader({
   const [photos, setPhotos] = useState<PhotoRow[]>(initialPhotos);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  /**
+   * Which tile's action is in flight. The transition's own `isPending` is a
+   * single flag for the whole grid, so on its own it would either spin every
+   * tile or (as before) nothing at all — pairing it with the photo id keeps
+   * the feedback on the tile that was actually clicked.
+   */
+  const [busyPhotoId, setBusyPhotoId] = useState<string | null>(null);
 
   const onFilesSelected = useCallback(
     async (files: FileList | null) => {
@@ -78,39 +86,51 @@ export function PhotoUploader({
 
   const handleDelete = useCallback(
     (photo: PhotoRow) => {
+      if (busyPhotoId) return;
       if (!confirm(t("photoUploader.deleteConfirm"))) return;
+      setBusyPhotoId(photo.id);
       startTransition(async () => {
-        const result = await deletePhoto(photo.id);
-        if (!result.ok) {
-          setError(result.error ?? t("photoUploader.deleteFailed"));
-        } else {
-          setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+        try {
+          const result = await deletePhoto(photo.id);
+          if (!result.ok) {
+            setError(result.error ?? t("photoUploader.deleteFailed"));
+          } else {
+            setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+          }
+        } finally {
+          setBusyPhotoId(null);
         }
       });
     },
-    [t],
+    [busyPhotoId, t],
   );
 
   const handleSetHero = useCallback(
     (photo: PhotoRow) => {
+      if (busyPhotoId) return;
+      setBusyPhotoId(photo.id);
       startTransition(async () => {
-        const result = await setPhotoHero(photo.id);
-        if (!result.ok) {
-          setError(result.error ?? t("photoUploader.setHeroFailed"));
-        } else {
-          setPhotos((prev) =>
-            prev.map((p) =>
-              p.id === photo.id
-                ? { ...p, kind: "hero" }
-                : p.kind === "hero"
-                  ? { ...p, kind: "gallery" }
-                  : p,
-            ),
-          );
+        try {
+          const result = await setPhotoHero(photo.id);
+          if (!result.ok) {
+            setError(result.error ?? t("photoUploader.setHeroFailed"));
+          } else {
+            setPhotos((prev) =>
+              prev.map((p) =>
+                p.id === photo.id
+                  ? { ...p, kind: "hero" }
+                  : p.kind === "hero"
+                    ? { ...p, kind: "gallery" }
+                    : p,
+              ),
+            );
+          }
+        } finally {
+          setBusyPhotoId(null);
         }
       });
     },
-    [t],
+    [busyPhotoId, t],
   );
 
   return (
@@ -152,6 +172,9 @@ export function PhotoUploader({
           {photos.map((photo) => {
             const url = resolvePhotoUrl(photo.storagePath);
             const isHero = photo.kind === "hero";
+            // Disabled + aria-busy carry the state on their own: the spinner is
+            // frozen under prefers-reduced-motion.
+            const tileBusy = isPending && busyPhotoId === photo.id;
             return (
               <div
                 key={photo.id}
@@ -177,19 +200,23 @@ export function PhotoUploader({
                     <button
                       type="button"
                       onClick={() => handleSetHero(photo)}
+                      disabled={tileBusy}
+                      aria-busy={tileBusy || undefined}
                       aria-label={t("photoUploader.setHeroAriaLabel")}
-                      className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70"
+                      className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-black/50"
                     >
-                      <Star size={12} />
+                      {tileBusy ? <Spinner size={12} /> : <Star size={12} />}
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => handleDelete(photo)}
+                    disabled={tileBusy}
+                    aria-busy={tileBusy || undefined}
                     aria-label={t("photoUploader.deleteAriaLabel")}
-                    className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-600"
+                    className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-black/50"
                   >
-                    <Trash2 size={12} />
+                    {tileBusy ? <Spinner size={12} /> : <Trash2 size={12} />}
                   </button>
                 </div>
               </div>

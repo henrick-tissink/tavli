@@ -6,6 +6,7 @@
  * calls the joinWaitlist action, mapping its error code to localised copy.
  */
 import { useEffect, useId, useRef, useState } from "react";
+import { Spinner } from "@/components/spinner";
 import type { PricingMessages } from "@/lib/i18n/load-messages";
 import { joinWaitlist } from "@/app/(public)/[lang]/pricing/actions";
 
@@ -157,11 +158,18 @@ export function WaitlistButton({
                   >
                     {w.close}
                   </button>
+                  {/* In flight: spinner + the already-present disabled look,
+                      since globals.css freezes animation under
+                      prefers-reduced-motion — the dimmed, unclickable button is
+                      the cue that survives. The label is unchanged (no pending
+                      copy exists in `pricing.waitlist`). */}
                   <button
                     type="submit"
                     disabled={status === "submitting"}
-                    className="min-h-[44px] rounded-button bg-brand-primary px-6 py-2.5 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                    aria-busy={status === "submitting" || undefined}
+                    className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-button bg-brand-primary px-6 py-2.5 text-sm font-bold text-white shadow-card transition-all hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
                   >
+                    {status === "submitting" && <Spinner />}
                     {w.submit}
                   </button>
                 </div>

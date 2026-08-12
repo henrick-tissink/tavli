@@ -46,6 +46,14 @@ describe("Button", () => {
     expect(btn.className).not.toContain("active:scale");
   });
 
+  it("renders danger variant for destructive actions", () => {
+    render(<Button variant="danger">Suspend</Button>);
+    const btn = screen.getByRole("button");
+    // White on #DC2626 is 4.83:1, which clears AA. Call sites previously had to
+    // fight the component with `!` overrides to get a destructive colour.
+    expect(btn).toHaveClass("bg-error", "text-white");
+  });
+
   it("is disabled and marked busy while loading", () => {
     render(<Button loading>Saving…</Button>);
     const btn = screen.getByRole("button");

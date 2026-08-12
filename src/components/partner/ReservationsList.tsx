@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarCheck } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { CancelReservationSheet } from "@/components/partner/CancelReservationSheet";
 import { useT } from "@/lib/i18n/messages-provider";
@@ -55,26 +56,40 @@ export function ReservationsList({ today, upcoming, past }: Props) {
     today.length > 0 ? "today" : upcoming.length > 0 ? "upcoming" : "today",
   );
   const [corporateOnly, setCorporateOnly] = useState(false);
-  const [pending, start] = useTransition();
+  // Which action is in flight per reservation id — a single boolean greyed the
+  // whole list, so seating one guest made every other row look dead. Keyed by
+  // row, several rows can be worked at once during a busy service.
+  const [acting, setActing] = useState<Record<string, NewStatus>>({});
+  const [, start] = useTransition();
   const [sheetReservation, setSheetReservation] = useState<ReservationRow | null>(
     null,
   );
 
   const handleStatusChange = (id: string, nextStatus: NewStatus) => {
+    if (acting[id]) return;
+    setActing((prev) => ({ ...prev, [id]: nextStatus }));
     start(async () => {
-      const result = await updateReservationStatus(id, nextStatus);
-      if (!result.ok) {
-        toast.error(result.error ?? t("toast.updateFailed"));
-        return;
+      try {
+        const result = await updateReservationStatus(id, nextStatus);
+        if (!result.ok) {
+          toast.error(result.error ?? t("toast.updateFailed"));
+          return;
+        }
+        const label =
+          nextStatus === "no_show"
+            ? t("toast.noShow")
+            : nextStatus === "seated"
+              ? t("toast.seated")
+              : t("toast.completed");
+        toast.success(label);
+        router.refresh();
+      } finally {
+        setActing((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
       }
-      const label =
-        nextStatus === "no_show"
-          ? t("toast.noShow")
-          : nextStatus === "seated"
-            ? t("toast.seated")
-            : t("toast.completed");
-      toast.success(label);
-      router.refresh();
     });
   };
 
@@ -153,6 +168,8 @@ export function ReservationsList({ today, upcoming, past }: Props) {
             <tbody className="divide-y divide-border">
               {rows.map((r) => {
                 const dateLabel = shortDate(r.reservationDate);
+                const rowAction = acting[r.id];
+                const rowBusy = rowAction !== undefined;
                 return (
                   <tr key={r.id} className="hover:bg-surface-bg/50 align-top">
                     <td className="px-4 py-3">
@@ -211,23 +228,27 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "seated")}
-                            disabled={pending}
+                            disabled={rowBusy}
+                            aria-busy={rowAction === "seated" || undefined}
                             className={primaryBtn}
                           >
+                            {rowAction === "seated" && <Spinner size={13} className="mr-1.5" />}
                             {t("actions.seat")}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "no_show")}
-                            disabled={pending}
+                            disabled={rowBusy}
+                            aria-busy={rowAction === "no_show" || undefined}
                             className={quietBtn}
                           >
+                            {rowAction === "no_show" && <Spinner size={13} className="mr-1.5 inline align-text-bottom" />}
                             {t("actions.noShow")}
                           </button>
                           <button
                             type="button"
                             onClick={() => setSheetReservation(r)}
-                            disabled={pending}
+                            disabled={rowBusy}
                             className={dangerBtn}
                           >
                             {t("actions.cancel")}
@@ -238,17 +259,21 @@ export function ReservationsList({ today, upcoming, past }: Props) {
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "completed")}
-                            disabled={pending}
+                            disabled={rowBusy}
+                            aria-busy={rowAction === "completed" || undefined}
                             className={primaryBtn}
                           >
+                            {rowAction === "completed" && <Spinner size={13} className="mr-1.5" />}
                             {t("actions.complete")}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleStatusChange(r.id, "no_show")}
-                            disabled={pending}
+                            disabled={rowBusy}
+                            aria-busy={rowAction === "no_show" || undefined}
                             className={quietBtn}
                           >
+                            {rowAction === "no_show" && <Spinner size={13} className="mr-1.5 inline align-text-bottom" />}
                             {t("actions.noShow")}
                           </button>
                         </div>

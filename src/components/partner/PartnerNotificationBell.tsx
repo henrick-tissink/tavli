@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
+import { Skeleton } from "@/components/skeleton";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { BCP47 } from "@/lib/i18n/locale";
 
@@ -19,6 +20,10 @@ export function PartnerNotificationBell() {
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
   const [open, setOpen] = useState(false);
+  // Until the first poll resolves we know nothing — showing "Nothing new."
+  // straight away was a claim, not a state.
+  const [loaded, setLoaded] = useState(false);
+  const [marking, setMarking] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -31,6 +36,7 @@ export function PartnerNotificationBell() {
         const data = await res.json();
         setCount(data.count);
         setItems(data.items);
+        setLoaded(true);
       } catch {
         // network errors swallowed — next interval will retry
       }
@@ -43,17 +49,24 @@ export function PartnerNotificationBell() {
     };
   }, []);
 
+  // The badge clears the moment the bell is opened — the POST is bookkeeping,
+  // not something the host should watch. `marking` stops a second click
+  // re-firing it while the first is still in flight; a failure puts the badge
+  // back rather than pretending the notifications were read.
   async function onBellClick() {
     setOpen((o) => !o);
-    if (count > 0) {
-      try {
-        const res = await fetch("/api/partner-notifications", {
-          method: "POST",
-        });
-        if (res.ok) setCount(0);
-      } catch (e) {
-        console.error(e);
-      }
+    if (count === 0 || marking) return;
+    const previous = count;
+    setMarking(true);
+    setCount(0);
+    try {
+      const res = await fetch("/api/partner-notifications", { method: "POST" });
+      if (!res.ok) setCount(previous);
+    } catch (e) {
+      console.error(e);
+      setCount(previous);
+    } finally {
+      setMarking(false);
     }
   }
 
@@ -74,7 +87,12 @@ export function PartnerNotificationBell() {
       </button>
       {open && (
         <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg p-2 z-10">
-          {items.length === 0 ? (
+          {!loaded ? (
+            <div aria-busy="true" className="space-y-2 p-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ) : items.length === 0 ? (
             <p className="text-sm text-zinc-500 p-3">{t("bell.empty")}</p>
           ) : (
             items.map((n) => {

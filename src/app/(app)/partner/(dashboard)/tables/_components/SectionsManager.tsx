@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
 import { useT } from "@/lib/i18n/messages-provider";
 import { createSectionAction, updateSectionAction, archiveSectionAction } from "../actions";
 
@@ -45,7 +46,10 @@ interface Props {
 export function SectionsManager({ restaurantId, organizationId, sections }: Props) {
   const t = useT("partner.tables");
   const router = useRouter();
-  const [pending, start] = useTransition();
+  const [, start] = useTransition();
+  // The id of the section whose save/delete is in flight ("new" for the create
+  // form). One boolean used to grey every row at once.
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<string | "new" | null>(null);
@@ -75,20 +79,26 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
       setError(t("sections.nameRequired"));
       return;
     }
+    if (pendingId) return;
+    setPendingId("new");
     start(async () => {
-      const res = await createSectionAction({
-        restaurantId,
-        organizationId,
-        name: form.name.trim(),
-        color: form.color || undefined,
-        sortOrder: parseInt(form.sortOrder, 10) || 0,
-      });
-      if (!res.ok) {
-        setError(res.error);
-        return;
+      try {
+        const res = await createSectionAction({
+          restaurantId,
+          organizationId,
+          name: form.name.trim(),
+          color: form.color || undefined,
+          sortOrder: parseInt(form.sortOrder, 10) || 0,
+        });
+        if (!res.ok) {
+          setError(res.error);
+          return;
+        }
+        cancel();
+        router.refresh();
+      } finally {
+        setPendingId(null);
       }
-      cancel();
-      router.refresh();
     });
   };
 
@@ -100,23 +110,29 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
     }
     const section = sections.find((s) => s.id === id);
     if (!section) return;
+    if (pendingId) return;
+    setPendingId(id);
     start(async () => {
-      const res = await updateSectionAction({
-        id,
-        restaurantId: section.restaurantId,
-        organizationId,
-        changes: {
-          name: form.name.trim(),
-          color: form.color || undefined,
-          sortOrder: parseInt(form.sortOrder, 10) || 0,
-        },
-      });
-      if (!res.ok) {
-        setError(res.error);
-        return;
+      try {
+        const res = await updateSectionAction({
+          id,
+          restaurantId: section.restaurantId,
+          organizationId,
+          changes: {
+            name: form.name.trim(),
+            color: form.color || undefined,
+            sortOrder: parseInt(form.sortOrder, 10) || 0,
+          },
+        });
+        if (!res.ok) {
+          setError(res.error);
+          return;
+        }
+        cancel();
+        router.refresh();
+      } finally {
+        setPendingId(null);
       }
-      cancel();
-      router.refresh();
     });
   };
 
@@ -125,17 +141,23 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
       return;
     }
     setError(null);
+    if (pendingId) return;
+    setPendingId(row.id);
     start(async () => {
-      const res = await archiveSectionAction({
-        id: row.id,
-        restaurantId: row.restaurantId,
-        organizationId,
-      });
-      if (!res.ok) {
-        setError(res.error);
-        return;
+      try {
+        const res = await archiveSectionAction({
+          id: row.id,
+          restaurantId: row.restaurantId,
+          organizationId,
+        });
+        if (!res.ok) {
+          setError(res.error);
+          return;
+        }
+        router.refresh();
+      } finally {
+        setPendingId(null);
       }
-      router.refresh();
     });
   };
 
@@ -176,7 +198,7 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
                 onCancel={cancel}
                 onSubmit={() => submitUpdate(row.id)}
                 submitLabel={t("sections.form.save")}
-                pending={pending}
+                pending={pendingId === row.id}
               />
             ) : (
               <div
@@ -200,20 +222,21 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
                   <button
                     type="button"
                     onClick={() => beginEdit(row)}
-                    disabled={pending}
+                    disabled={pendingId === row.id}
                     aria-label={t("sections.editAriaLabel", { name: row.name })}
-                    className="p-2 rounded-lg text-text-secondary hover:bg-surface-bg disabled:opacity-50"
+                    className="p-2 rounded-lg text-text-secondary hover:bg-surface-bg disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(row)}
-                    disabled={pending}
+                    disabled={pendingId === row.id}
+                    aria-busy={pendingId === row.id || undefined}
                     aria-label={t("sections.deleteAriaLabel", { name: row.name })}
-                    className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
+                    className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Trash2 size={14} />
+                    {pendingId === row.id ? <Spinner size={14} /> : <Trash2 size={14} />}
                   </button>
                 </div>
               </div>
@@ -227,11 +250,11 @@ export function SectionsManager({ restaurantId, organizationId, sections }: Prop
               onCancel={cancel}
               onSubmit={submitCreate}
               submitLabel={t("sections.form.add")}
-              pending={pending}
+              pending={pendingId === "new"}
             />
           ) : (
             <div className="pt-1">
-              <Button variant="secondary" onClick={beginCreate} disabled={pending}>
+              <Button variant="secondary" onClick={beginCreate}>
                 <span className="inline-flex items-center gap-2">
                   <Plus size={14} />
                   {t("sections.newSection")}
@@ -315,7 +338,7 @@ function SectionForm({
         <Button type="button" variant="ghost" onClick={onCancel} disabled={pending}>
           {t("sections.form.cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={pending}>
+        <Button type="submit" variant="primary" loading={pending}>
           {pending ? t("sections.form.saving") : submitLabel}
         </Button>
       </div>

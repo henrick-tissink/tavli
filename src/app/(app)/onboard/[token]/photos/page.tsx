@@ -4,7 +4,7 @@ import { getOnboardingState, advanceStep } from "@/lib/onboarding";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { PhotoUploader, type PhotoRow } from "@/components/onboarding/PhotoUploader";
-import { Button } from "@/components/button";
+import { SubmitButton } from "@/components/submit-button";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -64,7 +64,9 @@ export default async function OnboardingPhotosPage({
           {m.wizard.photos.back}
         </Link>
         <form action={continueAction}>
-          <Button type="submit">{m.wizard.photos.continue}</Button>
+          {/* Advancing the step writes state and redirects — a slow hop the
+              wizard previously spent silent. */}
+          <SubmitButton>{m.wizard.photos.continue}</SubmitButton>
         </form>
       </div>
     </OnboardingShell>

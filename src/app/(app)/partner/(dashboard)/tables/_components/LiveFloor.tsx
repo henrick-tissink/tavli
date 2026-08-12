@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/spinner";
 import { allowedTransitions, type TableStatus } from "@/lib/tables/state-machine";
 import type { TableReservation } from "@/lib/tables/upcoming";
 import { useT } from "@/lib/i18n/messages-provider";
@@ -74,7 +75,15 @@ export function LiveFloor({
   const t = useT("partner.tables");
   const statusLabel = (status: TableStatus) => t(`status.${status}`);
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  // One in-flight key per action (not one boolean for the whole board), so
+  // clearing table 4 never greys tables 1–3 or the waiting list. A Set, because
+  // during service several actions genuinely overlap.
+  //
+  // Deliberately NOT `useTransition`: the 15s background refresh below would
+  // otherwise flip a shared pending flag and disable controls with no user
+  // action behind it. Nothing here sets a pending key except a click.
+  const [busy, setBusy] = useState<ReadonlySet<string>>(new Set());
+  const isBusy = useCallback((key: string) => busy.has(key), [busy]);
 
   // Keep the board live: re-fetch on an interval while the tab is visible, and
   // immediately when it regains focus — so bookings and other staff's changes
@@ -95,14 +104,29 @@ export function LiveFloor({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
-  function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
-    startTransition(async () => {
+  /** Runs `fn` under the pending key `key`; resolves to whether it succeeded. */
+  const run = useCallback(
+    async (key: string, fn: () => Promise<{ ok: boolean; error?: string }>) => {
+      setBusy((prev) => new Set(prev).add(key));
       setError(null);
-      const res = await fn();
-      if (!res.ok) setError(res.error === "invalid_transition" ? t("liveFloor.errorInvalidTransition") : t("liveFloor.errorFailed"));
-      else router.refresh();
-    });
-  }
+      try {
+        const res = await fn();
+        if (!res.ok) {
+          setError(res.error === "invalid_transition" ? t("liveFloor.errorInvalidTransition") : t("liveFloor.errorFailed"));
+          return false;
+        }
+        router.refresh();
+        return true;
+      } finally {
+        setBusy((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+      }
+    },
+    [router, t],
+  );
 
   function changeStatus(table: TableVM, to: TableStatus) {
     // Express clear (seated → free) — capture an optional reason per §08 §5.
@@ -110,7 +134,9 @@ export function LiveFloor({
     if (table.currentStatus === "seated" && to === "free") {
       notes = window.prompt(t("liveFloor.clearReasonPrompt")) ?? undefined;
     }
-    run(() => updateTableStatusAction({ tableId: table.id, toStatus: to, notes }));
+    void run(`table:${table.id}:${to}`, () =>
+      updateTableStatusAction({ tableId: table.id, toStatus: to, notes }),
+    );
   }
 
   function toggleSelect(id: string) {
@@ -125,7 +151,7 @@ export function LiveFloor({
   function doCombine() {
     const ids = [...selected];
     if (ids.length < 2) return;
-    run(() => combineTablesAction({ restaurantId, tableIds: ids }));
+    void run("combine", () => combineTablesAction({ restaurantId, tableIds: ids }));
     setSelected(new Set());
     setCombineMode(false);
   }
@@ -154,10 +180,12 @@ export function LiveFloor({
           {combineMode && (
             <button
               type="button"
-              disabled={selected.size < 2 || pending}
+              disabled={selected.size < 2 || isBusy("combine")}
+              aria-busy={isBusy("combine") || undefined}
               onClick={doCombine}
-              className="rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
+              {isBusy("combine") && <Spinner size={13} />}
               {t("liveFloor.combineSelection", { count: selected.size })}
             </button>
           )}
@@ -172,6 +200,10 @@ export function LiveFloor({
                 {g.items.map((tbl) => {
                   const selectable = combineMode && tbl.currentStatus === "free";
                   const isSel = selected.has(tbl.id);
+                  // While one of this table's actions is in flight its siblings
+                  // are locked (two conflicting transitions would race), but no
+                  // other table on the board is touched.
+                  const tableBusy = [...busy].some((k) => k.startsWith(`table:${tbl.id}:`));
                   return (
                     <div
                       key={tbl.id}
@@ -208,14 +240,16 @@ export function LiveFloor({
                           {tbl.currentStatus === "combined" && tbl.currentCombinationId ? (
                             <button
                               type="button"
-                              disabled={pending}
+                              disabled={tableBusy}
+                              aria-busy={isBusy(`table:${tbl.id}:dissolve`) || undefined}
                               onClick={() =>
-                                run(() =>
+                                void run(`table:${tbl.id}:dissolve`, () =>
                                   dissolveCombinationAction({ restaurantId, combinationId: tbl.currentCombinationId! }),
                                 )
                               }
-                              className="rounded-md bg-white/70 px-2 py-1 text-xs font-semibold hover:bg-white"
+                              className="inline-flex items-center gap-1 rounded-md bg-white/70 px-2 py-1 text-xs font-semibold hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                             >
+                              {isBusy(`table:${tbl.id}:dissolve`) && <Spinner size={11} />}
                               {t("liveFloor.dissolve")}
                             </button>
                           ) : (
@@ -223,10 +257,12 @@ export function LiveFloor({
                               <button
                                 key={to}
                                 type="button"
-                                disabled={pending}
+                                disabled={tableBusy}
+                                aria-busy={isBusy(`table:${tbl.id}:${to}`) || undefined}
                                 onClick={() => changeStatus(tbl, to)}
-                                className="rounded-md bg-white/70 px-2 py-1 text-xs font-medium hover:bg-white"
+                                className="inline-flex items-center gap-1 rounded-md bg-white/70 px-2 py-1 text-xs font-medium hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                               >
+                                {isBusy(`table:${tbl.id}:${to}`) && <Spinner size={11} />}
                                 {t("liveFloor.transitionTo", { status: statusLabel(to) })}
                               </button>
                             ))
@@ -246,26 +282,28 @@ export function LiveFloor({
         <ReservationsPanel
           reservations={reservations}
           freeTables={tables.filter((tbl) => tbl.currentStatus === "free")}
-          pending={pending}
+          isBusy={isBusy}
           run={run}
         />
-        <WalkinPanel restaurantId={restaurantId} walkins={walkins} pending={pending} run={run} />
+        <WalkinPanel restaurantId={restaurantId} walkins={walkins} isBusy={isBusy} run={run} />
       </div>
     </div>
   );
 }
 
+type RunFn = (key: string, fn: () => Promise<{ ok: boolean; error?: string }>) => Promise<boolean>;
+
 /** §08 §6.2 — assign today's unseated bookings to a free table. */
 function ReservationsPanel({
   reservations,
   freeTables,
-  pending,
+  isBusy,
   run,
 }: {
   reservations: ReservationVM[];
   freeTables: TableVM[];
-  pending: boolean;
-  run: (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
+  isBusy: (key: string) => boolean;
+  run: RunFn;
 }) {
   const t = useT("partner.tables");
   const [pick, setPick] = useState<Record<string, string>>({});
@@ -276,7 +314,9 @@ function ReservationsPanel({
         <p className="text-sm text-text-muted">{t("reservationsPanel.empty")}</p>
       ) : (
         <ul className="space-y-3">
-          {reservations.map((r) => (
+          {reservations.map((r) => {
+            const seating = isBusy(`res:${r.id}`);
+            return (
             <li key={r.id} className="rounded-lg border border-border p-3">
               <p className="text-sm font-semibold text-text-primary">
                 {r.time} · {r.guestName}
@@ -288,8 +328,9 @@ function ReservationsPanel({
                 <select
                   aria-label={t("reservationsPanel.pickTableAriaLabel", { name: r.guestName })}
                   value={pick[r.id] ?? ""}
+                  disabled={seating}
                   onChange={(e) => setPick((p) => ({ ...p, [r.id]: e.target.value }))}
-                  className="flex-1 rounded border border-border p-1.5 text-sm"
+                  className="flex-1 rounded border border-border p-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">{t("reservationsPanel.pickTablePlaceholder")}</option>
                   {freeTables.map((tbl) => (
@@ -300,15 +341,22 @@ function ReservationsPanel({
                 </select>
                 <button
                   type="button"
-                  disabled={pending || !pick[r.id]}
-                  onClick={() => run(() => assignReservationToTableAction({ reservationId: r.id, tableId: pick[r.id] }))}
-                  className="rounded bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                  disabled={seating || !pick[r.id]}
+                  aria-busy={seating || undefined}
+                  onClick={() =>
+                    void run(`res:${r.id}`, () =>
+                      assignReservationToTableAction({ reservationId: r.id, tableId: pick[r.id] }),
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
+                  {seating && <Spinner size={13} />}
                   {t("reservationsPanel.seat")}
                 </button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>
@@ -318,22 +366,29 @@ function ReservationsPanel({
 function WalkinPanel({
   restaurantId,
   walkins,
-  pending,
+  isBusy,
   run,
 }: {
   restaurantId: string;
   walkins: WalkinVM[];
-  pending: boolean;
-  run: (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
+  isBusy: (key: string) => boolean;
+  run: RunFn;
 }) {
   const t = useT("partner.tables");
   const [name, setName] = useState("");
   const [party, setParty] = useState(2);
   const [phone, setPhone] = useState("");
+  const adding = isBusy("walkin:add");
 
-  function add() {
-    if (!name.trim()) return;
-    run(() => addWalkinAction({ restaurantId, guestName: name, partySize: party, guestPhone: phone || undefined }));
+  // The typed name/phone are only cleared once the walk-in is really on the
+  // list — clearing optimistically threw the host's typing away whenever the
+  // action failed.
+  async function add() {
+    if (!name.trim() || adding) return;
+    const ok = await run("walkin:add", () =>
+      addWalkinAction({ restaurantId, guestName: name, partySize: party, guestPhone: phone || undefined }),
+    );
+    if (!ok) return;
     setName("");
     setParty(2);
     setPhone("");
@@ -369,17 +424,22 @@ function WalkinPanel({
         </div>
         <button
           type="button"
-          disabled={pending || !name.trim()}
-          onClick={add}
-          className="w-full rounded-md bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+          disabled={adding || !name.trim()}
+          aria-busy={adding || undefined}
+          onClick={() => void add()}
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
+          {adding && <Spinner size={13} />}
           {t("walkinPanel.add")}
         </button>
       </div>
 
       <ul className="mt-4 space-y-2">
         {walkins.length === 0 && <li className="text-sm text-text-muted">{t("walkinPanel.empty")}</li>}
-        {walkins.map((w) => (
+        {walkins.map((w) => {
+          // Only this guest's row locks while one of its actions runs.
+          const rowBusy = (["call", "seat", "left"] as const).some((a) => isBusy(`walkin:${w.id}:${a}`));
+          return (
           <li key={w.id} className="rounded-lg border border-border p-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-text-primary">
@@ -395,32 +455,39 @@ function WalkinPanel({
               {w.status === "waiting" && (
                 <button
                   type="button"
-                  disabled={pending}
-                  onClick={() => run(() => callWalkinAction(w.id))}
-                  className="rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg"
+                  disabled={rowBusy}
+                  aria-busy={isBusy(`walkin:${w.id}:call`) || undefined}
+                  onClick={() => void run(`walkin:${w.id}:call`, () => callWalkinAction(w.id))}
+                  className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg disabled:cursor-not-allowed disabled:opacity-50"
                 >
+                  {isBusy(`walkin:${w.id}:call`) && <Spinner size={11} />}
                   {t("walkinPanel.call")}
                 </button>
               )}
               <button
                 type="button"
-                disabled={pending}
-                onClick={() => run(() => seatWalkinAction({ walkinId: w.id }))}
-                className="rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg"
+                disabled={rowBusy}
+                aria-busy={isBusy(`walkin:${w.id}:seat`) || undefined}
+                onClick={() => void run(`walkin:${w.id}:seat`, () => seatWalkinAction({ walkinId: w.id }))}
+                className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs font-medium hover:bg-surface-bg disabled:cursor-not-allowed disabled:opacity-50"
               >
+                {isBusy(`walkin:${w.id}:seat`) && <Spinner size={11} />}
                 {t("walkinPanel.seat")}
               </button>
               <button
                 type="button"
-                disabled={pending}
-                onClick={() => run(() => markWalkinLeftAction(w.id))}
-                className="rounded-md border border-border px-2 py-0.5 text-xs font-medium text-red-600 hover:bg-surface-bg"
+                disabled={rowBusy}
+                aria-busy={isBusy(`walkin:${w.id}:left`) || undefined}
+                onClick={() => void run(`walkin:${w.id}:left`, () => markWalkinLeftAction(w.id))}
+                className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs font-medium text-red-600 hover:bg-surface-bg disabled:cursor-not-allowed disabled:opacity-50"
               >
+                {isBusy(`walkin:${w.id}:left`) && <Spinner size={11} />}
                 {t("walkinPanel.left")}
               </button>
             </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </aside>
   );

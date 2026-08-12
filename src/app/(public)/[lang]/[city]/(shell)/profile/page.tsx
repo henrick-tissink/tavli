@@ -1,12 +1,13 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Bell } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
 import { CitySelector } from "@/components/city-selector";
 import { AuthSheet } from "@/components/auth-sheet";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
@@ -50,9 +51,14 @@ export default function ProfilePage({
     });
   };
 
+  // Switching city routes to another force-dynamic, DB-backed profile page, so
+  // the push takes a server round-trip.
+  const [isSwitchingCity, startCitySwitch] = useTransition();
   const handleCityChange = (slug: string) => {
     if (!slug || slug === city) return;
-    router.push(localizedHref(`/${slug}/profile`, locale));
+    // Ignore repeat picks while a switch is already in flight.
+    if (isSwitchingCity) return;
+    startCitySwitch(() => router.push(localizedHref(`/${slug}/profile`, locale)));
   };
 
   if (auth.loading) {
@@ -120,7 +126,22 @@ export default function ProfilePage({
         {/* City */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-text-primary">{t("screen.cityLabel")}</span>
-          <CitySelector currentSlug={city} onSelect={handleCityChange} />
+          {/* CitySelector owns its own trigger markup, so the pending state is
+              applied here: a spinner alongside the visibly-inert selector, so
+              the cue survives the reduced-motion guard in globals.css. */}
+          <div
+            aria-busy={isSwitchingCity || undefined}
+            className="flex items-center gap-2"
+          >
+            {isSwitchingCity && <Spinner size={16} className="text-text-muted" />}
+            <div
+              className={`transition-opacity ${
+                isSwitchingCity ? "opacity-50 pointer-events-none" : ""
+              }`}
+            >
+              <CitySelector currentSlug={city} onSelect={handleCityChange} />
+            </div>
+          </div>
         </div>
 
         {/* Notifications */}

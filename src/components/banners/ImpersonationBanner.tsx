@@ -1,5 +1,6 @@
 import { readImpersonationReturnCookie } from "@/lib/auth/impersonation-cookie";
 import { stopImpersonationSession } from "@/lib/auth/impersonation-session";
+import { SubmitButton } from "@/components/submit-button";
 
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
@@ -54,12 +55,15 @@ export async function ImpersonationBanner() {
             await stopImpersonationSession();
           }}
         >
-          <button
-            type="submit"
-            className="rounded-full border border-white/50 px-3 py-1 text-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+          {/* Ending the session tears down cookies and redirects, so the wait
+              is visible. The `!` modifiers keep the banner's pill styling on
+              top of the shared Button's own utilities. */}
+          <SubmitButton
+            variant="ghost"
+            className="rounded-full! border-white/50! px-3! py-1! text-sm! font-medium text-white! hover:bg-white/10! focus-visible:ring-white!"
           >
             Stop impersonating →
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </div>

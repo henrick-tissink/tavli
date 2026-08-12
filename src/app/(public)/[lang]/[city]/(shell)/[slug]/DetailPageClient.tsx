@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import type { RefObject } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -113,16 +113,33 @@ export function DetailPageClient({ city, slug, restaurant, preselect }: Props) {
     : null;
   const menuHref = localizedHref(`/${city}/${slug}/menu`, locale);
 
+  // The nearby carousel routes to another force-dynamic venue page, so the tap
+  // is followed by a server round-trip with nothing on screen to show for it.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTarget, setNavTarget] = useState<{
+    slug: string;
+    slot?: string;
+  } | null>(null);
+  // Only read while the transition is in flight.
+  const pendingNearby = isNavigating ? navTarget : null;
+
+  const goToNearby = (slug: string, slot?: string) => {
+    // Ignore repeat taps on the destination already in flight.
+    if (pendingNearby?.slug === slug && pendingNearby?.slot === slot) return;
+    setNavTarget({ slug, slot });
+    const path = slot
+      ? bookingSlotHref(`/${city}/${slug}`, slot)
+      : `/${city}/${slug}`;
+    startNavigation(() => router.push(localizedHref(path, locale)));
+  };
+
   const handleCardClick = (r: { slug: string }) => {
-    router.push(localizedHref(`/${city}/${r.slug}`, locale));
+    goToNearby(r.slug);
   };
 
   const handleSlotSelect = (restaurantId: string, slot: string) => {
     const target = restaurant.nearby.find((r) => r.id === restaurantId);
-    if (target)
-      router.push(
-        localizedHref(bookingSlotHref(`/${city}/${target.slug}`, slot), locale),
-      );
+    if (target) goToNearby(target.slug, slot);
   };
 
   return (
@@ -386,7 +403,16 @@ export function DetailPageClient({ city, slug, restaurant, preselect }: Props) {
         </div>
 
         {restaurant.nearby.length > 0 && (
-          <section className="mt-8">
+          // RestaurantCard is rendered inside HorizontalSection, so the busy
+          // state lands on the carousel — the closest boundary this file owns.
+          // Dimming (not motion) is the cue, so the reduced-motion guard in
+          // globals.css cannot suppress it.
+          <section
+            aria-busy={isNavigating || undefined}
+            className={`mt-8 transition-opacity ${
+              isNavigating ? "opacity-60 pointer-events-none" : ""
+            }`}
+          >
             <SectionHeader title={t("detail.nearbyTitle")} subtitle={t("detail.nearbySubtitle")} />
             <HorizontalSection
               title=""

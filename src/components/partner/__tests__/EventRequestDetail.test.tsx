@@ -10,6 +10,9 @@ jest.mock("@/app/api/event-requests/actions", () => ({
   replyToEventRequest: jest.fn().mockResolvedValue({}),
   acceptQuoteForEventRequest: (...args: unknown[]) => acceptQuoteForEventRequest(...args),
 }));
+// The detail view refreshes the (force-dynamic) route instead of reloading the
+// document, so it needs an app-router stub.
+jest.mock("next/navigation", () => ({ useRouter: () => ({ refresh: jest.fn() }) }));
 jest.mock("../QuoteForm", () => ({ QuoteForm: () => <div data-testid="quote-form" /> }));
 jest.mock("../DeclineForm", () => ({ DeclineForm: () => <div data-testid="decline-form" /> }));
 jest.mock("../MaterializeReservationForm", () => ({ MaterializeReservationForm: () => <div data-testid="mat-form" /> }));

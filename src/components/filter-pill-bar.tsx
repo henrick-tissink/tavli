@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Pill } from "@/components/pill";
@@ -48,8 +48,31 @@ export function FilterPillBar({
   // Capability pills navigate to the dedicated capability route on click.
   // Active state is derived from the URL — no client-side filter state.
   const eventsActive = pathname?.endsWith("/events") ?? false;
-  const goToCity = () => citySlug && router.push(localizedHref(`/${citySlug}`, locale));
-  const goToEvents = () => citySlug && router.push(localizedHref(`/${citySlug}/events`, locale));
+
+  // Both routes are force-dynamic and DB-backed, so `pathname` (and with it the
+  // pill's active state) does not change until the destination has rendered —
+  // the pill would otherwise look dead for the whole round-trip. Hold the
+  // intended state optimistically and drop it when the transition settles.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTargetActive, setNavTargetActive] = useState<boolean | null>(null);
+  // Only read while the transition is in flight.
+  const pendingEventsActive = isNavigating ? navTargetActive : null;
+
+  const goToCity = () => {
+    if (!citySlug) return;
+    // Ignore repeat taps while the same navigation is already in flight.
+    if (pendingEventsActive === false) return;
+    setNavTargetActive(false);
+    startNavigation(() => router.push(localizedHref(`/${citySlug}`, locale)));
+  };
+  const goToEvents = () => {
+    if (!citySlug) return;
+    if (pendingEventsActive === true) return;
+    setNavTargetActive(true);
+    startNavigation(() =>
+      router.push(localizedHref(`/${citySlug}/events`, locale)),
+    );
+  };
 
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
   const priceBtnRef = useRef<HTMLButtonElement>(null);
@@ -125,7 +148,12 @@ export function FilterPillBar({
 
         <Pill
           label={t("filters.privateEvent")}
-          active={eventsActive}
+          // Optimistic while a route change is in flight; falls back to the
+          // pathname-derived truth as soon as it settles. The direction of the
+          // toggle stays keyed off the *real* state so a second tap re-targets
+          // the same destination (and is swallowed by the in-flight guard)
+          // rather than bouncing back.
+          active={pendingEventsActive ?? eventsActive}
           onToggle={() => (eventsActive ? goToCity() : goToEvents())}
         />
 

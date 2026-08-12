@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
   Users,
@@ -94,6 +95,7 @@ export function EventRequestDetail({
 }) {
   const t = useT("partner.corporate");
   const locale = useLocale();
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [view, setView] = useState<
     "detail" | "quote" | "decline" | "materialize"
@@ -221,13 +223,22 @@ export function EventRequestDetail({
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button
-                      disabled={pending || replyText.trim().length === 0}
+                      loading={pending}
+                      disabled={replyText.trim().length === 0}
                       onClick={() =>
+                        // router.refresh() instead of a full document reload:
+                        // the page is force-dynamic, so the refetch is enough,
+                        // and staying inside the transition keeps `pending`
+                        // (and the button's spinner) up until the new data
+                        // has actually rendered.
                         startTransition(() =>
                           replyToEventRequest({
                             id: er.id,
                             message: replyText,
-                          }).then(() => location.reload()),
+                          }).then(() => {
+                            setReplyText("");
+                            router.refresh();
+                          }),
                         )
                       }
                     >
@@ -248,12 +259,15 @@ export function EventRequestDetail({
               {er.status === "quoted" && (
                 <div className="flex flex-wrap gap-2">
                   <Button
-                    disabled={pending}
+                    loading={pending}
                     onClick={() => {
                       if (!window.confirm(t("detail.markAcceptedConfirm"))) return;
+                      // Same as the reply above: refresh the force-dynamic page
+                      // inside the transition rather than reloading the document,
+                      // so the button stays busy across the refetch.
                       startTransition(() =>
                         acceptQuoteForEventRequest({ id: er.id }).then(() =>
-                          location.reload(),
+                          router.refresh(),
                         ),
                       );
                     }}

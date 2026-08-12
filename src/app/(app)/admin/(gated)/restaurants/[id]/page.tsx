@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/db/server";
 import { StatusBadge } from "@/components/status-badge";
+import { SubmitButton } from "@/components/submit-button";
 import { formatCuisines } from "@/lib/types";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
@@ -138,24 +139,26 @@ export default async function AdminRestaurantDetailPage({
               "use server";
               await unsuspendRestaurant(restaurant.id);
             }}>
-              <button
-                type="submit"
-                className="text-xs font-semibold px-3 py-1.5 rounded bg-brand-primary text-white hover:opacity-90"
-              >
+              {/* The compact admin sizing has to out-specify the shared
+                  Button's own padding/size utilities, which sort later in the
+                  generated stylesheet — hence the `!` modifiers. */}
+              <SubmitButton className="px-3! py-1.5! text-xs!">
                 {m.actions.unsuspend}
-              </button>
+              </SubmitButton>
             </form>
           ) : (
             <form action={async () => {
               "use server";
               await suspendRestaurant(restaurant.id);
             }}>
-              <button
-                type="submit"
-                className="text-xs font-semibold px-3 py-1.5 rounded bg-red-600 text-white hover:opacity-90"
+              {/* Destructive and unconfirmed: the pending state is the only
+                  thing standing between a double-click and a second suspend. */}
+              <SubmitButton
+                variant="danger"
+                className="px-3! py-1.5! text-xs!"
               >
                 {m.actions.suspend}
-              </button>
+              </SubmitButton>
             </form>
           )}
         </div>

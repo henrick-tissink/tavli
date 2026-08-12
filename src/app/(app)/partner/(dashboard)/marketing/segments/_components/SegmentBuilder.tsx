@@ -8,6 +8,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import type { SegmentCondition, Combinator } from "@/lib/marketing/segment-compile";
@@ -75,6 +76,11 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
   const [name, setName] = useState("");
   const [size, setSize] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
+  // One shared `pending` dimmed both buttons with no clue which one was
+  // running; scope it to the button that was actually pressed.
+  const [acting, setActing] = useState<"preview" | "save" | null>(null);
+  // `acting` outlives the transition by a render, so gate it on `pending`.
+  const busy = pending ? acting : null;
 
   const inputCls =
     "rounded-button border border-border bg-surface-white px-3 py-2 text-sm text-text-primary outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/30";
@@ -85,6 +91,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
   }
 
   function preview() {
+    setActing("preview");
     startTransition(async () => {
       const res = await previewSegmentSizeAction(organizationId, rows.map(toCondition), combinator);
       if (res.ok) setSize(res.data.count);
@@ -93,6 +100,7 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
   }
 
   function save() {
+    setActing("save");
     startTransition(async () => {
       const res = await saveSegmentAction(organizationId, name, rows.map(toCondition), combinator);
       if (res.ok) {
@@ -181,9 +189,11 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
         <button
           type="button"
           onClick={preview}
-          disabled={pending}
-          className="min-h-[44px] rounded-button border border-border bg-surface-white px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+          disabled={busy === "preview"}
+          aria-busy={busy === "preview" || undefined}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-button border border-border bg-surface-white px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-bg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
         >
+          {busy === "preview" && <Spinner />}
           {t("builder.estimateSize")}
         </button>
         {size !== null && (
@@ -196,9 +206,11 @@ export function SegmentBuilder({ organizationId }: { organizationId: string }) {
           <button
             type="button"
             onClick={save}
-            disabled={pending}
-            className="min-h-[44px] rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            disabled={busy === "save"}
+            aria-busy={busy === "save" || undefined}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-button bg-brand-primary px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
+            {busy === "save" && <Spinner />}
             {t("builder.save")}
           </button>
         </div>

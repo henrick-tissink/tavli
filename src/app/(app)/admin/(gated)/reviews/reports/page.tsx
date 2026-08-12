@@ -15,6 +15,7 @@ import { dbAdmin } from "@/lib/db/admin";
 import { reviewReports, reviews } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { SubmitButton } from "@/components/submit-button";
 import { reviewModerationActions } from "@/lib/reviews/moderation";
 import type { ReportReason } from "@/lib/reviews/moderation";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
@@ -194,12 +195,17 @@ function UpholdButton({ reportId, label }: { reportId: string; label: string }) 
 
   return (
     <form action={upholdAction}>
-      <button
-        type="submit"
-        className="rounded bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+      {/* Hides a review: destructive, and the queue only re-renders after the
+          round-trip, so without a pending state the row invites a second click.
+          The `!` modifiers keep the compact sizing — the shared Button's own
+          size utilities sort later in the stylesheet otherwise. Colour comes
+          from the danger variant rather than more overrides. */}
+      <SubmitButton
+        variant="danger"
+        className="px-3! py-1.5! text-xs!"
       >
         {label}
-      </button>
+      </SubmitButton>
     </form>
   );
 }
@@ -213,12 +219,9 @@ function DismissButton({ reportId, label }: { reportId: string; label: string })
 
   return (
     <form action={dismissAction}>
-      <button
-        type="submit"
-        className="rounded border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
-      >
+      <SubmitButton variant="ghost" className="px-3! py-1.5! text-xs!">
         {label}
-      </button>
+      </SubmitButton>
     </form>
   );
 }

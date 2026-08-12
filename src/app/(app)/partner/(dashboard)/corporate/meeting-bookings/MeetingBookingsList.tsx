@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, X, Ban, Flag } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { useT } from "@/lib/i18n/messages-provider";
 import { transitionMeetingBookingAction } from "./actions";
 import type { MeetingBookingStatus } from "@/lib/meeting-spaces/status";
@@ -33,15 +34,24 @@ const STATUS_STYLE: Record<MeetingBookingStatus, string> = {
   completed: "bg-surface-bg text-text-secondary border-border",
 };
 
+type Transition = "confirmed" | "declined" | "cancelled" | "completed";
+
 export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
   const t = useT("partner.corporate");
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Which booking (and which transition) is in flight. One shared `pending`
+  // boolean greyed out every row's buttons; scoping it to the acting booking
+  // keeps the rest of the list usable.
+  const [acting, setActing] = useState<{ id: string; to: Transition } | null>(null);
+  // `acting` outlives the transition by a render, so gate it on `pending`.
+  const busy = pending ? acting : null;
 
-  const act = (id: string, to: "confirmed" | "declined" | "cancelled" | "completed", promptKey: string) => {
+  const act = (id: string, to: Transition, promptKey: string) => {
     if (!confirm(t(promptKey))) return;
     setError(null);
+    setActing({ id, to });
     start(async () => {
       const res = await transitionMeetingBookingAction({ id, to });
       if (!res.ok) {
@@ -71,7 +81,10 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
           {error}
         </p>
       )}
-      {rows.map((b) => (
+      {rows.map((b) => {
+        const rowBusy = busy?.id === b.id;
+        const actionBusy = (to: Transition) => rowBusy && busy?.to === to;
+        return (
         <article key={b.id} className="bg-surface-white rounded-card border border-border p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
@@ -117,19 +130,23 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                 <>
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={rowBusy}
+                    aria-busy={actionBusy("confirmed") || undefined}
                     onClick={() => act(b.id, "confirmed", "meetingBookings.actions.confirmPrompt")}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                   >
-                    <Check size={14} /> {t("meetingBookings.actions.confirm")}
+                    {actionBusy("confirmed") ? <Spinner size={14} /> : <Check size={14} />}{" "}
+                    {t("meetingBookings.actions.confirm")}
                   </button>
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={rowBusy}
+                    aria-busy={actionBusy("declined") || undefined}
                     onClick={() => act(b.id, "declined", "meetingBookings.actions.declinePrompt")}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                   >
-                    <X size={14} /> {t("meetingBookings.actions.decline")}
+                    {actionBusy("declined") ? <Spinner size={14} /> : <X size={14} />}{" "}
+                    {t("meetingBookings.actions.decline")}
                   </button>
                 </>
               )}
@@ -137,26 +154,31 @@ export function MeetingBookingsList({ rows }: { rows: BookingListRow[] }) {
                 <>
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={rowBusy}
+                    aria-busy={actionBusy("completed") || undefined}
                     onClick={() => act(b.id, "completed", "meetingBookings.actions.completePrompt")}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                   >
-                    <Flag size={14} /> {t("meetingBookings.actions.complete")}
+                    {actionBusy("completed") ? <Spinner size={14} /> : <Flag size={14} />}{" "}
+                    {t("meetingBookings.actions.complete")}
                   </button>
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={rowBusy}
+                    aria-busy={actionBusy("cancelled") || undefined}
                     onClick={() => act(b.id, "cancelled", "meetingBookings.actions.cancelPrompt")}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                   >
-                    <Ban size={14} /> {t("meetingBookings.actions.cancel")}
+                    {actionBusy("cancelled") ? <Spinner size={14} /> : <Ban size={14} />}{" "}
+                    {t("meetingBookings.actions.cancel")}
                   </button>
                 </>
               )}
             </div>
           )}
         </article>
-      ))}
+        );
+      })}
     </div>
   );
 }

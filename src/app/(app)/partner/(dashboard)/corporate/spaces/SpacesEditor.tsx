@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
   createSpaceAction,
@@ -63,6 +64,11 @@ export function SpacesEditor({
   // null = not editing; "new" = creating; otherwise the space id being edited
   const [editing, setEditing] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  // Which row is being deactivated. A single shared `pending` disabled every
+  // row's controls at once; scoping it keeps the other rows live.
+  const [deactivating, setDeactivating] = useState<string | null>(null);
+  const deactivatingId = pending ? deactivating : null;
+  const savingForm = pending && deactivating === null;
 
   const beginCreate = () => {
     setError(null);
@@ -104,6 +110,7 @@ export function SpacesEditor({
     }
     const caps = parseCapacities();
     if (!caps) return;
+    setDeactivating(null);
     start(async () => {
       const res = await createSpaceAction({
         restaurantId,
@@ -130,6 +137,7 @@ export function SpacesEditor({
     }
     const caps = parseCapacities();
     if (!caps) return;
+    setDeactivating(null);
     start(async () => {
       const res = await updateSpaceAction({
         id,
@@ -155,6 +163,7 @@ export function SpacesEditor({
       return;
     }
     setError(null);
+    setDeactivating(row.id);
     start(async () => {
       const res = await deactivateSpaceAction({ id: row.id });
       if (!res.ok) {
@@ -205,7 +214,7 @@ export function SpacesEditor({
             onCancel={cancel}
             onSubmit={() => submitUpdate(row.id)}
             submitLabel={t("spaces.save")}
-            pending={pending}
+            pending={savingForm}
           />
         ) : (
           <article
@@ -236,7 +245,7 @@ export function SpacesEditor({
                 <button
                   type="button"
                   onClick={() => beginEdit(row)}
-                  disabled={pending}
+                  disabled={deactivatingId === row.id}
                   aria-label={t("spaces.editAriaLabel", { name: row.name })}
                   className="p-2 rounded-lg text-text-secondary hover:bg-surface-bg disabled:opacity-50"
                 >
@@ -245,11 +254,12 @@ export function SpacesEditor({
                 <button
                   type="button"
                   onClick={() => handleDeactivate(row)}
-                  disabled={pending}
+                  disabled={deactivatingId === row.id}
+                  aria-busy={deactivatingId === row.id || undefined}
                   aria-label={t("spaces.deactivateAriaLabel", { name: row.name })}
                   className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50"
                 >
-                  <Trash2 size={16} />
+                  {deactivatingId === row.id ? <Spinner size={16} /> : <Trash2 size={16} />}
                 </button>
               </div>
             </div>
@@ -265,7 +275,7 @@ export function SpacesEditor({
           onCancel={cancel}
           onSubmit={submitCreate}
           submitLabel={t("spaces.add")}
-          pending={pending}
+          pending={savingForm}
         />
       )}
 
@@ -397,7 +407,7 @@ function SpaceForm({
         >
           {t("spaces.cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={pending}>
+        <Button type="submit" variant="primary" loading={pending}>
           {pending ? t("spaces.saving") : submitLabel}
         </Button>
       </div>

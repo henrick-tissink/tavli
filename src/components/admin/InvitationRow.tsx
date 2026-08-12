@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { resendInvitation, revokeInvitation } from "@/app/(app)/admin/(gated)/invitations/actions";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT, useLocale } from "@/lib/i18n/messages-provider";
 import { BCP47 } from "@/lib/i18n/locale";
@@ -27,34 +28,56 @@ export function InvitationRow(invitation: InvitationRowProps) {
   const t = useT("admin.invitations");
   const locale = useLocale();
   const [pending, start] = useTransition();
+  /**
+   * Which of the row's actions is running. The transition exposes one flag for
+   * the whole row, so keying off it alone greyed Resend, Revoke and Reissue
+   * together and left the clicked one indistinguishable from its neighbours.
+   * (Resend and Reissue are the same call in mutually exclusive branches, so
+   * they share a key.)
+   */
+  const [runningAction, setRunningAction] = useState<"resend" | "revoke" | null>(null);
+  const isRunning = (action: "resend" | "revoke") =>
+    pending && runningAction === action;
 
   const expires = new Date(invitation.expiresAt);
   const expired = expires < new Date();
   const displayStatus = expired && invitation.status === "pending" ? "expired" : invitation.status;
 
   const handleResend = () => {
+    if (runningAction) return;
+    setRunningAction("resend");
     start(async () => {
-      const result = await resendInvitation(invitation.id);
-      if (!result.ok) {
-        toast.error(t("row.toastResendFailed", { error: result.error ?? "" }));
-      } else if (result.devMode && result.url) {
-        try {
-          await navigator.clipboard.writeText(result.url);
-          toast.success(t("row.toastDevLinkCopied"));
-        } catch {
-          toast.success(t("row.toastDevLink", { url: result.url }));
+      try {
+        const result = await resendInvitation(invitation.id);
+        if (!result.ok) {
+          toast.error(t("row.toastResendFailed", { error: result.error ?? "" }));
+        } else if (result.devMode && result.url) {
+          try {
+            await navigator.clipboard.writeText(result.url);
+            toast.success(t("row.toastDevLinkCopied"));
+          } catch {
+            toast.success(t("row.toastDevLink", { url: result.url }));
+          }
+        } else {
+          toast.success(t("row.toastResent"));
         }
-      } else {
-        toast.success(t("row.toastResent"));
+      } finally {
+        setRunningAction(null);
       }
     });
   };
 
   const handleRevoke = () => {
+    if (runningAction) return;
     if (!confirm(t("row.revokeConfirm", { email: invitation.email }))) return;
+    setRunningAction("revoke");
     start(async () => {
-      await revokeInvitation(invitation.id);
-      toast.success(t("row.toastRevoked"));
+      try {
+        await revokeInvitation(invitation.id);
+        toast.success(t("row.toastRevoked"));
+      } finally {
+        setRunningAction(null);
+      }
     });
   };
 
@@ -87,17 +110,21 @@ export function InvitationRow(invitation: InvitationRowProps) {
             <button
               type="button"
               onClick={handleResend}
-              disabled={pending}
-              className="text-brand-primary text-xs font-semibold hover:underline mr-3"
+              disabled={isRunning("resend")}
+              aria-busy={isRunning("resend") || undefined}
+              className="inline-flex items-center gap-1 text-brand-primary text-xs font-semibold hover:underline mr-3 disabled:opacity-60 disabled:cursor-not-allowed"
             >
+              {isRunning("resend") && <Spinner size={12} />}
               {t("row.resend")}
             </button>
             <button
               type="button"
               onClick={handleRevoke}
-              disabled={pending}
-              className="text-error text-xs font-semibold hover:underline"
+              disabled={isRunning("revoke")}
+              aria-busy={isRunning("revoke") || undefined}
+              className="inline-flex items-center gap-1 text-error text-xs font-semibold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
             >
+              {isRunning("revoke") && <Spinner size={12} />}
               {t("row.revoke")}
             </button>
           </>
@@ -106,9 +133,11 @@ export function InvitationRow(invitation: InvitationRowProps) {
           <button
             type="button"
             onClick={handleResend}
-            disabled={pending}
-            className="text-brand-primary text-xs font-semibold hover:underline"
+            disabled={isRunning("resend")}
+            aria-busy={isRunning("resend") || undefined}
+            className="inline-flex items-center gap-1 text-brand-primary text-xs font-semibold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
           >
+            {isRunning("resend") && <Spinner size={12} />}
             {t("row.reissue")}
           </button>
         )}

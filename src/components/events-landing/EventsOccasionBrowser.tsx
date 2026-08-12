@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Check } from "lucide-react";
@@ -36,6 +36,27 @@ export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
   const locale = useLocale();
   const router = useRouter();
   const [occasion, setOccasion] = useState<EventOccasion | null>(null);
+
+  // Venue pages are force-dynamic and DB-backed, so a card tap is followed by a
+  // server round-trip. Remember which venue is in flight so that card alone
+  // reads as busy.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTarget, setNavTarget] = useState<{
+    slug: string;
+    slot?: string;
+  } | null>(null);
+  // Only read while the transition is in flight.
+  const pendingVenue = isNavigating ? navTarget : null;
+
+  const goToVenue = (slug: string, slot?: string) => {
+    // Ignore repeat taps on the destination already in flight.
+    if (pendingVenue?.slug === slug && pendingVenue?.slot === slot) return;
+    setNavTarget({ slug, slot });
+    const path = slot
+      ? bookingSlotHref(`/${city}/${slug}`, slot)
+      : `/${city}/${slug}`;
+    startNavigation(() => router.push(localizedHref(path, locale)));
+  };
 
   // `acceptedOccasions` undefined ⇒ no occasion policy set, so the venue accepts
   // all and stays visible under every filter. An explicit array (incl. empty) is
@@ -149,21 +170,27 @@ export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((r) => (
-              <RestaurantCard
-                key={r.id}
-                restaurant={r}
-                highlightCapability="events"
-                onClick={(rr) =>
-                  router.push(localizedHref(`/${city}/${rr.slug}`, locale))
-                }
-                onSlotSelect={(_id, slot) =>
-                  router.push(
-                    localizedHref(bookingSlotHref(`/${city}/${r.slug}`, slot), locale),
-                  )
-                }
-              />
-            ))}
+            {filtered.map((r) => {
+              // Dimming (not motion) is the cue, so the reduced-motion guard in
+              // globals.css cannot suppress it.
+              const busy = pendingVenue?.slug === r.slug;
+              return (
+                <div
+                  key={r.id}
+                  aria-busy={busy || undefined}
+                  className={`transition-opacity ${
+                    busy ? "opacity-60 pointer-events-none" : ""
+                  }`}
+                >
+                  <RestaurantCard
+                    restaurant={r}
+                    highlightCapability="events"
+                    onClick={(rr) => goToVenue(rr.slug)}
+                    onSlotSelect={(_id, slot) => goToVenue(r.slug, slot)}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

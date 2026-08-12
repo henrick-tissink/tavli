@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, X, CalendarClock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
 import { useT } from "@/lib/i18n/messages-provider";
 import { interpolate } from "@/lib/i18n/t";
 import { createStandingAction, cancelStandingAction } from "./actions";
@@ -52,12 +53,18 @@ export function StandingEditor({
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<FormState>({ ...EMPTY, tableId: tables[0]?.id ?? "" });
+  // Which series is being cancelled. One shared `pending` greyed out every
+  // row's cancel button; scoping it keeps the rest of the list live.
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const cancellingId = pending ? cancelling : null;
+  const savingForm = pending && cancelling === null;
 
   const intervalLabel = (w: number) => (w === 2 ? t("standingMgmt.intervalFortnightly") : t("standingMgmt.intervalWeekly"));
 
   const submit = () => {
     setError(null);
     if (!form.guestName.trim()) { setError(t("standingMgmt.nameRequired")); return; }
+    setCancelling(null);
     start(async () => {
       const res = await createStandingAction({
         restaurantId,
@@ -83,6 +90,7 @@ export function StandingEditor({
   const cancelSeries = (id: string) => {
     if (!confirm(t("standingMgmt.cancelConfirm"))) return;
     setError(null);
+    setCancelling(id);
     start(async () => {
       const res = await cancelStandingAction({ id, restaurantId });
       if (!res.ok) { setError(res.error); return; }
@@ -139,10 +147,11 @@ export function StandingEditor({
               </p>
             </div>
             {s.status === "active" && (
-              <button type="button" onClick={() => cancelSeries(s.id)} disabled={pending}
+              <button type="button" onClick={() => cancelSeries(s.id)} disabled={cancellingId === s.id}
+                aria-busy={cancellingId === s.id || undefined}
                 aria-label={t("standingMgmt.cancelSeries")}
                 className="p-2 rounded-lg text-text-secondary hover:bg-red-50 hover:text-error disabled:opacity-50 shrink-0">
-                <Trash2 size={16} />
+                {cancellingId === s.id ? <Spinner size={16} /> : <Trash2 size={16} />}
               </button>
             )}
           </div>
@@ -210,8 +219,8 @@ export function StandingEditor({
           </label>
 
           <div className="flex items-center gap-2 justify-end pt-2">
-            <Button type="button" variant="ghost" onClick={() => setCreating(false)} disabled={pending}>{t("standingMgmt.cancel")}</Button>
-            <Button type="submit" variant="primary" disabled={pending}>{pending ? t("standingMgmt.saving") : t("standingMgmt.save")}</Button>
+            <Button type="button" variant="ghost" onClick={() => setCreating(false)} disabled={savingForm}>{t("standingMgmt.cancel")}</Button>
+            <Button type="submit" variant="primary" loading={savingForm}>{savingForm ? t("standingMgmt.saving") : t("standingMgmt.save")}</Button>
           </div>
         </form>
       ) : initialSeries.length > 0 && (

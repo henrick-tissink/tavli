@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, Phone, type LucideIcon } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import { setCampaignStatusAction, sendCampaignAction } from "../actions";
@@ -38,6 +39,12 @@ const STATUS_TONE: Record<string, string> = {
   cancelled: "bg-surface-bg text-text-muted",
 };
 
+/** Identifies the one in-flight action, so the rest of the list stays live. */
+type ActingKey = { id: string; kind: "toggle" | "send" | "archive" };
+
+/** Stable base for useOptimistic — no per-render identity churn. */
+const NO_OVERRIDES: Record<string, boolean | undefined> = {};
+
 function ChannelChip({ channel }: { channel: string }) {
   const Icon = CHANNEL_ICON[channel] ?? Mail;
   return (
@@ -60,6 +67,18 @@ export function MarketingManager({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
+  const [acting, setActing] = useState<ActingKey | null>(null);
+  // `acting` outlives the transition by a render, so gate it on `pending`.
+  const busy = pending ? acting : null;
+  const isBusy = (id: string, kind: ActingKey["kind"]) =>
+    busy?.id === id && busy.kind === kind;
+  // The switch knob used to read straight off server state, so it did not move
+  // until the round-trip landed. React discards the override when the
+  // transition ends — which is also the revert when the action fails.
+  const [optimisticEnabled, setOptimisticEnabled] = useOptimistic(
+    NO_OVERRIDES,
+    (state, patch: { id: string; enabled: boolean }) => ({ ...state, [patch.id]: patch.enabled }),
+  );
 
   const triggered = campaigns.filter((c) => c.kind === "triggered");
   const oneOff = campaigns.filter((c) => c.kind === "one_off");
@@ -88,8 +107,15 @@ export function MarketingManager({
     return label === `manager.status.${status}` ? status : label;
   };
 
-  function run(fn: () => Promise<{ ok: boolean }>, successMsg: string) {
+  function run(
+    key: ActingKey,
+    fn: () => Promise<{ ok: boolean }>,
+    successMsg: string,
+    optimistic?: () => void,
+  ) {
+    setActing(key);
     startTransition(async () => {
+      optimistic?.();
       const res = await fn();
       if (res.ok) {
         toast.success(successMsg);
@@ -114,8 +140,9 @@ export function MarketingManager({
         ) : (
           <ul className="mt-4 space-y-3">
             {triggered.map((c) => {
-              const enabled = c.status === "active";
+              const enabled = optimisticEnabled[c.id] ?? c.status === "active";
               const label = triggeredLabel(c.triggeredCampaignKey, c.name);
+              const toggling = isBusy(c.id, "toggle");
               return (
                 <li
                   key={c.id}
@@ -128,14 +155,17 @@ export function MarketingManager({
                   </div>
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={toggling}
                     onClick={() =>
                       run(
+                        { id: c.id, kind: "toggle" },
                         () => setCampaignStatusAction(organizationId, c.id, enabled ? "paused" : "active"),
                         enabled ? t("manager.campaignStopped") : t("manager.campaignStarted"),
+                        () => setOptimisticEnabled({ id: c.id, enabled: !enabled }),
                       )
                     }
                     aria-pressed={enabled}
+                    aria-busy={toggling || undefined}
                     aria-label={t("manager.toggleAriaLabel", {
                       action: enabled ? t("manager.toggleOff") : t("manager.toggleOn"),
                       name: label,
@@ -147,10 +177,14 @@ export function MarketingManager({
                   >
                     <span
                       className={[
-                        "absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all",
+                        "absolute top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow transition-all",
                         enabled ? "left-6" : "left-1",
                       ].join(" ")}
-                    />
+                    >
+                      {/* Reduced motion freezes the spin, so the knob position
+                          and the disabled dim carry the state on their own. */}
+                      {toggling && <Spinner size={12} className="text-text-muted" />}
+                    </span>
                   </button>
                 </li>
               );
@@ -222,20 +256,38 @@ export function MarketingManager({
 
                   {c.status === "draft" && (
                     <div className="flex shrink-0 items-center gap-2">
+                      {/* Sending is irreversible: both buttons lock for the
+                          duration so the row cannot be double-fired. */}
                       <button
                         type="button"
-                        disabled={pending}
-                        onClick={() => run(() => sendCampaignAction(organizationId, c.id), t("manager.sent"))}
-                        className="min-h-[36px] rounded-button bg-brand-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                        disabled={isBusy(c.id, "send") || isBusy(c.id, "archive")}
+                        aria-busy={isBusy(c.id, "send") || undefined}
+                        onClick={() =>
+                          run(
+                            { id: c.id, kind: "send" },
+                            () => sendCampaignAction(organizationId, c.id),
+                            t("manager.sent"),
+                          )
+                        }
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-button bg-brand-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-primary-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
                       >
+                        {isBusy(c.id, "send") && <Spinner size={12} />}
                         {t("manager.send")}
                       </button>
                       <button
                         type="button"
-                        disabled={pending}
-                        onClick={() => run(() => setCampaignStatusAction(organizationId, c.id, "archived"), t("manager.archived"))}
-                        className="min-h-[36px] rounded-button px-3 py-1.5 text-xs font-semibold text-text-secondary hover:text-error disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
+                        disabled={isBusy(c.id, "send") || isBusy(c.id, "archive")}
+                        aria-busy={isBusy(c.id, "archive") || undefined}
+                        onClick={() =>
+                          run(
+                            { id: c.id, kind: "archive" },
+                            () => setCampaignStatusAction(organizationId, c.id, "archived"),
+                            t("manager.archived"),
+                          )
+                        }
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-button px-3 py-1.5 text-xs font-semibold text-text-secondary hover:text-error disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
                       >
+                        {isBusy(c.id, "archive") && <Spinner size={12} />}
                         {t("manager.archive")}
                       </button>
                     </div>

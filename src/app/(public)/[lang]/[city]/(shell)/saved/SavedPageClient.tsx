@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
@@ -27,6 +27,26 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
     [allRestaurants, savedIds],
   );
 
+  // Venue pages are force-dynamic and DB-backed: the tap is followed by a
+  // server round-trip, so the tapped card carries the pending state.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTarget, setNavTarget] = useState<{
+    slug: string;
+    slot?: string;
+  } | null>(null);
+  // Only read while the transition is in flight.
+  const pendingVenue = isNavigating ? navTarget : null;
+
+  const goToVenue = (slug: string, slot?: string) => {
+    // Ignore repeat taps on the destination already in flight.
+    if (pendingVenue?.slug === slug && pendingVenue?.slot === slot) return;
+    setNavTarget({ slug, slot });
+    const path = slot
+      ? bookingSlotHref(`/${city}/${slug}`, slot)
+      : `/${city}/${slug}`;
+    startNavigation(() => router.push(localizedHref(path, locale)));
+  };
+
   return (
     <div className="px-4 desktop:px-6 max-w-[var(--container-content)] mx-auto pt-4">
       <section>
@@ -42,20 +62,28 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
           />
         ) : (
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5">
-            {savedRestaurants.map((restaurant) => (
-              <RestaurantCard
-                key={restaurant.id}
-                restaurant={restaurant}
-                saved={isSaved(restaurant.id)}
-                onSave={() => toggleSave(restaurant.id)}
-                onClick={(r) => router.push(localizedHref(`/${city}/${r.slug}`, locale))}
-                onSlotSelect={(_id, slot) =>
-                  router.push(
-                    localizedHref(bookingSlotHref(`/${city}/${restaurant.slug}`, slot), locale),
-                  )
-                }
-              />
-            ))}
+            {savedRestaurants.map((restaurant) => {
+              // Dimming (not motion) is the cue, so the reduced-motion guard in
+              // globals.css cannot suppress it.
+              const busy = pendingVenue?.slug === restaurant.slug;
+              return (
+                <div
+                  key={restaurant.id}
+                  aria-busy={busy || undefined}
+                  className={`transition-opacity ${
+                    busy ? "opacity-60 pointer-events-none" : ""
+                  }`}
+                >
+                  <RestaurantCard
+                    restaurant={restaurant}
+                    saved={isSaved(restaurant.id)}
+                    onSave={() => toggleSave(restaurant.id)}
+                    onClick={(r) => goToVenue(r.slug)}
+                    onSlotSelect={(_id, slot) => goToVenue(restaurant.slug, slot)}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

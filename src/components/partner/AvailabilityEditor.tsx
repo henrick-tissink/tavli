@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
   addSlot,
@@ -29,7 +30,27 @@ export function AvailabilityEditor({
   const t = useT("partner.settings");
   const dayLabels = t("availability.weekdaysFull").split(",");
   const router = useRouter();
-  const [pending, start] = useTransition();
+  const [, start] = useTransition();
+  // Which controls are in flight: `slot:<id>` for a delete, `day:<dow>` for
+  // that day's add form, `seed` for the template. One shared boolean used to
+  // freeze all seven days at once; a Set keeps two days addable at once.
+  const [pendingKeys, setPendingKeys] = useState<ReadonlySet<string>>(new Set());
+  const isPending = (key: string) => pendingKeys.has(key);
+  const withPending = (key: string, work: () => Promise<void>) => {
+    if (pendingKeys.has(key)) return;
+    setPendingKeys((prev) => new Set(prev).add(key));
+    start(async () => {
+      try {
+        await work();
+      } finally {
+        setPendingKeys((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+      }
+    });
+  };
   const [error, setError] = useState<string | null>(null);
 
   const errText = (e?: string) =>
@@ -45,7 +66,7 @@ export function AvailabilityEditor({
 
   const handleDelete = (id: string) => {
     if (!confirm(t("availability.confirmDelete"))) return;
-    start(async () => {
+    withPending(`slot:${id}`, async () => {
       const result = await deleteSlot(id);
       if (!result.ok) setError(errText(result.error));
       else router.refresh();
@@ -57,7 +78,7 @@ export function AvailabilityEditor({
     const end = String(formData.get("end") ?? "");
     const cap = parseInt(String(formData.get("capacity") ?? "0"), 10);
     setError(null);
-    start(async () => {
+    withPending(`day:${dow}`, async () => {
       const result = await addSlot(dow, start_ + ":00", end + ":00", cap);
       if (!result.ok) setError(errText(result.error));
       else router.refresh();
@@ -69,7 +90,7 @@ export function AvailabilityEditor({
     if (!capStr) return;
     const cap = parseInt(capStr, 10);
     if (!Number.isFinite(cap) || cap < 1) return;
-    start(async () => {
+    withPending("seed", async () => {
       const result = await seedDefaultAvailability(cap);
       if (!result.ok) setError(errText(result.error));
       else router.refresh();
@@ -85,7 +106,7 @@ export function AvailabilityEditor({
             {t("availability.emptyBody")}
           </p>
           <div className="mt-4">
-            <Button variant="secondary" onClick={handleQuickSeed} disabled={pending}>
+            <Button variant="secondary" onClick={handleQuickSeed} loading={isPending("seed")}>
               {t("availability.seedDefault")}
             </Button>
           </div>
@@ -128,11 +149,12 @@ export function AvailabilityEditor({
                   <button
                     type="button"
                     onClick={() => handleDelete(s.id)}
-                    disabled={pending}
+                    disabled={isPending(`slot:${s.id}`)}
+                    aria-busy={isPending(`slot:${s.id}`) || undefined}
                     aria-label={t("availability.deleteSlotAriaLabel")}
-                    className="ml-auto p-1.5 rounded-lg text-text-muted hover:bg-red-50 hover:text-red-700"
+                    className="ml-auto p-1.5 rounded-lg text-text-muted hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-text-muted"
                   >
-                    <Trash2 size={13} />
+                    {isPending(`slot:${s.id}`) ? <Spinner size={13} /> : <Trash2 size={13} />}
                   </button>
                 </div>
               ))}
@@ -183,10 +205,11 @@ export function AvailabilityEditor({
                 </div>
                 <button
                   type="submit"
-                  disabled={pending}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-primary-soft text-brand-primary-dark text-xs font-semibold hover:bg-brand-primary-soft/80"
+                  disabled={isPending(`day:${dow}`)}
+                  aria-busy={isPending(`day:${dow}`) || undefined}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-primary-soft text-brand-primary-dark text-xs font-semibold hover:bg-brand-primary-soft/80 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-primary-soft"
                 >
-                  <Plus size={12} />
+                  {isPending(`day:${dow}`) ? <Spinner size={12} /> : <Plus size={12} />}
                   {t("availability.addSlot")}
                 </button>
               </form>

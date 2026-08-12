@@ -4,6 +4,8 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
+import { Spinner } from "@/components/spinner";
+import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import { ItemDialog, type EditableItem, type ItemTranslations } from "./ItemDialog";
 import {
@@ -78,7 +80,10 @@ export function MenuEditor({
       isAvailable: true,
     },
   });
-  const [pending, start] = useTransition();
+  const [, start] = useTransition();
+  // Id of the section or dish being deleted — one shared boolean greyed every
+  // delete button on the menu while a single one ran.
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Deep-link from the Photos page Menu section (/partner/menu?dish=<id>):
   // expand the section and open that dish's editor on mount.
@@ -119,19 +124,41 @@ export function MenuEditor({
     });
   };
 
+  // Both deletes used to throw the action result away, so a rejected delete
+  // (billing lock, RLS, network) looked exactly like a successful one.
   const handleDeleteSection = (id: string, name: string) => {
     if (!confirm(t("editor.confirmDeleteSection", { name }))) return;
+    if (deletingId) return;
+    setDeletingId(id);
     start(async () => {
-      await deleteSection(id);
-      router.refresh();
+      try {
+        const result = await deleteSection(id);
+        if (!result.ok) {
+          toast.error(result.error ?? t("sectionDialog.genericError"));
+          return;
+        }
+        router.refresh();
+      } finally {
+        setDeletingId(null);
+      }
     });
   };
 
   const handleDeleteItem = (id: string, name: string) => {
     if (!confirm(t("editor.confirmDeleteItem", { name }))) return;
+    if (deletingId) return;
+    setDeletingId(id);
     start(async () => {
-      await deleteItem(id);
-      router.refresh();
+      try {
+        const result = await deleteItem(id);
+        if (!result.ok) {
+          toast.error(result.error ?? t("sectionDialog.genericError"));
+          return;
+        }
+        router.refresh();
+      } finally {
+        setDeletingId(null);
+      }
     });
   };
 
@@ -218,10 +245,11 @@ export function MenuEditor({
                 type="button"
                 onClick={() => handleDeleteSection(section.id, section.name)}
                 aria-label={t("editor.deleteSection")}
-                disabled={pending}
-                className="p-2 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"
+                disabled={deletingId === section.id}
+                aria-busy={deletingId === section.id || undefined}
+                className="p-2 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-text-muted"
               >
-                <Trash2 size={14} />
+                {deletingId === section.id ? <Spinner size={14} /> : <Trash2 size={14} />}
               </button>
             </div>
 
@@ -279,10 +307,11 @@ export function MenuEditor({
                       type="button"
                       onClick={() => handleDeleteItem(it.id, it.name)}
                       aria-label={t("editor.deleteItem")}
-                      disabled={pending}
-                      className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted"
+                      disabled={deletingId === it.id}
+                      aria-busy={deletingId === it.id || undefined}
+                      className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-700 text-text-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-text-muted"
                     >
-                      <Trash2 size={13} />
+                      {deletingId === it.id ? <Spinner size={13} /> : <Trash2 size={13} />}
                     </button>
                   </div>
                 ))}
@@ -485,7 +514,7 @@ function SectionEditorDialog({
           <Button variant="ghost" onClick={onClose} type="button">
             {t("sectionDialog.cancel")}
           </Button>
-          <Button onClick={handleSave} disabled={pending} type="button">
+          <Button onClick={handleSave} loading={pending} type="button">
             {pending
               ? t("sectionDialog.saving")
               : isNew

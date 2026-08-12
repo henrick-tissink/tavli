@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search, X } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
@@ -39,7 +40,45 @@ export function MapPageClient({ city, allRestaurants }: Props) {
     [applyFilters, allRestaurants],
   );
 
-  const navigate = (path: string) => router.push(localizedHref(path, locale));
+  // Both destinations (the city feed, a venue's booking deep link) are
+  // force-dynamic DB-backed routes, so the push takes a server round-trip.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTarget, setNavTarget] = useState<
+    { kind: "city" } | { kind: "venue"; slug: string; slot: string } | null
+  >(null);
+  // Only read while the transition is in flight.
+  const pendingNav = isNavigating ? navTarget : null;
+
+  const start = (
+    target: { kind: "city" } | { kind: "venue"; slug: string; slot: string },
+    path: string,
+  ) => {
+    setNavTarget(target);
+    startNavigation(() => router.push(localizedHref(path, locale)));
+  };
+
+  const closeMap = () => {
+    // Ignore repeat taps while the same navigation is already in flight.
+    if (pendingNav?.kind === "city") return;
+    start({ kind: "city" }, `/${city}`);
+  };
+
+  const goToSlot = (slug: string, slot: string) => {
+    if (
+      pendingNav?.kind === "venue" &&
+      pendingNav.slug === slug &&
+      pendingNav.slot === slot
+    )
+      return;
+    start({ kind: "venue", slug, slot }, bookingSlotHref(`/${city}/${slug}`, slot));
+  };
+
+  // Slot pills render the tapped slot as selected while its page loads.
+  const pendingSlotFor = (slug: string) =>
+    pendingNav?.kind === "venue" && pendingNav.slug === slug
+      ? pendingNav.slot
+      : undefined;
+  const closing = pendingNav?.kind === "city";
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col desktop:flex-row">
@@ -63,10 +102,18 @@ export function MapPageClient({ city, allRestaurants }: Props) {
           <button
             type="button"
             aria-label={t("map.closeMap")}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-            onClick={() => navigate(`/${city}`)}
+            aria-busy={closing || undefined}
+            disabled={closing}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={closeMap}
           >
-            <X size={18} className="text-text-secondary" />
+            {/* Spinner + the disabled look together, since globals.css freezes
+                animation under prefers-reduced-motion. */}
+            {closing ? (
+              <Spinner size={18} className="text-text-secondary" />
+            ) : (
+              <X size={18} className="text-text-secondary" />
+            )}
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -124,9 +171,8 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                     <TimeSlotPills
                       slots={restaurant.availableSlots}
                       maxVisible={3}
-                      onSelect={(slot) =>
-                        navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
-                      }
+                      selected={pendingSlotFor(restaurant.slug)}
+                      onSelect={(slot) => goToSlot(restaurant.slug, slot)}
                     />
                   </div>
                 </div>
@@ -171,23 +217,37 @@ export function MapPageClient({ city, allRestaurants }: Props) {
             <button
               type="button"
               aria-label={t("map.closeMap")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg"
-              onClick={() => navigate(`/${city}`)}
+              aria-busy={closing || undefined}
+              disabled={closing}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-bg disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={closeMap}
             >
-              <X size={18} className="text-text-secondary" />
+              {closing ? (
+                <Spinner size={18} className="text-text-secondary" />
+              ) : (
+                <X size={18} className="text-text-secondary" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile bottom carousel */}
-        <div className="absolute bottom-20 left-0 right-0 desktop:hidden z-10">
+        {/* MapCarousel renders its own slot pills, so the busy state is applied
+            to the carousel — the closest boundary this file owns. Dimming, not
+            motion, so the reduced-motion guard cannot suppress it. */}
+        <div
+          aria-busy={pendingNav?.kind === "venue" || undefined}
+          className={`absolute bottom-20 left-0 right-0 desktop:hidden z-10 transition-opacity ${
+            pendingNav?.kind === "venue" ? "opacity-60 pointer-events-none" : ""
+          }`}
+        >
           <MapCarousel
             restaurants={restaurants}
             selectedId={selectedId}
             onSelect={(r) => setSelectedId(r.id)}
             onSlotSelect={(id, slot) => {
               const r = restaurants.find((r) => r.id === id);
-              if (r) navigate(bookingSlotHref(`/${city}/${r.slug}`, slot));
+              if (r) goToSlot(r.slug, slot);
             }}
           />
         </div>

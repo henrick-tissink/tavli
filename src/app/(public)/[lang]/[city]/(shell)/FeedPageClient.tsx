@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -97,7 +97,34 @@ export function FeedPageClient({
     [timeContext.pullQuote, displayCity],
   );
 
-  const navigate = (path: string) => router.push(localizedHref(path, locale));
+  // Venue pages are force-dynamic and DB-backed, so a card tap is followed by a
+  // server round-trip. `pendingVenue` remembers which card (and, for a slot tap,
+  // which slot) is in flight so that exact control can be shown as busy while
+  // the rest of the feed keeps its normal appearance.
+  const [isNavigating, startNavigation] = useTransition();
+  const [navTarget, setNavTarget] = useState<{
+    slug: string;
+    slot?: string;
+  } | null>(null);
+  // Only meaningful while the transition is in flight; once the venue page
+  // commits this component unmounts anyway.
+  const pendingVenue = isNavigating ? navTarget : null;
+
+  const goToVenue = (slug: string, slot?: string) => {
+    // Ignore repeat taps on the destination already in flight.
+    if (pendingVenue?.slug === slug && pendingVenue?.slot === slot) return;
+    setNavTarget({ slug, slot });
+    const path = slot
+      ? bookingSlotHref(`/${city}/${slug}`, slot)
+      : `/${city}/${slug}`;
+    startNavigation(() => router.push(localizedHref(path, locale)));
+  };
+
+  const isVenuePending = (slug: string) => pendingVenue?.slug === slug;
+  // Dim + freeze the tapped card. Opacity (not motion) carries the signal, so
+  // it survives the reduced-motion guard in globals.css.
+  const busyClass = (busy: boolean) =>
+    busy ? "transition-opacity opacity-60 pointer-events-none" : "transition-opacity";
 
   return (
     <>
@@ -142,26 +169,43 @@ export function FeedPageClient({
           <div className="mt-8">
             <RestaurantSpotlight
               restaurant={filteredRestaurants[0]}
-              onClick={() => navigate(`/${city}/${filteredRestaurants[0].slug}`)}
+              pending={isVenuePending(filteredRestaurants[0].slug)}
+              pendingSlot={
+                isVenuePending(filteredRestaurants[0].slug)
+                  ? pendingVenue?.slot
+                  : undefined
+              }
+              onClick={() => goToVenue(filteredRestaurants[0].slug)}
               onSlotSelect={(slot) =>
-                navigate(bookingSlotHref(`/${city}/${filteredRestaurants[0].slug}`, slot))
+                goToVenue(filteredRestaurants[0].slug, slot)
               }
             />
           </div>
         ) : (
           <>
             {trendingRestaurants.length > 0 && (
-              <div className="mt-8">
+              // RestaurantCard renders its own markup inside HorizontalSection,
+              // so the busy state is applied at carousel level — the closest
+              // reachable boundary to the tapped card.
+              <div
+                className={`mt-8 ${busyClass(
+                  trendingRestaurants.some((r) => isVenuePending(r.slug)),
+                )}`}
+                aria-busy={
+                  trendingRestaurants.some((r) => isVenuePending(r.slug)) ||
+                  undefined
+                }
+              >
                 <HorizontalSection
                   title={t("feed.trendingTitle", { city: displayCity })}
                   subtitle={t("feed.trendingSubtitle")}
                   restaurants={trendingRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
-                  onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
+                  onCardClick={(r) => goToVenue(r.slug)}
                   onSlotSelect={(_id, slot) => {
                     const target = trendingRestaurants.find((r) => r.id === _id);
-                    if (target) navigate(bookingSlotHref(`/${city}/${target.slug}`, slot));
+                    if (target) goToVenue(target.slug, slot);
                   }}
                 />
               </div>
@@ -185,25 +229,30 @@ export function FeedPageClient({
                     <RestaurantSpotlight
                       restaurant={featured}
                       eyebrow={t("feed.featuredLead")}
-                      onClick={() => navigate(`/${city}/${featured.slug}`)}
-                      onSlotSelect={(slot) =>
-                        navigate(bookingSlotHref(`/${city}/${featured.slug}`, slot))
+                      pending={isVenuePending(featured.slug)}
+                      pendingSlot={
+                        isVenuePending(featured.slug) ? pendingVenue?.slot : undefined
                       }
+                      onClick={() => goToVenue(featured.slug)}
+                      onSlotSelect={(slot) => goToVenue(featured.slug, slot)}
                     />
                   </div>
                 )}
                 <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5 mt-5">
                   {gridChunk.map((restaurant) => (
-                    <RestaurantCard
+                    <div
                       key={restaurant.id}
-                      restaurant={restaurant}
-                      saved={isSaved(restaurant.id)}
-                      onSave={() => toggleSave(restaurant.id)}
-                      onClick={(r) => navigate(`/${city}/${r.slug}`)}
-                      onSlotSelect={(_id, slot) =>
-                        navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
-                      }
-                    />
+                      aria-busy={isVenuePending(restaurant.slug) || undefined}
+                      className={busyClass(isVenuePending(restaurant.slug))}
+                    >
+                      <RestaurantCard
+                        restaurant={restaurant}
+                        saved={isSaved(restaurant.id)}
+                        onSave={() => toggleSave(restaurant.id)}
+                        onClick={(r) => goToVenue(r.slug)}
+                        onSlotSelect={(_id, slot) => goToVenue(restaurant.slug, slot)}
+                      />
+                    </div>
                   ))}
                 </div>
               </>
@@ -214,33 +263,43 @@ export function FeedPageClient({
         {restChunk.length > 0 && (
           <>
             {newRestaurants.length > 0 && (
-              <div className="mt-8">
+              <div
+                className={`mt-8 ${busyClass(
+                  newRestaurants.some((r) => isVenuePending(r.slug)),
+                )}`}
+                aria-busy={
+                  newRestaurants.some((r) => isVenuePending(r.slug)) || undefined
+                }
+              >
                 <HorizontalSection
                   title={t("feed.newTitle")}
                   subtitle={t("feed.newSubtitle")}
                   restaurants={newRestaurants}
                   isSaved={isSaved}
                   onSave={toggleSave}
-                  onCardClick={(r) => navigate(`/${city}/${r.slug}`)}
+                  onCardClick={(r) => goToVenue(r.slug)}
                   onSlotSelect={(_id, slot) => {
                     const target = newRestaurants.find((r) => r.id === _id);
-                    if (target) navigate(bookingSlotHref(`/${city}/${target.slug}`, slot));
+                    if (target) goToVenue(target.slug, slot);
                   }}
                 />
               </div>
             )}
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 desktop:gap-5 mt-4">
               {restChunk.map((restaurant) => (
-                <RestaurantCard
+                <div
                   key={restaurant.id}
-                  restaurant={restaurant}
-                  saved={isSaved(restaurant.id)}
-                  onSave={() => toggleSave(restaurant.id)}
-                  onClick={(r) => navigate(`/${city}/${r.slug}`)}
-                  onSlotSelect={(_id, slot) =>
-                    navigate(bookingSlotHref(`/${city}/${restaurant.slug}`, slot))
-                  }
-                />
+                  aria-busy={isVenuePending(restaurant.slug) || undefined}
+                  className={busyClass(isVenuePending(restaurant.slug))}
+                >
+                  <RestaurantCard
+                    restaurant={restaurant}
+                    saved={isSaved(restaurant.id)}
+                    onSave={() => toggleSave(restaurant.id)}
+                    onClick={(r) => goToVenue(r.slug)}
+                    onSlotSelect={(_id, slot) => goToVenue(restaurant.slug, slot)}
+                  />
+                </div>
               ))}
             </div>
           </>
@@ -264,18 +323,29 @@ function RestaurantSpotlight({
   onClick,
   onSlotSelect,
   eyebrow,
+  pending = false,
+  pendingSlot,
 }: {
   restaurant: Restaurant;
   onClick: () => void;
   onSlotSelect: (slot: string) => void;
   /** Overrides the default "Restaurant of the week" label. */
   eyebrow?: string;
+  /** A navigation off this spotlight is in flight. */
+  pending?: boolean;
+  /** The slot pill that started it, so it can render as selected right away. */
+  pendingSlot?: string;
 }) {
   const t = useT("discovery");
   const locale = useLocale();
 
   return (
-    <div className="rounded-card overflow-hidden bg-surface-white border border-border shadow-card">
+    <div
+      aria-busy={pending || undefined}
+      className={`rounded-card overflow-hidden bg-surface-white border border-border shadow-card transition-opacity ${
+        pending ? "opacity-60 pointer-events-none" : ""
+      }`}
+    >
       <div className="flex items-center justify-between mb-0 px-4 desktop:px-6 pt-4">
         <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-brand-primary">
           {eyebrow ?? t("feed.weekRestaurant")}
@@ -341,6 +411,7 @@ function RestaurantSpotlight({
             <TimeSlotPills
               slots={restaurant.availableSlots}
               maxVisible={4}
+              selected={pendingSlot}
               onSelect={onSlotSelect}
               onMore={onClick}
             />

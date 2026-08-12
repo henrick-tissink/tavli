@@ -8,7 +8,7 @@ interface SubmitButtonProps {
   children: ReactNode;
   /** Shown while the form is in flight. Falls back to `children`. */
   pendingLabel?: ReactNode;
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "danger";
   fullWidth?: boolean;
   className?: string;
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useT } from "@/lib/i18n/messages-provider";
+import { SubmitButton } from "@/components/submit-button";
 import { impersonateAction } from "../actions";
 
 export function ImpersonateModal({
@@ -55,12 +56,12 @@ export function ImpersonateModal({
             >
               {t("impersonate.cancel")}
             </button>
-            <button
-              type="submit"
-              className="rounded-button bg-brand-primary px-4 py-2 text-white text-sm font-medium hover:bg-brand-primary-dark"
-            >
+            {/* Starting a session takes a round-trip during which the modal
+                stays open; without a pending state the button reads as inert
+                and gets clicked again. */}
+            <SubmitButton className="px-4! py-2!">
               {t("impersonate.submit")}
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </div>

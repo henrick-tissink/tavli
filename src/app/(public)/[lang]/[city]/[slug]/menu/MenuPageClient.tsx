@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Restaurant, Menu } from "@/lib/types";
@@ -28,6 +29,16 @@ export function MenuPageClient({
   const locale = useLocale();
   const restaurantHref = localizedHref(`/${city}/${slug}`, locale);
 
+  // The venue page is force-dynamic and DB-backed, so "back" takes a server
+  // round-trip. MenuViewer owns the back button's markup, so the busy state
+  // lands on the viewer wrapper — the closest boundary this file owns.
+  const [isNavigating, startNavigation] = useTransition();
+  const goBack = () => {
+    // Ignore repeat taps while the same navigation is already in flight.
+    if (isNavigating) return;
+    startNavigation(() => router.push(restaurantHref));
+  };
+
   if (!menu) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
@@ -45,11 +56,20 @@ export function MenuPageClient({
   }
 
   return (
-    <MenuViewer
-      restaurant={restaurant}
-      menu={menu}
-      heroPhoto={heroPhoto}
-      onBack={() => router.push(restaurantHref)}
-    />
+    // Dimming (not motion) carries the signal, so the reduced-motion guard in
+    // globals.css cannot suppress it.
+    <div
+      aria-busy={isNavigating || undefined}
+      className={`transition-opacity ${
+        isNavigating ? "opacity-60 pointer-events-none" : ""
+      }`}
+    >
+      <MenuViewer
+        restaurant={restaurant}
+        menu={menu}
+        heroPhoto={heroPhoto}
+        onBack={goBack}
+      />
+    </div>
   );
 }

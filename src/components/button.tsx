@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes } from "react";
 import { Spinner } from "./spinner";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -21,6 +21,12 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-brand-primary text-white hover:bg-brand-primary-dark shadow-card",
   secondary: "bg-brand-primary-soft text-brand-primary-dark hover:bg-orange-100",
   ghost: "bg-transparent text-text-secondary hover:bg-surface-bg border border-border",
+  // Destructive actions — suspend, uphold-and-hide, revoke. Without this,
+  // call sites had to fight the component with `!` overrides, because equal
+  // specificity utilities are resolved by Tailwind's own source order, not by
+  // the order of classes in the attribute: a passed `bg-red-600` loses to the
+  // variant's own background. White on #DC2626 is 4.83:1, clearing AA.
+  danger: "bg-error text-white hover:bg-red-700 shadow-card",
 };
 
 export function Button({

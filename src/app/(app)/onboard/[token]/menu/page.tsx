@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOnboardingState, advanceStep } from "@/lib/onboarding";
 import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
-import { Button } from "@/components/button";
+import { SubmitButton } from "@/components/submit-button";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -57,7 +57,9 @@ export default async function OnboardingMenuPage({
           {m.wizard.menu.back}
         </Link>
         <form action={continueAction}>
-          <Button type="submit">{m.wizard.menu.skip}</Button>
+          {/* Advancing the step writes state and redirects — a slow hop the
+              wizard previously spent silent. */}
+          <SubmitButton>{m.wizard.menu.skip}</SubmitButton>
         </form>
       </div>
     </OnboardingShell>

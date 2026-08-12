@@ -9,6 +9,7 @@ import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronsUpDown, Check, Building2 } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { setActiveVenueAction } from "@/app/(app)/partner/(dashboard)/active-venue-actions";
 import { useT } from "@/lib/i18n/messages-provider";
 
@@ -23,6 +24,10 @@ export function VenueSwitcher({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  // The venue the user just clicked. The tick moves there immediately instead
+  // of sitting on the old venue for the whole round-trip; it snaps back if the
+  // switch fails.
+  const [optimisticId, setOptimisticId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,16 +49,25 @@ export function VenueSwitcher({
   }
 
   const active = venues.find((v) => v.id === activeVenueId) ?? venues[0];
+  const selectedId = optimisticId ?? active.id;
+  const selected = venues.find((v) => v.id === selectedId) ?? active;
 
   function pick(id: string) {
-    if (id === active.id) {
+    if (id === selectedId) {
       setOpen(false);
       return;
     }
+    if (pending) return;
+    setOptimisticId(id);
     startTransition(async () => {
       const res = await setActiveVenueAction(id);
+      if (!res.ok) {
+        setOptimisticId(null);
+        setOpen(false);
+        return;
+      }
       setOpen(false);
-      if (res.ok) router.refresh();
+      router.refresh();
     });
   }
 
@@ -63,12 +77,17 @@ export function VenueSwitcher({
         type="button"
         onClick={() => setOpen((o) => !o)}
         disabled={pending}
+        aria-busy={pending || undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 rounded-button border border-border bg-surface-white px-3 py-2 text-left text-sm font-semibold text-text-primary hover:bg-surface-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        className="flex w-full items-center justify-between gap-2 rounded-button border border-border bg-surface-white px-3 py-2 text-left text-sm font-semibold text-text-primary hover:bg-surface-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-surface-white"
       >
-        <span className="truncate">{active.name}</span>
-        <ChevronsUpDown size={15} aria-hidden className="shrink-0 text-text-muted" />
+        <span className="truncate">{selected.name}</span>
+        {pending ? (
+          <Spinner size={15} className="shrink-0 text-text-muted" />
+        ) : (
+          <ChevronsUpDown size={15} aria-hidden className="shrink-0 text-text-muted" />
+        )}
       </button>
 
       {open && (
@@ -76,19 +95,30 @@ export function VenueSwitcher({
           role="listbox"
           className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-card border border-border bg-surface-white py-1 shadow-floating"
         >
-          {venues.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              role="option"
-              aria-selected={v.id === active.id}
-              onClick={() => pick(v.id)}
-              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-bg"
-            >
-              <span className="truncate">{v.name}</span>
-              {v.id === active.id && <Check size={14} aria-hidden className="shrink-0 text-brand-primary" />}
-            </button>
-          ))}
+          {venues.map((v) => {
+            const switchingToThis = pending && optimisticId === v.id;
+            return (
+              <button
+                key={v.id}
+                type="button"
+                role="option"
+                aria-selected={v.id === selectedId}
+                disabled={pending}
+                aria-busy={switchingToThis || undefined}
+                onClick={() => pick(v.id)}
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-bg disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
+              >
+                <span className="truncate">{v.name}</span>
+                {switchingToThis ? (
+                  <Spinner size={14} className="shrink-0 text-brand-primary" />
+                ) : (
+                  v.id === selectedId && (
+                    <Check size={14} aria-hidden className="shrink-0 text-brand-primary" />
+                  )
+                )}
+              </button>
+            );
+          })}
           <Link
             href="/partner/org"
             onClick={() => setOpen(false)}

@@ -14,6 +14,7 @@
  */
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Plus, Minus, Trash2, Move, Maximize2 } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import {
@@ -70,7 +71,15 @@ export function FloorPlanEditor({
   const [tables, setTables] = useState<EditorTable[]>(initialTables);
   const [selId, setSelId] = useState<string | null>(null);
   const [view, setView] = useState<"layout" | "tonight">("layout");
-  const [, startTransition] = useTransition();
+  // Every inspector edit and every drag persists through `persist`; keeping the
+  // pending flag is what makes those saves visible ("Se salvează…" in the
+  // inspector header) instead of silent.
+  const [saving, startTransition] = useTransition();
+  // "Add table" and "Delete" get their own in-flight state so a rapid second
+  // click cannot create a duplicate table server-side, and so a delete shows a
+  // cue on the button that fired it.
+  const [adding, startAdd] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; offX: number; offY: number } | null>(null);
@@ -166,8 +175,9 @@ export function FloorPlanEditor({
 
   // ── add table ───────────────────────────────────────────────────────────────
   function addTable() {
+    if (adding) return;
     const label = String(tables.length + 1);
-    startTransition(async () => {
+    startAdd(async () => {
       const res = await createTableAction({
         restaurantId,
         organizationId,
@@ -191,12 +201,22 @@ export function FloorPlanEditor({
       setSelId(id);
     });
   }
+  // The table is removed once the archive succeeds rather than optimistically:
+  // that keeps the delete button on screen to carry the in-flight cue, and a
+  // failed delete no longer leaves a table that still exists server-side hidden
+  // from the plan.
   function deleteTable(id: string) {
-    setTables((ts) => ts.filter((tbl) => tbl.id !== id));
-    setSelId(null);
+    if (deletingId) return;
+    setDeletingId(id);
     startTransition(async () => {
       const res = await archiveTableAction({ id, restaurantId, organizationId });
-      if (!res.ok) toast.error(t("floorPlan.toastDeleteFailed"));
+      setDeletingId(null);
+      if (!res.ok) {
+        toast.error(t("floorPlan.toastDeleteFailed"));
+        return;
+      }
+      setTables((ts) => ts.filter((tbl) => tbl.id !== id));
+      setSelId(null);
     });
   }
 
@@ -347,12 +367,14 @@ export function FloorPlanEditor({
           {view === "tonight" ? (
             <TonightInspector tonight={tonight} setSelId={setSelId} sectionColor={sectionColor} tables={tables} />
           ) : !sel ? (
-            <EmptyInspector onAdd={addTable} />
+            <EmptyInspector onAdd={addTable} adding={adding} />
           ) : (
             <EditInspector
               key={sel.id}
               table={sel}
               sections={sections}
+              saving={saving}
+              deleting={deletingId === sel.id}
               onDelete={() => deleteTable(sel.id)}
               onLabel={(v) => { patch(sel.id, { label: v }); }}
               onLabelCommit={(v) => persist(sel.id, { label: v })}
@@ -374,7 +396,7 @@ export function FloorPlanEditor({
 }
 
 // ── inspector: empty ──────────────────────────────────────────────────────────
-function EmptyInspector({ onAdd }: { onAdd: () => void }) {
+function EmptyInspector({ onAdd, adding }: { onAdd: () => void; adding: boolean }) {
   const t = useT("partner.tables");
   return (
     <div>
@@ -385,9 +407,11 @@ function EmptyInspector({ onAdd }: { onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        className="flex w-full items-center justify-center gap-1.5 rounded-button bg-brand-primary py-2.5 text-sm font-semibold text-white hover:bg-brand-primary-dark"
+        disabled={adding}
+        aria-busy={adding || undefined}
+        className="flex w-full items-center justify-center gap-1.5 rounded-button bg-brand-primary py-2.5 text-sm font-semibold text-white hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-primary"
       >
-        <Plus size={16} /> {t("emptyInspector.addTable")}
+        {adding ? <Spinner size={16} /> : <Plus size={16} />} {t("emptyInspector.addTable")}
       </button>
       <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-text-muted">
         <Move size={13} /> {t("emptyInspector.dragHint")}
@@ -398,10 +422,14 @@ function EmptyInspector({ onAdd }: { onAdd: () => void }) {
 
 // ── inspector: edit ───────────────────────────────────────────────────────────
 function EditInspector({
-  table, sections, onDelete, onLabel, onLabelCommit, onSection, onShape, onCap, onOnline,
+  table, sections, saving, deleting, onDelete, onLabel, onLabelCommit, onSection, onShape, onCap, onOnline,
 }: {
   table: EditorTable;
   sections: Section[];
+  /** A field edit or a drag is being persisted. */
+  saving: boolean;
+  /** This table's archive call is in flight. */
+  deleting: boolean;
   onDelete: () => void;
   onLabel: (v: string) => void;
   onLabelCommit: (v: string) => void;
@@ -414,11 +442,27 @@ function EditInspector({
   const lab = "mb-1.5 block text-xs font-semibold text-text-secondary";
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <h3 className="font-display text-lg font-bold text-text-primary">{t("editInspector.title", { label: table.label })}</h3>
-        <button type="button" onClick={onDelete} aria-label={t("editInspector.deleteTableAriaLabel")} className="p-1 text-error hover:opacity-80">
-          <Trash2 size={16} />
-        </button>
+        <div className="flex flex-none items-center gap-2">
+          {/* Text + spinner, never spin alone: reduced-motion users freeze the
+              icon, so the sections.form.saving label carries the state. */}
+          {(saving || deleting) && (
+            <span role="status" className="inline-flex items-center gap-1 text-[11px] font-semibold text-text-muted">
+              <Spinner size={12} /> {t("sections.form.saving")}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={deleting}
+            aria-busy={deleting || undefined}
+            aria-label={t("editInspector.deleteTableAriaLabel")}
+            className="p-1 text-error hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {deleting ? <Spinner size={16} /> : <Trash2 size={16} />}
+          </button>
+        </div>
       </div>
 
       <label className={lab}>{t("editInspector.labelLabel")}</label>

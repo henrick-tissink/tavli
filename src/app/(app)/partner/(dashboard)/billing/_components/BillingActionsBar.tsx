@@ -6,6 +6,7 @@
  */
 import { useState, useTransition } from "react";
 import { CreditCard, ArrowLeftRight, XCircle } from "lucide-react";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import { ChangePlanSheet } from "./ChangePlanSheet";
@@ -29,11 +30,18 @@ export function BillingActionsBar({
   const [changeOpen, setChangeOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [portalPending, startPortal] = useTransition();
+  // The transition ends the moment we assign window.location, but the browser
+  // then spends seconds fetching Stripe. Without this the button would pop back
+  // to idle mid-redirect and invite a second click.
+  const [redirecting, setRedirecting] = useState(false);
+  const portalBusy = portalPending || redirecting;
 
   function openPortal() {
+    if (portalBusy) return;
     startPortal(async () => {
       const res = await createBillingPortalSessionAction(organizationId);
       if (res.ok) {
+        setRedirecting(true);
         window.location.href = res.data.url;
       } else {
         toast.error(t("actionsBar.portalUnavailable"));
@@ -50,10 +58,12 @@ export function BillingActionsBar({
         <button
           type="button"
           onClick={openPortal}
-          disabled={portalPending}
+          disabled={portalBusy}
+          aria-busy={portalBusy || undefined}
           className={`${base} bg-brand-primary text-white shadow-card hover:bg-brand-primary-dark active:scale-[0.98] disabled:opacity-60`}
         >
-          <CreditCard size={16} aria-hidden /> {t("actionsBar.updateCard")}
+          {portalBusy ? <Spinner /> : <CreditCard size={16} aria-hidden />}{" "}
+          {t("actionsBar.updateCard")}
         </button>
         {!readOnly && (
           <button

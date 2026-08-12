@@ -9,6 +9,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { Spinner } from "@/components/spinner";
 import { toast } from "@/components/toast";
 import { useT } from "@/lib/i18n/messages-provider";
 import { cancelSubscriptionAction } from "../actions";
@@ -38,8 +39,14 @@ export function CancelSubscriptionSheet({
   const [pending, startTransition] = useTransition();
   const [reason, setReason] = useState("");
   const [feedback, setFeedback] = useState("");
+  // Which of the two cancellations is running. Both stay disabled for the
+  // duration — this is destructive — but only the pressed one shows a spinner.
+  const [acting, setActing] = useState<"period_end" | "immediate" | null>(null);
+  const busy = pending ? acting : null;
 
   function submit(mode: "period_end" | "immediate") {
+    if (pending) return;
+    setActing(mode);
     startTransition(async () => {
       const res = await cancelSubscriptionAction(organizationId, mode, reason || undefined, feedback || undefined);
       if (res.ok) {
@@ -101,10 +108,14 @@ export function CancelSubscriptionSheet({
           <button
             type="button"
             disabled={pending}
+            aria-busy={busy === "period_end" || undefined}
             onClick={() => submit("period_end")}
             className="flex w-full min-h-[48px] flex-col items-center justify-center rounded-button bg-text-primary px-6 py-3 text-sm font-bold text-surface-white transition-all hover:bg-text-primary/90 active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
           >
-            {t("cancel.submitPeriodEnd")}
+            <span className="inline-flex items-center gap-2">
+              {busy === "period_end" && <Spinner />}
+              {t("cancel.submitPeriodEnd")}
+            </span>
             {periodEndLabel && (
               <span className="mt-0.5 text-xs font-normal text-surface-white/70">
                 {t("cancel.accessUntil", { date: periodEndLabel })}
@@ -114,9 +125,11 @@ export function CancelSubscriptionSheet({
           <button
             type="button"
             disabled={pending}
+            aria-busy={busy === "immediate" || undefined}
             onClick={() => submit("immediate")}
-            className="w-full min-h-[44px] rounded-button border border-error/40 px-6 py-2.5 text-sm font-semibold text-error transition-colors hover:bg-error/5 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
+            className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-button border border-error/40 px-6 py-2.5 text-sm font-semibold text-error transition-colors hover:bg-error/5 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
           >
+            {busy === "immediate" && <Spinner />}
             {t("cancel.submitImmediate")}
           </button>
         </div>
