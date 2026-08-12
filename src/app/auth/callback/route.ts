@@ -25,6 +25,19 @@ import { appOrigin } from "@/lib/app-origin";
 
 export async function GET(req: NextRequest): Promise<Response> {
   const url = new URL(req.url);
+  /**
+   * Redirect targets are built from the PUBLIC origin, never from `req.url`.
+   *
+   * Behind the reverse proxy, a route handler's `req.url` carries the
+   * container's internal address, so `new URL("/x", req.url)` emitted
+   * `Location: https://0.0.0.0:3000/x` — every verification link dead-ended on
+   * an unreachable host. Middleware is unaffected, which is why proxy.ts
+   * redirects looked correct and this went unnoticed.
+   *
+   * appOrigin() reads NEXT_PUBLIC_APP_URL, which is per-environment and
+   * inlined at build time, so it does not depend on proxy headers.
+   */
+  const publicOrigin = appOrigin();
   const code = url.searchParams.get("code");
   const token = url.searchParams.get("token");
 
@@ -33,7 +46,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      return NextResponse.redirect(new URL("/auth/error", url));
+      return NextResponse.redirect(new URL("/auth/error", publicOrigin));
     }
   }
 
@@ -124,7 +137,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         }
       }
 
-      return NextResponse.redirect(new URL(`/event-requests/${token}`, url));
+      return NextResponse.redirect(new URL(`/event-requests/${token}`, publicOrigin));
     }
   }
 
@@ -156,12 +169,12 @@ export async function GET(req: NextRequest): Promise<Response> {
       .where(eq(profiles.id, user.id))
       .limit(1);
     if (profile?.role === "restaurant_owner" || profile?.role === "admin") {
-      return NextResponse.redirect(new URL("/partner/verified", url));
+      return NextResponse.redirect(new URL("/partner/verified", publicOrigin));
     }
     // Diners get their own confirmation rather than being dropped on the
     // storefront with no sign that anything happened.
-    return NextResponse.redirect(new URL("/auth/verified", url));
+    return NextResponse.redirect(new URL("/auth/verified", publicOrigin));
   }
 
-  return NextResponse.redirect(new URL("/", url));
+  return NextResponse.redirect(new URL("/", publicOrigin));
 }
