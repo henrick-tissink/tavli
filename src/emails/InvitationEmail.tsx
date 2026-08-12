@@ -122,7 +122,7 @@ const text = {
 };
 
 const button = {
-  backgroundColor: "#F97316",
+  backgroundColor: "#C2410C",
   color: "#FFFFFF",
   padding: "14px 28px",
   borderRadius: "10px",

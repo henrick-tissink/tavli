@@ -162,7 +162,7 @@ const h1 = {
 const lede = { fontSize: "16px", lineHeight: "1.55", color: "#44403C", margin: "0 0 16px" };
 const text = { fontSize: "14px", lineHeight: "1.6", color: "#57534E", margin: "0 0 16px" };
 const button = {
-  backgroundColor: "#F97316",
+  backgroundColor: "#C2410C",
   color: "#FFFFFF",
   padding: "14px 28px",
   borderRadius: "10px",

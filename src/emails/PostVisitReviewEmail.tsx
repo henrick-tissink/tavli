@@ -122,7 +122,7 @@ const star = {
   backgroundColor: "#FFF7ED",
   border: "1px solid #FED7AA",
   borderRadius: "10px",
-  color: "#F97316",
+  color: "#C2410C",
   fontSize: "20px",
   textDecoration: "none",
   fontWeight: 700,

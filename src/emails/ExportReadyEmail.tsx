@@ -130,7 +130,7 @@ const h1 = {
 };
 const text = { fontSize: "16px", lineHeight: "1.6", color: "#1a1a1a", margin: "0 0 16px" };
 const button = {
-  backgroundColor: "#F97316",
+  backgroundColor: "#C2410C",
   color: "#FFFFFF",
   fontSize: "16px",
   fontWeight: 600,

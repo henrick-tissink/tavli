@@ -141,7 +141,7 @@ const cardLine = {
   margin: "0",
 };
 const cta = {
-  backgroundColor: "#F97316",
+  backgroundColor: "#C2410C",
   color: "#FFFFFF",
   padding: "12px 24px",
   borderRadius: "10px",
