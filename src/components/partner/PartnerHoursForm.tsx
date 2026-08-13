@@ -36,7 +36,7 @@ export function PartnerHoursForm({ initialHours }: { initialHours: DayHours[] })
       {errorText && <p className="text-sm text-error" role="alert">{errorText}</p>}
 
       <div className="pt-2">
-        <Button disabled={pending} type="submit">
+        <Button disabled={pending} loading={pending} type="submit">
           {pending ? t("hours.saving") : t("hours.save")}
         </Button>
       </div>

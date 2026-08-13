@@ -25,7 +25,7 @@ export function PublishButton() {
           {state.error}
         </p>
       )}
-      <Button fullWidth type="submit" disabled={pending}>
+      <Button fullWidth type="submit" disabled={pending} loading={pending}>
         {pending ? t("wizard.publish.submitPending") : t("wizard.publish.submit")}
       </Button>
     </form>

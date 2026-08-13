@@ -96,7 +96,7 @@ export function InvitationForm({ cities }: { cities: City[] }) {
           </p>
         )}
 
-        <Button disabled={pending} type="submit">
+        <Button disabled={pending} loading={pending} type="submit">
           {pending ? t("form.submitPending") : t("form.submit")}
         </Button>
       </form>

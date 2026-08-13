@@ -44,7 +44,7 @@ export function InviteMemberForm({ organizationId }: { organizationId: string })
             ))}
           </select>
         </label>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} loading={pending}>
           {pending ? t("inviteForm.submitting") : t("inviteForm.submit")}
         </Button>
       </div>

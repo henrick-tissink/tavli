@@ -39,6 +39,7 @@ export function ParallelRunBanner({
         variant="secondary"
         className="mt-4"
         disabled={busy}
+        loading={busy}
         onClick={async () => {
           setBusy(true);
           const r = await onConsolidate();

@@ -6,7 +6,7 @@
  * (§7.4) rather than a download — the file is generated async.
  */
 import { useEffect, useState } from "react";
-import { X, Download, Loader2, MailCheck } from "lucide-react";
+import { X, Download, MailCheck } from "lucide-react";
 import { Button } from "@/components/button";
 import { useT } from "@/lib/i18n/messages-provider";
 import { requestAnalyticsExport } from "../export-actions";
@@ -148,11 +148,15 @@ export function ExportModal({
               <Button variant="ghost" onClick={onClose}>
                 {t("export.cancel")}
               </Button>
-              <Button onClick={submit} disabled={state === "submitting"}>
+              {/* The Button owns the spinner now; the hand-rolled Loader2 that
+                  used to sit in the children would have doubled it. */}
+              <Button
+                onClick={submit}
+                disabled={state === "submitting"}
+                loading={state === "submitting"}
+              >
                 {state === "submitting" ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin" /> {t("export.submitting")}
-                  </span>
+                  t("export.submitting")
                 ) : (
                   <span className="flex items-center gap-2">
                     <Download size={16} /> {t("export.submit")}

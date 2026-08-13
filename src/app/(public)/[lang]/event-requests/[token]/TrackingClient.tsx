@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Calendar, Users } from "lucide-react";
 import { StatusTimeline } from "@/components/tracking/StatusTimeline";
 import { QuoteExpiryCountdown } from "@/components/tracking/QuoteExpiryCountdown";
@@ -38,10 +38,22 @@ export function TrackingClient({
 }: Props) {
   const t = useT("events");
   const [pending, startTransition] = useTransition();
-  const reloadAfter = (p: Promise<unknown>) =>
-    p.then(() => {
-      if (typeof window !== "undefined") window.location.reload();
-    });
+  // One transition drives accept / decline / cancel, so `pending` alone cannot
+  // say WHICH is in flight — spinning all three (incl. "cancel request" while
+  // the guest is accepting) would misreport what the page is doing. `running`
+  // narrows the spinner to the button that was actually pressed; `disabled`
+  // stays on `pending` so the others still lock.
+  const [running, setRunning] = useState<"accept" | "decline" | "cancel" | null>(null);
+  const run = (action: "accept" | "decline" | "cancel", p: () => Promise<unknown>) => {
+    setRunning(action);
+    startTransition(() =>
+      p()
+        .then(() => {
+          if (typeof window !== "undefined") window.location.reload();
+        })
+        .finally(() => setRunning(null)),
+    );
+  };
 
   const statusHeadline =
     t(`tracking.status.${er.status}`) || er.status;
@@ -112,22 +124,16 @@ export function TrackingClient({
           <div className="flex gap-2">
             <Button
               disabled={pending}
-              onClick={() =>
-                startTransition(() =>
-                  reloadAfter(consumerAcceptQuote(token)),
-                )
-              }
+              loading={running === "accept"}
+              onClick={() => run("accept", () => consumerAcceptQuote(token))}
             >
               {t("tracking.acceptQuote")}
             </Button>
             <Button
               variant="secondary"
               disabled={pending}
-              onClick={() =>
-                startTransition(() =>
-                  reloadAfter(consumerDeclineQuote({ token })),
-                )
-              }
+              loading={running === "decline"}
+              onClick={() => run("decline", () => consumerDeclineQuote({ token }))}
             >
               {t("tracking.declineQuote")}
             </Button>
@@ -143,11 +149,8 @@ export function TrackingClient({
         <Button
           variant="ghost"
           disabled={pending}
-          onClick={() =>
-            startTransition(() =>
-              reloadAfter(consumerCancelEventRequest(token)),
-            )
-          }
+          loading={running === "cancel"}
+          onClick={() => run("cancel", () => consumerCancelEventRequest(token))}
         >
           {t("tracking.cancelRequest")}
         </Button>

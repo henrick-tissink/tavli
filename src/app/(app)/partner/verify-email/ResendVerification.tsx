@@ -31,7 +31,7 @@ export function ResendVerification({ defaultEmail }: { defaultEmail?: string }) 
           className="w-full rounded-lg border border-border bg-surface-white px-3 py-2 text-sm text-text-primary focus:border-brand-primary focus:outline-none"
         />
       </label>
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} loading={pending}>
         {pending ? t("auth.verifyEmail.resendSubmitPending") : t("auth.verifyEmail.resendSubmit")}
       </Button>
       {state?.ok && (

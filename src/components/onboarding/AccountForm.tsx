@@ -83,7 +83,7 @@ export function AccountForm({ token, emailHint, proposedName }: Props) {
         </p>
       )}
 
-      <Button fullWidth disabled={pending} type="submit">
+      <Button fullWidth disabled={pending} loading={pending} type="submit">
         {pending ? t("wizard.account.submitPending") : t("wizard.account.submit")}
       </Button>
 

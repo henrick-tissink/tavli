@@ -181,7 +181,7 @@ export function SignUpForm({ cities }: { cities: { id: string; name: string }[] 
             {t("auth.signUp.continue")}
           </Button>
         ) : (
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending} loading={pending}>
             {pending ? t("auth.signUp.submitPending") : t("auth.signUp.submit")}
           </Button>
         )}

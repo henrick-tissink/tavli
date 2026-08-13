@@ -106,7 +106,7 @@ export function PartnerProfileForm({ initialValues }: Props) {
       {errorText && <p className="text-sm text-error" role="alert">{errorText}</p>}
 
       <div className="pt-2">
-        <Button disabled={pending} type="submit">
+        <Button disabled={pending} loading={pending} type="submit">
           {pending ? t("profile.saving") : t("profile.save")}
         </Button>
       </div>

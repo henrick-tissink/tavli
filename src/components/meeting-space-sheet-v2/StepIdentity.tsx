@@ -169,7 +169,7 @@ export function StepIdentity({ restaurantId, space, draft, onChange, onBack, onS
         <Button variant="ghost" onClick={onBack} disabled={pending}>
           {t("sheet.back")}
         </Button>
-        <Button onClick={submit} disabled={pending}>
+        <Button onClick={submit} disabled={pending} loading={pending}>
           {pending ? t("stepIdentity.submitting") : t("stepIdentity.submit")}
         </Button>
       </div>
