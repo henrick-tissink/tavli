@@ -7,6 +7,9 @@ import {
   ContentHealthChecklist,
   type ChecklistItem,
 } from "@/components/partner/ContentHealthChecklist";
+import { and, eq, isNull } from "drizzle-orm";
+import { dbAdmin } from "@/lib/db/admin";
+import { paymentMethods } from "@/lib/db/schema";
 import { currentUserPrimaryRestaurant } from "@/lib/restaurants/current-user";
 import { getOverviewStats } from "@/lib/repos/overview-stats";
 import { resolveAppLocale } from "@/lib/i18n/app-locale";
@@ -34,7 +37,7 @@ export default async function PartnerDashboardPage({
     ? await supabase
         .from("restaurants")
         .select(
-          "id, name, status, hero_note, cuisines, schedule",
+          "id, name, status, hero_note, cuisines, schedule, organization_id",
         )
         .eq("id", restaurantId)
         .maybeSingle()
@@ -90,6 +93,26 @@ export default async function PartnerDashboardPage({
   const sectionCount = menuSectionsData?.length ?? 0;
   const itemCount = menuItemsData?.length ?? 0;
 
+  // Card-on-file. Nothing in the product ever sends an operator to Stripe
+  // Checkout — the session startSubscription used to mint was discarded by
+  // both callers — so the trial starts with no card and nobody is asked for
+  // one. The billing page's portal is the working path; this surfaces it.
+  //
+  // Read with the service role, scoped explicitly to this restaurant's org: an
+  // RLS false negative here would nag the operator for a card they already
+  // have, forever.
+  const orgId = restaurant.organization_id as string | null;
+  const cardRows = orgId
+    ? await dbAdmin
+        .select({ id: paymentMethods.id })
+        .from(paymentMethods)
+        .where(
+          and(eq(paymentMethods.organizationId, orgId), isNull(paymentMethods.detachedAt)),
+        )
+        .limit(1)
+    : [];
+  const hasCardOnFile = cardRows.length > 0;
+
   const checklist: ChecklistItem[] = [
     {
       label: m.checklist.profileLabel,
@@ -143,6 +166,14 @@ export default async function PartnerDashboardPage({
       done: (availabilityCount ?? 0) > 0,
       hint: m.checklist.availabilityHint,
       href: "/partner/reservations",
+    },
+    {
+      label: m.checklist.paymentLabel,
+      done: hasCardOnFile,
+      hint: m.checklist.paymentHint,
+      // The billing page's portal button is the working card path; Checkout
+      // was never surfaced to anyone.
+      href: "/partner/billing",
     },
   ];
 

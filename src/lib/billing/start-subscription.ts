@@ -19,31 +19,32 @@ export interface StartSubscriptionInput {
 }
 
 export interface StartSubscriptionDeps {
-  stripe: Pick<Stripe, "customers" | "subscriptions" | "checkout">;
+  stripe: Pick<Stripe, "customers" | "subscriptions">;
   db: typeof dbAdmin;
   enqueue: typeof defaultEnqueue;
   recordBillingAudit: typeof defaultRecordBillingAudit;
   now?: () => Date;
-  siteUrl?: string;
 }
 
 /**
  * §12 §7.1 — trial-start orchestration. Creates the Stripe Customer +
- * Subscription (90-day trial, card-on-file via Checkout setup-mode), mirrors
- * to local tables, enqueues the day-60/75/85 reminders, and writes the
- * subscription_created billing-audit row. Returns the Checkout URL for the
- * caller to redirect the operator to (card capture).
+ * Subscription (90-day trial), mirrors to local tables, enqueues the
+ * day-60/75/85 reminders, and writes the subscription_created billing-audit
+ * row.
+ *
+ * Card-on-file is NOT collected here. It is prompted from the partner
+ * dashboard checklist, which links to the billing page's Stripe
+ * billing-portal action.
  *
  * Factory-only export: getStripe() throws without STRIPE_SECRET_KEY, so the
  * Stripe client is injected by the caller at call time (never at module load).
  */
 export function makeStartSubscription(deps: StartSubscriptionDeps) {
   const now = deps.now ?? (() => new Date());
-  const siteUrl = deps.siteUrl ?? process.env.SITE_URL ?? "https://tavli.ro";
 
   return async function startSubscription(
     input: StartSubscriptionInput,
-  ): Promise<{ stripeCheckoutUrl: string }> {
+  ): Promise<void> {
     const orgRows = await deps.db
       .select({
         id: organizations.id,
@@ -161,26 +162,15 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
       }
     });
 
-    // §7.1 step 7 — Checkout (setup-mode) for card-on-file.
-    const session = await deps.stripe.checkout.sessions.create({
-      mode: "setup",
-      // Required by Stripe in setup mode: there are no line items to infer it
-      // from. Without it the call fails with
-      //   invalid_request_error / parameter_missing / param: currency
-      // and signupPartner's catch silently set billingDeferred — so card
-      // collection never worked and nothing said so. Every TAVLI_PRICE_SPEC
-      // is EUR.
-      currency: "eur",
-      customer: stripeCustomerId,
-      setup_intent_data: { metadata: { subscription_id: sub.id, organization_id: org.id } },
-      // /partner/onboarding has never existed as a route, so both of these
-      // returned the operator to a 404 immediately after entering card
-      // details. /partner is the portal root and renders the setup checklist.
-      // The card= params are preserved for logs and a future toast; nothing
-      // reads them yet.
-      success_url: `${siteUrl}/partner?card=success`,
-      cancel_url: `${siteUrl}/partner?card=cancel`,
-    });
+    // §7.1 step 7 previously minted a setup-mode Checkout session here for
+    // card-on-file. It has been removed: neither caller ever surfaced the URL
+    // — signup redirected to verify-email and onboarding redirected to
+    // /partner, both discarding it — so every trial start left an abandoned
+    // open session in Stripe and no operator was ever asked for a card.
+    //
+    // Card-on-file is now prompted from the dashboard checklist, which links
+    // to the billing page's Stripe billing-portal action. That path already
+    // worked and is the one operators actually reach.
 
     // §7.1 step 8 — reminder jobs (fire via startAfter, not cron).
     const at = (d: number) => new Date(startedAt.getTime() + d * DAY_MS);
@@ -200,7 +190,5 @@ export function makeStartSubscription(deps: StartSubscriptionDeps) {
       },
     });
 
-    if (!session.url) throw new Error("internal: Stripe Checkout session returned no url");
-    return { stripeCheckoutUrl: session.url };
   };
 }

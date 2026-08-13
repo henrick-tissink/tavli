@@ -57,7 +57,9 @@
     "scheduleLabel": "Öffnungszeiten konfiguriert",
     "scheduleHint": "Ihr Wochenplan",
     "availabilityLabel": "Verfügbarkeit (Reservierungen) gesetzt",
-    "availabilityHint": "Wie viele Kundinnen und Kunden pro Zeitfenster"
+    "availabilityHint": "Wie viele Kundinnen und Kunden pro Zeitfenster",
+    "paymentLabel": "Zahlungskarte hinzufügen",
+    "paymentHint": "Erforderlich vor Ablauf Ihrer Testphase"
   },
   "parallelRun": {
     "title": "Laufen Sie parallel zu Ihrem alten System?",

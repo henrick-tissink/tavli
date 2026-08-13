@@ -57,7 +57,9 @@
     "scheduleLabel": "Schedule configured",
     "scheduleHint": "Your weekly schedule",
     "availabilityLabel": "Availability (reservations) set",
-    "availabilityHint": "How many customers per slot"
+    "availabilityHint": "How many customers per slot",
+    "paymentLabel": "Add a payment card",
+    "paymentHint": "Needed before your trial ends"
   },
   "parallelRun": {
     "title": "Running in parallel with your old system?",

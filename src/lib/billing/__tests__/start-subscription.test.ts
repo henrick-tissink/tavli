@@ -67,23 +67,20 @@ function deps(over: Record<string, unknown> = {}) {
           items: { data: [{ id: "si_base", price: { id: "price_tier", unit_amount: 6000 }, quantity: 1 }] },
         }),
       },
-      checkout: { sessions: { create: jest.fn().mockResolvedValue({ url: "https://checkout.test/x" }) } },
     },
     db: makeDb([[ORG], []]),
     enqueue: jest.fn().mockResolvedValue("job-id"),
     recordBillingAudit: jest.fn().mockResolvedValue(undefined),
     now: () => NOW,
-    siteUrl: "https://tavli.ro",
     ...over,
   };
 }
 
 describe("startSubscription", () => {
-  it("creates customer + subscription + checkout, inserts mirror, enqueues 3 reminders, audits, returns url", async () => {
+  it("creates customer + subscription, inserts mirror, enqueues 3 reminders, audits", async () => {
     const d = deps();
     const start = makeStartSubscription(d as never);
-    const res = await start({ organizationId: "org-1", tier: "pro", frequency: "monthly" });
-    expect(res.stripeCheckoutUrl).toBe("https://checkout.test/x");
+    await start({ organizationId: "org-1", tier: "pro", frequency: "monthly" });
     expect((d.stripe.customers.create as jest.Mock)).toHaveBeenCalled();
     expect((d.stripe.subscriptions.create as jest.Mock)).toHaveBeenCalledWith(
       expect.objectContaining({ payment_behavior: "default_incomplete" }),
@@ -115,28 +112,5 @@ describe("startSubscription", () => {
     );
   });
 
-  it("passes a currency, which setup mode requires", async () => {
-    // Setup-mode sessions carry no line items, so Stripe cannot infer the
-    // currency and rejects the call:
-    //   invalid_request_error / parameter_missing / param: currency
-    // signupPartner caught that and set billingDeferred, so card-on-file
-    // collection failed for every signup and left no trace. Confirmed against
-    // the live test-mode account: the same params fail without it.
-    const d = deps();
-    await makeStartSubscription(d as never)({ organizationId: "org-1", tier: "base", frequency: "monthly" });
-    const arg = (d.stripe.checkout.sessions.create as jest.Mock).mock.calls[0][0];
-    expect(arg.mode).toBe("setup");
-    expect(arg.currency).toBeTruthy();
-  });
 
-  it("returns the operator to /partner, a route that exists", async () => {
-    // /partner/onboarding was the previous target and has never been a route,
-    // so operators hit a 404 straight after entering card details.
-    const d = deps();
-    await makeStartSubscription(d as never)({ organizationId: "org-1", tier: "base", frequency: "monthly" });
-    const arg = (d.stripe.checkout.sessions.create as jest.Mock).mock.calls[0][0];
-    expect(arg.success_url).toContain("/partner?card=success");
-    expect(arg.cancel_url).toContain("/partner?card=cancel");
-    expect(arg.success_url).not.toContain("/partner/onboarding");
-  });
 });

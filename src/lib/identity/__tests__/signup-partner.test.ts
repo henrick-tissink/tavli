@@ -99,7 +99,7 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
     })),
     deleteUser: jest.fn(async () => {}),
   };
-  const startSubscription = jest.fn(async () => ({ stripeCheckoutUrl: "https://stripe/checkout" }));
+  const startSubscription = jest.fn(async () => undefined);
   const sendWelcomeEmail = jest.fn(async () => {});
   const sendVerifyEmail = jest.fn(async () => {});
   const recordAudit = jest.fn(async (_i: { action: string }) => {});
@@ -119,7 +119,7 @@ function makeDeps(overrides: Partial<Parameters<typeof makeSignupPartner>[0]> = 
 }
 
 describe("signupPartner", () => {
-  it("happy path: creates user + rows, starts subscription, returns checkout url", async () => {
+  it("happy path: creates user + rows, starts subscription", async () => {
     const { deps, authAdmin, startSubscription, seedTriggeredCampaigns, inserts } = makeDeps();
     const res = await makeSignupPartner(deps)(BASE_INPUT);
 
@@ -129,7 +129,6 @@ describe("signupPartner", () => {
       userId: "user-1",
       organizationId: "org-1",
       restaurantId: "rest-1",
-      stripeCheckoutUrl: "https://stripe/checkout",
       billingDeferred: false,
     });
     // email normalised to lowercase
@@ -209,7 +208,6 @@ describe("signupPartner", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) throw new Error("expected ok");
     expect(res.data.billingDeferred).toBe(true);
-    expect(res.data.stripeCheckoutUrl).toBeNull();
     expect(startSubscription).not.toHaveBeenCalled();
   });
 
@@ -250,7 +248,6 @@ describe("signupPartner", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) throw new Error("expected ok");
     expect(res.data.billingDeferred).toBe(true);
-    expect(res.data.stripeCheckoutUrl).toBeNull();
     expect(authAdmin.deleteUser).not.toHaveBeenCalled();
   });
 

@@ -17,11 +17,11 @@ export interface MaybeStartTrialDeps {
     organizationId: string;
     tier: "base" | "pro";
     frequency: "monthly" | "annual";
-  }) => Promise<{ stripeCheckoutUrl: string }>;
+  }) => Promise<void>;
 }
 
 export type MaybeStartTrialResult =
-  | { started: true; checkoutUrl: string }
+  | { started: true }
   | { started: false; reason: "no_customer_type" | "already_subscribed" };
 
 export async function maybeStartTrial(
@@ -36,10 +36,10 @@ export async function maybeStartTrial(
   }
 
   // Default plan when capture UI lands but no explicit choice: Base/monthly (§3.4).
-  const { stripeCheckoutUrl } = await deps.startSubscription({
+  await deps.startSubscription({
     organizationId,
     tier: "base",
     frequency: "monthly",
   });
-  return { started: true, checkoutUrl: stripeCheckoutUrl };
+  return { started: true };
 }

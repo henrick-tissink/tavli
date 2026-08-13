@@ -57,7 +57,9 @@
     "scheduleLabel": "Program configurat",
     "scheduleHint": "Programul tău săptămânal",
     "availabilityLabel": "Disponibilitate (rezervări) setată",
-    "availabilityHint": "Câți clienți pe interval"
+    "availabilityHint": "Câți clienți pe interval",
+    "paymentLabel": "Adaugă un card",
+    "paymentHint": "Necesar înainte de finalul perioadei de probă"
   },
   "parallelRun": {
     "title": "Rulezi în paralel cu sistemul vechi?",

@@ -58,8 +58,6 @@ export interface SignupSuccess {
   userId: string;
   organizationId: string;
   restaurantId: string;
-  /** Stripe Checkout (setup-mode) URL for card-on-file; null when deferred. */
-  stripeCheckoutUrl: string | null;
   billingDeferred: boolean;
 }
 
@@ -83,7 +81,7 @@ export interface SignupPartnerDeps {
     organizationId: string;
     tier: "base" | "pro";
     frequency: "monthly" | "annual";
-  }) => Promise<{ stripeCheckoutUrl: string }>;
+  }) => Promise<void>;
   recordAudit: typeof defaultRecordAudit;
   sendWelcomeEmail: (input: {
     to: string;
@@ -314,16 +312,14 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
 
     // §5.2 step 9 — Stripe handoff (outside the tx). Requires customer_type;
     // when it's not yet supplied, defer billing to the onboarding flow.
-    let stripeCheckoutUrl: string | null = null;
     let billingDeferred = true;
     if (customerType) {
       try {
-        const res = await deps.startSubscription({
+        await deps.startSubscription({
           organizationId,
           tier: input.tier,
           frequency: input.frequency,
         });
-        stripeCheckoutUrl = res.stripeCheckoutUrl;
         billingDeferred = false;
       } catch (err) {
         // Account is usable; billing completed later. Stays pending_verification.
@@ -349,6 +345,6 @@ export function makeSignupPartner(deps: SignupPartnerDeps) {
       /* best-effort */
     }
 
-    return ok({ userId, organizationId, restaurantId, stripeCheckoutUrl, billingDeferred });
+    return ok({ userId, organizationId, restaurantId, billingDeferred });
   };
 }

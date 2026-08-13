@@ -3025,6 +3025,9 @@ export interface PartnerDashboardMessages {
     scheduleHint: string;
     availabilityLabel: string;
     availabilityHint: string;
+    /** Card-on-file, via the billing portal. */
+    paymentLabel: string;
+    paymentHint: string;
   };
   /** Parallel-run coaching banner (setup/migration, partner dashboard chrome). */
   parallelRun: {

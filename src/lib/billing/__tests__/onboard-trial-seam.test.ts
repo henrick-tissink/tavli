@@ -9,7 +9,7 @@ function deps(over: Record<string, unknown> = {}) {
   return {
     loadCustomerType: jest.fn().mockResolvedValue("business"),
     hasActiveSubscription: jest.fn().mockResolvedValue(false),
-    startSubscription: jest.fn().mockResolvedValue({ stripeCheckoutUrl: "https://checkout/x" }),
+    startSubscription: jest.fn().mockResolvedValue(undefined),
     ...over,
   };
 }
