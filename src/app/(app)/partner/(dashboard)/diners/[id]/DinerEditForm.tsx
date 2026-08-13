@@ -85,7 +85,7 @@ export function DinerEditForm({ dinerId, initial }: DinerEditFormProps) {
         <textarea value={state.internalNotes} onChange={set("internalNotes")} rows={3} maxLength={2000} className={fieldClass} />
       </label>
       <div className="flex items-center gap-3">
-        <Button type="button" onClick={save} disabled={pending}>
+        <Button type="button" onClick={save} disabled={pending} loading={pending}>
           {pending ? t("form.saving") : t("form.save")}
         </Button>
         {msg && (

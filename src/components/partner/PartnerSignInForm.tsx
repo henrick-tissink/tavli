@@ -52,7 +52,7 @@ export function PartnerSignInForm({
           </p>
         )}
 
-        <Button fullWidth disabled={pending} type="submit">
+        <Button fullWidth disabled={pending} loading={pending} type="submit">
           {pending ? t("auth.signIn.mfaSubmitPending") : t("auth.signIn.mfaSubmit")}
         </Button>
 
@@ -75,6 +75,7 @@ export function PartnerSignInForm({
                 fullWidth
                 variant="ghost"
                 disabled={pending}
+                loading={pending}
                 type="submit"
               >
                 {t("auth.signIn.recoverySubmit")}
@@ -117,7 +118,7 @@ export function PartnerSignInForm({
           {state.error}
         </p>
       )}
-      <Button fullWidth disabled={pending} type="submit">
+      <Button fullWidth disabled={pending} loading={pending} type="submit">
         {pending ? t("auth.signIn.submitPending") : t("auth.signIn.submit")}
       </Button>
       <p className="text-xs text-text-muted text-center">

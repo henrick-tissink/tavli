@@ -283,6 +283,7 @@ export function EventRequestSheet({
           )}
           <Button
             disabled={pending || !guestName || !guestEmail}
+            loading={pending}
             onClick={submit}
           >
             {pending ? t("sheet.submitPending") : t("sheet.submitLabel")}

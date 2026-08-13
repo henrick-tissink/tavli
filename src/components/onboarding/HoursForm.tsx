@@ -41,7 +41,7 @@ export function HoursForm({ token, initialHours }: Props) {
         >
           {t("wizard.hours.back")}
         </a>
-        <Button disabled={pending} type="submit">
+        <Button disabled={pending} loading={pending} type="submit">
           {pending ? t("wizard.hours.submitPending") : t("wizard.hours.submit")}
         </Button>
       </div>

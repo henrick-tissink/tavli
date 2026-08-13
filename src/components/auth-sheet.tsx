@@ -148,7 +148,15 @@ export function AuthSheet({ open, onClose, onAuthenticated }: AuthSheetProps) {
             </p>
           )}
 
-          <Button fullWidth disabled={!canSubmit} onClick={handleSubmit}>
+          {/* `loading` tracks the request, not the gate: `canSubmit` also folds
+              in field validity, so `!canSubmit` would spin on a merely
+              incomplete form. */}
+          <Button
+            fullWidth
+            disabled={!canSubmit}
+            loading={submitting}
+            onClick={handleSubmit}
+          >
             {submitting ? loadingLabel : submitLabel}
           </Button>
 

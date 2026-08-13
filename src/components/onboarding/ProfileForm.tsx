@@ -146,7 +146,7 @@ export function ProfileForm({ token, initialValues }: Props) {
       )}
 
       <div className="pt-2">
-        <Button fullWidth disabled={pending} type="submit">
+        <Button fullWidth disabled={pending} loading={pending} type="submit">
           {pending ? t("wizard.profile.submitPending") : t("wizard.profile.submit")}
         </Button>
       </div>

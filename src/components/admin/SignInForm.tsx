@@ -49,7 +49,7 @@ export function SignInForm({
           </p>
         )}
 
-        <Button fullWidth disabled={pending} type="submit">
+        <Button fullWidth disabled={pending} loading={pending} type="submit">
           {pending ? t("form.mfaSubmitPending") : t("form.mfaSubmit")}
         </Button>
 
@@ -72,6 +72,7 @@ export function SignInForm({
                 fullWidth
                 variant="ghost"
                 disabled={pending}
+                loading={pending}
                 type="submit"
               >
                 {t("form.recoverySubmit")}
@@ -117,7 +118,7 @@ export function SignInForm({
         </p>
       )}
 
-      <Button fullWidth disabled={pending} type="submit">
+      <Button fullWidth disabled={pending} loading={pending} type="submit">
         {pending ? t("form.submitPending") : t("form.submit")}
       </Button>
 

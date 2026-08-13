@@ -165,7 +165,7 @@ export function QuoteForm({
         <Button variant="ghost" onClick={onCancel} disabled={pending}>
           {t("quote.cancel")}
         </Button>
-        <Button onClick={send} disabled={pending || totalLei === 0}>
+        <Button onClick={send} disabled={pending || totalLei === 0} loading={pending}>
           {t("quote.send")}
         </Button>
       </div>

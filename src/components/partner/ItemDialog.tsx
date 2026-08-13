@@ -389,7 +389,7 @@ export function ItemDialog({ open, onClose, onSaved, item, restaurantId }: Props
           <Button variant="ghost" onClick={onClose} type="button">
             {t("itemDialog.cancel")}
           </Button>
-          <Button onClick={handleSave} disabled={pending} type="button">
+          <Button onClick={handleSave} disabled={pending} loading={pending} type="button">
             {pending
               ? t("itemDialog.saving")
               : state.id

@@ -178,6 +178,7 @@ export function MaterializeReservationForm({
         <Button
           onClick={submit}
           disabled={pending || !selectedTime}
+          loading={pending}
         >
           {t("materialize.createReservation")}
         </Button>

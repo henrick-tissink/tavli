@@ -50,7 +50,7 @@ export function InviteStaffForm({
             <option value="host">{t("staff.invite.roleHost")}</option>
           </select>
         </label>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} loading={pending}>
           {pending ? t("staff.invite.submitting") : t("staff.invite.submit")}
         </Button>
       </div>

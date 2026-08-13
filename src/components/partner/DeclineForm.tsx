@@ -59,7 +59,7 @@ export function DeclineForm({
         placeholder={t("decline.detailsPlaceholder")}
       />
       <div className="flex gap-2">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} loading={pending}>
           {t("decline.submit")}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel}>
