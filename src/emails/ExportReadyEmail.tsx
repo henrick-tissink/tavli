@@ -79,7 +79,7 @@ export function ExportReadyEmail({ downloadUrl, expiresAt, tables, locale }: Exp
   });
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview}</Preview>
       <Body style={body}>

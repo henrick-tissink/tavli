@@ -50,7 +50,7 @@ export function getSubject(locale: Locale, props: { day: CheckinDay; restaurantN
 export function SetupCheckinEmail({ day, restaurantName, locale }: SetupCheckinEmailProps) {
   const c = COPY[locale];
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview(day)}</Preview>
       <Body style={body}>

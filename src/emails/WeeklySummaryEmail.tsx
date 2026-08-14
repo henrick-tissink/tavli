@@ -111,7 +111,7 @@ export function WeeklySummaryEmail(props: WeeklySummaryEmailProps) {
   const showPro = tier === "pro" && pro;
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview(restaurantName)}</Preview>
       <Body style={body}>

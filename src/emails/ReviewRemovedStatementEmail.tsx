@@ -33,7 +33,7 @@ const REASON_RO: Record<string, string> = {
 export function ReviewRemovedStatementEmail({ guestName, restaurantName, reason }: Props) {
   const reasonText = REASON_RO[reason] ?? "încălcarea regulilor comunității";
   return (
-    <Html>
+    <Html lang="ro">
       <Head />
       <Preview>Recenzia ta pentru {restaurantName} a fost retrasă</Preview>
       <Body style={body}>

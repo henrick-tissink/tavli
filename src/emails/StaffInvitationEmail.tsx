@@ -112,7 +112,7 @@ export function StaffInvitationEmail({
   });
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview}</Preview>
       <Body style={body}>

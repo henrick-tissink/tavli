@@ -98,7 +98,7 @@ export function PartnerVerifyEmail({
 }: PartnerVerifyEmailProps) {
   const c = COPY[locale];
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview}</Preview>
       <Body style={body}>
