@@ -162,6 +162,8 @@ export interface CommonMessages {
   switchLanguage: string;
   meta: { title: string; description: string };
   locales: Record<Locale, string>;
+  /** Storefront 404 — see `(public)/[lang]/not-found.tsx`. */
+  notFound: { eyebrow: string; title: string; body: string; cta: string };
   cities: Record<string, string>;
 }
 

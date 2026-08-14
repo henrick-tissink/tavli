@@ -5,7 +5,17 @@
     "title": "Tavli — Finden Sie Ihren Tisch",
     "description": "Entdecken und reservieren Sie Restaurants in Rumänien"
   },
-  "locales": { "ro": "Rumänisch", "en": "Englisch", "de": "Deutsch" },
+  "locales": {
+    "ro": "Rumänisch",
+    "en": "Englisch",
+    "de": "Deutsch"
+  },
+  "notFound": {
+    "eyebrow": "Fehler 404",
+    "title": "Diesen Tisch gibt es nicht.",
+    "body": "Die gesuchte Seite wurde verschoben oder hat nie existiert. Finden wir etwas Gutes für Sie.",
+    "cta": "Restaurants ansehen"
+  },
   "cities": {
     "bucuresti": "Bukarest",
     "cluj": "Cluj",

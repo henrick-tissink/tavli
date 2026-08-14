@@ -5,7 +5,17 @@
     "title": "Tavli — Find your table",
     "description": "Discover and book restaurants in Romania"
   },
-  "locales": { "ro": "Romanian", "en": "English", "de": "German" },
+  "locales": {
+    "ro": "Romanian",
+    "en": "English",
+    "de": "German"
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "title": "This table doesn't exist.",
+    "body": "The page you're looking for moved, or was never here. Let's find you something good instead.",
+    "cta": "Browse restaurants"
+  },
   "cities": {
     "bucuresti": "Bucharest",
     "cluj": "Cluj",
