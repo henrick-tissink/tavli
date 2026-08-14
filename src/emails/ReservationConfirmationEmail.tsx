@@ -45,7 +45,7 @@ export function ReservationConfirmationEmail({
   const guestsLabel = translate(locale, m.guests, { count: partySize });
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>
         {interpolate(m.preview, { restaurantName, prettyDate, time: reservationTime })}

@@ -40,7 +40,7 @@ export function PostVisitReviewEmail({
     : m.greetingNoName;
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{m.preview}</Preview>
       <Body style={body}>

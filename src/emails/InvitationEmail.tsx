@@ -33,7 +33,7 @@ export function InvitationEmail({
   });
 
   return (
-    <Html>
+    <Html lang="en">
       <Head />
       <Preview>
         You&apos;re invited to list{" "}

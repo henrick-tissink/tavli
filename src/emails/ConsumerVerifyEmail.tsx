@@ -80,7 +80,7 @@ export function getSubject(locale: Locale): string {
 export function ConsumerVerifyEmail({ verifyUrl, locale }: ConsumerVerifyEmailProps) {
   const c = COPY[locale];
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview}</Preview>
       <Body style={body}>

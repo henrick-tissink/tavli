@@ -46,7 +46,7 @@ export function PartnerBookingAlertEmail({
   const coversLabel = translate(locale, m.covers, { count: partySize });
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>
         {interpolate(m.preview, {

@@ -87,7 +87,7 @@ export function TrialEndingEmail({ day, trialEndsAt, chargeAmount, locale }: Tri
   const showCharge = day === 85 && chargeAmount;
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{c.preview(day)}</Preview>
       <Body style={body}>

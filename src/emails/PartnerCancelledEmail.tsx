@@ -47,7 +47,7 @@ export function PartnerCancelledEmail({
   const rebookUrl = `${getSiteUrl()}/${restaurantCitySlug}/${restaurantSlug}`;
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>
         {interpolate(m.preview, { restaurantName, prettyDate, time: reservationTime })}
