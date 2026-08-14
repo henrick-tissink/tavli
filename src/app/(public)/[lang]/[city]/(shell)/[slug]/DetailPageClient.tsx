@@ -417,6 +417,7 @@ export function DetailPageClient({ city, slug, restaurant, preselect }: Props) {
             <HorizontalSection
               title=""
               restaurants={restaurant.nearby}
+              hrefFor={(r) => localizedHref(`/${city}/${r.slug}`, locale)}
               isSaved={isSaved}
               onSave={toggleSave}
               onCardClick={handleCardClick}

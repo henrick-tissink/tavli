@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
@@ -11,9 +12,23 @@ import { useT, useLocale } from "@/lib/i18n/messages-provider";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
+  /**
+   * Destination for the venue page, already locale-prefixed by the caller (it
+   * knows the city; the card does not). This is a real `href` on a real
+   * anchor — the card used to open via a stretched <button>, which meant the
+   * venue pages were unreachable by crawlers, ⌘-click, middle-click and
+   * "copy link address" on a product whose whole job is venue discovery.
+   */
+  href: string;
   saved?: boolean;
   onSave?: (id: string) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
+  /**
+   * Fires only for a plain same-tab click, via Link's `onNavigate` — never for
+   * a modified click or a new tab, which the browser handles natively. Callers
+   * that supply this take over navigation (Next's own is cancelled) so they can
+   * wrap it in a transition and show the card as busy.
+   */
   onClick?: (restaurant: Restaurant) => void;
   /**
    * When set on a capability landing page (e.g. `/[city]/events`), the
@@ -26,6 +41,7 @@ interface RestaurantCardProps {
 
 export function RestaurantCard({
   restaurant,
+  href,
   saved = false,
   onSave,
   onSlotSelect,
@@ -120,12 +136,23 @@ export function RestaurantCard({
         )}
       </div>
 
-      {/* Stretched primary action — the only card-level interactive element. */}
-      <button
-        type="button"
+      {/* Stretched primary action — the only card-level interactive element.
+          A real <a href>, so the venue page is crawlable and every browser
+          affordance (⌘-click, middle-click, copy link) works. `onNavigate`
+          runs only for a plain same-tab click; when the caller wants to own
+          the navigation we cancel Next's and hand it over. */}
+      <Link
+        href={href}
         aria-label={t("card.viewAriaLabel", { name: restaurant.name })}
         className="absolute inset-0 z-0 cursor-pointer rounded-card"
-        onClick={() => onClick?.(restaurant)}
+        onNavigate={
+          onClick
+            ? (e) => {
+                e.preventDefault();
+                onClick(restaurant);
+              }
+            : undefined
+        }
       />
 
       {/* Info section — sits below the stretched action; clicks on the text

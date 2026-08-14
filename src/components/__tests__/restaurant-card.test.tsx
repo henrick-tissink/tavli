@@ -19,6 +19,37 @@ function renderCard(props: React.ComponentProps<typeof RestaurantCard>) {
   );
 }
 
+// next/link's `onNavigate` is driven by the app router, which jsdom does not
+// run — an unmocked <Link> renders a plain <a> and the handler never fires.
+// This stand-in keeps the href real (so the anchor assertions stay honest)
+// and invokes onNavigate on a plain click, which is exactly the contract the
+// card relies on. Real navigation is verified against a running app.
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
+    href,
+    onNavigate,
+    children,
+    ...props
+  }: {
+    href: string;
+    onNavigate?: (e: { preventDefault: () => void }) => void;
+    children?: React.ReactNode;
+  } & Record<string, unknown>) => (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+    <a
+      href={href}
+      {...props}
+      onClick={(e) => {
+        e.preventDefault();
+        onNavigate?.({ preventDefault: () => {} });
+      }}
+    >
+      {children}
+    </a>
+  ),
+}));
+
 // Mock next/image
 jest.mock("next/image", () => ({
   __esModule: true,
@@ -55,28 +86,28 @@ describe("RestaurantCard", () => {
   afterEach(() => unfreezeClock());
 
   it("renders restaurant name", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText("La Mama")).toBeInTheDocument();
   });
 
   it("renders cuisine, price label, and zone", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText(/Românească · \$\$ · Old Town/)).toBeInTheDocument();
   });
 
   it("renders rating badge (the number 4.8)", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     const ratings = screen.getAllByText("4.8");
     expect(ratings.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders open status", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText("Deschis acum")).toBeInTheDocument();
   });
 
   it("renders time slots limited to 4 visible with More arrow", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText("19:00")).toBeInTheDocument();
     expect(screen.getByText("19:30")).toBeInTheDocument();
     expect(screen.getByText("20:00")).toBeInTheDocument();
@@ -86,7 +117,7 @@ describe("RestaurantCard", () => {
   });
 
   it("renders review snippet with fire emoji and dimension percentage", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(
       screen.getByText(/Best sarmale in town/)
     ).toBeInTheDocument();
@@ -94,13 +125,13 @@ describe("RestaurantCard", () => {
   });
 
   it("renders photo count", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText(/📸 42/)).toBeInTheDocument();
   });
 
   it("renders fallback when photoUrl is null", () => {
     const noPhoto = { ...baseRestaurant, photoUrl: null };
-    renderCard({ restaurant: noPhoto, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: noPhoto, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     // Fallback shows restaurant name in large text inside gradient
     const names = screen.getAllByText("La Mama");
     expect(names.length).toBeGreaterThanOrEqual(2); // one in fallback, one in info
@@ -108,12 +139,45 @@ describe("RestaurantCard", () => {
 
   it("renders Closed badge when status is closed", () => {
     const closed = { ...baseRestaurant, status: "closed" as const, opensAt: "12:00" };
-    renderCard({ restaurant: closed, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: closed, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText("Închis")).toBeInTheDocument();
   });
 
+  // The card opened via a stretched <button> until the venue pages turned out
+  // to be unreachable by crawlers, ⌘-click, middle-click and "copy link
+  // address" — on a product whose entire job is venue discovery.
+  describe("card is a real anchor", () => {
+    it("exposes the venue URL as an href", () => {
+      renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
+      const link = screen.getByRole("link", { name: /La Mama/ });
+      expect(link).toHaveAttribute("href", "/bucuresti/la-mama");
+    });
+
+    it("carries the locale prefix the caller supplies", () => {
+      renderCard({ restaurant: baseRestaurant, href: "/de/bucuresti/la-mama", onSlotSelect: jest.fn() });
+      expect(screen.getByRole("link", { name: /La Mama/ })).toHaveAttribute(
+        "href",
+        "/de/bucuresti/la-mama",
+      );
+    });
+
+    it("keeps the save button OUT of the anchor (no nested interactive)", () => {
+      renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
+      const link = screen.getByRole("link", { name: /La Mama/ });
+      const save = screen.getByLabelText("Salvează La Mama");
+      expect(link.contains(save)).toBe(false);
+    });
+
+    it("keeps the slot pills OUT of the anchor", () => {
+      renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
+      const link = screen.getByRole("link", { name: /La Mama/ });
+      const pill = screen.getByRole("button", { name: /19:00/ });
+      expect(link.contains(pill)).toBe(false);
+    });
+  });
+
   it("renders save button with aria-label Save {name}", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByLabelText("Salvează La Mama")).toBeInTheDocument();
   });
 
@@ -124,19 +188,19 @@ describe("RestaurantCard", () => {
       topDimensionPercent: undefined,
       topDimensionLabel: undefined,
     };
-    renderCard({ restaurant: noSnippet, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: noSnippet, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     expect(screen.getByText("312 recenzii")).toBeInTheDocument();
   });
 
   it("calls onSave when save button clicked", async () => {
     const onSave = jest.fn();
-    renderCard({ restaurant: baseRestaurant, saved: false, onSave, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", saved: false, onSave, onSlotSelect: jest.fn() });
     await userEvent.click(screen.getByLabelText("Salvează La Mama"));
     expect(onSave).toHaveBeenCalledWith("r1");
   });
 
   it("exposes a keyboard-accessible primary action (stretched button), not a nested-interactive card", () => {
-    const { container } = renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    const { container } = renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     const card = container.firstChild as HTMLElement;
     // a11y fix: the card container is no longer role=button (which nested the
     // save button + slot pills inside an interactive). The primary action is a
@@ -147,7 +211,7 @@ describe("RestaurantCard", () => {
 
   it("invokes onClick via the stretched primary action", async () => {
     const onClick = jest.fn();
-    renderCard({ restaurant: baseRestaurant, onClick, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onClick, onSlotSelect: jest.fn() });
     await userEvent.click(screen.getByLabelText("Vezi La Mama"));
     expect(onClick).toHaveBeenCalledWith(expect.objectContaining({ id: "r1" }));
   });
@@ -156,7 +220,7 @@ describe("RestaurantCard", () => {
     const onClick = jest.fn();
     const onSlotSelect = jest.fn();
     renderCard({
-      restaurant: baseRestaurant,
+      restaurant: baseRestaurant, href: "/bucuresti/la-mama",
       onClick,
       onSlotSelect,
     });
@@ -166,13 +230,13 @@ describe("RestaurantCard", () => {
   });
 
   it("uses text-[17px] for card title", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     const title = screen.getByText("La Mama");
     expect(title).toHaveClass("text-[17px]");
   });
 
   it("uses text-xs for cuisine/zone row", () => {
-    renderCard({ restaurant: baseRestaurant, onSlotSelect: jest.fn() });
+    renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
     const row = screen.getByText(/Românească · \$\$ · Old Town/);
     expect(row).toHaveClass("text-xs");
   });
