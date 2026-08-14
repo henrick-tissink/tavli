@@ -36,14 +36,14 @@ const mockRestaurants = [
 describe("HorizontalSection", () => {
   it("renders the title", () => {
     renderWithProvider(
-      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
+      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} hrefFor={(r) => `/bucuresti/${r.slug}`} />
     );
     expect(screen.getByText("Trending Now")).toBeInTheDocument();
   });
 
   it("renders restaurant cards", () => {
     renderWithProvider(
-      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
+      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} hrefFor={(r) => `/bucuresti/${r.slug}`} />
     );
     expect(screen.getAllByText("Test Restaurant").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Second Restaurant").length).toBeGreaterThan(0);
@@ -51,7 +51,7 @@ describe("HorizontalSection", () => {
 
   it("cards are in a scroll container", () => {
     const { container } = renderWithProvider(
-      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} />
+      <HorizontalSection title="Trending Now" restaurants={mockRestaurants} hrefFor={(r) => `/bucuresti/${r.slug}`} />
     );
     const scrollContainer = container.querySelector(".overflow-x-auto");
     expect(scrollContainer).toBeInTheDocument();

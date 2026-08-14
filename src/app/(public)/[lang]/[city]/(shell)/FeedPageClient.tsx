@@ -3,6 +3,7 @@
 import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
@@ -110,6 +111,10 @@ export function FeedPageClient({
   // commits this component unmounts anyway.
   const pendingVenue = isNavigating ? navTarget : null;
 
+  // The card's real anchor target. Kept in lockstep with goToVenue's path so a
+  // ⌘-click and a plain click land on the same URL.
+  const venueHref = (slug: string) => localizedHref(`/${city}/${slug}`, locale);
+
   const goToVenue = (slug: string, slot?: string) => {
     // Ignore repeat taps on the destination already in flight.
     if (pendingVenue?.slug === slug && pendingVenue?.slot === slot) return;
@@ -169,6 +174,7 @@ export function FeedPageClient({
           <div className="mt-8">
             <RestaurantSpotlight
               restaurant={filteredRestaurants[0]}
+              href={venueHref(filteredRestaurants[0].slug)}
               pending={isVenuePending(filteredRestaurants[0].slug)}
               pendingSlot={
                 isVenuePending(filteredRestaurants[0].slug)
@@ -200,6 +206,7 @@ export function FeedPageClient({
                   title={t("feed.trendingTitle", { city: displayCity })}
                   subtitle={t("feed.trendingSubtitle")}
                   restaurants={trendingRestaurants}
+                  hrefFor={(r) => venueHref(r.slug)}
                   isSaved={isSaved}
                   onSave={toggleSave}
                   onCardClick={(r) => goToVenue(r.slug)}
@@ -228,6 +235,7 @@ export function FeedPageClient({
                   <div className="mt-5">
                     <RestaurantSpotlight
                       restaurant={featured}
+                      href={venueHref(featured.slug)}
                       eyebrow={t("feed.featuredLead")}
                       pending={isVenuePending(featured.slug)}
                       pendingSlot={
@@ -247,6 +255,7 @@ export function FeedPageClient({
                     >
                       <RestaurantCard
                         restaurant={restaurant}
+                        href={venueHref(restaurant.slug)}
                         saved={isSaved(restaurant.id)}
                         onSave={() => toggleSave(restaurant.id)}
                         onClick={(r) => goToVenue(r.slug)}
@@ -275,6 +284,7 @@ export function FeedPageClient({
                   title={t("feed.newTitle")}
                   subtitle={t("feed.newSubtitle")}
                   restaurants={newRestaurants}
+                  hrefFor={(r) => venueHref(r.slug)}
                   isSaved={isSaved}
                   onSave={toggleSave}
                   onCardClick={(r) => goToVenue(r.slug)}
@@ -294,6 +304,7 @@ export function FeedPageClient({
                 >
                   <RestaurantCard
                     restaurant={restaurant}
+                    href={venueHref(restaurant.slug)}
                     saved={isSaved(restaurant.id)}
                     onSave={() => toggleSave(restaurant.id)}
                     onClick={(r) => goToVenue(r.slug)}
@@ -320,6 +331,7 @@ export function FeedPageClient({
 
 function RestaurantSpotlight({
   restaurant,
+  href,
   onClick,
   onSlotSelect,
   eyebrow,
@@ -327,6 +339,8 @@ function RestaurantSpotlight({
   pendingSlot,
 }: {
   restaurant: Restaurant;
+  /** Venue-page href — the spotlight's photo and CTA are real anchors. */
+  href: string;
   onClick: () => void;
   onSlotSelect: (slot: string) => void;
   /** Overrides the default "Restaurant of the week" label. */
@@ -352,9 +366,12 @@ function RestaurantSpotlight({
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={onClick}
+      <Link
+        href={href}
+        onNavigate={(e) => {
+          e.preventDefault();
+          onClick();
+        }}
         className="block w-full text-left mt-3"
       >
         <div className="relative aspect-[16/9] desktop:aspect-[21/9] bg-surface-bg overflow-hidden">
@@ -388,7 +405,7 @@ function RestaurantSpotlight({
             </p>
           </div>
         </div>
-      </button>
+      </Link>
 
       <div className="p-4 desktop:p-6 flex flex-col desktop:flex-row desktop:items-center desktop:justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -417,13 +434,16 @@ function RestaurantSpotlight({
             />
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={onClick}
+          <Link
+            href={href}
+            onNavigate={(e) => {
+              e.preventDefault();
+              onClick();
+            }}
             className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-primary hover:underline"
           >
             {t("feed.viewRestaurant")} <ArrowRight size={16} />
-          </button>
+          </Link>
         )}
       </div>
     </div>

@@ -76,6 +76,7 @@ export function SavedPageClient({ city, allRestaurants }: Props) {
                 >
                   <RestaurantCard
                     restaurant={restaurant}
+                    href={localizedHref(`/${city}/${restaurant.slug}`, locale)}
                     saved={isSaved(restaurant.id)}
                     onSave={() => toggleSave(restaurant.id)}
                     onClick={(r) => goToVenue(r.slug)}

@@ -184,6 +184,7 @@ export function EventsOccasionBrowser({ venues, city, cityName }: Props) {
                 >
                   <RestaurantCard
                     restaurant={r}
+                    href={localizedHref(`/${city}/${r.slug}`, locale)}
                     highlightCapability="events"
                     onClick={(rr) => goToVenue(rr.slug)}
                     onSlotSelect={(_id, slot) => goToVenue(r.slug, slot)}

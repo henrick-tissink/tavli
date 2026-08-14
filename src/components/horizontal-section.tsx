@@ -8,6 +8,8 @@ interface HorizontalSectionProps {
   title: string;
   subtitle?: string;
   restaurants: Restaurant[];
+  /** Venue-page href per card; the caller owns city + locale. */
+  hrefFor: (restaurant: Restaurant) => string;
   onCardClick?: (restaurant: Restaurant) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
   isSaved?: (id: string) => boolean;
@@ -18,6 +20,7 @@ export function HorizontalSection({
   title,
   subtitle,
   restaurants,
+  hrefFor,
   onCardClick,
   onSlotSelect,
   isSaved,
@@ -36,6 +39,7 @@ export function HorizontalSection({
           >
             <RestaurantCard
               restaurant={restaurant}
+              href={hrefFor(restaurant)}
               saved={isSaved?.(restaurant.id)}
               onSave={onSave ? () => onSave(restaurant.id) : undefined}
               onClick={onCardClick}
