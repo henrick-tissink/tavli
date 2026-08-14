@@ -5,7 +5,17 @@
     "title": "Tavli — Găsește-ți masa",
     "description": "Descoperă și rezervă restaurante din România"
   },
-  "locales": { "ro": "Română", "en": "Engleză", "de": "Germană" },
+  "locales": {
+    "ro": "Română",
+    "en": "Engleză",
+    "de": "Germană"
+  },
+  "notFound": {
+    "eyebrow": "Eroare 404",
+    "title": "Masa asta nu există.",
+    "body": "Pagina pe care o cauți s-a mutat sau nu a existat niciodată. Hai să-ți găsim ceva bun.",
+    "cta": "Vezi restaurantele"
+  },
   "cities": {
     "bucuresti": "București",
     "cluj": "Cluj",
