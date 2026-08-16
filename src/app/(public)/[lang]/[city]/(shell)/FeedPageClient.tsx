@@ -428,6 +428,8 @@ function RestaurantSpotlight({
             <TimeSlotPills
               slots={restaurant.availableSlots}
               maxVisible={4}
+              hrefForSlot={(slot) => bookingSlotHref(href, slot)}
+              moreHref={href}
               selected={pendingSlot}
               onSelect={onSlotSelect}
               onMore={onClick}

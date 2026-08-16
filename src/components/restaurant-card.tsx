@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { Restaurant } from "@/lib/types";
 import { PRICE_LABELS, formatCuisines, zoneLabel } from "@/lib/types";
+import { bookingSlotHref } from "@/lib/booking-link";
 import { RatingChip } from "@/components/rating-chip";
 import { StatusBadge } from "@/components/status-badge";
 import { TimeSlotPills } from "@/components/time-slot-pills";
@@ -204,6 +205,8 @@ export function RestaurantCard({
           <TimeSlotPills
             slots={restaurant.availableSlots}
             maxVisible={4}
+            hrefForSlot={(slot) => bookingSlotHref(href, slot)}
+            moreHref={href}
             onSelect={(slot) => {
               onSlotSelect?.(restaurant.id, slot);
             }}
