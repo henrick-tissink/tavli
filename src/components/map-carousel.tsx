@@ -13,6 +13,8 @@ interface MapCarouselProps {
   selectedId: string | null;
   onSelect: (restaurant: Restaurant) => void;
   onSlotSelect?: (restaurantId: string, slot: string) => void;
+  /** Booking deep-link per slot; the parent owns city + locale. */
+  slotHrefFor?: (restaurant: Restaurant, slot: string) => string;
 }
 
 export function MapCarousel({
@@ -20,6 +22,7 @@ export function MapCarousel({
   selectedId,
   onSelect,
   onSlotSelect,
+  slotHrefFor,
 }: MapCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const locale = useLocale();
@@ -97,6 +100,9 @@ export function MapCarousel({
                   <TimeSlotPills
                     slots={restaurant.availableSlots}
                     maxVisible={3}
+                    hrefForSlot={
+                      slotHrefFor ? (slot) => slotHrefFor(restaurant, slot) : undefined
+                    }
                     onSelect={(slot) => onSlotSelect?.(restaurant.id, slot)}
                   />
                 </div>

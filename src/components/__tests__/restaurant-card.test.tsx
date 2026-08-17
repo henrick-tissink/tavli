@@ -169,10 +169,22 @@ describe("RestaurantCard", () => {
     });
 
     it("keeps the slot pills OUT of the anchor", () => {
+      // The pills are anchors too now (booking deep-links), so nesting them
+      // inside the card's stretched anchor would be invalid HTML, not merely a
+      // nested-interactive a11y problem.
       renderCard({ restaurant: baseRestaurant, href: "/bucuresti/la-mama", onSlotSelect: jest.fn() });
       const link = screen.getByRole("link", { name: /La Mama/ });
-      const pill = screen.getByRole("button", { name: /19:00/ });
+      const pill = screen.getByRole("link", { name: /19:00/ });
       expect(link.contains(pill)).toBe(false);
+    });
+
+    it("gives each slot pill a booking deep-link off the venue href", () => {
+      renderCard({ restaurant: baseRestaurant, href: "/de/bucuresti/la-mama", onSlotSelect: jest.fn() });
+      const pill = screen.getByRole("link", { name: /19:00/ });
+      const href = pill.getAttribute("href") ?? "";
+      expect(href.startsWith("/de/bucuresti/la-mama?")).toBe(true);
+      expect(href).toContain("time=19%3A00");
+      expect(href).toMatch(/date=\d{4}-\d{2}-\d{2}/);
     });
   });
 

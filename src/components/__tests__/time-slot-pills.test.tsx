@@ -70,4 +70,29 @@ describe("TimeSlotPills", () => {
     await user.click(screen.getByText(/Mai multe/));
     expect(handleMore).toHaveBeenCalledTimes(1);
   });
+
+  // A slot that NAVIGATES is a link; a slot that opens the booking sheet in
+  // place is an action and stays a button. Getting this backwards either makes
+  // the deep-links uncrawlable again, or puts a bogus href on a sheet trigger.
+  describe("link vs button", () => {
+    it("renders anchors with the booking deep-link when hrefForSlot is given", () => {
+      render(
+        <TimeSlotPills
+          slots={["19:00", "19:30"]}
+          hrefForSlot={(slot) => `/bucuresti/la-mama?date=2026-08-16&time=${slot}`}
+        />,
+      );
+      const links = screen.getAllByRole("link");
+      expect(links).toHaveLength(2);
+      expect(links[0]).toHaveAttribute("href", "/bucuresti/la-mama?date=2026-08-16&time=19:00");
+      expect(screen.queryAllByRole("button")).toHaveLength(0);
+    });
+
+    it("stays buttons when no href is given (venue page opens a sheet)", () => {
+      render(<TimeSlotPills slots={["19:00", "19:30"]} onSelect={jest.fn()} />);
+      expect(screen.getAllByRole("button")).toHaveLength(2);
+      expect(screen.queryAllByRole("link")).toHaveLength(0);
+    });
+
+  });
 });

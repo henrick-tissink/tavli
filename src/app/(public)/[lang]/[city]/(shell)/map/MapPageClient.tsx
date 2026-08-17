@@ -171,6 +171,9 @@ export function MapPageClient({ city, allRestaurants }: Props) {
                     <TimeSlotPills
                       slots={restaurant.availableSlots}
                       maxVisible={3}
+                      hrefForSlot={(slot) =>
+                        localizedHref(bookingSlotHref(`/${city}/${restaurant.slug}`, slot), locale)
+                      }
                       selected={pendingSlotFor(restaurant.slug)}
                       onSelect={(slot) => goToSlot(restaurant.slug, slot)}
                     />
@@ -249,6 +252,9 @@ export function MapPageClient({ city, allRestaurants }: Props) {
               const r = restaurants.find((r) => r.id === id);
               if (r) goToSlot(r.slug, slot);
             }}
+            slotHrefFor={(r, slot) =>
+              localizedHref(bookingSlotHref(`/${city}/${r.slug}`, slot), locale)
+            }
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useT } from "@/lib/i18n/messages-provider";
 
 interface TimeSlotPillsProps {
@@ -11,8 +12,61 @@ interface TimeSlotPillsProps {
    *  relative to the client's local clock. SSR renders the unfiltered list so
    *  there's no hydration mismatch — the filter applies after mount. */
   filterPast?: boolean;
+  /**
+   * Booking deep-link for a slot. Supplied wherever tapping a slot NAVIGATES
+   * to the venue (listings, map) — the pill is then a real anchor, so the
+   * deep-link is crawlable and ⌘-click / middle-click work.
+   *
+   * Omitted on the venue page itself, where a slot opens the reservation sheet
+   * in place. That is an action, not a destination, and must stay a <button>.
+   */
+  hrefForSlot?: (slot: string) => string;
+  /** Destination for the "more"/"another day" pill, under the same rule. */
+  moreHref?: string;
   onSelect?: (slot: string) => void;
   onMore?: () => void;
+}
+
+/**
+ * One pill, rendered as an anchor when it goes somewhere and a button when it
+ * does something. Identical styling either way; `onNavigate` fires only for a
+ * plain same-tab click, so the caller keeps its transition-based pending state
+ * while the browser still owns modified clicks.
+ */
+function Pill({
+  href,
+  onActivate,
+  className,
+  children,
+}: {
+  href?: string;
+  onActivate?: () => void;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={className}
+        onNavigate={
+          onActivate
+            ? (e) => {
+                e.preventDefault();
+                onActivate();
+              }
+            : undefined
+        }
+      >
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" className={className} onClick={onActivate}>
+      {children}
+    </button>
+  );
 }
 
 export function TimeSlotPills({
@@ -20,6 +74,8 @@ export function TimeSlotPills({
   selected,
   maxVisible = 4,
   filterPast = true,
+  hrefForSlot,
+  moreHref,
   onSelect,
   onMore,
 }: TimeSlotPillsProps) {
@@ -39,13 +95,13 @@ export function TimeSlotPills({
   if (effectiveSlots.length === 0) {
     return (
       <div className="text-center py-3">
-        <button
-          type="button"
+        <Pill
+          href={moreHref}
+          onActivate={onMore}
           className="text-brand-primary text-sm font-semibold inline-flex min-h-[24px] items-center gap-1 px-1 py-1 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-          onClick={onMore}
         >
           {t("slots.anotherDay")}
-        </button>
+        </Pill>
       </div>
     );
   }
@@ -56,10 +112,10 @@ export function TimeSlotPills({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {visible.map((slot) => (
-        <button
+        <Pill
           key={slot}
-          type="button"
-          onClick={() => onSelect?.(slot)}
+          href={hrefForSlot?.(slot)}
+          onActivate={onSelect ? () => onSelect(slot) : undefined}
           className={[
             "rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
             slot === selected
@@ -68,16 +124,16 @@ export function TimeSlotPills({
           ].join(" ")}
         >
           {slot}
-        </button>
+        </Pill>
       ))}
       {hasMore && (
-        <button
-          type="button"
-          onClick={onMore}
+        <Pill
+          href={moreHref}
+          onActivate={onMore}
           className="rounded-lg px-3 py-1.5 text-xs font-semibold text-brand-primary cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           {t("slots.more")}
-        </button>
+        </Pill>
       )}
     </div>
   );
