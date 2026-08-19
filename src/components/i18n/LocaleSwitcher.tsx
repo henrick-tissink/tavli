@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LOCALES, LOCALE_ENDONYMS, type Locale } from "@/lib/i18n/locale";
 import { withLocale } from "@/lib/i18n/routing";
 import { setAppLocale } from "@/app/(app)/locale-action";
@@ -49,16 +50,40 @@ export function LocaleSwitcher(props: Props) {
       </nav>
     );
   }
+  return <PreferenceSwitcher current={props.current} />;
+}
+
+/**
+ * Preference mode (partner/admin sidebars): no locale segment in the URL, so the
+ * choice is persisted server-side and the current route re-rendered.
+ *
+ * Split out so the hook stays off the path-mode branch — that one renders on the
+ * public storefront and needs nothing but links.
+ */
+function PreferenceSwitcher({ current }: { current: Locale }) {
+  const router = useRouter();
+
   return (
     <nav aria-label="Language" className={TRACK}>
       {LOCALES.map((l) => (
-        <form key={l} action={setAppLocale.bind(null, l)} className="contents">
+        <form
+          key={l}
+          // Refresh this route rather than letting the action revalidate. These
+          // pages are dynamic, so a refresh re-renders them in the new locale;
+          // a `revalidatePath("/", "layout")` here would purge the prerendered
+          // public storefront and 404 it until the next deploy.
+          action={async () => {
+            await setAppLocale(l);
+            router.refresh();
+          }}
+          className="contents"
+        >
           <button
             type="submit"
-            aria-current={l === props.current ? "true" : undefined}
+            aria-current={l === current ? "true" : undefined}
             aria-label={LABEL[l]}
             title={LABEL[l]}
-            className={segment(l === props.current)}
+            className={segment(l === current)}
           >
             {CODE[l]}
           </button>

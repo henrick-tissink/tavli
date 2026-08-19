@@ -1,10 +1,21 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 
 // locale-action uses next/headers (server-only); mock it for the jsdom environment.
 jest.mock("@/app/(app)/locale-action", () => ({
   setAppLocale: jest.fn(),
 }));
+jest.mock("next/navigation", () => ({ useRouter: jest.fn() }));
+
+import { useRouter } from "next/navigation";
+import { setAppLocale } from "@/app/(app)/locale-action";
+
+const mockRefresh = jest.fn();
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  (useRouter as jest.Mock).mockReturnValue({ refresh: mockRefresh });
+});
 
 describe("LocaleSwitcher (consumer)", () => {
   it("renders the three locale options with the active one marked", () => {
@@ -49,5 +60,16 @@ describe("LocaleSwitcher (preference)", () => {
     expect(roButton).toHaveAttribute("aria-current", "true");
     expect(screen.getByRole("button", { name: /English/i })).not.toHaveAttribute("aria-current");
     expect(screen.getByRole("button", { name: /Deutsch/i })).not.toHaveAttribute("aria-current");
+  });
+
+  // The action no longer revalidates (that purged the public storefront), so the
+  // switcher is responsible for re-rendering the current route in the new locale.
+  it("refreshes the current route after persisting the locale", async () => {
+    render(<LocaleSwitcher mode="preference" current="ro" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Deutsch/i }));
+
+    await waitFor(() => expect(setAppLocale).toHaveBeenCalledWith("de"));
+    await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
   });
 });
